@@ -88,10 +88,11 @@ Git deployment settings:
 
 - Framework preset: None
 - Build command: `npm run build` or leave empty
+- Deploy command: leave empty
 - Build output directory: `public`
 - Root directory: repository root / leave empty
 
-Do not use `npx wrangler deploy` as the Cloudflare Git deploy command for this repository. This is a Cloudflare Pages app, not a standalone Worker. If Cloudflare shows `Executing user deploy command: npx wrangler deploy`, the project is configured as a Workers deploy or has the wrong deploy command. Recreate/configure it under **Workers & Pages -> Pages -> Connect to Git**, then publish the `public` directory.
+Do not use `npx wrangler deploy` as the Cloudflare Git deploy command for this repository. This is a Cloudflare Pages app, not a standalone Worker. If Cloudflare shows `Executing user deploy command: npx wrangler deploy`, remove that deploy command or recreate/configure the project under **Workers & Pages -> Pages -> Connect to Git**, then publish the `public` directory.
 
 If Cloudflare needs a Node version, this repo pins Node `22.16.0` in `.nvmrc`. You can also set `NODE_VERSION=22.16.0` in the Pages build environment variables.
 
