@@ -336,10 +336,18 @@ function assetRequest(request) {
   const url = new URL(request.url);
   const routes = new Map([
     ["/church-portal", "/church-portal.html"],
+    ["/register-church", "/church-portal.html"],
     ["/owner-dashboard", "/owner-dashboard.html"],
     ["/admin", "/owner-dashboard.html"],
     ["/livestream", "/livestream.html"],
-    ["/church-profile", "/church-profile.html"]
+    ["/live", "/livestream.html"],
+    ["/church-profile", "/church-profile.html"],
+    ["/church", "/church-profile.html"],
+    ["/churches", "/index.html"],
+    ["/about", "/index.html"],
+    ["/donate", "/index.html"],
+    ["/volunteer", "/index.html"],
+    ["/prayer", "/index.html"]
   ]);
 
   if (routes.has(url.pathname)) {
