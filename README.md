@@ -1,6 +1,6 @@
 # My Way of Evangelism
 
-Cloudflare Pages project for a nonprofit church discovery and digital evangelism platform.
+Cloudflare Worker Static Assets project for a nonprofit church discovery and digital evangelism platform.
 
 ## What is included
 
@@ -15,17 +15,17 @@ Cloudflare Pages project for a nonprofit church discovery and digital evangelism
 - Church portal at `church-portal.html` for churches to manage profile details, ministries, contact information, pastor content, and livestream settings behind a login gate.
 - Owner dashboard at `owner-dashboard.html` for adding, editing, verifying, viewing, and removing churches, including livestream status and admin metrics behind a login gate.
 - Admin API at `/api/admin/churches` and status API at `/api/status` for D1-backed production synchronization. Set `ADMIN_API_TOKEN` in Cloudflare to require a bearer token.
-- Contact/share interactions in the imported UI, with Cloudflare Pages Function placeholders kept for future visitor, prayer, and church application flows.
+- Contact/share interactions in the imported UI, with Worker API routes for future visitor, prayer, and church application flows.
 - Media center, Rhapsody of Realities, member church channels, and profile preview sections.
 - Local generated visual assets in `public/assets` remain available for later use; the imported UI currently references remote Unsplash images and Lucide icons.
-- Cloudflare Pages configuration in `wrangler.jsonc`.
+- Cloudflare Worker Static Assets configuration in `wrangler.jsonc`, with a Pages deploy script kept for later if the project is recreated as Pages.
 - D1-oriented backend schema draft in `database/schema.sql`.
 
 ## Folder layout
 
 ```text
 my-way-of-evangelism/
-  public/                 Static Cloudflare Pages output
+  public/                 Static website assets
     index.html            Public seeker-facing site
     church-profile.html   Public church profile page
     livestream.html       Public church-specific stream page
@@ -34,11 +34,12 @@ my-way-of-evangelism/
     admin.html            Legacy alias for owner dashboard
     styles.css            Shared design system
     app.js                Shared data store and route controllers
-  functions/api/          API application powered by Pages Functions
+  functions/api/          Pages Function source kept as a reference if the project is later moved to Pages
   database/schema.sql     Draft D1 schema for the production backend
   docs/backend-roadmap.md Cloudflare implementation roadmap
   tools/static-server.ps1 Static local preview server for this environment
-  wrangler.jsonc          Cloudflare Pages config
+  src/worker.js           Cloudflare Worker entrypoint for static assets and API routes
+  wrangler.jsonc          Cloudflare Worker Static Assets config
 ```
 
 ## Run locally
@@ -64,18 +65,18 @@ http://127.0.0.1:4173/owner-dashboard
 http://127.0.0.1:4173/livestream.html?id=christ-embassy-edmonton
 ```
 
-On a machine with Node.js 20+, use Wrangler for the full Cloudflare Pages Functions runtime:
+On a machine with Node.js 22+, use Wrangler for the full Cloudflare Worker runtime:
 
 ```bash
 npm install
 npm run dev
 ```
 
-For a quick static preview without Pages Functions, open `public/index.html` in a browser.
+For a quick static preview without Worker API routes, open `public/index.html` in a browser.
 
-The PowerShell static preview does not execute Cloudflare Pages Functions. Use `npm run dev` or deploy to Cloudflare to test `/api/*` routes such as `/api/status`.
+The PowerShell static preview does not execute Worker API routes. Use `npm run dev` or deploy to Cloudflare to test `/api/*` routes such as `/api/status`.
 
-## Deploy to Cloudflare Pages
+## Deploy to Cloudflare Workers
 
 Direct upload:
 
@@ -84,17 +85,17 @@ npm install
 npm run deploy
 ```
 
-Git deployment settings:
+Git deployment settings for the current Cloudflare Worker project:
 
 - Framework preset: None
 - Build command: `npm run build` or leave empty
-- Deploy command: leave empty
-- Build output directory: `public`
+- Deploy command: `npx wrangler deploy`
+- Build output directory: not required for Workers; static assets are configured in `wrangler.jsonc`
 - Root directory: repository root / leave empty
 
-Do not use `npx wrangler deploy` as the Cloudflare Git deploy command for this repository. This is a Cloudflare Pages app, not a standalone Worker. If Cloudflare shows `Executing user deploy command: npx wrangler deploy`, remove that deploy command or recreate/configure the project under **Workers & Pages -> Pages -> Connect to Git**, then publish the `public` directory.
+The Cloudflare account currently has a Worker named `churchlocator`, so `wrangler.jsonc` is configured for Worker Static Assets and the API routes are handled by `src/worker.js`.
 
-If Cloudflare needs a Node version, this repo pins Node `22.16.0` in `.nvmrc`. You can also set `NODE_VERSION=22.16.0` in the Pages build environment variables.
+If Cloudflare needs a Node version, this repo pins Node `22.16.0` in `.nvmrc` and `.node-version`. You can also set `NODE_VERSION=22.16.0` in the build environment variables.
 
 ## Production backend direction
 
@@ -107,7 +108,7 @@ Use Cloudflare services as the project grows:
 - Queues for SMS, email, reminders, receipts, and moderation jobs.
 - Workers AI and Vectorize later for semantic church/media search.
 
-After creating a D1 database in Cloudflare, add its binding to `wrangler.jsonc` so Pages Functions can access `env.DB`:
+After creating a D1 database in Cloudflare, add its binding to `wrangler.jsonc` so the Worker can access `env.DB`:
 
 ```jsonc
 "d1_databases": [
