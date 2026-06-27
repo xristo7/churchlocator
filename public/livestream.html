@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Livestream | My Way of Evangelism</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js"></script>
+</head>
+<body class="live-page" data-page="livestream">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="radio"></i></span>
+        <span><strong data-church-name>Church</strong><small>Live Service</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="/#find">Find Churches</a>
+        <a data-stream-profile href="church-profile.html">Church Profile</a>
+        <a href="/church-portal">Church Portal</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="button ghost" data-stream-profile href="church-profile.html">Back to Profile</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="live-shell">
+    <div class="live-grid">
+      <section class="live-player" data-player>
+        <div class="live-stage">
+          <div style="text-align:center;padding:24px;max-width:720px">
+            <div class="play-button"><i data-lucide="play"></i></div>
+          </div>
+        </div>
+        <div class="live-control-bar">
+          <div>
+            <strong>Sunday Service Live</strong>
+            <div class="meta">Worship, Word, prayer, and visitor connection</div>
+          </div>
+          <div class="live-control-group">
+            <span class="control-dot"><i data-lucide="volume-2"></i></span>
+            <span class="control-dot"><i data-lucide="maximize"></i></span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="live-card live-sidebar-tabs">
+        <div class="live-tab-list" role="tablist" aria-label="Livestream interaction tools">
+          <button class="live-tab-button active" type="button" role="tab" aria-selected="true" aria-controls="live-chat-panel" data-live-tab="chat">
+            <i data-lucide="messages-square"></i>
+            Chat
+          </button>
+          <button class="live-tab-button" type="button" role="tab" aria-selected="false" aria-controls="live-newcomer-panel" data-live-tab="newcomer">
+            <i data-lucide="user-plus"></i>
+            Newcomer
+          </button>
+          <button class="live-tab-button" type="button" role="tab" aria-selected="false" aria-controls="live-salvation-panel" data-live-tab="salvation">
+            <i data-lucide="heart"></i>
+            Salvation
+          </button>
+        </div>
+
+        <section class="live-tab-panel chat-panel active" id="live-chat-panel" role="tabpanel" data-live-tab-panel="chat">
+          <div class="live-card-pad">
+            <p class="kicker"><i data-lucide="radio"></i> Live room</p>
+            <h3>Service chat</h3>
+            <p>Join the room, greet the church, and share prayer needs during service.</p>
+          </div>
+          <div class="chat-list" data-live-chat-messages>
+            <div class="chat-message"><span class="chat-avatar">MW</span><div><strong>My Way Host</strong><p>Welcome. Share where you are watching from and let us know if you need prayer.</p></div></div>
+            <div class="chat-message"><span class="chat-avatar">AM</span><div><strong>Ama</strong><p>Watching from Toronto. Blessed to join today.</p></div></div>
+            <div class="chat-message"><span class="chat-avatar">DK</span><div><strong>Daniel</strong><p>Please pray for my family this week.</p></div></div>
+          </div>
+          <form class="chat-form" data-live-chat-form>
+            <input name="message" required placeholder="Write a live chat message..." />
+            <button class="button gold" type="submit"><i data-lucide="send"></i></button>
+          </form>
+        </section>
+
+        <section class="live-tab-panel" id="live-newcomer-panel" role="tabpanel" data-live-tab-panel="newcomer" hidden>
+          <div class="live-card-pad">
+            <p class="kicker"><i data-lucide="user-plus"></i> New here</p>
+            <h3>New member / first-time guest</h3>
+            <p>Let the church welcome and follow up with you after the service.</p>
+            <form class="stack" data-live-response-form data-response-label="New member form received">
+              <input required name="name" placeholder="Full name" />
+              <input required name="email" type="email" placeholder="Email address" />
+              <input name="phone" type="tel" placeholder="Phone number" />
+              <button class="button gold" type="submit">I am new here</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="live-tab-panel" id="live-salvation-panel" role="tabpanel" data-live-tab-panel="salvation" hidden>
+          <div class="live-card-pad">
+            <p class="kicker"><i data-lucide="heart"></i> Salvation response</p>
+            <h3>I gave my life to Christ</h3>
+            <p>Share your decision so an evangelism team member can pray with you and help you take the next step.</p>
+            <form class="stack" data-live-response-form data-response-label="Salvation decision submitted">
+              <input required name="name" placeholder="Full name" />
+              <input required name="contact" placeholder="Phone or email" />
+              <textarea name="message" placeholder="Optional message"></textarea>
+              <button class="button gold" type="submit">I received Christ</button>
+            </form>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <div class="toast" data-toast>Done</div>
+</body>
+</html>

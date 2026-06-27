@@ -1,0 +1,17 @@
+{
+  "name": "my-way-of-evangelism",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloudflare Pages project for My Way of Evangelism church discovery and digital evangelism platform.",
+  "scripts": {
+    "dev": "wrangler pages dev public --compatibility-date=2026-06-25",
+    "deploy": "wrangler pages deploy public --project-name=my-way-of-evangelism",
+    "tail": "wrangler pages deployment tail --project-name=my-way-of-evangelism"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Church Profile | My Way of Evangelism</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js"></script>
+</head>
+<body data-page="profile">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Church profile</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="/#find">Find Churches</a>
+        <a href="/church-portal">Church Portal</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="button ghost" href="/#find">Directory</a>
+        <a class="button primary" data-profile-live href="livestream.html"><i data-lucide="radio"></i> Livestream</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="profile-hero" data-profile-hero>
+      <div class="container profile-hero-content">
+        <span class="badge"><i data-lucide="badge-check"></i> Verified Church</span>
+        <h1 data-church-name>Church Name</h1>
+        <p class="lead" style="color:#eef5ef" data-church-tagline></p>
+        <div class="actions">
+          <a class="button gold" data-profile-website target="_blank" rel="noreferrer"><i data-lucide="globe"></i> Website</a>
+          <a class="button light" data-profile-live><i data-lucide="radio"></i> Join Online</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container profile-layout">
+        <div>
+          <article class="panel">
+            <p class="kicker"><i data-lucide="user"></i> Meet the pastor</p>
+            <h2 data-profile-pastor>Pastor</h2>
+            <h3 class="meta" data-profile-pastor-title></h3>
+            <p data-profile-pastor-bio></p>
+          </article>
+
+          <article class="panel">
+            <p class="kicker"><i data-lucide="book-open"></i> About the church</p>
+            <h2>What to expect</h2>
+            <p data-profile-about></p>
+          </article>
+
+          <article class="panel">
+            <p class="kicker"><i data-lucide="users"></i> Ministries</p>
+            <h2>Ministry life</h2>
+            <div class="tag-row" data-profile-ministries></div>
+          </article>
+
+          <article class="panel">
+            <p class="kicker"><i data-lucide="calendar-days"></i> Service schedule</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Gathering</th><th>Time</th></tr></thead>
+                <tbody data-profile-schedule></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <aside>
+          <article class="panel">
+            <p class="kicker"><i data-lucide="map-pin"></i> Visit</p>
+            <h3 data-church-name>Church</h3>
+            <div class="contact-list">
+              <span><i data-lucide="map-pin"></i><span data-profile-location></span></span>
+              <span><i data-lucide="clock"></i><span data-profile-sunday></span></span>
+              <span><i data-lucide="calendar"></i><span data-profile-midweek></span></span>
+              <a data-profile-phone><i data-lucide="phone"></i></a>
+              <a data-profile-email><i data-lucide="mail"></i></a>
+            </div>
+          </article>
+
+          <article class="panel">
+            <p class="kicker"><i data-lucide="send"></i> Visitor connection</p>
+            <h3>I feel led to connect with this church.</h3>
+            <form data-visitor-form class="form-field" style="gap:12px">
+              <input required name="name" placeholder="Full name" />
+              <input required name="email" type="email" placeholder="Email address" />
+              <input name="phone" type="tel" placeholder="Phone number" />
+              <textarea required name="message" placeholder="Message, prayer request, or visit plan"></textarea>
+              <button class="button primary" type="submit">Connect Me</button>
+            </form>
+          </article>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" data-toast>Done</div>
+</body>
+</html>

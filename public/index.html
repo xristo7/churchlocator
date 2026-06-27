@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Way of Evangelism | Find a Church</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js"></script>
+</head>
+<body data-page="public">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Church discovery</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="#find">Find Churches</a>
+        <a href="#impact">Impact</a>
+        <a href="#media">Media</a>
+        <a href="/church-portal">Church Portal</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="button ghost" href="/church-portal">Church Login</a>
+        <a class="button primary" href="#find">Search</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-panel">
+          <div class="hero-copy">
+            <p class="kicker"><i data-lucide="map-pin"></i> Public church finder</p>
+            <h1>Find a real church family near you.</h1>
+            <p class="lead">Search verified churches by city, ministry, service time, and livestream availability. Open a church profile, contact the church, get directions, and join online when livestream is enabled.</p>
+            <div class="actions">
+              <a class="button primary" href="#find"><i data-lucide="search"></i> Find Churches</a>
+              <a class="button gold" href="/church-portal"><i data-lucide="building-2"></i> Church Register / Login</a>
+            </div>
+          </div>
+          <div class="hero-media" style="--hero-image:url('assets/hero-global-church.png')">
+            <div class="hero-media-card">
+              <span class="badge"><i data-lucide="radio"></i> Livestream ready profiles</span>
+              <h3>One public directory, many church-owned profiles.</h3>
+              <p>Churches manage their own content from the portal while admins oversee verification and platform quality.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="find">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="kicker"><i data-lucide="navigation"></i> Church discovery</p>
+            <h2>Search churches</h2>
+            <p>Public users see only the seeker-facing experience here.</p>
+          </div>
+          <a class="button ghost" href="/church-portal">Church login / registration</a>
+        </div>
+
+        <div class="search-panel">
+          <div class="search-row">
+            <input class="field" data-search placeholder="Search church, city, pastor, denomination..." />
+            <select class="field" data-city><option value="">All cities</option></select>
+            <select class="field" data-ministry>
+              <option value="">All ministries</option>
+              <option value="kids">Kids</option>
+              <option value="children">Children</option>
+              <option value="youth">Youth</option>
+              <option value="prayer">Prayer</option>
+              <option value="missions">Missions</option>
+            </select>
+            <select class="field" data-stream>
+              <option value="">Any stream status</option>
+              <option value="true">Livestream available</option>
+              <option value="false">In-person only</option>
+            </select>
+            <button class="button ghost" data-reset type="button">Reset</button>
+          </div>
+        </div>
+
+        <div class="cards-grid" data-church-grid></div>
+      </div>
+    </section>
+
+    <section class="section" id="impact">
+      <div class="container">
+        <div class="section-head center">
+          <p class="kicker"><i data-lucide="bar-chart-3"></i> Nonprofit impact</p>
+          <h2>Connecting seekers, churches, and outreach teams.</h2>
+          <p>Impact metrics belong on the public nonprofit website, separate from operational dashboards.</p>
+        </div>
+        <div class="stats-grid" data-impact-stats></div>
+      </div>
+    </section>
+
+    <section class="section" id="media">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="kicker"><i data-lucide="image"></i> Community impact</p>
+            <h2>Media and outreach storytelling</h2>
+          </div>
+          <a class="button ghost" href="/church-portal">Publish from church portal</a>
+        </div>
+        <div class="story-grid" data-stories></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="section" style="background:#141716;color:#fff">
+    <div class="container section-head">
+      <div>
+        <h2>My Way of Evangelism</h2>
+        <p style="color:#d7ded8">A public bridge from search to local church connection.</p>
+      </div>
+      <div class="actions">
+        <a class="button light" href="/church-portal">Church Register / Login</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" data-toast>Done</div>
+</body>
+</html>

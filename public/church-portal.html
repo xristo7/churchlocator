@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Church Portal | My Way of Evangelism</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js"></script>
+</head>
+<body class="dash-body private-app" data-page="portal" data-auth-app="church">
+  <header class="topbar dash-topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="church-portal.html">
+        <span class="brand-mark"><i data-lucide="building-2"></i></span>
+        <span><strong>Church Portal</strong><small>Church-owned workspace</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="/">Public Site</a>
+        <a href="/owner-dashboard">Owner Dashboard</a>
+        <a href="church-profile.html?id=christ-embassy-edmonton">Sample Profile</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="button ghost" type="button" data-logout><i data-lucide="log-out"></i> Logout</button>
+        <a class="button ghost" href="/#find">Directory</a>
+        <button class="button primary" type="button" data-portal-new><i data-lucide="plus"></i> New Profile</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="login-screen">
+    <div class="login-card">
+      <p class="kicker"><i data-lucide="lock-keyhole"></i> Login required</p>
+      <h1>Church portal</h1>
+      <p>This application is for church owners and church staff to manage their own public profile, ministries, visitor follow-up, and livestream settings.</p>
+      <div class="security-note"><i data-lucide="shield-check"></i><span>Preview mode accepts any email and password. Production should use church accounts with ownership verification.</span></div>
+      <form data-login-form>
+        <label class="form-field"><span>Church admin email</span><input type="email" required placeholder="pastor@church.org" /></label>
+        <label class="form-field"><span>Password</span><input type="password" required placeholder="Password" /></label>
+        <button class="button primary" type="submit">Enter church portal</button>
+      </form>
+      <div class="actions">
+        <a class="button ghost" href="/">Back to public site</a>
+      </div>
+    </div>
+  </section>
+
+  <main class="dash-shell private-content">
+    <aside class="dash-sidebar">
+      <div class="dash-user">
+        <div class="avatar">CE</div>
+        <div>
+          <strong>Church Team</strong>
+          <div class="meta">Profile manager</div>
+        </div>
+      </div>
+      <nav class="dash-nav">
+        <a class="active" href="#overview"><i data-lucide="layout-dashboard"></i> Overview</a>
+        <a href="#identity"><i data-lucide="church"></i> Identity</a>
+        <a href="#pastor"><i data-lucide="user-round"></i> Pastor</a>
+        <a href="#services"><i data-lucide="calendar-days"></i> Services</a>
+        <a href="#ministries"><i data-lucide="users"></i> Ministries</a>
+        <a href="#livestream"><i data-lucide="radio"></i> Livestream</a>
+        <a href="#followup"><i data-lucide="messages-square"></i> Follow-up</a>
+      </nav>
+    </aside>
+
+    <section class="dash-main">
+      <div class="dash-header" id="overview">
+        <div class="dash-title">
+          <p class="kicker"><i data-lucide="sparkles"></i> Church dashboard</p>
+          <h1>Manage your public church profile.</h1>
+          <p>Update the details seekers see before visiting: services, ministries, pastor welcome, contact paths, and livestream participation.</p>
+        </div>
+        <div class="dash-toolbar">
+          <label class="form-field" style="min-width:260px">
+            <span>Active profile</span>
+            <select data-portal-select></select>
+          </label>
+          <button class="button primary" form="churchPortalForm" type="submit"><i data-lucide="save"></i> Save</button>
+        </div>
+      </div>
+
+      <div class="kpi-strip">
+        <div class="kpi-card"><span class="icon"><i data-lucide="eye"></i></span><strong>2.4k</strong><span>Profile views this month</span></div>
+        <div class="kpi-card"><span class="icon"><i data-lucide="user-plus"></i></span><strong>38</strong><span>Visitor connections</span></div>
+        <div class="kpi-card"><span class="icon"><i data-lucide="message-circle"></i></span><strong>17</strong><span>Prayer requests</span></div>
+        <div class="kpi-card"><span class="icon"><i data-lucide="radio"></i></span><strong>Live</strong><span>Stream feature status</span></div>
+      </div>
+
+      <div class="dashboard-grid">
+        <form class="dash-panel profile-content-panel" data-portal-form id="churchPortalForm" novalidate>
+          <input type="hidden" name="id" />
+          <div class="panel-header">
+            <div>
+              <h2>Church profile content</h2>
+              <p>Review the public-facing profile in readable sections. Open the editor at the bottom of any block to update that information.</p>
+            </div>
+          </div>
+
+          <section class="field-category" id="identity">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="badge"></i></span>
+              <div><h3>Church identity</h3><p>Name, location, denomination, and public positioning.</p></div>
+            </div>
+            <div class="readable-block">
+              <p class="profile-story" data-readable="identityNarrative"></p>
+              <div class="content-callout">
+                <span>Public tagline</span>
+                <strong data-readable="tagline"></strong>
+              </div>
+              <div class="readable-grid">
+                <div><span>Church name</span><strong data-readable="name"></strong></div>
+                <div><span>Area / neighborhood</span><strong data-readable="area"></strong></div>
+                <div><span>City</span><strong data-readable="city"></strong></div>
+                <div><span>Country</span><strong data-readable="country"></strong></div>
+                <div><span>Postal code</span><strong data-readable="postal"></strong></div>
+                <div><span>Denomination</span><strong data-readable="denomination"></strong></div>
+                <div><span>Primary language</span><strong data-readable="language"></strong></div>
+                <div><span>Worship style</span><strong data-readable="worship"></strong></div>
+              </div>
+            </div>
+            <details class="block-editor">
+              <summary><span><i data-lucide="pencil"></i> Edit church identity</span><small>Name, location, denomination, language</small></summary>
+              <div class="editor-body">
+                <div class="compact-grid">
+                  <label class="form-field"><span>Church name</span><input name="name" /></label>
+                  <label class="form-field"><span>Area / neighborhood</span><input name="area" /></label>
+                  <label class="form-field"><span>City</span><input name="city" /></label>
+                  <label class="form-field"><span>Country</span><input name="country" /></label>
+                  <label class="form-field"><span>Postal code</span><input name="postal" /></label>
+                  <label class="form-field"><span>Denomination</span><input name="denomination" /></label>
+                  <label class="form-field"><span>Primary language</span><input name="language" /></label>
+                  <label class="form-field"><span>Worship style</span><input name="worship" /></label>
+                </div>
+                <label class="form-field"><span>Church tagline</span><input name="tagline" /></label>
+                <div class="editor-actions">
+                  <button class="button ghost small" type="button" data-close-editor>Close</button>
+                  <button class="button primary small" type="submit"><i data-lucide="save"></i> Save identity</button>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          <section class="field-category" id="services">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="calendar-clock"></i></span>
+              <div><h3>Services and contact</h3><p>Everything a first-time visitor needs before arriving.</p></div>
+            </div>
+            <div class="readable-block">
+              <p class="profile-story" data-readable="serviceNarrative"></p>
+              <div class="readable-grid">
+                <div><span>Sunday service</span><strong data-readable="sunday"></strong></div>
+                <div><span>Midweek service</span><strong data-readable="midweek"></strong></div>
+                <div><span>Phone</span><strong data-readable="phone"></strong></div>
+                <div><span>Email</span><strong data-readable="email"></strong></div>
+                <div><span>Website</span><strong data-readable="website"></strong></div>
+                <div><span>Verification status</span><strong data-readable="verified"></strong></div>
+              </div>
+              <div class="content-callout">
+                <span>Address shown to visitors</span>
+                <strong data-readable="location"></strong>
+              </div>
+            </div>
+            <details class="block-editor">
+              <summary><span><i data-lucide="pencil"></i> Edit services and contact</span><small>Schedule, phone, email, website, address</small></summary>
+              <div class="editor-body">
+                <div class="compact-grid">
+                  <label class="form-field"><span>Sunday service</span><input name="sunday" /></label>
+                  <label class="form-field"><span>Midweek service</span><input name="midweek" /></label>
+                  <label class="form-field"><span>Phone</span><input name="phone" type="tel" /></label>
+                  <label class="form-field"><span>Email</span><input name="email" type="email" /></label>
+                  <label class="form-field"><span>Website</span><input name="website" type="url" /></label>
+                  <label class="form-field"><span>Verification status</span><select name="verified"><option value="true">Verified</option><option value="false">Pending review</option></select></label>
+                </div>
+                <label class="form-field"><span>Address</span><input name="location" /></label>
+                <div class="editor-actions">
+                  <button class="button ghost small" type="button" data-close-editor>Close</button>
+                  <button class="button primary small" type="submit"><i data-lucide="save"></i> Save services</button>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          <section class="field-category" id="pastor">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="user-round"></i></span>
+              <div><h3>Pastor and welcome message</h3><p>The human face of the church profile.</p></div>
+            </div>
+            <div class="readable-block">
+              <article class="pastor-readable">
+                <img data-readable-image="pastorPhoto" alt="Pastor portrait" />
+                <div>
+                  <span class="eyebrow">Meet the pastor</span>
+                  <h4 data-readable="pastor"></h4>
+                  <p class="meta" data-readable="pastorTitle"></p>
+                  <p data-readable="pastorBio"></p>
+                </div>
+              </article>
+              <div class="content-callout">
+                <span>About the church</span>
+                <strong data-readable="about"></strong>
+              </div>
+              <div class="readable-grid">
+                <div><span>Cover image URL</span><strong data-readable="photo"></strong></div>
+                <div><span>Logo URL</span><strong data-readable="logo"></strong></div>
+              </div>
+            </div>
+            <details class="block-editor">
+              <summary><span><i data-lucide="pencil"></i> Edit pastor and profile story</span><small>Photos, pastor details, bio, about text</small></summary>
+              <div class="editor-body">
+                <div class="compact-grid">
+                  <label class="form-field"><span>Pastor name</span><input name="pastor" /></label>
+                  <label class="form-field"><span>Pastor title</span><input name="pastorTitle" /></label>
+                  <label class="form-field"><span>Cover image URL</span><input name="photo" type="url" /></label>
+                  <label class="form-field"><span>Pastor image URL</span><input name="pastorPhoto" /></label>
+                  <label class="form-field"><span>Logo URL</span><input name="logo" /></label>
+                </div>
+                <label class="form-field"><span>Pastor bio / welcome</span><textarea name="pastorBio"></textarea></label>
+                <label class="form-field"><span>About the church</span><textarea name="about"></textarea></label>
+                <div class="editor-actions">
+                  <button class="button ghost small" type="button" data-close-editor>Close</button>
+                  <button class="button primary small" type="submit"><i data-lucide="save"></i> Save pastor story</button>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          <section class="field-category" id="ministries">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="users"></i></span>
+              <div><h3>Ministries</h3><p>Comma-separated ministry names for discovery and visitor confidence.</p></div>
+            </div>
+            <div class="readable-block">
+              <p class="profile-story" data-readable="ministryNarrative"></p>
+              <div class="ministry-chip-grid" data-readable-list="ministries"></div>
+            </div>
+            <details class="block-editor">
+              <summary><span><i data-lucide="pencil"></i> Edit ministries</span><small>Children, youth, prayer, worship, outreach</small></summary>
+              <div class="editor-body">
+                <label class="form-field"><span>Ministries</span><input name="ministries" placeholder="Kids, Youth, Women, Prayer, Worship" /></label>
+                <div class="editor-actions">
+                  <button class="button ghost small" type="button" data-close-editor>Close</button>
+                  <button class="button primary small" type="submit"><i data-lucide="save"></i> Save ministries</button>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          <section class="field-category" id="livestream">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="radio"></i></span>
+              <div><h3>Livestream add-on</h3><p>Discovery is free; interactive online participation is premium.</p></div>
+            </div>
+            <div class="readable-block">
+              <p class="profile-story" data-readable="streamNarrative"></p>
+              <div class="readable-grid three">
+                <div><span>Livestream access</span><strong data-readable="streamEnabled"></strong></div>
+                <div><span>Billing status</span><strong data-readable="streamPaid"></strong></div>
+                <div><span>Player source</span><strong data-readable="streamUrl"></strong></div>
+              </div>
+              <div class="content-callout">
+                <span>Public livestream status</span>
+                <strong data-readable="streamStatus"></strong>
+              </div>
+            </div>
+            <details class="block-editor">
+              <summary><span><i data-lucide="pencil"></i> Edit livestream settings</span><small>Enable streaming, billing, source URL</small></summary>
+              <div class="editor-body">
+                <div class="compact-grid three">
+                  <label class="form-field"><span>Livestream enabled</span><select name="streamEnabled"><option value="false">Not enabled</option><option value="true">Enabled</option></select></label>
+                  <label class="form-field"><span>Billing status</span><select name="streamPaid"><option value="false">Free / inactive</option><option value="true">Premium paid feature</option></select></label>
+                  <label class="form-field"><span>Livestream URL</span><input name="streamUrl" type="url" /></label>
+                </div>
+                <div class="editor-actions">
+                  <button class="button ghost small" type="button" data-close-editor>Close</button>
+                  <button class="button primary small" type="submit"><i data-lucide="save"></i> Save livestream</button>
+                </div>
+              </div>
+            </details>
+          </section>
+        </form>
+
+        <aside class="stack">
+          <div data-portal-preview></div>
+
+          <article class="side-card">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="check-circle-2"></i></span>
+              <div><h3>Profile readiness</h3><p>Operational health at a glance.</p></div>
+            </div>
+            <div class="progress-list">
+              <div>
+                <div class="meta">Profile content</div>
+                <div class="bar"><span style="width:86%"></span></div>
+              </div>
+              <div>
+                <div class="meta">Visitor contact paths</div>
+                <div class="bar"><span style="width:92%"></span></div>
+              </div>
+              <div>
+                <div class="meta">Livestream setup</div>
+                <div class="bar"><span style="width:68%"></span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="side-card" id="followup">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="messages-square"></i></span>
+              <div><h3>Visitor follow-up</h3><p>Queue preview for evangelism teams.</p></div>
+            </div>
+            <div class="compact-grid">
+              <div class="metric"><strong>12</strong><span class="meta">New visitors</span></div>
+              <div class="metric"><strong>5</strong><span class="meta">Prayer requests</span></div>
+              <div class="metric"><strong>3</strong><span class="meta">Ride requests</span></div>
+              <div class="metric"><strong>8</strong><span class="meta">Due today</span></div>
+            </div>
+          </article>
+
+          <article class="side-card">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="activity"></i></span>
+              <div><h3>Recent activity</h3><p>Prototype events for this church workspace.</p></div>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item"><i data-lucide="user-plus"></i><div><strong>New visitor submitted</strong><div class="meta">2 minutes ago</div></div></div>
+              <div class="activity-item"><i data-lucide="radio"></i><div><strong>Livestream page viewed</strong><div class="meta">18 minutes ago</div></div></div>
+              <div class="activity-item"><i data-lucide="mail"></i><div><strong>Contact form message</strong><div class="meta">Today</div></div></div>
+            </div>
+          </article>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" data-toast>Done</div>
+</body>
+</html>

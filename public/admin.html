@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owner Dashboard | My Way of Evangelism</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js"></script>
+</head>
+<body class="dash-body private-app" data-page="owner" data-auth-app="owner">
+  <header class="topbar dash-topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="owner-dashboard.html">
+        <span class="brand-mark"><i data-lucide="shield-check"></i></span>
+        <span><strong>Owner Dashboard</strong><small>Super control center</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="/">Public Site</a>
+        <a href="/church-portal">Church Portal</a>
+        <a href="livestream.html?id=christ-embassy-edmonton">Livestream</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="button ghost" type="button" data-logout><i data-lucide="log-out"></i> Logout</button>
+        <button class="button ghost" type="button" data-admin-reset>Reset Preview</button>
+        <button class="button primary" type="button" data-admin-new><i data-lucide="plus"></i> Add Church</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="login-screen">
+    <div class="login-card">
+      <p class="kicker"><i data-lucide="lock-keyhole"></i> Login required</p>
+      <h1>Owner control center</h1>
+      <p>This application is for platform owners only. In production this route should be protected by Cloudflare Access or equivalent identity control.</p>
+      <div class="security-note"><i data-lucide="shield-check"></i><span>Preview mode accepts any email and password so the dashboard can be tested locally.</span></div>
+      <form data-login-form>
+        <label class="form-field"><span>Email</span><input type="email" required placeholder="owner@myway.org" /></label>
+        <label class="form-field"><span>Password</span><input type="password" required placeholder="Password" /></label>
+        <button class="button primary" type="submit">Enter owner dashboard</button>
+      </form>
+    </div>
+  </section>
+
+  <main class="dash-shell private-content">
+    <aside class="dash-sidebar">
+      <div class="dash-user">
+        <div class="avatar">AD</div>
+        <div>
+          <strong>Platform Owner</strong>
+          <div class="meta">Global admin</div>
+        </div>
+      </div>
+      <nav class="dash-nav">
+        <a class="active" href="#overview"><i data-lucide="layout-dashboard"></i> Overview</a>
+        <a href="#directory"><i data-lucide="database"></i> Directory</a>
+        <a href="#editor"><i data-lucide="square-pen"></i> Editor</a>
+        <a href="#moderation"><i data-lucide="shield-alert"></i> Moderation</a>
+        <a href="#billing"><i data-lucide="credit-card"></i> Billing</a>
+        <a href="#analytics"><i data-lucide="bar-chart-3"></i> Analytics</a>
+      </nav>
+    </aside>
+
+    <section class="dash-main">
+      <div class="dash-header" id="overview">
+        <div class="dash-title">
+          <p class="kicker"><i data-lucide="globe-2"></i> Super control center</p>
+          <h1>Operate the global church network.</h1>
+          <p>Review churches, manage verification, moderate content, control livestream access, and track platform health from a dedicated admin surface.</p>
+        </div>
+        <div class="dash-toolbar">
+          <a class="button ghost" href="/#find"><i data-lucide="search"></i> Public directory</a>
+          <button class="button primary" type="button" data-admin-new><i data-lucide="plus"></i> New record</button>
+        </div>
+      </div>
+
+      <div class="kpi-strip" id="analytics">
+        <div class="kpi-card"><span class="icon"><i data-lucide="church"></i></span><strong data-admin-total>0</strong><span>Total churches</span></div>
+        <div class="kpi-card"><span class="icon"><i data-lucide="badge-check"></i></span><strong data-admin-verified>0</strong><span>Verified profiles</span></div>
+        <div class="kpi-card"><span class="icon"><i data-lucide="radio"></i></span><strong data-admin-streams>0</strong><span>Premium streams</span></div>
+        <div class="kpi-card"><span class="icon"><i data-lucide="map"></i></span><strong data-admin-cities>0</strong><span>Cities covered</span></div>
+      </div>
+
+      <div class="dashboard-grid admin-grid">
+        <div class="stack">
+          <section class="dash-panel" id="directory">
+            <div class="panel-header">
+              <div>
+                <p class="kicker"><i data-lucide="list-filter"></i> Directory control</p>
+                <h2>Managed churches</h2>
+                <p>Search, verify, view, edit, or remove church records from the platform directory.</p>
+              </div>
+            </div>
+            <div class="admin-filter-row">
+              <input class="field" data-admin-search placeholder="Search church, city, pastor, email..." />
+              <select class="field">
+                <option>All statuses</option>
+                <option>Verified</option>
+                <option>Pending</option>
+              </select>
+              <select class="field">
+                <option>All streams</option>
+                <option>Premium</option>
+                <option>Inactive</option>
+              </select>
+              <button class="button ghost" type="button" data-admin-new><i data-lucide="plus"></i> Add</button>
+            </div>
+            <div class="table-wrap" style="border:0;border-radius:0">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Church</th>
+                    <th>Pastor</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                    <th>Livestream</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody data-admin-table></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="dash-panel" id="moderation">
+            <div class="panel-header">
+              <div>
+                <p class="kicker"><i data-lucide="shield-alert"></i> Moderation and approvals</p>
+                <h2>Operational queues</h2>
+              </div>
+            </div>
+            <div class="field-category">
+              <div class="feature-grid">
+                <div class="feature"><h3>Church approvals</h3><p>Review applications, faith statements, media, and ownership claims.</p></div>
+                <div class="feature"><h3>Content moderation</h3><p>Audit gallery uploads, livestream links, and public-facing profile changes.</p></div>
+                <div class="feature"><h3>Visitor safety</h3><p>Monitor response times, prayer requests, transport requests, and follow-up outcomes.</p></div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="stack">
+          <section class="side-card">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="zap"></i></span>
+              <div><h3>Admin command center</h3><p>High-signal platform actions.</p></div>
+            </div>
+            <div class="admin-command-list">
+              <div class="command-card"><span class="icon"><i data-lucide="badge-check"></i></span><div><strong>12 approvals pending</strong><div class="meta">Church verification queue</div></div><button class="button small ghost">Open</button></div>
+              <div class="command-card"><span class="icon"><i data-lucide="radio"></i></span><div><strong>4 stream requests</strong><div class="meta">Paid activation review</div></div><button class="button small ghost">Review</button></div>
+              <div class="command-card"><span class="icon"><i data-lucide="message-circle"></i></span><div><strong>23 unresolved follow-ups</strong><div class="meta">Visitor connection monitoring</div></div><button class="button small ghost">Audit</button></div>
+            </div>
+          </section>
+
+          <form class="side-card" data-admin-form id="editor">
+            <input type="hidden" name="id" />
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="square-pen"></i></span>
+              <div><h3>Church record editor</h3><p>Add or update the selected church.</p></div>
+            </div>
+
+            <div class="compact-grid">
+              <label class="form-field"><span>Church name</span><input name="name" required /></label>
+              <label class="form-field"><span>City</span><input name="city" required /></label>
+              <label class="form-field"><span>Country</span><input name="country" required /></label>
+              <label class="form-field"><span>Area</span><input name="area" required /></label>
+              <label class="form-field"><span>Postal</span><input name="postal" /></label>
+              <label class="form-field"><span>Denomination</span><input name="denomination" /></label>
+              <label class="form-field"><span>Language</span><input name="language" /></label>
+              <label class="form-field"><span>Worship</span><input name="worship" /></label>
+              <label class="form-field"><span>Sunday</span><input name="sunday" required /></label>
+              <label class="form-field"><span>Midweek</span><input name="midweek" /></label>
+              <label class="form-field"><span>Phone</span><input name="phone" type="tel" required /></label>
+              <label class="form-field"><span>Email</span><input name="email" type="email" required /></label>
+            </div>
+            <label class="form-field" style="margin-top:12px"><span>Address</span><input name="location" required /></label>
+            <label class="form-field" style="margin-top:12px"><span>Website</span><input name="website" type="url" /></label>
+            <label class="form-field" style="margin-top:12px"><span>Cover image URL</span><input name="photo" type="url" /></label>
+            <div class="compact-grid" style="margin-top:12px">
+              <label class="form-field"><span>Logo</span><input name="logo" /></label>
+              <label class="form-field"><span>Pastor photo</span><input name="pastorPhoto" /></label>
+              <label class="form-field"><span>Pastor</span><input name="pastor" required /></label>
+              <label class="form-field"><span>Pastor title</span><input name="pastorTitle" /></label>
+            </div>
+            <label class="form-field" style="margin-top:12px"><span>Pastor bio</span><textarea name="pastorBio" required></textarea></label>
+            <label class="form-field" style="margin-top:12px"><span>Tagline</span><input name="tagline" /></label>
+            <label class="form-field" style="margin-top:12px"><span>About</span><textarea name="about" required></textarea></label>
+            <label class="form-field" style="margin-top:12px"><span>Ministries</span><input name="ministries" /></label>
+            <div class="compact-grid" style="margin-top:12px">
+              <label class="form-field"><span>Verified</span><select name="verified"><option value="true">Verified</option><option value="false">Pending</option></select></label>
+              <label class="form-field"><span>Stream enabled</span><select name="streamEnabled"><option value="false">Off</option><option value="true">Enabled</option></select></label>
+              <label class="form-field"><span>Stream paid</span><select name="streamPaid"><option value="false">No</option><option value="true">Premium</option></select></label>
+              <label class="form-field"><span>Stream URL</span><input name="streamUrl" type="url" /></label>
+            </div>
+            <div class="actions">
+              <button class="button primary" type="submit"><i data-lucide="save"></i> Save church</button>
+              <button class="button ghost" type="button" data-admin-new>Clear</button>
+            </div>
+          </form>
+
+          <section class="side-card" id="billing">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="credit-card"></i></span>
+              <div><h3>Livestream billing</h3><p>Paid stream activations pending payment verification.</p></div>
+            </div>
+            <div class="mini-chart">
+              <div class="meta">Activation pipeline</div>
+              <div class="bar"><span style="width:72%"></span></div>
+              <div class="meta">Payment completion</div>
+              <div class="bar"><span style="width:58%"></span></div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" data-toast>Done</div>
+</body>
+</html>

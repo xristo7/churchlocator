@@ -1,0 +1,14 @@
+/owner-dashboard /owner-dashboard.html 200
+/admin /owner-dashboard.html 200
+/church-portal /church-portal.html 200
+/register-church /church-portal.html 200
+/church-profile /church-profile.html 200
+/church /church-profile.html 200
+/livestream /livestream.html 200
+/live /livestream.html 200
+/churches /index.html 200
+/about /index.html 200
+/donate /index.html 200
+/volunteer /index.html 200
+/prayer /index.html 200
+/* /index.html 200

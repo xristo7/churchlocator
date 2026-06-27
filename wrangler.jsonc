@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "my-way-of-evangelism",
+  "compatibility_date": "2026-06-25",
+  "pages_build_output_dir": "./public",
+  "vars": {
+    "APP_NAME": "My Way of Evangelism",
+    "ENVIRONMENT": "production"
+  },
+  "env": {
+    "preview": {
+      "vars": {
+        "APP_NAME": "My Way of Evangelism",
+        "ENVIRONMENT": "preview"
+      }
+    }
+  }
+}
