@@ -4,6 +4,7 @@
   "private": true,
   "description": "Cloudflare Pages project for My Way of Evangelism church discovery and digital evangelism platform.",
   "scripts": {
+    "build": "node -e \"console.log('Static Cloudflare Pages build: publish the public directory.')\"",
     "dev": "wrangler pages dev public --compatibility-date=2026-06-25",
     "deploy": "wrangler pages deploy public --project-name=my-way-of-evangelism",
     "tail": "wrangler pages deployment tail --project-name=my-way-of-evangelism"
@@ -12,6 +13,6 @@
     "wrangler": "^4.0.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }
