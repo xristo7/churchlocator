@@ -89,7 +89,7 @@ Git deployment settings:
 - Framework preset: None
 - Build command: leave empty
 - Build output directory: `public`
-- Root directory: `my-way-of-evangelism`
+- Root directory: repository root / leave empty
 
 ## Production backend direction
 
