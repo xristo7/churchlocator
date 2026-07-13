@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Christian Events Finder | My Way of Evangelism</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js"></script>
+</head>
+<body data-page="events">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Church discovery</small></span>
+      </a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="churches.html#find" data-t="find_churches">Churches</a>
+          <a href="events.html" class="active" data-t="events">Events</a>
+          <a href="livestream.html" data-t="streams">Livestreams</a>
+        </nav>
+        <div class="nav-actions">
+          <!-- Dynamically populated language dropdown selector -->
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" id="find-events">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Search events</h2>
+            <p>Discover in-person gatherings, conferences, outreach efforts, and streamed virtual services.</p>
+          </div>
+          <a class="button ghost" href="/church-portal">Church login / registration</a>
+        </div>
+
+        <div class="search-panel" style="margin-bottom: 30px;">
+          <div class="search-row">
+            <input class="field" id="event-city-input" placeholder="Search by city (e.g. Edmonton)..." />
+            
+            <select id="event-type-select" class="field">
+              <option value="all">All event types</option>
+              <option value="in-person">In-Person Gatherings</option>
+              <option value="streamed">Livestreams & Streamed</option>
+            </select>
+
+            <select id="event-price-select" class="field">
+              <option value="all">All prices</option>
+              <option value="free">Free Admission</option>
+              <option value="paid">Ticketed / Paid</option>
+            </select>
+
+            <select id="event-time-select" class="field">
+              <option value="upcoming">Upcoming Events</option>
+              <option value="past">Past Events</option>
+            </select>
+
+            <button class="button ghost" id="event-reset-btn" type="button" onclick="MWE.resetEventsSearch()">Reset</button>
+          </div>
+        </div>
+
+        <!-- Promoted / Featured Section (inside the same section) -->
+        <div id="featured-events-wrapper" style="margin-bottom: 40px;">
+          <div class="section-title-row" style="margin-bottom: 20px; border-bottom: 2px solid var(--line); padding-bottom: 8px;">
+            <h3 style="font-size: 1.3rem; margin: 0; color: var(--ink); display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="sparkles" style="color: var(--forest);"></i> Featured Events
+            </h3>
+          </div>
+          <div class="cards-grid events-grid" id="featured-events-grid">
+            <!-- Injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Main Events Listing -->
+        <div>
+          <div class="section-title-row" style="margin-bottom: 20px; border-bottom: 2px solid var(--line); padding-bottom: 8px;">
+            <h3 id="events-list-title" style="font-size: 1.3rem; margin: 0; color: var(--ink);">All Upcoming Events</h3>
+          </div>
+          <div class="cards-grid events-grid" id="events-list-grid">
+            <!-- Injected dynamically -->
+          </div>
+          <div class="events-empty-state" id="events-empty-state" style="display: none; text-align: center; padding: 60px 20px; border: 1px dashed var(--line); border-radius: 16px; color: var(--muted); margin-top: 20px;">
+            <i data-lucide="calendar-x" class="empty-icon" style="width: 48px; height: 48px; margin-bottom: 12px; display: inline-block;"></i>
+            <h4>No events found</h4>
+            <p>Try adjusting your search filters or check back later for new event registrations.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="section" style="background:#141716;color:#fff">
+    <div class="container section-head">
+      <div>
+        <h2>My Way of Evangelism</h2>
+        <p style="color:#d7ded8">A public bridge from search to local church connection.</p>
+      </div>
+      <div class="actions">
+        <a class="button light" href="/church-portal">Church Register / Login</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Event Detail Modal -->
+  <div class="modal" id="event-detail-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-event-title">Event Details</h3>
+        <button class="close-btn" onclick="MWE.closeEventModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-event-body">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticket Registration Modal -->
+  <div class="modal" id="ticket-reg-modal">
+    <div class="modal-dialog modal-narrow">
+      <div class="modal-header">
+        <h3 id="reg-modal-title">Get Tickets / Register</h3>
+        <button class="close-btn" onclick="MWE.closeRegModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="reg-form-container">
+          <form id="event-registration-form" onsubmit="MWE.handleRegistrationSubmit(event)">
+            <input type="hidden" id="reg-event-id" />
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="reg-full-name">Full Name</label>
+              <input type="text" id="reg-full-name" class="field" required placeholder="Enter your full name" />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="reg-email">Email Address</label>
+              <input type="email" id="reg-email" class="field" required placeholder="name@example.com" />
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label for="reg-quantity">Ticket Quantity</label>
+              <select id="reg-quantity" class="field" onchange="MWE.updateCheckoutPrice()">
+                <option value="1">1 Ticket</option>
+                <option value="2">2 Tickets</option>
+                <option value="3">3 Tickets</option>
+                <option value="4">4 Tickets</option>
+                <option value="5">5 Tickets</option>
+              </select>
+            </div>
+            <div class="price-summary-box" id="checkout-price-box" style="display: none; justify-content: space-between; padding: 12px; background: var(--soft); border-radius: 8px; margin-bottom: 16px; font-weight: 600;">
+              <span>Total Price:</span>
+              <strong id="checkout-total-price">$0.00</strong>
+            </div>
+            <button type="submit" class="button primary block" id="reg-submit-btn" style="width: 100%;">
+              Confirm Registration
+            </button>
+          </form>
+        </div>
+
+        <div id="reg-receipt-container" style="display: none;">
+          <!-- Receipt and Ticket with QR code -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" data-toast>Done</div>
+</body>
+</html>

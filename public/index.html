@@ -3,127 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Way of Evangelism | Find a Church</title>
+  <title>My Way of Evangelism | Find a Church near You</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="app.js"></script>
 </head>
-<body data-page="public">
+<body data-page="home" class="hero-only-page">
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
         <span class="brand-mark"><i data-lucide="church"></i></span>
         <span><strong>My Way</strong><small>Church discovery</small></span>
       </a>
-      <nav class="nav-links">
-        <a href="#find">Find Churches</a>
-        <a href="#impact">Impact</a>
-        <a href="#media">Media</a>
-        <a href="/church-portal">Church Portal</a>
-      </nav>
-      <div class="nav-actions">
-        <a class="button ghost" href="/church-portal">Church Login</a>
-        <a class="button primary" href="#find">Search</a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="churches.html#find" data-t="find_churches">Churches</a>
+          <a href="events.html" data-t="events">Events</a>
+          <a href="livestream.html" data-t="streams">Livestreams</a>
+        </nav>
+        <div class="nav-actions">
+          <!-- Dynamically populated language dropdown selector -->
+        </div>
       </div>
     </div>
   </header>
 
-  <main>
-    <section class="hero">
-      <div class="container">
-        <div class="hero-panel">
-          <div class="hero-copy">
-            <p class="kicker"><i data-lucide="map-pin"></i> Public church finder</p>
-            <h1>Find a real church family near you.</h1>
-            <p class="lead">Search verified churches by city, ministry, service time, and livestream availability. Open a church profile, contact the church, get directions, and join online when livestream is enabled.</p>
-            <div class="actions">
-              <a class="button primary" href="#find"><i data-lucide="search"></i> Find Churches</a>
-              <a class="button gold" href="/church-portal"><i data-lucide="building-2"></i> Church Register / Login</a>
+  <main class="hero-main">
+    <section class="hero-fullscreen">
+      <div class="video-background">
+        <iframe src="https://www.youtube.com/embed/jiSyB8QZzk8?autoplay=1&mute=1&loop=1&playlist=jiSyB8QZzk8&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&playsinline=1&enablejsapi=1" 
+                frameborder="0" 
+                allow="autoplay; encrypted-media" 
+                allowfullscreen></iframe>
+      </div>
+      <div class="hero-glow-overlay"></div>
+      <div class="container hero-container">
+        
+        <!-- Left Side Content -->
+        <div class="hero-left">
+          <h1 data-t="hero_title">Find a church family near you.</h1>
+          <p class="lead" data-t="hero_subtitle">Search verified churches by city, ministry, service time, and livestream availability. Open a church profile, contact the church, get directions, and join online when livestream is enabled.</p>
+          
+          <!-- Nearby Churches Slider Overlay -->
+          <div class="slider-wrapper">
+            <span class="slider-label"><i data-lucide="compass"></i> <span data-t="churches_in_area">Churches in your area</span></span>
+            <div class="slider-container-box">
+              <div class="slider-track" data-hero-slider>
+                <!-- Tiny church cards dynamically injected by app.js -->
+                <div class="slider-loading" data-t="checking_location">Checking your location...</div>
+              </div>
             </div>
           </div>
-          <div class="hero-media" style="--hero-image:url('assets/hero-global-church.png')">
-            <div class="hero-media-card">
-              <span class="badge"><i data-lucide="radio"></i> Livestream ready profiles</span>
-              <h3>One public directory, many church-owned profiles.</h3>
-              <p>Churches manage their own content from the portal while admins oversee verification and platform quality.</p>
+        </div>
+
+        <!-- Right Side Floating Form -->
+        <div class="hero-right">
+          <div class="search-card">
+            <div class="search-card-header">
+              <h2 data-t="find_church_family">Find a Church Family</h2>
+              <p data-t="search_card_desc">Search fellowships, ministries, and active livestream channels near you.</p>
             </div>
+            
+            <form data-hero-search-form action="churches.html" method="GET">
+              <div class="form-group">
+                <label for="hero-city-input" data-t="city_location">City / Location</label>
+                <div class="location-combined-group">
+                  <div class="input-with-icon city-section">
+                    <i data-lucide="map-pin" class="input-icon"></i>
+                    <input type="text" id="hero-city-input" name="city" list="cities-list" class="field" placeholder="City name or area name" autocomplete="off" />
+                    <datalist id="cities-list">
+                      <!-- Dynamic city suggestions injected by app.js -->
+                    </datalist>
+                  </div>
+                  <div class="country-section">
+                    <select id="hero-country-select" name="country" class="field country-dropdown">
+                      <option value="CA">🇨🇦 CA</option>
+                      <option value="US">🇺🇸 US</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="hero-ministry-select" data-t="interested_in">Interested in</label>
+                <select id="hero-ministry-select" name="ministry" class="field" multiple>
+                  <option value="kids" data-t-option="kids">Kids & Children</option>
+                  <option value="youth" data-t-option="youth">Youth & Youth Ministry</option>
+                  <option value="prayer" data-t-option="prayer">Prayer Groups</option>
+                  <option value="worship" data-t-option="worship">Worship Team</option>
+                  <option value="missions" data-t-option="missions">Missions & Outreach</option>
+                </select>
+              </div>
+
+              <div class="form-group toggle-group">
+                <label class="toggle-label-wrapper">
+                  <span class="toggle-label-text" data-t="only_livestream">Only show livestreaming churches</span>
+                  <div class="toggle-switch">
+                    <input type="checkbox" id="hero-stream-toggle" name="stream" value="true" />
+                    <span class="toggle-slider"></span>
+                  </div>
+                </label>
+              </div>
+
+              <button type="submit" class="button search-submit-button">
+                <i data-lucide="search"></i> <span data-t="find_button">Find a Church Family</span>
+              </button>
+            </form>
           </div>
         </div>
-      </div>
-    </section>
 
-    <section class="section" id="find">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <p class="kicker"><i data-lucide="navigation"></i> Church discovery</p>
-            <h2>Search churches</h2>
-            <p>Public users see only the seeker-facing experience here.</p>
-          </div>
-          <a class="button ghost" href="/church-portal">Church login / registration</a>
-        </div>
-
-        <div class="search-panel">
-          <div class="search-row">
-            <input class="field" data-search placeholder="Search church, city, pastor, denomination..." />
-            <select class="field" data-city><option value="">All cities</option></select>
-            <select class="field" data-ministry>
-              <option value="">All ministries</option>
-              <option value="kids">Kids</option>
-              <option value="children">Children</option>
-              <option value="youth">Youth</option>
-              <option value="prayer">Prayer</option>
-              <option value="missions">Missions</option>
-            </select>
-            <select class="field" data-stream>
-              <option value="">Any stream status</option>
-              <option value="true">Livestream available</option>
-              <option value="false">In-person only</option>
-            </select>
-            <button class="button ghost" data-reset type="button">Reset</button>
-          </div>
-        </div>
-
-        <div class="cards-grid" data-church-grid></div>
-      </div>
-    </section>
-
-    <section class="section" id="impact">
-      <div class="container">
-        <div class="section-head center">
-          <p class="kicker"><i data-lucide="bar-chart-3"></i> Nonprofit impact</p>
-          <h2>Connecting seekers, churches, and outreach teams.</h2>
-          <p>Impact metrics belong on the public nonprofit website, separate from operational dashboards.</p>
-        </div>
-        <div class="stats-grid" data-impact-stats></div>
-      </div>
-    </section>
-
-    <section class="section" id="media">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <p class="kicker"><i data-lucide="image"></i> Community impact</p>
-            <h2>Media and outreach storytelling</h2>
-          </div>
-          <a class="button ghost" href="/church-portal">Publish from church portal</a>
-        </div>
-        <div class="story-grid" data-stories></div>
       </div>
     </section>
   </main>
-
-  <footer class="section" style="background:#141716;color:#fff">
-    <div class="container section-head">
-      <div>
-        <h2>My Way of Evangelism</h2>
-        <p style="color:#d7ded8">A public bridge from search to local church connection.</p>
-      </div>
-      <div class="actions">
-        <a class="button light" href="/church-portal">Church Register / Login</a>
-      </div>
-    </div>
-  </footer>
 
   <div class="toast" data-toast>Done</div>
 </body>

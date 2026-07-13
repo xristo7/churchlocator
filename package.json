@@ -5,6 +5,7 @@
   "description": "Cloudflare Worker static assets project for My Way of Evangelism church discovery and digital evangelism platform.",
   "scripts": {
     "build": "exit 0",
+    "preview": "node tools/static-server.mjs --root public --port 4173",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "deploy:pages": "wrangler pages deploy public --project-name=my-way-of-evangelism",

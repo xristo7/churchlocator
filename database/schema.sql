@@ -60,8 +60,20 @@ create table if not exists events (
   id text primary key,
   church_id text references churches(id),
   title text not null,
-  event_type text,
+  event_type text, -- 'in-person' or 'streamed'
   starts_at text,
+  ends_at text,
+  venue_name text,
+  city text,
+  country text,
+  cover_image_url text,
+  registration_required integer not null default 0,
+  ticket_price_cents integer not null default 0,
+  currency text not null default 'USD',
+  total_tickets integer,
+  tickets_sold integer not null default 0,
+  is_featured integer not null default 0,
+  is_promoted integer not null default 0,
   registration_url text,
   livestream_url text,
   directions_url text,
@@ -140,5 +152,16 @@ create table if not exists volunteer_applications (
   email text not null,
   volunteer_area text not null,
   status text not null default 'new',
+  created_at text not null
+);
+
+create table if not exists event_registrations (
+  id text primary key,
+  event_id text not null references events(id),
+  full_name text not null,
+  email text not null,
+  ticket_quantity integer not null default 1,
+  amount_paid_cents integer not null default 0,
+  registration_code text not null,
   created_at text not null
 );

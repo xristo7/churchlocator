@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Way of Evangelism | Find a Church Family</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js"></script>
+</head>
+<body data-page="public">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Church discovery</small></span>
+      </a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="churches.html#find" data-t="find_churches">Churches</a>
+          <a href="events.html" data-t="events">Events</a>
+          <a href="livestream.html" data-t="streams">Livestreams</a>
+        </nav>
+        <div class="nav-actions">
+          <!-- Dynamically populated language dropdown selector -->
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" id="find">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Search churches</h2>
+            <p>Public users see only the seeker-facing experience here.</p>
+          </div>
+          <a class="button ghost" href="/church-portal">Church login / registration</a>
+        </div>
+
+        <div class="search-panel">
+          <div class="search-row">
+            <input class="field" data-search placeholder="Search church, city, pastor, denomination..." />
+            <select class="field" data-city><option value="">All cities</option></select>
+            <select class="field" data-ministry>
+              <option value="">All ministries</option>
+              <option value="kids">Kids</option>
+              <option value="children">Children</option>
+              <option value="youth">Youth</option>
+              <option value="prayer">Prayer</option>
+              <option value="missions">Missions</option>
+            </select>
+            <select class="field" data-stream>
+              <option value="">Any stream status</option>
+              <option value="true">Livestream available</option>
+              <option value="false">In-person only</option>
+            </select>
+            <button class="button ghost" data-reset type="button">Reset</button>
+          </div>
+        </div>
+
+        <div class="cards-grid" data-church-grid></div>
+      </div>
+    </section>
+
+
+  </main>
+
+  <footer class="section" style="background:#141716;color:#fff">
+    <div class="container section-head">
+      <div>
+        <h2>My Way of Evangelism</h2>
+        <p style="color:#d7ded8">A public bridge from search to local church connection.</p>
+      </div>
+      <div class="actions">
+        <a class="button light" href="/church-portal">Church Register / Login</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" data-toast>Done</div>
+</body>
+</html>

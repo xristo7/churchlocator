@@ -11,19 +11,25 @@
 <body class="dash-body private-app" data-page="owner" data-auth-app="owner">
   <header class="topbar dash-topbar">
     <div class="container topbar-inner">
-      <a class="brand" href="owner-dashboard.html">
-        <span class="brand-mark"><i data-lucide="shield-check"></i></span>
-        <span><strong>Owner Dashboard</strong><small>Super control center</small></span>
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Church discovery</small></span>
       </a>
-      <nav class="nav-links">
-        <a href="/">Public Site</a>
-        <a href="/church-portal">Church Portal</a>
-        <a href="livestream.html?id=christ-embassy-edmonton">Livestream</a>
-      </nav>
-      <div class="nav-actions">
-        <button class="button ghost" type="button" data-logout><i data-lucide="log-out"></i> Logout</button>
-        <button class="button ghost" type="button" data-admin-reset>Reset Preview</button>
-        <button class="button primary" type="button" data-admin-new><i data-lucide="plus"></i> Add Church</button>
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="/">Public Site</a>
+          <a href="/church-portal">Church Portal</a>
+          <a href="livestream.html?id=christ-embassy-edmonton">Livestream</a>
+          <a href="#" data-admin-reset>Reset Preview</a>
+          <a href="#" data-logout><i data-lucide="log-out" style="width:16px; height:16px; vertical-align:middle; margin-right:4px;"></i>Logout</a>
+        </nav>
+        <div class="nav-actions">
+          <button class="button primary" type="button" data-admin-new><i data-lucide="plus"></i> Add Church</button>
+        </div>
       </div>
     </div>
   </header>

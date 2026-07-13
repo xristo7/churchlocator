@@ -11,36 +11,133 @@
 <body class="dash-body private-app" data-page="portal" data-auth-app="church">
   <header class="topbar dash-topbar">
     <div class="container topbar-inner">
-      <a class="brand" href="church-portal.html">
-        <span class="brand-mark"><i data-lucide="building-2"></i></span>
-        <span><strong>Church Portal</strong><small>Church-owned workspace</small></span>
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Church discovery</small></span>
       </a>
-      <nav class="nav-links">
-        <a href="/">Public Site</a>
-        <a href="/owner-dashboard">Owner Dashboard</a>
-        <a href="church-profile.html?id=christ-embassy-edmonton">Sample Profile</a>
-      </nav>
-      <div class="nav-actions">
-        <button class="button ghost" type="button" data-logout><i data-lucide="log-out"></i> Logout</button>
-        <a class="button ghost" href="/#find">Directory</a>
-        <button class="button primary" type="button" data-portal-new><i data-lucide="plus"></i> New Profile</button>
+
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="/#find"><i data-lucide="compass" style="width:16px; height:16px; vertical-align:middle; margin-right:4px;"></i>Directory</a>
+          <a href="events.html"><i data-lucide="calendar" style="width:16px; height:16px; vertical-align:middle; margin-right:4px;"></i>Events</a>
+          <a href="#" data-logout><i data-lucide="log-out" style="width:16px; height:16px; vertical-align:middle; margin-right:4px;"></i>Logout</a>
+        </nav>
+        <div class="nav-actions">
+          <button class="button primary" type="button" data-portal-new><i data-lucide="plus"></i> New Profile</button>
+        </div>
       </div>
     </div>
   </header>
 
   <section class="login-screen">
-    <div class="login-card">
-      <p class="kicker"><i data-lucide="lock-keyhole"></i> Login required</p>
-      <h1>Church portal</h1>
-      <p>This application is for church owners and church staff to manage their own public profile, ministries, visitor follow-up, and livestream settings.</p>
-      <div class="security-note"><i data-lucide="shield-check"></i><span>Preview mode accepts any email and password. Production should use church accounts with ownership verification.</span></div>
-      <form data-login-form>
-        <label class="form-field"><span>Church admin email</span><input type="email" required placeholder="pastor@church.org" /></label>
-        <label class="form-field"><span>Password</span><input type="password" required placeholder="Password" /></label>
-        <button class="button primary" type="submit">Enter church portal</button>
-      </form>
-      <div class="actions">
-        <a class="button ghost" href="/">Back to public site</a>
+    <div class="portal-grid">
+      <!-- Left side: Hero branding title -->
+      <div class="portal-hero-title-section">
+        <span class="portal-kicker"><i data-lucide="sparkles"></i> Grow Your Church</span>
+        <h1>Get found by Church seekers near you.</h1>
+      </div>
+      
+      <!-- Dynamic Feature Onboarding Carousel -->
+      <div class="onboarding-feature-carousel" id="onboarding-carousel">
+        <!-- Injected dynamically by app.js -->
+      </div>
+      
+      <!-- Right side: Card (2-in-1 form) -->
+      <div class="login-card">
+        <h2 class="portal-card-title" id="portal-active-title" style="margin-top: 0; margin-bottom: 20px; font-weight: 900;">Register your Church</h2>
+        
+        <div class="portal-tabs">
+          <button class="tab-btn active" data-tab="register" type="button">Register Church</button>
+          <button class="tab-btn" data-tab="login" type="button">Sign In</button>
+        </div>
+        
+        <!-- Sign In Form -->
+        <div class="tab-content" id="login-tab-content">
+          <form data-login-form>
+            <label class="form-field"><span>Username or Email</span><input type="text" required placeholder="Enter username or email" /></label>
+            <label class="form-field"><span>Password</span><input type="password" required placeholder="Password" /></label>
+            <button class="button primary" type="submit">Enter church portal</button>
+          </form>
+        </div>
+        
+        <!-- Register Form -->
+        <div class="tab-content active" id="register-tab-content">
+          <form data-register-form>
+            
+            <!-- Step 1: Church Info -->
+            <div class="register-step active" data-step="1">
+              <label class="form-field"><span>Church Name</span><input type="text" required placeholder="Grace Community Church" id="reg-name" /></label>
+              <div class="compact-grid" style="grid-template-columns: 1.3fr 1fr; gap: 10px; margin-top: 12px;">
+                <label class="form-field"><span>City / Location</span><input type="text" required placeholder="Edmonton" id="reg-city" /></label>
+                <label class="form-field"><span>Country</span>
+                  <select name="country" class="field" style="min-height: 48px; border-radius: 12px; border: 1.5px solid #cbd5e1; padding: 10px 14px; font-weight: 780; background: #f8fafc; color: var(--ink);">
+                    <option value="CA">Canada</option>
+                    <option value="US">United States</option>
+                  </select>
+                </label>
+              </div>
+              <button class="button primary" type="button" data-next-step style="margin-top: 20px; width: 100%;">Proceed</button>
+            </div>
+            
+            <!-- Step 2: Admin Account -->
+            <div class="register-step" data-step="2" style="display: none;">
+              <div class="compact-grid" style="grid-template-columns: 1.2fr 1fr; gap: 10px; margin-bottom: 12px;">
+                <label class="form-field"><span>Registrant Name</span><input type="text" placeholder="John Doe" id="reg-registrant-name" /></label>
+                <label class="form-field"><span>Role in Church</span>
+                  <div class="role-field-container" style="position: relative; width: 100%;">
+                    <!-- Select Dropdown -->
+                    <select id="reg-role" class="field" style="width: 100%;">
+                      <option value="Senior Pastor">Senior Pastor</option>
+                      <option value="Pastor">Pastor</option>
+                      <option value="Deacon">Deacon</option>
+                      <option value="Deaconess">Deaconess</option>
+                      <option value="Leader">Leader</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    
+                    <!-- Text Input (for Other role) -->
+                    <div id="reg-role-custom-wrapper" style="display: none; position: relative; width: 100%;">
+                      <input type="text" id="reg-role-custom-input" class="field" placeholder="Type your role..." style="padding-right: 36px !important;" />
+                      <button id="reg-role-custom-clear" type="button" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: var(--muted); padding: 4px; display: flex; align-items: center; justify-content: center; outline: none;">
+                        <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+                      </button>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <label class="form-field" style="margin-bottom: 12px;"><span>Admin Email</span><input type="email" placeholder="admin@grace.org" id="reg-email" /></label>
+              
+              <div class="compact-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                <label class="form-field">
+                  <span>Password</span>
+                  <div class="password-input-wrapper">
+                    <input type="password" placeholder="Choose Password" id="reg-pass" />
+                    <button class="password-toggle" type="button" tabindex="-1"><i data-lucide="eye"></i></button>
+                  </div>
+                </label>
+                <label class="form-field">
+                  <span>Confirm Password</span>
+                  <div class="password-input-wrapper">
+                    <input type="password" placeholder="Verify Password" id="reg-pass-confirm" />
+                    <button class="password-toggle" type="button" tabindex="-1"><i data-lucide="eye"></i></button>
+                  </div>
+                </label>
+              </div>
+              
+              <div class="compact-grid" style="grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 24px;">
+                <button class="button ghost" type="button" data-prev-step>Back</button>
+                <button class="button primary" type="submit">Register & Enter</button>
+              </div>
+            </div>
+            
+          </form>
+        </div>
+        
       </div>
     </div>
   </section>
@@ -61,6 +158,7 @@
         <a href="#services"><i data-lucide="calendar-days"></i> Services</a>
         <a href="#ministries"><i data-lucide="users"></i> Ministries</a>
         <a href="#livestream"><i data-lucide="radio"></i> Livestream</a>
+        <a href="#events-tab" data-portal-tab="events"><i data-lucide="calendar"></i> Events Manager</a>
         <a href="#followup"><i data-lucide="messages-square"></i> Follow-up</a>
       </nav>
     </aside>
@@ -330,6 +428,130 @@
             </div>
           </article>
         </aside>
+      </div>
+
+      <!-- Standalone Events Manager Panel -->
+      <div class="dash-panel" id="events-manager-panel" style="display: none; margin-top: 24px;">
+        <div class="panel-header">
+          <div>
+            <h2>Church Events Manager</h2>
+            <p>Schedule outreach events, Bible conferences, or streamed services, sell tickets, and manage registration.</p>
+          </div>
+          <button class="button primary small" type="button" onclick="MWE.showNewEventForm()"><i data-lucide="plus"></i> Add Event</button>
+        </div>
+
+        <!-- Create / Edit Event Form (Initially Hidden) -->
+        <div id="event-editor-card" class="event-editor-card" style="display: none; margin-bottom: 24px; padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--soft);">
+          <h3 id="event-editor-title" style="margin-top:0; margin-bottom:16px;">Schedule New Event</h3>
+          <form id="portal-event-form" onsubmit="MWE.handlePortalEventSubmit(event)">
+            <input type="hidden" id="pe-event-id" />
+            <div class="form-grid-three" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+              <div class="form-field">
+                <label for="pe-title">Event Title *</label>
+                <input type="text" id="pe-title" required class="field" placeholder="e.g. Youth Awakening 2026" />
+              </div>
+              <div class="form-field">
+                <label for="pe-type">Event Type</label>
+                <select id="pe-type" class="field">
+                  <option value="in-person">In-Person Gathering</option>
+                  <option value="streamed">Livestreamed Event</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="pe-image">Cover Image URL</label>
+                <input type="url" id="pe-image" class="field" placeholder="https://unsplash.com/..." />
+              </div>
+            </div>
+
+            <div class="form-grid-three" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+              <div class="form-field">
+                <label for="pe-starts-at">Starts At *</label>
+                <input type="datetime-local" id="pe-starts-at" required class="field" />
+              </div>
+              <div class="form-field">
+                <label for="pe-venue">Venue Name</label>
+                <input type="text" id="pe-venue" class="field" placeholder="e.g. Main Auditorium" />
+              </div>
+              <div class="form-field">
+                <label for="pe-city">City / Location</label>
+                <input type="text" id="pe-city" class="field" placeholder="e.g. Edmonton" />
+              </div>
+            </div>
+
+            <div class="form-grid-three" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+              <div class="form-field">
+                <label for="pe-price">Ticket Price ($) *</label>
+                <input type="number" id="pe-price" step="0.01" min="0" required class="field" value="0.00" />
+                <small style="color:var(--muted)">Enter 0.00 for free events</small>
+              </div>
+              <div class="form-field">
+                <label for="pe-capacity">Capacity Limit</label>
+                <input type="number" id="pe-capacity" min="1" class="field" placeholder="e.g. 500 (Optional)" />
+              </div>
+              <div class="form-field">
+                <label for="pe-stream">Livestream URL</label>
+                <input type="url" id="pe-stream" class="field" placeholder="https://youtube.com/..." />
+              </div>
+            </div>
+
+            <div class="form-field" style="margin-bottom: 16px;">
+              <label for="pe-desc">Description</label>
+              <textarea id="pe-desc" class="field" rows="3" placeholder="Describe the event goals, schedule, and guest speakers..."></textarea>
+            </div>
+
+            <div class="event-editor-actions" style="display: flex; gap: 12px; justify-content: flex-end;">
+              <button class="button ghost small" type="button" onclick="MWE.hideEventEditor()">Cancel</button>
+              <button class="button primary small" type="submit">Save Event</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Events Listing Table -->
+        <div class="table-responsive" style="margin-top: 16px;">
+          <table class="data-table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--line); text-align: left;">
+                <th style="padding: 12px;">Event Info</th>
+                <th style="padding: 12px;">Venue / Type</th>
+                <th style="padding: 12px;">Date & Time</th>
+                <th style="padding: 12px;">Price / Tickets</th>
+                <th style="padding: 12px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="portal-events-tbody">
+              <!-- Injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Event Registrants Modal -->
+      <div class="modal" id="portal-registrants-modal">
+        <div class="modal-dialog">
+          <div class="modal-header">
+            <h3>Registered Attendees</h3>
+            <button class="close-btn" onclick="MWE.closeRegistrantsModal()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <h4 id="portal-registrants-event-title" style="margin-top:0; margin-bottom:12px;">Event Title</h4>
+            <div class="table-responsive">
+              <table class="data-table" style="width:100%; border-collapse:collapse;">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--line); text-align:left;">
+                    <th style="padding:8px;">Name</th>
+                    <th style="padding:8px;">Email</th>
+                    <th style="padding:8px;">Tickets</th>
+                    <th style="padding:8px;">Code</th>
+                    <th style="padding:8px;">Date</th>
+                  </tr>
+                </thead>
+                <tbody id="portal-registrants-tbody">
+                  <!-- Injected dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>

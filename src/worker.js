@@ -358,6 +358,147 @@ function assetRequest(request) {
   return request;
 }
 
+async function handleEvents(request, env) {
+  if (request.method === "GET") {
+    if (!env.DB) return json({ ok: true, events: [] });
+
+    const url = new URL(request.url);
+    const city = url.searchParams.get("city");
+    const churchId = url.searchParams.get("churchId");
+    const type = url.searchParams.get("type");
+    const upcoming = url.searchParams.get("upcoming") === "true";
+
+    let query = `
+      select e.*, c.name as church_name, c.city as church_city, c.country as church_country
+      from events e
+      left join churches c on c.id = e.church_id
+      where 1=1
+    `;
+    const params = [];
+
+    if (city) {
+      query += ` and (e.city = ? or c.city = ?)`;
+      params.push(city, city);
+    }
+    if (churchId) {
+      query += ` and e.church_id = ?`;
+      params.push(churchId);
+    }
+    if (type) {
+      query += ` and e.event_type = ?`;
+      params.push(type);
+    }
+    if (upcoming) {
+      const nowStr = new Date().toISOString();
+      query += ` and e.starts_at >= ?`;
+      params.push(nowStr);
+    }
+
+    query += ` order by e.starts_at asc`;
+
+    const { results } = await env.DB.prepare(query).bind(...params).all();
+    return json({ ok: true, events: results });
+  }
+
+  if (request.method === "POST" || request.method === "PUT") {
+    if (!isAuthorized(request, env)) return unauthorized();
+    const payload = await readJson(request);
+    if (!payload?.title || !payload?.startsAt) {
+      return json({ ok: false, error: "title and startsAt are required" }, 400);
+    }
+
+    const id = payload.id || crypto.randomUUID();
+    if (env.DB) {
+      await env.DB.prepare(`
+        insert into events
+          (id, church_id, title, event_type, starts_at, ends_at, venue_name, city, country, cover_image_url,
+           registration_required, ticket_price_cents, currency, total_tickets, tickets_sold, is_featured, is_promoted,
+           registration_url, livestream_url, directions_url, description)
+        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        on conflict(id) do update set
+          church_id = excluded.church_id,
+          title = excluded.title,
+          event_type = excluded.event_type,
+          starts_at = excluded.starts_at,
+          ends_at = excluded.ends_at,
+          venue_name = excluded.venue_name,
+          city = excluded.city,
+          country = excluded.country,
+          cover_image_url = excluded.cover_image_url,
+          registration_required = excluded.registration_required,
+          ticket_price_cents = excluded.ticket_price_cents,
+          currency = excluded.currency,
+          total_tickets = excluded.total_tickets,
+          tickets_sold = excluded.tickets_sold,
+          is_featured = excluded.is_featured,
+          is_promoted = excluded.is_promoted,
+          registration_url = excluded.registration_url,
+          livestream_url = excluded.livestream_url,
+          directions_url = excluded.directions_url,
+          description = excluded.description
+      `).bind(
+        id,
+        payload.churchId || null,
+        payload.title,
+        payload.eventType || "in-person",
+        payload.startsAt,
+        payload.endsAt || null,
+        payload.venueName || "",
+        payload.city || "",
+        payload.country || "",
+        payload.coverImageUrl || "",
+        Number(Boolean(payload.registrationRequired)),
+        Number(payload.ticketPriceCents || 0),
+        payload.currency || "USD",
+        payload.totalTickets !== undefined ? Number(payload.totalTickets) : null,
+        Number(payload.ticketsSold || 0),
+        Number(Boolean(payload.isFeatured)),
+        Number(Boolean(payload.isPromoted)),
+        payload.registrationUrl || "",
+        payload.livestreamUrl || "",
+        payload.directionsUrl || "",
+        payload.description || ""
+      ).run();
+    }
+    return json({ ok: true, id, status: "saved" });
+  }
+
+  return json({ ok: false, error: "method not allowed" }, 405);
+}
+
+async function handleEventRegister(request, env) {
+  if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
+
+  const payload = await readJson(request);
+  if (!payload?.eventId || !payload?.fullName || !payload?.email) {
+    return json({ ok: false, error: "eventId, fullName, and email are required" }, 400);
+  }
+
+  const id = crypto.randomUUID();
+  const createdAt = new Date().toISOString();
+  const regCode = "REG-" + Math.floor(100000 + Math.random() * 900000);
+  const qty = Number(payload.ticketQuantity || 1);
+  const price = Number(payload.ticketPriceCents || 0);
+  const amountPaid = qty * price;
+
+  if (env.DB) {
+    await env.DB.batch([
+      env.DB.prepare(`
+        insert into event_registrations
+          (id, event_id, full_name, email, ticket_quantity, amount_paid_cents, registration_code, created_at)
+        values (?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(id, payload.eventId, payload.fullName, payload.email, qty, amountPaid, regCode, createdAt),
+      env.DB.prepare(`
+        update events
+        set tickets_sold = tickets_sold + ?
+        where id = ?
+      `).bind(qty, payload.eventId)
+    ]);
+  }
+
+  return json({ ok: true, id, registrationCode: regCode, amountPaidCents: amountPaid, status: "registered" }, 201);
+}
+
 async function handleApi(request, env) {
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, "");
@@ -366,12 +507,14 @@ async function handleApi(request, env) {
   if (path === "/api/status" && request.method === "GET") return handleStatus(env);
   if (path === "/api/churches") return handlePublicChurches(request, env);
   if (path === "/api/admin/churches") return handleAdminChurches(request, env);
+  if (path === "/api/events") return handleEvents(request, env);
 
   if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
   if (path === "/api/church-application") return handleChurchApplication(request, env);
   if (path === "/api/livestream-activation") return handleLivestreamActivation(request, env);
   if (path === "/api/visitor") return handleVisitor(request, env);
   if (path === "/api/prayer") return handlePrayer(request, env);
+  if (path === "/api/event-register") return handleEventRegister(request, env);
 
   return json({ ok: false, error: "not found" }, 404);
 }
