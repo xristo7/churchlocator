@@ -5673,14 +5673,30 @@ body.lights-out .floating-lights-btn {
 /* Foundation & Donate Page Specific Styling */
 .foundation-hero {
   background: linear-gradient(180deg, #fdfcf9 0%, #faf7f0 100%);
-  padding: 80px 0 60px;
+  padding: 52px 0 48px;
 }
 
 .foundation-hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
-  gap: 48px;
+  grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+  gap: 40px;
   align-items: center;
+}
+
+.foundation-hero-text h1 {
+  font-size: 2.1rem !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.02em !important;
+  margin: 12px 0 16px !important;
+}
+
+.foundation-hero-text .lead {
+  font-size: 0.98rem !important;
+  line-height: 1.6 !important;
+  color: #475569 !important;
+  margin-bottom: 24px !important;
 }
 
 .hero-cta-buttons {
