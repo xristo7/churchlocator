@@ -13,7 +13,7 @@
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
         <span class="brand-mark"><i data-lucide="church"></i></span>
-        <span><strong>My Way</strong><small>Church discovery</small></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
       </a>
       <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
         <i data-lucide="menu"></i>
@@ -21,12 +21,15 @@
 
       <div class="topbar-menu-group">
         <nav class="nav-links">
-          <a href="churches.html#find" data-t="find_churches">Churches</a>
-          <a href="events.html" data-t="events">Events</a>
-          <a href="livestream.html" data-t="streams">Livestreams</a>
+          <a href="index.html">Home</a>
+          <a href="churches.html" class="active">Find a Church</a>
+          <a href="events.html">Events</a>
+          <a href="livestream.html">Livestreams</a>
+          <a href="foundation.html">Foundation</a>
+          <a href="donate.html" class="highlight-link">Donate</a>
         </nav>
         <div class="nav-actions">
-          <!-- Dynamically populated language dropdown selector -->
+          <a class="button outline mini-btn" href="church-portal.html"><i data-lucide="log-in"></i> Church Portal</a>
         </div>
       </div>
     </div>
@@ -35,32 +38,81 @@
   <main>
     <section class="section" id="find">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head flex-between">
           <div>
-            <h2>Search churches</h2>
-            <p>Public users see only the seeker-facing experience here.</p>
+            <h2>Find a Church Family Near You</h2>
+            <p class="lead">Search verified fellowships by location, denomination, worship style, transportation, or online livestream.</p>
           </div>
-          <a class="button ghost" href="/church-portal">Church login / registration</a>
+          <div class="flex-gap">
+            <button type="button" class="button outline" id="toggle-view-map-btn" onclick="MWE.toggleDirectoryMapView()"><i data-lucide="map"></i> Toggle Map View</button>
+            <a class="button ghost" href="/church-portal">Register Your Church</a>
+          </div>
         </div>
 
-        <div class="search-panel">
-          <div class="search-row">
-            <input class="field" data-search placeholder="Search church, city, pastor, denomination..." />
-            <select class="field" data-city><option value="">All cities</option></select>
-            <select class="field" data-ministry>
-              <option value="">All ministries</option>
-              <option value="kids">Kids</option>
-              <option value="children">Children</option>
-              <option value="youth">Youth</option>
-              <option value="prayer">Prayer</option>
-              <option value="missions">Missions</option>
-            </select>
-            <select class="field" data-stream>
-              <option value="">Any stream status</option>
-              <option value="true">Livestream available</option>
-              <option value="false">In-person only</option>
-            </select>
-            <button class="button ghost" data-reset type="button">Reset</button>
+        <!-- Directory Map Frame (Hidden by default, toggled via button) -->
+        <div id="directory-map-container" class="map-frame-wrapper mb-6 hidden">
+          <iframe id="directory-map-iframe" width="100%" height="320" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy" src="https://www.google.com/maps/embed/v1/place?key=MOCK_API_KEY&q=Edmonton+Alberta+Canada"></iframe>
+        </div>
+
+        <!-- Industry-Leading Search & Segmented Filter Bar -->
+        <div class="directory-search-container">
+          <!-- Top Search Input Bar -->
+          <div class="search-hero-bar">
+            <div class="search-input-wrapper">
+              <i data-lucide="search" class="search-hero-icon"></i>
+              <input class="search-hero-input" data-search placeholder="Search by church name, pastor, city, denomination, or neighborhood..." />
+            </div>
+            <button type="button" class="reset-filter-btn" data-reset-filters onclick="MWE.resetDirectoryFilters()">
+              <i data-lucide="rotate-ccw"></i> Reset Filters
+            </button>
+          </div>
+
+          <!-- Unified Seamless Divided Filter Bar -->
+          <div class="seamless-filter-bar">
+            <div class="filter-segment">
+              <span class="segment-label"><i data-lucide="map-pin"></i> City / Region</span>
+              <select class="segment-select" data-city>
+                <option value="">All Cities & Regions</option>
+              </select>
+            </div>
+
+            <div class="filter-segment">
+              <span class="segment-label"><i data-lucide="building-2"></i> Denomination</span>
+              <select class="segment-select" data-denomination>
+                <option value="">All Denominations</option>
+                <option value="Alliance">Alliance</option>
+                <option value="Pentecostal">Pentecostal</option>
+                <option value="Baptist">Baptist</option>
+                <option value="Non-Denominational">Non-Denominational</option>
+              </select>
+            </div>
+
+            <div class="filter-segment">
+              <span class="segment-label"><i data-lucide="users"></i> Ministry Focus</span>
+              <select class="segment-select" data-ministry>
+                <option value="">All Ministries</option>
+                <option value="kids">Children's Ministry</option>
+                <option value="youth">Youth & Students</option>
+                <option value="prayer">Prayer Groups</option>
+                <option value="missions">Evangelism & Missions</option>
+              </select>
+            </div>
+
+            <div class="filter-segment">
+              <span class="segment-label"><i data-lucide="car"></i> Sunday Rides</span>
+              <select class="segment-select" data-transport>
+                <option value="">Any Transportation</option>
+                <option value="true">Free Sunday Rides</option>
+              </select>
+            </div>
+
+            <div class="filter-segment last-segment">
+              <span class="segment-label"><i data-lucide="tv"></i> Livestream</span>
+              <select class="segment-select" data-stream>
+                <option value="">All Broadcasts</option>
+                <option value="true">Live Stream Active</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -71,14 +123,49 @@
 
   </main>
 
-  <footer class="section" style="background:#141716;color:#fff">
-    <div class="container section-head">
-      <div>
-        <h2>My Way of Evangelism</h2>
-        <p style="color:#d7ded8">A public bridge from search to local church connection.</p>
+  <footer class="platform-footer">
+    <div class="container">
+      <div class="footer-main">
+        <div class="footer-brand-block">
+          <a class="footer-brand" href="/">
+            <span class="footer-brand-mark"><i data-lucide="church"></i></span>
+            <span>My Way of Evangelism</span>
+          </a>
+          <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, services, events, and livestreams near them.</p>
+          <div class="footer-cta-row">
+            <a class="footer-button primary" href="/churches"><i data-lucide="search"></i> Find a Church</a>
+            <a class="footer-button" href="/church-portal"><i data-lucide="log-in"></i> Church Portal</a>
+          </div>
+        </div>
+        <nav class="footer-column" aria-label="Explore">
+          <h2>Explore</h2>
+          <ul class="footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/churches">Church Directory</a></li>
+            <li><a href="/events">Events</a></li>
+            <li><a href="/livestream">Livestreams</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-column" aria-label="Churches">
+          <h2>For Churches</h2>
+          <ul class="footer-links">
+            <li><a href="/church-portal">Register or Sign In</a></li>
+            <li><a href="/owner-dashboard">Owner Dashboard</a></li>
+            <li><a href="/church-portal#events-tab">Manage Events</a></li>
+            <li><a href="/church-portal#livestream">Livestream Setup</a></li>
+          </ul>
+        </nav>
+        <div class="footer-column">
+          <h2>Connect</h2>
+          <div class="footer-contact-card">
+            <div class="footer-contact-row"><i data-lucide="map-pin"></i><span>Serving churches and communities across North America.</span></div>
+            <div class="footer-contact-row"><i data-lucide="shield-check"></i><span>Verified profiles, ministry details, and public church discovery.</span></div>
+          </div>
+        </div>
       </div>
-      <div class="actions">
-        <a class="button light" href="/church-portal">Church Register / Login</a>
+      <div class="footer-bottom">
+        <span>&copy; 2026 My Way of Evangelism. All rights reserved.</span>
+        <span class="footer-status">Platform online</span>
       </div>
     </div>
   </footer>

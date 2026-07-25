@@ -24,8 +24,12 @@ const routeMap = new Map([
   ["/events", "events.html"],
   ["/event-profile", "event-profile.html"],
   ["/churches", "churches.html"],
+  ["/foundation", "foundation.html"],
+  ["/donate", "donate.html"],
+  ["/privacy", "privacy.html"],
+  ["/terms", "privacy.html"],
+  ["/safeguarding", "privacy.html"],
   ["/about", "index.html"],
-  ["/donate", "index.html"],
   ["/volunteer", "index.html"],
   ["/prayer", "index.html"]
 ]);

@@ -165,3 +165,89 @@ create table if not exists event_registrations (
   registration_code text not null,
   created_at text not null
 );
+
+create table if not exists ride_requests (
+  id text primary key,
+  church_id text not null references churches(id),
+  full_name text not null,
+  phone text not null,
+  email text not null,
+  age_group text,
+  passengers integer not null default 1,
+  preferred_service text,
+  pickup_address text not null,
+  accessibility_needs text,
+  contact_consent integer not null default 1,
+  status text not null default 'new',
+  assigned_driver text,
+  created_at text not null
+);
+
+create table if not exists ride_followups (
+  id text primary key,
+  ride_request_id text not null references ride_requests(id),
+  stage integer not null, -- 1: Welcome, 2: Reminder, 3: Confirmation
+  contacted_at text not null,
+  team_member_name text not null,
+  contact_method text not null,
+  visitor_response text,
+  pickup_status text,
+  driver_assigned text,
+  attendance_status text
+);
+
+create table if not exists salvation_decisions (
+  id text primary key,
+  church_id text references churches(id),
+  full_name text not null,
+  phone text not null,
+  email text not null,
+  city text,
+  country text,
+  contact_method text,
+  need_prayer integer default 0,
+  need_bible integer default 0,
+  want_join_church integer default 0,
+  need_transportation integer default 0,
+  followup_consent integer default 1,
+  status text not null default 'new',
+  created_at text not null
+);
+
+create table if not exists foundation_projects (
+  id text primary key,
+  title text not null,
+  summary text not null,
+  category text not null,
+  target_amount_cents integer not null,
+  raised_amount_cents integer not null default 0,
+  status text not null default 'active',
+  location text,
+  cover_image_url text,
+  created_at text not null
+);
+
+create table if not exists foundation_applications (
+  id text primary key,
+  org_name text not null,
+  reg_number text,
+  contact_name text not null,
+  phone text not null,
+  email text not null,
+  location text not null,
+  children_count integer not null,
+  assistance_type text not null,
+  estimated_cost_cents integer not null,
+  preferred_date text,
+  status text not null default 'pending',
+  created_at text not null
+);
+
+create table if not exists church_staff_roles (
+  id text primary key,
+  church_id text not null references churches(id),
+  user_email text not null,
+  role text not null,
+  created_at text not null
+);
+

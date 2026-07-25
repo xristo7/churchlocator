@@ -157,6 +157,10 @@
         <a href="#pastor"><i data-lucide="user-round"></i> Pastor</a>
         <a href="#services"><i data-lucide="calendar-days"></i> Services</a>
         <a href="#ministries"><i data-lucide="users"></i> Ministries</a>
+        <a href="#rides"><i data-lucide="car"></i> Ride Requests</a>
+        <a href="#salvation-tab"><i data-lucide="heart"></i> Salvation Follow-up</a>
+        <a href="#verification-tab"><i data-lucide="file-check"></i> Verification Docs</a>
+        <a href="#roles-tab"><i data-lucide="shield-alert"></i> Staff Roles</a>
         <a href="#livestream"><i data-lucide="radio"></i> Livestream</a>
         <a href="#events-tab" data-portal-tab="events"><i data-lucide="calendar"></i> Events Manager</a>
         <a href="#followup"><i data-lucide="messages-square"></i> Follow-up</a>
@@ -322,6 +326,104 @@
                 </div>
               </div>
             </details>
+          </section>
+
+          <section class="field-category" id="rides">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="car"></i></span>
+              <div><h3>Transportation & Ride Requests</h3><p>Manage Sunday visitor pickups and 3-stage follow-up communications.</p></div>
+            </div>
+            <div class="readable-block">
+              <div class="table-responsive">
+                <table class="table-styled">
+                  <thead>
+                    <tr>
+                      <th>Visitor Name</th>
+                      <th>Pickup Address</th>
+                      <th>Service & Passengers</th>
+                      <th>Follow-up Stage</th>
+                      <th>Driver Assigned</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="portal-rides-table-body">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="field-category" id="salvation-tab">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="heart"></i></span>
+              <div><h3>Salvation Decisions & New Believers</h3><p>People who prayed the Sinner's Prayer through your church profile.</p></div>
+            </div>
+            <div class="readable-block">
+              <div class="table-responsive">
+                <table class="table-styled">
+                  <thead>
+                    <tr>
+                      <th>New Believer</th>
+                      <th>Contact Info</th>
+                      <th>Needs (Bible/Prayer)</th>
+                      <th>Follow-up Status</th>
+                      <th>Assigned Evangelism Leader</th>
+                    </tr>
+                  </thead>
+                  <tbody id="portal-salvation-table-body">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="field-category" id="verification-tab">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="file-check"></i></span>
+              <div><h3>Church Verification Documents</h3><p>Submit legal incorporation & pastoral proof for platform verified badge.</p></div>
+            </div>
+            <div class="readable-block">
+              <div class="readable-grid">
+                <div><span>Verification Status</span><strong id="portal-verification-status-badge"><span class="badge verified">Verified</span></strong></div>
+                <div><span>Registration Number</span><strong>REG-884920-AB</strong></div>
+              </div>
+              <details class="block-editor">
+                <summary><span><i data-lucide="upload"></i> Upload / Update Verification Docs</span><small>Incorporation cert, pastoral license</small></summary>
+                <div class="editor-body">
+                  <label class="form-field"><span>Legal Church Name</span><input placeholder="Legal Corporate Name" /></label>
+                  <label class="form-field"><span>Registration Document URL / File</span><input type="url" placeholder="https://..." /></label>
+                  <label class="form-field"><span>Pastor Licensing Body</span><input placeholder="e.g. Alliance Canada / PAOC" /></label>
+                  <div class="editor-actions">
+                    <button class="button primary small" type="button" onclick="MWE.submitVerificationDocs()"><i data-lucide="upload-cloud"></i> Submit for Review</button>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </section>
+
+          <section class="field-category" id="roles-tab">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="shield-alert"></i></span>
+              <div><h3>Staff Roles & Access Permissions</h3><p>Manage team member permissions for church portal administration.</p></div>
+            </div>
+            <div class="readable-block">
+              <div class="readable-grid three">
+                <div class="content-callout">
+                  <span>Senior Pastor</span>
+                  <strong>Full Administrative Access</strong>
+                </div>
+                <div class="content-callout">
+                  <span>Transportation Coordinator</span>
+                  <strong>Ride Requests & Driver Assignments</strong>
+                </div>
+                <div class="content-callout">
+                  <span>Evangelism Leader</span>
+                  <strong>Salvation & Visitor Follow-up</strong>
+                </div>
+              </div>
+            </div>
           </section>
 
           <section class="field-category" id="ministries">

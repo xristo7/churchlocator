@@ -156,7 +156,7 @@
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
         <span class="brand-mark"><i data-lucide="church"></i></span>
-        <span><strong>My Way</strong><small>Evangelism Platform</small></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
       </a>
       <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
         <i data-lucide="menu"></i>
@@ -164,12 +164,15 @@
 
       <div class="topbar-menu-group">
         <nav class="nav-links">
-          <a href="churches.html#find" data-t="find_churches">Churches</a>
-          <a href="events.html" data-t="events">Events</a>
-          <a href="livestream.html" data-t="streams">Livestreams</a>
+          <a href="index.html">Home</a>
+          <a href="churches.html">Find a Church</a>
+          <a href="events.html" class="active">Events</a>
+          <a href="livestream.html">Livestreams</a>
+          <a href="foundation.html">Foundation</a>
+          <a href="donate.html" class="highlight-link">Donate</a>
         </nav>
         <div class="nav-actions">
-          <!-- Dynamically populated language dropdown selector -->
+          <a class="button outline mini-btn" href="church-portal.html"><i data-lucide="log-in"></i> Church Portal</a>
         </div>
       </div>
     </div>
@@ -509,14 +512,22 @@
   </div>
 
   <!-- Platform Footer -->
-  <footer class="section" style="background:#141716;color:#fff">
-    <div class="container section-head">
-      <div>
-        <h2>My Way of Evangelism</h2>
-        <p style="color:#d7ded8">A public bridge from search to local church connection.</p>
-      </div>
-      <div class="actions">
-        <a class="button light" href="/church-portal">Church Register / Login</a>
+  <footer class="mini-footer">
+    <div class="container">
+      <div class="mini-footer-inner">
+        <a class="mini-footer-brand" href="/">
+          <span class="mini-footer-mark"><i data-lucide="calendar-days"></i></span>
+          <span>My Way of Evangelism</span>
+        </a>
+        <div class="mini-footer-meta">
+          <span>&copy; 2026</span>
+          <span>Event discovery and registration</span>
+        </div>
+        <nav class="mini-footer-links" aria-label="Quick links">
+          <a href="/events">All Events</a>
+          <a href="/churches">Directory</a>
+          <a class="primary" href="/church-portal">Church Portal</a>
+        </nav>
       </div>
     </div>
   </footer>

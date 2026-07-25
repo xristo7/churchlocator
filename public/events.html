@@ -13,7 +13,7 @@
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
         <span class="brand-mark"><i data-lucide="church"></i></span>
-        <span><strong>My Way</strong><small>Church discovery</small></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
       </a>
       <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
         <i data-lucide="menu"></i>
@@ -21,12 +21,15 @@
 
       <div class="topbar-menu-group">
         <nav class="nav-links">
-          <a href="churches.html#find" data-t="find_churches">Churches</a>
-          <a href="events.html" class="active" data-t="events">Events</a>
-          <a href="livestream.html" data-t="streams">Livestreams</a>
+          <a href="index.html">Home</a>
+          <a href="churches.html">Find a Church</a>
+          <a href="events.html" class="active">Events</a>
+          <a href="livestream.html">Livestreams</a>
+          <a href="foundation.html">Foundation</a>
+          <a href="donate.html" class="highlight-link">Donate</a>
         </nav>
         <div class="nav-actions">
-          <!-- Dynamically populated language dropdown selector -->
+          <a class="button outline mini-btn" href="church-portal.html"><i data-lucide="log-in"></i> Church Portal</a>
         </div>
       </div>
     </div>
@@ -48,9 +51,16 @@
             <input class="field" id="event-city-input" placeholder="Search by city (e.g. Edmonton)..." />
             
             <select id="event-type-select" class="field">
-              <option value="all">All event types</option>
+              <option value="all">All Event Categories</option>
               <option value="in-person">In-Person Gatherings</option>
-              <option value="streamed">Livestreams & Streamed</option>
+              <option value="streamed">Livestreams & Online Broadcasts</option>
+              <option value="sunday-services">Sunday Services & Worship</option>
+              <option value="conferences">Conferences & Revival Meetings</option>
+              <option value="youth-events">Youth & Student Rallies</option>
+              <option value="prayer-programs">Prayer & Fasting Meetings</option>
+              <option value="evangelism-outreaches">Evangelism & Street Outreaches</option>
+              <option value="community-assistance">Community Assistance & Food Drives</option>
+              <option value="fundraisers">Kingdom Fundraisers & Gala</option>
             </select>
 
             <select id="event-price-select" class="field">
@@ -98,14 +108,49 @@
     </section>
   </main>
 
-  <footer class="section" style="background:#141716;color:#fff">
-    <div class="container section-head">
-      <div>
-        <h2>My Way of Evangelism</h2>
-        <p style="color:#d7ded8">A public bridge from search to local church connection.</p>
+  <footer class="platform-footer">
+    <div class="container">
+      <div class="footer-main">
+        <div class="footer-brand-block">
+          <a class="footer-brand" href="/">
+            <span class="footer-brand-mark"><i data-lucide="church"></i></span>
+            <span>My Way of Evangelism</span>
+          </a>
+          <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, services, events, and livestreams near them.</p>
+          <div class="footer-cta-row">
+            <a class="footer-button primary" href="/churches"><i data-lucide="search"></i> Find a Church</a>
+            <a class="footer-button" href="/church-portal"><i data-lucide="log-in"></i> Church Portal</a>
+          </div>
+        </div>
+        <nav class="footer-column" aria-label="Explore">
+          <h2>Explore</h2>
+          <ul class="footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/churches">Church Directory</a></li>
+            <li><a href="/events">Events</a></li>
+            <li><a href="/livestream">Livestreams</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-column" aria-label="Churches">
+          <h2>For Churches</h2>
+          <ul class="footer-links">
+            <li><a href="/church-portal">Register or Sign In</a></li>
+            <li><a href="/owner-dashboard">Owner Dashboard</a></li>
+            <li><a href="/church-portal#events-tab">Manage Events</a></li>
+            <li><a href="/church-portal#livestream">Livestream Setup</a></li>
+          </ul>
+        </nav>
+        <div class="footer-column">
+          <h2>Connect</h2>
+          <div class="footer-contact-card">
+            <div class="footer-contact-row"><i data-lucide="map-pin"></i><span>Serving churches and communities across North America.</span></div>
+            <div class="footer-contact-row"><i data-lucide="shield-check"></i><span>Verified profiles, ministry details, and public church discovery.</span></div>
+          </div>
+        </div>
       </div>
-      <div class="actions">
-        <a class="button light" href="/church-portal">Church Register / Login</a>
+      <div class="footer-bottom">
+        <span>&copy; 2026 My Way of Evangelism. All rights reserved.</span>
+        <span class="footer-status">Platform online</span>
       </div>
     </div>
   </footer>

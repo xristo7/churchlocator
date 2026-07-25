@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Way of Evangelism | Find a Church near You</title>
+  <title>My Way of Evangelism | Find a Church Family Near You</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="app.js"></script>
 </head>
-<body data-page="home" class="hero-only-page">
+<body data-page="home">
+  <!-- Topbar Header -->
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
         <span class="brand-mark"><i data-lucide="church"></i></span>
-        <span><strong>My Way</strong><small>Church discovery</small></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
       </a>
       <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
         <i data-lucide="menu"></i>
@@ -21,18 +22,21 @@
 
       <div class="topbar-menu-group">
         <nav class="nav-links">
-          <a href="churches.html#find" data-t="find_churches">Churches</a>
-          <a href="events.html" data-t="events">Events</a>
-          <a href="livestream.html" data-t="streams">Livestreams</a>
+          <a href="churches.html">Find a Church</a>
+          <a href="events.html">Events</a>
+          <a href="livestream.html">Livestreams</a>
+          <a href="foundation.html">Foundation</a>
+          <a href="donate.html" class="highlight-link">Donate</a>
         </nav>
         <div class="nav-actions">
-          <!-- Dynamically populated language dropdown selector -->
+          <a class="button outline mini-btn" href="church-portal.html"><i data-lucide="log-in"></i> Church Portal</a>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="hero-main">
+  <!-- Hero Section -->
+  <main>
     <section class="hero-fullscreen">
       <div class="video-background">
         <iframe src="https://www.youtube.com/embed/jiSyB8QZzk8?autoplay=1&mute=1&loop=1&playlist=jiSyB8QZzk8&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&playsinline=1&enablejsapi=1" 
@@ -45,39 +49,50 @@
         
         <!-- Left Side Content -->
         <div class="hero-left">
-          <h1 data-t="hero_title">Find a church family near you.</h1>
-          <p class="lead" data-t="hero_subtitle">Search verified churches by city, ministry, service time, and livestream availability. Open a church profile, contact the church, get directions, and join online when livestream is enabled.</p>
-          
+          <span class="eyebrow-light"><i data-lucide="sparkles"></i> Love in Action • Verified Fellowships</span>
+          <h1>Find a Church Family Near You.</h1>
+          <p class="lead">We bridge the path from search to local church community—helping seekers find verified fellowships, request free Sunday rides, receive prayer, accept Jesus Christ, and support bi-monthly orphanage outreach.</p>
+
+          <!-- Primary Hero CTA Buttons -->
+          <div class="hero-cta-row">
+            <a href="churches.html" class="button primary lg">
+              <i data-lucide="search"></i> <span>Find a Church Family</span>
+            </a>
+            <button type="button" class="button secondary lg" onclick="MWE.openRideModal()">
+              <i data-lucide="car"></i> <span>Request a Sunday Ride</span>
+            </button>
+            <button type="button" class="button ghost lg" onclick="MWE.openPrayerModal()">
+              <i data-lucide="heart-handshake"></i> <span>I Need Prayer</span>
+            </button>
+          </div>
+
           <!-- Nearby Churches Slider Overlay -->
-          <div class="slider-wrapper">
-            <span class="slider-label"><i data-lucide="compass"></i> <span data-t="churches_in_area">Churches in your area</span></span>
+          <div class="slider-wrapper mt-6">
+            <span class="slider-label"><i data-lucide="compass"></i> <span>Verified churches near you</span></span>
             <div class="slider-container-box">
               <div class="slider-track" data-hero-slider>
-                <!-- Tiny church cards dynamically injected by app.js -->
-                <div class="slider-loading" data-t="checking_location">Checking your location...</div>
+                <div class="slider-loading">Checking your location...</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Right Side Floating Form -->
+        <!-- Right Side Floating Search Card -->
         <div class="hero-right">
           <div class="search-card">
             <div class="search-card-header">
-              <h2 data-t="find_church_family">Find a Church Family</h2>
-              <p data-t="search_card_desc">Search fellowships, ministries, and active livestream channels near you.</p>
+              <h2>Search Fellowships & Streams</h2>
+              <p>Find trusted local churches by city, worship style, or ministry focus.</p>
             </div>
             
             <form data-hero-search-form action="churches.html" method="GET">
               <div class="form-group">
-                <label for="hero-city-input" data-t="city_location">City / Location</label>
+                <label for="hero-city-input">City / Location</label>
                 <div class="location-combined-group">
                   <div class="input-with-icon city-section">
                     <i data-lucide="map-pin" class="input-icon"></i>
-                    <input type="text" id="hero-city-input" name="city" list="cities-list" class="field" placeholder="City name or area name" autocomplete="off" />
-                    <datalist id="cities-list">
-                      <!-- Dynamic city suggestions injected by app.js -->
-                    </datalist>
+                    <input type="text" id="hero-city-input" name="city" list="cities-list" class="field" placeholder="e.g. Edmonton, Calgary, Vancouver" autocomplete="off" />
+                    <datalist id="cities-list"></datalist>
                   </div>
                   <div class="country-section">
                     <select id="hero-country-select" name="country" class="field country-dropdown">
@@ -89,19 +104,20 @@
               </div>
 
               <div class="form-group">
-                <label for="hero-ministry-select" data-t="interested_in">Interested in</label>
-                <select id="hero-ministry-select" name="ministry" class="field" multiple>
-                  <option value="kids" data-t-option="kids">Kids & Children</option>
-                  <option value="youth" data-t-option="youth">Youth & Youth Ministry</option>
-                  <option value="prayer" data-t-option="prayer">Prayer Groups</option>
-                  <option value="worship" data-t-option="worship">Worship Team</option>
-                  <option value="missions" data-t-option="missions">Missions & Outreach</option>
+                <label for="hero-ministry-select">Interested in</label>
+                <select id="hero-ministry-select" name="ministry" class="field">
+                  <option value="">All Ministries & Features</option>
+                  <option value="kids">Kids & Children</option>
+                  <option value="youth">Youth & Students</option>
+                  <option value="prayer">Prayer Groups</option>
+                  <option value="worship">Worship Team</option>
+                  <option value="transportation">Free Sunday Transportation</option>
                 </select>
               </div>
 
               <div class="form-group toggle-group">
                 <label class="toggle-label-wrapper">
-                  <span class="toggle-label-text" data-t="only_livestream">Only show livestreaming churches</span>
+                  <span class="toggle-label-text">Only show livestreaming churches</span>
                   <div class="toggle-switch">
                     <input type="checkbox" id="hero-stream-toggle" name="stream" value="true" />
                     <span class="toggle-slider"></span>
@@ -110,7 +126,7 @@
               </div>
 
               <button type="submit" class="button search-submit-button">
-                <i data-lucide="search"></i> <span data-t="find_button">Find a Church Family</span>
+                <i data-lucide="search"></i> <span>Find a Church Family</span>
               </button>
             </form>
           </div>
@@ -118,7 +134,279 @@
 
       </div>
     </section>
+
+    <!-- Platform Actions Gateway Grid -->
+    <section class="section platform-gateway-section bg-soft border-b">
+      <div class="container">
+        <div class="section-head center">
+          <p class="kicker"><i data-lucide="grid"></i> Platform Doorways</p>
+          <h2>How Can We Serve You Today?</h2>
+          <p class="lead">Choose an action below to find a fellowship, get transportation, receive prayer, accept Christ, or support outreach.</p>
+        </div>
+
+        <div class="gateway-cards-grid">
+          <a href="churches.html" class="gateway-card">
+            <div class="gateway-icon"><i data-lucide="search"></i></div>
+            <h3>Find a Church</h3>
+            <p>Search verified churches by city, denomination, and worship style.</p>
+            <span class="gateway-link">Browse Directory <i data-lucide="arrow-right"></i></span>
+          </a>
+
+          <button type="button" class="gateway-card" onclick="MWE.openRideModal()">
+            <div class="gateway-icon"><i data-lucide="car"></i></div>
+            <h3>I Need a Ride</h3>
+            <p>Request free Sunday transportation for yourself or your family.</p>
+            <span class="gateway-link">Request Ride <i data-lucide="arrow-right"></i></span>
+          </button>
+
+          <button type="button" class="gateway-card" onclick="MWE.openPrayerModal()">
+            <div class="gateway-icon"><i data-lucide="heart-handshake"></i></div>
+            <h3>I Need Prayer</h3>
+            <p>Submit a private or pastoral prayer request for our team to pray.</p>
+            <span class="gateway-link">Submit Request <i data-lucide="arrow-right"></i></span>
+          </button>
+
+          <a href="#salvation-section" class="gateway-card">
+            <div class="gateway-icon"><i data-lucide="cross"></i></div>
+            <h3>I Received Jesus</h3>
+            <p>Say the Sinner's Prayer and connect with new believer follow-up care.</p>
+            <span class="gateway-link">Accept Christ <i data-lucide="arrow-right"></i></span>
+          </a>
+
+          <a href="livestream.html" class="gateway-card">
+            <div class="gateway-icon"><i data-lucide="tv"></i></div>
+            <h3>Watch Live</h3>
+            <p>Tune into interactive Sunday broadcasts and online church services.</p>
+            <span class="gateway-link">Stream Services <i data-lucide="arrow-right"></i></span>
+          </a>
+
+          <a href="events.html" class="gateway-card">
+            <div class="gateway-icon"><i data-lucide="calendar"></i></div>
+            <h3>Upcoming Events</h3>
+            <p>Find conferences, youth rallies, prayer meetings, and outreaches.</p>
+            <span class="gateway-link">View Events <i data-lucide="arrow-right"></i></span>
+          </a>
+
+          <a href="donate.html" class="gateway-card">
+            <div class="gateway-icon"><i data-lucide="gift"></i></div>
+            <h3>Donate & Partner</h3>
+            <p>Support orphanage outreach, visitor transportation, and ministry.</p>
+            <span class="gateway-link">Give Online <i data-lucide="arrow-right"></i></span>
+          </a>
+
+          <a href="church-portal.html" class="gateway-card">
+            <div class="gateway-icon"><i data-lucide="building-2"></i></div>
+            <h3>Register Your Church</h3>
+            <p>List your local fellowship, manage events, and follow up visitors.</p>
+            <span class="gateway-link">Church Portal <i data-lucide="arrow-right"></i></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Introductory Video & How It Works Slideshow -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <p class="kicker"><i data-lucide="play-circle"></i> How the Platform Works</p>
+          <h2>Guiding You from Search to Fellowship</h2>
+          <p class="lead">Watch our video overview to see how My Way of Evangelism helps seekers, visitors, new believers, and local churches connect.</p>
+        </div>
+
+        <div class="explainer-video-card">
+          <div class="explainer-video-wrapper">
+            <iframe src="https://www.youtube.com/embed/jiSyB8QZzk8?rel=0&modestbranding=1" 
+                    title="How My Way of Evangelism Works" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen></iframe>
+          </div>
+          <div class="explainer-steps-grid">
+            <div class="explainer-step-item">
+              <div class="step-num">1</div>
+              <h3>Search & Tour</h3>
+              <p class="text-xs text-muted">Browse verified local church profiles, tour facilities on video, and inspect service schedules.</p>
+            </div>
+            <div class="explainer-step-item">
+              <div class="step-num">2</div>
+              <h3>Request a Ride</h3>
+              <p class="text-xs text-muted">Submit your pickup details. Our church transportation team follows up 3 times to ensure a comfortable visit.</p>
+            </div>
+            <div class="explainer-step-item">
+              <div class="step-num">3</div>
+              <h3>Receive Salvation</h3>
+              <p class="text-xs text-muted">Pray the Sinner's Prayer, connect with a pastor, receive a free Bible, and grow in your faith journey.</p>
+            </div>
+            <div class="explainer-step-item">
+              <div class="step-num">4</div>
+              <h3>Support Outreach</h3>
+              <p class="text-xs text-muted">Join bi-monthly foundation projects supporting orphanages, vulnerable kids, and community care.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Platform Purpose Pillars -->
+    <section class="section bg-soft border-y">
+      <div class="container">
+        <div class="section-head center">
+          <p class="kicker"><i data-lucide="compass"></i> Our Complete Purpose</p>
+          <h2>What My Way of Evangelism Stands For</h2>
+          <p class="lead">More than a directory—we are a complete digital evangelism and local church connection platform.</p>
+        </div>
+
+        <div class="readable-grid three">
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="shield-check"></i></div>
+              <h3>Trusted Local Churches</h3>
+            </div>
+            <p class="text-sm text-muted">Find verified churches near you with clear statements of faith, service times, and leadership details.</p>
+          </div>
+
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="car"></i></div>
+              <h3>Sunday Transportation</h3>
+            </div>
+            <p class="text-sm text-muted">Request free pickup for yourself or your family to ensure you can attend church smoothly.</p>
+          </div>
+
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="heart-handshake"></i></div>
+              <h3>Prayer & Support Network</h3>
+            </div>
+            <p class="text-sm text-muted">Submit confidential or public prayer requests and receive support from dedicated prayer teams.</p>
+          </div>
+
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="cross"></i></div>
+              <h3>Salvation & Spiritual Growth</h3>
+            </div>
+            <p class="text-sm text-muted">Discover the Gospel message, pray the Sinner's Prayer, and receive follow-up discipleship care.</p>
+          </div>
+
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="users"></i></div>
+              <h3>Youth & Next Generation</h3>
+            </div>
+            <p class="text-sm text-muted">Promote active youth ministries, mentorship, student events, and youth leadership programs.</p>
+          </div>
+
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="heart"></i></div>
+              <h3>Foundation & Orphanages</h3>
+            </div>
+            <p class="text-sm text-muted">Support bi-monthly outreach providing food, clothing, school supplies, and medical aid to orphanages.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Salvation & Sinner's Prayer Section -->
+    <section id="salvation-section" class="section salvation-banner">
+      <div class="container">
+        <div class="salvation-card">
+          <div class="salvation-card-head">
+            <span class="salvation-badge"><i data-lucide="cross"></i> Receive Jesus Today</span>
+            <h2>The Gift of Eternal Life & Salvation</h2>
+            <p class="lead">No matter where you are in life, Jesus Christ loves you and offers forgiveness, hope, and new life. If you want to accept Jesus into your heart today, say this prayer with faith:</p>
+          </div>
+
+          <div class="sinners-prayer-box">
+            <i data-lucide="quote" class="quote-icon"></i>
+            <blockquote class="sinners-prayer-text">
+              “Lord Jesus, I believe that You are the Son of God. I believe that You died for my sins and that God raised You from the dead. I receive You today as my Lord and personal Saviour. Forgive me, cleanse me, and help me live for You. Thank You for saving me. Amen.”
+            </blockquote>
+          </div>
+
+          <div class="text-center mt-6">
+            <button type="button" class="button primary xl salvation-confirm-btn" onclick="MWE.openSalvationModal()">
+              <i data-lucide="heart"></i> I Have Received Jesus Christ
+            </button>
+            <p class="text-xs text-muted mt-2">Clicking will open a short form so a church evangelism team can send you a free Bible & welcome guide.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Foundation Preview Bar -->
+    <section class="section">
+      <div class="container">
+        <div class="dash-panel dash-panel-pad">
+          <div class="dashboard-grid">
+            <div>
+              <span class="eyebrow"><i data-lucide="heart"></i> My Way of Evangelism Foundation</span>
+              <h2>Humanitarian Outreach for Orphanages & Children</h2>
+              <p>Every 2 to 3 months, our foundation delivers food, clothing, school supply packs, medical support, and spiritual encouragement to orphanages and vulnerable families.</p>
+              <div class="mt-4 flex-gap">
+                <a href="foundation.html" class="button primary"><i data-lucide="arrow-right"></i> Explore Foundation Projects</a>
+                <a href="donate.html" class="button outline"><i data-lucide="gift"></i> Support Outreach</a>
+              </div>
+            </div>
+            <div class="foundation-mini-preview">
+              <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=600&q=80" alt="Orphanage support" class="rounded-preview-img" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <!-- Platform Footer -->
+  <footer class="platform-footer">
+    <div class="container">
+      <div class="footer-main">
+        <div class="footer-brand-block">
+          <a class="footer-brand" href="/">
+            <span class="footer-brand-mark"><i data-lucide="church"></i></span>
+            <span>My Way of Evangelism</span>
+          </a>
+          <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, transportation, prayer, salvation, and humanitarian care.</p>
+          <div class="footer-cta-row">
+            <a class="footer-button primary" href="/churches"><i data-lucide="search"></i> Find a Church</a>
+            <a class="footer-button" href="/church-portal"><i data-lucide="log-in"></i> Church Portal</a>
+          </div>
+        </div>
+        <nav class="footer-column" aria-label="Explore">
+          <h2>Explore</h2>
+          <ul class="footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/churches">Find a Church</a></li>
+            <li><a href="/events">Events</a></li>
+            <li><a href="/livestream">Livestreams</a></li>
+            <li><a href="/foundation">Foundation</a></li>
+            <li><a href="/donate">Donate</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-column" aria-label="Policies">
+          <h2>Legal & Safety</h2>
+          <ul class="footer-links">
+            <li><a href="/privacy">Privacy Policy</a></li>
+            <li><a href="/terms">Terms & Conditions</a></li>
+            <li><a href="/safeguarding">Child Safeguarding</a></li>
+            <li><a href="/church-portal">Register Your Church</a></li>
+          </ul>
+        </nav>
+        <div class="footer-column">
+          <h2>Connect</h2>
+          <div class="footer-contact-card">
+            <div class="footer-contact-row"><i data-lucide="map-pin"></i><span>Serving churches & humanitarian causes across North America.</span></div>
+            <div class="footer-contact-row"><i data-lucide="shield-check"></i><span>Verified outreach, transparent giving, and child protection.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 My Way of Evangelism. All rights reserved.</span>
+        <span class="footer-status">Platform Online</span>
+      </div>
+    </div>
+  </footer>
 
   <div class="toast" data-toast>Done</div>
 </body>

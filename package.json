@@ -9,7 +9,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "deploy:pages": "wrangler pages deploy public --project-name=my-way-of-evangelism",
-    "tail": "wrangler tail churchlocator"
+    "tail": "wrangler tail my-way-of-evangelism"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

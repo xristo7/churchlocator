@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donate & Partner | My Way of Evangelism</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js"></script>
+</head>
+<body data-page="donate">
+  <!-- Navigation Header -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
+      </a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="churches.html">Find a Church</a>
+          <a href="events.html">Events</a>
+          <a href="livestream.html">Livestreams</a>
+          <a href="foundation.html">Foundation</a>
+          <a href="donate.html" class="active highlight-link">Donate</a>
+        </nav>
+        <div class="nav-actions">
+          <a class="button outline mini-btn" href="church-portal.html"><i data-lucide="log-in"></i> Church Portal</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section donate-hero">
+      <div class="container">
+        <div class="donate-grid">
+          <!-- Left side info -->
+          <div class="donate-info-side">
+            <p class="kicker"><i data-lucide="gift"></i> Empower Evangelism & Community Care</p>
+            <h1>Fuel Church Connection, Rides & Orphanage Support</h1>
+            <p class="lead">Your direct generosity powers visitor transportation, youth mentorship, church livestreams, salvation follow-ups, and bi-monthly orphanage supply deliveries.</p>
+            
+            <div class="tax-disclaimer-box">
+              <div class="disclaimer-header">
+                <i data-lucide="shield-check"></i>
+                <span>Canadian & International Tax Receipt Notice</span>
+              </div>
+              <p>Official charitable tax receipts are issued by legally registered entity partners upon request. Donations allocated to unverified initiatives or pending church applicants are processed as direct ministry gifts.</p>
+            </div>
+
+            <div class="guarantee-list">
+              <div class="guarantee-item">
+                <div class="guarantee-icon-badge"><i data-lucide="shield-check"></i></div>
+                <div>
+                  <strong>100% Target Allocation</strong>
+                  <p>Funds go directly to your chosen designated cause or verified local church.</p>
+                </div>
+              </div>
+              <div class="guarantee-item">
+                <div class="guarantee-icon-badge"><i data-lucide="lock"></i></div>
+                <div>
+                  <strong>Secure 256-Bit Encrypted Giving</strong>
+                  <p>Bank-grade security with instant downloadable receipt summaries.</p>
+                </div>
+              </div>
+              <div class="guarantee-item">
+                <div class="guarantee-icon-badge"><i data-lucide="file-spreadsheet"></i></div>
+                <div>
+                  <strong>Public Financial Transparency</strong>
+                  <p>Every outreach dollar spent is published in transparent impact reports.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right side giving card -->
+          <div class="donate-card-side">
+            <div class="donate-form-panel">
+              <h2>Select Your Contribution</h2>
+              <form data-donation-form onsubmit="MWE.handleDonationSubmit(event)">
+                
+                <!-- Giving Frequency -->
+                <div class="form-group-block">
+                  <label class="form-label-bold">Frequency</label>
+                  <div class="giving-freq-selector">
+                    <button type="button" class="freq-btn active" data-freq="one-time" onclick="MWE.setGivingFreq(this, 'one-time')">One-Time</button>
+                    <button type="button" class="freq-btn" data-freq="weekly" onclick="MWE.setGivingFreq(this, 'weekly')">Weekly</button>
+                    <button type="button" class="freq-btn" data-freq="monthly" onclick="MWE.setGivingFreq(this, 'monthly')">Monthly</button>
+                  </div>
+                </div>
+
+                <!-- Designated Target -->
+                <div class="form-group-block">
+                  <label for="donate-target-select" class="form-label-bold">Designate Donation To</label>
+                  <select id="donate-target-select" name="target" class="styled-select-field" required>
+                    <option value="where-needed-most">🌟 Where Needed Most (General Ministry)</option>
+                    <optgroup label="Churches & Local Fellowships">
+                      <option value="christ-embassy-edmonton">Christ Embassy Edmonton (Edmonton, AB)</option>
+                      <option value="beulah-alliance-west">Beulah Alliance Church (Edmonton, AB)</option>
+                      <option value="first-alliance-calgary">First Alliance Church (Calgary, AB)</option>
+                    </optgroup>
+                    <optgroup label="Evangelism & Ministry Programs">
+                      <option value="visitor-transportation">🚗 Visitor Transportation & Ride System</option>
+                      <option value="salvation-evangelism">✝️ Salvation & New Believer Follow-up</option>
+                      <option value="youth-ministry">🔥 Youth & Student Ministry</option>
+                      <option value="children-ministry">👶 Children's Sunday Ministry</option>
+                      <option value="building-projects">⛪ Church Building Projects</option>
+                      <option value="livestream-ministry">📺 Broadcast & Livestream Support</option>
+                    </optgroup>
+                    <optgroup label="Foundation & Humanitarian Outreach">
+                      <option value="orphanage-outreach">🧸 Orphanages & Vulnerable Children</option>
+                      <option value="food-clothing">🍲 Bulk Food & Winter Clothing Packs</option>
+                      <option value="school-supplies">🎒 Back-to-School Supply Backpacks</option>
+                      <option value="medical-assistance">🩺 Pediatric & Emergency Medical Care</option>
+                      <option value="emergency-relief">🆘 Emergency Family Relief Fund</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <!-- Amount Selection Pills -->
+                <div class="form-group-block">
+                  <label class="form-label-bold">Contribution Amount (USD)</label>
+                  <div class="amount-pills-grid">
+                    <button type="button" class="amount-pill" onclick="MWE.setDonateAmount(25, this)">$25</button>
+                    <button type="button" class="amount-pill active" onclick="MWE.setDonateAmount(50, this)">$50</button>
+                    <button type="button" class="amount-pill" onclick="MWE.setDonateAmount(100, this)">$100</button>
+                    <button type="button" class="amount-pill" onclick="MWE.setDonateAmount(250, this)">$250</button>
+                    <button type="button" class="amount-pill" onclick="MWE.setDonateAmount(500, this)">$500</button>
+                  </div>
+                  <div class="custom-amount-wrapper">
+                    <span class="currency-addon">$</span>
+                    <input type="number" id="donate-custom-amount" name="customAmount" class="custom-amount-input" placeholder="Custom amount" value="50" min="1" step="1" required />
+                  </div>
+                </div>
+
+                <!-- Donor Contact Info -->
+                <div class="form-grid mb-4">
+                  <div class="form-group">
+                    <label for="donor-full-name" class="form-label-bold">Full Name</label>
+                    <input type="text" id="donor-full-name" name="fullName" class="styled-input-field" placeholder="John Smith" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="donor-email" class="form-label-bold">Email Address</label>
+                    <input type="email" id="donor-email" name="email" class="styled-input-field" placeholder="john@example.com" required />
+                  </div>
+                </div>
+
+                <div class="form-group-block">
+                  <label for="donor-message" class="form-label-bold">Dedication or Note (Optional)</label>
+                  <input type="text" id="donor-message" name="message" class="styled-input-field" placeholder="In honor of... or Prayer dedication" />
+                </div>
+
+                <!-- Anonymous Checkbox -->
+                <div class="form-group toggle-group mb-6">
+                  <label class="toggle-label-wrapper">
+                    <span class="toggle-label-text">Make this an anonymous donation</span>
+                    <div class="toggle-switch">
+                      <input type="checkbox" id="donor-anonymous-toggle" name="isAnonymous" value="true" />
+                      <span class="toggle-slider"></span>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="donation-submit-btn">
+                  <i data-lucide="heart"></i> Complete Secure Donation
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Transparency & Impact Reports Section -->
+    <section class="section bg-soft border-t">
+      <div class="container">
+        <div class="section-head center">
+          <p class="kicker"><i data-lucide="shield-check"></i> Financial Transparency</p>
+          <h2>Where Your Generosity Goes</h2>
+          <p class="lead">We publish verified expenditure reports, receipts, and project updates for complete donor trust.</p>
+        </div>
+
+        <div class="kpi-strip mb-8">
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="dollar-sign"></i></div>
+            <strong>$184,250</strong>
+            <span>Total Raised Platform-Wide</span>
+          </div>
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="trending-up"></i></div>
+            <strong>$168,900</strong>
+            <span>Direct Project Expenditures</span>
+          </div>
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="home"></i></div>
+            <strong>32</strong>
+            <span>Churches & Outreaches Funded</span>
+          </div>
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="users"></i></div>
+            <strong>2,850+</strong>
+            <span>Visitors & Kids Impacted</span>
+          </div>
+        </div>
+
+        <!-- Expense Audit Logs -->
+        <div class="dash-panel dash-panel-pad">
+          <h3>Recent Project Expenditure Reports</h3>
+          <div class="table-responsive mt-4">
+            <table class="table-styled">
+              <thead>
+                <tr>
+                  <th>Project / Cause</th>
+                  <th>Category</th>
+                  <th>Amount Spent</th>
+                  <th>Beneficiaries</th>
+                  <th>Verification</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Spring Orphanage Supply Delivery</strong></td>
+                  <td>Foundation Support</td>
+                  <td>$12,450.00</td>
+                  <td>280 Children</td>
+                  <td><span class="badge verified"><i data-lucide="check"></i> Verified Receipt</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Visitor Transportation Fleet Subsidy</strong></td>
+                  <td>Transportation</td>
+                  <td>$4,800.00</td>
+                  <td>420 Sunday Passengers</td>
+                  <td><span class="badge verified"><i data-lucide="check"></i> Verified Receipt</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Youth Summer Conference Sponsorships</strong></td>
+                  <td>Youth Ministry</td>
+                  <td>$8,200.00</td>
+                  <td>115 Youth Attendees</td>
+                  <td><span class="badge verified"><i data-lucide="check"></i> Verified Receipt</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Platform Footer -->
+  <footer class="platform-footer">
+    <div class="container">
+      <div class="footer-main">
+        <div class="footer-brand-block">
+          <a class="footer-brand" href="/">
+            <span class="footer-brand-mark"><i data-lucide="church"></i></span>
+            <span>My Way of Evangelism</span>
+          </a>
+          <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, transportation, prayer, salvation, and humanitarian care.</p>
+          <div class="footer-cta-row">
+            <a class="footer-button primary" href="/churches"><i data-lucide="search"></i> Find a Church</a>
+            <a class="footer-button" href="/church-portal"><i data-lucide="log-in"></i> Church Portal</a>
+          </div>
+        </div>
+        <nav class="footer-column" aria-label="Explore">
+          <h2>Explore</h2>
+          <ul class="footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/churches">Find a Church</a></li>
+            <li><a href="/events">Events</a></li>
+            <li><a href="/livestream">Livestreams</a></li>
+            <li><a href="/foundation">Foundation</a></li>
+            <li><a href="/donate">Donate</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-column" aria-label="Policies">
+          <h2>Legal & Safety</h2>
+          <ul class="footer-links">
+            <li><a href="/privacy">Privacy Policy</a></li>
+            <li><a href="/terms">Terms & Conditions</a></li>
+            <li><a href="/safeguarding">Child Safeguarding</a></li>
+            <li><a href="/church-portal">Register Your Church</a></li>
+          </ul>
+        </nav>
+        <div class="footer-column">
+          <h2>Connect</h2>
+          <div class="footer-contact-card">
+            <div class="footer-contact-row"><i data-lucide="map-pin"></i><span>Serving churches & humanitarian causes across North America.</span></div>
+            <div class="footer-contact-row"><i data-lucide="shield-check"></i><span>Verified outreach, transparent giving, and child protection.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 My Way of Evangelism. All rights reserved.</span>
+        <span class="footer-status">Platform Online</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" data-toast>Done</div>
+</body>
+</html>

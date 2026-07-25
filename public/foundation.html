@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Way of Evangelism Foundation | Humanitarian & Orphanage Outreach</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js"></script>
+</head>
+<body data-page="foundation">
+  <!-- Navigation Header -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
+      </a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="churches.html">Find a Church</a>
+          <a href="events.html">Events</a>
+          <a href="livestream.html">Livestreams</a>
+          <a href="foundation.html" class="active">Foundation</a>
+          <a href="donate.html" class="highlight-link">Donate</a>
+        </nav>
+        <div class="nav-actions">
+          <a class="button outline mini-btn" href="church-portal.html"><i data-lucide="log-in"></i> Church Portal</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Foundation Hero Banner -->
+  <main>
+    <section class="section foundation-hero">
+      <div class="container">
+        <div class="foundation-hero-grid">
+          <div class="foundation-hero-text">
+            <span class="eyebrow"><i data-lucide="heart"></i> Love in Action</span>
+            <h1>Supporting Orphanages, Children & Vulnerable Families</h1>
+            <p class="lead">Every 2 to 3 months, the My Way of Evangelism Foundation mobilizes food, clothing, school supplies, medical support, and spiritual care to empower orphanages, vulnerable children, and struggling communities across North America and abroad.</p>
+            <div class="hero-cta-buttons">
+              <a href="donate.html" class="button primary lg"><i data-lucide="gift"></i> Support Outreach Projects</a>
+              <button type="button" class="button secondary lg" onclick="MWE.openFoundationAppModal()"><i data-lucide="building-2"></i> Apply for Organization Assistance</button>
+            </div>
+          </div>
+          <div class="foundation-hero-media">
+            <div class="hero-impact-card">
+              <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80" alt="Children Outreach" class="hero-impact-img" />
+              <div class="impact-card-badge"><i data-lucide="sparkles"></i> Outreach Every 60 Days</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Impact Stats Bar -->
+    <section class="section-sm bg-soft border-y">
+      <div class="container">
+        <div class="kpi-strip" data-foundation-kpis>
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="heart-handshake"></i></div>
+            <strong>1,420+</strong>
+            <span>Children & Families Served</span>
+          </div>
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="building-2"></i></div>
+            <strong>18</strong>
+            <span>Orphanages & Centers Supported</span>
+          </div>
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="package-check"></i></div>
+            <strong>6,500+</strong>
+            <span>Meals & Supply Kits Delivered</span>
+          </div>
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="shield-check"></i></div>
+            <strong>100%</strong>
+            <span>Transparent Project Funding</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- What We Support Grid -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <p class="kicker"><i data-lucide="sparkles"></i> Outreach Focus Areas</p>
+          <h2>How the Foundation Serves Communities</h2>
+          <p class="lead">We partner with local verified churches and approved orphanages to deliver tangible holistic support.</p>
+        </div>
+
+        <div class="readable-grid three">
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="utensils"></i></div>
+              <h3>Food & Clean Water</h3>
+            </div>
+            <p class="text-sm text-muted">Providing nutritious bulk food packs, baby formula, and clean water filtration for orphanages and low-income families.</p>
+          </div>
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="shirt"></i></div>
+              <h3>Clothing & Hygiene Kits</h3>
+            </div>
+            <p class="text-sm text-muted">Distributing essential winter coats, shoes, blankets, soap, dental care, and personal sanitation items.</p>
+          </div>
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="graduation-cap"></i></div>
+              <h3>Education & School Supplies</h3>
+            </div>
+            <p class="text-sm text-muted">Equipping young students with backpacks, books, stationery, uniforms, and tuition sponsorships.</p>
+          </div>
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="stethoscope"></i></div>
+              <h3>Medical & Health Care</h3>
+            </div>
+            <p class="text-sm text-muted">Assisting with emergency prescription care, first-aid kits, pediatric checkups, and wellness supplies.</p>
+          </div>
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="home"></i></div>
+              <h3>Shelter & Emergency Relief</h3>
+            </div>
+            <p class="text-sm text-muted">Helping orphanages repair facilities, replace damaged beds, and withstand winter weather emergencies.</p>
+          </div>
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="book-open"></i></div>
+              <h3>Spiritual Care & Hope</h3>
+            </div>
+            <p class="text-sm text-muted">Sharing Bibles, children's devotional books, prayer support, and evangelistic mentorship for every child.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Outreach Projects Catalog -->
+    <section class="section bg-soft">
+      <div class="container">
+        <div class="section-head flex-between">
+          <div>
+            <p class="kicker"><i data-lucide="heart"></i> Bi-Monthly Projects</p>
+            <h2>Current & Recent Outreach Campaigns</h2>
+          </div>
+          <a href="donate.html" class="button outline">View All Donation Targets</a>
+        </div>
+
+        <div class="cards-grid" data-foundation-projects-grid>
+          <!-- Injected by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Orphanage Assistance Application Callout -->
+    <section class="section" id="apply-assistance">
+      <div class="container">
+        <div class="dash-panel dash-panel-pad foundation-app-banner">
+          <div class="dashboard-grid">
+            <div>
+              <span class="eyebrow"><i data-lucide="file-text"></i> For Orphanages & Nonprofits</span>
+              <h2>Need Humanitarian Assistance for Your Center?</h2>
+              <p>Orphanages, community shelters, and vulnerable children's organizations can apply for bi-monthly support (food, school supplies, clothing, facility aid). Every request undergoes verification prior to project approval.</p>
+              <ul class="check-list mt-4">
+                <li><i data-lucide="check-circle-2"></i> Open to registered orphanages and verified ministry centers</li>
+                <li><i data-lucide="check-circle-2"></i> Transparent review process by platform super-admins</li>
+                <li><i data-lucide="check-circle-2"></i> Direct funding and supply delivery coordination</li>
+              </ul>
+              <div class="mt-6">
+                <button type="button" class="button primary lg" onclick="MWE.openFoundationAppModal()"><i data-lucide="clipboard-edit"></i> Submit Assistance Application</button>
+              </div>
+            </div>
+            <div class="app-banner-card">
+              <h3>Required Information</h3>
+              <ol class="app-step-list">
+                <li>Organization registration details & leadership contacts</li>
+                <li>Number & ages of children served</li>
+                <li>Itemized list of urgent needs and estimated cost</li>
+                <li>Verification documents & facility photos</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Platform Footer -->
+  <footer class="platform-footer">
+    <div class="container">
+      <div class="footer-main">
+        <div class="footer-brand-block">
+          <a class="footer-brand" href="/">
+            <span class="footer-brand-mark"><i data-lucide="church"></i></span>
+            <span>My Way of Evangelism</span>
+          </a>
+          <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, transportation, prayer, salvation, and humanitarian care.</p>
+          <div class="footer-cta-row">
+            <a class="footer-button primary" href="/churches"><i data-lucide="search"></i> Find a Church</a>
+            <a class="footer-button" href="/church-portal"><i data-lucide="log-in"></i> Church Portal</a>
+          </div>
+        </div>
+        <nav class="footer-column" aria-label="Explore">
+          <h2>Explore</h2>
+          <ul class="footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/churches">Find a Church</a></li>
+            <li><a href="/events">Events</a></li>
+            <li><a href="/livestream">Livestreams</a></li>
+            <li><a href="/foundation">Foundation</a></li>
+            <li><a href="/donate">Donate</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-column" aria-label="Policies">
+          <h2>Legal & Safety</h2>
+          <ul class="footer-links">
+            <li><a href="/privacy">Privacy Policy</a></li>
+            <li><a href="/terms">Terms & Conditions</a></li>
+            <li><a href="/safeguarding">Child Safeguarding</a></li>
+            <li><a href="/church-portal">Register Your Church</a></li>
+          </ul>
+        </nav>
+        <div class="footer-column">
+          <h2>Connect</h2>
+          <div class="footer-contact-card">
+            <div class="footer-contact-row"><i data-lucide="map-pin"></i><span>Serving churches & humanitarian causes across North America.</span></div>
+            <div class="footer-contact-row"><i data-lucide="shield-check"></i><span>Verified outreach, transparent giving, and child protection.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 My Way of Evangelism Foundation. All rights reserved.</span>
+        <span class="footer-status">Platform Online</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" data-toast>Done</div>
+</body>
+</html>

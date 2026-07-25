@@ -12,8 +12,8 @@
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
-        <span class="brand-mark"><i data-lucide="radio"></i></span>
-        <span><strong>My Way</strong><small>Evangelism Live</small></span>
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
       </a>
       <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
         <i data-lucide="menu"></i>
@@ -21,21 +21,15 @@
 
       <div class="topbar-menu-group">
         <nav class="nav-links">
-          <a href="churches.html#find" data-t="find_churches">Churches</a>
-          <a href="events.html" data-t="events">Events</a>
-          <a href="livestream.html" class="active" data-t="streams">Livestreams</a>
+          <a href="index.html">Home</a>
+          <a href="churches.html">Find a Church</a>
+          <a href="events.html">Events</a>
+          <a href="livestream.html" class="active">Livestreams</a>
+          <a href="foundation.html">Foundation</a>
+          <a href="donate.html" class="highlight-link">Donate</a>
         </nav>
-        <div class="nav-actions" style="display: flex; align-items: center; gap: 12px;">
-          <a class="login-header-btn" id="header-login-btn" onclick="openLoginModal(event)" href="#">
-            <i class="fa-solid fa-circle-user" style="font-size: 1.15rem; color: var(--gold);"></i>
-            <span>Login</span>
-          </a>
-          <div class="hidden" id="header-user-badge" onclick="openProfileModal(event)" style="display: flex; align-items: center;">
-            <div class="header-profile-circle">
-              <img id="header-user-avatar" class="hidden" style="width: 100%; height: 100%; object-fit: cover;" />
-              <i class="fa-solid fa-user" id="header-user-icon" style="font-size: 1.1rem; color: var(--gold);"></i>
-            </div>
-          </div>
+        <div class="nav-actions">
+          <a class="button outline mini-btn" href="church-portal.html"><i data-lucide="log-in"></i> Church Portal</a>
         </div>
       </div>
     </div>
@@ -161,14 +155,22 @@
 
   </main>
 
-  <footer class="section" style="background:#141716;color:#fff">
-    <div class="container section-head">
-      <div>
-        <h2>My Way of Evangelism</h2>
-        <p style="color:#d7ded8">A public bridge from search to local church connection.</p>
-      </div>
-      <div class="actions">
-        <a class="button light" href="/church-portal">Church Register / Login</a>
+  <footer class="mini-footer">
+    <div class="container">
+      <div class="mini-footer-inner">
+        <a class="mini-footer-brand" href="/">
+          <span class="mini-footer-mark"><i data-lucide="radio"></i></span>
+          <span>My Way of Evangelism</span>
+        </a>
+        <div class="mini-footer-meta">
+          <span>&copy; 2026</span>
+          <span>Livestream experience</span>
+        </div>
+        <nav class="mini-footer-links" aria-label="Quick links">
+          <a href="/churches">Directory</a>
+          <a href="/events">Events</a>
+          <a class="primary" href="/church-portal">Church Portal</a>
+        </nav>
       </div>
     </div>
   </footer>

@@ -1116,7 +1116,7 @@
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
         <span class="brand-mark"><i data-lucide="church"></i></span>
-        <span><strong data-church-name>Church Name</strong><small>Platform Connection</small></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
       </a>
       <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
         <i data-lucide="menu"></i>
@@ -1124,16 +1124,16 @@
 
       <div class="topbar-menu-group">
         <nav class="nav-links">
-          <a href="churches.html#find" data-t="find_churches">Churches</a>
-          <a href="events.html" data-t="events">Events</a>
-          <a href="livestream.html" data-t="streams">Livestreams</a>
+          <a href="index.html">Home</a>
+          <a href="churches.html" class="active">Find a Church</a>
+          <a href="events.html">Events</a>
+          <a href="livestream.html">Livestreams</a>
+          <a href="foundation.html">Foundation</a>
+          <a href="donate.html" class="highlight-link">Donate</a>
         </nav>
         <div class="nav-actions">
-          <!-- Dynamically populated language dropdown selector -->
+          <a class="button outline mini-btn" href="church-portal.html"><i data-lucide="log-in"></i> Church Portal</a>
         </div>
-      </div>
-      <div class="header-right-action hidden md:block" style="margin-left: 20px;">
-        <a href="#register" class="btn-gold font-bold text-xs px-5 py-2.5 rounded-xl text-decoration-none shadow-md inline-block">Register Now</a>
       </div>
     </div>
   </header>
@@ -1437,6 +1437,111 @@
         </div>
       </div>
     </section>
+    <!-- Church Tour & Facility Video Section -->
+    <section class="landing-section bg-secondary" id="facility-tour" style="background-color: var(--bg-secondary); border-top: 1px solid var(--border-light);">
+      <div class="landing-container">
+        <div class="landing-section-title">
+          <span class="kicker"><i data-lucide="video"></i> Virtual Experience</span>
+          <h2>Church Tour & Facility Video</h2>
+          <p>Inspect our building exterior, surrounding vicinity, parking areas, main entrance, sanctuary, washrooms, accessibility entrances, and ministry rooms before attending.</p>
+        </div>
+
+        <div class="glass-card" style="padding: 24px;">
+          <div style="aspect-ratio: 16/9; border-radius: 18px; overflow: hidden; border: 1px solid var(--border-light);">
+            <iframe id="church-tour-iframe" width="100%" height="100%" src="https://www.youtube.com/embed/jiSyB8QZzk8?rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          <div class="readable-grid three mt-6">
+            <div class="content-callout">
+              <span>🅿️ Parking & Entrance</span>
+              <strong>Spacious Lot & Accessible Ramps</strong>
+            </div>
+            <div class="content-callout">
+              <span>♿ Accessibility</span>
+              <strong>Wheelchair Accessible Doors & Seating</strong>
+            </div>
+            <div class="content-callout">
+              <span>👶 Children & Youth</span>
+              <strong>Dedicated Secure Rooms</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Youth Ministry Section -->
+    <section class="landing-section" id="youth-ministry" style="background-color: var(--bg-primary); border-top: 1px solid var(--border-light);">
+      <div class="landing-container">
+        <div class="landing-section-title">
+          <span class="kicker"><i data-lucide="flame"></i> Next Generation</span>
+          <h2>Youth & Student Ministry</h2>
+          <p>Empowering teenagers and young adults with mentorship, dynamic worship gatherings, group Bible studies, and fun activities.</p>
+        </div>
+
+        <div class="glass-card grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8 items-center">
+          <div>
+            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80" alt="Youth Ministry" style="width: 100%; aspect-ratio: 1; border-radius: 20px; object-fit: cover; border: 1px solid var(--border-light);" />
+            <div class="mt-3 text-center">
+              <h4 class="font-bold text-slate-800" id="youth-leader-name">Pastor Caleb & Youth Team</h4>
+              <span class="text-xs text-slate-500">Youth Directors</span>
+            </div>
+          </div>
+          <div>
+            <span class="eyebrow" style="color: var(--color-primary-gold); font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Friday Nights & Weekend Hangouts</span>
+            <h3 class="text-2xl font-extrabold text-slate-900 mt-1">Ignite Youth Gathering</h3>
+            <p class="text-sm text-slate-600 mt-2 leading-relaxed">Join us every Friday at 7:00 PM for music, games, relevant message series, small group discussions, and mentorship. Transportation is available for students needing a ride.</p>
+            
+            <div class="flex-gap mt-6">
+              <button type="button" class="btn-gold" onclick="MWE.openRideModal('Youth Ministry Friday Night')"><i data-lucide="car"></i> Request Youth Transportation</button>
+              <button type="button" class="btn-outline" onclick="MWE.openYouthModal()"><i data-lucide="user-plus"></i> Join Youth Ministry</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services & Calendar Sync Section -->
+    <section class="landing-section bg-secondary" id="schedule-calendar" style="background-color: var(--bg-secondary); border-top: 1px solid var(--border-light);">
+      <div class="landing-container">
+        <div class="landing-section-title">
+          <span class="kicker"><i data-lucide="calendar"></i> Schedule</span>
+          <h2>Weekly Gathering Times</h2>
+          <p>Easily add any service or event directly to your personal calendar.</p>
+        </div>
+
+        <div class="readable-grid three" id="profile-schedules-grid">
+          <div class="content-callout">
+            <span>Sunday Worship</span>
+            <strong data-profile-sunday>Sunday 10:00 AM</strong>
+            <button type="button" class="btn-outline mt-3" style="width:100%;" onclick="MWE.downloadCalendarICS('Sunday Service', '10:00 AM', 'Church Sanctuary')"><i data-lucide="calendar-plus"></i> Add to Calendar</button>
+          </div>
+          <div class="content-callout">
+            <span>Midweek Bible Study</span>
+            <strong data-profile-midweek>Wednesday 7:00 PM</strong>
+            <button type="button" class="btn-outline mt-3" style="width:100%;" onclick="MWE.downloadCalendarICS('Midweek Service', '7:00 PM', 'Fellowship Hall')"><i data-lucide="calendar-plus"></i> Add to Calendar</button>
+          </div>
+          <div class="content-callout">
+            <span>Friday Youth Gathering</span>
+            <strong>Friday 7:00 PM</strong>
+            <button type="button" class="btn-outline mt-3" style="width:100%;" onclick="MWE.downloadCalendarICS('Youth Gathering', '7:00 PM', 'Youth Room')"><i data-lucide="calendar-plus"></i> Add to Calendar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Salvation Card on Church Profile -->
+    <section class="landing-section" id="profile-salvation" style="background-color: var(--bg-primary); border-top: 1px solid var(--border-light);">
+      <div class="landing-container text-center">
+        <div class="glass-card" style="padding: 40px; background: linear-gradient(180deg, #fff, #faf7f0);">
+          <span class="eyebrow" style="color: var(--color-primary-gold); font-size: 0.8rem; font-weight: 900;"><i data-lucide="cross"></i> Accept Jesus Christ</span>
+          <h2 class="text-3xl font-extrabold text-slate-900 mt-2">Pray the Sinner's Prayer</h2>
+          <p class="text-sm text-slate-600 max-w-xl mx-auto mt-2">“Lord Jesus, I believe that You are the Son of God. I believe that You died for my sins and that God raised You from the dead. I receive You today as my Lord and personal Saviour. Forgive me, cleanse me, and help me live for You. Thank You for saving me. Amen.”</p>
+          <div class="mt-6">
+            <button type="button" class="btn-gold font-bold px-8 py-4 rounded-xl text-base" onclick="MWE.openSalvationModal()"><i data-lucide="heart"></i> I Have Received Jesus Christ</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- Church Footer & Location Map -->
@@ -1459,14 +1564,49 @@
   </section>
 
   <!-- Platform Footer -->
-  <footer class="section" style="background:#141716; color:#fff; padding: 40px 0;">
-    <div class="landing-container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-      <div>
-        <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0;">My Way of Evangelism</h2>
-        <p style="color:#d7ded8; font-size: 0.8rem; margin: 4px 0 0 0;">A public bridge from search to local church connection.</p>
+  <footer class="platform-footer">
+    <div class="landing-container">
+      <div class="footer-main">
+        <div class="footer-brand-block">
+          <a class="footer-brand" href="/">
+            <span class="footer-brand-mark"><i data-lucide="church"></i></span>
+            <span>My Way of Evangelism</span>
+          </a>
+          <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, services, events, and livestreams near them.</p>
+          <div class="footer-cta-row">
+            <a class="footer-button primary" href="/churches"><i data-lucide="search"></i> Find a Church</a>
+            <a class="footer-button" href="/church-portal"><i data-lucide="log-in"></i> Church Portal</a>
+          </div>
+        </div>
+        <nav class="footer-column" aria-label="Explore">
+          <h2>Explore</h2>
+          <ul class="footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/churches">Church Directory</a></li>
+            <li><a href="/events">Events</a></li>
+            <li><a href="/livestream">Livestreams</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-column" aria-label="Churches">
+          <h2>For Churches</h2>
+          <ul class="footer-links">
+            <li><a href="/church-portal">Register or Sign In</a></li>
+            <li><a href="/owner-dashboard">Owner Dashboard</a></li>
+            <li><a href="/church-portal#events-tab">Manage Events</a></li>
+            <li><a href="/church-portal#livestream">Livestream Setup</a></li>
+          </ul>
+        </nav>
+        <div class="footer-column">
+          <h2>Connect</h2>
+          <div class="footer-contact-card">
+            <div class="footer-contact-row"><i data-lucide="map-pin"></i><span>Serving churches and communities across North America.</span></div>
+            <div class="footer-contact-row"><i data-lucide="shield-check"></i><span>Verified profiles, ministry details, and public church discovery.</span></div>
+          </div>
+        </div>
       </div>
-      <div class="actions">
-        <a class="button light" href="church-portal.html" style="font-size: 0.8rem; font-weight: 700; text-decoration: none; display: inline-block;">Church Register / Login</a>
+      <div class="footer-bottom">
+        <span>&copy; 2026 My Way of Evangelism. All rights reserved.</span>
+        <span class="footer-status">Platform online</span>
       </div>
     </div>
   </footer>

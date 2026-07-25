@@ -343,9 +343,13 @@ function assetRequest(request) {
     ["/live", "/livestream.html"],
     ["/church-profile", "/church-profile.html"],
     ["/church", "/church-profile.html"],
-    ["/churches", "/index.html"],
+    ["/churches", "/churches.html"],
+    ["/foundation", "/foundation.html"],
+    ["/donate", "/donate.html"],
+    ["/privacy", "/privacy.html"],
+    ["/terms", "/privacy.html"],
+    ["/safeguarding", "/privacy.html"],
     ["/about", "/index.html"],
-    ["/donate", "/index.html"],
     ["/volunteer", "/index.html"],
     ["/prayer", "/index.html"]
   ]);

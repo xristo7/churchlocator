@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "churchlocator",
+  "name": "my-way-of-evangelism",
+  "account_id": "17e900e2ac8567adf3e60c83fc64589e",
   "main": "./src/worker.js",
   "compatibility_date": "2026-06-25",
   "assets": {
@@ -10,6 +11,9 @@
   "vars": {
     "APP_NAME": "My Way of Evangelism",
     "ENVIRONMENT": "production"
+  },
+  "observability": {
+    "enabled": true
   },
   "env": {
     "preview": {

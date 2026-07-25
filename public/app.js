@@ -2289,11 +2289,122 @@ function initChurchPortal() {
     });
   }
 
+  function renderPortalRides() {
+    const ridesTbody = document.getElementById("portal-rides-table-body");
+    if (!ridesTbody) return;
+
+    let rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
+    if (rides.length === 0) {
+      rides = [
+        {
+          id: "ride-seed-1",
+          fullName: "John Smith",
+          phone: "(780) 555-0199",
+          pickupAddress: "123 Main St, Apt 4B",
+          passengers: 2,
+          preferredService: "Sunday 10:00 AM",
+          stage: 1,
+          driver: "Unassigned",
+          createdAt: "2026-07-24T10:00:00Z"
+        },
+        {
+          id: "ride-seed-2",
+          fullName: "Sarah & Family",
+          phone: "(780) 555-0244",
+          pickupAddress: "892 Park Ave, South Edmonton",
+          passengers: 4,
+          preferredService: "Sunday 10:00 AM",
+          stage: 2,
+          driver: "Deacon Mark (Van #1)",
+          createdAt: "2026-07-23T14:30:00Z"
+        },
+        {
+          id: "ride-seed-3",
+          fullName: "Michael Vance",
+          phone: "(780) 555-0912",
+          pickupAddress: "450 Oak Rd, West Edmonton",
+          passengers: 1,
+          preferredService: "Youth Friday 7:00 PM",
+          stage: 3,
+          driver: "Brother Caleb",
+          createdAt: "2026-07-22T09:15:00Z"
+        }
+      ];
+      localStorage.setItem("mwe.ride_requests", JSON.stringify(rides));
+    }
+
+    const stageLabels = {
+      1: '<span class="badge pending">Stage 1: Welcome & Info Call</span>',
+      2: '<span class="badge pending" style="background:#e0f2fe; color:#0369a1;">Stage 2: Service Reminder Sent</span>',
+      3: '<span class="badge verified">Stage 3: Pickup Confirmed</span>'
+    };
+
+    ridesTbody.innerHTML = rides.map(r => `
+      <tr>
+        <td><strong>${MWE.escapeHtml(r.fullName)}</strong><br/><small class="text-muted">${MWE.escapeHtml(r.phone)}</small></td>
+        <td>${MWE.escapeHtml(r.pickupAddress)}</td>
+        <td>${MWE.escapeHtml(r.preferredService)} (${r.passengers} pass)</td>
+        <td>${stageLabels[r.stage] || stageLabels[1]}</td>
+        <td><strong>${MWE.escapeHtml(r.driver || 'Unassigned')}</strong></td>
+        <td>
+          <button type="button" class="button ghost small" onclick="MWE.advanceRideStage('${r.id}')"><i data-lucide="check-circle-2"></i> Next Follow-up Stage</button>
+          <button type="button" class="button outline small" onclick="MWE.assignDriver('${r.id}')"><i data-lucide="user-check"></i> Assign Driver</button>
+        </td>
+      </tr>
+    `).join("");
+    createIcons();
+  }
+
+  function renderPortalSalvation() {
+    const salvTbody = document.getElementById("portal-salvation-table-body");
+    if (!salvTbody) return;
+
+    let salvations = JSON.parse(localStorage.getItem("mwe.salvation_decisions") || "[]");
+    if (salvations.length === 0) {
+      salvations = [
+        {
+          id: "salv-seed-1",
+          fullName: "David Miller",
+          phone: "(780) 555-0811",
+          email: "david@example.com",
+          needBible: true,
+          needPrayer: true,
+          status: "New Decision",
+          assignedTo: "Pastor Caleb"
+        },
+        {
+          id: "salv-seed-2",
+          fullName: "Ruth Johnson",
+          phone: "(780) 555-0377",
+          email: "ruth@example.com",
+          needBible: true,
+          needPrayer: false,
+          status: "Bible Sent & Contacted",
+          assignedTo: "Sister Mary"
+        }
+      ];
+      localStorage.setItem("mwe.salvation_decisions", JSON.stringify(salvations));
+    }
+
+    salvTbody.innerHTML = salvations.map(s => `
+      <tr>
+        <td><strong>${MWE.escapeHtml(s.fullName)}</strong></td>
+        <td>${MWE.escapeHtml(s.phone)}<br/><small class="text-muted">${MWE.escapeHtml(s.email)}</small></td>
+        <td>${s.needBible ? '📖 Bible Request ' : ''}${s.needPrayer ? '🙏 Prayer Request' : ''}</td>
+        <td><span class="badge verified">${MWE.escapeHtml(s.status || 'New Decision')}</span></td>
+        <td><strong>${MWE.escapeHtml(s.assignedTo || 'Unassigned')}</strong></td>
+      </tr>
+    `).join("");
+    createIcons();
+  }
+
   function loadSelected() {
     const church = MWE.getChurch(select.value);
     MWE.fillChurchForm(form, church);
     renderReadableProfile(church);
     renderPreview(church);
+    renderPortalRides();
+    renderPortalSalvation();
   }
 
   refreshSelect(churches[0]?.id);
@@ -4588,6 +4699,488 @@ function initEventsPage() {
   MWE.renderEventsList();
 }
 
+// ==========================================
+// EXPANDED PLATFORM MODULES & MODAL HANDLERS
+// ==========================================
+
+MWE.foundationProjects = [
+  {
+    id: "proj-spring-orphanage-2026",
+    title: "Spring Orphanage Supply & Food Drive",
+    summary: "Delivering bulk food packs, infant formula, blankets, and hygiene kits to 280 children across 3 regional centers.",
+    category: "Orphanage & Children",
+    targetAmountCents: 1500000,
+    raisedAmountCents: 1245000,
+    location: "Edmonton & Surrounding Area",
+    coverImageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: "proj-school-backpacks-2026",
+    title: "Back-to-School Backpack & Laptop Drive",
+    summary: "Equipping 450 underprivileged students with backpacks, stationery, textbooks, and refurbished study laptops.",
+    category: "Education Support",
+    targetAmountCents: 2000000,
+    raisedAmountCents: 1820000,
+    location: "Calgary & Western Canada",
+    coverImageUrl: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: "proj-pediatric-medical-2026",
+    title: "Vulnerable Children Medical & Dental Aid",
+    summary: "Sponsoring emergency prescriptions, pediatric checkups, and vision care for low-income single-parent families.",
+    category: "Medical Assistance",
+    targetAmountCents: 1000000,
+    raisedAmountCents: 940000,
+    location: "Greater Vancouver & Alberta",
+    coverImageUrl: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80"
+  }
+];
+
+MWE.openRideModal = function(preferredService = "Sunday 10:00 AM Service") {
+  const backdrop = document.createElement("div");
+  backdrop.className = "alert-modal-backdrop open";
+  backdrop.id = "ride-modal-backdrop";
+  backdrop.innerHTML = `
+    <div class="dash-panel dash-panel-pad" style="max-width: 520px; width: 90%; margin: 20px auto;">
+      <div class="category-head flex-between">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="category-icon"><i data-lucide="car"></i></span>
+          <div><h3>Request Transportation to Church</h3><p class="text-xs text-muted">Free Sunday pickup & ride coordination.</p></div>
+        </div>
+        <button type="button" class="button ghost small" onclick="document.getElementById('ride-modal-backdrop').remove()"><i data-lucide="x"></i></button>
+      </div>
+      <form onsubmit="MWE.handleRideSubmit(event)" class="mt-4">
+        <div class="compact-grid">
+          <label class="form-field"><span>Full Name *</span><input required name="fullName" placeholder="John Smith" /></label>
+          <label class="form-field"><span>Phone Number *</span><input required type="tel" name="phone" placeholder="(780) 555-0199" /></label>
+        </div>
+        <div class="compact-grid mt-2">
+          <label class="form-field"><span>Email Address *</span><input required type="email" name="email" placeholder="john@example.com" /></label>
+          <label class="form-field"><span>Age Group</span>
+            <select name="ageGroup" class="field">
+              <option value="Adult">Adult (18+)</option>
+              <option value="Youth">Youth / Student (13-17)</option>
+              <option value="Family">Family with Children</option>
+              <option value="Senior">Senior (65+)</option>
+            </select>
+          </label>
+        </div>
+        <div class="compact-grid mt-2">
+          <label class="form-field"><span>Passengers Count</span><input type="number" min="1" max="10" name="passengers" value="1" class="field" /></label>
+          <label class="form-field"><span>Preferred Gathering</span><input name="preferredService" value="${MWE.escapeHtml(preferredService)}" class="field" /></label>
+        </div>
+        <label class="form-field mt-2"><span>Pickup Address / Landmark *</span><input required name="pickupAddress" placeholder="123 Main St, Apartment 4B" class="field" /></label>
+        <label class="form-field mt-2"><span>Accessibility or Special Needs</span><input name="accessibility" placeholder="e.g. Wheelchair ramp needed, booster seat" class="field" /></label>
+        <div class="form-group toggle-group mt-3">
+          <label class="toggle-label-wrapper">
+            <span class="toggle-label-text text-xs">I grant permission for the church transportation team to contact me via phone, text, or WhatsApp.</span>
+            <div class="toggle-switch">
+              <input type="checkbox" checked name="consent" value="true" />
+              <span class="toggle-slider"></span>
+            </div>
+          </label>
+        </div>
+        <div class="editor-actions mt-4">
+          <button type="button" class="button ghost" onclick="document.getElementById('ride-modal-backdrop').remove()">Cancel</button>
+          <button type="submit" class="button primary"><i data-lucide="send"></i> Submit Ride Request</button>
+        </div>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  createIcons();
+};
+
+MWE.handleRideSubmit = function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+  
+  const rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
+  rides.push({
+    id: "ride-" + Date.now(),
+    fullName: data.fullName,
+    phone: data.phone,
+    email: data.email,
+    passengers: data.passengers || 1,
+    preferredService: data.preferredService,
+    pickupAddress: data.pickupAddress,
+    status: "new",
+    stage: 1, // Stage 1: Welcome contact
+    driver: "Unassigned",
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem("mwe.ride_requests", JSON.stringify(rides));
+  
+  const backdrop = document.getElementById("ride-modal-backdrop");
+  if (backdrop) backdrop.remove();
+  
+  showToast("Your transportation request has been submitted! Our team will contact you 3 times prior to Sunday.");
+};
+
+MWE.advanceRideStage = function(id) {
+  let rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
+  rides = rides.map(r => {
+    if (r.id === id) {
+      const nextStage = r.stage >= 3 ? 3 : (r.stage || 1) + 1;
+      return { ...r, stage: nextStage };
+    }
+    return r;
+  });
+  localStorage.setItem("mwe.ride_requests", JSON.stringify(rides));
+  showToast("Advanced ride request to next follow-up stage!");
+  if (typeof initChurchPortal === "function") {
+    const select = document.querySelector("[data-portal-select]");
+    if (select) select.dispatchEvent(new Event("change"));
+  }
+};
+
+MWE.assignDriver = function(id) {
+  const driverName = prompt("Enter assigned driver name (e.g., Deacon Mark - Van #1):", "Deacon Mark (Van #1)");
+  if (!driverName) return;
+
+  let rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
+  rides = rides.map(r => r.id === id ? { ...r, driver: driverName, stage: 3 } : r);
+  localStorage.setItem("mwe.ride_requests", JSON.stringify(rides));
+  showToast(`Assigned ${driverName} to pickup!`);
+  if (typeof initChurchPortal === "function") {
+    const select = document.querySelector("[data-portal-select]");
+    if (select) select.dispatchEvent(new Event("change"));
+  }
+};
+
+MWE.openPrayerModal = function() {
+  const backdrop = document.createElement("div");
+  backdrop.className = "alert-modal-backdrop open";
+  backdrop.id = "prayer-modal-backdrop";
+  backdrop.innerHTML = `
+    <div class="dash-panel dash-panel-pad" style="max-width: 520px; width: 90%; margin: 20px auto;">
+      <div class="category-head flex-between">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="category-icon"><i data-lucide="heart-handshake"></i></span>
+          <div><h3>Submit a Prayer Request</h3><p class="text-xs text-muted">Standing together with you in faith.</p></div>
+        </div>
+        <button type="button" class="button ghost small" onclick="document.getElementById('prayer-modal-backdrop').remove()"><i data-lucide="x"></i></button>
+      </div>
+      <form onsubmit="MWE.handlePrayerSubmit(event)" class="mt-4">
+        <label class="form-field"><span>Your Prayer Need / Request *</span><textarea required name="requestText" rows="4" placeholder="Describe your prayer need..."></textarea></label>
+        <div class="compact-grid mt-2">
+          <label class="form-field"><span>Full Name</span><input name="fullName" placeholder="Optional if anonymous" /></label>
+          <label class="form-field"><span>Phone / Email</span><input name="contact" placeholder="Optional contact info" /></label>
+        </div>
+        <div class="compact-grid mt-3">
+          <label class="form-field"><span>Confidentiality</span>
+            <select name="confidential" class="field">
+              <option value="team">Available to Church Prayer Team</option>
+              <option value="private">Private & Confidential (Pastors Only)</option>
+            </select>
+          </label>
+          <label class="form-field"><span>Urgency</span>
+            <select name="urgency" class="field">
+              <option value="normal">Normal Prayer Need</option>
+              <option value="urgent">Urgent / Emergency Prayer</option>
+            </select>
+          </label>
+        </div>
+        <div class="editor-actions mt-4">
+          <button type="button" class="button ghost" onclick="document.getElementById('prayer-modal-backdrop').remove()">Cancel</button>
+          <button type="submit" class="button primary"><i data-lucide="send"></i> Submit Prayer Request</button>
+        </div>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  createIcons();
+};
+
+MWE.handlePrayerSubmit = function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+
+  const prayers = JSON.parse(localStorage.getItem("mwe.prayer_requests") || "[]");
+  prayers.push({
+    id: "prayer-" + Date.now(),
+    requestText: data.requestText,
+    fullName: data.fullName || "Anonymous",
+    confidential: data.confidential,
+    urgency: data.urgency,
+    status: "new",
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem("mwe.prayer_requests", JSON.stringify(prayers));
+
+  const backdrop = document.getElementById("prayer-modal-backdrop");
+  if (backdrop) backdrop.remove();
+
+  showToast("Your prayer request has been submitted. Our prayer team is joining you in faith!");
+};
+
+MWE.openSalvationModal = function() {
+  const backdrop = document.createElement("div");
+  backdrop.className = "alert-modal-backdrop open";
+  backdrop.id = "salvation-modal-backdrop";
+  backdrop.innerHTML = `
+    <div class="dash-panel dash-panel-pad" style="max-width: 520px; width: 90%; margin: 20px auto;">
+      <div class="category-head flex-between">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="category-icon"><i data-lucide="cross"></i></span>
+          <div><h3>I Have Received Jesus Christ</h3><p class="text-xs text-muted">Praise God! We want to support your new journey.</p></div>
+        </div>
+        <button type="button" class="button ghost small" onclick="document.getElementById('salvation-modal-backdrop').remove()"><i data-lucide="x"></i></button>
+      </div>
+      <form onsubmit="MWE.handleSalvationSubmit(event)" class="mt-4">
+        <div class="compact-grid">
+          <label class="form-field"><span>Full Name *</span><input required name="fullName" placeholder="Your Name" /></label>
+          <label class="form-field"><span>Phone Number *</span><input required type="tel" name="phone" placeholder="(780) 555-0199" /></label>
+        </div>
+        <div class="compact-grid mt-2">
+          <label class="form-field"><span>Email Address *</span><input required type="email" name="email" placeholder="you@example.com" /></label>
+          <label class="form-field"><span>City & Country</span><input name="cityCountry" placeholder="e.g. Edmonton, Canada" /></label>
+        </div>
+        <div class="form-group mt-3">
+          <label class="form-label-bold">What help would you like to receive?</label>
+          <div class="checkbox-grid">
+            <label class="checkbox-card"><input type="checkbox" name="needBible" value="true" checked /> 📖 I would like a Free Bible</label>
+            <label class="checkbox-card"><input type="checkbox" name="needPrayer" value="true" checked /> 🙏 I need personal prayer support</label>
+            <label class="checkbox-card"><input type="checkbox" name="wantJoinChurch" value="true" checked /> ⛪ I want to join a local church family</label>
+            <label class="checkbox-card"><input type="checkbox" name="needTransportation" value="true" /> 🚗 I need ride assistance to church</label>
+          </div>
+        </div>
+        <div class="editor-actions mt-4">
+          <button type="button" class="button ghost" onclick="document.getElementById('salvation-modal-backdrop').remove()">Close</button>
+          <button type="submit" class="button primary"><i data-lucide="heart"></i> Confirm Salvation & Growth Care</button>
+        </div>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  createIcons();
+};
+
+MWE.handleSalvationSubmit = function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+
+  const salvations = JSON.parse(localStorage.getItem("mwe.salvation_decisions") || "[]");
+  salvations.push({
+    id: "salv-" + Date.now(),
+    fullName: data.fullName,
+    phone: data.phone,
+    email: data.email,
+    cityCountry: data.cityCountry,
+    needBible: Boolean(data.needBible),
+    needPrayer: Boolean(data.needPrayer),
+    wantJoinChurch: Boolean(data.wantJoinChurch),
+    needTransportation: Boolean(data.needTransportation),
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem("mwe.salvation_decisions", JSON.stringify(salvations));
+
+  const backdrop = document.getElementById("salvation-modal-backdrop");
+  if (backdrop) backdrop.remove();
+
+  showToast("Praise God for your decision! An evangelism leader will contact you with your free Bible.");
+};
+
+MWE.openFoundationAppModal = function() {
+  const backdrop = document.createElement("div");
+  backdrop.className = "alert-modal-backdrop open";
+  backdrop.id = "foundation-modal-backdrop";
+  backdrop.innerHTML = `
+    <div class="dash-panel dash-panel-pad" style="max-width: 580px; width: 90%; margin: 20px auto;">
+      <div class="category-head flex-between">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="category-icon"><i data-lucide="building-2"></i></span>
+          <div><h3>Apply for Organization Assistance</h3><p class="text-xs text-muted">For orphanages & community shelters.</p></div>
+        </div>
+        <button type="button" class="button ghost small" onclick="document.getElementById('foundation-modal-backdrop').remove()"><i data-lucide="x"></i></button>
+      </div>
+      <form onsubmit="MWE.handleFoundationAppSubmit(event)" class="mt-4">
+        <div class="compact-grid">
+          <label class="form-field"><span>Organization / Orphanage Name *</span><input required name="orgName" placeholder="Hope Orphanage Center" /></label>
+          <label class="form-field"><span>Registration No.</span><input name="regNumber" placeholder="Reg # 12345-NGO" /></label>
+        </div>
+        <div class="compact-grid mt-2">
+          <label class="form-field"><span>Contact Person *</span><input required name="contactName" placeholder="Jane Director" /></label>
+          <label class="form-field"><span>Phone Number *</span><input required type="tel" name="phone" placeholder="(780) 555-0188" /></label>
+        </div>
+        <div class="compact-grid mt-2">
+          <label class="form-field"><span>Email Address *</span><input required type="email" name="email" placeholder="contact@hopecenter.org" /></label>
+          <label class="form-field"><span>Physical Location *</span><input required name="location" placeholder="City & Address" /></label>
+        </div>
+        <div class="compact-grid mt-2">
+          <label class="form-field"><span>Children / Beneficiaries Count *</span><input required type="number" name="childrenCount" placeholder="e.g. 75" class="field" /></label>
+          <label class="form-field"><span>Primary Need Category *</span>
+            <select name="assistanceType" class="field">
+              <option value="Food & Water">Food & Clean Water Supplies</option>
+              <option value="Clothing & Hygiene">Clothing, Shoes & Hygiene Kits</option>
+              <option value="School Supplies">School Supplies & Books</option>
+              <option value="Medical Assistance">Medical Care & Pediatric First Aid</option>
+              <option value="Shelter Repair">Shelter Repair & Facility Aid</option>
+            </select>
+          </label>
+        </div>
+        <label class="form-field mt-2"><span>Estimated Cost / Urgent Details ($)</span><input name="estimatedCost" placeholder="e.g. $4,500 for winter food packs" class="field" /></label>
+        <div class="editor-actions mt-4">
+          <button type="button" class="button ghost" onclick="document.getElementById('foundation-modal-backdrop').remove()">Cancel</button>
+          <button type="submit" class="button primary"><i data-lucide="send"></i> Submit Assistance Application</button>
+        </div>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  createIcons();
+};
+
+MWE.handleFoundationAppSubmit = function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+
+  const apps = JSON.parse(localStorage.getItem("mwe.foundation_apps") || "[]");
+  apps.push({
+    id: "fapp-" + Date.now(),
+    orgName: data.orgName,
+    contactName: data.contactName,
+    phone: data.phone,
+    email: data.email,
+    location: data.location,
+    childrenCount: data.childrenCount,
+    assistanceType: data.assistanceType,
+    estimatedCost: data.estimatedCost,
+    status: "pending",
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem("mwe.foundation_apps", JSON.stringify(apps));
+
+  const backdrop = document.getElementById("foundation-modal-backdrop");
+  if (backdrop) backdrop.remove();
+
+  showToast("Application submitted successfully! Our super-admin team will review your organization details.");
+};
+
+MWE.openYouthModal = function() {
+  MWE.openRideModal("Youth Friday Gathering");
+};
+
+MWE.setGivingFreq = function(btn, freq) {
+  const container = btn.closest(".giving-freq-selector");
+  if (!container) return;
+  container.querySelectorAll(".freq-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+};
+
+MWE.setDonateAmount = function(amt, btn) {
+  const input = document.getElementById("donate-custom-amount");
+  if (input) input.value = amt;
+  const pills = btn.closest(".amount-pills-grid");
+  if (pills) {
+    pills.querySelectorAll(".amount-pill").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+  }
+};
+
+MWE.handleDonationSubmit = function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+  const amount = data.customAmount || 50;
+  const target = data.target || "where-needed-most";
+  const regCode = "REC-DON-" + Math.floor(100000 + Math.random() * 900000);
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "alert-modal-backdrop open";
+  backdrop.innerHTML = `
+    <div class="dash-panel dash-panel-pad text-center" style="max-width: 480px; width: 90%; margin: 20px auto;">
+      <div class="success-check-circle mx-auto"><i class="fa-solid fa-check"></i></div>
+      <h3 class="text-xl font-extrabold text-slate-900">Thank You for Your Generosity!</h3>
+      <p class="text-xs text-slate-600 mt-2">Your contribution of <strong>$${amount}.00 USD</strong> has been allocated to <strong>${MWE.escapeHtml(target)}</strong>.</p>
+      
+      <div class="content-callout my-4 text-left">
+        <span>Receipt Code</span>
+        <strong>${regCode}</strong>
+      </div>
+      <p class="text-xs text-muted">A confirmation summary has been logged. Official tax receipts are subject to legal registration status.</p>
+      <div class="mt-4">
+        <button type="button" class="button primary" onclick="this.closest('.alert-modal-backdrop').remove()">Close & Continue</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  createIcons();
+};
+
+MWE.downloadCalendarICS = function(title, timeStr, location) {
+  const icsData = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//My Way of Evangelism//Gathering Calendar//EN
+BEGIN:VEVENT
+SUMMARY:${title}
+DESCRIPTION:Join us for ${title} at My Way of Evangelism partner church.
+LOCATION:${location}
+DTSTART:20260802T100000Z
+DTEND:20260802T120000Z
+END:VEVENT
+END:VCALENDAR`;
+
+  const blob = new Blob([icsData], { type: "text/calendar;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = window.URL.createObjectURL(blob);
+  link.download = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.ics`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast(`Calendar event file generated for ${title}!`);
+};
+
+MWE.toggleDirectoryMapView = function() {
+  const container = document.getElementById("directory-map-container");
+  if (container) {
+    container.classList.toggle("hidden");
+  }
+};
+
+MWE.submitVerificationDocs = function() {
+  showToast("Church verification documents submitted to owner dashboard for approval!");
+};
+
+function renderFoundationPage() {
+  const grid = document.querySelector("[data-foundation-projects-grid]");
+  if (!grid) return;
+
+  grid.innerHTML = MWE.foundationProjects.map(p => `
+    <article class="church-card foundation-card">
+      <div class="church-photo" style="background-image: url('${p.coverImageUrl}'); height: 180px;">
+        <span class="badge"><i data-lucide="heart"></i> ${MWE.escapeHtml(p.category)}</span>
+      </div>
+      <div class="church-card-body">
+        <h3 style="font-size:1.15rem; font-weight:800; color:var(--ink); margin-bottom:6px;">${MWE.escapeHtml(p.title)}</h3>
+        <p class="meta" style="margin-bottom:12px;">${MWE.escapeHtml(p.summary)}</p>
+        
+        <div class="mini-chart my-3">
+          <div class="flex-between text-xs font-bold" style="margin-bottom:4px;">
+            <span>Raised: $${(p.raisedAmountCents / 100).toLocaleString()}</span>
+            <span>Target: $${(p.targetAmountCents / 100).toLocaleString()}</span>
+          </div>
+          <div class="bar"><span style="width:${Math.min(100, Math.round((p.raisedAmountCents / p.targetAmountCents) * 100))}%"></span></div>
+        </div>
+
+        <div class="tag-row" style="margin-top: auto;">
+          <span class="tag"><i data-lucide="map-pin"></i> ${MWE.escapeHtml(p.location)}</span>
+        </div>
+
+        <div class="card-actions" style="margin-top:14px;">
+          <a href="donate.html" class="button primary small"><i data-lucide="heart"></i> Support Project</a>
+        </div>
+      </div>
+    </article>
+  `).join("");
+
+  createIcons();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const page = document.body.dataset.page;
   initPrivateAppAuth();
@@ -4599,6 +5192,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "admin" || page === "owner") initAdminPage();
   if (page === "events") initEventsPage();
   if (page === "event-profile") initEventProfilePage();
+  if (page === "foundation") renderFoundationPage();
   if (page === "portal") setupPortalEventsTab();
   
   initCustomDropdowns();
@@ -4617,3 +5211,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   createIcons();
 });
+
