@@ -38,43 +38,62 @@
   <main>
     <section class="section" id="find-events">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head flex-between">
           <div>
-            <h2>Search events</h2>
-            <p>Discover in-person gatherings, conferences, outreach efforts, and streamed virtual services.</p>
+            <p class="kicker"><i data-lucide="calendar"></i> Church Events & Outreaches</p>
+            <h2>Search Upcoming Gatherings</h2>
+            <p class="lead">Discover in-person gatherings, conferences, outreach efforts, and streamed virtual services.</p>
           </div>
-          <a class="button ghost" href="/church-portal">Church login / registration</a>
+          <a class="button outline" href="church-portal.html"><i data-lucide="building-2"></i> Register Your Church</a>
         </div>
 
-        <div class="search-panel" style="margin-bottom: 30px;">
-          <div class="search-row">
-            <input class="field" id="event-city-input" placeholder="Search by city (e.g. Edmonton)..." />
-            
-            <select id="event-type-select" class="field">
-              <option value="all">All Event Categories</option>
-              <option value="in-person">In-Person Gatherings</option>
-              <option value="streamed">Livestreams & Online Broadcasts</option>
-              <option value="sunday-services">Sunday Services & Worship</option>
-              <option value="conferences">Conferences & Revival Meetings</option>
-              <option value="youth-events">Youth & Student Rallies</option>
-              <option value="prayer-programs">Prayer & Fasting Meetings</option>
-              <option value="evangelism-outreaches">Evangelism & Street Outreaches</option>
-              <option value="community-assistance">Community Assistance & Food Drives</option>
-              <option value="fundraisers">Kingdom Fundraisers & Gala</option>
-            </select>
+        <!-- Seamless Search & Filter Bar -->
+        <div class="directory-search-container">
+          <!-- Top Search Input Bar -->
+          <div class="search-hero-bar">
+            <div class="search-input-wrapper">
+              <i data-lucide="search" class="search-hero-icon"></i>
+              <input class="search-hero-input" id="event-city-input" placeholder="Search events by title, keyword, city, or church..." />
+            </div>
+            <button type="button" class="reset-filter-btn" id="event-reset-btn" onclick="MWE.resetEventsSearch()">
+              <i data-lucide="rotate-ccw"></i> Reset Filters
+            </button>
+          </div>
 
-            <select id="event-price-select" class="field">
-              <option value="all">All prices</option>
-              <option value="free">Free Admission</option>
-              <option value="paid">Ticketed / Paid</option>
-            </select>
+          <!-- Unified Seamless Divided Filter Bar -->
+          <div class="seamless-filter-bar events-filter-bar">
+            <div class="filter-segment">
+              <span class="segment-label"><i data-lucide="grid"></i> Category</span>
+              <select id="event-type-select" class="segment-select">
+                <option value="all">All Event Categories</option>
+                <option value="in-person">In-Person Gatherings</option>
+                <option value="streamed">Livestreams & Online Broadcasts</option>
+                <option value="sunday-services">Sunday Services & Worship</option>
+                <option value="conferences">Conferences & Revival Meetings</option>
+                <option value="youth-events">Youth & Student Rallies</option>
+                <option value="prayer-programs">Prayer & Fasting Meetings</option>
+                <option value="evangelism-outreaches">Evangelism & Street Outreaches</option>
+                <option value="community-assistance">Community Assistance & Food Drives</option>
+                <option value="fundraisers">Kingdom Fundraisers & Gala</option>
+              </select>
+            </div>
 
-            <select id="event-time-select" class="field">
-              <option value="upcoming">Upcoming Events</option>
-              <option value="past">Past Events</option>
-            </select>
+            <div class="filter-segment">
+              <span class="segment-label"><i data-lucide="tag"></i> Admission</span>
+              <select id="event-price-select" class="segment-select">
+                <option value="all">All Prices</option>
+                <option value="free">Free Admission</option>
+                <option value="paid">Ticketed / Paid</option>
+              </select>
+            </div>
 
-            <button class="button ghost" id="event-reset-btn" type="button" onclick="MWE.resetEventsSearch()">Reset</button>
+            <div class="filter-segment last-segment">
+              <span class="segment-label"><i data-lucide="calendar"></i> Date Range</span>
+              <select id="event-time-select" class="segment-select">
+                <option value="upcoming">Upcoming Events</option>
+                <option value="past">Past Events</option>
+              </select>
+            </div>
           </div>
         </div>
 

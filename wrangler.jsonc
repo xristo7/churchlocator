@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "my-way-of-evangelism",
-  "account_id": "431b9efd75ed20c548b4a06fe85960f0",
+  "account_id": "17e900e2ac8567adf3e60c83fc64589e",
   "main": "./src/worker.js",
   "compatibility_date": "2026-06-25",
   "assets": {

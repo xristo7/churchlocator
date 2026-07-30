@@ -8,7 +8,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="app.js"></script>
 </head>
-<body data-page="home">
+<body class="hero-only-page" data-page="home">
   <!-- Topbar Header -->
   <header class="topbar">
     <div class="container topbar-inner">
@@ -22,11 +22,13 @@
 
       <div class="topbar-menu-group">
         <nav class="nav-links">
-          <a href="churches.html">Find a Church</a>
+          <a href="index.html" class="mobile-only-link">Home</a>
+          <a href="churches.html">Churches</a>
           <a href="events.html">Events</a>
           <a href="livestream.html">Livestreams</a>
           <a href="foundation.html">Foundation</a>
           <a href="donate.html" class="highlight-link">Donate</a>
+          <a href="privacy.html" class="mobile-only-link">Privacy & Terms</a>
         </nav>
         <div class="nav-actions">
           <a class="button outline mini-btn" href="church-portal.html"><i data-lucide="log-in"></i> Church Portal</a>
