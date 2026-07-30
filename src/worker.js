@@ -324,9 +324,9 @@ async function handlePrayer(request, env) {
 
   if (env.DB) {
     await env.DB.prepare(`
-      insert into prayer_requests (id, request_text, is_anonymous, status, created_at)
-      values (?, ?, ?, ?, ?)
-    `).bind(id, payload.request, Number(Boolean(payload.isAnonymous)), "new", createdAt).run();
+      insert into prayer_requests (id, church_id, request_text, is_anonymous, status, created_at)
+      values (?, ?, ?, ?, ?, ?)
+    `).bind(id, payload.churchId || null, payload.request, Number(Boolean(payload.isAnonymous)), "new", createdAt).run();
   }
 
   return json({ ok: true, id, status: "received", createdAt }, 201);
