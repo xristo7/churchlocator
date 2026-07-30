@@ -887,7 +887,19 @@ const MWE = (() => {
 })();
 
 function createIcons() {
-  if (window.lucide) window.lucide.createIcons();
+  if (window.lucide && typeof window.lucide.createIcons === "function") {
+    try {
+      window.lucide.createIcons();
+    } catch (e) {
+      console.warn("Lucide createIcons warning:", e);
+    }
+  } else {
+    setTimeout(() => {
+      if (window.lucide && typeof window.lucide.createIcons === "function") {
+        try { window.lucide.createIcons(); } catch (err) {}
+      }
+    }, 200);
+  }
 }
 
 function showToast(message) {
@@ -1233,15 +1245,17 @@ function initPublicSite() {
   const grid = document.querySelector("[data-church-grid]");
   const search = document.querySelector("[data-search]");
   const city = document.querySelector("[data-city]");
+  const denomination = document.querySelector("[data-denomination]");
   const ministry = document.querySelector("[data-ministry]");
+  const transport = document.querySelector("[data-transport]");
   const stream = document.querySelector("[data-stream]");
-  const reset = document.querySelector("[data-reset]");
+  const reset = document.querySelector("[data-reset-filters]") || document.querySelector("[data-reset]");
 
   const churches = MWE.getChurches();
 
   if (city) {
     const cities = [...new Set(churches.map(church => church.city).filter(Boolean))].sort();
-    city.innerHTML = `<option value="">All cities</option>${cities.map(item => `<option value="${MWE.escapeHtml(item)}">${MWE.escapeHtml(item)}</option>`).join("")}`;
+    city.innerHTML = `<option value="">All Cities & Regions</option>${cities.map(item => `<option value="${MWE.escapeHtml(item)}">${MWE.escapeHtml(item)}</option>`).join("")}`;
   }
 
   // Pre-fill filters from URL search parameters on page load
@@ -1257,8 +1271,14 @@ function initPublicSite() {
       }
     }
   }
+  if (denomination && params.has("denomination")) {
+    denomination.value = params.get("denomination");
+  }
   if (ministry && params.has("ministry")) {
     ministry.value = params.get("ministry");
+  }
+  if (transport && params.has("transport")) {
+    transport.value = params.get("transport");
   }
   if (stream && params.has("stream")) {
     stream.value = params.get("stream");
@@ -1268,23 +1288,37 @@ function initPublicSite() {
     if (!grid) return;
     const q = (search?.value || "").toLowerCase().trim();
     const cityValue = city?.value || "";
+    const denomValue = denomination?.value || "";
     const ministryValue = ministry?.value || "";
+    const transportValue = transport?.value || "";
     const streamValue = stream?.value || "";
+
     const filtered = MWE.getChurches().filter(church => {
-      const haystack = [church.name, church.city, church.area, church.country, church.denomination, church.language, church.sunday, church.ministries.join(" ")].join(" ").toLowerCase();
-      const ministryMatch = !ministryValue || church.ministries.some(item => item.toLowerCase().includes(ministryValue));
-      const streamMatch = !streamValue || String(church.livestream.enabled) === streamValue;
-      return (!q || haystack.includes(q)) && (!cityValue || church.city === cityValue) && ministryMatch && streamMatch;
+      const haystack = [church.name, church.city, church.area, church.country, church.denomination, church.pastor, church.language, church.sunday, (church.ministries || []).join(" "), (church.features || []).join(" ")].join(" ").toLowerCase();
+      const cityMatch = !cityValue || church.city.toLowerCase() === cityValue.toLowerCase();
+      const denomMatch = !denomValue || (church.denomination || "").toLowerCase().includes(denomValue.toLowerCase());
+      const ministryMatch = !ministryValue || (church.ministries || []).some(item => item.toLowerCase().includes(ministryValue.toLowerCase())) || (church.features || []).some(item => item.toLowerCase().includes(ministryValue.toLowerCase()));
+      const transportMatch = !transportValue || (church.features || []).some(item => item.toLowerCase().includes("transportation") || item.toLowerCase().includes("rides"));
+      const streamMatch = !streamValue || String(church.livestream?.enabled) === streamValue;
+      
+      return (!q || haystack.includes(q)) && cityMatch && denomMatch && ministryMatch && transportMatch && streamMatch;
     });
-    grid.innerHTML = filtered.length ? filtered.map(churchCard).join("") : `<div class="empty">No churches match those filters yet.</div>`;
+
+    grid.innerHTML = filtered.length ? filtered.map(churchCard).join("") : `<div class="empty flex-center py-8 text-muted font-bold text-center">No churches match those filter criteria. Click 'Reset Filters' to view all churches.</div>`;
     createIcons();
   }
 
-  [search, city, ministry, stream].filter(Boolean).forEach(input => input.addEventListener("input", render));
-  reset?.addEventListener("click", () => {
-    [search, city, ministry, stream].filter(Boolean).forEach(input => { input.value = ""; });
+  MWE.resetDirectoryFilters = function() {
+    [search, city, denomination, ministry, transport, stream].filter(Boolean).forEach(input => { input.value = ""; });
     render();
+  };
+
+  [search, city, denomination, ministry, transport, stream].filter(Boolean).forEach(input => {
+    input.addEventListener("input", render);
+    input.addEventListener("change", render);
   });
+
+  if (reset) reset.addEventListener("click", MWE.resetDirectoryFilters);
 
 
 
