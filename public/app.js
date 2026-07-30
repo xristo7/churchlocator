@@ -2649,6 +2649,25 @@ async function initHeroPage() {
   const datalist = document.getElementById("cities-list");
   const churches = MWE.getChurches();
 
+  function renderSlider(nearbyList) {
+    if (!slider) return;
+    const items = nearbyList.length > 0 ? nearbyList : churches;
+    let repeatCount = 1;
+    if (items.length < 5) {
+      repeatCount = Math.ceil(5 / items.length);
+    }
+    let marqueeItems = [];
+    for (let i = 0; i < repeatCount; i++) {
+      marqueeItems.push(...items);
+    }
+    const itemsToRender = [...marqueeItems, ...marqueeItems];
+    slider.innerHTML = itemsToRender.map(tinyChurchCard).join("");
+    createIcons();
+  }
+
+  // Render immediately on load so slider is NEVER blank
+  renderSlider(churches);
+
   // Inject YouTube Player API loader to force endless looping on state change
   const iframe = document.querySelector(".video-background iframe");
   if (iframe) {
@@ -2683,17 +2702,21 @@ async function initHeroPage() {
     datalist.innerHTML = cities.map(city => `<option value="${MWE.escapeHtml(city)}">`).join("");
   }
 
-  // 2. Perform Geolocation Lookup
+  // 2. Perform Fast Geolocation Lookup (with 1 second timeout)
   let detectedCity = "Edmonton";
   let detectedCountry = "CA";
   try {
-    const loc = await detectUserCity();
-    detectedCity = loc.city;
-    const code = loc.countryCode ? loc.countryCode.toUpperCase() : "CA";
-    detectedCountry = ["CA", "US"].includes(code) ? code : "CA";
-    console.log("Detected location:", loc);
+    const loc = await Promise.race([
+      detectUserCity(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1000))
+    ]);
+    if (loc && loc.city) {
+      detectedCity = loc.city;
+      const code = loc.countryCode ? loc.countryCode.toUpperCase() : "CA";
+      detectedCountry = ["CA", "US"].includes(code) ? code : "CA";
+    }
   } catch (err) {
-    console.error("IP lookup failed, defaulting to Edmonton", err);
+    console.log("IP lookup timed out, using default city Edmonton");
   }
 
   // 3. Auto-populate city input and select country dropdown
@@ -2707,34 +2730,12 @@ async function initHeroPage() {
     countrySelect.dispatchEvent(new Event("change"));
   }
 
-  // 4. Filter churches near user (by detected city)
-  let nearby = churches.filter(c => c.verified); // Default to verified churches
+  // 4. Update slider with detected city matches if any
   if (detectedCity) {
     const cityFiltered = churches.filter(c => c.city.toLowerCase() === detectedCity.toLowerCase() && c.verified);
     if (cityFiltered.length > 0) {
-      nearby = cityFiltered;
+      renderSlider(cityFiltered);
     }
-  }
-
-  // 5. Render nearby churches in the slider (with marquee repetition)
-  if (slider) {
-    if (nearby.length > 0) {
-      // Repeat the list to ensure there's enough horizontal length for the marquee scroll
-      let repeatCount = 1;
-      if (nearby.length < 5) {
-        repeatCount = Math.ceil(5 / nearby.length);
-      }
-      let marqueeItems = [];
-      for (let i = 0; i < repeatCount; i++) {
-        marqueeItems.push(...nearby);
-      }
-      // Double the list for seamless looping transition at translate(-50%)
-      const itemsToRender = [...marqueeItems, ...marqueeItems];
-      slider.innerHTML = itemsToRender.map(tinyChurchCard).join("");
-    } else {
-      slider.innerHTML = `<div class="slider-loading">No churches found in your area.</div>`;
-    }
-    createIcons();
   }
 
   // 6. Header scrolled styling (useful on scrollable mobile views)
