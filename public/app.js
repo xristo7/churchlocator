@@ -1392,13 +1392,15 @@ function renderProfile(church) {
 MWE.selectedCategoryState = null;
 MWE.currentFormStep = 1;
 
-MWE.selectCategory = function(category) {
+MWE.selectCategory = function(category, shouldScroll = false) {
   MWE.selectedCategoryState = category;
   MWE.renderStep1Fields(category);
   
-  const registerSec = document.getElementById("register");
-  if (registerSec) {
-    registerSec.scrollIntoView({ behavior: 'smooth' });
+  if (shouldScroll) {
+    const registerSec = document.getElementById("register");
+    if (registerSec) {
+      registerSec.scrollIntoView({ behavior: 'smooth' });
+    }
   }
 };
 
@@ -2018,8 +2020,13 @@ function initProfilePage() {
     });
   }, 500);
 
-  // Initialize with Salvation category checked
-  MWE.selectCategory('salvation');
+  // Initialize with Salvation category checked without auto-scrolling
+  MWE.selectCategory('salvation', false);
+  
+  if (history.scrollRestoration) {
+    history.scrollRestoration = 'manual';
+  }
+  window.scrollTo(0, 0);
 }
 
 function initLivestreamPage() {
