@@ -768,8 +768,9 @@ const MWE = (() => {
       document.body.appendChild(modal);
     }
 
-    const mapMockUrl = `https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&h=300&q=80`;
-    const gmapsUrl = `https://maps.google.com/?q=${encodeURIComponent(church.location)}`;
+    const mapEmbedUrl = MWE.MAP_SETTINGS.getEmbedUrl(church.location);
+    const mapDirectionsUrl = MWE.MAP_SETTINGS.getDirectionsUrl(church.location);
+    const providerName = MWE.MAP_SETTINGS.activeProvider === "openstreetmap" ? "OpenStreetMap" : "Google Maps";
 
     modal.innerHTML = `
       <div class="cpc-modal-content">
@@ -782,20 +783,16 @@ const MWE = (() => {
           <p class="cpc-modal-address"><i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> ${escapeHtml(church.location)}</p>
         </div>
         
-        <div class="cpc-modal-map-container">
-          <img class="cpc-modal-map-image" src="${mapMockUrl}" alt="Map location" />
-          <div class="cpc-modal-map-marker">
-            <div class="cpc-marker-pulse"></div>
-            <i data-lucide="map-pin" style="color: #ef4444; width: 24px; height: 24px; fill: #ef4444;"></i>
-          </div>
+        <div class="cpc-modal-map-container" style="height: 320px; overflow: hidden; border-radius: 12px; border: 1px solid var(--line);">
+          <iframe width="100%" height="100%" frameborder="0" style="border:0;" loading="lazy" src="${mapEmbedUrl}"></iframe>
         </div>
         
         <div class="cpc-modal-footer">
           <button onclick="MWE.shareDirections('${escapeHtml(church.name.replace(/'/g, "\\'"))}', '${escapeHtml(church.location.replace(/'/g, "\\'"))}')" class="cpc-modal-btn-share">
             <i data-lucide="share-2" style="width: 16px; height: 16px; margin-right: 4px;"></i> Share Directions
           </button>
-          <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer" class="cpc-modal-btn-gmaps">
-            <i data-lucide="external-link" style="width: 16px; height: 16px; margin-right: 4px;"></i> Open in Google Maps
+          <a href="${mapDirectionsUrl}" target="_blank" rel="noopener noreferrer" class="cpc-modal-btn-gmaps">
+            <i data-lucide="external-link" style="width: 16px; height: 16px; margin-right: 4px;"></i> Open in ${providerName}
           </a>
         </div>
       </div>
@@ -824,11 +821,11 @@ const MWE = (() => {
   }
 
   function shareDirections(churchName, location) {
-    const gmapsUrl = `https://maps.google.com/?q=${encodeURIComponent(location)}`;
+    const directionsUrl = MWE.MAP_SETTINGS.getDirectionsUrl(location);
     const shareData = {
       title: `Directions to ${churchName}`,
       text: `Here are the directions to ${churchName} located at: ${location}`,
-      url: gmapsUrl
+      url: directionsUrl
     };
 
     if (navigator.share) {
@@ -847,8 +844,9 @@ const MWE = (() => {
   }
 
   function fallbackCopyDirections(location) {
-    const gmapsUrl = `https://maps.google.com/?q=${encodeURIComponent(location)}`;
-    navigator.clipboard.writeText(`Address: ${location}\nGoogle Maps: ${gmapsUrl}`)
+    const directionsUrl = MWE.MAP_SETTINGS.getDirectionsUrl(location);
+    const providerName = MWE.MAP_SETTINGS.activeProvider === "openstreetmap" ? "OpenStreetMap" : "Google Maps";
+    navigator.clipboard.writeText(`Address: ${location}\n${providerName}: ${directionsUrl}`)
       .then(() => {
         showToast("Directions copied to clipboard!");
       })
@@ -879,12 +877,39 @@ const MWE = (() => {
     removeEvent,
     registerForEvent,
     getRegistrationsForEvent,
-    showMapModal,
-    closeMapModal,
-    shareDirections,
     fallbackCopyDirections
   };
 })();
+
+MWE.MAP_SETTINGS = {
+  // "openstreetmap" (active provider temporarily) | "google" (preserved for future API key integration)
+  activeProvider: "openstreetmap",
+  googleApiKey: "",
+  
+  setProvider: function(provider, apiKey = "") {
+    this.activeProvider = provider;
+    if (apiKey) this.googleApiKey = apiKey;
+  },
+  
+  getEmbedUrl: function(locationQuery) {
+    const encoded = encodeURIComponent(locationQuery || "Edmonton, AB");
+    if (this.activeProvider === "google") {
+      if (this.googleApiKey) {
+        return `https://www.google.com/maps/embed/v1/place?key=${this.googleApiKey}&q=${encoded}`;
+      }
+      return `https://maps.google.com/maps?q=${encoded}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+    }
+    return `https://www.openstreetmap.org/export/embed.html?bbox=-113.7,53.4,-113.3,53.65&layer=mapnik`;
+  },
+  
+  getDirectionsUrl: function(locationQuery) {
+    const encoded = encodeURIComponent(locationQuery || "");
+    if (this.activeProvider === "google") {
+      return `https://maps.google.com/?q=${encoded}`;
+    }
+    return `https://www.openstreetmap.org/search?query=${encoded}`;
+  }
+};
 
 function createIcons() {
   if (window.lucide && typeof window.lucide.createIcons === "function") {
@@ -1383,8 +1408,7 @@ function renderProfile(church) {
 
   const mapIframe = document.getElementById("footer-map-iframe");
   if (mapIframe && church.location) {
-    const encodedLocation = encodeURIComponent(church.location);
-    mapIframe.src = `https://maps.google.com/maps?q=${encodedLocation}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+    mapIframe.src = MWE.MAP_SETTINGS.getEmbedUrl(church.location);
   }
   
 }
