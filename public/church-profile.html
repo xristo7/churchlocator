@@ -627,6 +627,11 @@
       gap: 8px;
       transition: background 0.2s, transform 0.1s;
     }
+    .form-nav-btn.hidden,
+    .form-nav-btn[style*="display: none"],
+    .form-nav-btn[style*="display:none"] {
+      display: none !important;
+    }
     .btn-gold {
       background: var(--color-primary-gold) !important;
       color: #000 !important;
@@ -1414,10 +1419,10 @@
               </div>
 
               <!-- Form Navigation Footer -->
-              <div class="form-actions-wrapper" style="margin-top: 30px;">
-                <button type="button" id="form-btn-prev" class="form-nav-btn btn-outline" style="display: none;" onclick="MWE.prevFormStep()">Back</button>
+              <div class="form-actions-wrapper" style="margin-top: 30px; display: flex; gap: 12px;">
+                <button type="button" id="form-btn-prev" class="form-nav-btn btn-outline hidden" style="display: none !important;" onclick="MWE.prevFormStep()">Back</button>
                 <button type="button" id="form-btn-next" class="form-nav-btn btn-gold" onclick="MWE.nextFormStep()">Continue <i data-lucide="arrow-right"></i></button>
-                <button type="submit" id="form-btn-submit" class="form-nav-btn btn-gold" style="display: none;">Confirm RSVP Pass</button>
+                <button type="submit" id="form-btn-submit" class="form-nav-btn btn-gold hidden" style="display: none !important;">Confirm RSVP Pass</button>
               </div>
             </form>
 

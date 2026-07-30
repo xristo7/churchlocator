@@ -1564,6 +1564,52 @@ MWE.renderStep1Fields = function(category) {
   });
 };
 
+MWE.updateFormStepUI = function(step = MWE.currentFormStep) {
+  MWE.currentFormStep = step;
+
+  const step1 = document.getElementById("rsvp-step-1");
+  const step2 = document.getElementById("rsvp-step-2");
+  const prevBtn = document.getElementById("form-btn-prev");
+  const nextBtn = document.getElementById("form-btn-next");
+  const submitBtn = document.getElementById("form-btn-submit");
+  const tab1 = document.getElementById("tab-indicator-1");
+  const tab2 = document.getElementById("tab-indicator-2");
+
+  if (!prevBtn || !nextBtn || !submitBtn) return;
+
+  if (step === 1) {
+    if (step1) step1.style.display = "block";
+    if (step2) step2.style.display = "none";
+
+    prevBtn.style.setProperty("display", "none", "important");
+    prevBtn.classList.add("hidden");
+
+    nextBtn.style.setProperty("display", "flex", "important");
+    nextBtn.classList.remove("hidden");
+
+    submitBtn.style.setProperty("display", "none", "important");
+    submitBtn.classList.add("hidden");
+
+    if (tab1) tab1.classList.add("active");
+    if (tab2) tab2.classList.remove("active");
+  } else if (step === 2) {
+    if (step1) step1.style.display = "none";
+    if (step2) step2.style.display = "block";
+
+    prevBtn.style.setProperty("display", "flex", "important");
+    prevBtn.classList.remove("hidden");
+
+    nextBtn.style.setProperty("display", "none", "important");
+    nextBtn.classList.add("hidden");
+
+    submitBtn.style.setProperty("display", "flex", "important");
+    submitBtn.classList.remove("hidden");
+
+    if (tab1) tab1.classList.remove("active");
+    if (tab2) tab2.classList.add("active");
+  }
+};
+
 MWE.nextFormStep = function() {
   if (MWE.currentFormStep === 1) {
     const prayerText = document.getElementById("rsvp-prayer-text");
@@ -1571,32 +1617,13 @@ MWE.nextFormStep = function() {
       alert("Please enter your prayer request details.");
       return;
     }
-    
-    MWE.currentFormStep = 2;
-    document.getElementById("rsvp-step-1").style.display = "none";
-    document.getElementById("rsvp-step-2").style.display = "block";
-    
-    document.getElementById("form-btn-next").style.display = "none";
-    document.getElementById("form-btn-submit").style.display = "block";
-    document.getElementById("form-btn-prev").style.display = "block";
-    
-    document.getElementById("tab-indicator-1").classList.remove("active");
-    document.getElementById("tab-indicator-2").classList.add("active");
+    MWE.updateFormStepUI(2);
   }
 };
 
 MWE.prevFormStep = function() {
   if (MWE.currentFormStep === 2) {
-    MWE.currentFormStep = 1;
-    document.getElementById("rsvp-step-1").style.display = "block";
-    document.getElementById("rsvp-step-2").style.display = "none";
-    
-    document.getElementById("form-btn-next").style.display = "block";
-    document.getElementById("form-btn-submit").style.display = "none";
-    document.getElementById("form-btn-prev").style.display = "none";
-    
-    document.getElementById("tab-indicator-1").classList.add("active");
-    document.getElementById("tab-indicator-2").classList.remove("active");
+    MWE.updateFormStepUI(1);
   }
 };
 
@@ -1609,22 +1636,16 @@ MWE.toggleDiscoverSection = function(enabled) {
   }
   
   if (!enabled) {
-    document.getElementById("rsvp-step-1").style.display = "none";
-    document.getElementById("rsvp-step-2").style.display = "block";
-    document.getElementById("form-btn-next").style.display = "none";
-    document.getElementById("form-btn-submit").style.display = "block";
-    document.getElementById("form-btn-prev").style.display = "none";
+    MWE.updateFormStepUI(2);
+    const prevBtn = document.getElementById("form-btn-prev");
+    if (prevBtn) {
+      prevBtn.style.setProperty("display", "none", "important");
+      prevBtn.classList.add("hidden");
+    }
     if (indicatorTabs) indicatorTabs.style.display = "none";
   } else {
-    MWE.currentFormStep = 1;
-    document.getElementById("rsvp-step-1").style.display = "block";
-    document.getElementById("rsvp-step-2").style.display = "none";
-    document.getElementById("form-btn-next").style.display = "block";
-    document.getElementById("form-btn-submit").style.display = "none";
-    document.getElementById("form-btn-prev").style.display = "none";
+    MWE.updateFormStepUI(1);
     if (indicatorTabs) indicatorTabs.style.display = "grid";
-    document.getElementById("tab-indicator-1").classList.add("active");
-    document.getElementById("tab-indicator-2").classList.remove("active");
   }
 };
 
@@ -2043,6 +2064,9 @@ function initProfilePage() {
       }
     });
   }, 500);
+
+  // Ensure form step button state starts strictly at Step 1 (only Continue button visible)
+  MWE.updateFormStepUI(1);
 
   // Initialize with Salvation category checked without auto-scrolling
   MWE.selectCategory('salvation', false);
