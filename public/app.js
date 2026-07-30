@@ -3322,8 +3322,19 @@ MWE.renderEventsList = function() {
       if (!eventCity.includes(cityFilter) && !churchCity.includes(cityFilter)) return false;
     }
 
-    // Event type filter
-    if (typeFilter !== "all" && evt.eventType !== typeFilter) return false;
+    // Event type / category filter
+    if (typeFilter !== "all") {
+      const categoryHaystack = [evt.eventType, evt.title, evt.description, (evt.highlights || []).map(h => (h.title || "") + " " + (h.desc || "")).join(" ")].join(" ").toLowerCase();
+      if (typeFilter === "in-person" && evt.eventType !== "in-person") return false;
+      if (typeFilter === "streamed" && evt.eventType !== "streamed") return false;
+      if (typeFilter === "sunday-services" && !categoryHaystack.includes("sunday") && !categoryHaystack.includes("worship") && !categoryHaystack.includes("service")) return false;
+      if (typeFilter === "conferences" && !categoryHaystack.includes("conference") && !categoryHaystack.includes("awakening") && !categoryHaystack.includes("forum")) return false;
+      if (typeFilter === "youth-events" && !categoryHaystack.includes("youth") && !categoryHaystack.includes("student")) return false;
+      if (typeFilter === "prayer-programs" && !categoryHaystack.includes("prayer") && !categoryHaystack.includes("praise") && !categoryHaystack.includes("fasting")) return false;
+      if (typeFilter === "evangelism-outreaches" && !categoryHaystack.includes("outreach") && !categoryHaystack.includes("evangelism") && !categoryHaystack.includes("street")) return false;
+      if (typeFilter === "community-assistance" && !categoryHaystack.includes("food") && !categoryHaystack.includes("assistance") && !categoryHaystack.includes("community")) return false;
+      if (typeFilter === "fundraisers" && !categoryHaystack.includes("fundraiser") && !categoryHaystack.includes("gala") && !categoryHaystack.includes("ticket")) return false;
+    }
 
     // Price filter
     if (priceFilter === "free" && (evt.ticketPriceCents || 0) > 0) return false;
@@ -5050,15 +5061,6 @@ MWE.handleSalvationSubmit = function(e) {
   if (backdrop) backdrop.remove();
 
   showToast(`Praise God! Your decision has been routed to ${targetChurch.name} for follow-up.`);
-};
-          <button type="button" class="button ghost" onclick="document.getElementById('salvation-modal-backdrop').remove()">Close</button>
-          <button type="submit" class="button primary"><i data-lucide="heart"></i> Confirm Salvation & Growth Care</button>
-        </div>
-      </form>
-    </div>
-  `;
-  document.body.appendChild(backdrop);
-  createIcons();
 };
 
 MWE.handleSalvationSubmit = function(e) {
