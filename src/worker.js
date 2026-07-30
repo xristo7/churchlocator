@@ -531,6 +531,16 @@ export default {
       return handleApi(request, env);
     }
 
-    return env.ASSETS.fetch(assetRequest(request));
+    const assetRes = await env.ASSETS.fetch(assetRequest(request));
+    const newHeaders = new Headers(assetRes.headers);
+    newHeaders.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
+    newHeaders.set("Pragma", "no-cache");
+    newHeaders.set("Expires", "0");
+
+    return new Response(assetRes.body, {
+      status: assetRes.status,
+      statusText: assetRes.statusText,
+      headers: newHeaders
+    });
   }
 };
