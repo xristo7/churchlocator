@@ -251,7 +251,7 @@ const MWE = (() => {
   function loadChurches() {
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
-      if (Array.isArray(saved)) return saved.map(normalizeChurch);
+      if (Array.isArray(saved) && saved.length > 0) return saved.map(normalizeChurch);
     } catch {
       localStorage.removeItem(storageKey);
     }
@@ -481,8 +481,8 @@ const MWE = (() => {
       churchId: "christ-embassy-edmonton",
       title: "Night of Praise and Divine Worship",
       eventType: "in-person",
-      startsAt: "2026-07-28T19:00",
-      endsAt: "2026-07-28T22:30",
+      startsAt: "2026-08-28T19:00",
+      endsAt: "2026-08-28T22:30",
       venueName: "CE Edmonton Worship Center",
       city: "Edmonton",
       country: "Canada",
@@ -678,7 +678,7 @@ const MWE = (() => {
   function loadEvents() {
     try {
       const saved = JSON.parse(localStorage.getItem(eventsStorageKey) || "null");
-      if (Array.isArray(saved)) return saved;
+      if (Array.isArray(saved) && saved.length > 0) return saved;
     } catch {
       localStorage.removeItem(eventsStorageKey);
     }
