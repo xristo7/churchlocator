@@ -1216,50 +1216,29 @@ function renderServiceTimesBox(church) {
 }
 
 function churchCard(church) {
-  const pastorPhoto = church.pastorPhoto || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
+  const bgPhoto = church.photo || church.coverImage || "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=800&q=80";
 
   return `
-    <article class="church-premium-card">
-      ${church.verified ? `
-        <span class="cpc-verified-icon-tr" title="Verified Church">
-          <i data-lucide="badge-check"></i>
-        </span>
-      ` : ''}
-      
-      <a href="church-profile.html?id=${church.id}" class="cpc-banner-link" aria-label="${MWE.escapeHtml(church.name)} banner">
-        <div class="cpc-banner" style="background-image: url('${MWE.escapeHtml(church.photo)}')">
-          <div class="cpc-banner-overlay"></div>
-          <h3 class="cpc-name-overlay">${MWE.escapeHtml(church.name)}</h3>
-        </div>
-      </a>
-      
-      <div class="cpc-body">
-        <div class="cpc-pastor-avatar-container-new">
-          <img class="cpc-pastor-avatar-new" src="${MWE.escapeHtml(pastorPhoto)}" alt="${MWE.escapeHtml(church.pastor || 'Pastor')}" />
-        </div>
-        
-        <div class="cpc-pastor-info-box">
-          <span class="cpc-pastor-name-new">${MWE.escapeHtml(church.pastor || 'Pastor')}</span>
-        </div>
-        
-        ${(() => {
-          const fullDesc = church.tagline || church.about || 'A welcoming local fellowship group.';
-          const words = fullDesc.split(/\s+/).filter(Boolean);
-          const displayDesc = words.length > 12 ? words.slice(0, 12).join(" ") + "..." : fullDesc;
-          return `<p class="cpc-tagline">${MWE.escapeHtml(displayDesc)}</p>`;
-        })()}
-        
-        <div class="cpc-service-times-box">
-          ${renderServiceTimesBox(church)}
-        </div>
-        
-        <div class="cpc-actions-row">
-          <a href="church-profile.html?id=${church.id}" class="cpc-btn-view">
-            View
-          </a>
-          <button onclick="MWE.showMapModal('${church.id}')" class="cpc-btn-directions">
-            <i data-lucide="map" style="margin-right: 4px; width: 16px; height: 16px;"></i> Directions
+    <article class="church-card-immersive" style="background-image: url('${MWE.escapeHtml(bgPhoto)}');">
+      <div class="church-card-immersive-overlay">
+        <div class="church-card-top-bar">
+          <span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>
+          <button type="button" class="immersive-fav-btn" aria-label="Save church" onclick="MWE.toggleFavorite(event, '${church.id}')">
+            <i data-lucide="heart" style="width: 18px; height: 18px; fill: rgba(239, 68, 68, 0.2);"></i>
           </button>
+        </div>
+        
+        <div class="church-card-bottom-info">
+          <h3 class="immersive-card-title">${MWE.escapeHtml(church.name)}</h3>
+          <p class="immersive-card-subtitle">${MWE.escapeHtml(church.denomination || 'Christian Fellowship')} • ${MWE.escapeHtml(church.city)}</p>
+          <div class="immersive-card-meta">
+            <span><i data-lucide="map-pin"></i> ${MWE.escapeHtml(church.area || church.city)}</span>
+            <span>•</span>
+            <span><i data-lucide="clock"></i> ${MWE.escapeHtml(church.sunday || 'Sunday 10:00 AM')}</span>
+          </div>
+          <a href="church-profile.html?id=${church.id}" class="immersive-pill-btn">
+            Explore Church <i data-lucide="arrow-right"></i>
+          </a>
         </div>
       </div>
     </article>
@@ -1269,81 +1248,48 @@ function churchCard(church) {
 function initPublicSite() {
   const grid = document.querySelector("[data-church-grid]");
   const search = document.querySelector("[data-search]");
-  const city = document.querySelector("[data-city]");
-  const denomination = document.querySelector("[data-denomination]");
-  const ministry = document.querySelector("[data-ministry]");
-  const transport = document.querySelector("[data-transport]");
-  const stream = document.querySelector("[data-stream]");
-  const reset = document.querySelector("[data-reset-filters]") || document.querySelector("[data-reset]");
 
   const churches = MWE.getChurches();
 
-  if (city) {
+  // Populate dynamic City pill checkboxes
+  const cityOptionsContainer = document.getElementById("church-city-options-list");
+  if (cityOptionsContainer) {
     const cities = [...new Set(churches.map(church => church.city).filter(Boolean))].sort();
-    city.innerHTML = `<option value="">All Cities & Regions</option>${cities.map(item => `<option value="${MWE.escapeHtml(item)}">${MWE.escapeHtml(item)}</option>`).join("")}`;
-  }
-
-  // Pre-fill filters from URL search parameters on page load
-  const params = new URLSearchParams(window.location.search);
-  if (params.has("city")) {
-    const cityVal = params.get("city");
-    if (city) {
-      const cityExists = [...city.options].some(opt => opt.value === cityVal);
-      if (cityExists) {
-        city.value = cityVal;
-      } else if (search) {
-        search.value = cityVal;
-      }
-    }
-  }
-  if (denomination && params.has("denomination")) {
-    denomination.value = params.get("denomination");
-  }
-  if (ministry && params.has("ministry")) {
-    ministry.value = params.get("ministry");
-  }
-  if (transport && params.has("transport")) {
-    transport.value = params.get("transport");
-  }
-  if (stream && params.has("stream")) {
-    stream.value = params.get("stream");
+    cityOptionsContainer.innerHTML = cities.map(item => `
+      <label class="custom-checkbox-row">
+        <input type="checkbox" value="${MWE.escapeHtml(item)}" onchange="MWE.onChurchPillChange()" />
+        <span class="checkbox-box"><i data-lucide="check"></i></span>
+        <span class="checkbox-label">${MWE.escapeHtml(item)}</span>
+      </label>
+    `).join("");
+    if (window.lucide) window.lucide.createIcons();
   }
 
   function render() {
     if (!grid) return;
     const q = (search?.value || "").toLowerCase().trim();
-    const cityValue = city?.value || "";
-    const denomValue = denomination?.value || "";
-    const ministryValue = ministry?.value || "";
-    const transportValue = transport?.value || "";
-    const streamValue = stream?.value || "";
+    
+    const selectedCities = Array.from(document.querySelectorAll("#church-city-pill input:checked")).map(cb => cb.value.toLowerCase());
+    const selectedDenoms = Array.from(document.querySelectorAll("#church-denom-pill input:checked")).map(cb => cb.value.toLowerCase());
 
     const filtered = MWE.getChurches().filter(church => {
       const haystack = [church.name, church.city, church.area, church.country, church.denomination, church.pastor, church.language, church.sunday, (church.ministries || []).join(" "), (church.features || []).join(" ")].join(" ").toLowerCase();
-      const cityMatch = !cityValue || church.city.toLowerCase() === cityValue.toLowerCase();
-      const denomMatch = !denomValue || (church.denomination || "").toLowerCase().includes(denomValue.toLowerCase());
-      const ministryMatch = !ministryValue || (church.ministries || []).some(item => item.toLowerCase().includes(ministryValue.toLowerCase())) || (church.features || []).some(item => item.toLowerCase().includes(ministryValue.toLowerCase()));
-      const transportMatch = !transportValue || (church.features || []).some(item => item.toLowerCase().includes("transportation") || item.toLowerCase().includes("rides"));
-      const streamMatch = !streamValue || String(church.livestream?.enabled) === streamValue;
       
-      return (!q || haystack.includes(q)) && cityMatch && denomMatch && ministryMatch && transportMatch && streamMatch;
+      const cityMatch = selectedCities.length === 0 || selectedCities.includes(church.city.toLowerCase());
+      const denomMatch = selectedDenoms.length === 0 || selectedDenoms.some(d => (church.denomination || "").toLowerCase().includes(d));
+
+      return (!q || haystack.includes(q)) && cityMatch && denomMatch;
     });
 
-    grid.innerHTML = filtered.length ? filtered.map(churchCard).join("") : `<div class="empty flex-center py-8 text-muted font-bold text-center">No churches match those filter criteria. Click 'Reset Filters' to view all churches.</div>`;
+    grid.innerHTML = filtered.length ? filtered.map(churchCard).join("") : `<div class="empty flex-center py-8 text-muted font-bold text-center">No churches match those filter criteria. Click 'Reset' to view all churches.</div>`;
     createIcons();
   }
 
-  MWE.resetDirectoryFilters = function() {
-    [search, city, denomination, ministry, transport, stream].filter(Boolean).forEach(input => { input.value = ""; });
-    render();
-  };
+  MWE.triggerChurchSearch = render;
 
-  [search, city, denomination, ministry, transport, stream].filter(Boolean).forEach(input => {
-    input.addEventListener("input", render);
-    input.addEventListener("change", render);
-  });
-
-  if (reset) reset.addEventListener("click", MWE.resetDirectoryFilters);
+  if (search) {
+    search.addEventListener("input", render);
+  }
 
 
 
@@ -1411,7 +1357,71 @@ function renderProfile(church) {
     mapIframe.src = MWE.MAP_SETTINGS.getEmbedUrl(church.location);
   }
   
+  MWE.renderRelatedChurches(church.id);
+  MWE.renderChurchProfileEvents(church.id);
 }
+
+MWE.renderChurchProfileEvents = function(churchId) {
+  const container = document.getElementById("church-events-container");
+  if (!container) return;
+
+  const events = MWE.getEvents().filter(e => e.churchId === churchId);
+
+  if (events.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 48px 24px; background: rgba(0, 0, 0, 0.02); border-radius: 20px; border: 1px dashed var(--line); margin-top: 10px;">
+        <i data-lucide="calendar-off" style="width: 42px; height: 42px; color: var(--muted); margin-bottom: 12px; display: inline-block;"></i>
+        <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--ink);">No Upcoming Events Scheduled</h4>
+        <p style="font-size: 0.88rem; color: var(--muted); margin-top: 6px; max-width: 420px; margin-left: auto; margin-right: auto;">
+          This fellowship currently has no public upcoming events. Check back soon for new service announcements and outreach programs.
+        </p>
+      </div>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+    return;
+  }
+
+  container.innerHTML = events.map(evt => MWE.createEventCardHtml(evt)).join("");
+  if (window.lucide) window.lucide.createIcons();
+};
+
+MWE.renderRelatedChurches = function(currentChurchId) {
+  const container = document.getElementById("related-churches-container");
+  if (!container) return;
+
+  const allChurches = MWE.getChurches();
+  const otherChurches = allChurches.filter(c => c.id !== currentChurchId).slice(0, 3);
+
+  if (otherChurches.length === 0) {
+    container.innerHTML = `<p class="text-sm text-slate-500">No other churches found.</p>`;
+    return;
+  }
+
+  container.innerHTML = otherChurches.map(c => `
+    <article class="church-card-split">
+      <div class="church-card-split-media" style="background-image: url('${MWE.escapeHtml(c.coverImage || c.photo || "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=600&q=80")}');">
+        <span class="immersive-badge" style="position: absolute; top: 14px; left: 14px;"><i data-lucide="badge-check"></i> Verified</span>
+      </div>
+      <div class="church-card-split-body">
+        <h3 class="split-card-title">${MWE.escapeHtml(c.name)}</h3>
+        <p class="split-card-subtitle">${MWE.escapeHtml(c.denomination || "Christian Fellowship")} • ${MWE.escapeHtml(c.city)}</p>
+        <div class="split-card-meta">
+          <span><i data-lucide="map-pin"></i> ${MWE.escapeHtml(c.location || c.city)}</span>
+        </div>
+        <div class="split-card-action-row">
+          <a href="church-profile.html?id=${encodeURIComponent(c.id)}" class="split-dark-pill-btn">
+            Explore Church <i data-lucide="arrow-right"></i>
+          </a>
+          <button type="button" class="split-fav-btn" aria-label="Favorite" onclick="MWE.toggleFavorite(event, '${c.id}')">
+            <i data-lucide="heart" style="width: 18px; height: 18px;"></i>
+          </button>
+        </div>
+      </div>
+    </article>
+  `).join("");
+
+  createIcons();
+};
 
 MWE.selectedCategoryState = null;
 MWE.currentFormStep = 1;
@@ -1820,40 +1830,82 @@ MWE.closeCustomAlert = function() {
   }
 };
 
+MWE.togglePlanVisitOption = function(checkbox) {
+  const conditionalBlock = document.getElementById("conditional-ride-option");
+  const addressDispatch = document.getElementById("address-dispatch-wrapper");
+
+  if (conditionalBlock) {
+    conditionalBlock.style.display = checkbox.checked ? "block" : "none";
+  }
+  if (addressDispatch) {
+    addressDispatch.style.display = checkbox.checked ? "block" : "none";
+  }
+  MWE.handleCheckboxChange(checkbox);
+};
+
+MWE.handleCheckboxChange = function(checkbox) {
+  const item = checkbox.closest('.church-checkbox-item');
+  if (item) {
+    item.classList.toggle('selected', checkbox.checked);
+  }
+};
+
+MWE.sendAddressVia = function(platform) {
+  const currentChurch = MWE.activeChurchProfile || (typeof MWE.getChurches === "function" ? MWE.getChurches()[0] : {}) || {};
+  const churchName = currentChurch.name || "Grace Community Fellowship";
+  const location = currentChurch.location || currentChurch.address || currentChurch.city || "10230 102 St NW, Edmonton, AB";
+  const serviceTime = currentChurch.serviceTimes || "Sunday Service at 10:00 AM";
+
+  const messageText = `⛪ ${churchName}\n📍 Address: ${location}\n⏰ Worship Service: ${serviceTime}\n🌐 Directions: ${window.location.href}`;
+  const encodedText = encodeURIComponent(messageText);
+
+  switch(platform) {
+    case 'whatsapp':
+      window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+      break;
+    case 'telegram':
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodedText}`, '_blank');
+      break;
+    case 'sms':
+      window.open(`sms:?body=${encodedText}`, '_self');
+      break;
+    case 'copy':
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(messageText).then(() => {
+          alert("Church address and service details copied to clipboard!");
+        });
+      } else {
+        alert(`Church Address: ${location}`);
+      }
+      break;
+  }
+};
+
 MWE.handleRSVPSubmit = function(event) {
   event.preventDefault();
-  const form = event.target;
-  const formData = new FormData(form);
-  const data = {};
-  formData.forEach((value, key) => {
-    data[key] = value;
-  });
-  
-  data["first_name"] = document.getElementById("rsvp-first-name")?.value;
-  data["last_name"] = document.getElementById("rsvp-last-name")?.value;
-  data["email"] = document.getElementById("rsvp-email")?.value;
-  data["phone"] = document.getElementById("rsvp-phone")?.value;
-  data["gathering"] = document.getElementById("rsvp-gathering-select")?.value;
-  data["category"] = MWE.selectedCategoryState;
-  
-  const selectedPreferences = [];
-  document.querySelectorAll(".checkbox-card.selected input").forEach(cb => {
-    selectedPreferences.push(cb.value);
-  });
-  data["preferences"] = selectedPreferences;
-  
-  console.log("Submitting RSVP campaign FormData:", data);
-  
+  const fullName = document.getElementById("rsvp-full-name")?.value || "";
+  const email = document.getElementById("rsvp-email")?.value || "";
+  const phone = document.getElementById("rsvp-phone")?.value || "";
+  const address = document.getElementById("rsvp-address")?.value || "";
+
+  const steps = [];
+  if (document.getElementById("cb-salvation")?.checked) steps.push("Receive Salvation");
+  if (document.getElementById("cb-member")?.checked) steps.push("Become a Member");
+  if (document.getElementById("cb-visit")?.checked) steps.push("Plan a Visit");
+  if (document.getElementById("cb-ride")?.checked) steps.push("Request a Ride");
+
+  const payload = { fullName, email, phone, address, steps, date: new Date().toISOString() };
+  console.log("Submitting Reworked Church Connection Form:", payload);
+
+  const saved = JSON.parse(localStorage.getItem("mwe.churchConnections") || "[]");
+  saved.push(payload);
+  localStorage.setItem("mwe.churchConnections", JSON.stringify(saved));
+
   const successPanel = document.getElementById("rsvp-success-panel");
   if (successPanel) {
     successPanel.classList.add("active");
   }
-  
-  const shareLinkField = document.getElementById("share-link-field");
-  if (shareLinkField) {
-    const uniqueCode = "PASS-" + Math.random().toString(36).substring(2, 9).toUpperCase();
-    shareLinkField.value = `${window.location.origin}${window.location.pathname}?pass=${uniqueCode}`;
-  }
+  createIcons();
 };
 
 MWE.shareTo = function(platform) {
@@ -2064,6 +2116,27 @@ function initProfilePage() {
       }
     });
   }, 500);
+
+MWE.switchProfileTab = function(tabId) {
+  const buttons = document.querySelectorAll(".church-tab-button");
+  const panes = document.querySelectorAll(".church-tab-pane");
+
+  buttons.forEach(btn => {
+    if (btn.dataset.tab === tabId) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+
+  panes.forEach(pane => {
+    if (pane.id === `tab-pane-${tabId}`) {
+      pane.classList.add("active");
+    } else {
+      pane.classList.remove("active");
+    }
+  });
+};
 
   // Ensure form step button state starts strictly at Step 1 (only Continue button visible)
   MWE.updateFormStepUI(1);
@@ -2538,7 +2611,14 @@ function initChurchPortal() {
     renderReadableProfile(church);
     renderPreview(church);
     closeEditors();
-    showToast("Church portal profile saved");
+
+    // Broadcast real-time update event across tabs and public views
+    window.dispatchEvent(new CustomEvent("mwe:data-updated", { detail: { churchId: church.id } }));
+    try {
+      localStorage.setItem("mwe.activeChurchProfile", JSON.stringify(church));
+    } catch (err) {}
+
+    showToast("Church profile, livestream & schedule updated and synced to public site!");
   });
 }
 
@@ -2809,10 +2889,13 @@ async function initHeroPage() {
 }
 
 function initCustomDropdowns() {
-  const selectElements = document.querySelectorAll("select.field");
+  const selectElements = document.querySelectorAll("select.field, select.custom-select-target");
   
   selectElements.forEach(select => {
-    if (select.dataset.customInitialized) return;
+    if (select.dataset.customInitialized) {
+      if (select._updateCustomDropdown) select._updateCustomDropdown();
+      return;
+    }
     select.dataset.customInitialized = "true";
     
     // Hide native select
@@ -2825,7 +2908,7 @@ function initCustomDropdowns() {
       if (cls !== "field") wrapper.classList.add(cls);
     });
     
-    // Create trigger
+    // Create trigger button
     const trigger = document.createElement("button");
     trigger.type = "button";
     trigger.className = "custom-select-trigger field";
@@ -2864,7 +2947,6 @@ function initCustomDropdowns() {
         }
 
         if (select.multiple) {
-          // Checkmark box in front of the word
           const checkbox = document.createElement("span");
           checkbox.className = "option-checkbox";
           
@@ -2930,10 +3012,12 @@ function initCustomDropdowns() {
         }
         wrapper.classList.add("has-selection");
       } else {
-        labelSpan.textContent = select.multiple ? "All interests" : (options[0]?.textContent || "");
+        labelSpan.textContent = select.multiple ? "All options" : (options[0]?.textContent || "");
         wrapper.classList.remove("has-selection");
       }
     };
+
+    select._updateCustomDropdown = updateOptions;
     
     updateOptions();
     wrapper.appendChild(optionsPanel);
@@ -2952,17 +3036,19 @@ function initCustomDropdowns() {
       updateOptions();
     });
   });
-  
+
   document.addEventListener("click", () => {
     document.querySelectorAll(".custom-select-container").forEach(c => {
       c.classList.remove("open");
     });
   });
-  
+
   if (window.lucide) {
     window.lucide.createIcons();
   }
 }
+
+MWE.initCustomDropdowns = initCustomDropdowns;
 
 // Lightweight Dynamic Translation System (EN, FR, ES)
 function initTranslations() {
@@ -3439,42 +3525,74 @@ MWE.renderEventsList = function() {
 
 MWE.createEventCardHtml = function(evt, isFeatured = false) {
   const dateObj = new Date(evt.startsAt);
-  const dayOfWeek = dateObj.toLocaleDateString(undefined, { weekday: 'short' });
   const dayNum = dateObj.getDate();
-  const monthShort = dateObj.toLocaleDateString(undefined, { month: 'short' });
+  const monthShort = dateObj.toLocaleDateString(undefined, { month: 'short' }).toUpperCase();
   const isPast = new Date(evt.startsAt) < new Date();
   
   const church = MWE.getChurches().find(c => c.id === evt.churchId);
-  const displayCity = (evt.city || (church ? church.city : "Local")).toUpperCase();
+  const displayCity = evt.city || (church ? church.city : "Edmonton");
+  const priceLabel = evt.ticketPriceCents ? `$${(evt.ticketPriceCents / 100).toFixed(0)}` : "Free";
+  const bgPhoto = evt.coverImageUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80';
 
   let badgeHtml = "";
-  if (evt.isPromoted) badgeHtml = `<span class="evc-badge evc-badge--promoted">Promoted</span>`;
-  else if (evt.eventType === "streamed") badgeHtml = `<span class="evc-badge evc-badge--live"><span class="evc-pulse-dot"></span> LIVE</span>`;
-  else if (isPast) badgeHtml = `<span class="evc-badge evc-badge--past">Past</span>`;
+  if (evt.eventType === "streamed") badgeHtml = `<span class="event-card-top-badge" style="color: #dc2626;"><span style="width:6px; height:6px; background:#dc2626; border-radius:50%; display:inline-block;"></span> LIVE</span>`;
+  else if (isPast) badgeHtml = `<span class="event-card-top-badge" style="color: #64748b;">Past</span>`;
 
-  return `
-    <article class="evc ${isFeatured ? 'evc--featured' : ''} ${isPast ? 'evc--past' : ''}">
-      <a href="event-profile.html?id=${evt.id}" class="evc-link" aria-label="${MWE.escapeHtml(evt.title)}">
-        <img class="evc-bg" src="${evt.coverImageUrl}" alt="" loading="lazy" />
-        <div class="evc-overlay"></div>
+  if (isFeatured) {
+    return `
+      <a href="event-profile.html?id=${evt.id}" class="event-card-modern ${isPast ? 'opacity-75' : ''}">
+        <div class="event-card-banner-wrap is-featured-banner" style="background-image: url('${MWE.escapeHtml(bgPhoto)}');">
+          <div class="event-card-featured-overlay"></div>
+          
+          <span class="event-card-top-badge" style="top: 15px; left: 15px; background: rgba(255,255,255,0.92); color: #0f172a;"><i data-lucide="sparkles" style="color: var(--color-primary-gold);"></i> Featured</span>
 
-        <!-- Date Badge -->
-        <div class="evc-date-badge">
-          <span class="evc-date-dow">${MWE.escapeHtml(dayOfWeek)}</span>
-          <span class="evc-date-day">${dayNum}</span>
-          <span class="evc-date-month">${MWE.escapeHtml(monthShort)}</span>
-        </div>
+          <div class="event-card-bottom-row">
+            <!-- Date Badge & Ticket Price Column -->
+            <div class="event-date-col">
+              <span class="event-date-month">${MWE.escapeHtml(monthShort)}</span>
+              <span class="event-date-num">${dayNum}</span>
+              <span class="event-price-tag-sub">${priceLabel === 'Free' ? 'FREE' : priceLabel}</span>
+            </div>
 
-        ${badgeHtml ? `<div class="evc-badge-slot">${badgeHtml}</div>` : ""}
+            <div class="event-date-divider"></div>
 
-        <!-- Bottom Content -->
-        <div class="evc-content">
-          <span class="evc-city"><span class="evc-city-arrow">→</span> ${MWE.escapeHtml(displayCity)}</span>
-          <h4 class="evc-title">${MWE.escapeHtml(evt.title)}</h4>
-          <span class="evc-cta">Register Now</span>
+            <!-- Event Details Column -->
+            <div class="event-details-col">
+              <span class="event-location-pill"><i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> ${MWE.escapeHtml(displayCity)}</span>
+              <h4 class="event-card-title-new">${MWE.escapeHtml(evt.title)}</h4>
+              <p class="event-card-desc">${MWE.escapeHtml(evt.description || 'Join us for a dynamic gathering.')}</p>
+            </div>
+          </div>
         </div>
       </a>
-    </article>
+    `;
+  }
+
+  return `
+    <a href="event-profile.html?id=${evt.id}" class="event-card-modern ${isPast ? 'opacity-75' : ''}">
+      <div class="event-card-banner-wrap">
+        <img class="event-card-banner-img" src="${MWE.escapeHtml(bgPhoto)}" alt="${MWE.escapeHtml(evt.title)}" loading="lazy" />
+        ${badgeHtml}
+      </div>
+
+      <div class="event-card-bottom-row">
+        <!-- Date Badge & Ticket Price Column -->
+        <div class="event-date-col">
+          <span class="event-date-month">${MWE.escapeHtml(monthShort)}</span>
+          <span class="event-date-num">${dayNum}</span>
+          <span class="event-price-tag-sub">${priceLabel === 'Free' ? 'FREE' : priceLabel}</span>
+        </div>
+
+        <div class="event-date-divider"></div>
+
+        <!-- Event Details Column -->
+        <div class="event-details-col">
+          <span class="event-location-pill"><i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> ${MWE.escapeHtml(displayCity)}</span>
+          <h4 class="event-card-title-new">${MWE.escapeHtml(evt.title)}</h4>
+          <p class="event-card-desc">${MWE.escapeHtml(evt.description || 'Join us for a dynamic gathering.')}</p>
+        </div>
+      </div>
+    </a>
   `;
 };
 
@@ -3726,7 +3844,11 @@ MWE.handlePortalEventSubmit = function(e) {
   MWE.upsertEvent(eventData);
   MWE.hideEventEditor();
   MWE.renderPortalEvents(churchId);
-  showToast(idInput ? "Event updated successfully" : "New event scheduled!");
+
+  // Broadcast real-time update event across tabs and public views
+  window.dispatchEvent(new CustomEvent("mwe:data-updated", { detail: { type: "event", eventId } }));
+
+  showToast(idInput ? "Event updated & published to public platform!" : "New event scheduled & published!");
 };
 
 MWE.renderPortalEvents = function(churchId) {
@@ -3842,56 +3964,149 @@ MWE.closeRegistrantsModal = function() {
   if (modal) modal.classList.remove("open");
 };
 
-function setupPortalEventsTab() {
-  const select = document.querySelector("[data-portal-select]");
-  const formPanel = document.querySelector(".profile-content-panel");
-  const sidebars = document.querySelector(".dashboard-grid aside.stack");
-  const eventsPanel = document.getElementById("events-manager-panel");
-  const tabs = document.querySelectorAll(".dash-nav a");
+MWE.togglePortalSidebar = function() {
+  const sidebar = document.getElementById("portal-sidebar");
+  const toggleIcon = document.getElementById("sidebar-toggle-icon");
+  if (!sidebar) return;
 
-  if (!eventsPanel) return;
+  sidebar.classList.toggle("collapsed");
+  const isCollapsed = sidebar.classList.contains("collapsed");
 
-  // Render initial list if select has value
-  if (select && select.value) {
-    MWE.renderPortalEvents(select.value);
+  if (toggleIcon) {
+    toggleIcon.setAttribute("data-lucide", isCollapsed ? "chevron-right" : "chevron-left");
+    if (typeof createIcons === "function") createIcons();
   }
 
-  // Handle select profile change
+  try {
+    localStorage.setItem("mwe.sidebarCollapsed", isCollapsed ? "true" : "false");
+  } catch (err) {}
+};
+
+MWE.toggleProfileDropup = function(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  const dropup = document.getElementById("portal-profile-dropup");
+  if (dropup) {
+    dropup.classList.toggle("active");
+    if (typeof createIcons === "function") createIcons();
+  }
+};
+
+MWE.closeProfileDropup = function() {
+  const dropup = document.getElementById("portal-profile-dropup");
+  if (dropup) dropup.classList.remove("active");
+};
+
+// Close profile dropup modal on outside click
+document.addEventListener("click", (e) => {
+  const dropup = document.getElementById("portal-profile-dropup");
+  const trigger = document.querySelector(".rail-user-profile-trigger");
+  if (dropup && dropup.classList.contains("active")) {
+    if (!dropup.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
+      dropup.classList.remove("active");
+    }
+  }
+});
+
+MWE.switchPortalPage = function(pageId, event) {
+  if (event) event.preventDefault();
+  if (!pageId) pageId = "overview";
+
+  // Hide all portal page views
+  document.querySelectorAll(".portal-page-view").forEach(page => {
+    page.style.display = "none";
+    page.classList.remove("active");
+  });
+
+  // Show target page view
+  const targetPage = document.getElementById(`page-${pageId}`);
+  if (targetPage) {
+    targetPage.style.display = "block";
+    targetPage.classList.add("active");
+  }
+
+  // Highlight active sidebar item
+  document.querySelectorAll(".dash-nav a").forEach(link => {
+    if (link.getAttribute("data-page") === pageId) {
+      link.classList.add("active");
+    } else {
+      link.classList.remove("active");
+    }
+  });
+
+  // Update Canvas Header Title & Subtitle
+  const titles = {
+    overview: ["Dashboard", "Overview of visitor connections, sermon views, and outreach metrics"],
+    identity: ["Church Identity", "Name, neighborhood, denomination, worship style, and public positioning"],
+    pastor: ["Pastor & Leadership", "Pastor portrait, welcome message, and church story"],
+    services: ["Services & Gathering Times", "Sunday worship schedule, phone, email, website, and physical address"],
+    rides: ["Ride Requests & Transport", "Manage Sunday visitor pickups and driver assignments"],
+    salvation: ["Salvation Decisions", "Track seekers who prayed the Sinner's Prayer or requested salvation"],
+    prayer: ["Prayer Requests", "Community prayer needs and urgency status"],
+    verification: ["Church Verification", "Submit legal incorporation & pastoral proof for platform verified badge"],
+    roles: ["Staff Roles & Permissions", "Manage team member permissions for church portal administration"],
+    livestream: ["Livestream Manager", "Configure live broadcast URL, player embed, and billing status"],
+    events: ["Events Manager", "Schedule outreach events, conferences, and managed registration"]
+  };
+
+  const titleElem = document.getElementById("portal-canvas-title");
+  const subElem = document.getElementById("portal-canvas-subtitle");
+  if (titleElem && titles[pageId]) titleElem.textContent = titles[pageId][0];
+  if (subElem && titles[pageId]) subElem.textContent = titles[pageId][1];
+
+  // If events page, trigger events render if select active
+  if (pageId === "events") {
+    const select = document.querySelector("[data-portal-select]");
+    if (select && select.value) {
+      MWE.renderPortalEvents(select.value);
+    }
+  }
+
+  // Update URL hash
+  if (history.replaceState) {
+    history.replaceState(null, null, `#${pageId}`);
+  }
+
+  // Scroll canvas to top
+  const dashMain = document.querySelector(".dash-main");
+  if (dashMain) dashMain.scrollTop = 0;
+
+  // Refresh icons
+  if (typeof createIcons === "function") createIcons();
+};
+
+MWE.initPortalPageRouting = function() {
+  const hash = window.location.hash.replace("#", "");
+  const validPages = ["overview", "identity", "pastor", "services", "rides", "salvation", "prayer", "verification", "roles", "livestream", "events"];
+  if (hash && validPages.includes(hash)) {
+    MWE.switchPortalPage(hash);
+  } else {
+    MWE.switchPortalPage("overview");
+  }
+
+  // Restore saved sidebar collapse state
+  try {
+    const savedCollapsed = localStorage.getItem("mwe.sidebarCollapsed");
+    const sidebar = document.getElementById("portal-sidebar");
+    const toggleIcon = document.getElementById("sidebar-toggle-icon");
+    if (savedCollapsed === "true" && sidebar) {
+      sidebar.classList.add("collapsed");
+      if (toggleIcon) toggleIcon.setAttribute("data-lucide", "chevron-right");
+    }
+  } catch (err) {}
+
+  const select = document.querySelector("[data-portal-select]");
   if (select) {
     select.addEventListener("change", () => {
-      MWE.renderPortalEvents(select.value);
-    });
-  }
-
-  // Handle dashboard sidebar tabs
-  tabs.forEach(tab => {
-    tab.addEventListener("click", (e) => {
-      const isEventsTab = tab.getAttribute("data-portal-tab") === "events";
-      
-      // Update sidebar active state
-      tabs.forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-
-      if (isEventsTab) {
-        e.preventDefault();
-        // Hide standard profile editors & sidebars
-        if (formPanel) formPanel.style.display = "none";
-        if (sidebars) sidebars.style.display = "none";
-        
-        // Show Events Panel
-        eventsPanel.style.display = "block";
-      } else {
-        // Show standard profile editors & sidebars
-        if (formPanel) formPanel.style.display = "block";
-        if (sidebars) sidebars.style.display = "block";
-        
-        // Hide Events Panel
-        eventsPanel.style.display = "none";
-        MWE.hideEventEditor();
+      const activePage = document.querySelector(".dash-nav a.active")?.getAttribute("data-page");
+      if (activePage === "events") {
+        MWE.renderPortalEvents(select.value);
       }
     });
-  });
-}
+  }
+};
 
 MWE.resetEventsSearch = function() {
   const cityInput = document.getElementById("event-city-input");
@@ -3900,10 +4115,11 @@ MWE.resetEventsSearch = function() {
   const timeSelect = document.getElementById("event-time-select");
 
   if (cityInput) cityInput.value = "";
-  if (typeSelect) typeSelect.value = "all";
-  if (priceSelect) priceSelect.value = "all";
-  if (timeSelect) timeSelect.value = "upcoming";
+  if (typeSelect) { typeSelect.value = "all"; typeSelect.dispatchEvent(new Event("change")); }
+  if (priceSelect) { priceSelect.value = "all"; priceSelect.dispatchEvent(new Event("change")); }
+  if (timeSelect) { timeSelect.value = "upcoming"; timeSelect.dispatchEvent(new Event("change")); }
 
+  if (typeof initCustomDropdowns === "function") initCustomDropdowns();
   MWE.renderEventsList();
 };
 
@@ -4728,35 +4944,33 @@ function initStreamsPage() {
 
   streamsList.innerHTML = liveChurches.map(c => {
     const viewers = Math.floor(60 + Math.random() * 150);
-    const photo = c.photo || MWE.defaultImage;
+    const photo = c.photo || c.coverImage || MWE.defaultImage;
+    const isLive = c.livestream?.enabled === true || c.livestream?.enabled === "true";
 
     return `
-      <article class="event-card stream-card">
-        <div class="event-image-container" style="background-image: url('${photo}'); height: 160px;">
-          <div class="event-badges-overlay">
-            <span class="badge live">
-              <span style="width:6px; height:6px; background:#fff; border-radius:50%; display:inline-block;"></span> LIVE
+      <a href="livestream.html?id=${c.id}" class="livestream-card-16-9 ${isLive ? 'is-live' : ''}" style="background-image: url('${MWE.escapeHtml(photo)}');">
+        <div class="livestream-card-overlay"></div>
+        
+        <div class="livestream-card-top">
+          ${isLive ? `
+            <span class="livestream-live-badge">
+              <span class="live-pulse-dot"></span> LIVE
             </span>
-          </div>
-          <div class="stream-viewer-tag">
-            <i data-lucide="users" style="width:12px; height:12px;"></i> ${viewers} watching
+          ` : '<span></span>'}
+
+          <div class="livestream-play-btn" title="Watch Livestream">
+            <i data-lucide="play" style="width: 18px; height: 18px; fill: #ffffff; margin-left: 2px;"></i>
           </div>
         </div>
-        <div class="event-details">
-          <div class="stream-card-body">
-            <h4 class="stream-card-title">${MWE.escapeHtml(c.name)}</h4>
-            <p class="stream-card-tagline">${MWE.escapeHtml(c.tagline || 'Livestream Sunday Service broadcast')}</p>
-          </div>
-          <div class="stream-card-footer">
-            <span class="stream-card-city">
-              <i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> ${MWE.escapeHtml(c.city)}
-            </span>
-            <a class="button primary small" href="livestream.html?id=${c.id}" style="display: inline-flex; align-items: center; gap: 6px;">
-              <i data-lucide="play" style="width: 12px; height: 12px; fill: #fff;"></i> Watch Now
-            </a>
+
+        <div class="livestream-card-bottom">
+          <h4 class="livestream-card-title">${MWE.escapeHtml(c.name)}</h4>
+          <p class="livestream-card-desc">${MWE.escapeHtml(c.tagline || 'Livestream Sunday Worship Service')}</p>
+          <div class="livestream-viewers-tag">
+            <i data-lucide="users" style="width: 12px; height: 12px;"></i> ${viewers} watching • ${MWE.escapeHtml(c.city)}
           </div>
         </div>
-      </article>
+      </a>
     `;
   }).join("");
 
@@ -4775,6 +4989,8 @@ function initEventsPage() {
   if (typeSelect) typeSelect.addEventListener("change", MWE.renderEventsList);
   if (priceSelect) priceSelect.addEventListener("change", MWE.renderEventsList);
   if (timeSelect) timeSelect.addEventListener("change", MWE.renderEventsList);
+
+  initCustomDropdowns();
 
   // Initial render
   MWE.renderEventsList();
@@ -5226,45 +5442,84 @@ MWE.openYouthModal = function() {
 };
 
 MWE.setGivingFreq = function(btn, freq) {
-  const container = btn.closest(".giving-freq-selector");
+  const container = btn.closest(".giving-freq-selector") || btn.closest(".master-freq-switcher");
   if (!container) return;
-  container.querySelectorAll(".freq-btn").forEach(b => b.classList.remove("active"));
+  container.querySelectorAll(".freq-btn, .master-freq-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
 };
 
 MWE.setDonateAmount = function(amt, btn) {
-  const input = document.getElementById("donate-custom-amount");
+  const input = document.getElementById("custom-donate-amount") || document.getElementById("donate-custom-amount");
   if (input) input.value = amt;
-  const pills = btn.closest(".amount-pills-grid");
+  const pills = btn.closest(".amount-pills-grid") || btn.closest(".master-amount-grid");
   if (pills) {
-    pills.querySelectorAll(".amount-pill").forEach(p => p.classList.remove("active"));
+    pills.querySelectorAll(".amount-pill, .master-amount-pill").forEach(p => p.classList.remove("active"));
     btn.classList.add("active");
   }
+  const submitBtn = btn.closest("form") ? btn.closest("form").querySelector("button[type='submit']") : null;
+  if (submitBtn) {
+    submitBtn.innerHTML = `<i data-lucide="heart" style="width: 20px; height: 20px;"></i> Complete $${amt} Contribution`;
+    createIcons();
+  }
+};
+
+MWE.onCustomAmountInput = function(input) {
+  const val = input.value ? parseInt(input.value, 10) : 0;
+  const pills = input.closest(".form-group-block") ? input.closest(".form-group-block").querySelectorAll(".amount-pill, .master-amount-pill") : document.querySelectorAll(".amount-pill, .master-amount-pill");
+  
+  pills.forEach(p => {
+    const pillAmt = parseInt(p.textContent.replace("$", "").trim(), 10);
+    p.classList.toggle("active", pillAmt === val);
+  });
+
+  const displayVal = input.value || 50;
+  const submitBtn = input.closest("form") ? input.closest("form").querySelector("button[type='submit']") : null;
+  if (submitBtn) {
+    submitBtn.innerHTML = `<i data-lucide="heart" style="width: 20px; height: 20px;"></i> Complete $${displayVal} Contribution`;
+    createIcons();
+  }
+};
+
+MWE.setPayMethod = function(elem) {
+  const container = elem.closest(".payment-method-selector") || elem.closest(".master-pay-method-grid");
+  if (!container) return;
+  container.querySelectorAll(".pay-method-radio, .master-pay-radio").forEach(el => el.classList.remove("active"));
+  const label = elem.closest(".pay-method-radio, .master-pay-radio");
+  if (label) label.classList.add("active");
 };
 
 MWE.handleDonationSubmit = function(e) {
   e.preventDefault();
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
-  const amount = data.customAmount || 50;
-  const target = data.target || "where-needed-most";
+  const customInput = document.getElementById("custom-donate-amount") || document.getElementById("donate-custom-amount");
+  const activePill = form.querySelector(".amount-pill.active, .master-amount-pill.active");
+  
+  let amount = 50;
+  if (customInput && customInput.value) {
+    amount = customInput.value;
+  } else if (activePill) {
+    amount = activePill.textContent.replace("$", "").trim();
+  }
+  
+  const donorName = data.donorName || "Generous Partner";
   const regCode = "REC-DON-" + Math.floor(100000 + Math.random() * 900000);
 
   const backdrop = document.createElement("div");
   backdrop.className = "alert-modal-backdrop open";
   backdrop.innerHTML = `
-    <div class="dash-panel dash-panel-pad text-center" style="max-width: 480px; width: 90%; margin: 20px auto;">
-      <div class="success-check-circle mx-auto"><i class="fa-solid fa-check"></i></div>
-      <h3 class="text-xl font-extrabold text-slate-900">Thank You for Your Generosity!</h3>
-      <p class="text-xs text-slate-600 mt-2">Your contribution of <strong>$${amount}.00 USD</strong> has been allocated to <strong>${MWE.escapeHtml(target)}</strong>.</p>
+    <div class="dash-panel dash-panel-pad text-center" style="max-width: 500px; width: 90%; margin: 20px auto; border-radius: 24px; padding: 36px;">
+      <div class="success-check-circle mx-auto" style="width: 60px; height: 60px; border-radius: 50%; background: rgba(176, 129, 26, 0.12); color: #b0811a; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px;"><i data-lucide="check-circle-2" style="width: 32px; height: 32px;"></i></div>
+      <h3 style="font-size: 1.5rem; font-weight: 900; color: #0f172a; margin-bottom: 8px;">Thank You, ${MWE.escapeHtml(donorName)}!</h3>
+      <p style="font-size: 0.95rem; color: #475569; margin-bottom: 20px;">Your contribution of <strong style="color: #b0811a;">$${amount}.00 USD</strong> has been received and allocated to the <strong>My Way of Evangelism Platform Fund</strong>.</p>
       
-      <div class="content-callout my-4 text-left">
-        <span>Receipt Code</span>
-        <strong>${regCode}</strong>
+      <div style="background: #f8fafc; border: 1.5px dashed rgba(176, 129, 26, 0.4); border-radius: 16px; padding: 16px; margin-bottom: 20px;">
+        <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #64748b; display: block; margin-bottom: 4px;">Confirmation Receipt</span>
+        <strong style="font-size: 1.3rem; font-weight: 900; color: #0f172a; letter-spacing: 0.04em;">${regCode}</strong>
       </div>
-      <p class="text-xs text-muted">A confirmation summary has been logged. Official tax receipts are subject to legal registration status.</p>
-      <div class="mt-4">
-        <button type="button" class="button primary" onclick="this.closest('.alert-modal-backdrop').remove()">Close & Continue</button>
+      <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.5;">An official tax deductible receipt has been logged. Thank you for empowering local evangelism technology and bi-monthly orphanage relief.</p>
+      <div style="margin-top: 24px;">
+        <button type="button" class="button primary lg" style="width: 100%; height: 48px; border-radius: 14px; background: #b0811a; border-color: #b0811a; font-weight: 800;" onclick="this.closest('.alert-modal-backdrop').remove()">Close & Return</button>
       </div>
     </div>
   `;
@@ -5273,26 +5528,55 @@ MWE.handleDonationSubmit = function(e) {
 };
 
 MWE.downloadCalendarICS = function(title, timeStr, location) {
-  const icsData = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//My Way of Evangelism//Gathering Calendar//EN
-BEGIN:VEVENT
-SUMMARY:${title}
-DESCRIPTION:Join us for ${title} at My Way of Evangelism partner church.
-LOCATION:${location}
-DTSTART:20260802T100000Z
-DTEND:20260802T120000Z
-END:VEVENT
-END:VCALENDAR`;
+  const currentChurch = MWE.activeChurchProfile || {};
+  const churchName = currentChurch.name || "My Way of Evangelism Church";
+  const finalLocation = location || currentChurch.location || "Church Sanctuary";
+  const cleanTitle = `${title} - ${churchName}`;
+  const filename = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-event.ics`;
 
-  const blob = new Blob([icsData], { type: "text/calendar;charset=utf-8" });
-  const link = document.createElement("a");
-  link.href = window.URL.createObjectURL(blob);
-  link.download = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.ics`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  showToast(`Calendar event file generated for ${title}!`);
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate() + 1).padStart(2, '0');
+
+  const icsLines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//My Way of Evangelism//Gathering Calendar//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `SUMMARY:${cleanTitle}`,
+    `DESCRIPTION:Join us for ${cleanTitle}. Service time: ${timeStr}. Location: ${finalLocation}.`,
+    `LOCATION:${finalLocation}`,
+    `DTSTART:${year}${month}${day}T100000Z`,
+    `DTEND:${year}${month}${day}T113000Z`,
+    "STATUS:CONFIRMED",
+    "SEQUENCE:0",
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ];
+
+  const icsData = icsLines.join("\r\n");
+  const blob = new Blob([icsData], { type: "text/calendar;charset=utf-8;" });
+  
+  if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+    window.navigator.msSaveOrOpenBlob(blob, filename);
+  } else {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 150);
+  }
+
+  showToast(`📅 Calendar event (.ics) downloaded for ${title}!`);
 };
 
 MWE.toggleDirectoryMapView = function() {
@@ -5348,7 +5632,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "public") initPublicSite();
   if (page === "profile") initProfilePage();
   if (page === "livestream") initLivestreamPage();
-  if (page === "portal") initChurchPortal();
+  if (page === "portal") {
+    initChurchPortal();
+    MWE.initPortalPageRouting();
+  }
   if (page === "admin" || page === "owner") initAdminPage();
   if (page === "events") initEventsPage();
   if (page === "event-profile") initEventProfilePage();
@@ -5357,6 +5644,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   initCustomDropdowns();
   initTranslations();
+  initGlobalHeaderAndFooter();
   initMobileMenu();
   initOnboardingCarousel();
 
@@ -5369,6 +5657,536 @@ document.addEventListener("DOMContentLoaded", () => {
     `).join("");
   }
 
+  initDonateHeroSlider();
   createIcons();
 });
+
+/* Centralized Header & Footer Component Loader (Single Source of Truth) */
+function initGlobalHeaderAndFooter() {
+  const headerElem = document.querySelector("header.topbar") || document.querySelector("[data-component='header']");
+  const footerElem = document.querySelector("footer.platform-footer") || document.querySelector("[data-component='footer']");
+
+  const headerHTML = `<div class="container topbar-inner">
+  <a class="brand" href="index.html">
+    <span class="brand-mark"><i data-lucide="church"></i></span>
+    <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
+  </a>
+  <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+    <i data-lucide="menu"></i>
+  </button>
+  <div class="topbar-menu-group">
+    <nav class="nav-links">
+      <a href="churches.html" data-nav="churches">Churches</a>
+      <a href="events.html" data-nav="events">Events</a>
+      <a href="livestream.html" data-nav="livestream">Livestreams</a>
+      <a href="donate.html" data-nav="donate" class="highlight-link">Donation</a>
+    </nav>
+    <div class="nav-actions">
+    </div>
+  </div>
+</div>`;
+
+  const footerHTML = `<div class="container">
+  <div class="footer-main">
+    <div class="footer-brand-block">
+      <a class="footer-brand" href="index.html">
+        <span class="footer-brand-mark"><i data-lucide="church"></i></span>
+        <span>My Way of Evangelism</span>
+      </a>
+      <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, services, events, and livestreams near them.</p>
+      <div class="footer-cta-row">
+        <a class="footer-button primary" href="churches.html"><i data-lucide="search"></i> Find a Church</a>
+        <a class="footer-button" href="church-portal.html"><i data-lucide="building-2"></i> Register Your Church</a>
+      </div>
+    </div>
+    <nav class="footer-column" aria-label="Explore">
+      <h2>Explore</h2>
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="churches.html">Church Directory</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="livestream.html">Livestreams</a></li>
+        <li><a href="donate.html">Donation</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-column" aria-label="Churches">
+      <h2>For Churches</h2>
+      <ul class="footer-links">
+        <li><a href="church-portal.html">Register or Sign In</a></li>
+        <li><a href="owner-dashboard.html">Owner Dashboard</a></li>
+        <li><a href="church-portal.html#events-tab">Manage Events</a></li>
+        <li><a href="church-portal.html#livestream">Livestream Setup</a></li>
+      </ul>
+    </nav>
+    <div class="footer-column">
+      <h2>Connect</h2>
+      <div class="footer-contact-card">
+        <div class="footer-contact-row"><i data-lucide="map-pin"></i><span>Serving churches and communities across North America.</span></div>
+        <div class="footer-contact-row"><i data-lucide="shield-check"></i><span>Verified profiles, ministry details, and public church discovery.</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 My Way of Evangelism. All rights reserved.</span>
+    <span class="footer-status">Platform online</span>
+  </div>
+</div>`;
+
+  const minimalFooterHTML = `<div class="container">
+  <div class="footer-minimal-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 24px 0; border-top: 1px solid var(--line);">
+    <div class="footer-minimal-brand" style="display: flex; align-items: center; gap: 12px;">
+      <a class="footer-brand" href="index.html" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 800; color: #0f172a; text-decoration: none;">
+        <span class="footer-brand-mark" style="width: 28px; height: 28px; border-radius: 8px; background: rgba(176, 129, 26, 0.12); color: #b0811a; display: flex; align-items: center; justify-content: center;"><i data-lucide="church" style="width: 16px; height: 16px;"></i></span>
+        <span>My Way of Evangelism</span>
+      </a>
+      <span style="color: #cbd5e1;">|</span>
+      <span style="font-size: 0.85rem; color: #64748b;">&copy; 2026 My Way of Evangelism. All rights reserved.</span>
+    </div>
+    <div class="footer-minimal-nav" style="display: flex; align-items: center; gap: 20px; font-size: 0.88rem; font-weight: 600;">
+      <a href="churches.html" style="color: #475569; text-decoration: none;">Churches</a>
+      <a href="events.html" style="color: #475569; text-decoration: none;">Events</a>
+      <a href="livestream.html" style="color: #475569; text-decoration: none;">Livestreams</a>
+      <a href="donate.html" style="color: #b0811a; font-weight: 700; text-decoration: none;">Donation</a>
+      <span class="footer-status" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(16, 185, 129, 0.1); color: #059669; font-size: 0.78rem; font-weight: 700;">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span> Platform online
+      </span>
+    </div>
+  </div>
+</div>`;
+
+  const rawPath = window.location.pathname.split("/").pop() || "index.html";
+  const currentPage = document.body.dataset.page || rawPath.replace(".html", "") || "index";
+  const isSinglePage = currentPage === "profile" || currentPage === "event-profile" || currentPage === "livestream-profile" || rawPath.includes("church-profile") || rawPath.includes("event-profile") || (footerElem && footerElem.classList.contains("minimal"));
+
+  if (headerElem) {
+    headerElem.innerHTML = headerHTML;
+  }
+  if (footerElem) {
+    footerElem.innerHTML = isSinglePage ? minimalFooterHTML : footerHTML;
+    if (isSinglePage) footerElem.classList.add("minimal");
+  }
+
+  // Highlight active nav link based on current page URL / body data-page
+  document.querySelectorAll(".nav-links a").forEach(link => {
+    const href = link.getAttribute("href") || "";
+    const navKey = link.dataset.nav || href.replace(".html", "");
+    
+    if (navKey === currentPage || (currentPage === "profile" && navKey === "churches") || (currentPage === "churches" && navKey === "churches") || (currentPage === "events" && navKey === "events") || (currentPage === "livestream" && navKey === "livestream") || (currentPage === "donate" && navKey === "donate")) {
+      link.classList.add("active");
+    } else {
+      link.classList.remove("active");
+    }
+  });
+
+  // Re-bind Lucide icons, Mobile Menu, and Translations after template insertion
+  if (typeof initTranslations === "function") {
+    initTranslations();
+  }
+  createIcons();
+  initMobileMenu();
+}
+
+/* Masterful Hero Slider Controller for donate.html */
+function initDonateHeroSlider() {
+  const slider = document.getElementById("donate-hero-slider");
+  if (!slider) return;
+
+  const slides = slider.querySelectorAll(".donate-slide-item");
+  const dots = slider.querySelectorAll(".slider-pill-dot");
+  const prevBtn = document.getElementById("donate-slider-prev");
+  const nextBtn = document.getElementById("donate-slider-next");
+
+  if (slides.length === 0) return;
+
+  let currentIdx = 0;
+  let timer = null;
+
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.classList.toggle("active", i === index);
+    });
+    dots.forEach((dot, i) => {
+      dot.classList.toggle("active", i === index);
+    });
+    currentIdx = index;
+  }
+
+  function nextSlide() {
+    const nextIdx = (currentIdx + 1) % slides.length;
+    showSlide(nextIdx);
+  }
+
+  function prevSlide() {
+    const pIdx = (currentIdx - 1 + slides.length) % slides.length;
+    showSlide(pIdx);
+  }
+
+  function startAutoPlay() {
+    stopAutoPlay();
+    timer = setInterval(nextSlide, 5500);
+  }
+
+  function stopAutoPlay() {
+    if (timer) clearInterval(timer);
+  }
+
+  if (nextBtn) nextBtn.addEventListener("click", () => { nextSlide(); startAutoPlay(); });
+  if (prevBtn) prevBtn.addEventListener("click", () => { prevSlide(); startAutoPlay(); });
+
+  dots.forEach((dot, idx) => {
+    dot.addEventListener("click", () => {
+      showSlide(idx);
+      startAutoPlay();
+    });
+  });
+
+  slider.addEventListener("mouseenter", stopAutoPlay);
+  slider.addEventListener("mouseleave", startAutoPlay);
+
+  showSlide(0);
+  startAutoPlay();
+}
+
+/* Modern Green Pill Filter System */
+MWE.toggleFilterPillDropdown = function(btn, event) {
+  if (event) event.stopPropagation();
+  const parent = btn.closest(".custom-pill-filter");
+  const isOpen = parent.classList.contains("open");
+  
+  document.querySelectorAll(".custom-pill-filter.open").forEach(el => {
+    if (el !== parent) el.classList.remove("open");
+  });
+  
+  parent.classList.toggle("open", !isOpen);
+};
+
+document.addEventListener("click", function(e) {
+  if (!e.target.closest(".custom-pill-filter")) {
+    document.querySelectorAll(".custom-pill-filter.open").forEach(el => el.classList.remove("open"));
+  }
+});
+
+// Update Badge & Active Pill State
+MWE.updatePillState = function(pillId, defaultTitle) {
+  const pill = document.getElementById(pillId);
+  if (!pill) return;
+  
+  const checkedBoxes = pill.querySelectorAll("input[type='checkbox']:checked, input[type='radio']:checked");
+  const count = checkedBoxes.length;
+  
+  const titleSpan = pill.querySelector(".pill-title");
+  const badgeSpan = pill.querySelector(".pill-badge");
+  
+  if (count > 0) {
+    pill.classList.add("is-active");
+    if (count === 1) {
+      const valLabel = checkedBoxes[0].closest(".custom-checkbox-row")?.querySelector(".checkbox-label")?.textContent;
+      if (titleSpan) titleSpan.textContent = valLabel || defaultTitle;
+      if (badgeSpan) badgeSpan.style.display = "none";
+    } else {
+      if (titleSpan) titleSpan.textContent = defaultTitle;
+      if (badgeSpan) {
+        badgeSpan.textContent = count;
+        badgeSpan.style.display = "inline-flex";
+      }
+    }
+  } else {
+    pill.classList.remove("is-active");
+    if (titleSpan) titleSpan.textContent = defaultTitle;
+    if (badgeSpan) badgeSpan.style.display = "none";
+  }
+};
+
+MWE.onChurchPillChange = function() {
+  MWE.updatePillState("church-city-pill", "City");
+  MWE.updatePillState("church-denom-pill", "Denomination");
+  
+  if (typeof MWE.triggerChurchSearch === "function") {
+    MWE.triggerChurchSearch();
+  }
+};
+
+MWE.resetChurchPillFilters = function() {
+  document.querySelectorAll("#church-city-pill input, #church-denom-pill input").forEach(cb => cb.checked = false);
+  const searchInput = document.querySelector("[data-search]");
+  if (searchInput) searchInput.value = "";
+  
+  MWE.updatePillState("church-city-pill", "City");
+  MWE.updatePillState("church-denom-pill", "Denomination");
+  
+  if (typeof MWE.triggerChurchSearch === "function") {
+    MWE.triggerChurchSearch();
+  }
+};
+
+MWE.onEventPillChange = function() {
+  MWE.updatePillState("event-cat-pill", "Category");
+  MWE.updatePillState("event-price-pill", "Admission");
+  MWE.updatePillState("event-time-pill", "Date Range");
+  
+  if (typeof MWE.renderEventsList === "function") {
+    MWE.renderEventsList();
+  }
+};
+
+MWE.resetEventPillFilters = function() {
+  document.querySelectorAll("#event-cat-pill input, #event-price-pill input").forEach(cb => cb.checked = false);
+  const upcomingRadio = document.querySelector("input[name='event-time-radio'][value='upcoming']");
+  if (upcomingRadio) upcomingRadio.checked = true;
+  
+  const searchInput = document.getElementById("event-city-input");
+  if (searchInput) searchInput.value = "";
+  
+  MWE.updatePillState("event-cat-pill", "Category");
+  MWE.updatePillState("event-price-pill", "Admission");
+  MWE.updatePillState("event-time-pill", "Date Range");
+  
+  if (typeof MWE.renderEventsList === "function") {
+    MWE.renderEventsList();
+  }
+};
+
+/* Church Profile Lightbox Video Modal Controllers */
+MWE.openChurchVideoModal = function() {
+  const modal = document.getElementById("church-video-modal");
+  const iframe = document.getElementById("church-popup-iframe");
+  if (!modal || !iframe) return;
+
+  const currentChurch = MWE.activeChurchProfile || {};
+  const churchName = currentChurch.name || "Church Intro Video";
+  const videoUrl = currentChurch.videoUrl || "https://www.youtube.com/embed/jiSyB8QZzk8";
+  const embedUrl = videoUrl.includes("autoplay=1") ? videoUrl : `${videoUrl}${videoUrl.includes("?") ? "&" : "?"}autoplay=1&enablejsapi=1`;
+
+  const titleEl = modal.querySelector("[data-church-name-video]");
+  if (titleEl) titleEl.textContent = `${churchName} — Welcome Video`;
+
+  iframe.src = embedUrl;
+  modal.classList.add("open");
+  document.body.style.overflow = "hidden";
+  createIcons();
+};
+
+MWE.closeChurchVideoModal = function(e) {
+  if (e && e.target !== e.currentTarget && !e.target.closest(".video-modal-close-btn")) return;
+  const modal = document.getElementById("church-video-modal");
+  const iframe = document.getElementById("church-popup-iframe");
+  if (!modal) return;
+
+  modal.classList.remove("open");
+  if (iframe) iframe.src = "";
+  document.body.style.overflow = "";
+};
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    MWE.closeChurchVideoModal();
+    MWE.closeNotifyModal();
+    MWE.closeWorkoutVideo();
+    MWE.closeImpactModal();
+  }
+});
+
+/* ==========================================================
+   MODULE 1: STORE INTERACTIVE CONTROLLERS
+   ========================================================== */
+MWE.openNotifyModal = function(productName) {
+  const modal = document.getElementById("store-notify-modal");
+  const title = document.getElementById("modal-product-title");
+  if (!modal) return;
+  if (title) {
+    title.textContent = productName ? `Interest: ${productName}` : "Store Launch Notification";
+  }
+  modal.style.display = "flex";
+  createIcons();
+};
+
+MWE.closeNotifyModal = function() {
+  const modal = document.getElementById("store-notify-modal");
+  if (modal) modal.style.display = "none";
+};
+
+MWE.handleStoreNotifySubmit = function(e) {
+  e.preventDefault();
+  const emailInput = document.getElementById("store-launch-email");
+  const msg = document.getElementById("store-notify-message");
+  if (!emailInput) return;
+
+  const subscribers = JSON.parse(localStorage.getItem("mwe.storeSubscribers") || "[]");
+  subscribers.push({ email: emailInput.value, date: new Date().toISOString() });
+  localStorage.setItem("mwe.storeSubscribers", JSON.stringify(subscribers));
+
+  emailInput.value = "";
+  if (msg) {
+    msg.style.display = "block";
+    setTimeout(() => { msg.style.display = "none"; }, 5000);
+  }
+};
+
+MWE.handleModalNotifySubmit = function(e) {
+  e.preventDefault();
+  const name = document.getElementById("modal-notify-name")?.value;
+  const email = document.getElementById("modal-notify-email")?.value;
+  
+  const subscribers = JSON.parse(localStorage.getItem("mwe.storeSubscribers") || "[]");
+  subscribers.push({ name, email, date: new Date().toISOString() });
+  localStorage.setItem("mwe.storeSubscribers", JSON.stringify(subscribers));
+
+  MWE.closeNotifyModal();
+  alert("Thank you! Your launch interest has been registered.");
+};
+
+/* ==========================================================
+   MODULE 2: HEALTH & WELLNESS INTERACTIVE CONTROLLERS
+   ========================================================== */
+MWE.switchWellnessTab = function(tabKey) {
+  const tabs = document.querySelectorAll(".wellness-tab-btn");
+  const panes = document.querySelectorAll(".wellness-tab-pane");
+  
+  tabs.forEach(t => {
+    const isTarget = t.getAttribute("data-tab") === tabKey;
+    t.classList.toggle("active", isTarget);
+  });
+
+  panes.forEach(p => {
+    const isTarget = p.id === `tab-${tabKey}`;
+    p.style.display = isTarget ? "block" : "none";
+  });
+
+  createIcons();
+};
+
+MWE.wellnessHabitsState = JSON.parse(localStorage.getItem("mwe.wellnessHabits") || '{"water":false,"workout":false,"nutrition":false,"spiritual":false}');
+
+MWE.initWellnessTracker = function() {
+  const habits = MWE.wellnessHabitsState;
+  let count = 0;
+  for (const k in habits) {
+    const item = document.getElementById(`track-item-${k}`);
+    if (item) {
+      const cb = item.querySelector("input[type='checkbox']");
+      if (cb) {
+        cb.checked = habits[k];
+        item.classList.toggle("completed", habits[k]);
+      }
+    }
+    if (habits[k]) count++;
+  }
+  const scoreNum = document.getElementById("tracker-score-num");
+  const percent = document.getElementById("tracker-percent");
+  if (scoreNum) scoreNum.textContent = `${count} / 4`;
+  if (percent) percent.textContent = `${Math.round((count / 4) * 100)}%`;
+};
+
+MWE.toggleWellnessHabit = function(key, checkbox) {
+  MWE.wellnessHabitsState[key] = checkbox.checked;
+  localStorage.setItem("mwe.wellnessHabits", JSON.stringify(MWE.wellnessHabitsState));
+  const item = document.getElementById(`track-item-${key}`);
+  if (item) item.classList.toggle("completed", checkbox.checked);
+  MWE.initWellnessTracker();
+};
+
+MWE.playWorkoutVideo = function(titleStr, videoId) {
+  const modal = document.getElementById("workout-video-modal");
+  const iframe = document.getElementById("workout-iframe");
+  const title = document.getElementById("workout-modal-title");
+  if (!modal || !iframe) return;
+
+  if (title) title.textContent = titleStr;
+  iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+  modal.style.display = "flex";
+  createIcons();
+};
+
+MWE.closeWorkoutVideo = function() {
+  const modal = document.getElementById("workout-video-modal");
+  const iframe = document.getElementById("workout-iframe");
+  if (modal) modal.style.display = "none";
+  if (iframe) iframe.src = "about:blank";
+};
+
+MWE.setStreamReminder = function(streamTitle) {
+  const reminders = JSON.parse(localStorage.getItem("mwe.streamReminders") || "[]");
+  reminders.push({ title: streamTitle, date: new Date().toISOString() });
+  localStorage.setItem("mwe.streamReminders", JSON.stringify(reminders));
+  alert(`Reminder set for: ${streamTitle}. We will notify you before the broadcast!`);
+};
+
+/* ==========================================================
+   MODULE 3: LIVESTREAM CATEGORY CONTROLLERS
+   ========================================================== */
+MWE.filterStreamCategory = function(categoryKey, btn) {
+  const pills = document.querySelectorAll(".stream-cat-pill");
+  pills.forEach(p => p.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+
+  const cards = document.querySelectorAll(".streams-hub-grid article");
+  const emptyState = document.getElementById("streams-empty-state");
+  let visibleCount = 0;
+
+  cards.forEach(card => {
+    if (categoryKey === "all") {
+      card.style.display = "block";
+      visibleCount++;
+    } else {
+      const match = card.getAttribute("data-category") === categoryKey || (categoryKey === "worship");
+      card.style.display = match ? "block" : "none";
+      if (match) visibleCount++;
+    }
+  });
+
+  if (emptyState) {
+    emptyState.style.display = visibleCount === 0 ? "block" : "none";
+  }
+};
+
+/* ==========================================================
+   MODULE 4: OUTREACH & IMPACT VIDEO GALLERY CONTROLLERS
+   ========================================================== */
+MWE.filterImpactGallery = function(catKey, btn) {
+  const btns = btn?.parentNode?.querySelectorAll(".button");
+  if (btns) btns.forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+
+  const cards = document.querySelectorAll(".impact-card");
+  cards.forEach(c => {
+    const isTarget = catKey === "all" || c.getAttribute("data-impact-cat") === catKey;
+    c.style.display = isTarget ? "flex" : "none";
+  });
+};
+
+MWE.openImpactModal = function(titleStr, videoId, photos) {
+  const modal = document.getElementById("impact-media-modal");
+  const iframe = document.getElementById("impact-video-iframe");
+  const title = document.getElementById("impact-modal-title");
+  const photoGallery = document.getElementById("impact-photo-gallery");
+
+  if (!modal || !iframe) return;
+
+  if (title) title.textContent = `${titleStr} — Field Video & Photos`;
+  iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+
+  if (photoGallery && Array.isArray(photos)) {
+    photoGallery.innerHTML = photos.map(p => `
+      <img src="${p}" alt="Outreach Photo" style="height: 120px; border-radius: 8px; object-fit: cover; border: 1px solid var(--line);" />
+    `).join("");
+  }
+
+  modal.style.display = "flex";
+  createIcons();
+};
+
+MWE.closeImpactModal = function() {
+  const modal = document.getElementById("impact-media-modal");
+  const iframe = document.getElementById("impact-video-iframe");
+  if (modal) modal.style.display = "none";
+  if (iframe) iframe.src = "about:blank";
+};
+
+// Initialize wellness tracker on load if on wellness page
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.body.getAttribute("data-page") === "wellness") {
+    MWE.initWellnessTracker();
+  }
+});
+
 

@@ -40,24 +40,27 @@
       overflow-x: hidden;
     }
 
-    /* Sticky header transitional behaviors */
+    /* Standardized Header & Container Grid Alignment (1080px max-width, matching all platform pages) */
     body[data-page="profile"] .topbar {
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      transform: none !important;
     }
     body[data-page="profile"] .topbar.header-hidden {
-      transform: translateY(-100%);
-      pointer-events: none;
+      transform: none !important;
+      pointer-events: auto !important;
     }
 
-    /* Container alignment */
-    .landing-container {
-      width: min(1080px, calc(100% - 44px));
-      margin: 0 auto;
+    /* Container alignment - aligned to site standard --max (1080px) */
+    .landing-container, .container {
+      width: min(1080px, calc(100% - 44px)) !important;
+      margin: 0 auto !important;
     }
 
-    /* Section defaults */
+    /* Section defaults - aligned to site standard section padding (48px) */
     .landing-section {
-      padding: 90px 0;
+      padding: 48px 0;
       position: relative;
     }
     .landing-section-title {
@@ -1135,8 +1138,7 @@
           <a href="churches.html" class="active">Churches</a>
           <a href="events.html">Events</a>
           <a href="livestream.html">Livestreams</a>
-          <a href="foundation.html">Foundation</a>
-          <a href="donate.html" class="highlight-link">Donate</a>
+          <a href="donate.html" class="highlight-link">Donation</a>
         </nav>
         <div class="nav-actions">
         </div>
@@ -1147,10 +1149,10 @@
   <main>
     <!-- Interactive Hero Section -->
     <section class="landing-section profile-hero-campaign" id="hero" data-profile-hero>
-      <div class="landing-container hero-grid">
+      <div class="container hero-grid">
         <div class="hero-content">
           <span class="hero-badge"><i data-lucide="badge-check"></i> Verified</span>
-          <h1 data-church-name>Evangelism Campaign</h1>
+          <h1 data-church-name>Church & Fellowship Profile</h1>
           <p class="subtitle" data-church-tagline>Welcome to our community fellowship profile. We would love to meet you, connect with your goals, and join you in prayer.</p>
           
           <div class="hero-tags">
@@ -1161,417 +1163,404 @@
           <a href="#register" class="btn-gold font-bold px-7 py-3.5 rounded-2xl text-decoration-none shadow-lg inline-block hover:scale-[1.02] transition-all">Confirm RSVP Pass</a>
         </div>
         
-        <div class="hero-video-panel">
-          <div class="hero-video-wrapper">
-            <div class="video-overlay-play" id="hero-play-overlay">
-              <div class="play-btn-circle"><i class="fa-solid fa-play" style="margin-left: 4px;"></i></div>
-            </div>
-            <!-- Standard dynamic promo video mockup player -->
-            <iframe id="hero-promo-iframe" class="hero-video-player" src="https://www.youtube.com/embed/jiSyB8QZzk8?enablejsapi=1&autoplay=0&mute=1&loop=1&playlist=jiSyB8QZzk8&controls=0" frameborder="0" allow="autoplay; encrypted-media"></iframe>
-          </div>
+        <div class="hero-video-panel" style="display: flex; align-items: center; justify-content: center; height: 100%;">
+          <button type="button" class="hero-standalone-play-btn" onclick="MWE.openChurchVideoModal()" aria-label="Play Church Video">
+            <span class="play-btn-pulse-ring"></span>
+            <span class="play-btn-circle-standalone">
+              <i data-lucide="play" style="fill: #ffffff; width: 32px; height: 32px; margin-left: 4px; color: #ffffff;"></i>
+            </span>
+          </button>
         </div>
       </div>
     </section>
 
-    <!-- Leadership / Speaker Section -->
-    <section class="landing-section" id="leadership" style="background-color: var(--bg-secondary);">
-      <div class="landing-container leadership-grid">
-        <div class="leader-photo-wrap">
-          <img class="leader-photo" id="leader-profile-img" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80" alt="Pastor John" />
+    <!-- 2-Column Restructured Main Shell -->
+    <div class="container">
+      <div class="church-profile-grid">
+
+        <!-- LEFT COLUMN (68% width): Tabbed Content Shell -->
+        <div class="church-profile-tabs-wrapper">
+          <!-- Interactive Tab Bar (Larger Top Icons, 120px max-width, Multiline Labels) -->
+          <div class="church-tabs-nav">
+            <button type="button" class="church-tab-button active" data-tab="overview" onclick="MWE.switchProfileTab('overview')">
+              <i data-lucide="info"></i>
+              <span>Overview</span>
+            </button>
+            <button type="button" class="church-tab-button" data-tab="services" onclick="MWE.switchProfileTab('services')">
+              <i data-lucide="clock"></i>
+              <span>Services & Schedule</span>
+            </button>
+            <button type="button" class="church-tab-button" data-tab="events" onclick="MWE.switchProfileTab('events')">
+              <i data-lucide="calendar"></i>
+              <span>Upcoming Events</span>
+            </button>
+            <button type="button" class="church-tab-button" data-tab="location" onclick="MWE.switchProfileTab('location')">
+              <i data-lucide="map-pin"></i>
+              <span>Location & Map</span>
+            </button>
+          </div>
+
+          <!-- TAB PANE 1: OVERVIEW -->
+          <div class="church-tab-pane active" id="tab-pane-overview">
+            <!-- Leadership / Speaker Section -->
+            <div class="leadership-grid mb-8">
+              <div class="leader-photo-wrap">
+                <img class="leader-photo" id="leader-profile-img" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80" alt="Pastor John" />
+                <div class="message-card" onclick="MWE.playTestimonyVideo('Pastor Welcome Message', 'https://www.youtube.com/embed/jiSyB8QZzk8')">
+                  <div class="message-card-icon"><i class="fa-solid fa-play"></i></div>
+                  <div class="message-card-info">
+                    <h4>Listen to Welcome Message</h4>
+                    <span>Play Video • 2 Mins</span>
+                  </div>
+                </div>
+              </div>
+              <div class="leader-bio">
+                <span class="kicker"><i data-lucide="user"></i> Senior Pastor</span>
+                <h2 class="leader-name" data-profile-pastor>Pastor John</h2>
+                <p class="leader-bio-text" data-profile-pastor-bio>Welcome to our church profile! We believe in sharing the covenant grace and love of Jesus Christ within our community. Connect with us to begin your spiritual renewal pathway.</p>
+              </div>
+            </div>
+
+            <!-- Testimonials Quote Section -->
+            <div class="mt-8 mb-8">
+              <h3 class="text-xl font-extrabold text-slate-900 mb-4">Stories of Transformation</h3>
+              <div class="testimonials-grid">
+                <div class="glass-card testimony-card">
+                  <div class="testimony-stars">
+                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                  </div>
+                  <p class="testimony-text">"Connecting with this church family completely changed my perspective. I found deep, word-based teachings and a youth network that coordinates outreach projects across the area."</p>
+                  <div class="testimony-user">
+                    <img class="testimony-user-img" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=150&h=150&q=80" alt="Daniel" />
+                    <div class="testimony-user-info">
+                      <h4>Daniel Vance</h4>
+                      <span>Member</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="glass-card testimony-card">
+                  <div class="testimony-stars">
+                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                  </div>
+                  <p class="testimony-text">"The children's programs and family gatherings are incredible. My kids look forward to Sunday School, and the virtual direct stream helps us stay tuned."</p>
+                  <div class="testimony-user">
+                    <img class="testimony-user-img" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=facearea&facepad=2&w=150&h=150&q=80" alt="Sarah" />
+                    <div class="testimony-user-info">
+                      <h4>Sarah Jenkins</h4>
+                      <span>Youth Coordinator</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Salvation Card -->
+            <div class="glass-card mt-8" style="padding: 32px; background: linear-gradient(180deg, #fff, #faf7f0);">
+              <span class="eyebrow" style="color: var(--color-primary-gold); font-size: 0.8rem; font-weight: 900;"><i data-lucide="cross"></i> Accept Jesus Christ</span>
+              <h3 class="text-2xl font-extrabold text-slate-900 mt-2">Pray the Sinner's Prayer</h3>
+              <p class="text-sm text-slate-600 mt-2 leading-relaxed">“Lord Jesus, I believe that You are the Son of God. I believe that You died for my sins and that God raised You from the dead. I receive You today as my Lord and personal Saviour. Forgive me, cleanse me, and help me live for You. Thank You for saving me. Amen.”</p>
+              <div class="mt-4">
+                <button type="button" class="btn-gold font-bold px-6 py-3 rounded-xl text-sm" onclick="MWE.openSalvationModal()"><i data-lucide="heart"></i> I Have Received Jesus Christ</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB PANE 2: SERVICES & SCHEDULE -->
+          <div class="church-tab-pane" id="tab-pane-services">
+            <h3 class="text-xl font-extrabold text-slate-900 mb-5">Weekly Gathering Times</h3>
+            <div class="gathering-card-grid mb-8" id="profile-schedules-grid">
+              <!-- Card 1: Sunday Service -->
+              <div class="gathering-modern-card">
+                <div class="gathering-card-header">
+                  <div class="gathering-icon-badge">
+                    <i data-lucide="sun"></i>
+                  </div>
+                  <div class="gathering-time-pill" data-profile-sunday>
+                    <i data-lucide="clock"></i> Sunday 10:00 AM
+                  </div>
+                </div>
+                <div class="gathering-card-body">
+                  <h4 class="gathering-title">Main Sunday Service & Worship</h4>
+                  <p class="gathering-desc">Dynamic worship, covenant teaching, children's ministry, and community fellowship.</p>
+                </div>
+                <div class="gathering-card-footer">
+                  <button type="button" class="gathering-cal-btn" onclick="MWE.downloadCalendarICS('Main Sunday Service', 'Sunday 10:00 AM', 'Main Sanctuary')">
+                    <i data-lucide="calendar-plus"></i> Add to Calendar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card 2: Midweek Service -->
+              <div class="gathering-modern-card">
+                <div class="gathering-card-header">
+                  <div class="gathering-icon-badge">
+                    <i data-lucide="book-open"></i>
+                  </div>
+                  <div class="gathering-time-pill" data-profile-midweek>
+                    <i data-lucide="clock"></i> Wednesday 7:00 PM
+                  </div>
+                </div>
+                <div class="gathering-card-body">
+                  <h4 class="gathering-title">Midweek Bible Study & Prayer</h4>
+                  <p class="gathering-desc">Deep scriptural exposition, interactive Q&A, and corporate intercessory prayer night.</p>
+                </div>
+                <div class="gathering-card-footer">
+                  <button type="button" class="gathering-cal-btn" onclick="MWE.downloadCalendarICS('Midweek Bible Study', 'Wednesday 7:00 PM', 'Fellowship Hall')">
+                    <i data-lucide="calendar-plus"></i> Add to Calendar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card 3: Youth Gathering -->
+              <div class="gathering-modern-card">
+                <div class="gathering-card-header">
+                  <div class="gathering-icon-badge">
+                    <i data-lucide="sparkles"></i>
+                  </div>
+                  <div class="gathering-time-pill">
+                    <i data-lucide="clock"></i> Friday 7:00 PM
+                  </div>
+                </div>
+                <div class="gathering-card-body">
+                  <h4 class="gathering-title">Youth & Young Adults Friday</h4>
+                  <p class="gathering-desc">High-energy youth worship, real talk dispatches, music, games, and fellowship.</p>
+                </div>
+                <div class="gathering-card-footer">
+                  <button type="button" class="gathering-cal-btn" onclick="MWE.downloadCalendarICS('Youth Friday Gathering', 'Friday 7:00 PM', 'Youth Center')">
+                    <i data-lucide="calendar-plus"></i> Add to Calendar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB PANE 3: UPCOMING EVENTS -->
+          <div class="church-tab-pane" id="tab-pane-events">
+            <h3 class="text-xl font-extrabold text-slate-900 mb-4">Events Hosted by This Church</h3>
+            <div class="events-grid" id="church-events-container">
+              <!-- Dynamically populated via MWE.renderChurchProfileEvents -->
+              <p class="text-sm text-slate-500">Loading upcoming events...</p>
+            </div>
+          </div>
+
+          <!-- TAB PANE 4: LOCATION & MAP -->
+          <div class="church-tab-pane" id="tab-pane-location">
+            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Sanctuary Location & Map</h3>
+            <p class="text-sm text-slate-600 mb-4" data-profile-location>Address Details Loading...</p>
+            <div style="height: 380px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line);">
+              <iframe id="footer-map-iframe" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-113.7,53.4,-113.3,53.65&layer=mapnik"></iframe>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN (32% width): Sticky Connection & Contact Sidebar Stack -->
+        <div class="church-sidebar-stack">
           
-          <!-- Message trigger welcome video card -->
-          <div class="message-card" onclick="MWE.playTestimonyVideo('Pastor Welcome Message', 'https://www.youtube.com/embed/jiSyB8QZzk8')">
-            <div class="message-card-icon"><i class="fa-solid fa-play"></i></div>
-            <div class="message-card-info">
-              <h4>Listen to Welcome Message</h4>
-              <span>Play Video • 2 Mins</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="leader-bio">
-          <span class="kicker"><i data-lucide="user"></i> Senior Pastor</span>
-          <h2 class="leader-name" data-profile-pastor>Pastor John</h2>
-          
-          <p class="leader-bio-text" data-profile-pastor-bio>Welcome to our church profile! We believe in sharing the covenant grace and love of Jesus Christ within our community. Connect with us to begin your spiritual renewal pathway.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Testimonials Quote Section -->
-    <section class="landing-section bg-secondary" id="testimonials" style="background-color: var(--bg-secondary);">
-      <div class="landing-container">
-        <div class="landing-section-title">
-          <span class="kicker">Testimonies</span>
-          <h2>Stories of Transformation</h2>
-          <p>Read about members who found fellowship, healing, and structural spiritual renewal inside our local church body.</p>
-        </div>
-
-        <div class="testimonials-grid">
-          <!-- Card 1 -->
-          <div class="glass-card testimony-card">
-            <div class="testimony-stars">
-              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-            </div>
-            <p class="testimony-text">"Connecting with this church family completely changed my perspective. I found deep, word-based teachings and a youth network that coordinates outreach projects across the area."</p>
-            <div class="testimony-user">
-              <img class="testimony-user-img" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=150&h=150&q=80" alt="Daniel" />
-              <div class="testimony-user-info">
-                <h4>Daniel Vance</h4>
-                <span>Member since 2024</span>
-              </div>
-            </div>
-            <button onclick="MWE.playTestimonyVideo('Daniel Vance', 'https://www.youtube.com/embed/jiSyB8QZzk8')" class="testimony-video-btn">
-              <i class="fa-solid fa-circle-play"></i> Watch Testimony
-            </button>
-          </div>
-
-          <!-- Card 2 -->
-          <div class="glass-card testimony-card">
-            <div class="testimony-stars">
-              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-            </div>
-            <p class="testimony-text">"The children's programs and family gatherings are incredible. My kids look forward to Sunday School, and the virtual direct stream helps us stay tuned when traveling."</p>
-            <div class="testimony-user">
-              <img class="testimony-user-img" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=facearea&facepad=2&w=150&h=150&q=80" alt="Sarah" />
-              <div class="testimony-user-info">
-                <h4>Sarah Jenkins</h4>
-                <span>Youth Coordinator</span>
-              </div>
-            </div>
-            <button onclick="MWE.playTestimonyVideo('Sarah Jenkins', 'https://www.youtube.com/embed/jiSyB8QZzk8')" class="testimony-video-btn">
-              <i class="fa-solid fa-circle-play"></i> Watch Testimony
-            </button>
-          </div>
-
-          <!-- Card 3 -->
-          <div class="glass-card testimony-card">
-            <div class="testimony-stars">
-              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-            </div>
-            <p class="testimony-text">"I submitted a prayer request during a difficult health season. The pastoral team visited, supported us, and stood in faith. This is a true home."</p>
-            <div class="testimony-user">
-              <img class="testimony-user-img" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=facearea&facepad=2&w=150&h=150&q=80" alt="Rebecca" />
-              <div class="testimony-user-info">
-                <h4>Rebecca Teddy</h4>
-                <span>Fellowship Partner</span>
-              </div>
-            </div>
-            <button onclick="MWE.playTestimonyVideo('Rebecca Teddy', 'https://www.youtube.com/embed/jiSyB8QZzk8')" class="testimony-video-btn">
-              <i class="fa-solid fa-circle-play"></i> Watch Testimony
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Discover Section (Category Cards with Horizontal Sidescroll) -->
-    <div class="discover-section-wrapper" id="discover-wrapper">
-      <div class="discover-sticky-container" id="engagement">
-        <div class="landing-section-title" style="margin-bottom: 30px;">
-          <span class="kicker">Discover</span>
-          <h2>Connect with a Pathway</h2>
-          <p>Find the ministry pathway that best fits your season. Select a card below to configure your custom check-in form details.</p>
-        </div>
-
-        <div class="discover-cards-viewport">
-          <div class="discover-cards-track" id="discover-track">
-            <!-- Salvation -->
-            <div class="category-card" onclick="MWE.selectCategory('salvation')">
-              <div class="category-card-bg" style="background-image: url('https://images.unsplash.com/photo-1490122417551-6ee9691429d0?auto=format&fit=crop&w=500&q=80')"></div>
-              <div class="category-card-overlay"></div>
-              <div class="category-card-content">
-                <div class="category-card-icon"><i data-lucide="heart"></i></div>
-                <h3>Salvation & Faith</h3>
-                <p>Begin a new walk with Christ, request water baptism, or schedule foundation study courses.</p>
-                <span class="category-card-btn">Select Category <i data-lucide="arrow-right"></i></span>
-              </div>
+          <!-- Sticky Connection Card (The Gateway) -->
+          <div class="sticky-connection-card" id="register">
+            <div style="margin-bottom: 20px;">
+              <span class="kicker"><i data-lucide="church"></i> Church Connection</span>
+              <h3 class="text-xl font-extrabold text-slate-900 mt-1">Connect with Our Church</h3>
+              <p class="text-xs text-slate-500 mt-1">Fill in your contact details and select your next steps below to receive your visitor pass.</p>
             </div>
 
-            <!-- Discipleship -->
-            <div class="category-card" onclick="MWE.selectCategory('spiritual')">
-              <div class="category-card-bg" style="background-image: url('https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=500&q=80')"></div>
-              <div class="category-card-overlay"></div>
-              <div class="category-card-content">
-                <div class="category-card-icon"><i data-lucide="book-open"></i></div>
-                <h3>Spiritual Growth</h3>
-                <p>Join regular Bible studies, home cell fellowships, worship team coordinates, or local missions.</p>
-                <span class="category-card-btn">Select Category <i data-lucide="arrow-right"></i></span>
-              </div>
-            </div>
+            <div style="position: relative;">
+              <form id="rsvp-dynamic-campaign-form" onsubmit="MWE.handleRSVPSubmit(event)">
+                
+                <!-- 1. Contact Info Inputs -->
+                <div class="form-inputs-group" style="display: flex; flex-direction: column; gap: 14px;">
+                  <div class="form-field-item">
+                    <label for="rsvp-full-name" class="field-label">Full Name</label>
+                    <div class="field-input-wrap">
+                      <i data-lucide="user" class="field-icon"></i>
+                      <input required type="text" id="rsvp-full-name" name="full_name" class="field-input" placeholder="e.g. Sarah Jenkins" />
+                    </div>
+                  </div>
 
-            <!-- Children -->
-            <div class="category-card" onclick="MWE.selectCategory('kids')">
-              <div class="category-card-bg" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=500&q=80')"></div>
-              <div class="category-card-overlay"></div>
-              <div class="category-card-content">
-                <div class="category-card-icon"><i data-lucide="baby"></i></div>
-                <h3>Kids & Family</h3>
-                <p>Find programs for Sunday School assemblies, childcare coordinates, and family gatherings.</p>
-                <span class="category-card-btn">Select Category <i data-lucide="arrow-right"></i></span>
-              </div>
-            </div>
+                  <div class="form-field-item">
+                    <label for="rsvp-email" class="field-label">Email Address</label>
+                    <div class="field-input-wrap">
+                      <i data-lucide="mail" class="field-icon"></i>
+                      <input required type="email" id="rsvp-email" name="email" class="field-input" placeholder="e.g. sarah@example.com" />
+                    </div>
+                  </div>
 
-            <!-- Youth -->
-            <div class="category-card" onclick="MWE.selectCategory('youth')">
-              <div class="category-card-bg" style="background-image: url('https://images.unsplash.com/photo-1519491050282-cf00c82424b4?auto=format&fit=crop&w=500&q=80')"></div>
-              <div class="category-card-overlay"></div>
-              <div class="category-card-content">
-                <div class="category-card-icon"><i data-lucide="users"></i></div>
-                <h3>Youth Movement</h3>
-                <p>Plug into youth networks, high school groups, volunteer programs, and social outings.</p>
-                <span class="category-card-btn">Select Category <i data-lucide="arrow-right"></i></span>
-              </div>
-            </div>
+                  <div class="form-field-item">
+                    <label for="rsvp-phone" class="field-label">Phone Number</label>
+                    <div class="field-input-wrap">
+                      <i data-lucide="phone" class="field-icon"></i>
+                      <input required type="tel" id="rsvp-phone" name="phone" class="field-input" placeholder="e.g. (780) 555-0199" />
+                    </div>
+                  </div>
 
-            <!-- Prayer -->
-            <div class="category-card" onclick="MWE.selectCategory('prayer')">
-              <div class="category-card-bg" style="background-image: url('https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=500&q=80')"></div>
-              <div class="category-card-overlay"></div>
-              <div class="category-card-content">
-                <div class="category-card-icon"><i data-lucide="check-square"></i></div>
-                <h3>Prayer Request</h3>
-                <p>Submit prayer intercession needs, family healing requests, or request direct pastoral call reviews.</p>
-                <span class="category-card-btn">Select Category <i data-lucide="arrow-right"></i></span>
+                  <div class="form-field-item">
+                    <label for="rsvp-address" class="field-label">Your Address / City</label>
+                    <div class="field-input-wrap">
+                      <i data-lucide="map-pin" class="field-icon"></i>
+                      <input required type="text" id="rsvp-address" name="address" class="field-input" placeholder="e.g. Edmonton, AB" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Next Steps Checkboxes -->
+                <div class="form-checkboxes-block" style="margin-top: 20px; margin-bottom: 20px;">
+                  <label style="display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 0.85rem; color: #0f172a; margin-bottom: 12px;">
+                    <i data-lucide="check-square" style="color: #b0811a;"></i> Select Your Next Steps:
+                  </label>
+                  
+                  <div class="church-checkbox-list">
+                    <!-- Option 1: Receive Salvation -->
+                    <label class="church-checkbox-item">
+                      <input type="checkbox" name="step_salvation" id="cb-salvation" onchange="MWE.handleCheckboxChange(this)" />
+                      <div class="checkbox-box-inner">
+                        <span class="custom-chk"><i data-lucide="check"></i></span>
+                        <div class="chk-text">
+                          <strong>Receive Salvation</strong>
+                          <span>Accept Jesus Christ as my Lord & Savior</span>
+                        </div>
+                      </div>
+                    </label>
+
+                    <!-- Option 2: Become a Member -->
+                    <label class="church-checkbox-item">
+                      <input type="checkbox" name="step_member" id="cb-member" onchange="MWE.handleCheckboxChange(this)" />
+                      <div class="checkbox-box-inner">
+                        <span class="custom-chk"><i data-lucide="check"></i></span>
+                        <div class="chk-text">
+                          <strong>Become a Member</strong>
+                          <span>Join our local church family & fellowship</span>
+                        </div>
+                      </div>
+                    </label>
+
+                    <!-- Option 3: Plan a Visit -->
+                    <label class="church-checkbox-item">
+                      <input type="checkbox" name="step_visit" id="cb-visit" onchange="MWE.togglePlanVisitOption(this)" />
+                      <div class="checkbox-box-inner">
+                        <span class="custom-chk"><i data-lucide="check"></i></span>
+                        <div class="chk-text">
+                          <strong>Plan a Visit</strong>
+                          <span>I am planning to attend a Sunday Gathering</span>
+                        </div>
+                      </div>
+                    </label>
+
+                    <!-- Conditional Option: Request a Ride (Revealed when 'Plan a Visit' is checked) -->
+                    <div id="conditional-ride-option" style="display: none; margin-left: 24px; margin-top: 8px;">
+                      <label class="church-checkbox-item conditional-item">
+                        <input type="checkbox" name="step_ride" id="cb-ride" onchange="MWE.handleCheckboxChange(this)" />
+                        <div class="checkbox-box-inner" style="background: rgba(176, 129, 26, 0.08); border-color: rgba(176, 129, 26, 0.3);">
+                          <span class="custom-chk"><i data-lucide="car"></i></span>
+                          <div class="chk-text">
+                            <strong style="color: #b0811a;">Request a Ride</strong>
+                            <span>Free Sunday transportation to and from church</span>
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Address Dispatch Section ("Send Yourself the Address" - REVEALED ONLY IF 'Plan a Visit' IS CHECKED) -->
+                <div id="address-dispatch-wrapper" style="display: none; margin-top: 20px; margin-bottom: 20px;">
+                  <div class="address-dispatch-card">
+                    <div class="dispatch-header" style="margin-bottom: 10px;">
+                      <label style="font-weight: 800; font-size: 0.85rem; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="send" style="color: #b0811a;"></i> Send Yourself Church Address & Directions
+                      </label>
+                      <span style="font-size: 0.75rem; color: #64748b;">Directly to your phone messaging app</span>
+                    </div>
+
+                    <div class="dispatch-buttons-grid">
+                      <button type="button" class="dispatch-btn whatsapp" onclick="MWE.sendAddressVia('whatsapp')">
+                        <i data-lucide="message-circle"></i> WhatsApp
+                      </button>
+                      <button type="button" class="dispatch-btn telegram" onclick="MWE.sendAddressVia('telegram')">
+                        <i data-lucide="send"></i> Telegram
+                      </button>
+                      <button type="button" class="dispatch-btn sms" onclick="MWE.sendAddressVia('sms')">
+                        <i data-lucide="smartphone"></i> SMS
+                      </button>
+                      <button type="button" class="dispatch-btn copy" onclick="MWE.sendAddressVia('copy')">
+                        <i data-lucide="copy"></i> Copy
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div style="margin-top: 20px;">
+                  <button type="submit" id="form-btn-submit" class="split-dark-pill-btn" style="width: 100%; border: none; cursor: pointer; padding: 14px 24px; font-size: 0.95rem;">
+                    <span>Confirm Connection & Get Pass</span> <i data-lucide="arrow-right"></i>
+                  </button>
+                </div>
+              </form>
+
+              <!-- Success Overlay -->
+              <div class="form-success-overlay" id="rsvp-success-panel">
+                <div class="success-check-circle"><i data-lucide="check"></i></div>
+                <h3 class="text-lg font-extrabold text-slate-900">Connection Registered!</h3>
+                <p class="text-xs text-slate-600 mt-2">Your visitor pass has been generated. Send the church address to your messaging app below.</p>
+                <div class="dispatch-buttons-grid mt-3">
+                  <button type="button" class="dispatch-btn whatsapp" onclick="MWE.sendAddressVia('whatsapp')"><i data-lucide="message-circle"></i> WhatsApp</button>
+                  <button type="button" class="dispatch-btn telegram" onclick="MWE.sendAddressVia('telegram')"><i data-lucide="send"></i> Telegram</button>
+                  <button type="button" class="dispatch-btn sms" onclick="MWE.sendAddressVia('sms')"><i data-lucide="smartphone"></i> SMS</button>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- Quick Contact Card -->
+          <div class="church-quick-contact-card">
+            <h4 class="font-extrabold text-slate-900 mb-3" style="font-size: 1.05rem;">Quick Contact & Info</h4>
+            <div class="flex flex-col gap-3 text-xs text-slate-600">
+              <div class="flex items-center gap-2">
+                <i data-lucide="map-pin" style="width: 16px; height: 16px; color: var(--color-primary-gold);"></i>
+                <span data-profile-location>Address Details</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="clock" style="width: 16px; height: 16px; color: var(--color-primary-gold);"></i>
+                <span data-profile-sunday>Sunday 10:00 AM</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="phone" style="width: 16px; height: 16px; color: var(--color-primary-gold);"></i>
+                <span>(780) 555-0199</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="mail" style="width: 16px; height: 16px; color: var(--color-primary-gold);"></i>
+                <span>info@churchfamily.org</span>
+              </div>
+            </div>
+          </div>
+
         </div>
+
       </div>
     </div>
 
-
-
-    <!-- Two-Step Dynamic Form Section -->
-    <section class="landing-section" id="register">
-      <div class="landing-container register-grid">
-        <div class="register-info-panel">
-          <div class="landing-section-title" style="text-align: left; margin-bottom: 35px;">
-            <span class="kicker">RSVP</span>
-            <h2>Confirm Your Visit</h2>
-            <p>Fill out our visitor check-in form. Let us prepare refreshments, name tags, and connect you with correct team coordinates.</p>
-          </div>
-
-          <div class="info-card">
-            <div class="info-card-icon"><i data-lucide="map-pin"></i></div>
-            <div class="info-card-text">
-              <h4>Sanctuary Address</h4>
-              <p data-profile-location>Address Loading...</p>
-            </div>
-          </div>
-
-          <div class="info-card">
-            <div class="info-card-icon"><i data-lucide="clock"></i></div>
-            <div class="info-card-text">
-              <h4>Service schedule</h4>
-              <p data-profile-sunday>Schedule Loading...</p>
-              <p class="text-xs text-slate-500 mt-1" data-profile-midweek>Midweek schedules</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scroll Zoom Form Card -->
-        <div class="glass-card form-card" id="form-scroll-card">
-          <!-- Step Indicators -->
-          <div class="form-step-tabs">
-            <div class="step-tab active" id="tab-indicator-1">1. Connection Goals</div>
-            <div class="step-tab" id="tab-indicator-2">2. Personal Details</div>
-          </div>
-
-          <!-- Dynamic Form content -->
-          <div style="position: relative; min-height: 380px;">
-            <form id="rsvp-dynamic-campaign-form" onsubmit="MWE.handleRSVPSubmit(event)">
-              
-              <!-- Form Step 1: Dynamic preferences -->
-              <div id="rsvp-step-1" class="form-step-view">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4" id="step-1-title-label">Select a Goal:</div>
-                <div id="dynamic-step-1-fields">
-                  <!-- Injected via javascript -->
-                </div>
-              </div>
-
-              <!-- Form Step 2: Personal details -->
-              <div id="rsvp-step-2" class="form-step-view" style="display: none;">
-                <div class="input-group">
-                  <input required type="text" id="rsvp-first-name" class="floating-input" />
-                  <label for="rsvp-first-name">First Name</label>
-                </div>
-                <div class="input-group">
-                  <input required type="text" id="rsvp-last-name" class="floating-input" />
-                  <label for="rsvp-last-name">Last Name</label>
-                </div>
-                <div class="input-group">
-                  <input required type="email" id="rsvp-email" class="floating-input" />
-                  <label for="rsvp-email">Email Address</label>
-                </div>
-                <div class="input-group">
-                  <input required type="tel" id="rsvp-phone" class="floating-input" />
-                  <label for="rsvp-phone">Phone Number</label>
-                </div>
-                <div class="input-group">
-                  <select id="rsvp-gathering-select" class="floating-input">
-                    <!-- Loaded dynamically -->
-                  </select>
-                  <label for="rsvp-gathering-select">Preferred Gathering</label>
-                </div>
-              </div>
-
-              <!-- Form Navigation Footer -->
-              <div class="form-actions-wrapper" style="margin-top: 30px; display: flex; gap: 12px;">
-                <button type="button" id="form-btn-prev" class="form-nav-btn btn-outline hidden" style="display: none !important;" onclick="MWE.prevFormStep()">Back</button>
-                <button type="button" id="form-btn-next" class="form-nav-btn btn-gold" onclick="MWE.nextFormStep()">Continue <i data-lucide="arrow-right"></i></button>
-                <button type="submit" id="form-btn-submit" class="form-nav-btn btn-gold hidden" style="display: none !important;">Confirm RSVP Pass</button>
-              </div>
-            </form>
-
-            <!-- Success Overlay -->
-            <div class="form-success-overlay" id="rsvp-success-panel">
-              <div class="success-check-circle"><i class="fa-solid fa-check"></i></div>
-              <h3 class="text-xl font-extrabold text-slate-900">RSVP Registered!</h3>
-              <p class="text-xs text-slate-600 mt-2">Your visitor pass code has been generated. Share this pass with your friends or family to join together.</p>
-              
-              <input type="text" class="share-link-input" id="share-link-field" value="https://myway.evangelism/pass/CE82847" readonly onclick="this.select()" />
-              
-              <div class="success-share-buttons">
-                <a href="#" class="success-share-btn share-fb" onclick="MWE.shareTo('facebook')"><i class="fa-brands fa-facebook-f"></i> FB</a>
-                <a href="#" class="success-share-btn share-tw" onclick="MWE.shareTo('twitter')"><i class="fa-brands fa-x-twitter"></i> X</a>
-                <a href="#" class="success-share-btn share-wa" onclick="MWE.shareTo('whatsapp')"><i class="fa-brands fa-whatsapp"></i> WA</a>
-                <a href="#" class="success-share-btn share-tg" onclick="MWE.shareTo('telegram')"><i class="fa-brands fa-telegram"></i> TG</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- Church Tour & Facility Video Section -->
-    <section class="landing-section bg-secondary" id="facility-tour" style="background-color: var(--bg-secondary); border-top: 1px solid var(--border-light);">
-      <div class="landing-container">
-        <div class="landing-section-title">
-          <span class="kicker"><i data-lucide="video"></i> Virtual Experience</span>
-          <h2>Church Tour & Facility Video</h2>
-          <p>Inspect our building exterior, surrounding vicinity, parking areas, main entrance, sanctuary, washrooms, accessibility entrances, and ministry rooms before attending.</p>
-        </div>
-
-        <div class="glass-card" style="padding: 24px;">
-          <div style="aspect-ratio: 16/9; border-radius: 18px; overflow: hidden; border: 1px solid var(--border-light);">
-            <iframe id="church-tour-iframe" width="100%" height="100%" src="https://www.youtube.com/embed/jiSyB8QZzk8?rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-          </div>
-          <div class="readable-grid three mt-6">
-            <div class="content-callout">
-              <span>🅿️ Parking & Entrance</span>
-              <strong>Spacious Lot & Accessible Ramps</strong>
-            </div>
-            <div class="content-callout">
-              <span>♿ Accessibility</span>
-              <strong>Wheelchair Accessible Doors & Seating</strong>
-            </div>
-            <div class="content-callout">
-              <span>👶 Children & Youth</span>
-              <strong>Dedicated Secure Rooms</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Youth Ministry Section -->
-    <section class="landing-section" id="youth-ministry" style="background-color: var(--bg-primary); border-top: 1px solid var(--border-light);">
-      <div class="landing-container">
-        <div class="landing-section-title">
-          <span class="kicker"><i data-lucide="flame"></i> Next Generation</span>
-          <h2>Youth & Student Ministry</h2>
-          <p>Empowering teenagers and young adults with mentorship, dynamic worship gatherings, group Bible studies, and fun activities.</p>
-        </div>
-
-        <div class="glass-card grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8 items-center">
-          <div>
-            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80" alt="Youth Ministry" style="width: 100%; aspect-ratio: 1; border-radius: 20px; object-fit: cover; border: 1px solid var(--border-light);" />
-            <div class="mt-3 text-center">
-              <h4 class="font-bold text-slate-800" id="youth-leader-name">Pastor Caleb & Youth Team</h4>
-              <span class="text-xs text-slate-500">Youth Directors</span>
-            </div>
-          </div>
-          <div>
-            <span class="eyebrow" style="color: var(--color-primary-gold); font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Friday Nights & Weekend Hangouts</span>
-            <h3 class="text-2xl font-extrabold text-slate-900 mt-1">Ignite Youth Gathering</h3>
-            <p class="text-sm text-slate-600 mt-2 leading-relaxed">Join us every Friday at 7:00 PM for music, games, relevant message series, small group discussions, and mentorship. Transportation is available for students needing a ride.</p>
-            
-            <div class="flex-gap mt-6">
-              <button type="button" class="btn-gold" onclick="MWE.openRideModal('Youth Ministry Friday Night')"><i data-lucide="car"></i> Request Youth Transportation</button>
-              <button type="button" class="btn-outline" onclick="MWE.openYouthModal()"><i data-lucide="user-plus"></i> Join Youth Ministry</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Services & Calendar Sync Section -->
-    <section class="landing-section bg-secondary" id="schedule-calendar" style="background-color: var(--bg-secondary); border-top: 1px solid var(--border-light);">
-      <div class="landing-container">
-        <div class="landing-section-title">
-          <span class="kicker"><i data-lucide="calendar"></i> Schedule</span>
-          <h2>Weekly Gathering Times</h2>
-          <p>Easily add any service or event directly to your personal calendar.</p>
-        </div>
-
-        <div class="readable-grid three" id="profile-schedules-grid">
-          <div class="content-callout">
-            <span>Sunday Worship</span>
-            <strong data-profile-sunday>Sunday 10:00 AM</strong>
-            <button type="button" class="btn-outline mt-3" style="width:100%;" onclick="MWE.downloadCalendarICS('Sunday Service', '10:00 AM', 'Church Sanctuary')"><i data-lucide="calendar-plus"></i> Add to Calendar</button>
-          </div>
-          <div class="content-callout">
-            <span>Midweek Bible Study</span>
-            <strong data-profile-midweek>Wednesday 7:00 PM</strong>
-            <button type="button" class="btn-outline mt-3" style="width:100%;" onclick="MWE.downloadCalendarICS('Midweek Service', '7:00 PM', 'Fellowship Hall')"><i data-lucide="calendar-plus"></i> Add to Calendar</button>
-          </div>
-          <div class="content-callout">
-            <span>Friday Youth Gathering</span>
-            <strong>Friday 7:00 PM</strong>
-            <button type="button" class="btn-outline mt-3" style="width:100%;" onclick="MWE.downloadCalendarICS('Youth Gathering', '7:00 PM', 'Youth Room')"><i data-lucide="calendar-plus"></i> Add to Calendar</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Salvation Card on Church Profile -->
-    <section class="landing-section" id="profile-salvation" style="background-color: var(--bg-primary); border-top: 1px solid var(--border-light);">
-      <div class="landing-container text-center">
-        <div class="glass-card" style="padding: 40px; background: linear-gradient(180deg, #fff, #faf7f0);">
-          <span class="eyebrow" style="color: var(--color-primary-gold); font-size: 0.8rem; font-weight: 900;"><i data-lucide="cross"></i> Accept Jesus Christ</span>
-          <h2 class="text-3xl font-extrabold text-slate-900 mt-2">Pray the Sinner's Prayer</h2>
-          <p class="text-sm text-slate-600 max-w-xl mx-auto mt-2">“Lord Jesus, I believe that You are the Son of God. I believe that You died for my sins and that God raised You from the dead. I receive You today as my Lord and personal Saviour. Forgive me, cleanse me, and help me live for You. Thank You for saving me. Amen.”</p>
-          <div class="mt-6">
-            <button type="button" class="btn-gold font-bold px-8 py-4 rounded-xl text-base" onclick="MWE.openSalvationModal()"><i data-lucide="heart"></i> I Have Received Jesus Christ</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
   </main>
 
-  <!-- Church Footer & Location Map -->
-  <section class="landing-section" style="border-top: 1px solid var(--border-light); padding: 60px 0 40px; background-color: var(--bg-primary);">
-    <div class="landing-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;">
-      <div>
-        <a class="brand" href="index.html" style="margin-bottom: 20px; display: inline-flex; pointer-events: none;">
-          <span class="brand-mark"><i data-lucide="church" style="color: var(--color-primary-gold);"></i></span>
-          <span data-church-name>Church Name</span>
-        </a>
-        <p class="text-xs text-slate-600 leading-relaxed mb-6" data-church-tagline>Welcome to our community fellowship profile. We would love to meet you, connect with your goals, and join you in prayer.</p>
-        <p class="text-xs text-slate-500">Address: <span data-profile-location>Address Details</span></p>
-      </div>
-      <div>
-        <div class="map-frame-wrapper">
-          <iframe id="footer-map-iframe" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.openstreetmap.org/export/embed.html?bbox=-113.7,53.4,-113.3,53.65&layer=mapnik"></iframe>
+  <!-- Other Nearby Fellowships Section ("Related Fellowships") -->
+  <section class="landing-section" style="border-top: 1px solid var(--line); padding: 60px 0; background-color: rgba(250, 248, 244, 0.6);">
+    <div class="container">
+      <div class="flex items-center justify-between mb-8" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <div>
+          <span class="kicker"><i data-lucide="compass"></i> Explore Fellowships</span>
+          <h2 class="text-2xl font-extrabold text-slate-900 mt-1">Other Nearby Fellowships & Churches</h2>
+          <p class="text-xs text-slate-500 mt-1">Discover other verified local church families in the region.</p>
         </div>
+        <a href="churches.html" class="button ghost small">View All Churches <i data-lucide="arrow-right"></i></a>
+      </div>
+
+      <div class="church-grid" id="related-churches-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+        <!-- Rendered dynamically via MWE.renderRelatedChurches -->
       </div>
     </div>
   </section>
 
   <!-- Platform Footer -->
   <footer class="platform-footer">
-    <div class="landing-container">
+    <div class="container">
       <div class="footer-main">
         <div class="footer-brand-block">
           <a class="footer-brand" href="/">
@@ -1666,6 +1655,16 @@
     </div>
   </div>
 
+
+  <!-- Pure Video Frame Lightbox Popup Modal (No Header, Backdrop Click to Close) -->
+  <div class="church-video-modal-backdrop" id="church-video-modal" onclick="MWE.closeChurchVideoModal(event)">
+    <div class="church-video-modal-card" style="position: relative;" onclick="event.stopPropagation()">
+      <button type="button" class="video-modal-close-btn" onclick="MWE.closeChurchVideoModal()" aria-label="Close video player"><i data-lucide="x"></i></button>
+      <div class="video-modal-player-wrap">
+        <iframe id="church-popup-iframe" src="" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
 
   <!-- Import core platform application script -->
   <script src="app.js?v=20260730"></script>

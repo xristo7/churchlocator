@@ -27,8 +27,9 @@
           <a href="churches.html">Churches</a>
           <a href="events.html" class="active">Events</a>
           <a href="livestream.html">Livestreams</a>
-          <a href="foundation.html">Foundation</a>
-          <a href="donate.html" class="highlight-link">Donate</a>
+          <a href="wellness.html">Health & Wellness</a>
+          <a href="store.html">Store <span class="badge-subtle">Soon</span></a>
+          <a href="donate.html" class="highlight-link">Donation</a>
         </nav>
         <div class="nav-actions">
         </div>
@@ -45,76 +46,124 @@
             <h2>Search Upcoming Gatherings</h2>
             <p class="lead">Discover in-person gatherings, conferences, outreach efforts, and streamed virtual services.</p>
           </div>
-          <a class="button outline" href="church-portal.html"><i data-lucide="building-2"></i> Register Your Church</a>
         </div>
 
-        <!-- Seamless Search & Filter Bar -->
-        <div class="directory-search-container">
-          <!-- Top Search Input Bar -->
-          <div class="search-hero-bar">
-            <div class="search-input-wrapper">
-              <i data-lucide="search" class="search-hero-icon"></i>
-              <input class="search-hero-input" id="event-city-input" placeholder="Search events by title, keyword, city, or church..." />
-            </div>
-            <button type="button" class="reset-filter-btn" id="event-reset-btn" onclick="MWE.resetEventsSearch()">
-              <i data-lucide="rotate-ccw"></i> Reset Filters
-            </button>
-          </div>
-
-          <!-- Unified Seamless Divided Filter Bar -->
-          <div class="seamless-filter-bar events-filter-bar">
-            <div class="filter-segment">
-              <span class="segment-label"><i data-lucide="grid"></i> Category</span>
-              <select id="event-type-select" class="segment-select">
-                <option value="all">All Event Categories</option>
-                <option value="in-person">In-Person Gatherings</option>
-                <option value="streamed">Livestreams & Online Broadcasts</option>
-                <option value="sunday-services">Sunday Services & Worship</option>
-                <option value="conferences">Conferences & Revival Meetings</option>
-                <option value="youth-events">Youth & Student Rallies</option>
-                <option value="prayer-programs">Prayer & Fasting Meetings</option>
-                <option value="evangelism-outreaches">Evangelism & Street Outreaches</option>
-                <option value="community-assistance">Community Assistance & Food Drives</option>
-                <option value="fundraisers">Kingdom Fundraisers & Gala</option>
-              </select>
-            </div>
-
-            <div class="filter-segment">
-              <span class="segment-label"><i data-lucide="tag"></i> Admission</span>
-              <select id="event-price-select" class="segment-select">
-                <option value="all">All Prices</option>
-                <option value="free">Free Admission</option>
-                <option value="paid">Ticketed / Paid</option>
-              </select>
-            </div>
-
-            <div class="filter-segment last-segment">
-              <span class="segment-label"><i data-lucide="calendar"></i> Date Range</span>
-              <select id="event-time-select" class="segment-select">
-                <option value="upcoming">Upcoming Events</option>
-                <option value="past">Past Events</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Promoted / Featured Section (inside the same section) -->
-        <div id="featured-events-wrapper" style="margin-bottom: 40px;">
-          <div class="section-title-row" style="margin-bottom: 20px; border-bottom: 2px solid var(--line); padding-bottom: 8px;">
-            <h3 style="font-size: 1.3rem; margin: 0; color: var(--ink); display: flex; align-items: center; gap: 8px;">
-              <i data-lucide="sparkles" style="color: var(--forest);"></i> Featured Events
-            </h3>
-          </div>
+        <!-- Promoted / Featured Section (ABOVE Search & Filter Bar) -->
+        <div id="featured-events-wrapper" style="margin-bottom: 32px;">
           <div class="cards-grid events-grid" id="featured-events-grid">
             <!-- Injected dynamically -->
           </div>
         </div>
 
+        <!-- Modern Green Pill-Style Search & Filter Bar -->
+        <div class="pill-filter-bar-container">
+          <div class="pill-search-input-wrapper">
+            <i data-lucide="search" class="search-hero-icon"></i>
+            <input class="search-hero-input" id="event-city-input" placeholder="Search events by title, keyword, city, or church..." />
+          </div>
+
+          <div class="filter-pills-row">
+            <!-- Category Pill -->
+            <div class="custom-pill-filter" id="event-cat-pill" data-filter-group="category">
+              <button type="button" class="filter-pill-btn" onclick="MWE.toggleFilterPillDropdown(this, event)">
+                <span class="pill-title">Category</span>
+                <span class="pill-badge" style="display: none;">0</span>
+                <i data-lucide="chevron-down" class="pill-arrow"></i>
+              </button>
+              <div class="filter-dropdown-panel">
+                <span class="dropdown-panel-title">Filter by Category</span>
+                <div class="dropdown-options-list">
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="in-person" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">In-Person Gatherings</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="streamed" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Livestreams & Online</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="sunday-services" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Sunday Services</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="conferences" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Conferences & Revival</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="youth-events" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Youth & Student Rallies</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="prayer-programs" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Prayer & Fasting</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admission Pill -->
+            <div class="custom-pill-filter" id="event-price-pill" data-filter-group="admission">
+              <button type="button" class="filter-pill-btn" onclick="MWE.toggleFilterPillDropdown(this, event)">
+                <span class="pill-title">Admission</span>
+                <span class="pill-badge" style="display: none;">0</span>
+                <i data-lucide="chevron-down" class="pill-arrow"></i>
+              </button>
+              <div class="filter-dropdown-panel">
+                <span class="dropdown-panel-title">Filter by Admission</span>
+                <div class="dropdown-options-list">
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="free" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Free Admission</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="paid" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Ticketed / Paid</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Date Range Pill -->
+            <div class="custom-pill-filter" id="event-time-pill" data-filter-group="timerange">
+              <button type="button" class="filter-pill-btn" onclick="MWE.toggleFilterPillDropdown(this, event)">
+                <span class="pill-title">Date Range</span>
+                <span class="pill-badge" style="display: none;">0</span>
+                <i data-lucide="chevron-down" class="pill-arrow"></i>
+              </button>
+              <div class="filter-dropdown-panel">
+                <span class="dropdown-panel-title">Filter by Date Range</span>
+                <div class="dropdown-options-list">
+                  <label class="custom-checkbox-row">
+                    <input type="radio" name="event-time-radio" value="upcoming" checked onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Upcoming Events</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="radio" name="event-time-radio" value="past" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Past Events</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reset Button -->
+            <button type="button" class="filter-pill-reset-btn" onclick="MWE.resetEventPillFilters()">
+              <i data-lucide="rotate-ccw"></i> Reset
+            </button>
+          </div>
+        </div>
+
         <!-- Main Events Listing -->
         <div>
-          <div class="section-title-row" style="margin-bottom: 20px; border-bottom: 2px solid var(--line); padding-bottom: 8px;">
-            <h3 id="events-list-title" style="font-size: 1.3rem; margin: 0; color: var(--ink);">All Upcoming Events</h3>
-          </div>
           <div class="cards-grid events-grid" id="events-list-grid">
             <!-- Injected dynamically -->
           </div>
@@ -177,10 +226,10 @@
 
   <!-- Event Detail Modal -->
   <div class="modal" id="event-detail-modal">
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="position: relative;">
+      <button type="button" class="close-btn" onclick="MWE.closeEventModal()" aria-label="Close Modal"><i data-lucide="x"></i></button>
       <div class="modal-header">
         <h3 id="modal-event-title">Event Details</h3>
-        <button class="close-btn" onclick="MWE.closeEventModal()">&times;</button>
       </div>
       <div class="modal-body" id="modal-event-body">
         <!-- Injected dynamically -->
@@ -190,10 +239,10 @@
 
   <!-- Ticket Registration Modal -->
   <div class="modal" id="ticket-reg-modal">
-    <div class="modal-dialog modal-narrow">
+    <div class="modal-dialog modal-narrow" style="position: relative;">
+      <button type="button" class="close-btn" onclick="MWE.closeRegModal()" aria-label="Close Modal"><i data-lucide="x"></i></button>
       <div class="modal-header">
         <h3 id="reg-modal-title">Get Tickets / Register</h3>
-        <button class="close-btn" onclick="MWE.closeRegModal()">&times;</button>
       </div>
       <div class="modal-body">
         <div id="reg-form-container">
