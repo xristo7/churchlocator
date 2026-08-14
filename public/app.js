@@ -4035,6 +4035,15 @@ MWE.switchPortalPage = function(pageId, event) {
   if (event) event.preventDefault();
   if (!pageId) pageId = "overview";
 
+  const slugAliases = {
+    profile: "identity",
+    schedule: "services",
+    transportation: "rides",
+    salvations: "salvation"
+  };
+
+  const targetId = slugAliases[pageId] || pageId;
+
   // Hide all portal page views
   document.querySelectorAll(".portal-page-view").forEach(page => {
     page.style.display = "none";
@@ -4042,7 +4051,7 @@ MWE.switchPortalPage = function(pageId, event) {
   });
 
   // Show target page view
-  const targetPage = document.getElementById(`page-${pageId}`);
+  const targetPage = document.getElementById(`page-${targetId}`) || document.getElementById(`page-${pageId}`);
   if (targetPage) {
     targetPage.style.display = "block";
     targetPage.classList.add("active");
@@ -4050,7 +4059,8 @@ MWE.switchPortalPage = function(pageId, event) {
 
   // Highlight active sidebar item
   document.querySelectorAll(".dash-nav a").forEach(link => {
-    if (link.getAttribute("data-page") === pageId) {
+    const linkPage = link.getAttribute("data-page");
+    if (linkPage === pageId || linkPage === targetId || slugAliases[linkPage] === targetId) {
       link.classList.add("active");
     } else {
       link.classList.remove("active");
@@ -4059,11 +4069,15 @@ MWE.switchPortalPage = function(pageId, event) {
 
   // Update Canvas Header Title & Subtitle
   const titles = {
-    overview: ["Dashboard", "Overview of visitor connections, sermon views, and outreach metrics"],
+    overview: ["Dashboard Overview", "Overview of visitor connections, sermon views, and outreach metrics"],
+    profile: ["Church Profile & Identity", "Name, neighborhood, denomination, worship style, and public positioning"],
     identity: ["Church Identity", "Name, neighborhood, denomination, worship style, and public positioning"],
     pastor: ["Pastor & Leadership", "Pastor portrait, welcome message, and church story"],
+    schedule: ["Services & Gathering Times", "Sunday worship schedule, phone, email, website, and physical address"],
     services: ["Services & Gathering Times", "Sunday worship schedule, phone, email, website, and physical address"],
+    transportation: ["Ride Requests & Transport", "Manage Sunday visitor pickups and driver assignments"],
     rides: ["Ride Requests & Transport", "Manage Sunday visitor pickups and driver assignments"],
+    salvations: ["Salvation Decisions", "Track seekers who prayed the Sinner's Prayer or requested salvation"],
     salvation: ["Salvation Decisions", "Track seekers who prayed the Sinner's Prayer or requested salvation"],
     prayer: ["Prayer Requests", "Community prayer needs and urgency status"],
     verification: ["Church Verification", "Submit legal incorporation & pastoral proof for platform verified badge"],
@@ -4074,11 +4088,11 @@ MWE.switchPortalPage = function(pageId, event) {
 
   const titleElem = document.getElementById("portal-canvas-title");
   const subElem = document.getElementById("portal-canvas-subtitle");
-  if (titleElem && titles[pageId]) titleElem.textContent = titles[pageId][0];
-  if (subElem && titles[pageId]) subElem.textContent = titles[pageId][1];
+  if (titleElem && titles[targetId]) titleElem.textContent = titles[targetId][0];
+  if (subElem && titles[targetId]) subElem.textContent = titles[targetId][1];
 
   // If events page, trigger events render if select active
-  if (pageId === "events") {
+  if (targetId === "events") {
     const select = document.querySelector("[data-portal-select]");
     if (select && select.value) {
       MWE.renderPortalEvents(select.value);
@@ -4100,7 +4114,7 @@ MWE.switchPortalPage = function(pageId, event) {
 
 MWE.initPortalPageRouting = function() {
   const hash = window.location.hash.replace("#", "");
-  const validPages = ["overview", "identity", "pastor", "services", "rides", "salvation", "prayer", "verification", "roles", "livestream", "events"];
+  const validPages = ["overview", "identity", "profile", "pastor", "services", "schedule", "rides", "transportation", "salvation", "salvations", "prayer", "verification", "roles", "livestream", "events"];
   if (hash && validPages.includes(hash)) {
     MWE.switchPortalPage(hash);
   } else {
