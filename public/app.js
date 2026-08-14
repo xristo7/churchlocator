@@ -198,6 +198,25 @@ const MWE = (() => {
     return String(text).replace(/\w\S*/g, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
   }
 
+  function getColoredPlaceholderDataUri(type = "image", text = "Image Slot") {
+    const icons = {
+      church: "⛪",
+      pastor: "👤",
+      event: "🎉",
+      livestream: "📡",
+      image: "🖼️"
+    };
+    const icon = icons[type] || icons.image;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0f172a"/><stop offset="60%" stop-color="#1e293b"/><stop offset="100%" stop-color="#b0811a"/></linearGradient></defs><rect width="600" height="400" fill="url(#g)"/><circle cx="300" cy="180" r="44" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/><text x="300" y="194" font-size="34" text-anchor="middle" fill="#ffffff">${icon}</text><text x="300" y="260" font-size="18" font-family="system-ui, sans-serif" font-weight="bold" letter-spacing="2" text-anchor="middle" fill="#ffffff" opacity="0.9">${text.toUpperCase()}</text><text x="300" y="285" font-size="12" font-family="system-ui, sans-serif" text-anchor="middle" fill="#b0811a" font-weight="600">MY WAY OF EVANGELISM</text></svg>`;
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  }
+
+  function handleImgError(img, type = "image", title = "Image Placeholder Slot") {
+    if (!img) return;
+    img.onerror = null;
+    img.src = getColoredPlaceholderDataUri(type, title);
+  }
+
   function normalizeChurch(church) {
     const livestream = church.livestream || {};
     const ministries = Array.isArray(church.ministries) ? church.ministries.filter(Boolean) : [];
@@ -877,7 +896,9 @@ const MWE = (() => {
     removeEvent,
     registerForEvent,
     getRegistrationsForEvent,
-    fallbackCopyDirections
+    fallbackCopyDirections,
+    getColoredPlaceholderDataUri,
+    handleImgError
   };
 })();
 

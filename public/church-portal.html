@@ -510,7 +510,7 @@
             <section class="field-category">
               <div class="readable-block">
                 <article class="pastor-readable">
-                  <img data-readable-image="pastorPhoto" alt="Pastor portrait" />
+                  <img data-readable-image="pastorPhoto" alt="Pastor portrait" onerror="MWE.handleImgError(this, 'pastor', 'Pastor Portrait Slot')" class="has-colored-placeholder" />
                   <div>
                     <span class="eyebrow">Meet the pastor</span>
                     <h4 data-readable="pastor"></h4>
@@ -529,10 +529,32 @@
                 <div class="compact-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                   <label class="form-field"><span>Pastor name</span><input name="pastor" class="field" /></label>
                   <label class="form-field"><span>Pastor title</span><input name="pastorTitle" class="field" /></label>
-                  <label class="form-field"><span>Cover image URL</span><input name="photo" type="url" class="field" /></label>
-                  <label class="form-field"><span>Pastor image URL</span><input name="pastorPhoto" class="field" /></label>
-                  <label class="form-field"><span>Logo URL</span><input name="logo" class="field" /></label>
+                  <label class="form-field"><span>Cover image URL</span><input name="photo" type="url" class="field" placeholder="https://images.unsplash.com/..." /></label>
+                  <label class="form-field"><span>Pastor image URL</span><input name="pastorPhoto" class="field" placeholder="https://images.unsplash.com/..." /></label>
+                  <label class="form-field"><span>Logo URL</span><input name="logo" class="field" placeholder="assets/logo..." /></label>
                 </div>
+
+                <!-- COLORED PLACEHOLDER IMAGE SLOTS PREVIEW -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; margin-bottom: 12px;">
+                  <div class="img-placeholder-slot gradient-church" id="portal-cover-placeholder-slot">
+                    <div class="placeholder-icon-badge"><i data-lucide="image"></i></div>
+                    <div class="placeholder-title">Church Cover Image Slot</div>
+                    <div class="placeholder-subtext">Header Banner Backdrop</div>
+                  </div>
+
+                  <div class="img-placeholder-slot gradient-pastor" id="portal-pastor-placeholder-slot">
+                    <div class="placeholder-icon-badge"><i data-lucide="user"></i></div>
+                    <div class="placeholder-title">Pastor Portrait Slot</div>
+                    <div class="placeholder-subtext">Leadership Welcome Photo</div>
+                  </div>
+
+                  <div class="img-placeholder-slot gradient-event" id="portal-logo-placeholder-slot">
+                    <div class="placeholder-icon-badge"><i data-lucide="church"></i></div>
+                    <div class="placeholder-title">Church Logo Slot</div>
+                    <div class="placeholder-subtext">Brand Verification Badge</div>
+                  </div>
+                </div>
+
                 <label class="form-field" style="margin-top: 14px;"><span>Pastor bio / welcome</span><textarea name="pastorBio" class="field" rows="3"></textarea></label>
                 <label class="form-field" style="margin-top: 14px;"><span>About the church</span><textarea name="about" class="field" rows="3"></textarea></label>
                 <div style="margin-top: 20px;">
