@@ -27,9 +27,8 @@
           <a href="churches.html" class="active">Churches</a>
           <a href="events.html">Events</a>
           <a href="livestream.html">Livestreams</a>
-          <a href="wellness.html">Health & Wellness</a>
-          <a href="store.html">Store <span class="badge-subtle">Soon</span></a>
-          <a href="donate.html" class="highlight-link">Donation</a>
+          <a href="foundation.html">Foundation</a>
+          <a href="donate.html" class="highlight-link">Donate</a>
         </nav>
         <div class="nav-actions">
         </div>
@@ -40,74 +39,81 @@
   <main>
     <section class="section" id="find">
       <div class="container">
-        <div class="section-head mb-8">
+        <div class="section-head flex-between">
           <div>
             <h2>Find a Church Family Near You</h2>
-            <p class="lead">Search verified fellowships by location, denomination, or pastor.</p>
+            <p class="lead">Search verified fellowships by location, denomination, worship style, transportation, or online livestream.</p>
+          </div>
+          <div class="flex-gap">
+            <button type="button" class="button outline" id="toggle-view-map-btn" onclick="MWE.toggleDirectoryMapView()"><i data-lucide="map"></i> Toggle Map View</button>
+            <a class="button ghost" href="/church-portal">Register Your Church</a>
           </div>
         </div>
 
-        <!-- Modern Green Pill-Style Search & Filter Bar -->
-        <div class="pill-filter-bar-container">
-          <div class="pill-search-input-wrapper">
-            <i data-lucide="search" class="search-hero-icon"></i>
-            <input class="search-hero-input" data-search placeholder="Search by church name, city, pastor, or denomination..." />
+        <!-- Directory Map Frame (Hidden by default, toggled via button) -->
+        <div id="directory-map-container" class="map-frame-wrapper mb-6 hidden">
+          <iframe id="directory-map-iframe" width="100%" height="320" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-113.7,53.4,-113.3,53.65&layer=mapnik"></iframe>
+        </div>
+
+        <!-- Industry-Leading Search & Segmented Filter Bar -->
+        <div class="directory-search-container">
+          <!-- Top Search Input Bar -->
+          <div class="search-hero-bar">
+            <div class="search-input-wrapper">
+              <i data-lucide="search" class="search-hero-icon"></i>
+              <input class="search-hero-input" data-search placeholder="Search by church name, pastor, city, denomination, or neighborhood..." />
+            </div>
+            <button type="button" class="reset-filter-btn" data-reset-filters onclick="MWE.resetDirectoryFilters()">
+              <i data-lucide="rotate-ccw"></i> Reset Filters
+            </button>
           </div>
 
-          <div class="filter-pills-row">
-            <!-- City Pill -->
-            <div class="custom-pill-filter" id="church-city-pill" data-filter-group="city">
-              <button type="button" class="filter-pill-btn" onclick="MWE.toggleFilterPillDropdown(this, event)">
-                <span class="pill-title">City</span>
-                <span class="pill-badge" style="display: none;">0</span>
-                <i data-lucide="chevron-down" class="pill-arrow"></i>
-              </button>
-              <div class="filter-dropdown-panel">
-                <span class="dropdown-panel-title">Filter by City</span>
-                <div class="dropdown-options-list" id="church-city-options-list">
-                  <!-- Dynamically populated -->
-                </div>
-              </div>
+          <!-- Unified Seamless Divided Filter Bar -->
+          <div class="seamless-filter-bar">
+            <div class="filter-segment">
+              <span class="segment-label"><i data-lucide="map-pin"></i> City / Region</span>
+              <select class="segment-select" data-city>
+                <option value="">All Cities & Regions</option>
+              </select>
             </div>
 
-            <!-- Denomination Pill -->
-            <div class="custom-pill-filter" id="church-denom-pill" data-filter-group="denomination">
-              <button type="button" class="filter-pill-btn" onclick="MWE.toggleFilterPillDropdown(this, event)">
-                <span class="pill-title">Denomination</span>
-                <span class="pill-badge" style="display: none;">0</span>
-                <i data-lucide="chevron-down" class="pill-arrow"></i>
-              </button>
-              <div class="filter-dropdown-panel">
-                <span class="dropdown-panel-title">Filter by Denomination</span>
-                <div class="dropdown-options-list">
-                  <label class="custom-checkbox-row">
-                    <input type="checkbox" value="Alliance" onchange="MWE.onChurchPillChange()" />
-                    <span class="checkbox-box"><i data-lucide="check"></i></span>
-                    <span class="checkbox-label">Alliance</span>
-                  </label>
-                  <label class="custom-checkbox-row">
-                    <input type="checkbox" value="Pentecostal" onchange="MWE.onChurchPillChange()" />
-                    <span class="checkbox-box"><i data-lucide="check"></i></span>
-                    <span class="checkbox-label">Pentecostal</span>
-                  </label>
-                  <label class="custom-checkbox-row">
-                    <input type="checkbox" value="Baptist" onchange="MWE.onChurchPillChange()" />
-                    <span class="checkbox-box"><i data-lucide="check"></i></span>
-                    <span class="checkbox-label">Baptist</span>
-                  </label>
-                  <label class="custom-checkbox-row">
-                    <input type="checkbox" value="Non-Denominational" onchange="MWE.onChurchPillChange()" />
-                    <span class="checkbox-box"><i data-lucide="check"></i></span>
-                    <span class="checkbox-label">Non-Denominational</span>
-                  </label>
-                </div>
-              </div>
+            <div class="filter-segment">
+              <span class="segment-label"><i data-lucide="building-2"></i> Denomination</span>
+              <select class="segment-select" data-denomination>
+                <option value="">All Denominations</option>
+                <option value="Alliance">Alliance</option>
+                <option value="Pentecostal">Pentecostal</option>
+                <option value="Baptist">Baptist</option>
+                <option value="Non-Denominational">Non-Denominational</option>
+              </select>
             </div>
 
-            <!-- Reset Button -->
-            <button type="button" class="filter-pill-reset-btn" onclick="MWE.resetChurchPillFilters()">
-              <i data-lucide="rotate-ccw"></i> Reset
-            </button>
+            <div class="filter-segment">
+              <span class="segment-label"><i data-lucide="users"></i> Ministry Focus</span>
+              <select class="segment-select" data-ministry>
+                <option value="">All Ministries</option>
+                <option value="kids">Children's Ministry</option>
+                <option value="youth">Youth & Students</option>
+                <option value="prayer">Prayer Groups</option>
+                <option value="missions">Evangelism & Missions</option>
+              </select>
+            </div>
+
+            <div class="filter-segment">
+              <span class="segment-label"><i data-lucide="car"></i> Sunday Rides</span>
+              <select class="segment-select" data-transport>
+                <option value="">Any Transportation</option>
+                <option value="true">Free Sunday Rides</option>
+              </select>
+            </div>
+
+            <div class="filter-segment last-segment">
+              <span class="segment-label"><i data-lucide="tv"></i> Livestream</span>
+              <select class="segment-select" data-stream>
+                <option value="">All Broadcasts</option>
+                <option value="true">Live Stream Active</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -129,7 +135,7 @@
           <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, services, events, and livestreams near them.</p>
           <div class="footer-cta-row">
             <a class="footer-button primary" href="/churches"><i data-lucide="search"></i> Find a Church</a>
-            <a class="footer-button" href="church-portal.html"><i data-lucide="building-2"></i> Register Your Church</a>
+            <a class="footer-button" href="/church-portal"><i data-lucide="log-in"></i> Church Portal</a>
           </div>
         </div>
         <nav class="footer-column" aria-label="Explore">

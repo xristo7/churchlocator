@@ -24,9 +24,8 @@
           <a href="churches.html">Churches</a>
           <a href="events.html">Events</a>
           <a href="livestream.html" class="active">Livestreams</a>
-          <a href="wellness.html">Health & Wellness</a>
-          <a href="store.html">Store <span class="badge-subtle">Soon</span></a>
-          <a href="donate.html" class="highlight-link">Donation</a>
+          <a href="foundation.html">Foundation</a>
+          <a href="donate.html" class="highlight-link">Donate</a>
         </nav>
         <div class="nav-actions">
         </div>
@@ -48,22 +47,6 @@
           </div>
         </div>
 
-        <!-- Category Filter Pills -->
-        <div class="livestream-category-bar" style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;">
-          <button type="button" class="stream-cat-pill active" data-stream-cat="all" onclick="MWE.filterStreamCategory('all', this)">
-            <i data-lucide="layout-grid"></i> All Broadcasts
-          </button>
-          <button type="button" class="stream-cat-pill" data-stream-cat="worship" onclick="MWE.filterStreamCategory('worship', this)">
-            <i data-lucide="church"></i> ⛪ Church Worship & Sermons
-          </button>
-          <button type="button" class="stream-cat-pill" data-stream-cat="fitness" onclick="MWE.filterStreamCategory('fitness', this)">
-            <i data-lucide="dumbbell"></i> 🏋️ Fitness & Wellness
-          </button>
-          <button type="button" class="stream-cat-pill" data-stream-cat="outreach" onclick="MWE.filterStreamCategory('outreach', this)">
-            <i data-lucide="heart-handshake"></i> 🤝 Field Outreach & Orphanage Missions
-          </button>
-        </div>
-
         <!-- Active Streams Grid -->
         <div class="streams-hub-grid" id="active-streams-list">
           <!-- Injected dynamically -->
@@ -71,87 +54,8 @@
 
         <div class="events-empty-state" id="streams-empty-state" style="display: none; margin-top: 40px;">
           <i data-lucide="video-off" class="empty-icon" style="width: 48px; height: 48px; margin-bottom: 12px; display: inline-block;"></i>
-          <h4>No active broadcasts found in this category</h4>
-          <p>Check back during scheduled broadcast times or switch categories above!</p>
-        </div>
-
-        <!-- Broadcast Schedule Section -->
-        <div style="margin-top: 60px; background: #ffffff; border-radius: 16px; border: 1px solid var(--line); padding: 30px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
-            <div>
-              <h3 style="margin: 0; font-size: 1.3rem; font-weight: 800;"><i data-lucide="calendar" style="color: var(--clay);"></i> Live Broadcast Schedule</h3>
-              <p style="margin: 4px 0 0 0; color: var(--muted); font-size: 0.9rem;">Upcoming live programs, fitness sessions, and field outreach streams</p>
-            </div>
-            <span class="badge-subtle" style="font-size: 0.8rem;"><i data-lucide="clock"></i> All Times in EST</span>
-          </div>
-
-          <div class="schedule-list-grid">
-            <div class="schedule-row">
-              <div class="schedule-col-thumb">
-                <img src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=600&q=80" alt="Grace Fellowship Sunday Live Service" class="schedule-thumb-img" />
-                <div class="schedule-thumb-overlay">
-                  <div class="schedule-thumb-play"><i data-lucide="play"></i></div>
-                </div>
-                <span class="schedule-thumb-badge"><i data-lucide="radio" style="width: 12px; height: 12px; color: #ef4444;"></i> HD LIVE</span>
-              </div>
-              <div class="schedule-col-time">
-                <strong>Sunday 10:00 AM</strong>
-                <span>Weekly</span>
-              </div>
-              <div class="schedule-col-details">
-                <span class="badge-cat worship">Church Worship</span>
-                <h4>Grace Fellowship Sunday Live Service</h4>
-                <p>Morning worship, choir ministry, and Sunday sermon delivery.</p>
-              </div>
-              <div class="schedule-col-action">
-                <button type="button" class="button outline sm" onclick="MWE.setStreamReminder('Grace Sunday Worship')"><i data-lucide="bell"></i> Set Reminder</button>
-              </div>
-            </div>
-
-            <div class="schedule-row">
-              <div class="schedule-col-thumb">
-                <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80" alt="Community Gospel Cardio & Praise Workout" class="schedule-thumb-img" />
-                <div class="schedule-thumb-overlay">
-                  <div class="schedule-thumb-play"><i data-lucide="play"></i></div>
-                </div>
-                <span class="schedule-thumb-badge"><i data-lucide="activity" style="width: 12px; height: 12px; color: #10b981;"></i> FITNESS</span>
-              </div>
-              <div class="schedule-col-time">
-                <strong>Saturday 9:00 AM</strong>
-                <span>Bi-Weekly</span>
-              </div>
-              <div class="schedule-col-details">
-                <span class="badge-cat fitness">Fitness Stream</span>
-                <h4>Community Gospel Cardio & Praise Workout</h4>
-                <p>Live interactive group workout session set to energetic gospel music.</p>
-              </div>
-              <div class="schedule-col-action">
-                <button type="button" class="button outline sm" onclick="MWE.setStreamReminder('Gospel Cardio Workout')"><i data-lucide="bell"></i> Set Reminder</button>
-              </div>
-            </div>
-
-            <div class="schedule-row">
-              <div class="schedule-col-thumb">
-                <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=600&q=80" alt="Live Orphanage Visit & Gift Distribution" class="schedule-thumb-img" />
-                <div class="schedule-thumb-overlay">
-                  <div class="schedule-thumb-play"><i data-lucide="play"></i></div>
-                </div>
-                <span class="schedule-thumb-badge"><i data-lucide="heart" style="width: 12px; height: 12px; color: #b0811a;"></i> OUTREACH</span>
-              </div>
-              <div class="schedule-col-time">
-                <strong>1st & 3rd Sat 2:00 PM</strong>
-                <span>Bi-Monthly</span>
-              </div>
-              <div class="schedule-col-details">
-                <span class="badge-cat outreach">Field Outreach</span>
-                <h4>Live Orphanage Visit & Gift Distribution</h4>
-                <p>Live stream direct from field outreach activities, food supply deliveries, and orphanage support.</p>
-              </div>
-              <div class="schedule-col-action">
-                <button type="button" class="button outline sm" onclick="MWE.setStreamReminder('Orphanage Visit Live')"><i data-lucide="bell"></i> Set Reminder</button>
-              </div>
-            </div>
-          </div>
+          <h4>No active broadcasts found</h4>
+          <p>There are no churches currently streaming live. Check back during service times!</p>
         </div>
       </div>
     </section>

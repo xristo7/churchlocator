@@ -3,14 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Church Dashboard | My Way of Evangelism</title>
+  <title>Church Portal | My Way of Evangelism</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="app.js"></script>
 </head>
 <body class="dash-body private-app" data-page="portal" data-auth-app="church">
+  <header class="topbar dash-topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Church discovery</small></span>
+      </a>
 
-  <!-- Login / Register Screen (Shown when logged out) -->
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="/#find"><i data-lucide="compass" style="width:16px; height:16px; vertical-align:middle; margin-right:4px;"></i>Directory</a>
+          <a href="events.html"><i data-lucide="calendar" style="width:16px; height:16px; vertical-align:middle; margin-right:4px;"></i>Events</a>
+          <a href="#" data-logout><i data-lucide="log-out" style="width:16px; height:16px; vertical-align:middle; margin-right:4px;"></i>Logout</a>
+        </nav>
+        <div class="nav-actions">
+          <button class="button primary" type="button" data-portal-new><i data-lucide="plus"></i> New Profile</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
   <section class="login-screen">
     <div class="portal-grid">
       <!-- Left side: Hero branding title -->
@@ -67,6 +89,7 @@
                 <label class="form-field"><span>Registrant Name</span><input type="text" placeholder="John Doe" id="reg-registrant-name" /></label>
                 <label class="form-field"><span>Role in Church</span>
                   <div class="role-field-container" style="position: relative; width: 100%;">
+                    <!-- Select Dropdown -->
                     <select id="reg-role" class="field" style="width: 100%;">
                       <option value="Senior Pastor">Senior Pastor</option>
                       <option value="Pastor">Pastor</option>
@@ -76,6 +99,7 @@
                       <option value="Other">Other</option>
                     </select>
                     
+                    <!-- Text Input (for Other role) -->
                     <div id="reg-role-custom-wrapper" style="display: none; position: relative; width: 100%;">
                       <input type="text" id="reg-role-custom-input" class="field" placeholder="Type your role..." style="padding-right: 36px !important;" />
                       <button id="reg-role-custom-clear" type="button" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: var(--muted); padding: 4px; display: flex; align-items: center; justify-content: center; outline: none;">
@@ -113,508 +137,205 @@
             
           </form>
         </div>
+        
       </div>
     </div>
   </section>
 
-  <!-- STANDALONE DASHBOARD APP UI WRAPPER -->
-  <div class="portal-app-wrapper private-content">
-    <div class="portal-dashboard-card">
-      
-      <!-- RETRACTABLE SIDEBAR RAIL (8 Core Menu Items) -->
-      <aside class="portal-sidebar-rail" id="portal-sidebar">
-        <div class="sidebar-header">
-          <div class="rail-brand-logo" title="My Way Evangelism">
-            <i data-lucide="church"></i>
-          </div>
-          <div class="rail-brand-text">
-            <strong>Church Admin</strong>
-            <small>Management Portal</small>
-          </div>
-          <button type="button" class="sidebar-toggle-btn" onclick="MWE.togglePortalSidebar()" title="Toggle Sidebar Navigation">
-            <i data-lucide="chevron-left" id="sidebar-toggle-icon"></i>
-          </button>
+  <main class="dash-shell private-content">
+    <aside class="dash-sidebar">
+      <div class="dash-user">
+        <div class="avatar">CE</div>
+        <div>
+          <strong>Church Team</strong>
+          <div class="meta">Profile manager</div>
         </div>
+      </div>
+      <nav class="dash-nav">
+        <a class="active" href="#overview"><i data-lucide="layout-dashboard"></i> Overview</a>
+        <a href="#identity"><i data-lucide="church"></i> Identity</a>
+        <a href="#pastor"><i data-lucide="user-round"></i> Pastor</a>
+        <a href="#services"><i data-lucide="calendar-days"></i> Services</a>
+        <a href="#ministries"><i data-lucide="users"></i> Ministries</a>
+        <a href="#rides"><i data-lucide="car"></i> Ride Requests</a>
+        <a href="#salvation-tab"><i data-lucide="heart"></i> Salvation Follow-up</a>
+        <a href="#verification-tab"><i data-lucide="file-check"></i> Verification Docs</a>
+        <a href="#roles-tab"><i data-lucide="shield-alert"></i> Staff Roles</a>
+        <a href="#livestream"><i data-lucide="radio"></i> Livestream</a>
+        <a href="#events-tab" data-portal-tab="events"><i data-lucide="calendar"></i> Events Manager</a>
+        <a href="#followup"><i data-lucide="messages-square"></i> Follow-up</a>
+      </nav>
+    </aside>
 
-        <nav class="rail-nav-group dash-nav">
-          <a href="#overview" data-page="overview" class="rail-nav-item active" title="Dashboard Overview" onclick="MWE.switchPortalPage('overview', event)">
-            <i data-lucide="layout-dashboard"></i>
-            <span class="nav-label">Dashboard Overview</span>
-          </a>
-          <a href="#profile" data-page="profile" class="rail-nav-item" title="Church Profile" onclick="MWE.switchPortalPage('profile', event)">
-            <i data-lucide="church"></i>
-            <span class="nav-label">Church Profile</span>
-          </a>
-          <a href="#schedule" data-page="schedule" class="rail-nav-item" title="Services & Schedule" onclick="MWE.switchPortalPage('schedule', event)">
-            <i data-lucide="calendar-days"></i>
-            <span class="nav-label">Services & Schedule</span>
-          </a>
-          <a href="#transportation" data-page="transportation" class="rail-nav-item" title="Ride Requests" onclick="MWE.switchPortalPage('transportation', event)">
-            <i data-lucide="car"></i>
-            <span class="nav-label">Ride Requests</span>
-          </a>
-          <a href="#salvation" data-page="salvation" class="rail-nav-item" title="Salvation Decisions" onclick="MWE.switchPortalPage('salvation', event)">
-            <i data-lucide="heart"></i>
-            <span class="nav-label">Salvation Decisions</span>
-          </a>
-          <a href="#verification" data-page="verification" class="rail-nav-item" title="Verification Docs" onclick="MWE.switchPortalPage('verification', event)">
-            <i data-lucide="file-check"></i>
-            <span class="nav-label">Verification & Trust</span>
-          </a>
-          <a href="#livestream" data-page="livestream" class="rail-nav-item" title="Livestream Settings" onclick="MWE.switchPortalPage('livestream', event)">
-            <i data-lucide="radio"></i>
-            <span class="nav-label">Livestream Manager</span>
-          </a>
-          <a href="#events" data-page="events" class="rail-nav-item" title="Events Manager" onclick="MWE.switchPortalPage('events', event)">
-            <i data-lucide="calendar"></i>
-            <span class="nav-label">Events Manager</span>
-          </a>
-        </nav>
-
-        <div class="rail-footer-group" style="position: relative;">
-          <div class="rail-divider"></div>
-          
-          <!-- Profile Dropup Menu Modal -->
-          <div class="profile-dropup-modal" id="portal-profile-dropup">
-            <a href="#roles" class="dropup-item" onclick="MWE.switchPortalPage('roles', event); MWE.closeProfileDropup();">
-              <i data-lucide="user-cog"></i>
-              <span>Profile Settings</span>
-            </a>
-            <div class="dropup-divider"></div>
-            <a href="#" class="dropup-item dropup-danger" onclick="MWE.logoutPortal(event);">
-              <i data-lucide="log-out"></i>
-              <span>Log Out</span>
-            </a>
-          </div>
-
-          <!-- Clickable User Profile Trigger -->
-          <div class="rail-user-profile-trigger" title="Click for profile options" onclick="MWE.toggleProfileDropup(event)">
-            <div class="rail-user-avatar-wrap">
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="Church Admin" class="rail-avatar-img" />
-              <span class="online-dot"></span>
-            </div>
-
-            <div class="rail-user-info" style="display: flex; flex-direction: column; color: #ffffff; white-space: nowrap;">
-              <strong style="font-size: 0.82rem;" id="portal-user-display-name">Grace Community</strong>
-              <span style="font-size: 0.72rem; opacity: 0.85;">Admin Online</span>
-            </div>
-          </div>
+    <section class="dash-main">
+      <div class="dash-header" id="overview">
+        <div class="dash-title">
+          <p class="kicker"><i data-lucide="sparkles"></i> Church dashboard</p>
+          <h1>Manage your public church profile.</h1>
+          <p>Update the details seekers see before visiting: services, ministries, pastor welcome, contact paths, and livestream participation.</p>
         </div>
-      </aside>
+        <div class="dash-toolbar">
+          <label class="form-field" style="min-width:260px">
+            <span>Active profile</span>
+            <select data-portal-select></select>
+          </label>
+          <button class="button primary" form="churchPortalForm" type="submit"><i data-lucide="save"></i> Save</button>
+        </div>
+      </div>
 
-      <!-- MAIN WORKSPACE CANVAS -->
-      <main class="portal-workspace-canvas dash-main">
-        
-        <!-- Top Navigation Header -->
-        <header class="portal-top-bar">
-          <div class="portal-top-title">
-            <h1 id="portal-canvas-title">Dashboard</h1>
-            <p id="portal-canvas-subtitle">Overview of visitor connections, sermon views, and outreach metrics</p>
-          </div>
+      <div class="kpi-strip">
+        <div class="kpi-card"><span class="icon"><i data-lucide="eye"></i></span><strong>2.4k</strong><span>Profile views this month</span></div>
+        <div class="kpi-card"><span class="icon"><i data-lucide="user-plus"></i></span><strong>38</strong><span>Visitor connections</span></div>
+        <div class="kpi-card"><span class="icon"><i data-lucide="message-circle"></i></span><strong>17</strong><span>Prayer requests</span></div>
+        <div class="kpi-card"><span class="icon"><i data-lucide="radio"></i></span><strong>Live</strong><span>Stream feature status</span></div>
+      </div>
 
-          <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-            <div class="portal-search-wrap">
-              <i data-lucide="search"></i>
-              <input type="text" placeholder="Search visitors, events, requests..." />
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <select data-portal-select class="portal-select" style="background: #ffffff; color: #0f172a; border-color: #cbd5e1;"></select>
-            </div>
-
-            <a href="church-profile.html?id=grace-community" target="_blank" class="split-dark-pill-btn" style="padding: 10px 18px; font-size: 0.82rem; text-decoration: none;">
-              <span>Public Profile</span> <i data-lucide="external-link"></i>
-            </a>
-
-            <button type="button" class="button ghost small" data-logout style="color: #ef4444;" title="Sign Out">
-              <i data-lucide="log-out"></i>
-            </button>
-          </div>
-        </header>
-
-        <!-- FORM BINDING CONTAINER FOR DATA UPDATES -->
-        <form data-portal-form id="churchPortalForm" novalidate>
+      <div class="dashboard-grid">
+        <form class="dash-panel profile-content-panel" data-portal-form id="churchPortalForm" novalidate>
           <input type="hidden" name="id" />
-
-          <!-- PAGE 1: OVERVIEW (MODERN DASHBOARD LAYOUT MATCHING USER SCREENSHOT) -->
-          <div class="portal-page-view active" id="page-overview">
-            
-            <div class="dashboard-emerald-grid">
-              
-              <!-- LEFT COLUMN: Analytics Charts & Data Tables -->
-              <div class="dash-left-column">
-                
-                <!-- TOP CARD: Interactive Engagement Line Area Chart -->
-                <div class="dash-card-module">
-                  <div class="dash-card-header">
-                    <div>
-                      <span style="font-size: 0.78rem; font-weight: 800; color: #b0811a; text-transform: uppercase; tracking: 0.05em;">Visitor Analytics</span>
-                      <h3 style="margin-top: 2px;">Weekly Profile Views & Connections</h3>
-                    </div>
-
-                    <div style="display: flex; gap: 6px; background: #f1f5f9; padding: 4px; border-radius: 999px;">
-                      <button type="button" class="tab-btn active" style="padding: 4px 12px; font-size: 0.75rem; border-radius: 999px;">Hour</button>
-                      <button type="button" class="tab-btn" style="padding: 4px 12px; font-size: 0.75rem; border-radius: 999px;">Day</button>
-                      <button type="button" class="tab-btn" style="padding: 4px 12px; font-size: 0.75rem; border-radius: 999px;">Week</button>
-                      <button type="button" class="tab-btn" style="padding: 4px 12px; font-size: 0.75rem; border-radius: 999px;">Month</button>
-                    </div>
-                  </div>
-
-                  <!-- Wave Area Chart SVG -->
-                  <div style="position: relative; height: 180px; width: 100%; margin-top: 10px;">
-                    <svg viewBox="0 0 500 150" style="width: 100%; height: 100%; overflow: visible;">
-                      <defs>
-                        <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stop-color="#b0811a" stop-opacity="0.3" />
-                          <stop offset="100%" stop-color="#b0811a" stop-opacity="0.0" />
-                        </linearGradient>
-                        <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.25" />
-                          <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.0" />
-                        </linearGradient>
-                      </defs>
-                      <path d="M 0 100 Q 80 40 160 80 T 320 50 T 500 30 L 500 150 L 0 150 Z" fill="url(#goldGrad)" />
-                      <path d="M 0 100 Q 80 40 160 80 T 320 50 T 500 30" fill="none" stroke="#b0811a" stroke-width="3" />
-                      <path d="M 0 120 Q 100 80 200 110 T 400 70 T 500 60" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="4 4" />
-
-                      <!-- Floating Point Tooltip Badge -->
-                      <g transform="translate(240, 42)">
-                        <rect x="-32" y="-24" width="64" height="24" rx="6" fill="#0f172a" />
-                        <text x="0" y="-8" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">$1,780.50</text>
-                        <circle cx="0" cy="18" r="4" fill="#b0811a" stroke="#ffffff" stroke-width="2" />
-                      </g>
-                    </svg>
-                  </div>
-                </div>
-
-                <!-- MIDDLE ROW: Big Green Metrics Banner + Donut Chart -->
-                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px;">
-                  
-                  <!-- Green Metrics Summary Banner Card -->
-                  <div class="green-metrics-banner">
-                    <div style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; opacity: 0.9; margin-bottom: 14px;">Total Outreach Impact</div>
-                    
-                    <div class="green-metrics-row">
-                      <div class="green-metric-item">
-                        <strong>17,328</strong>
-                        <span>Weekly Profile Views</span>
-                      </div>
-                      <div class="green-metric-item">
-                        <strong>153</strong>
-                        <span>Salvation & Visit Passes</span>
-                      </div>
-                    </div>
-
-                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 12px; display: flex; align-items: baseline; justify-content: space-between;">
-                      <div>
-                        <span style="font-size: 0.78rem; opacity: 0.85;">Total Outreach Donations</span>
-                        <div class="green-metrics-total">$8,617.51</div>
-                      </div>
-                      <i data-lucide="trending-up" style="width: 28px; height: 28px; opacity: 0.85;"></i>
-                    </div>
-                  </div>
-
-                  <!-- Donut Chart Card (Visitor Demographics) -->
-                  <div class="dash-card-module">
-                    <div class="dash-card-header">
-                      <h3>Visitor Demographics</h3>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 10px;">
-                      <svg viewBox="0 0 100 100" style="width: 110px; height: 110px; transform: rotate(-90deg);">
-                        <circle cx="50" cy="50" r="38" fill="none" stroke="#e2e8f0" stroke-width="14" />
-                        <circle cx="50" cy="50" r="38" fill="none" stroke="#10b981" stroke-width="14" stroke-dasharray="140 240" stroke-dashoffset="0" />
-                        <circle cx="50" cy="50" r="38" fill="none" stroke="#0284c7" stroke-width="14" stroke-dasharray="80 240" stroke-dashoffset="-140" />
-                        <circle cx="50" cy="50" r="38" fill="none" stroke="#b0811a" stroke-width="14" stroke-dasharray="38 240" stroke-dashoffset="-220" />
-                      </svg>
-                      
-                      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.78rem; font-weight: 700;">
-                        <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></span> Youth (45%)</div>
-                        <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #0284c7;"></span> Adults (35%)</div>
-                        <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #b0811a;"></span> Kids (20%)</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- BOTTOM CARD: Recent Visitor Passes Data Table -->
-                <div class="dash-card-module">
-                  <div class="dash-card-header">
-                    <h3>Recent Visitor Connections</h3>
-                    <button type="button" class="button ghost small" onclick="MWE.switchPortalPage('rides', event)">View All <i data-lucide="arrow-right"></i></button>
-                  </div>
-
-                  <div class="table-responsive">
-                    <table class="table-styled" style="width: 100%;">
-                      <thead>
-                        <tr>
-                          <th>Visitor Name</th>
-                          <th>Selected Next Steps</th>
-                          <th>Contact Details</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td><strong>Sarah Jenkins</strong></td>
-                          <td><span class="badge-cat worship">Plan a Visit</span> <span class="badge-cat fitness">Request a Ride</span></td>
-                          <td>sarah.j@example.com</td>
-                          <td><span class="badge-subtle" style="background: rgba(16, 185, 129, 0.15); color: #059669;">Confirmed</span></td>
-                        </tr>
-                        <tr>
-                          <td><strong>David Miller</strong></td>
-                          <td><span class="badge-cat outreach">Receive Salvation</span></td>
-                          <td>(780) 555-0199</td>
-                          <td><span class="badge-subtle" style="background: rgba(245, 158, 11, 0.15); color: #d97706;">Follow-up Due</span></td>
-                        </tr>
-                        <tr>
-                          <td><strong>Rachel Green</strong></td>
-                          <td><span class="badge-cat worship">Become a Member</span></td>
-                          <td>rachel@example.com</td>
-                          <td><span class="badge-subtle" style="background: rgba(59, 130, 246, 0.15); color: #2563eb;">New Believer</span></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- RIGHT COLUMN: Floating Follow-up Tasks & Team Activity Row -->
-              <div class="dash-right-column">
-                
-                <!-- Follow-up Tasks Module (Matching User Screenshot Right Panel) -->
-                <div class="dash-card-module">
-                  <div class="dash-card-header">
-                    <h3>Follow-up Tasks</h3>
-                    <button type="button" class="button ghost small" style="padding: 4px 8px;"><i data-lucide="plus"></i></button>
-                  </div>
-
-                  <!-- Task Item 1 -->
-                  <div class="task-item-card">
-                    <span class="task-tag-pill today">Today</span>
-                    <strong style="font-size: 0.88rem; color: #0f172a;">Call Sarah Jenkins for Sunday ride confirmation</strong>
-                    <span style="font-size: 0.75rem; color: #64748b;">Assigned to Brother Mark (Evangelism)</span>
-                  </div>
-
-                  <!-- Task Item 2 -->
-                  <div class="task-item-card">
-                    <span class="task-tag-pill pending">Pending</span>
-                    <strong style="font-size: 0.88rem; color: #0f172a;">Send Welcome Pack to David Miller</strong>
-                    <span style="font-size: 0.75rem; color: #64748b;">New Believer Salvation Follow-up</span>
-                  </div>
-
-                  <!-- Task Item 3 -->
-                  <div class="task-item-card">
-                    <span class="task-tag-pill urgent">Urgent</span>
-                    <strong style="font-size: 0.88rem; color: #0f172a;">Review Church Verification License</strong>
-                    <span style="font-size: 0.75rem; color: #64748b;">Platform Trust Badge Renewal</span>
-                  </div>
-                </div>
-
-                <!-- Evangelism Team Activity Module (Matching User Screenshot Team Row) -->
-                <div class="dash-card-module">
-                  <div class="dash-card-header">
-                    <h3>Evangelism Team Activity</h3>
-                  </div>
-
-                  <div class="team-activity-grid">
-                    <div class="team-member-item">
-                      <div class="team-avatar-ring">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Sarah" />
-                      </div>
-                      <span>65%</span>
-                    </div>
-
-                    <div class="team-member-item">
-                      <div class="team-avatar-ring" style="border-color: #0284c7;">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="Pastor John" />
-                      </div>
-                      <span>88%</span>
-                    </div>
-
-                    <div class="team-member-item">
-                      <div class="team-avatar-ring" style="border-color: #b0811a;">
-                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80" alt="Hannah" />
-                      </div>
-                      <span>72%</span>
-                    </div>
-
-                    <div class="team-member-item">
-                      <div class="team-avatar-ring" style="border-color: #8b5cf6;">
-                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80" alt="Mark" />
-                      </div>
-                      <span>54%</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
+          <div class="panel-header">
+            <div>
+              <h2>Church profile content</h2>
+              <p>Review the public-facing profile in readable sections. Open the editor at the bottom of any block to update that information.</p>
             </div>
           </div>
 
-          <!-- PAGE 2: CHURCH IDENTITY -->
-          <div class="portal-page-view" id="page-identity">
-            <div class="portal-page-header">
-              <h2>Church Identity & Positioning</h2>
-              <p>Update public church name, area, city, denomination, primary language, worship style, and tagline.</p>
+          <section class="field-category" id="identity">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="badge"></i></span>
+              <div><h3>Church identity</h3><p>Name, location, denomination, and public positioning.</p></div>
             </div>
-
-            <section class="field-category">
-              <div class="readable-block">
-                <p class="profile-story" data-readable="identityNarrative"></p>
-                <div class="content-callout">
-                  <span>Public tagline</span>
-                  <strong data-readable="tagline"></strong>
-                </div>
-                <div class="readable-grid">
-                  <div><span>Church name</span><strong data-readable="name"></strong></div>
-                  <div><span>Area / neighborhood</span><strong data-readable="area"></strong></div>
-                  <div><span>City</span><strong data-readable="city"></strong></div>
-                  <div><span>Country</span><strong data-readable="country"></strong></div>
-                  <div><span>Postal code</span><strong data-readable="postal"></strong></div>
-                  <div><span>Denomination</span><strong data-readable="denomination"></strong></div>
-                  <div><span>Primary language</span><strong data-readable="language"></strong></div>
-                  <div><span>Worship style</span><strong data-readable="worship"></strong></div>
-                </div>
+            <div class="readable-block">
+              <p class="profile-story" data-readable="identityNarrative"></p>
+              <div class="content-callout">
+                <span>Public tagline</span>
+                <strong data-readable="tagline"></strong>
               </div>
-              
-              <div class="editor-body mt-4" style="background: #ffffff; padding: 24px; border-radius: 20px; border: 1px solid var(--line);">
-                <h3 style="margin-top:0; font-weight: 800;">Edit Church Identity</h3>
-                <div class="compact-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-                  <label class="form-field"><span>Church name</span><input name="name" class="field" /></label>
-                  <label class="form-field"><span>Area / neighborhood</span><input name="area" class="field" /></label>
-                  <label class="form-field"><span>City</span><input name="city" class="field" /></label>
-                  <label class="form-field"><span>Country</span><input name="country" class="field" /></label>
-                  <label class="form-field"><span>Postal code</span><input name="postal" class="field" /></label>
-                  <label class="form-field"><span>Denomination</span><input name="denomination" class="field" /></label>
-                  <label class="form-field"><span>Primary language</span><input name="language" class="field" /></label>
-                  <label class="form-field"><span>Worship style</span><input name="worship" class="field" /></label>
-                </div>
-                <label class="form-field" style="margin-top: 14px;"><span>Church tagline</span><input name="tagline" class="field" /></label>
-                <div style="margin-top: 20px;">
-                  <button class="button primary" type="submit"><i data-lucide="save"></i> Save Identity Changes</button>
-                </div>
+              <div class="readable-grid">
+                <div><span>Church name</span><strong data-readable="name"></strong></div>
+                <div><span>Area / neighborhood</span><strong data-readable="area"></strong></div>
+                <div><span>City</span><strong data-readable="city"></strong></div>
+                <div><span>Country</span><strong data-readable="country"></strong></div>
+                <div><span>Postal code</span><strong data-readable="postal"></strong></div>
+                <div><span>Denomination</span><strong data-readable="denomination"></strong></div>
+                <div><span>Primary language</span><strong data-readable="language"></strong></div>
+                <div><span>Worship style</span><strong data-readable="worship"></strong></div>
               </div>
-            </section>
-          </div>
-
-          <!-- PAGE 3: PASTOR WELCOME -->
-          <div class="portal-page-view" id="page-pastor">
-            <div class="portal-page-header">
-              <h2>Pastor & Leadership Welcome</h2>
-              <p>Manage pastor portrait, pastor bio, welcome message, and church story.</p>
             </div>
-
-            <section class="field-category">
-              <div class="readable-block">
-                <article class="pastor-readable">
-                  <img data-readable-image="pastorPhoto" alt="Pastor portrait" onerror="MWE.handleImgError(this, 'pastor', 'Pastor Portrait Slot')" class="has-colored-placeholder" />
-                  <div>
-                    <span class="eyebrow">Meet the pastor</span>
-                    <h4 data-readable="pastor"></h4>
-                    <p class="meta" data-readable="pastorTitle"></p>
-                    <p data-readable="pastorBio"></p>
-                  </div>
-                </article>
-                <div class="content-callout">
-                  <span>About the church</span>
-                  <strong data-readable="about"></strong>
+            <details class="block-editor">
+              <summary><span><i data-lucide="pencil"></i> Edit church identity</span><small>Name, location, denomination, language</small></summary>
+              <div class="editor-body">
+                <div class="compact-grid">
+                  <label class="form-field"><span>Church name</span><input name="name" /></label>
+                  <label class="form-field"><span>Area / neighborhood</span><input name="area" /></label>
+                  <label class="form-field"><span>City</span><input name="city" /></label>
+                  <label class="form-field"><span>Country</span><input name="country" /></label>
+                  <label class="form-field"><span>Postal code</span><input name="postal" /></label>
+                  <label class="form-field"><span>Denomination</span><input name="denomination" /></label>
+                  <label class="form-field"><span>Primary language</span><input name="language" /></label>
+                  <label class="form-field"><span>Worship style</span><input name="worship" /></label>
+                </div>
+                <label class="form-field"><span>Church tagline</span><input name="tagline" /></label>
+                <div class="editor-actions">
+                  <button class="button ghost small" type="button" data-close-editor>Close</button>
+                  <button class="button primary small" type="submit"><i data-lucide="save"></i> Save identity</button>
                 </div>
               </div>
+            </details>
+          </section>
 
-              <div class="editor-body mt-4" style="background: #ffffff; padding: 24px; border-radius: 20px; border: 1px solid var(--line);">
-                <h3 style="margin-top:0; font-weight: 800;">Edit Pastor & Story</h3>
-                <div class="compact-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-                  <label class="form-field"><span>Pastor name</span><input name="pastor" class="field" /></label>
-                  <label class="form-field"><span>Pastor title</span><input name="pastorTitle" class="field" /></label>
-                  <label class="form-field"><span>Cover image URL</span><input name="photo" type="url" class="field" placeholder="https://images.unsplash.com/..." /></label>
-                  <label class="form-field"><span>Pastor image URL</span><input name="pastorPhoto" class="field" placeholder="https://images.unsplash.com/..." /></label>
-                  <label class="form-field"><span>Logo URL</span><input name="logo" class="field" placeholder="assets/logo..." /></label>
-                </div>
-
-                <!-- COLORED PLACEHOLDER IMAGE SLOTS PREVIEW -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; margin-bottom: 12px;">
-                  <div class="img-placeholder-slot gradient-church" id="portal-cover-placeholder-slot">
-                    <div class="placeholder-icon-badge"><i data-lucide="image"></i></div>
-                    <div class="placeholder-title">Church Cover Image Slot</div>
-                    <div class="placeholder-subtext">Header Banner Backdrop</div>
-                  </div>
-
-                  <div class="img-placeholder-slot gradient-pastor" id="portal-pastor-placeholder-slot">
-                    <div class="placeholder-icon-badge"><i data-lucide="user"></i></div>
-                    <div class="placeholder-title">Pastor Portrait Slot</div>
-                    <div class="placeholder-subtext">Leadership Welcome Photo</div>
-                  </div>
-
-                  <div class="img-placeholder-slot gradient-event" id="portal-logo-placeholder-slot">
-                    <div class="placeholder-icon-badge"><i data-lucide="church"></i></div>
-                    <div class="placeholder-title">Church Logo Slot</div>
-                    <div class="placeholder-subtext">Brand Verification Badge</div>
-                  </div>
-                </div>
-
-                <label class="form-field" style="margin-top: 14px;"><span>Pastor bio / welcome</span><textarea name="pastorBio" class="field" rows="3"></textarea></label>
-                <label class="form-field" style="margin-top: 14px;"><span>About the church</span><textarea name="about" class="field" rows="3"></textarea></label>
-                <div style="margin-top: 20px;">
-                  <button class="button primary" type="submit"><i data-lucide="save"></i> Save Pastor Story</button>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          <!-- PAGE 4: SERVICES & CONTACT -->
-          <div class="portal-page-view" id="page-services">
-            <div class="portal-page-header">
-              <h2>Worship Services & Schedule</h2>
-              <p>Configure Sunday service times, midweek gatherings, phone, email, website, and physical address.</p>
+          <section class="field-category" id="services">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="calendar-clock"></i></span>
+              <div><h3>Services and contact</h3><p>Everything a first-time visitor needs before arriving.</p></div>
             </div>
-
-            <section class="field-category">
-              <div class="readable-block">
-                <div class="readable-grid">
-                  <div><span>Sunday service</span><strong data-readable="sunday"></strong></div>
-                  <div><span>Midweek service</span><strong data-readable="midweek"></strong></div>
-                  <div><span>Phone</span><strong data-readable="phone"></strong></div>
-                  <div><span>Email</span><strong data-readable="email"></strong></div>
-                  <div><span>Website</span><strong data-readable="website"></strong></div>
-                  <div><span>Verification status</span><strong data-readable="verified"></strong></div>
-                </div>
-                <div class="content-callout">
-                  <span>Address shown to visitors</span>
-                  <strong data-readable="location"></strong>
-                </div>
+            <div class="readable-block">
+              <p class="profile-story" data-readable="serviceNarrative"></p>
+              <div class="readable-grid">
+                <div><span>Sunday service</span><strong data-readable="sunday"></strong></div>
+                <div><span>Midweek service</span><strong data-readable="midweek"></strong></div>
+                <div><span>Phone</span><strong data-readable="phone"></strong></div>
+                <div><span>Email</span><strong data-readable="email"></strong></div>
+                <div><span>Website</span><strong data-readable="website"></strong></div>
+                <div><span>Verification status</span><strong data-readable="verified"></strong></div>
               </div>
-
-              <div class="editor-body mt-4" style="background: #ffffff; padding: 24px; border-radius: 20px; border: 1px solid var(--line);">
-                <h3 style="margin-top:0; font-weight: 800;">Edit Schedule & Contact Details</h3>
-                <div class="compact-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-                  <label class="form-field"><span>Sunday service</span><input name="sunday" class="field" /></label>
-                  <label class="form-field"><span>Midweek service</span><input name="midweek" class="field" /></label>
-                  <label class="form-field"><span>Phone</span><input name="phone" type="tel" class="field" /></label>
-                  <label class="form-field"><span>Email</span><input name="email" type="email" class="field" /></label>
-                  <label class="form-field"><span>Website</span><input name="website" type="url" class="field" /></label>
-                  <label class="form-field"><span>Verification status</span><select name="verified" class="field"><option value="true">Verified</option><option value="false">Pending review</option></select></label>
-                </div>
-                <label class="form-field" style="margin-top: 14px;"><span>Address</span><input name="location" class="field" /></label>
-                <div style="margin-top: 20px;">
-                  <button class="button primary" type="submit"><i data-lucide="save"></i> Save Schedule & Contact</button>
-                </div>
+              <div class="content-callout">
+                <span>Address shown to visitors</span>
+                <strong data-readable="location"></strong>
               </div>
-            </section>
-          </div>
-
-          <!-- PAGE 5: RIDE REQUESTS -->
-          <div class="portal-page-view" id="page-rides">
-            <div class="portal-page-header">
-              <h2>Transportation & Ride Requests</h2>
-              <p>Manage Sunday visitor pickups, assign volunteer drivers, and track pickup status.</p>
             </div>
+            <details class="block-editor">
+              <summary><span><i data-lucide="pencil"></i> Edit services and contact</span><small>Schedule, phone, email, website, address</small></summary>
+              <div class="editor-body">
+                <div class="compact-grid">
+                  <label class="form-field"><span>Sunday service</span><input name="sunday" /></label>
+                  <label class="form-field"><span>Midweek service</span><input name="midweek" /></label>
+                  <label class="form-field"><span>Phone</span><input name="phone" type="tel" /></label>
+                  <label class="form-field"><span>Email</span><input name="email" type="email" /></label>
+                  <label class="form-field"><span>Website</span><input name="website" type="url" /></label>
+                  <label class="form-field"><span>Verification status</span><select name="verified"><option value="true">Verified</option><option value="false">Pending review</option></select></label>
+                </div>
+                <label class="form-field"><span>Address</span><input name="location" /></label>
+                <div class="editor-actions">
+                  <button class="button ghost small" type="button" data-close-editor>Close</button>
+                  <button class="button primary small" type="submit"><i data-lucide="save"></i> Save services</button>
+                </div>
+              </div>
+            </details>
+          </section>
 
-            <div style="background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid var(--line);">
+          <section class="field-category" id="pastor">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="user-round"></i></span>
+              <div><h3>Pastor and welcome message</h3><p>The human face of the church profile.</p></div>
+            </div>
+            <div class="readable-block">
+              <article class="pastor-readable">
+                <img data-readable-image="pastorPhoto" alt="Pastor portrait" />
+                <div>
+                  <span class="eyebrow">Meet the pastor</span>
+                  <h4 data-readable="pastor"></h4>
+                  <p class="meta" data-readable="pastorTitle"></p>
+                  <p data-readable="pastorBio"></p>
+                </div>
+              </article>
+              <div class="content-callout">
+                <span>About the church</span>
+                <strong data-readable="about"></strong>
+              </div>
+              <div class="readable-grid">
+                <div><span>Cover image URL</span><strong data-readable="photo"></strong></div>
+                <div><span>Logo URL</span><strong data-readable="logo"></strong></div>
+              </div>
+            </div>
+            <details class="block-editor">
+              <summary><span><i data-lucide="pencil"></i> Edit pastor and profile story</span><small>Photos, pastor details, bio, about text</small></summary>
+              <div class="editor-body">
+                <div class="compact-grid">
+                  <label class="form-field"><span>Pastor name</span><input name="pastor" /></label>
+                  <label class="form-field"><span>Pastor title</span><input name="pastorTitle" /></label>
+                  <label class="form-field"><span>Cover image URL</span><input name="photo" type="url" /></label>
+                  <label class="form-field"><span>Pastor image URL</span><input name="pastorPhoto" /></label>
+                  <label class="form-field"><span>Logo URL</span><input name="logo" /></label>
+                </div>
+                <label class="form-field"><span>Pastor bio / welcome</span><textarea name="pastorBio"></textarea></label>
+                <label class="form-field"><span>About the church</span><textarea name="about"></textarea></label>
+                <div class="editor-actions">
+                  <button class="button ghost small" type="button" data-close-editor>Close</button>
+                  <button class="button primary small" type="submit"><i data-lucide="save"></i> Save pastor story</button>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          <section class="field-category" id="rides">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="car"></i></span>
+              <div><h3>Transportation & Ride Requests</h3><p>Manage Sunday visitor pickups and 3-stage follow-up communications.</p></div>
+            </div>
+            <div class="readable-block">
               <div class="table-responsive">
-                <table class="table-styled" style="width: 100%;">
+                <table class="table-styled">
                   <thead>
                     <tr>
                       <th>Visitor Name</th>
@@ -631,18 +352,16 @@
                 </table>
               </div>
             </div>
-          </div>
+          </section>
 
-          <!-- PAGE 6: SALVATION FOLLOW-UP -->
-          <div class="portal-page-view" id="page-salvation">
-            <div class="portal-page-header">
-              <h2>Salvation Decisions & New Believers</h2>
-              <p>Track seekers who prayed the Sinner's Prayer or requested salvation guidance.</p>
+          <section class="field-category" id="salvation-tab">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="heart"></i></span>
+              <div><h3>Salvation Decisions & New Believers</h3><p>People who prayed the Sinner's Prayer through your church profile.</p></div>
             </div>
-
-            <div style="background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid var(--line);">
+            <div class="readable-block">
               <div class="table-responsive">
-                <table class="table-styled" style="width: 100%;">
+                <table class="table-styled">
                   <thead>
                     <tr>
                       <th>New Believer</th>
@@ -658,18 +377,16 @@
                 </table>
               </div>
             </div>
-          </div>
+          </section>
 
-          <!-- PAGE 7: PRAYER REQUESTS -->
-          <div class="portal-page-view" id="page-prayer">
-            <div class="portal-page-header">
-              <h2>Prayer Requests Submitted</h2>
-              <p>Direct prayer requests submitted by members and local community seekers.</p>
+          <section class="field-category" id="prayer-tab">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="heart-handshake"></i></span>
+              <div><h3>Prayer Requests Submitted to Your Church</h3><p>Direct prayer requests submitted by members and local community seekers.</p></div>
             </div>
-
-            <div style="background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid var(--line);">
+            <div class="readable-block">
               <div class="table-responsive">
-                <table class="table-styled" style="width: 100%;">
+                <table class="table-styled">
                   <thead>
                     <tr>
                       <th>Submitted By</th>
@@ -685,39 +402,38 @@
                 </table>
               </div>
             </div>
-          </div>
+          </section>
 
-          <!-- PAGE 8: VERIFICATION DOCS -->
-          <div class="portal-page-view" id="page-verification">
-            <div class="portal-page-header">
-              <h2>Church Verification & Badges</h2>
-              <p>Submit legal incorporation & pastoral proof for platform verified badge.</p>
+          <section class="field-category" id="verification-tab">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="file-check"></i></span>
+              <div><h3>Church Verification Documents</h3><p>Submit legal incorporation & pastoral proof for platform verified badge.</p></div>
             </div>
-
-            <div style="background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid var(--line);">
-              <div class="readable-grid" style="margin-bottom: 20px;">
+            <div class="readable-block">
+              <div class="readable-grid">
                 <div><span>Verification Status</span><strong id="portal-verification-status-badge"><span class="badge verified">Verified</span></strong></div>
                 <div><span>Registration Number</span><strong>REG-884920-AB</strong></div>
               </div>
-              <div class="editor-body">
-                <label class="form-field"><span>Legal Church Name</span><input placeholder="Legal Corporate Name" class="field" /></label>
-                <label class="form-field"><span>Registration Document URL / File</span><input type="url" placeholder="https://..." class="field" /></label>
-                <label class="form-field"><span>Pastor Licensing Body</span><input placeholder="e.g. Alliance Canada / PAOC" class="field" /></label>
-                <div style="margin-top: 20px;">
-                  <button class="button primary" type="button" onclick="MWE.submitVerificationDocs()"><i data-lucide="upload-cloud"></i> Submit for Review</button>
+              <details class="block-editor">
+                <summary><span><i data-lucide="upload"></i> Upload / Update Verification Docs</span><small>Incorporation cert, pastoral license</small></summary>
+                <div class="editor-body">
+                  <label class="form-field"><span>Legal Church Name</span><input placeholder="Legal Corporate Name" /></label>
+                  <label class="form-field"><span>Registration Document URL / File</span><input type="url" placeholder="https://..." /></label>
+                  <label class="form-field"><span>Pastor Licensing Body</span><input placeholder="e.g. Alliance Canada / PAOC" /></label>
+                  <div class="editor-actions">
+                    <button class="button primary small" type="button" onclick="MWE.submitVerificationDocs()"><i data-lucide="upload-cloud"></i> Submit for Review</button>
+                  </div>
                 </div>
-              </div>
+              </details>
             </div>
-          </div>
+          </section>
 
-          <!-- PAGE 9: STAFF ROLES -->
-          <div class="portal-page-view" id="page-roles">
-            <div class="portal-page-header">
-              <h2>Staff Roles & Permissions</h2>
-              <p>Manage team member permissions for church portal administration.</p>
+          <section class="field-category" id="roles-tab">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="shield-alert"></i></span>
+              <div><h3>Staff Roles & Access Permissions</h3><p>Manage team member permissions for church portal administration.</p></div>
             </div>
-
-            <div style="background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid var(--line);">
+            <div class="readable-block">
               <div class="readable-grid three">
                 <div class="content-callout">
                   <span>Senior Pastor</span>
@@ -733,166 +449,239 @@
                 </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <!-- PAGE 10: LIVESTREAM MANAGER -->
-          <div class="portal-page-view" id="page-livestream">
-            <div class="portal-page-header">
-              <h2>Livestream Settings & Embeds</h2>
-              <p>Configure live stream player URL, billing status, and broadcast options.</p>
+          <section class="field-category" id="ministries">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="users"></i></span>
+              <div><h3>Ministries</h3><p>Comma-separated ministry names for discovery and visitor confidence.</p></div>
             </div>
+            <div class="readable-block">
+              <p class="profile-story" data-readable="ministryNarrative"></p>
+              <div class="ministry-chip-grid" data-readable-list="ministries"></div>
+            </div>
+            <details class="block-editor">
+              <summary><span><i data-lucide="pencil"></i> Edit ministries</span><small>Children, youth, prayer, worship, outreach</small></summary>
+              <div class="editor-body">
+                <label class="form-field"><span>Ministries</span><input name="ministries" placeholder="Kids, Youth, Women, Prayer, Worship" /></label>
+                <div class="editor-actions">
+                  <button class="button ghost small" type="button" data-close-editor>Close</button>
+                  <button class="button primary small" type="submit"><i data-lucide="save"></i> Save ministries</button>
+                </div>
+              </div>
+            </details>
+          </section>
 
-            <div style="background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid var(--line);">
-              <div class="readable-grid three" style="margin-bottom: 20px;">
+          <section class="field-category" id="livestream">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="radio"></i></span>
+              <div><h3>Livestream add-on</h3><p>Discovery is free; interactive online participation is premium.</p></div>
+            </div>
+            <div class="readable-block">
+              <p class="profile-story" data-readable="streamNarrative"></p>
+              <div class="readable-grid three">
                 <div><span>Livestream access</span><strong data-readable="streamEnabled"></strong></div>
                 <div><span>Billing status</span><strong data-readable="streamPaid"></strong></div>
                 <div><span>Player source</span><strong data-readable="streamUrl"></strong></div>
               </div>
+              <div class="content-callout">
+                <span>Public livestream status</span>
+                <strong data-readable="streamStatus"></strong>
+              </div>
+            </div>
+            <details class="block-editor">
+              <summary><span><i data-lucide="pencil"></i> Edit livestream settings</span><small>Enable streaming, billing, source URL</small></summary>
               <div class="editor-body">
                 <div class="compact-grid three">
-                  <label class="form-field"><span>Livestream enabled</span><select name="streamEnabled" class="field"><option value="false">Not enabled</option><option value="true">Enabled</option></select></label>
-                  <label class="form-field"><span>Billing status</span><select name="streamPaid" class="field"><option value="false">Free / inactive</option><option value="true">Premium paid feature</option></select></label>
-                  <label class="form-field"><span>Livestream URL</span><input name="streamUrl" type="url" class="field" /></label>
+                  <label class="form-field"><span>Livestream enabled</span><select name="streamEnabled"><option value="false">Not enabled</option><option value="true">Enabled</option></select></label>
+                  <label class="form-field"><span>Billing status</span><select name="streamPaid"><option value="false">Free / inactive</option><option value="true">Premium paid feature</option></select></label>
+                  <label class="form-field"><span>Livestream URL</span><input name="streamUrl" type="url" /></label>
                 </div>
-                <div style="margin-top: 20px;">
-                  <button class="button primary" type="submit"><i data-lucide="save"></i> Save Livestream Settings</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- PAGE 11: EVENTS MANAGER -->
-          <div class="portal-page-view" id="page-events">
-            <div class="portal-page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-              <div>
-                <h2>Church Events Manager</h2>
-                <p>Schedule outreach events, conferences, and managed registration.</p>
-              </div>
-              <button class="button primary" type="button" onclick="MWE.showNewEventForm()"><i data-lucide="plus"></i> Add Event</button>
-            </div>
-
-            <!-- Create / Edit Event Form (Initially Hidden) -->
-            <div id="event-editor-card" class="event-editor-card" style="display: none; margin-bottom: 24px; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: #ffffff;">
-              <h3 id="event-editor-title" style="margin-top:0; margin-bottom:16px;">Schedule New Event</h3>
-              <div id="portal-event-form-inner">
-                <input type="hidden" id="pe-event-id" />
-                <div class="form-grid-three" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
-                  <div class="form-field">
-                    <label for="pe-title">Event Title *</label>
-                    <input type="text" id="pe-title" required class="field" placeholder="e.g. Youth Awakening 2026" />
-                  </div>
-                  <div class="form-field">
-                    <label for="pe-type">Event Type</label>
-                    <select id="pe-type" class="field">
-                      <option value="in-person">In-Person Gathering</option>
-                      <option value="streamed">Livestreamed Event</option>
-                    </select>
-                  </div>
-                  <div class="form-field">
-                    <label for="pe-image">Cover Image URL</label>
-                    <input type="url" id="pe-image" class="field" placeholder="https://unsplash.com/..." />
-                  </div>
-                </div>
-
-                <div class="form-grid-three" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
-                  <div class="form-field">
-                    <label for="pe-starts-at">Starts At *</label>
-                    <input type="datetime-local" id="pe-starts-at" required class="field" />
-                  </div>
-                  <div class="form-field">
-                    <label for="pe-venue">Venue Name</label>
-                    <input type="text" id="pe-venue" class="field" placeholder="e.g. Main Auditorium" />
-                  </div>
-                  <div class="form-field">
-                    <label for="pe-city">City / Location</label>
-                    <input type="text" id="pe-city" class="field" placeholder="e.g. Edmonton" />
-                  </div>
-                </div>
-
-                <div class="form-grid-three" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
-                  <div class="form-field">
-                    <label for="pe-price">Ticket Price ($) *</label>
-                    <input type="number" id="pe-price" step="0.01" min="0" required class="field" value="0.00" />
-                    <small style="color:var(--muted)">Enter 0.00 for free events</small>
-                  </div>
-                  <div class="form-field">
-                    <label for="pe-capacity">Capacity Limit</label>
-                    <input type="number" id="pe-capacity" min="1" class="field" placeholder="e.g. 500" />
-                  </div>
-                  <div class="form-field">
-                    <label for="pe-stream">Livestream URL</label>
-                    <input type="url" id="pe-stream" class="field" placeholder="https://youtube.com/..." />
-                  </div>
-                </div>
-
-                <div class="form-field" style="margin-bottom: 16px;">
-                  <label for="pe-desc">Description</label>
-                  <textarea id="pe-desc" class="field" rows="3" placeholder="Describe the event goals..."></textarea>
-                </div>
-
-                <div class="event-editor-actions" style="display: flex; gap: 12px; justify-content: flex-end;">
-                  <button class="button ghost small" type="button" onclick="MWE.hideEventEditor()">Cancel</button>
-                  <button class="button primary small" type="button" onclick="MWE.handlePortalEventSubmit(event)">Save Event</button>
+                <div class="editor-actions">
+                  <button class="button ghost small" type="button" data-close-editor>Close</button>
+                  <button class="button primary small" type="submit"><i data-lucide="save"></i> Save livestream</button>
                 </div>
               </div>
-            </div>
-
-            <!-- Events Listing Table -->
-            <div style="background: #ffffff; border-radius: 20px; padding: 24px; border: 1px solid var(--line);">
-              <div class="table-responsive">
-                <table class="data-table" style="width: 100%; border-collapse: collapse;">
-                  <thead>
-                    <tr style="border-bottom: 1px solid var(--line); text-align: left;">
-                      <th style="padding: 12px;">Event Info</th>
-                      <th style="padding: 12px;">Venue / Type</th>
-                      <th style="padding: 12px;">Date & Time</th>
-                      <th style="padding: 12px;">Price / Tickets</th>
-                      <th style="padding: 12px; text-align: right;">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="portal-events-tbody">
-                    <!-- Injected dynamically -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
+            </details>
+          </section>
         </form>
 
-        <!-- Attendees Modal -->
-        <div class="modal" id="portal-registrants-modal">
-          <div class="modal-dialog" style="position: relative;">
-            <button type="button" class="close-btn" onclick="MWE.closeRegistrantsModal()" aria-label="Close Modal"><i data-lucide="x"></i></button>
-            <div class="modal-header">
-              <h3>Registered Attendees</h3>
+        <aside class="stack">
+          <div data-portal-preview></div>
+
+          <article class="side-card">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="check-circle-2"></i></span>
+              <div><h3>Profile readiness</h3><p>Operational health at a glance.</p></div>
             </div>
-            <div class="modal-body">
-              <h4 id="portal-registrants-event-title" style="margin-top:0; margin-bottom:12px;">Event Title</h4>
-              <div class="table-responsive">
-                <table class="data-table" style="width:100%; border-collapse:collapse;">
-                  <thead>
-                    <tr style="border-bottom: 1px solid var(--line); text-align:left;">
-                      <th style="padding:8px;">Name</th>
-                      <th style="padding:8px;">Email</th>
-                      <th style="padding:8px;">Tickets</th>
-                      <th style="padding:8px;">Code</th>
-                      <th style="padding:8px;">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody id="portal-registrants-tbody">
-                    <!-- Injected dynamically -->
-                  </tbody>
-                </table>
+            <div class="progress-list">
+              <div>
+                <div class="meta">Profile content</div>
+                <div class="bar"><span style="width:86%"></span></div>
               </div>
+              <div>
+                <div class="meta">Visitor contact paths</div>
+                <div class="bar"><span style="width:92%"></span></div>
+              </div>
+              <div>
+                <div class="meta">Livestream setup</div>
+                <div class="bar"><span style="width:68%"></span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="side-card" id="followup">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="messages-square"></i></span>
+              <div><h3>Visitor follow-up</h3><p>Queue preview for evangelism teams.</p></div>
+            </div>
+            <div class="compact-grid">
+              <div class="metric"><strong>12</strong><span class="meta">New visitors</span></div>
+              <div class="metric"><strong>5</strong><span class="meta">Prayer requests</span></div>
+              <div class="metric"><strong>3</strong><span class="meta">Ride requests</span></div>
+              <div class="metric"><strong>8</strong><span class="meta">Due today</span></div>
+            </div>
+          </article>
+
+          <article class="side-card">
+            <div class="category-head">
+              <span class="category-icon"><i data-lucide="activity"></i></span>
+              <div><h3>Recent activity</h3><p>Prototype events for this church workspace.</p></div>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item"><i data-lucide="user-plus"></i><div><strong>New visitor submitted</strong><div class="meta">2 minutes ago</div></div></div>
+              <div class="activity-item"><i data-lucide="radio"></i><div><strong>Livestream page viewed</strong><div class="meta">18 minutes ago</div></div></div>
+              <div class="activity-item"><i data-lucide="mail"></i><div><strong>Contact form message</strong><div class="meta">Today</div></div></div>
+            </div>
+          </article>
+        </aside>
+      </div>
+
+      <!-- Standalone Events Manager Panel -->
+      <div class="dash-panel" id="events-manager-panel" style="display: none; margin-top: 24px;">
+        <div class="panel-header">
+          <div>
+            <h2>Church Events Manager</h2>
+            <p>Schedule outreach events, Bible conferences, or streamed services, sell tickets, and manage registration.</p>
+          </div>
+          <button class="button primary small" type="button" onclick="MWE.showNewEventForm()"><i data-lucide="plus"></i> Add Event</button>
+        </div>
+
+        <!-- Create / Edit Event Form (Initially Hidden) -->
+        <div id="event-editor-card" class="event-editor-card" style="display: none; margin-bottom: 24px; padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--soft);">
+          <h3 id="event-editor-title" style="margin-top:0; margin-bottom:16px;">Schedule New Event</h3>
+          <form id="portal-event-form" onsubmit="MWE.handlePortalEventSubmit(event)">
+            <input type="hidden" id="pe-event-id" />
+            <div class="form-grid-three" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+              <div class="form-field">
+                <label for="pe-title">Event Title *</label>
+                <input type="text" id="pe-title" required class="field" placeholder="e.g. Youth Awakening 2026" />
+              </div>
+              <div class="form-field">
+                <label for="pe-type">Event Type</label>
+                <select id="pe-type" class="field">
+                  <option value="in-person">In-Person Gathering</option>
+                  <option value="streamed">Livestreamed Event</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="pe-image">Cover Image URL</label>
+                <input type="url" id="pe-image" class="field" placeholder="https://unsplash.com/..." />
+              </div>
+            </div>
+
+            <div class="form-grid-three" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+              <div class="form-field">
+                <label for="pe-starts-at">Starts At *</label>
+                <input type="datetime-local" id="pe-starts-at" required class="field" />
+              </div>
+              <div class="form-field">
+                <label for="pe-venue">Venue Name</label>
+                <input type="text" id="pe-venue" class="field" placeholder="e.g. Main Auditorium" />
+              </div>
+              <div class="form-field">
+                <label for="pe-city">City / Location</label>
+                <input type="text" id="pe-city" class="field" placeholder="e.g. Edmonton" />
+              </div>
+            </div>
+
+            <div class="form-grid-three" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+              <div class="form-field">
+                <label for="pe-price">Ticket Price ($) *</label>
+                <input type="number" id="pe-price" step="0.01" min="0" required class="field" value="0.00" />
+                <small style="color:var(--muted)">Enter 0.00 for free events</small>
+              </div>
+              <div class="form-field">
+                <label for="pe-capacity">Capacity Limit</label>
+                <input type="number" id="pe-capacity" min="1" class="field" placeholder="e.g. 500 (Optional)" />
+              </div>
+              <div class="form-field">
+                <label for="pe-stream">Livestream URL</label>
+                <input type="url" id="pe-stream" class="field" placeholder="https://youtube.com/..." />
+              </div>
+            </div>
+
+            <div class="form-field" style="margin-bottom: 16px;">
+              <label for="pe-desc">Description</label>
+              <textarea id="pe-desc" class="field" rows="3" placeholder="Describe the event goals, schedule, and guest speakers..."></textarea>
+            </div>
+
+            <div class="event-editor-actions" style="display: flex; gap: 12px; justify-content: flex-end;">
+              <button class="button ghost small" type="button" onclick="MWE.hideEventEditor()">Cancel</button>
+              <button class="button primary small" type="submit">Save Event</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Events Listing Table -->
+        <div class="table-responsive" style="margin-top: 16px;">
+          <table class="data-table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--line); text-align: left;">
+                <th style="padding: 12px;">Event Info</th>
+                <th style="padding: 12px;">Venue / Type</th>
+                <th style="padding: 12px;">Date & Time</th>
+                <th style="padding: 12px;">Price / Tickets</th>
+                <th style="padding: 12px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="portal-events-tbody">
+              <!-- Injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Event Registrants Modal -->
+      <div class="modal" id="portal-registrants-modal">
+        <div class="modal-dialog">
+          <div class="modal-header">
+            <h3>Registered Attendees</h3>
+            <button class="close-btn" onclick="MWE.closeRegistrantsModal()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <h4 id="portal-registrants-event-title" style="margin-top:0; margin-bottom:12px;">Event Title</h4>
+            <div class="table-responsive">
+              <table class="data-table" style="width:100%; border-collapse:collapse;">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--line); text-align:left;">
+                    <th style="padding:8px;">Name</th>
+                    <th style="padding:8px;">Email</th>
+                    <th style="padding:8px;">Tickets</th>
+                    <th style="padding:8px;">Code</th>
+                    <th style="padding:8px;">Date</th>
+                  </tr>
+                </thead>
+                <tbody id="portal-registrants-tbody">
+                  <!-- Injected dynamically -->
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-
-      </main>
-
-    </div>
-  </div>
+      </div>
+    </section>
+  </main>
 
   <div class="toast" data-toast>Done</div>
 </body>

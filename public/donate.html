@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Donation | My Way of Evangelism</title>
+  <title>Donate & Partner | My Way of Evangelism</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="app.js"></script>
@@ -24,9 +24,8 @@
           <a href="churches.html">Churches</a>
           <a href="events.html">Events</a>
           <a href="livestream.html">Livestreams</a>
-          <a href="wellness.html">Health & Wellness</a>
-          <a href="store.html">Store <span class="badge-subtle">Soon</span></a>
-          <a href="donate.html" class="active highlight-link">Donation</a>
+          <a href="foundation.html">Foundation</a>
+          <a href="donate.html" class="active highlight-link">Donate</a>
         </nav>
         <div class="nav-actions">
         </div>
@@ -35,464 +34,273 @@
   </header>
 
   <main>
-    <!-- Masterful Full-Image Hero Background Slider -->
-    <section class="section" style="padding-top: 24px; padding-bottom: 0;">
+    <section class="section donate-hero">
       <div class="container">
-        <div class="donate-hero-slider" id="donate-hero-slider">
-          
-          <!-- Slide 1: Orphanage & Children Outreach -->
-          <div class="donate-slide-item active" style="background-image: url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1600&q=80');">
-            <div class="donate-slide-overlay"></div>
-            <div class="donate-slide-content">
-              <span class="donate-slide-eyebrow"><i data-lucide="heart"></i> Orphanage & Child Care Relief</span>
-              <h1 class="donate-slide-title">Empowering Verified Orphanages & Vulnerable Children</h1>
-              <p class="donate-slide-subtitle">Your platform contributions directly provide food packs, winter coats, school supplies, and pediatric care for children across verified partner centers.</p>
-              <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
-                <a href="#give-form" class="button primary lg" style="background: #b0811a; border-color: #b0811a;"><i data-lucide="heart"></i> Give & Support Now</a>
-                <a href="#past-outreaches" class="button secondary lg" style="background: rgba(255, 255, 255, 0.2); color: #fff; border-color: rgba(255, 255, 255, 0.4);"><i data-lucide="video"></i> See Your Impact (Past Projects)</a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 2: Platform Evangelism Technology -->
-          <div class="donate-slide-item" style="background-image: url('https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1600&q=80');">
-            <div class="donate-slide-overlay"></div>
-            <div class="donate-slide-content">
-              <span class="donate-slide-eyebrow"><i data-lucide="globe"></i> Free Evangelism Technology</span>
-              <h1 class="donate-slide-title">Sustaining Free Evangelism Tools for All Local Churches</h1>
-              <p class="donate-slide-subtitle">Donations fund the My Way of Evangelism platform infrastructure — keeping church directory listings, ride requests, and prayer support 100% free for all local congregations.</p>
-              <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
-                <a href="#give-form" class="button primary lg" style="background: #b0811a; border-color: #b0811a;"><i data-lucide="sparkles"></i> Support Platform Infrastructure</a>
-                <a href="#past-outreaches" class="button secondary lg" style="background: rgba(255, 255, 255, 0.2); color: #fff; border-color: rgba(255, 255, 255, 0.4);"><i data-lucide="eye"></i> View Our Past Projects</a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 3: Humanitarian Charity Events -->
-          <div class="donate-slide-item" style="background-image: url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1600&q=80');">
-            <div class="donate-slide-overlay"></div>
-            <div class="donate-slide-content">
-              <span class="donate-slide-eyebrow"><i data-lucide="package-check"></i> Community Charity Events</span>
-              <h1 class="donate-slide-title">Bi-Monthly Food Drives, Clothing Packs & Emergency Aid</h1>
-              <p class="donate-slide-subtitle">Mobilizing tangible humanitarian relief every 60 days to assist struggling families and disaster-affected communities across North America and abroad.</p>
-              <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
-                <a href="#give-form" class="button primary lg" style="background: #b0811a; border-color: #b0811a;"><i data-lucide="gift"></i> Support Charity Outreaches</a>
-                <a href="#past-outreaches" class="button secondary lg" style="background: rgba(255, 255, 255, 0.2); color: #fff; border-color: rgba(255, 255, 255, 0.4);"><i data-lucide="film"></i> See Your Impact</a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slider Controls -->
-          <div class="donate-slider-controls">
-            <div class="slider-indicator-pills">
-              <button class="slider-pill-dot active" aria-label="Slide 1"></button>
-              <button class="slider-pill-dot" aria-label="Slide 2"></button>
-              <button class="slider-pill-dot" aria-label="Slide 3"></button>
-            </div>
-            <button type="button" class="slider-arrow-btn" id="donate-slider-prev" aria-label="Previous Slide"><i data-lucide="chevron-left"></i></button>
-            <button type="button" class="slider-arrow-btn" id="donate-slider-next" aria-label="Next Slide"><i data-lucide="chevron-right"></i></button>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- Masterpiece Giving Section -->
-    <section class="master-giving-section" id="give-form">
-      <div class="container">
-        <div class="master-giving-grid">
-          
-          <!-- Left Column: Masterpiece Giving Form Card -->
-          <div class="master-giving-card">
-            <div class="master-giving-header">
-              <h2>Select Your Contribution</h2>
-              <p>Choose your giving schedule and support amount below.</p>
-            </div>
-
-            <form data-donation-form onsubmit="MWE.handleDonationSubmit(event)">
-              
-              <!-- Frequency Switcher -->
-              <div class="form-group-block">
-                <label class="form-label-bold" style="display: block; margin-bottom: 8px; font-weight: 800; font-size: 0.9rem; color: #0f172a;">Giving Frequency</label>
-                <div class="master-freq-switcher">
-                  <button type="button" class="master-freq-btn active" data-freq="one-time" onclick="MWE.setGivingFreq(this, 'one-time')">One-Time</button>
-                  <button type="button" class="master-freq-btn" data-freq="weekly" onclick="MWE.setGivingFreq(this, 'weekly')">Weekly</button>
-                  <button type="button" class="master-freq-btn" data-freq="monthly" onclick="MWE.setGivingFreq(this, 'monthly')">Monthly</button>
-                </div>
-              </div>
-
-              <!-- Amount Pills Grid -->
-              <div class="form-group-block" style="margin-bottom: 24px;">
-                <label class="form-label-bold" style="display: block; margin-bottom: 10px; font-weight: 800; font-size: 0.9rem; color: #0f172a;">Contribution Amount (USD)</label>
-                <div class="master-amount-grid">
-                  <button type="button" class="master-amount-pill" onclick="MWE.setDonateAmount(25, this)">$25</button>
-                  <button type="button" class="master-amount-pill active" onclick="MWE.setDonateAmount(50, this)">$50</button>
-                  <button type="button" class="master-amount-pill" onclick="MWE.setDonateAmount(100, this)">$100</button>
-                  <button type="button" class="master-amount-pill" onclick="MWE.setDonateAmount(250, this)">$250</button>
-                </div>
-                <div class="master-custom-amount-wrap">
-                  <span class="currency">$</span>
-                  <input type="number" id="custom-donate-amount" class="master-custom-amount-input" placeholder="Enter custom amount" min="5" step="1" value="50" oninput="MWE.onCustomAmountInput(this)" />
-                </div>
-              </div>
-
-              <!-- Payment Method Selector -->
-              <div class="form-group-block" style="margin-bottom: 24px;">
-                <label class="form-label-bold" style="display: block; margin-bottom: 10px; font-weight: 800; font-size: 0.9rem; color: #0f172a;">Payment Method</label>
-                <div class="master-pay-method-grid">
-                  <label class="master-pay-radio active">
-                    <input type="radio" name="payMethod" value="card" checked onchange="MWE.setPayMethod(this)" style="position: absolute; opacity: 0;" />
-                    <i data-lucide="credit-card" style="width: 16px; height: 16px;"></i> Credit Card
-                  </label>
-                  <label class="master-pay-radio">
-                    <input type="radio" name="payMethod" value="interac" onchange="MWE.setPayMethod(this)" style="position: absolute; opacity: 0;" />
-                    <i data-lucide="building-2" style="width: 16px; height: 16px;"></i> Interac
-                  </label>
-                  <label class="master-pay-radio">
-                    <input type="radio" name="payMethod" value="paypal" onchange="MWE.setPayMethod(this)" style="position: absolute; opacity: 0;" />
-                    <i data-lucide="wallet" style="width: 16px; height: 16px;"></i> PayPal
-                  </label>
-                </div>
-              </div>
-
-              <!-- Donor Details -->
-              <div class="form-group-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-                <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem; color: #475569;">Full Name</label>
-                  <input type="text" name="donorName" class="master-custom-amount-input" style="padding-left: 16px;" placeholder="John Doe" required />
-                </div>
-                <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem; color: #475569;">Email Address</label>
-                  <input type="email" name="donorEmail" class="master-custom-amount-input" style="padding-left: 16px;" placeholder="john@example.com" required />
-                </div>
-              </div>
-
-              <!-- Submit Button -->
-              <button type="submit" class="button primary lg" style="width: 100%; height: 54px; border-radius: 16px; background: #b0811a; border-color: #b0811a; font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 25px rgba(176, 129, 26, 0.35);">
-                <i data-lucide="heart" style="width: 20px; height: 20px;"></i> Complete $50 Contribution
-              </button>
-
-              <p class="text-center" style="font-size: 0.82rem; color: #94a3b8; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                <i data-lucide="lock" style="width: 14px; height: 14px; color: #b0811a;"></i> 256-bit SSL Bank Encryption • Automatic Tax Receipts
-              </p>
-            </form>
-          </div>
-
-          <!-- Right Column: Live Impact & Transparency Dashboard Stack -->
-          <div class="master-dashboard-stack">
+        <div class="donate-grid">
+          <!-- Left side info -->
+          <div class="donate-info-side">
+            <p class="kicker"><i data-lucide="gift"></i> Empower Evangelism & Community Care</p>
+            <h1>Fuel Church Connection, Rides & Orphanage Support</h1>
+            <p class="lead">Your direct generosity powers visitor transportation, youth mentorship, church livestreams, salvation follow-ups, and bi-monthly orphanage supply deliveries.</p>
             
-            <div class="master-kpi-card">
-              <div class="master-kpi-icon"><i data-lucide="shield-check"></i></div>
-              <div class="master-kpi-info">
-                <strong>100%</strong>
-                <span>Verified Direct Platform Impact</span>
+            <div class="tax-disclaimer-box">
+              <div class="disclaimer-header">
+                <i data-lucide="shield-check"></i>
+                <span>Canadian & International Tax Receipt Notice</span>
               </div>
+              <p>Official charitable tax receipts are issued by legally registered entity partners upon request. Donations allocated to unverified initiatives or pending church applicants are processed as direct ministry gifts.</p>
             </div>
 
-            <div class="master-kpi-card">
-              <div class="master-kpi-icon"><i data-lucide="heart-handshake"></i></div>
-              <div class="master-kpi-info">
-                <strong>1,420+</strong>
-                <span>Children & Families Served</span>
-              </div>
-            </div>
-
-            <div class="master-kpi-card">
-              <div class="master-kpi-icon"><i data-lucide="package-check"></i></div>
-              <div class="master-kpi-info">
-                <strong>6,500+</strong>
-                <span>Meals & Supply Kits Delivered</span>
-              </div>
-            </div>
-
-            <!-- Transparency Callout Box -->
-            <div style="background: #ffffff; border-radius: 20px; padding: 28px; border: 1px solid rgba(15, 23, 42, 0.06); box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);">
-              <h4 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                <i data-lucide="award" style="color: #b0811a; width: 20px; height: 20px;"></i> Transparency Guarantee
-              </h4>
-              <p style="font-size: 0.88rem; color: #64748b; line-height: 1.6; margin: 0;">
-                All contributions undergo independent quarterly auditing. 100% of public gifts directly sustain platform software infrastructure and verified bi-monthly humanitarian relief operations.
-              </p>
-            </div>
-
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- Explicit Platform Beneficiary Callout Banner (Placed Below Donation Form Section) -->
-    <section class="section-sm" style="padding-top: 20px; padding-bottom: 40px;">
-      <div class="container">
-        <div class="platform-destination-banner">
-          <div class="platform-destination-icon">
-            <i data-lucide="info"></i>
-          </div>
-          <div class="platform-destination-text">
-            <h4>Important Notice on Donation Allocation</h4>
-            <p>All contributions submitted on this page go directly to the centralized <strong>My Way of Evangelism Platform Fund</strong>. Donations sustain platform technology, free church directory services, and centralized humanitarian initiatives (orphanages, bi-monthly food drives, and emergency relief). <strong>Donations do not go to individual local churches.</strong></p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Masterpiece Impact Pillars Section -->
-    <section class="master-impact-section">
-      <div class="container">
-        <div class="section-head center" style="margin-bottom: 48px;">
-          <p class="kicker"><i data-lucide="sparkles"></i> Impact Pillars</p>
-          <h2 style="font-size: 2.2rem; font-weight: 900; color: #0f172a;">Where Your Support Goes</h2>
-          <p class="lead">Centralized platform contributions deliver tangible holistic support across three primary focus pillars.</p>
-        </div>
-
-        <div class="readable-grid three">
-          <div class="master-pillar-card">
-            <div class="master-pillar-icon-badge"><i data-lucide="utensils" style="width: 24px; height: 24px;"></i></div>
-            <h3>Food & Clean Water Drives</h3>
-            <p>Providing nutritious bulk food packages, baby formula, and clean water filtration systems for verified orphanages and vulnerable families every 60 days.</p>
-          </div>
-          <div class="master-pillar-card">
-            <div class="master-pillar-icon-badge"><i data-lucide="shirt" style="width: 24px; height: 24px;"></i></div>
-            <h3>Clothing & Winter Kits</h3>
-            <p>Distributing essential winter coats, boots, blankets, personal sanitation items, and hygiene kits for children in low-income community centers.</p>
-          </div>
-          <div class="master-pillar-card">
-            <div class="master-pillar-icon-badge"><i data-lucide="graduation-cap" style="width: 24px; height: 24px;"></i></div>
-            <h3>Education & Student Backpacks</h3>
-            <p>Equipping young students with back-to-school backpacks, books, stationery, uniforms, and tuition sponsorships to foster bright academic futures.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Masterpiece Assistance Banner Section -->
-    <section class="section" id="apply-assistance" style="padding: 80px 0;">
-      <div class="container">
-        <div class="master-dark-banner">
-          <div class="dashboard-grid" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; align-items: center;">
-            <div>
-              <span class="eyebrow" style="background: rgba(176, 129, 26, 0.25); border-color: rgba(176, 129, 26, 0.5); color: #fef08a; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 800; margin-bottom: 16px;"><i data-lucide="file-text"></i> For Orphanages & Nonprofits</span>
-              <h2>Need Humanitarian Assistance for Your Center?</h2>
-              <p>Orphanages, community shelters, and vulnerable children's organizations can apply for bi-monthly support (food, school supplies, clothing, facility aid). Every request undergoes verification prior to project approval.</p>
-              <ul class="check-list mt-4" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px; list-style: none; padding: 0;">
-                <li style="display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #cbd5e1;"><i data-lucide="check-circle-2" style="color: #b0811a; width: 18px; height: 18px;"></i> Open to registered orphanages and verified ministry centers</li>
-                <li style="display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #cbd5e1;"><i data-lucide="check-circle-2" style="color: #b0811a; width: 18px; height: 18px;"></i> Transparent review process by platform super-admins</li>
-                <li style="display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #cbd5e1;"><i data-lucide="check-circle-2" style="color: #b0811a; width: 18px; height: 18px;"></i> Direct funding and supply delivery coordination</li>
-              </ul>
-              <div class="mt-6" style="margin-top: 28px;">
-                <button type="button" class="button primary lg" style="background: #b0811a; border-color: #b0811a; height: 50px; padding: 0 28px; border-radius: 14px; font-weight: 800;" onclick="MWE.openFoundationAppModal()"><i data-lucide="clipboard-edit"></i> Submit Assistance Application</button>
-              </div>
-            </div>
-            <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; padding: 32px; backdrop-filter: blur(12px);">
-              <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 16px;">Required Information</h3>
-              <ol class="app-step-list" style="display: flex; flex-direction: column; gap: 12px; margin: 0; padding-left: 20px; color: #94a3b8; font-size: 0.9rem; line-height: 1.5;">
-                <li>Organization registration details & leadership contacts</li>
-                <li>Number & ages of children served</li>
-                <li>Itemized list of urgent needs and estimated cost</li>
-                <li>Verification documents & facility photos</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Dedicated Outreach & Impact Video & Photo Gallery -->
-    <section class="section" id="past-outreaches" style="background: #f8fafc; padding: 70px 0;">
-      <div class="container">
-        <div class="section-head text-center" style="max-width: 760px; margin: 0 auto 40px auto;">
-          <p class="kicker" style="color: #b0811a;"><i data-lucide="video"></i> Transparency & Field Missions</p>
-          <h2 style="font-size: 2.2rem; font-weight: 800;">See Your Impact — Past Outreach Projects</h2>
-          <p style="color: var(--muted); font-size: 1.05rem;">
-            Here is a record of our recent family-managed and community-supported outreach projects. Click any project to watch field videos, explore photos, and inspect itemized supply receipts.
-          </p>
-        </div>
-
-        <!-- Filter Category Tabs -->
-        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;">
-          <button type="button" class="button outline sm active" onclick="MWE.filterImpactGallery('all', this)"><i data-lucide="grid"></i> All Outreaches</button>
-          <button type="button" class="button outline sm" onclick="MWE.filterImpactGallery('orphanage', this)"><i data-lucide="heart"></i> Orphanage Visits</button>
-          <button type="button" class="button outline sm" onclick="MWE.filterImpactGallery('food', this)"><i data-lucide="package-check"></i> Food & Winter Relief</button>
-          <button type="button" class="button outline sm" onclick="MWE.filterImpactGallery('school', this)"><i data-lucide="book-open"></i> School Supplies</button>
-        </div>
-
-        <!-- Impact Project Cards Grid -->
-        <div class="impact-grid">
-          <!-- Project 1: Grace Children's Home -->
-          <div class="impact-card" data-impact-cat="orphanage">
-            <div class="impact-card-media" style="background-image: url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80');">
-              <span class="impact-badge"><i data-lucide="play-circle"></i> Video & Photo Report</span>
-              <button type="button" class="impact-play-btn" onclick="MWE.openImpactModal('Grace Children Home Visit', 'jiSyB8QZzk8', ['https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80'])">
-                <i data-lucide="play"></i>
-              </button>
-            </div>
-            <div class="impact-card-body">
-              <div class="impact-meta-row">
-                <span class="impact-loc"><i data-lucide="map-pin"></i> Edmonton, AB</span>
-                <span class="impact-date"><i data-lucide="calendar"></i> July 2026</span>
-              </div>
-              <h3>Grace Children's Home & Orphanage Outreach</h3>
-              <p>Delivered 120 food bundles, winter coats, and shoes directly to children at Grace Children's Home.</p>
-              
-              <div class="impact-stats-row">
-                <div class="impact-stat-item">
-                  <strong>120</strong>
-                  <span>Children Helped</span>
-                </div>
-                <div class="impact-stat-item">
-                  <strong>$2,450</strong>
-                  <span>Funds Allocated</span>
+            <div class="guarantee-list">
+              <div class="guarantee-item">
+                <div class="guarantee-icon-badge"><i data-lucide="shield-check"></i></div>
+                <div>
+                  <strong>100% Target Allocation</strong>
+                  <p>Funds go directly to your chosen designated cause or verified local church.</p>
                 </div>
               </div>
+              <div class="guarantee-item">
+                <div class="guarantee-icon-badge"><i data-lucide="lock"></i></div>
+                <div>
+                  <strong>Secure 256-Bit Encrypted Giving</strong>
+                  <p>Bank-grade security with instant downloadable receipt summaries.</p>
+                </div>
+              </div>
+              <div class="guarantee-item">
+                <div class="guarantee-icon-badge"><i data-lucide="file-spreadsheet"></i></div>
+                <div>
+                  <strong>Public Financial Transparency</strong>
+                  <p>Every outreach dollar spent is published in transparent impact reports.</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-              <div class="impact-card-footer">
-                <button type="button" class="split-dark-pill-btn" style="border:none; cursor:pointer;" onclick="MWE.openImpactModal('Grace Children Home Visit', 'jiSyB8QZzk8', ['https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80'])">
-                  <span>Watch Field Video & Photos</span> <i data-lucide="arrow-right"></i>
+          <!-- Right side giving card -->
+          <div class="donate-card-side">
+            <div class="donate-form-panel">
+              <h2>Select Your Contribution</h2>
+              <form data-donation-form onsubmit="MWE.handleDonationSubmit(event)">
+                
+                <!-- Giving Frequency -->
+                <div class="form-group-block">
+                  <label class="form-label-bold">Frequency</label>
+                  <div class="giving-freq-selector">
+                    <button type="button" class="freq-btn active" data-freq="one-time" onclick="MWE.setGivingFreq(this, 'one-time')">One-Time</button>
+                    <button type="button" class="freq-btn" data-freq="weekly" onclick="MWE.setGivingFreq(this, 'weekly')">Weekly</button>
+                    <button type="button" class="freq-btn" data-freq="monthly" onclick="MWE.setGivingFreq(this, 'monthly')">Monthly</button>
+                  </div>
+                </div>
+
+                <!-- Designated Target -->
+                <div class="form-group-block">
+                  <label for="donate-target-select" class="form-label-bold">Designate Donation To</label>
+                  <select id="donate-target-select" name="target" class="styled-select-field" required>
+                    <option value="where-needed-most">🌟 Where Needed Most (General Ministry)</option>
+                    <optgroup label="Churches & Local Fellowships">
+                      <option value="christ-embassy-edmonton">Christ Embassy Edmonton (Edmonton, AB)</option>
+                      <option value="beulah-alliance-west">Beulah Alliance Church (Edmonton, AB)</option>
+                      <option value="first-alliance-calgary">First Alliance Church (Calgary, AB)</option>
+                    </optgroup>
+                    <optgroup label="Evangelism & Ministry Programs">
+                      <option value="visitor-transportation">🚗 Visitor Transportation & Ride System</option>
+                      <option value="salvation-evangelism">✝️ Salvation & New Believer Follow-up</option>
+                      <option value="youth-ministry">🔥 Youth & Student Ministry</option>
+                      <option value="children-ministry">👶 Children's Sunday Ministry</option>
+                      <option value="building-projects">⛪ Church Building Projects</option>
+                      <option value="livestream-ministry">📺 Broadcast & Livestream Support</option>
+                    </optgroup>
+                    <optgroup label="Foundation & Humanitarian Outreach">
+                      <option value="orphanage-outreach">🧸 Orphanages & Vulnerable Children</option>
+                      <option value="food-clothing">🍲 Bulk Food & Winter Clothing Packs</option>
+                      <option value="school-supplies">🎒 Back-to-School Supply Backpacks</option>
+                      <option value="medical-assistance">🩺 Pediatric & Emergency Medical Care</option>
+                      <option value="emergency-relief">🆘 Emergency Family Relief Fund</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <!-- Amount Selection Pills -->
+                <div class="form-group-block">
+                  <label class="form-label-bold">Contribution Amount (USD)</label>
+                  <div class="amount-pills-grid">
+                    <button type="button" class="amount-pill" onclick="MWE.setDonateAmount(25, this)">$25</button>
+                    <button type="button" class="amount-pill active" onclick="MWE.setDonateAmount(50, this)">$50</button>
+                    <button type="button" class="amount-pill" onclick="MWE.setDonateAmount(100, this)">$100</button>
+                    <button type="button" class="amount-pill" onclick="MWE.setDonateAmount(250, this)">$250</button>
+                    <button type="button" class="amount-pill" onclick="MWE.setDonateAmount(500, this)">$500</button>
+                  </div>
+                  <div class="custom-amount-wrapper">
+                    <span class="currency-addon">$</span>
+                    <input type="number" id="donate-custom-amount" name="customAmount" class="custom-amount-input" placeholder="Custom amount" value="50" min="1" step="1" required />
+                  </div>
+                </div>
+
+                <!-- Donor Contact Info -->
+                <div class="form-grid mb-4">
+                  <div class="form-group">
+                    <label for="donor-full-name" class="form-label-bold">Full Name</label>
+                    <input type="text" id="donor-full-name" name="fullName" class="styled-input-field" placeholder="John Smith" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="donor-email" class="form-label-bold">Email Address</label>
+                    <input type="email" id="donor-email" name="email" class="styled-input-field" placeholder="john@example.com" required />
+                  </div>
+                </div>
+
+                <div class="form-group-block">
+                  <label for="donor-message" class="form-label-bold">Dedication or Note (Optional)</label>
+                  <input type="text" id="donor-message" name="message" class="styled-input-field" placeholder="In honor of... or Prayer dedication" />
+                </div>
+
+                <!-- Anonymous Checkbox -->
+                <div class="form-group toggle-group mb-6">
+                  <label class="toggle-label-wrapper">
+                    <span class="toggle-label-text">Make this an anonymous donation</span>
+                    <div class="toggle-switch">
+                      <input type="checkbox" id="donor-anonymous-toggle" name="isAnonymous" value="true" />
+                      <span class="toggle-slider"></span>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="donation-submit-btn">
+                  <i data-lucide="heart"></i> Complete Secure Donation
                 </button>
-              </div>
+              </form>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
 
-          <!-- Project 2: Winter Relief & Food Drive -->
-          <div class="impact-card" data-impact-cat="food">
-            <div class="impact-card-media" style="background-image: url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80');">
-              <span class="impact-badge"><i data-lucide="play-circle"></i> Video & Photo Report</span>
-              <button type="button" class="impact-play-btn" onclick="MWE.openImpactModal('Bi-Monthly Winter Food Drive', 'jiSyB8QZzk8', ['https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80'])">
-                <i data-lucide="play"></i>
-              </button>
-            </div>
-            <div class="impact-card-body">
-              <div class="impact-meta-row">
-                <span class="impact-loc"><i data-lucide="map-pin"></i> Calgary, AB</span>
-                <span class="impact-date"><i data-lucide="calendar"></i> June 2026</span>
-              </div>
-              <h3>Bi-Monthly Community Food & Relief Drive</h3>
-              <p>Mobilized emergency grocery packs, warm blankets, and hot meals for struggling families.</p>
-              
-              <div class="impact-stats-row">
-                <div class="impact-stat-item">
-                  <strong>350+</strong>
-                  <span>Meal Packs</span>
-                </div>
-                <div class="impact-stat-item">
-                  <strong>$3,800</strong>
-                  <span>Funds Allocated</span>
-                </div>
-              </div>
+    <!-- Transparency & Impact Reports Section -->
+    <section class="section bg-soft border-t">
+      <div class="container">
+        <div class="section-head center">
+          <p class="kicker"><i data-lucide="shield-check"></i> Financial Transparency</p>
+          <h2>Where Your Generosity Goes</h2>
+          <p class="lead">We publish verified expenditure reports, receipts, and project updates for complete donor trust.</p>
+        </div>
 
-              <div class="impact-card-footer">
-                <button type="button" class="split-dark-pill-btn" style="border:none; cursor:pointer;" onclick="MWE.openImpactModal('Bi-Monthly Winter Food Drive', 'jiSyB8QZzk8', ['https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80'])">
-                  <span>Watch Field Video & Photos</span> <i data-lucide="arrow-right"></i>
-                </button>
-              </div>
-            </div>
+        <div class="kpi-strip mb-8">
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="dollar-sign"></i></div>
+            <strong>$184,250</strong>
+            <span>Total Raised Platform-Wide</span>
           </div>
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="trending-up"></i></div>
+            <strong>$168,900</strong>
+            <span>Direct Project Expenditures</span>
+          </div>
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="home"></i></div>
+            <strong>32</strong>
+            <span>Churches & Outreaches Funded</span>
+          </div>
+          <div class="kpi-card">
+            <div class="icon"><i data-lucide="users"></i></div>
+            <strong>2,850+</strong>
+            <span>Visitors & Kids Impacted</span>
+          </div>
+        </div>
 
-          <!-- Project 3: School Supplies & Bible Gift Drive -->
-          <div class="impact-card" data-impact-cat="school">
-            <div class="impact-card-media" style="background-image: url('https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80');">
-              <span class="impact-badge"><i data-lucide="play-circle"></i> Video & Photo Report</span>
-              <button type="button" class="impact-play-btn" onclick="MWE.openImpactModal('School Supplies & Bible Drive', 'jiSyB8QZzk8', ['https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80'])">
-                <i data-lucide="play"></i>
-              </button>
-            </div>
-            <div class="impact-card-body">
-              <div class="impact-meta-row">
-                <span class="impact-loc"><i data-lucide="map-pin"></i> Vancouver, BC</span>
-                <span class="impact-date"><i data-lucide="calendar"></i> May 2026</span>
-              </div>
-              <h3>Back-to-School Backpacks & Children Bibles</h3>
-              <p>Provided 200 children with school backpacks, stationery, and illustrated children's bibles.</p>
-              
-              <div class="impact-stats-row">
-                <div class="impact-stat-item">
-                  <strong>200</strong>
-                  <span>Students Gifted</span>
-                </div>
-                <div class="impact-stat-item">
-                  <strong>$1,900</strong>
-                  <span>Funds Allocated</span>
-                </div>
-              </div>
-
-              <div class="impact-card-footer">
-                <button type="button" class="split-dark-pill-btn" style="border:none; cursor:pointer;" onclick="MWE.openImpactModal('School Supplies & Bible Drive', 'jiSyB8QZzk8', ['https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80'])">
-                  <span>Watch Field Video & Photos</span> <i data-lucide="arrow-right"></i>
-                </button>
-              </div>
-            </div>
+        <!-- Expense Audit Logs -->
+        <div class="dash-panel dash-panel-pad">
+          <h3>Recent Project Expenditure Reports</h3>
+          <div class="table-responsive mt-4">
+            <table class="table-styled">
+              <thead>
+                <tr>
+                  <th>Project / Cause</th>
+                  <th>Category</th>
+                  <th>Amount Spent</th>
+                  <th>Beneficiaries</th>
+                  <th>Verification</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Spring Orphanage Supply Delivery</strong></td>
+                  <td>Foundation Support</td>
+                  <td>$12,450.00</td>
+                  <td>280 Children</td>
+                  <td><span class="badge verified"><i data-lucide="check"></i> Verified Receipt</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Visitor Transportation Fleet Subsidy</strong></td>
+                  <td>Transportation</td>
+                  <td>$4,800.00</td>
+                  <td>420 Sunday Passengers</td>
+                  <td><span class="badge verified"><i data-lucide="check"></i> Verified Receipt</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Youth Summer Conference Sponsorships</strong></td>
+                  <td>Youth Ministry</td>
+                  <td>$8,200.00</td>
+                  <td>115 Youth Attendees</td>
+                  <td><span class="badge verified"><i data-lucide="check"></i> Verified Receipt</span></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- Impact Video & Photo Lightbox Modal -->
-  <div id="impact-media-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-card" style="max-width: 860px; width: 92%; padding: 24px;">
-      <button type="button" onclick="MWE.closeImpactModal()" class="modal-close-btn" aria-label="Close Modal"><i data-lucide="x"></i></button>
-      <h3 id="impact-modal-title" style="margin: 0 0 16px 0; font-size: 1.4rem; font-weight: 800;">Outreach Field Video</h3>
-      
-      <div class="modern-video-wrapper" style="border-radius: 14px; overflow: hidden; margin-bottom: 20px;">
-        <iframe id="impact-video-iframe" src="" style="width: 100%; height: 100%; border: none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      </div>
-
-      <div style="background: #f8fafc; border-radius: 12px; padding: 16px;">
-        <h4 style="margin: 0 0 10px 0; font-size: 1rem; font-weight: 700;"><i data-lucide="camera" style="color: #b0811a;"></i> Outreach Photo Gallery</h4>
-        <div id="impact-photo-gallery" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px;">
-          <!-- Photos injected dynamically -->
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Platform Footer -->
   <footer class="platform-footer">
     <div class="container">
       <div class="footer-main">
         <div class="footer-brand-block">
-          <a class="footer-brand" href="index.html">
+          <a class="footer-brand" href="/">
             <span class="footer-brand-mark"><i data-lucide="church"></i></span>
             <span>My Way of Evangelism</span>
           </a>
-          <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, services, events, and livestreams near them.</p>
+          <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, transportation, prayer, salvation, and humanitarian care.</p>
           <div class="footer-cta-row">
-            <a class="footer-button primary" href="churches.html"><i data-lucide="search"></i> Find a Church</a>
-            <a class="footer-button" href="church-portal.html"><i data-lucide="building-2"></i> Register Your Church</a>
+            <a class="footer-button primary" href="/churches"><i data-lucide="search"></i> Find a Church</a>
+            <a class="footer-button" href="/church-portal"><i data-lucide="log-in"></i> Church Portal</a>
           </div>
         </div>
         <nav class="footer-column" aria-label="Explore">
           <h2>Explore</h2>
           <ul class="footer-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="churches.html">Church Directory</a></li>
-            <li><a href="events.html">Events</a></li>
-            <li><a href="livestream.html">Livestreams</a></li>
-            <li><a href="donate.html">Donation</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/churches">Find a Church</a></li>
+            <li><a href="/events">Events</a></li>
+            <li><a href="/livestream">Livestreams</a></li>
+            <li><a href="/foundation">Foundation</a></li>
+            <li><a href="/donate">Donate</a></li>
           </ul>
         </nav>
-        <nav class="footer-column" aria-label="Churches">
-          <h2>For Churches</h2>
+        <nav class="footer-column" aria-label="Policies">
+          <h2>Legal & Safety</h2>
           <ul class="footer-links">
-            <li><a href="church-portal.html">Register or Sign In</a></li>
-            <li><a href="owner-dashboard.html">Owner Dashboard</a></li>
-            <li><a href="church-portal.html#events-tab">Manage Events</a></li>
-            <li><a href="church-portal.html#livestream">Livestream Setup</a></li>
+            <li><a href="/privacy">Privacy Policy</a></li>
+            <li><a href="/terms">Terms & Conditions</a></li>
+            <li><a href="/safeguarding">Child Safeguarding</a></li>
+            <li><a href="/church-portal">Register Your Church</a></li>
           </ul>
         </nav>
         <div class="footer-column">
           <h2>Connect</h2>
           <div class="footer-contact-card">
-            <div class="footer-contact-row"><i data-lucide="map-pin"></i><span>Serving churches and communities across North America.</span></div>
-            <div class="footer-contact-row"><i data-lucide="shield-check"></i><span>Verified profiles, ministry details, and public church discovery.</span></div>
+            <div class="footer-contact-row"><i data-lucide="map-pin"></i><span>Serving churches & humanitarian causes across North America.</span></div>
+            <div class="footer-contact-row"><i data-lucide="shield-check"></i><span>Verified outreach, transparent giving, and child protection.</span></div>
           </div>
         </div>
       </div>
       <div class="footer-bottom">
         <span>&copy; 2026 My Way of Evangelism. All rights reserved.</span>
-        <span class="footer-status">Platform online</span>
+        <span class="footer-status">Platform Online</span>
       </div>
     </div>
   </footer>
+
+  <div class="toast" data-toast>Done</div>
 </body>
 </html>
