@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product | FaithLink Store</title>
+  <link rel="stylesheet" href="styles.css?v=20260831" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js?v=20260831"></script>
+  <script defer src="platform-modules.js?v=20260825"></script>
+  <script defer src="product-detail.js?v=20260825"></script>
+</head>
+<body class="module-page" data-page="product-detail">
+  <header class="topbar"></header>
+  <main class="module-shell product-detail-page">
+    <a class="product-back-link" href="store.html"><i data-lucide="arrow-left"></i> Back to Store</a>
+    <section class="product-detail-shell" id="product-detail"></section>
+  </main>
+  <div class="cart-drawer-backdrop" id="cart-drawer-backdrop" hidden></div>
+  <aside class="store-cart-drawer" id="store-cart-drawer" aria-label="Shopping cart" aria-hidden="true">
+    <div class="store-cart-head"><h3><i data-lucide="shopping-cart"></i> Your Cart</h3><button class="drawer-close" id="cart-close" type="button" aria-label="Close cart"><i data-lucide="x"></i></button></div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-summary"><div class="cart-total"><span>Total</span><strong id="cart-total">$0.00</strong></div><a class="module-primary-action" href="cart.html"><i data-lucide="shopping-bag"></i> View cart</a></div>
+  </aside>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+</body>
+</html>

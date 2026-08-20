@@ -29,6 +29,20 @@ test("member sidebar uses the requested module names and moves Giving to the hea
   assert.match(rail, /data-shell-view="events"/);
 });
 
+test("member header identifies the active section and mobile moves account actions into the drawer", async () => {
+  const html = await readProjectFile("public/app.html");
+  const shell = await readProjectFile("public/app-shell.js");
+  const app = await readProjectFile("public/app.js");
+
+  assert.match(html, /id="member-section-title">Churches/);
+  assert.doesNotMatch(html, /River City Church/);
+  assert.match(html, /id="member-mobile-actions"/);
+  assert.match(shell, /sectionContexts/);
+  assert.match(shell, /placeResponsiveActions/);
+  assert.match(app, /module-page:not\(\[data-page="messages"\]\) > main\.module-shell/);
+  assert.match(app, /padding-left: max\(22px/);
+});
+
 test("directory, event, livestream, and detail views reuse the existing pages", async () => {
   const shell = await readProjectFile("public/app-shell.js");
 
@@ -45,18 +59,126 @@ test("Channels, Store, seller management, and Resources are independent modules"
   const store = await readProjectFile("public/store.html");
   const seller = await readProjectFile("public/seller-dashboard.html");
   const resources = await readProjectFile("public/resources.html");
+  const product = await readProjectFile("public/product-detail.html");
+  const resourceDetail = await readProjectFile("public/resource-detail.html");
 
   assert.match(shell, /channels:\s*\{ source: "channels\.html"/);
   assert.match(shell, /store:\s*\{ source: "store\.html"/);
+  assert.match(shell, /product:\s*\{ source: "product-detail\.html"/);
   assert.match(shell, /"store-manager":\s*\{ source: "seller-dashboard\.html"/);
   assert.match(shell, /resources:\s*\{ source: "resources\.html"/);
+  assert.match(shell, /"resource-detail":\s*\{ source: "resource-detail\.html"/);
   assert.match(channels, /Create a Channel/);
   assert.match(store, /Manage Your Store/);
+  assert.match(store, /id="store-cart-drawer"/);
+  assert.match(product, /id="product-detail"/);
   assert.match(seller, /Products and inventory/);
   assert.match(resources, /Christian Resource Library/);
   assert.match(resources, /<option>PDF<\/option>/);
   assert.match(resources, /<option>MP4<\/option>/);
   assert.match(resources, /<option>MP3<\/option>/);
+  assert.match(resources, /data-resource-view="grid"/);
+  assert.match(resources, /data-resource-view="list"/);
+  assert.match(resourceDetail, /id="resource-detail"/);
+});
+
+test("donation page shows beneficiary image and video evidence", async () => {
+  const donate = await readProjectFile("public/donate.html");
+  assert.match(donate, /class="donation-impact-gallery"/);
+  assert.match(donate, /<video controls/);
+  assert.match(donate, /Impact in action/);
+});
+
+test("Store has dedicated cart and Shopify-style checkout routes", async () => {
+  const shell = await readProjectFile("public/app-shell.js");
+  const cart = await readProjectFile("public/cart.html");
+  const checkout = await readProjectFile("public/checkout.html");
+  const checkoutScript = await readProjectFile("public/checkout.js");
+
+  assert.match(shell, /cart:\s*\{ source: "cart\.html"/);
+  assert.match(shell, /checkout:\s*\{ source: "checkout\.html"/);
+  assert.match(cart, /Order summary/);
+  assert.match(cart, /data-page="cart"/);
+  assert.match(checkout, /Contact/);
+  assert.match(checkout, /Shipping method/);
+  assert.match(checkout, /Payment/);
+  assert.match(checkoutScript, /faithlink\.store\.orders\.v1/);
+});
+
+test("Channels use creator profile cards and connect to member messaging", async () => {
+  const app = await readProjectFile("public/app.html");
+  const shell = await readProjectFile("public/app-shell.js");
+  const channels = await readProjectFile("public/channels.js");
+  const messages = await readProjectFile("public/messages.html");
+  const messageScript = await readProjectFile("public/messages.js");
+
+  assert.match(channels, /class="channel-profile-card"/);
+  assert.match(channels, /channel-detail\.html\?id=/);
+  assert.match(channels, /Get in touch/);
+  assert.match(shell, /"channel-detail":\s*\{ source: "channel-detail\.html"/);
+  assert.match(shell, /messages:\s*\{ source: "messages\.html"/);
+  assert.match(app, /data-shell-view="messages"/);
+  assert.match(messages, /Email forwarding/);
+  assert.match(messageScript, /saveMessageSettings/);
+});
+
+test("channel profile separates cover metadata, identity, description, and stats", async () => {
+  const detail = await readProjectFile("public/channel-detail.js");
+
+  assert.match(detail, /channel-cover-type/);
+  assert.match(detail, /channel-detail-identity/);
+  assert.match(detail, /channel-detail-summary/);
+  assert.match(detail, /channel-detail-stats/);
+  assert.match(detail, /About the channel/);
+});
+
+test("light and dark themes persist across the public site and member shell", async () => {
+  const app = await readProjectFile("public/app.js");
+  const styles = await readProjectFile("public/styles.css");
+
+  assert.match(app, /mwe\.platform\.theme\.v1/);
+  assert.match(app, /data-theme-toggle/);
+  assert.match(app, /prefers-color-scheme: dark/);
+  assert.match(app, /postMessage\(\{ type: "mwe-theme"/);
+  assert.match(styles, /html\[data-theme="dark"\]/);
+  assert.match(styles, /body\[data-page="home"\] \.tiny-church-card/);
+  assert.match(styles, /body\.member-app-shell \.member-shell-rail/);
+});
+
+test("single pages share spacing and content uses media-specific readers", async () => {
+  const styles = await readProjectFile("public/styles.css");
+  const resourceDetail = await readProjectFile("public/resource-detail.js");
+  const channelContent = await readProjectFile("public/channel-content.js");
+  const churchProfile = await readProjectFile("public/church-profile.html");
+
+  assert.match(styles, /main\.product-detail-page[\s\S]*main\.channel-detail-page[\s\S]*main\.channel-content-page/);
+  assert.match(styles, /width: min\(var\(--max\), calc\(100% - 44px\)\)/);
+  assert.match(churchProfile, /body\[data-page="profile"\] > section > \.container/);
+  assert.match(resourceDetail, /resource-video-experience/);
+  assert.match(resourceDetail, /resource-audio-experience/);
+  assert.match(resourceDetail, /resource-article-experience/);
+  assert.match(resourceDetail, /Read online/);
+  assert.match(resourceDetail, /Download/);
+  assert.match(channelContent, /channel-audio-view/);
+  assert.match(channelContent, /channel-video-view/);
+  assert.match(channelContent, /channel-article-view/);
+});
+
+test("cart removal, dedicated reader, and compact audio notes are wired", async () => {
+  const cart = await readProjectFile("public/cart.js");
+  const product = await readProjectFile("public/product-detail.js");
+  const detail = await readProjectFile("public/resource-detail.js");
+  const reader = await readProjectFile("public/resource-reader.js");
+  const channelContent = await readProjectFile("public/channel-content.js");
+  const shell = await readProjectFile("public/app-shell.js");
+
+  assert.match(cart, /cart-page-delete/);
+  assert.match(product, /data-remove-cart/);
+  assert.match(detail, /resource-reader\.html\?id=/);
+  assert.match(reader, /requestFullscreen/);
+  assert.match(reader, /data-reader-page/);
+  assert.match(shell, /"resource-reader":\s*\{ source: "resource-reader\.html"/);
+  assert.match(channelContent, /channel-episode-about/);
 });
 
 test("protected cards use the shared member login gate", async () => {

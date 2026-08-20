@@ -7,10 +7,10 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>FaithLink Member App</title>
-  <link rel="stylesheet" href="styles.css?v=20260823" />
+  <link rel="stylesheet" href="styles.css?v=20260831" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script defer src="app.js?v=20260823"></script>
-  <script defer src="app-shell.js?v=20260823"></script>
+  <script defer src="app.js?v=20260831"></script>
+  <script defer src="app-shell.js?v=20260826"></script>
 </head>
 <body class="member-app-shell" data-page="app-shell">
   <header class="profile-app-header member-shell-header" id="member-shell-header">
@@ -19,13 +19,9 @@
       <strong>FaithLink</strong>
     </a>
 
-    <div class="profile-app-church" aria-label="Current church context">
-      <img src="assets/logo-light-chapel.png" alt="" />
-      <span>
-        <strong>River City Church</strong>
-        <small>Edmonton, Alberta</small>
-      </span>
-      <i data-lucide="badge-check" aria-label="Verified church"></i>
+    <div class="profile-app-church member-section-context" id="member-section-context" aria-label="Current section">
+      <i data-lucide="church" id="member-section-icon"></i>
+      <strong id="member-section-title">Churches</strong>
     </div>
 
     <form class="profile-app-search" id="member-shell-search" role="search">
@@ -34,17 +30,20 @@
     </form>
 
     <div class="member-shell-actions">
+      <div class="lang-selector-container member-lang-selector" id="member-lang-selector">
+        <button class="lang-selector-btn" id="member-lang-button" type="button" aria-expanded="false"><span class="lang-flag">🇺🇸</span><span class="lang-text">EN</span><i data-lucide="chevron-down" class="lang-chevron"></i></button>
+        <div class="lang-selector-panel"><button type="button" data-member-lang="en"><span>🇺🇸</span> English</button><button type="button" data-member-lang="fr"><span>🇫🇷</span> Français</button><button type="button" data-member-lang="es"><span>🇪🇸</span> Español</button></div>
+      </div>
       <a class="member-header-giving" href="app.html?view=giving" data-shell-view="giving"><i data-lucide="heart-handshake"></i><span>Give</span></a>
       <div class="member-shell-account-wrap">
         <button class="profile-app-account" id="member-account-button" type="button" aria-expanded="false" aria-controls="member-account-menu">
           <span class="member-notification-icon" aria-hidden="true"><i data-lucide="bell"></i></span>
           <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=80&h=80&q=80" alt="Sarah Johnson" />
-          <span>Sarah Johnson</span>
-          <i data-lucide="chevron-down"></i>
         </button>
         <div class="member-account-menu" id="member-account-menu" hidden>
           <strong>Sarah Johnson</strong>
           <span>FaithLink member</span>
+          <a href="app.html?view=messages" data-shell-view="messages"><i data-lucide="messages-square"></i><span>Messages</span><b id="member-message-count">1</b></a>
           <button type="button" id="member-sign-out"><i data-lucide="log-out"></i> Sign out</button>
         </div>
       </div>
@@ -67,6 +66,7 @@
     </nav>
 
     <div class="profile-rail-bottom">
+      <div class="member-mobile-actions" id="member-mobile-actions" aria-label="Account actions"></div>
       <div class="profile-invite-card">
         <strong><i data-lucide="sparkles"></i> Invite a friend</strong>
         <p>Help others find their church home.</p>
@@ -90,6 +90,7 @@
       title="FaithLink content"
       src="about:blank"
       allow="autoplay; encrypted-media; clipboard-write"
+      allowfullscreen
     ></iframe>
   </main>
 

@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Store Manager | FaithLink</title>
-  <link rel="stylesheet" href="styles.css?v=20260823" />
+  <link rel="stylesheet" href="styles.css?v=20260831" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script defer src="app.js?v=20260823"></script>
-  <script defer src="platform-modules.js?v=20260823"></script>
-  <script defer src="seller-dashboard.js?v=20260823"></script>
+  <script defer src="app.js?v=20260831"></script>
+  <script defer src="platform-modules.js?v=20260825"></script>
+  <script defer src="seller-dashboard.js?v=20260825"></script>
 </head>
 <body class="module-page" data-page="store-manager">
   <header class="topbar"></header>
@@ -31,7 +31,7 @@
       <div class="seller-dashboard-grid">
         <article class="seller-kpi"><span><i data-lucide="badge-dollar-sign"></i> Gross sales</span><strong id="seller-sales">$0</strong></article>
         <article class="seller-kpi"><span><i data-lucide="package"></i> Active products</span><strong id="seller-active-products">0</strong></article>
-        <article class="seller-kpi"><span><i data-lucide="shopping-cart"></i> Orders this month</span><strong>38</strong></article>
+        <article class="seller-kpi"><span><i data-lucide="shopping-cart"></i> Orders this month</span><strong id="seller-order-count">38</strong></article>
         <article class="seller-kpi"><span><i data-lucide="triangle-alert"></i> Low inventory</span><strong id="seller-low-stock">0</strong></article>
       </div>
 
@@ -53,10 +53,7 @@
         <div class="seller-table-wrap">
           <table class="seller-table">
             <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Fulfillment</th></tr></thead>
-            <tbody>
-              <tr><td><strong>#FL-1048</strong></td><td>Sarah Johnson</td><td>2 products</td><td>$70.00</td><td><span class="status-pill">Paid · Unfulfilled</span></td></tr>
-              <tr><td><strong>#FL-1047</strong></td><td>Michael T.</td><td>1 product</td><td>$32.00</td><td><span class="status-pill">Shipped</span></td></tr>
-              <tr><td><strong>#FL-1046</strong></td><td>Amanda Rose</td><td>3 products</td><td>$94.00</td><td><span class="status-pill">Delivered</span></td></tr>
+            <tbody id="seller-orders-body">
             </tbody>
           </table>
         </div>

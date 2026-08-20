@@ -24,21 +24,22 @@
     }
 
     grid.innerHTML = channels.map(channel => `
-      <article class="channel-card">
-        <div class="channel-cover" style="background-image:url('${data.escapeHtml(channel.cover)}')">
+      <article class="channel-profile-card">
+        <a class="channel-profile-cover" href="channel-detail.html?id=${encodeURIComponent(channel.id)}" aria-label="Open ${data.escapeHtml(channel.name)}">
+          <img src="${data.escapeHtml(channel.cover)}" alt="${data.escapeHtml(channel.name)} channel cover" />
           <span class="channel-format"><i data-lucide="${channel.format === "Podcast" ? "mic-2" : channel.format === "Livestream" ? "radio" : "play-square"}"></i>${data.escapeHtml(channel.format)}</span>
           ${channel.live ? `<span class="channel-live"><i data-lucide="radio"></i> Live</span>` : ""}
-          <img class="channel-avatar" src="${data.escapeHtml(channel.avatar)}" alt="" />
-        </div>
-        <div class="channel-card-body">
-          <span class="channel-owner">${channel.verified ? `<i data-lucide="badge-check"></i>` : ""}${data.escapeHtml(channel.owner)}</span>
-          <h3>${data.escapeHtml(channel.name)}</h3>
-          <span class="channel-handle">${data.escapeHtml(channel.handle)} · ${data.escapeHtml(channel.topic)}</span>
+          <img class="channel-profile-avatar" src="${data.escapeHtml(channel.avatar)}" alt="" />
+        </a>
+        <div class="channel-profile-body">
+          <div class="channel-profile-identity"><div><h3><a href="channel-detail.html?id=${encodeURIComponent(channel.id)}">${data.escapeHtml(channel.name)}</a>${channel.verified ? `<i data-lucide="badge-check" aria-label="Verified"></i>` : ""}</h3><span>${data.escapeHtml(channel.owner)} · ${data.escapeHtml(channel.topic)}</span></div><span class="channel-online"><i></i>${channel.live ? "Live now" : "Active"}</span></div>
           <p>${data.escapeHtml(channel.description)}</p>
-          <div class="channel-meta">
-            <span><i data-lucide="users"></i>${Number(channel.followers).toLocaleString()} followers</span>
-            <span><i data-lucide="play-circle"></i>${Number(channel.items).toLocaleString()} posts</span>
+          <div class="channel-platform-stats">
+            <span><strong>${Number(channel.followers) >= 1000 ? `${(Number(channel.followers) / 1000).toFixed(1)}K` : Number(channel.followers)}</strong><small>Followers</small></span>
+            <span><strong>${Number(channel.items).toLocaleString()}</strong><small>${channel.format === "Podcast" ? "Episodes" : "Posts"}</small></span>
+            <span><strong>${channel.verified ? "4.9" : "4.7"}</strong><small>Rating</small></span>
           </div>
+          <a class="channel-contact-button" href="messages.html?compose=channel&id=${encodeURIComponent(channel.id)}"><i data-lucide="message-circle"></i> Get in touch</a>
         </div>
       </article>
     `).join("");

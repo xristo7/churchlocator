@@ -1,3 +1,60 @@
+const MWE_THEME_KEY = "mwe.platform.theme.v1";
+
+function getPreferredTheme() {
+  const saved = localStorage.getItem(MWE_THEME_KEY);
+  if (saved === "light" || saved === "dark") return saved;
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme, persist = false) {
+  const resolved = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = resolved;
+  document.documentElement.style.colorScheme = resolved;
+  if (persist) localStorage.setItem(MWE_THEME_KEY, resolved);
+
+  document.querySelectorAll("[data-theme-toggle]").forEach(button => {
+    const isDark = resolved === "dark";
+    button.setAttribute("aria-pressed", String(isDark));
+    button.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+    button.setAttribute("title", isDark ? "Switch to light mode" : "Switch to dark mode");
+    button.innerHTML = `<i data-lucide="${isDark ? "sun" : "moon"}"></i><span>${isDark ? "Light" : "Dark"}</span>`;
+  });
+
+  const frame = document.getElementById("member-shell-frame");
+  frame?.contentWindow?.postMessage({ type: "mwe-theme", theme: resolved }, window.location.origin);
+  if (window.lucide?.createIcons) window.lucide.createIcons();
+}
+
+function initThemeControl() {
+  applyTheme(getPreferredTheme());
+
+  const target = document.body.classList.contains("member-app-shell")
+    ? document.querySelector(".member-shell-actions")
+    : document.querySelector(".nav-actions");
+
+  if (target && !target.querySelector("[data-theme-toggle]")) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "theme-toggle";
+    button.dataset.themeToggle = "";
+    target.prepend(button);
+  }
+
+  applyTheme(document.documentElement.dataset.theme || getPreferredTheme());
+  document.querySelectorAll("[data-theme-toggle]").forEach(button => {
+    button.addEventListener("click", () => {
+      applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark", true);
+    });
+  });
+}
+
+applyTheme(getPreferredTheme());
+
+window.addEventListener("message", event => {
+  if (event.origin !== window.location.origin || event.data?.type !== "mwe-theme") return;
+  applyTheme(event.data.theme);
+});
+
 const MWE = (() => {
   const storageKey = "mwe.platform.churches.v1";
   const defaultImage = "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1500&q=85";
@@ -908,22 +965,32 @@ MWE.getMemberShellRoute = function(input) {
     churches: "directory",
     events: "events",
     channels: "channels",
+    "channel-detail": "channel-detail",
+    "channel-content": "channel-content",
+    messages: "messages",
     livestream: "livestream",
     "church-profile": "church",
     church: "church",
     "event-profile": "event",
     donate: "giving",
     store: "store",
+    "product-detail": "product",
+    cart: "cart",
+    checkout: "checkout",
     "seller-dashboard": "store-manager",
-    resources: "resources"
+    resources: "resources",
+    "resource-detail": "resource-detail"
+    ,"resource-reader": "resource-reader"
   };
   const view = routeMap[file];
   if (!view) return null;
 
   return {
     view,
-    id: url.searchParams.get("id") || "",
-    q: url.searchParams.get("q") || ""
+    id: url.searchParams.get("id") || url.searchParams.get("channel") || "",
+    q: url.searchParams.get("q") || "",
+    compose: url.searchParams.get("compose") || "",
+    post: url.searchParams.get("post") || ""
   };
 };
 
@@ -932,6 +999,7 @@ MWE.buildMemberShellUrl = function(route) {
   target.searchParams.set("view", route.view || "directory");
   if (route.id) target.searchParams.set("id", route.id);
   if (route.q) target.searchParams.set("q", route.q);
+  if (route.compose) target.searchParams.set("compose", route.compose);
   return `${target.pathname.split("/").pop()}${target.search}`;
 };
 
@@ -1034,9 +1102,23 @@ MWE.applyMemberShellEmbed = function() {
       body.member-shell-embed > section,
       body.member-shell-embed > footer { margin-left: 0 !important; }
       body.member-shell-embed > main { min-height: 100vh; }
-      body[data-page="profile"].member-shell-embed > main > .container { width: min(1240px, calc(100% - 48px)) !important; }
+      body.member-shell-embed.module-page:not([data-page="messages"]) > main.module-shell {
+        width: 100% !important;
+        max-width: none !important;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        padding-right: max(22px, calc((100% - var(--max)) / 2)) !important;
+        padding-left: max(22px, calc((100% - var(--max)) / 2)) !important;
+        box-sizing: border-box !important;
+      }
+      body[data-page="profile"].member-shell-embed > main > .container,
+      body[data-page="profile"].member-shell-embed > section > .container { width: min(var(--max), calc(100% - 44px)) !important; }
       @media (max-width: 720px) {
         body[data-page="profile"].member-shell-embed > main > .container { width: calc(100% - 28px) !important; }
+        body.member-shell-embed.module-page:not([data-page="messages"]) > main.module-shell {
+          padding-right: 14px !important;
+          padding-left: 14px !important;
+        }
       }
     `;
     document.head.appendChild(style);
@@ -1089,7 +1171,7 @@ MWE.initMemberExperience = function() {
       }
 
       if (!route) return;
-      const isProtectedDetail = route.view === "church" || route.view === "event" || route.view === "store-manager" || (route.view === "livestream" && Boolean(route.id));
+      const isProtectedDetail = route.view === "church" || route.view === "event" || route.view === "channel-detail" || route.view === "channel-content" || route.view === "messages" || route.view === "store-manager" || route.view === "cart" || route.view === "checkout" || (route.view === "livestream" && Boolean(route.id));
       if (!MWE.isMemberAuthenticated() && isProtectedDetail) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -1115,7 +1197,7 @@ MWE.initMemberExperience = function() {
     return "redirecting";
   }
 
-  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "event" || currentRoute.view === "store-manager" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
+  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "event" || currentRoute.view === "channel-detail" || currentRoute.view === "channel-content" || currentRoute.view === "messages" || currentRoute.view === "store-manager" || currentRoute.view === "cart" || currentRoute.view === "checkout" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
   if (isProtectedDetail) {
     MWE.openMemberLogin(MWE.buildMemberShellUrl(currentRoute), { locked: true });
     return "locked";
@@ -5764,6 +5846,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initCustomDropdowns();
   initTranslations();
   initGlobalHeaderAndFooter();
+  initThemeControl();
   initMobileMenu();
   initOnboardingCarousel();
 

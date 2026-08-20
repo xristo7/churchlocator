@@ -30,13 +30,13 @@
     }
     grid.innerHTML = products.map(product => `
       <article class="product-card">
-        <div class="product-image-wrap">
+        <a class="product-image-wrap" href="product-detail.html?id=${encodeURIComponent(product.id)}" aria-label="View ${data().escapeHtml(product.title)}">
           <img class="product-image" src="${data().escapeHtml(product.image)}" alt="${data().escapeHtml(product.title)}" />
           <span class="product-badge">${data().escapeHtml(product.sellerType)} · ${data().escapeHtml(product.category)}</span>
-        </div>
+        </a>
         <div class="product-card-body">
           <span class="product-seller">Sold by ${data().escapeHtml(product.seller)}</span>
-          <h3>${data().escapeHtml(product.title)}</h3>
+          <h3><a href="product-detail.html?id=${encodeURIComponent(product.id)}">${data().escapeHtml(product.title)}</a></h3>
           <span class="product-rating"><i data-lucide="star"></i>${Number(product.rating).toFixed(1)} · ${Number(product.inventory)} in stock</span>
           <div class="product-price-row">
             <div><span class="product-price">${data().money(product.price)}</span>${product.compareAt ? `<span class="product-compare">${data().money(product.compareAt)}</span>` : ""}</div>
@@ -66,6 +66,17 @@
     window.lucide?.createIcons();
   }
 
+  function setCartOpen(open) {
+    const drawer = document.getElementById("store-cart-drawer");
+    const backdrop = document.getElementById("cart-drawer-backdrop");
+    const trigger = document.getElementById("cart-trigger");
+    drawer?.classList.toggle("open", open);
+    drawer?.setAttribute("aria-hidden", String(!open));
+    trigger?.setAttribute("aria-expanded", String(open));
+    if (backdrop) backdrop.hidden = !open;
+    document.body.classList.toggle("cart-drawer-open", open);
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     const category = document.getElementById("store-category");
     [...new Set(data().getProducts().map(product => product.category))].sort().forEach(value => category.insertAdjacentHTML("beforeend", `<option>${data().escapeHtml(value)}</option>`));
@@ -75,6 +86,7 @@
       if (add) {
         data().addToCart(add.dataset.addProduct);
         renderCart();
+        setCartOpen(true);
         window.MWE?.showMemberToast?.("Added to your cart");
       }
       const remove = event.target.closest("[data-remove-cart]");
@@ -83,14 +95,14 @@
         renderCart();
       }
     });
-    document.getElementById("checkout-button")?.addEventListener("click", () => {
-      if (!data().getCart().length) {
-        window.MWE?.showMemberToast?.("Your cart is empty");
-        return;
-      }
-      data().saveCart([]);
-      renderCart();
-      window.MWE?.showMemberToast?.("Order placed successfully");
+    document.getElementById("cart-trigger")?.addEventListener("click", () => setCartOpen(true));
+    document.getElementById("cart-close")?.addEventListener("click", () => setCartOpen(false));
+    document.getElementById("cart-drawer-backdrop")?.addEventListener("click", () => setCartOpen(false));
+    document.addEventListener("keydown", event => { if (event.key === "Escape") setCartOpen(false); });
+    document.getElementById("checkout-button")?.addEventListener("click", event => {
+      if (data().getCart().length) return;
+      event.preventDefault();
+      window.MWE?.showMemberToast?.("Your cart is empty");
     });
     renderProducts();
     renderCart();

@@ -7,9 +7,14 @@
     const query = document.getElementById("seller-product-search")?.value.trim().toLowerCase() || "";
     const allProducts = data().getProducts();
     const products = allProducts.filter(product => !query || `${product.title} ${product.seller} ${product.category}`.toLowerCase().includes(query));
+    const savedOrders = JSON.parse(localStorage.getItem("faithlink.store.orders.v1") || "[]");
     document.getElementById("seller-active-products").textContent = allProducts.filter(product => product.status === "Active").length;
     document.getElementById("seller-low-stock").textContent = allProducts.filter(product => Number(product.inventory) < 20).length;
     document.getElementById("seller-sales").textContent = data().money(allProducts.reduce((sum, product) => sum + Number(product.price) * Math.min(Number(product.inventory), 6), 0));
+    document.getElementById("seller-order-count").textContent = 38 + savedOrders.length;
+    const recentOrders = savedOrders.slice(0, 5).map(order => ({ id: order.id, customer: order.email, items: order.items.reduce((sum, item) => sum + item.quantity, 0), total: order.totals.total, fulfillment: `${order.status} · ${order.fulfillment}` }));
+    recentOrders.push({ id: "FL-1048", customer: "Sarah Johnson", items: 2, total: 70, fulfillment: "Paid · Unfulfilled" }, { id: "FL-1047", customer: "Michael T.", items: 1, total: 32, fulfillment: "Shipped" }, { id: "FL-1046", customer: "Amanda Rose", items: 3, total: 94, fulfillment: "Delivered" });
+    document.getElementById("seller-orders-body").innerHTML = recentOrders.slice(0, 8).map(order => `<tr><td><strong>#${data().escapeHtml(order.id)}</strong></td><td>${data().escapeHtml(order.customer)}</td><td>${order.items} product${order.items === 1 ? "" : "s"}</td><td>${data().money(order.total)}</td><td><span class="status-pill">${data().escapeHtml(order.fulfillment)}</span></td></tr>`).join("");
     document.getElementById("seller-products-body").innerHTML = products.length ? products.map(product => `
       <tr>
         <td><div class="seller-product"><img src="${data().escapeHtml(product.image)}" alt="" /><div><strong>${data().escapeHtml(product.title)}</strong><br /><small>${data().escapeHtml(product.category)}</small></div></div></td>

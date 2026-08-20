@@ -12,7 +12,7 @@ Cloudflare Worker Static Assets project for a nonprofit church discovery and dig
   - API App at `/api/*`, responsible for shared data synchronization.
 - Public church discovery at `index.html` with filters, real seeded church cards, impact storytelling, church profiles, and church portal register/login links.
 - Public church, event, and livestream cards remain visible for discovery. Opening a protected detail prompts member sign-in and then loads the selected view inside `/app`.
-- The member SPA keeps Home, Churches, Events, and Live while adding independent Channels, Store, seller-management, and Christian Resources modules. Giving is accessed from the persistent header instead of the sidebar.
+- The member SPA keeps Home, Churches, Events, and Live while adding independent Channels, Store, seller-management, Christian Resources, and member messaging. Channel cards open dedicated profiles and start owner conversations; Messages provides inbox, compose, replies, and email-forwarding preferences from the profile menu. Store includes product details, a dedicated cart, a Shopify-inspired one-page checkout, and local order records. Giving is accessed from the persistent header instead of the sidebar.
 - Church portal at `church-portal.html` for churches to manage profile details, ministries, contact information, pastor content, and livestream settings behind a login gate.
 - Owner dashboard at `owner-dashboard.html` for adding, editing, verifying, viewing, and removing churches, including livestream status and admin metrics behind a login gate.
 - Admin API at `/api/admin/churches` and status API at `/api/status` for D1-backed production synchronization. Set `ADMIN_API_TOKEN` in Cloudflare to require a bearer token.

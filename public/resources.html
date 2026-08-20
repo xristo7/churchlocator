@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Christian Resources | FaithLink</title>
-  <link rel="stylesheet" href="styles.css?v=20260823" />
+  <link rel="stylesheet" href="styles.css?v=20260831" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script defer src="app.js?v=20260823"></script>
-  <script defer src="platform-modules.js?v=20260823"></script>
-  <script defer src="resources.js?v=20260823"></script>
+  <script defer src="app.js?v=20260831"></script>
+  <script defer src="platform-modules.js?v=20260824"></script>
+  <script defer src="resources.js?v=20260824"></script>
 </head>
 <body class="module-page" data-page="resources">
   <header class="topbar"></header>
@@ -20,7 +20,7 @@
           <h1>Study, grow, teach, and share.</h1>
           <p>Explore books, journals, study materials, outlines, sermons, courses, video, and audio from trusted churches and Christian creators. Some resources are free; others support their ministry.</p>
         </div>
-        <a class="module-secondary-action" href="store.html"><i data-lucide="shopping-bag"></i> View Purchased Items</a>
+        <div class="resource-hero-actions"><button class="module-primary-action" id="create-resource-button" type="button"><i data-lucide="square-pen"></i> Publish resource</button><a class="module-secondary-action" href="store.html"><i data-lucide="shopping-bag"></i> Purchased</a></div>
       </div>
     </section>
 
@@ -28,16 +28,23 @@
       <div class="module-toolbar resources-toolbar">
         <label class="module-search"><i data-lucide="search"></i><input id="resource-search" type="search" placeholder="Search titles, creators, topics..." /></label>
         <select class="module-select" id="resource-type"><option value="all">All media</option><option>Text</option><option>Video</option><option>Audio</option></select>
-        <select class="module-select" id="resource-format"><option value="all">All formats</option><option>PDF</option><option>DOC</option><option>EPUB</option><option>TXT</option><option>MP4</option><option>FLV</option><option>MP3</option><option>AAC</option></select>
+        <select class="module-select" id="resource-format"><option value="all">All formats</option><option>Article</option><option>PDF</option><option>DOC</option><option>EPUB</option><option>TXT</option><option>MP4</option><option>FLV</option><option>MP3</option><option>AAC</option></select>
         <select class="module-select" id="resource-access"><option value="all">Free & paid</option><option>Free</option><option>Paid</option></select>
         <select class="module-select" id="resource-topic"><option value="all">All topics</option></select>
         <select class="module-select" id="resource-sort"><option value="featured">Recommended</option><option value="rating">Highest rated</option><option value="free-first">Free first</option><option value="price-low">Price: low to high</option></select>
       </div>
 
-      <div class="module-results-head"><h2>Resource library</h2><span id="resource-result-count">0 resources</span></div>
+      <div class="module-results-head">
+        <div><h2>Resource library</h2><span id="resource-result-count">0 resources</span></div>
+        <div class="resource-view-toggle" role="group" aria-label="Resource layout">
+          <button class="active" type="button" data-resource-view="grid" aria-label="Grid view" aria-pressed="true"><i data-lucide="grid-2x2"></i></button>
+          <button type="button" data-resource-view="list" aria-label="List view" aria-pressed="false"><i data-lucide="list"></i></button>
+        </div>
+      </div>
       <div class="resources-grid" id="resources-grid"></div>
     </section>
   </main>
+  <div class="module-modal" id="resource-create-modal" role="dialog" aria-modal="true" aria-labelledby="resource-create-title"><div class="module-modal-card resource-editor-card"><button class="module-modal-close" type="button" aria-label="Close"><i data-lucide="x"></i></button><span class="module-kicker">Creator studio</span><h2 id="resource-create-title">Publish a Christian resource</h2><p>Write an article, divide it into readable pages, and optionally attach a downloadable file.</p><form class="module-form" id="resource-create-form"><label class="wide">Title<input name="title" required placeholder="Resource title" /></label><label>Content type<select name="type"><option>Text</option><option>Video</option><option>Audio</option></select></label><label>Topic<select name="topic"><option>Bible Study</option><option>Devotional</option><option>Discipleship</option><option>Leadership</option><option>Marriage</option><option>Ministry</option><option>Prayer</option><option>Worship</option><option>Youth</option></select></label><label>Format<select name="format"><option>Article</option><option>PDF</option><option>DOC</option><option>EPUB</option><option>TXT</option><option>MP4</option><option>MP3</option><option>AAC</option></select></label><label>Access<select name="access" id="resource-editor-access"><option>Free</option><option>Paid</option></select></label><label>Price<input name="price" type="number" min="0" step="1" value="0" /></label><label>Read time / length<input name="duration" placeholder="8 min read" /></label><label class="wide">Summary<textarea name="description" required placeholder="A short summary shown on the resource card"></textarea></label><label class="wide">Article or book pages<textarea name="pages" required placeholder="Write page one here...&#10;&#10;---page---&#10;&#10;Write page two here..."></textarea><small>Use ---page--- on its own line to begin a new page.</small></label><label class="wide">Optional attachment<input name="attachment" type="file" accept=".pdf,.doc,.docx,.epub,.txt,.mp4,.flv,.mp3,.aac" /></label><button class="module-primary-action" type="submit"><i data-lucide="send"></i> Publish resource</button></form></div></div>
   <footer class="platform-footer"></footer>
   <div class="toast" data-toast role="status" aria-live="polite"></div>
 </body>

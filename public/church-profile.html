@@ -21,7 +21,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Global site styles -->
-  <link rel="stylesheet" href="styles.css?v=20260823" />
+  <link rel="stylesheet" href="styles.css?v=20260831" />
 
   <style>
     /* Premium Theme Variable Mapping (Matching Original Light styling) */
@@ -1675,9 +1675,20 @@
 
     body[data-page="profile"] .profile-hero-campaign { display: none; }
 
-    body[data-page="profile"] > main > .container {
-      width: min(1240px, calc(100% - 48px)) !important;
+    body[data-page="profile"] > main > .container,
+    body[data-page="profile"] > section > .container {
+      width: min(var(--max), calc(100% - 44px)) !important;
       max-width: none !important;
+    }
+
+    body[data-page="profile"] > main > .container {
+      padding-top: 72px;
+      padding-bottom: 72px;
+    }
+
+    body[data-page="profile"] > section.landing-section {
+      padding-top: 72px !important;
+      padding-bottom: 72px !important;
     }
 
     body[data-page="profile"] .church-profile-grid {
@@ -2438,7 +2449,7 @@
   </div>
 
   <!-- Import core platform application script -->
-  <script src="app.js?v=20260823"></script>
+  <script src="app.js?v=20260831"></script>
 
 </body>
 </html>

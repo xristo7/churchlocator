@@ -3,7 +3,9 @@
     channels: "faithlink.channels.v1",
     products: "faithlink.store.products.v1",
     cart: "faithlink.store.cart.v1",
-    resources: "faithlink.resources.v1"
+    resources: "faithlink.resources.v1",
+    messages: "faithlink.messages.v1",
+    messageSettings: "faithlink.messages.settings.v1"
   };
 
   const channelSeeds = [
@@ -39,6 +41,11 @@
     { id: "small-group-guide", title: "Small Group Leader Field Guide", creator: "Beulah Alliance Church", topic: "Leadership", type: "Text", format: "TXT", access: "Free", price: 0, duration: "18 pages", rating: 4.5, image: "https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=800&q=82", description: "Simple guidance for healthy discussion, prayer, care, and multiplication." },
     { id: "morning-devotions", title: "Morning Devotions for Busy People", creator: "Daily Word with Amara", topic: "Devotional", type: "Audio", format: "MP3", access: "Paid", price: 9, duration: "21 episodes", rating: 4.8, image: "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&w=800&q=82", description: "Twenty-one focused audio devotions designed for the start of your day." },
     { id: "new-believer", title: "New Believer Foundations", creator: "Christ Embassy Edmonton", topic: "Discipleship", type: "Text", format: "EPUB", access: "Free", price: 0, duration: "52 pages", rating: 4.9, image: "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=800&q=82", description: "Essential teaching on prayer, scripture, fellowship, identity, and sharing faith." }
+  ];
+
+  const messageSeeds = [
+    { id: "message-worship-room", threadId: "channel-worship-room", participantId: "worship-room", participant: "The Worship Room", participantType: "Channel", avatar: channelSeeds[1].avatar, subject: "Welcome to The Worship Room", body: "Thanks for connecting with us. Let us know how we can pray with you or help you find a worship resource.", direction: "received", createdAt: "2026-08-19T17:20:00.000Z", read: false },
+    { id: "message-river-city", threadId: "church-river-city", participantId: "river-city", participant: "River City Church", participantType: "Church", avatar: "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=160&q=82", subject: "Your Sunday visit", body: "We would be delighted to welcome you this Sunday. Reply if you have questions about parking, children’s ministry, or accessibility.", direction: "received", createdAt: "2026-08-18T14:05:00.000Z", read: true }
   ];
 
   function clone(value) {
@@ -115,7 +122,25 @@
       return api.saveCart(cart);
     },
     getResources: () => read(keys.resources, resourceSeeds),
-    saveResources: resources => write(keys.resources, resources)
+    saveResources: resources => write(keys.resources, resources),
+    addResource(resource) {
+      const resources = api.getResources();
+      const saved = { ...resource, id: makeId("resource", resource.title), creator: resource.creator || "My Channel", rating: 5, image: resource.image || "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=900&q=82" };
+      resources.unshift(saved); api.saveResources(resources); return saved;
+    },
+    getMessages: () => read(keys.messages, messageSeeds),
+    saveMessages: messages => write(keys.messages, messages),
+    sendMessage(message) {
+      const messages = api.getMessages();
+      const saved = { ...message, id: makeId("message", message.subject || message.participant), direction: "sent", createdAt: new Date().toISOString(), read: true };
+      messages.unshift(saved);
+      api.saveMessages(messages);
+      return saved;
+    },
+    getMessageSettings() {
+      try { return JSON.parse(localStorage.getItem(keys.messageSettings) || "null") || { forwardingEnabled: false, forwardingEmail: "" }; } catch { return { forwardingEnabled: false, forwardingEmail: "" }; }
+    },
+    saveMessageSettings(settings) { localStorage.setItem(keys.messageSettings, JSON.stringify(settings)); return settings; }
   };
 
   window.FaithLinkModules = api;
