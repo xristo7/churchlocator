@@ -6,7 +6,7 @@
   "description": "Cloudflare Worker static assets project for My Way of Evangelism church discovery and digital evangelism platform.",
   "scripts": {
     "build": "wrangler deploy --dry-run --env=\"\"",
-    "check": "node --check src/worker.js && node --check public/app.js && node --check public/app-shell.js && npm run build",
+    "check": "node --check src/worker.js && node --check public/app.js && node --check public/app-shell.js && node --check public/platform-modules.js && node --check public/channels.js && node --check public/store.js && node --check public/seller-dashboard.js && node --check public/resources.js && npm run build",
     "test": "node --test tests/*.test.mjs",
     "preview": "node tools/static-server.mjs --root public --port 4173",
     "dev": "wrangler dev --env preview",

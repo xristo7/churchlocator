@@ -907,12 +907,15 @@ MWE.getMemberShellRoute = function(input) {
   const routeMap = {
     churches: "directory",
     events: "events",
+    channels: "channels",
     livestream: "livestream",
     "church-profile": "church",
     church: "church",
     "event-profile": "event",
     donate: "giving",
-    foundation: "resources"
+    store: "store",
+    "seller-dashboard": "store-manager",
+    resources: "resources"
   };
   const view = routeMap[file];
   if (!view) return null;
@@ -1042,7 +1045,7 @@ MWE.applyMemberShellEmbed = function() {
   const q = new URLSearchParams(window.location.search).get("q");
   if (q) {
     window.setTimeout(() => {
-      const input = document.querySelector("[data-search], #event-city-input");
+      const input = document.querySelector("[data-search], #event-city-input, #channel-search, #store-search, #resource-search");
       if (!input) return;
       input.value = q;
       input.dispatchEvent(new Event("input", { bubbles: true }));
@@ -1086,7 +1089,7 @@ MWE.initMemberExperience = function() {
       }
 
       if (!route) return;
-      const isProtectedDetail = route.view === "church" || route.view === "event" || (route.view === "livestream" && Boolean(route.id));
+      const isProtectedDetail = route.view === "church" || route.view === "event" || route.view === "store-manager" || (route.view === "livestream" && Boolean(route.id));
       if (!MWE.isMemberAuthenticated() && isProtectedDetail) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -1112,7 +1115,7 @@ MWE.initMemberExperience = function() {
     return "redirecting";
   }
 
-  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "event" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
+  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "event" || currentRoute.view === "store-manager" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
   if (isProtectedDetail) {
     MWE.openMemberLogin(MWE.buildMemberShellUrl(currentRoute), { locked: true });
     return "locked";

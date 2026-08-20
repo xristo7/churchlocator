@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FaithLink Store</title>
+  <link rel="stylesheet" href="styles.css?v=20260823" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js?v=20260823"></script>
+  <script defer src="platform-modules.js?v=20260823"></script>
+  <script defer src="store.js?v=20260823"></script>
+</head>
+<body class="module-page" data-page="store">
+  <header class="topbar"></header>
+  <main>
+    <section class="module-hero">
+      <div class="module-shell module-hero-inner">
+        <div>
+          <span class="module-kicker"><i data-lucide="shopping-bag"></i> Christian Marketplace</span>
+          <h1>Shop with churches and Christian creators.</h1>
+          <p>Discover books, journals, music, apparel, ministry tools, church supplies, and meaningful gifts sold by verified churches and channel owners.</p>
+        </div>
+        <a class="module-secondary-action" href="seller-dashboard.html"><i data-lucide="store"></i> Manage Your Store</a>
+      </div>
+    </section>
+
+    <section class="module-shell module-content">
+      <div class="module-toolbar">
+        <label class="module-search"><i data-lucide="search"></i><input id="store-search" type="search" placeholder="Search products or sellers..." /></label>
+        <select class="module-select" id="store-category" aria-label="Product category"><option value="all">All categories</option></select>
+        <select class="module-select" id="store-seller" aria-label="Seller type"><option value="all">All sellers</option><option>Church</option><option>Channel</option></select>
+        <select class="module-select" id="store-sort" aria-label="Sort products"><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="rating">Highest rated</option></select>
+      </div>
+
+      <div class="store-layout">
+        <div>
+          <div class="module-results-head"><h2>Marketplace products</h2><span id="store-result-count">0 products</span></div>
+          <div class="store-products-grid" id="store-products-grid"></div>
+        </div>
+        <aside class="store-cart-panel" aria-label="Shopping cart">
+          <div class="store-cart-head"><h3><i data-lucide="shopping-cart"></i> Your Cart</h3><span class="cart-count" id="cart-count">0</span></div>
+          <div class="cart-items" id="cart-items"></div>
+          <div class="cart-summary">
+            <div class="cart-total"><span>Total</span><strong id="cart-total">$0.00</strong></div>
+            <button class="module-primary-action" id="checkout-button" type="button"><i data-lucide="lock-keyhole"></i> Secure Checkout</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <footer class="platform-footer"></footer>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+</body>
+</html>

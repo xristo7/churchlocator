@@ -45,3 +45,13 @@ The two intentional differences follow the user's latest directive:
 - P3: the event detail page retains its existing Tailwind CDN warning; this does not affect the shell or navigation behavior.
 
 final result: passed
+
+## Module expansion verification
+
+- The persistent rail is exactly Home, Churches, Channels, Events, Live, Store, and Resources.
+- Give appears in the persistent header beside the member profile and is absent from the rail.
+- Channels is independent from Churches and supports channel creation plus topic, format, and status filtering.
+- Store has its own product catalog, filters, cart, checkout state, and authenticated seller-management view.
+- Resources has its own free/paid library and filters for PDF, DOC, EPUB, TXT, MP4, FLV, MP3, and AAC.
+- Churches, Events, and Live continue to load their existing page-specific interfaces inside the changing shell region.
+- Module screenshots: `artifacts/modules-channels.png` and `artifacts/modules-resources.png`.

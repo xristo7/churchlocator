@@ -7,10 +7,10 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>FaithLink Member App</title>
-  <link rel="stylesheet" href="styles.css?v=20260822" />
+  <link rel="stylesheet" href="styles.css?v=20260823" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script defer src="app.js?v=20260822"></script>
-  <script defer src="app-shell.js?v=20260822"></script>
+  <script defer src="app.js?v=20260823"></script>
+  <script defer src="app-shell.js?v=20260823"></script>
 </head>
 <body class="member-app-shell" data-page="app-shell">
   <header class="profile-app-header member-shell-header" id="member-shell-header">
@@ -30,20 +30,23 @@
 
     <form class="profile-app-search" id="member-shell-search" role="search">
       <i data-lucide="search"></i>
-      <input type="search" name="q" placeholder="Search churches, events, groups..." aria-label="Search FaithLink" />
+      <input type="search" name="q" placeholder="Search churches, channels, events..." aria-label="Search FaithLink" />
     </form>
 
-    <div class="member-shell-account-wrap">
-      <button class="profile-app-account" id="member-account-button" type="button" aria-expanded="false" aria-controls="member-account-menu">
-        <span class="member-notification-icon" aria-hidden="true"><i data-lucide="bell"></i></span>
-        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=80&h=80&q=80" alt="Sarah Johnson" />
-        <span>Sarah Johnson</span>
-        <i data-lucide="chevron-down"></i>
-      </button>
-      <div class="member-account-menu" id="member-account-menu" hidden>
-        <strong>Sarah Johnson</strong>
-        <span>FaithLink member</span>
-        <button type="button" id="member-sign-out"><i data-lucide="log-out"></i> Sign out</button>
+    <div class="member-shell-actions">
+      <a class="member-header-giving" href="app.html?view=giving" data-shell-view="giving"><i data-lucide="heart-handshake"></i><span>Give</span></a>
+      <div class="member-shell-account-wrap">
+        <button class="profile-app-account" id="member-account-button" type="button" aria-expanded="false" aria-controls="member-account-menu">
+          <span class="member-notification-icon" aria-hidden="true"><i data-lucide="bell"></i></span>
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=80&h=80&q=80" alt="Sarah Johnson" />
+          <span>Sarah Johnson</span>
+          <i data-lucide="chevron-down"></i>
+        </button>
+        <div class="member-account-menu" id="member-account-menu" hidden>
+          <strong>Sarah Johnson</strong>
+          <span>FaithLink member</span>
+          <button type="button" id="member-sign-out"><i data-lucide="log-out"></i> Sign out</button>
+        </div>
       </div>
     </div>
 
@@ -55,12 +58,11 @@
   <aside class="profile-left-rail member-shell-rail" id="member-shell-rail" aria-label="Main navigation">
     <nav class="profile-rail-nav">
       <a href="index.html" data-shell-leave><i data-lucide="home"></i><span>Home</span></a>
-      <a href="app.html?view=directory" data-shell-view="directory"><i data-lucide="users"></i><span>Directory</span></a>
-      <a href="app.html?view=directory" data-shell-view="groups"><i data-lucide="user-round"></i><span>Groups</span></a>
+      <a href="app.html?view=directory" data-shell-view="directory"><i data-lucide="church"></i><span>Churches</span></a>
+      <a href="app.html?view=channels" data-shell-view="channels"><i data-lucide="podcast"></i><span>Channels</span></a>
       <a href="app.html?view=events" data-shell-view="events"><i data-lucide="calendar-days"></i><span>Events</span></a>
-      <a href="app.html?view=livestream" data-shell-view="livestream"><i data-lucide="radio"></i><span>Livestream</span></a>
-      <a href="app.html?view=giving" data-shell-view="giving"><i data-lucide="heart"></i><span>Giving</span></a>
-      <a href="church-portal.html" data-shell-leave><i data-lucide="message-circle"></i><span>Messages</span></a>
+      <a href="app.html?view=livestream" data-shell-view="livestream"><i data-lucide="radio"></i><span>Live</span></a>
+      <a href="app.html?view=store" data-shell-view="store"><i data-lucide="shopping-bag"></i><span>Store</span></a>
       <a href="app.html?view=resources" data-shell-view="resources"><i data-lucide="book-open"></i><span>Resources</span></a>
     </nav>
 

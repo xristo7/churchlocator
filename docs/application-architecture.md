@@ -22,13 +22,17 @@ My Way of Evangelism is organized as five applications that share one platform d
 - Persistent regions: FaithLink header and left navigation
 - Changing region: the existing page-specific content loaded into the shell
 - Responsibilities:
-  - Load Directory from the existing church card listing
+  - Load Churches from the existing church card listing
+  - Run Channels as an independent creator module for podcasts, videos, and livestreams
   - Load Events from the existing event card listing
-  - Load Livestream from the existing stream card listing and player
+  - Load Live from the existing stream card listing and player
+  - Run Store as an independent marketplace for churches and channel owners
+  - Give sellers an authenticated catalog, inventory, and order-management dashboard
+  - Run Resources as a dedicated free and paid library for text, video, and audio material
   - Load church and event details from their selected cards
   - Keep church-only profile tabs inside the church profile view
 
-The member sidebar intentionally has no `Church Profile` link. Profiles are entered from church cards. `Livestream` is a first-class sidebar route. Home leaves the member shell and returns to the standalone landing page.
+The member sidebar is exactly `Home`, `Churches`, `Channels`, `Events`, `Live`, `Store`, and `Resources`. It has no `Church Profile` link because profiles are entered from church cards, and it has no `Giving` link because the Give action sits in the persistent header beside the member profile. Home leaves the member shell and returns to the standalone landing page.
 
 ## 3. Church Portal App
 

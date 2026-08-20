@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Christian Resources | FaithLink</title>
+  <link rel="stylesheet" href="styles.css?v=20260823" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js?v=20260823"></script>
+  <script defer src="platform-modules.js?v=20260823"></script>
+  <script defer src="resources.js?v=20260823"></script>
+</head>
+<body class="module-page" data-page="resources">
+  <header class="topbar"></header>
+  <main>
+    <section class="module-hero">
+      <div class="module-shell module-hero-inner">
+        <div>
+          <span class="module-kicker"><i data-lucide="library-big"></i> Christian Resource Library</span>
+          <h1>Study, grow, teach, and share.</h1>
+          <p>Explore books, journals, study materials, outlines, sermons, courses, video, and audio from trusted churches and Christian creators. Some resources are free; others support their ministry.</p>
+        </div>
+        <a class="module-secondary-action" href="store.html"><i data-lucide="shopping-bag"></i> View Purchased Items</a>
+      </div>
+    </section>
+
+    <section class="module-shell module-content">
+      <div class="module-toolbar resources-toolbar">
+        <label class="module-search"><i data-lucide="search"></i><input id="resource-search" type="search" placeholder="Search titles, creators, topics..." /></label>
+        <select class="module-select" id="resource-type"><option value="all">All media</option><option>Text</option><option>Video</option><option>Audio</option></select>
+        <select class="module-select" id="resource-format"><option value="all">All formats</option><option>PDF</option><option>DOC</option><option>EPUB</option><option>TXT</option><option>MP4</option><option>FLV</option><option>MP3</option><option>AAC</option></select>
+        <select class="module-select" id="resource-access"><option value="all">Free & paid</option><option>Free</option><option>Paid</option></select>
+        <select class="module-select" id="resource-topic"><option value="all">All topics</option></select>
+        <select class="module-select" id="resource-sort"><option value="featured">Recommended</option><option value="rating">Highest rated</option><option value="free-first">Free first</option><option value="price-low">Price: low to high</option></select>
+      </div>
+
+      <div class="module-results-head"><h2>Resource library</h2><span id="resource-result-count">0 resources</span></div>
+      <div class="resources-grid" id="resources-grid"></div>
+    </section>
+  </main>
+  <footer class="platform-footer"></footer>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+</body>
+</html>

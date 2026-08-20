@@ -11,13 +11,15 @@
 
   const views = {
     directory: { source: "churches.html", title: "Church Directory" },
-    groups: { source: "churches.html", title: "Groups & Community" },
+    channels: { source: "channels.html", title: "Christian Channels" },
     events: { source: "events.html", title: "Events" },
     livestream: { source: "livestream.html", title: "Livestreams" },
     church: { source: "church-profile.html", title: "Church Profile" },
     event: { source: "event-profile.html", title: "Event Details" },
     giving: { source: "donate.html", title: "Giving" },
-    resources: { source: "foundation.html", title: "Resources" }
+    store: { source: "store.html", title: "FaithLink Store" },
+    "store-manager": { source: "seller-dashboard.html", title: "Store Manager" },
+    resources: { source: "resources.html", title: "Christian Resources" }
   };
 
   function isAuthenticated() {
@@ -55,7 +57,7 @@
   function setActiveNavigation(view) {
     document.querySelectorAll("[data-shell-view]").forEach(link => {
       const linkView = link.dataset.shellView;
-      const isActive = linkView === view || (view === "church" && linkView === "directory") || (view === "event" && linkView === "events");
+      const isActive = linkView === view || (view === "church" && linkView === "directory") || (view === "event" && linkView === "events") || (view === "store-manager" && linkView === "store");
       link.classList.toggle("active", isActive);
       if (isActive) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
@@ -139,7 +141,11 @@
   shellSearch?.addEventListener("submit", event => {
     event.preventDefault();
     const q = new FormData(shellSearch).get("q")?.toString().trim() || "";
-    loadRoute({ view: "directory", id: "", q });
+    const current = getRoute();
+    const searchViewMap = { church: "directory", event: "events", "store-manager": "store" };
+    const searchableViews = ["directory", "channels", "events", "store", "resources"];
+    const candidate = searchViewMap[current.view] || current.view;
+    loadRoute({ view: searchableViews.includes(candidate) ? candidate : "directory", id: "", q });
   });
 
   frame.addEventListener("load", () => {
