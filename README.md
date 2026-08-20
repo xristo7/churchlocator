@@ -4,14 +4,15 @@ Cloudflare Worker Static Assets project for a nonprofit church discovery and dig
 
 ## What is included
 
-- Four explicit applications:
+- Five explicit applications:
   - Public Website App at `/`, with no login required.
+  - Member SPA at `/app`, login required, with a persistent header and left navigation.
   - Church Portal App at `/church-portal`, login required.
   - Owner Dashboard App at `/owner-dashboard`, login required.
   - API App at `/api/*`, responsible for shared data synchronization.
 - Public church discovery at `index.html` with filters, real seeded church cards, impact storytelling, church profiles, and church portal register/login links.
-- Public church profile route at `church-profile.html?id=...` for visitors trying to evaluate and contact a church.
-- Church-specific livestream route at `livestream.html?id=...`, populated from the selected church profile and modeled as a paid/premium feature.
+- Public church, event, and livestream cards remain visible for discovery. Opening a protected detail prompts member sign-in and then loads the selected view inside `/app`.
+- The member SPA reuses the existing directory, events, livestream, church-profile, event-profile, giving, and resource pages without replacing their page-specific UI.
 - Church portal at `church-portal.html` for churches to manage profile details, ministries, contact information, pastor content, and livestream settings behind a login gate.
 - Owner dashboard at `owner-dashboard.html` for adding, editing, verifying, viewing, and removing churches, including livestream status and admin metrics behind a login gate.
 - Admin API at `/api/admin/churches` and status API at `/api/status` for D1-backed production synchronization. Set `ADMIN_API_TOKEN` in Cloudflare to require a bearer token.
@@ -27,8 +28,10 @@ Cloudflare Worker Static Assets project for a nonprofit church discovery and dig
 my-way-of-evangelism/
   public/                 Static website assets
     index.html            Public seeker-facing site
-    church-profile.html   Public church profile page
-    livestream.html       Public church-specific stream page
+    app.html              Authenticated persistent member shell
+    app-shell.js          Member shell routing and static-region behavior
+    church-profile.html   Church profile content view
+    livestream.html       Livestream directory and player view
     church-portal.html    Church-owned dashboard
     owner-dashboard.html  Platform-owner dashboard
     admin.html            Legacy alias for owner dashboard
@@ -77,6 +80,7 @@ Static preview routes:
 
 ```text
 http://127.0.0.1:4173/
+http://127.0.0.1:4173/app.html?view=directory
 http://127.0.0.1:4173/church-portal
 http://127.0.0.1:4173/owner-dashboard
 http://127.0.0.1:4173/livestream.html?id=christ-embassy-edmonton

@@ -881,6 +881,246 @@ const MWE = (() => {
   };
 })();
 
+window.MWE = MWE;
+
+/* FaithLink member experience: public discovery + authenticated SPA shell. */
+MWE.isMemberAuthenticated = function() {
+  return localStorage.getItem("mwe.userLoggedIn") === "true";
+};
+
+MWE.isMemberShellEmbed = function() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("embed") === "1" || window.self !== window.top;
+};
+
+MWE.getMemberShellRoute = function(input) {
+  let url;
+  try {
+    url = new URL(input, window.location.href);
+  } catch {
+    return null;
+  }
+
+  if (url.origin !== window.location.origin) return null;
+
+  const file = (url.pathname.split("/").pop() || "").toLowerCase().replace(/\.html$/, "");
+  const routeMap = {
+    churches: "directory",
+    events: "events",
+    livestream: "livestream",
+    "church-profile": "church",
+    church: "church",
+    "event-profile": "event",
+    donate: "giving",
+    foundation: "resources"
+  };
+  const view = routeMap[file];
+  if (!view) return null;
+
+  return {
+    view,
+    id: url.searchParams.get("id") || "",
+    q: url.searchParams.get("q") || ""
+  };
+};
+
+MWE.buildMemberShellUrl = function(route) {
+  const target = new URL("app.html", window.location.href);
+  target.searchParams.set("view", route.view || "directory");
+  if (route.id) target.searchParams.set("id", route.id);
+  if (route.q) target.searchParams.set("q", route.q);
+  return `${target.pathname.split("/").pop()}${target.search}`;
+};
+
+MWE.showMemberToast = function(message) {
+  showToast(message);
+};
+
+MWE.ensureMemberLoginModal = function() {
+  let modal = document.getElementById("member-auth-modal");
+  if (modal) return modal;
+
+  modal = document.createElement("div");
+  modal.id = "member-auth-modal";
+  modal.className = "member-auth-modal";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-labelledby", "member-auth-title");
+  modal.innerHTML = `
+    <div class="member-auth-card">
+      <button class="member-auth-close" type="button" aria-label="Close sign in"><i data-lucide="x"></i></button>
+      <div class="member-auth-icon"><i data-lucide="sparkles"></i></div>
+      <h2 id="member-auth-title">Sign in to continue</h2>
+      <p>Your selected church, event, or livestream will open inside your FaithLink member app.</p>
+      <form class="member-auth-form" data-member-auth-form>
+        <label>Email address
+          <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+        </label>
+        <label>Password
+          <input type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required />
+        </label>
+        <button class="member-auth-submit" type="submit"><i data-lucide="log-in"></i> Sign in</button>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  const close = () => {
+    if (modal.dataset.locked === "true") return;
+    modal.classList.remove("is-open");
+    document.body.classList.remove("member-auth-open");
+  };
+
+  modal.querySelector(".member-auth-close")?.addEventListener("click", close);
+  modal.addEventListener("click", event => {
+    if (event.target === modal) close();
+  });
+  modal.addEventListener("keydown", event => {
+    if (event.key === "Escape") close();
+  });
+  modal.querySelector("[data-member-auth-form]")?.addEventListener("submit", event => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const email = form.get("email")?.toString().trim() || "Member";
+    localStorage.setItem("mwe.userLoggedIn", "true");
+    localStorage.setItem("mwe.username", email.split("@")[0] || "Member");
+
+    let destination = modal.dataset.destination || "app.html?view=directory";
+    try {
+      const safeDestination = new URL(destination, window.location.href);
+      if (safeDestination.origin !== window.location.origin) destination = "app.html?view=directory";
+    } catch {
+      destination = "app.html?view=directory";
+    }
+    window.location.assign(destination);
+  });
+
+  createIcons();
+  return modal;
+};
+
+MWE.openMemberLogin = function(destination, options = {}) {
+  const modal = MWE.ensureMemberLoginModal();
+  modal.dataset.destination = destination || "app.html?view=directory";
+  modal.dataset.locked = options.locked ? "true" : "false";
+  modal.classList.add("is-open");
+  document.body.classList.add("member-auth-open");
+  window.setTimeout(() => modal.querySelector("input[name='email']")?.focus(), 50);
+  createIcons();
+};
+
+MWE.applyMemberShellEmbed = function() {
+  if (!MWE.isMemberShellEmbed()) return;
+
+  document.documentElement.classList.add("member-shell-embed");
+  document.body.classList.add("member-shell-embed");
+
+  if (!document.getElementById("member-shell-embed-overrides")) {
+    const style = document.createElement("style");
+    style.id = "member-shell-embed-overrides";
+    style.textContent = `
+      html.member-shell-embed,
+      body.member-shell-embed { min-height: 100%; background: transparent !important; }
+      body.member-shell-embed > header,
+      body.member-shell-embed > .topbar,
+      body.member-shell-embed > .profile-app-header,
+      body.member-shell-embed > .profile-left-rail,
+      body.member-shell-embed > footer,
+      body.member-shell-embed > .mini-footer { display: none !important; }
+      body.member-shell-embed > main,
+      body.member-shell-embed > section,
+      body.member-shell-embed > footer { margin-left: 0 !important; }
+      body.member-shell-embed > main { min-height: 100vh; }
+      body[data-page="profile"].member-shell-embed > main > .container { width: min(1240px, calc(100% - 48px)) !important; }
+      @media (max-width: 720px) {
+        body[data-page="profile"].member-shell-embed > main > .container { width: calc(100% - 28px) !important; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const q = new URLSearchParams(window.location.search).get("q");
+  if (q) {
+    window.setTimeout(() => {
+      const input = document.querySelector("[data-search], #event-city-input");
+      if (!input) return;
+      input.value = q;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }, 120);
+  }
+};
+
+MWE.initMemberExperience = function() {
+  MWE.applyMemberShellEmbed();
+
+  if (!document.documentElement.dataset.memberRoutingReady) {
+    document.documentElement.dataset.memberRoutingReady = "true";
+    document.addEventListener("click", event => {
+      const anchor = event.target.closest("a[href]");
+      if (!anchor || event.defaultPrevented || anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+      const rawHref = anchor.getAttribute("href") || "";
+      if (!rawHref || rawHref.startsWith("#") || rawHref.startsWith("mailto:") || rawHref.startsWith("tel:") || rawHref.startsWith("javascript:")) return;
+
+      let target;
+      try {
+        target = new URL(anchor.href, window.location.href);
+      } catch {
+        return;
+      }
+      if (target.origin !== window.location.origin) return;
+
+      const route = MWE.getMemberShellRoute(target.href);
+      const targetFile = (target.pathname.split("/").pop() || "").toLowerCase().replace(/\.html$/, "");
+
+      if (MWE.isMemberShellEmbed()) {
+        if (route) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          window.parent.postMessage({ type: "faithlink:navigate", ...route }, window.location.origin);
+        } else if (targetFile === "index" || targetFile === "") {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          window.parent.postMessage({ type: "faithlink:navigate", leaveShell: true, href: target.href }, window.location.origin);
+        }
+        return;
+      }
+
+      if (!route) return;
+      const isProtectedDetail = route.view === "church" || route.view === "event" || (route.view === "livestream" && Boolean(route.id));
+      if (!MWE.isMemberAuthenticated() && isProtectedDetail) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        MWE.openMemberLogin(MWE.buildMemberShellUrl(route));
+        return;
+      }
+
+      if (MWE.isMemberAuthenticated()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        window.location.href = MWE.buildMemberShellUrl(route);
+      }
+    }, true);
+  }
+
+  if (MWE.isMemberShellEmbed()) return "embedded";
+
+  const currentRoute = MWE.getMemberShellRoute(window.location.href);
+  if (!currentRoute) return "public";
+
+  if (MWE.isMemberAuthenticated()) {
+    window.location.replace(MWE.buildMemberShellUrl(currentRoute));
+    return "redirecting";
+  }
+
+  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "event" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
+  if (isProtectedDetail) {
+    MWE.openMemberLogin(MWE.buildMemberShellUrl(currentRoute), { locked: true });
+    return "locked";
+  }
+
+  return "public";
+};
+
 MWE.MAP_SETTINGS = {
   // "openstreetmap" (active provider temporarily) | "google" (preserved for future API key integration)
   activeProvider: "openstreetmap",
@@ -4590,6 +4830,16 @@ let chatTypingTimeout = null;
 let videoLockTimeout = null;
 
 MWE.openLivePlayer = function(churchId) {
+  const shellRoute = { view: "livestream", id: churchId || "", q: "" };
+  if (!MWE.isMemberShellEmbed() && !MWE.isMemberAuthenticated()) {
+    MWE.openMemberLogin(MWE.buildMemberShellUrl(shellRoute));
+    return;
+  }
+  if (!MWE.isMemberShellEmbed() && MWE.isMemberAuthenticated()) {
+    window.location.href = MWE.buildMemberShellUrl(shellRoute);
+    return;
+  }
+
   const landing = document.getElementById("streams-landing-view");
   const player = document.getElementById("streams-player-view");
   const iframe = document.getElementById("main-player-iframe");
@@ -5492,6 +5742,9 @@ function renderFoundationPage() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  const memberExperienceState = MWE.initMemberExperience();
+  if (memberExperienceState === "redirecting" || memberExperienceState === "locked") return;
+
   const page = document.body.dataset.page;
   initPrivateAppAuth();
   if (page === "home") initHeroPage();

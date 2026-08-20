@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>FaithLink Member App</title>
+  <link rel="stylesheet" href="styles.css?v=20260822" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js?v=20260822"></script>
+  <script defer src="app-shell.js?v=20260822"></script>
+</head>
+<body class="member-app-shell" data-page="app-shell">
+  <header class="profile-app-header member-shell-header" id="member-shell-header">
+    <a class="profile-app-brand" href="index.html" aria-label="FaithLink home">
+      <span class="profile-app-brand-mark"><i data-lucide="sparkles"></i></span>
+      <strong>FaithLink</strong>
+    </a>
+
+    <div class="profile-app-church" aria-label="Current church context">
+      <img src="assets/logo-light-chapel.png" alt="" />
+      <span>
+        <strong>River City Church</strong>
+        <small>Edmonton, Alberta</small>
+      </span>
+      <i data-lucide="badge-check" aria-label="Verified church"></i>
+    </div>
+
+    <form class="profile-app-search" id="member-shell-search" role="search">
+      <i data-lucide="search"></i>
+      <input type="search" name="q" placeholder="Search churches, events, groups..." aria-label="Search FaithLink" />
+    </form>
+
+    <div class="member-shell-account-wrap">
+      <button class="profile-app-account" id="member-account-button" type="button" aria-expanded="false" aria-controls="member-account-menu">
+        <span class="member-notification-icon" aria-hidden="true"><i data-lucide="bell"></i></span>
+        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=80&h=80&q=80" alt="Sarah Johnson" />
+        <span>Sarah Johnson</span>
+        <i data-lucide="chevron-down"></i>
+      </button>
+      <div class="member-account-menu" id="member-account-menu" hidden>
+        <strong>Sarah Johnson</strong>
+        <span>FaithLink member</span>
+        <button type="button" id="member-sign-out"><i data-lucide="log-out"></i> Sign out</button>
+      </div>
+    </div>
+
+    <button class="profile-mobile-menu" id="member-mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false">
+      <i data-lucide="menu"></i>
+    </button>
+  </header>
+
+  <aside class="profile-left-rail member-shell-rail" id="member-shell-rail" aria-label="Main navigation">
+    <nav class="profile-rail-nav">
+      <a href="index.html" data-shell-leave><i data-lucide="home"></i><span>Home</span></a>
+      <a href="app.html?view=directory" data-shell-view="directory"><i data-lucide="users"></i><span>Directory</span></a>
+      <a href="app.html?view=directory" data-shell-view="groups"><i data-lucide="user-round"></i><span>Groups</span></a>
+      <a href="app.html?view=events" data-shell-view="events"><i data-lucide="calendar-days"></i><span>Events</span></a>
+      <a href="app.html?view=livestream" data-shell-view="livestream"><i data-lucide="radio"></i><span>Livestream</span></a>
+      <a href="app.html?view=giving" data-shell-view="giving"><i data-lucide="heart"></i><span>Giving</span></a>
+      <a href="church-portal.html" data-shell-leave><i data-lucide="message-circle"></i><span>Messages</span></a>
+      <a href="app.html?view=resources" data-shell-view="resources"><i data-lucide="book-open"></i><span>Resources</span></a>
+    </nav>
+
+    <div class="profile-rail-bottom">
+      <div class="profile-invite-card">
+        <strong><i data-lucide="sparkles"></i> Invite a friend</strong>
+        <p>Help others find their church home.</p>
+        <button type="button" id="member-send-invite">Send Invite <i data-lucide="arrow-right"></i></button>
+      </div>
+      <nav class="profile-rail-nav profile-rail-utility">
+        <a href="church-portal.html" data-shell-leave><i data-lucide="settings"></i><span>Settings</span></a>
+        <a href="mailto:support@faithlink.app"><i data-lucide="circle-help"></i><span>Help & Support</span></a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="member-shell-main" id="member-shell-main">
+    <div class="member-shell-loading" id="member-shell-loading" role="status" aria-live="polite">
+      <span></span>
+      <p>Loading your FaithLink view…</p>
+    </div>
+    <iframe
+      class="member-shell-frame"
+      id="member-shell-frame"
+      title="FaithLink content"
+      src="about:blank"
+      allow="autoplay; encrypted-media; clipboard-write"
+    ></iframe>
+  </main>
+
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+</body>
+</html>

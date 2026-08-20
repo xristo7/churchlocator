@@ -1,6 +1,6 @@
 # Application Architecture
 
-My Way of Evangelism is organized as four applications that share one platform data model.
+My Way of Evangelism is organized as five applications that share one platform data model.
 
 ## 1. Public Website App
 
@@ -10,10 +10,27 @@ My Way of Evangelism is organized as four applications that share one platform d
 - Responsibilities:
   - Introduce the nonprofit
   - Let people search and compare churches
-  - Link to church profiles and livestream pages
+  - Show church, event, and livestream discovery cards before sign-in
+  - Prompt for member sign-in when a protected detail is opened
   - Send churches to `/church-portal` for registration/login
 
-## 2. Church Portal App
+## 2. Member SPA
+
+- Route: `/app`
+- Login: Required
+- Users: church seekers and signed-in community members
+- Persistent regions: FaithLink header and left navigation
+- Changing region: the existing page-specific content loaded into the shell
+- Responsibilities:
+  - Load Directory from the existing church card listing
+  - Load Events from the existing event card listing
+  - Load Livestream from the existing stream card listing and player
+  - Load church and event details from their selected cards
+  - Keep church-only profile tabs inside the church profile view
+
+The member sidebar intentionally has no `Church Profile` link. Profiles are entered from church cards. `Livestream` is a first-class sidebar route. Home leaves the member shell and returns to the standalone landing page.
+
+## 3. Church Portal App
 
 - Route: `/church-portal`
 - Login: Required
@@ -24,7 +41,7 @@ My Way of Evangelism is organized as four applications that share one platform d
   - Review visitor follow-up queues
   - Request paid livestream activation
 
-## 3. Owner Dashboard App
+## 4. Owner Dashboard App
 
 - Route: `/owner-dashboard`
 - Legacy alias: `/admin`
@@ -37,7 +54,7 @@ My Way of Evangelism is organized as four applications that share one platform d
   - Monitor livestream billing and platform operations
   - Audit visitor/follow-up health
 
-## 4. API App
+## 5. API App
 
 - Route: `/api/*`
 - Runtime: Cloudflare Worker (`src/worker.js`)
@@ -51,6 +68,7 @@ My Way of Evangelism is organized as four applications that share one platform d
 
 The current local preview uses a lightweight browser login gate for private app behavior. Production should enforce auth before page delivery:
 
+- `/app`: real member sessions enforced at the Worker/API boundary
 - `/owner-dashboard`: Cloudflare Access or equivalent super-admin identity layer
 - `/church-portal`: church account authentication with ownership verification
 - `/api/admin/*`: bearer/session authorization
