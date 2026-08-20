@@ -44,7 +44,24 @@ my-way-of-evangelism/
 
 ## Run locally
 
-This environment did not have Node.js available, so dependencies were not installed here. A static preview server is included for this workspace:
+Install dependencies and initialize the local D1 database:
+
+```powershell
+npm install
+Copy-Item .dev.vars.example .dev.vars
+npm run db:migrate:local
+npm run db:seed:local
+```
+
+Run the full Worker and API locally:
+
+```powershell
+npm run dev
+```
+
+Wrangler prints the local address, normally `http://127.0.0.1:8787/`.
+
+For a frontend-only static preview without Worker API routes:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\tools\static-server.ps1 -Root .\public -Port 4173
@@ -64,15 +81,6 @@ http://127.0.0.1:4173/church-portal
 http://127.0.0.1:4173/owner-dashboard
 http://127.0.0.1:4173/livestream.html?id=christ-embassy-edmonton
 ```
-
-On a machine with Node.js 22+, use Wrangler for the full Cloudflare Worker runtime:
-
-```bash
-npm install
-npm run dev
-```
-
-For a quick static preview without Worker API routes, open `public/index.html` in a browser.
 
 The PowerShell static preview does not execute Worker API routes. Use `npm run dev` or deploy to Cloudflare to test `/api/*` routes such as `/api/status`.
 
@@ -108,20 +116,11 @@ Use Cloudflare services as the project grows:
 - Queues for SMS, email, reminders, receipts, and moderation jobs.
 - Workers AI and Vectorize later for semantic church/media search.
 
-After creating a D1 database in Cloudflare, add its binding to `wrangler.jsonc` so the Worker can access `env.DB`:
-
-```jsonc
-"d1_databases": [
-  {
-    "binding": "DB",
-    "database_name": "my-way-of-evangelism",
-    "database_id": "<cloudflare-d1-database-id>"
-  }
-]
-```
-
-Apply the initial schema with Wrangler:
+The `DB` binding and migration directory are declared in `wrangler.jsonc`. Apply pending migrations before deploying application code:
 
 ```bash
-npx wrangler d1 execute my-way-of-evangelism --file=./database/schema.sql
+npm run db:migrate:preview
+npm run db:migrate:production
 ```
+
+`database/seed.sql` is development-only and must not be applied to production.

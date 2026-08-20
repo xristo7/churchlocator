@@ -2,19 +2,31 @@
   "name": "my-way-of-evangelism",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Cloudflare Worker static assets project for My Way of Evangelism church discovery and digital evangelism platform.",
   "scripts": {
-    "build": "exit 0",
+    "build": "wrangler deploy --dry-run --env=\"\"",
+    "check": "node --check src/worker.js && node --check public/app.js && npm run build",
+    "test": "node --test tests/*.test.mjs",
     "preview": "node tools/static-server.mjs --root public --port 4173",
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "deploy:pages": "wrangler pages deploy public --project-name=my-way-of-evangelism",
+    "dev": "wrangler dev --env preview",
+    "deploy": "wrangler deploy --env=\"\"",
+    "deploy:preview": "wrangler deploy --env preview",
+    "db:migrate:local": "wrangler d1 migrations apply my-way-of-evangelism-preview --local --env preview",
+    "db:seed:local": "wrangler d1 execute my-way-of-evangelism-preview --local --env preview --file ./database/seed.sql",
+    "db:migrate:preview": "wrangler d1 migrations apply my-way-of-evangelism-preview --remote --env preview",
+    "db:seed:preview": "wrangler d1 execute my-way-of-evangelism-preview --remote --env preview --file ./database/seed.sql",
+    "db:migrate:production": "wrangler d1 migrations apply my-way-of-evangelism --remote --env=\"\"",
     "tail": "wrangler tail my-way-of-evangelism"
   },
   "devDependencies": {
-    "wrangler": "^4.0.0"
+    "wrangler": "^4.124.0"
   },
   "engines": {
     "node": ">=22"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "workerd@1.20260815.1": true
   }
 }

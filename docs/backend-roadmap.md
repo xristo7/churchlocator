@@ -1,9 +1,9 @@
 # Cloudflare Backend Roadmap
 
-## Phase 1: Public launch
+## Phase 1: Persistent platform foundation
 
-- Deploy the static site to Cloudflare Pages.
-- Keep public forms routed through Pages Functions.
+- Deploy the Worker and static assets together from `src/worker.js` and `public/`.
+- Keep all API routes in the Worker; `functions/api` is migration reference only.
 - Add Cloudflare Turnstile to visitor, prayer, volunteer, donation, and church application forms.
 - Create a D1 database and apply `database/schema.sql`.
 - Add the D1 binding as `DB` in `wrangler.jsonc`.

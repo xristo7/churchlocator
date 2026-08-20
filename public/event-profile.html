@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   
   <!-- Global site styles (for topbar header and footers) -->
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20260821" />
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -39,15 +39,15 @@
               50: '#fdfbf7',
               100: '#fbf7e6',
               200: '#f6ebc2',
-              500: '#c79624', // Theme gold
-              600: '#b0811a',
+              500: '#3378ec',
+              600: '#286ade',
               700: '#906915',
             },
             gold: {
               50: '#fefcf6',
               100: '#fdf7e7',
               200: '#faedc3',
-              500: '#f5cb6c', // Gold accent
+              500: '#8374ed',
               600: '#dda23e',
               700: '#c4862e',
             }
@@ -99,7 +99,7 @@
       -webkit-backdrop-filter: blur(14px);
     }
     .text-gradient {
-      background: linear-gradient(135deg, #1a4478 0%, #c79624 100%);
+      background: linear-gradient(135deg, #1798e5 0%, #3378ec 45%, #7356eb 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -112,7 +112,7 @@
       inset: 0;
       border-radius: inherit;
       padding: 1.5px;
-      background: linear-gradient(135deg, #1a4478, #c79624);
+      background: linear-gradient(135deg, #1798e5, #3378ec 45%, #7356eb);
       -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
@@ -140,7 +140,7 @@
       color: rgba(255, 255, 255, 0.85) !important;
     }
     #event-profile-organizer-lead a {
-      color: #f5cb6c !important; /* Premium Gold */
+      color: #a9c5ff !important;
       font-weight: 700 !important;
     }
     #event-profile-organizer-lead a:hover {
@@ -167,8 +167,7 @@
           <a href="churches.html">Churches</a>
           <a href="events.html" class="active">Events</a>
           <a href="livestream.html">Livestreams</a>
-          <a href="foundation.html">Foundation</a>
-          <a href="donate.html" class="highlight-link">Donate</a>
+          <a href="donate.html" class="highlight-link">Donation</a>
         </nav>
         <div class="nav-actions">
         </div>

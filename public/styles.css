@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');
 
 @font-face {
   font-family: "Twemoji Country Flags";
@@ -11,6 +11,8 @@
 }
 
 :root {
+  --color-primary-gold: #b0811a;
+  --color-primary-gold-dark: #8c6410;
   --ink: #222523;
   --muted: #6f7873;
   --surface: #fdfcf9;
@@ -963,19 +965,21 @@ p {
   width: 100%;
   border: none !important;
   outline: none !important;
-  background: transparent !important;
-  padding: 0 !important;
+  background-color: transparent !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d97706' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-position: right 4px center !important;
+  background-size: 14px 14px !important;
+  background-repeat: no-repeat !important;
+  padding: 2px 22px 2px 0 !important;
   margin: 0 !important;
   font-size: 0.88rem !important;
   font-weight: 700 !important;
   color: #0f172a !important;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
-  background-position: right 0 center !important;
-  background-size: 14px 14px !important;
-  background-repeat: no-repeat !important;
-  padding-right: 18px !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  box-shadow: none !important;
 }
 
 .seamless-filter-bar.events-filter-bar {
@@ -6109,4 +6113,2320 @@ body.lights-out .floating-lights-btn {
   .explainer-steps-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* ==========================================================================
+   Restructured Single Church Profile Page Styles (2-Column Grid + Tabs)
+   ========================================================================== */
+
+.church-profile-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(320px, 1.15fr);
+  gap: 32px;
+  align-items: start;
+  margin-top: 36px;
+  margin-bottom: 60px;
+}
+
+.church-profile-tabs-wrapper {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.church-tabs-nav {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 0 24px 0;
+  background: transparent;
+  border-bottom: none;
+  flex-wrap: wrap;
+}
+
+.church-tabs-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.church-tab-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 120px;
+  max-width: 120px;
+  min-height: 84px;
+  padding: 12px 6px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(226, 232, 240, 0.8);
+  background: #ffffff;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.25;
+  word-break: break-word;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.church-tab-button svg,
+.church-tab-button i {
+  width: 26px;
+  height: 26px;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.church-tab-button:hover {
+  color: #0f172a;
+  background: #ffffff;
+  border-color: rgba(176, 129, 26, 0.3);
+  transform: translateY(-2px);
+}
+
+.church-tab-button:hover svg,
+.church-tab-button:hover i {
+  color: #b0811a;
+}
+
+.church-tab-button.active {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #b0811a !important;
+  box-shadow: 0 6px 16px rgba(176, 129, 26, 0.18) !important;
+}
+
+.church-tab-button.active svg,
+.church-tab-button.active i {
+  color: #b0811a !important;
+}
+
+.church-tab-pane {
+  display: none;
+  padding: 0;
+}
+
+.church-tab-pane.active {
+  display: block;
+}
+
+.church-sidebar-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 90px;
+}
+
+.sticky-connection-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+}
+
+.church-quick-contact-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 992px) {
+  .church-profile-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .church-sidebar-stack {
+    position: static;
+  }
+}
+
+/* ==========================================================================
+   New Card Designs (Immersive Overlay for Directory & Split Banner for Related)
+   ========================================================================== */
+
+/* Design #1: Immersive Full-Bleed Overlay Card (Main Directory Page) */
+.church-card-immersive {
+  position: relative;
+  height: 440px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  background-size: cover;
+  background-position: center;
+}
+
+.church-card-immersive:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.22);
+}
+
+.church-card-immersive-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.35) 45%, rgba(15, 23, 42, 0.92) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+}
+
+.church-card-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.immersive-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.immersive-fav-btn {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.immersive-fav-btn:hover {
+  transform: scale(1.1);
+}
+
+.church-card-bottom-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.immersive-card-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.immersive-card-subtitle {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0;
+}
+
+.immersive-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 4px;
+  margin-bottom: 14px;
+}
+
+.immersive-pill-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a !important;
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.immersive-pill-btn:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Design #2: Clean Split Banner Card (Related Churches on Single Profile Page) */
+.church-card-split {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.church-card-split:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+}
+
+.church-card-split-media {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  padding: 16px;
+}
+
+.church-card-split-body {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.split-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.split-card-subtitle {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0;
+}
+
+.split-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.split-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.split-card-meta span svg,
+.split-card-meta span i {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+.split-card-action-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.split-dark-pill-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #ffffff !important;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.split-dark-pill-btn:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+}
+
+.split-fav-btn {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: #ef4444;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+
+.split-fav-btn:hover {
+  border-color: #ef4444;
+  transform: scale(1.05);
+}
+
+/* ==========================================================================
+   New Modern Event Card Design (Matching Mockup: 4-Corner Rounded Media + 2-Col Date)
+   ========================================================================== */
+
+.event-card-modern {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+}
+
+.event-card-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+}
+
+.event-card-banner-wrap {
+  width: 100%;
+  height: 210px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  background: #0f172a;
+}
+
+.event-card-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.event-card-modern:hover .event-card-banner-img {
+  transform: scale(1.04);
+}
+
+.event-card-top-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.event-card-bottom-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 0 6px 6px;
+}
+
+.event-date-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  text-align: center;
+}
+
+.event-date-month {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #047857;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.event-date-num {
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+  margin-top: 4px;
+}
+
+.event-price-tag-sub {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #047857;
+  background: #ecfdf5;
+  padding: 2px 7px;
+  border-radius: 6px;
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.event-date-divider {
+  width: 1px;
+  height: 54px;
+  background: rgba(226, 232, 240, 0.9);
+  margin-top: 2px;
+}
+
+.event-details-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.event-location-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.event-card-title-new {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-card-desc {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   16:9 Livestream Card Design with Endless Glowing Red Border & Top-Right Play
+   ========================================================================== */
+
+@keyframes liveGlowPulse {
+  0% {
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35), 0 4px 14px rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.55), 0 6px 20px rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.75);
+  }
+  100% {
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35), 0 4px 14px rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.45);
+  }
+}
+
+.livestream-card-16-9 {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  text-decoration: none !important;
+  color: #ffffff !important;
+  box-sizing: border-box;
+  background-color: #0f172a;
+}
+
+.livestream-card-16-9:hover {
+  transform: translateY(-4px);
+}
+
+.livestream-card-16-9.is-live {
+  animation: liveGlowPulse 2.5s infinite ease-in-out;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.livestream-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, rgba(15, 23, 42, 0.4) 40%, rgba(15, 23, 42, 0.92) 100%);
+  z-index: 1;
+}
+
+.livestream-card-top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.livestream-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #dc2626;
+  color: #ffffff;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.live-pulse-dot {
+  width: 7px;
+  height: 7px;
+  background: #ffffff;
+  border-radius: 50%;
+  animation: pulse-red-live 1.5s infinite ease-in-out;
+}
+
+.livestream-play-btn {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+  transition: transform 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.livestream-card-16-9:hover .livestream-play-btn {
+  transform: scale(1.12);
+  background: #dc2626;
+}
+
+.livestream-card-bottom {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.livestream-card-title {
+  font-size: 1.22rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.livestream-card-desc {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.livestream-viewers-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   Featured Event Cards: Full Media Banner Cover + Dark Base + White Outer Card Frame
+   ========================================================================== */
+
+.event-card-banner-wrap.is-featured-banner {
+  height: 320px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.event-card-featured-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.45) 45%, rgba(15, 23, 42, 0.95) 100%);
+  z-index: 1;
+}
+
+.event-card-top-row-featured {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.is-featured-banner .event-card-bottom-row {
+  position: relative;
+  z-index: 2;
+  margin-top: auto !important;
+  padding: 0;
+}
+
+/* Bright Font Colors for Overlaying Dark Base */
+.is-featured-banner .event-date-month {
+  color: #34d399 !important; /* Vibrant bright emerald */
+}
+
+.is-featured-banner .event-date-num {
+  color: #ffffff !important; /* Bright crisp white */
+}
+
+.is-featured-banner .event-price-tag-sub {
+  background: rgba(52, 211, 153, 0.2) !important;
+  color: #6ee7b7 !important;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+.is-featured-banner .event-date-divider {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.is-featured-banner .event-location-pill {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.is-featured-banner .event-card-title-new {
+  color: #ffffff !important;
+}
+
+.is-featured-banner .event-card-desc {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.event-price-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #047857;
+  margin-top: 4px;
+}
+
+/* Featured Events Grid: Strict 2 Columns Layout */
+#featured-events-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  #featured-events-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Simple Unified 1-Row Church Directory Search & Filter Bar
+   ========================================================================== */
+
+.simple-directory-search-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 14px 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  margin-bottom: 36px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-input-box-main {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  min-width: 240px;
+}
+
+.search-input-box-main .search-icon {
+  position: absolute;
+  left: 16px;
+  width: 18px;
+  height: 18px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.search-input-box-main .search-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 16px 0 46px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #f8fafc;
+  font-size: 0.9rem;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.search-input-box-main .search-input:focus {
+  border-color: var(--color-primary-gold);
+  background: #ffffff;
+}
+
+.simple-filter-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 210px;
+  flex-shrink: 0;
+}
+
+.simple-filter-box .filter-icon {
+  position: absolute;
+  left: 14px;
+  width: 15px;
+  height: 15px;
+  color: var(--color-primary-gold);
+  pointer-events: none;
+}
+
+.simple-select {
+  width: 100%;
+  height: 46px;
+  padding: 0 34px 0 36px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23d97706' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  outline: none;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.simple-select:hover,
+.simple-select:focus {
+  border-color: var(--color-primary-gold);
+  background-color: #ffffff;
+}
+
+.reset-simple-btn {
+  height: 46px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .simple-directory-search-card {
+    flex-wrap: wrap;
+  }
+  .search-input-box-main {
+    width: 100%;
+    flex: 1 0 100%;
+  }
+  .simple-filter-box {
+    flex: 1 1 calc(50% - 12px);
+    width: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .simple-filter-box {
+    flex: 1 0 100%;
+  }
+  .reset-simple-btn {
+    width: 100%;
+  }
+}
+
+/* Related Fellowships & Churches Grid: Strict 3 Columns Layout */
+#related-churches-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 992px) {
+  #related-churches-container {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  #related-churches-container {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Church Profile Upcoming Events Grid */
+#church-events-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  #church-events-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Modern Theme-Styled Pill Filter System (Platform Amber/Gold Theme)
+   ========================================================================== */
+
+.pill-filter-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.pill-search-input-wrapper {
+  position: relative;
+  flex: 1 1 320px;
+  display: flex;
+  align-items: center;
+}
+
+.pill-search-input-wrapper .search-hero-icon {
+  position: absolute;
+  left: 16px;
+  width: 18px;
+  height: 18px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.pill-search-input-wrapper .search-hero-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px 0 46px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  font-size: 0.9rem;
+  color: #0f172a;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pill-search-input-wrapper .search-hero-input:focus {
+  border-color: var(--color-primary-gold);
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18);
+}
+
+.filter-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.custom-pill-filter {
+  position: relative;
+  display: inline-block;
+}
+
+.filter-pill-btn {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #f8fafc;
+  color: #1e293b;
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+.filter-pill-btn:hover {
+  background: #ffffff;
+  border-color: var(--color-primary-gold);
+}
+
+/* Active Theme Gold Pill State (Matching User's Swatch Color #b0811a!) */
+.custom-pill-filter.is-active .filter-pill-btn {
+  background: #b0811a !important;
+  border-color: #b0811a !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(176, 129, 26, 0.35) !important;
+}
+
+.custom-pill-filter.is-active .pill-title {
+  color: #ffffff !important;
+}
+
+.custom-pill-filter.is-active .pill-arrow {
+  color: #ffffff !important;
+}
+
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--color-primary-gold-dark);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.pill-arrow {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+  transition: transform 0.2s ease;
+}
+
+.custom-pill-filter.open .pill-arrow {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Popup Card Panel */
+.filter-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 240px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
+  padding: 16px;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.custom-pill-filter.open .filter-dropdown-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-panel-title {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+
+.dropdown-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+/* Custom Rounded Checkbox Row (Platform Amber Theme) */
+.custom-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.custom-checkbox-row:hover {
+  background: #f8fafc;
+}
+
+.custom-checkbox-row input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox-box {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.checkbox-box svg {
+  width: 14px;
+  height: 14px;
+  color: #ffffff;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.custom-checkbox-row input:checked + .checkbox-box {
+  background: var(--color-primary-gold);
+  border-color: var(--color-primary-gold);
+}
+
+.custom-checkbox-row input:checked + .checkbox-box svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.checkbox-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.filter-pill-reset-btn {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.filter-pill-reset-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   Masterful Hero Background Carousel & Platform Donation System
+   ========================================================================== */
+
+.donate-hero-slider {
+  position: relative;
+  width: 100%;
+  min-height: 520px;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+  margin-bottom: 36px;
+}
+
+.donate-slide-item {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+  transform: scale(1.04);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+}
+
+.donate-slide-item.active {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.donate-slide-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.65) 50%, rgba(15, 23, 42, 0.45) 100%);
+}
+
+.donate-slide-content {
+  position: relative;
+  z-index: 10;
+  max-width: 740px;
+  padding: 60px 48px;
+  color: #ffffff;
+}
+
+.donate-slide-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(176, 129, 26, 0.3);
+  border: 1px solid rgba(176, 129, 26, 0.6);
+  color: #fef08a;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 20px;
+  backdrop-filter: blur(8px);
+}
+
+.donate-slide-title {
+  font-size: clamp(2.2rem, 4.2vw, 3.4rem);
+  font-weight: 900;
+  line-height: 1.15;
+  color: #ffffff;
+  margin-bottom: 18px;
+  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.donate-slide-subtitle {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 28px;
+}
+
+/* Slider Controls */
+.donate-slider-controls {
+  position: absolute;
+  bottom: 24px;
+  right: 32px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.slider-indicator-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slider-pill-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.slider-pill-dot.active {
+  width: 36px;
+  background: #b0811a;
+}
+
+.slider-arrow-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.slider-arrow-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.08);
+}
+
+/* Explicit Platform Designation Banner */
+.platform-destination-banner {
+  background: linear-gradient(135deg, rgba(176, 129, 26, 0.08) 0%, rgba(15, 23, 42, 0.04) 100%);
+  border: 1.5px solid rgba(176, 129, 26, 0.3);
+  border-radius: 20px;
+  padding: 20px 24px;
+  margin-bottom: 36px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.03);
+}
+
+.platform-destination-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #b0811a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(176, 129, 26, 0.3);
+}
+
+.platform-destination-text h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.platform-destination-text p {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Masterpiece Modern UI Page Layout for donate.html
+   ========================================================================== */
+
+.master-giving-section {
+  padding: 40px 0 80px 0;
+}
+
+.master-giving-grid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 36px;
+  align-items: start;
+}
+
+.master-giving-card {
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 40px;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+.master-giving-header {
+  margin-bottom: 28px;
+}
+
+.master-giving-header h2 {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.master-giving-header p {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Frequency Selector */
+.master-freq-switcher {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.master-freq-btn {
+  flex: 1;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.master-freq-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+/* Amount Pills Grid */
+.master-amount-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.master-amount-pill {
+  height: 52px;
+  border-radius: 14px;
+  border: 1.5px solid var(--line);
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.master-amount-pill:hover {
+  border-color: #b0811a;
+  background: #ffffff;
+}
+
+.master-amount-pill.active {
+  background: #b0811a !important;
+  border-color: #b0811a !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 18px rgba(176, 129, 26, 0.35) !important;
+}
+
+.master-custom-amount-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.master-custom-amount-wrap .currency {
+  position: absolute;
+  left: 18px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #b0811a;
+}
+
+.master-custom-amount-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px 0 38px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #f8fafc;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.master-custom-amount-input:focus {
+  border-color: #b0811a;
+  box-shadow: 0 0 0 3px rgba(176, 129, 26, 0.18);
+  background: #ffffff;
+}
+
+/* Payment Method Switcher */
+.master-pay-method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.master-pay-radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  border-radius: 12px;
+  border: 1.5px solid var(--line);
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.master-pay-radio.active {
+  border-color: #b0811a;
+  background: rgba(176, 129, 26, 0.08);
+  color: #b0811a;
+}
+
+/* Right Column: Dashboard Stack */
+.master-dashboard-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.master-kpi-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.master-kpi-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(176, 129, 26, 0.12);
+  color: #b0811a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.master-kpi-info strong {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.master-kpi-info span {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Impact Pillars Section */
+.master-impact-section {
+  padding: 80px 0;
+  background: #f8fafc;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.master-pillar-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.master-pillar-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.1);
+  border-color: rgba(176, 129, 26, 0.3);
+}
+
+.master-pillar-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(176, 129, 26, 0.12);
+  color: #b0811a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.master-pillar-card h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.master-pillar-card p {
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Masterpiece Dark Banner */
+.master-dark-banner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 32px;
+  padding: 56px 48px;
+  color: #ffffff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2);
+}
+
+.master-dark-banner h2 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 14px;
+}
+
+.master-dark-banner p {
+  font-size: 1.05rem;
+  color: #94a3b8;
+  line-height: 1.65;
+}
+
+@media (max-width: 992px) {
+  .master-giving-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Church Profile Lightbox Popup Video Modal & Hero Play Button Card
+   ========================================================================== */
+
+.hero-standalone-play-btn {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: transparent;
+  border: none;
+  padding: 20px;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-standalone-play-btn:hover {
+  transform: scale(1.08);
+}
+
+.play-btn-circle-standalone {
+  position: relative;
+  z-index: 2;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: #b0811a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14px 40px rgba(176, 129, 26, 0.55), 0 0 0 10px rgba(176, 129, 26, 0.15);
+  transition: all 0.3s ease;
+}
+
+.hero-standalone-play-btn:hover .play-btn-circle-standalone {
+  background: #c79624;
+  box-shadow: 0 18px 50px rgba(176, 129, 26, 0.75), 0 0 0 14px rgba(176, 129, 26, 0.25);
+}
+
+.play-btn-pulse-ring {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(176, 129, 26, 0.7);
+  animation: standalonePlayPulse 2.2s infinite;
+  z-index: 1;
+}
+
+@keyframes standalonePlayPulse {
+  0% { transform: translateX(-50%) scale(0.9); opacity: 0.9; }
+  100% { transform: translateX(-50%) scale(1.75); opacity: 0; }
+}
+
+.play-btn-label {
+  position: relative;
+  z-index: 2;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(8px);
+  padding: 7px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.hero-standalone-play-btn:hover .play-btn-label {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(176, 129, 26, 0.6);
+}
+
+/* Transparent Dark Blur Lightbox Video Modal Backdrop (No Gradient, Same Page Background) */
+.church-video-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s ease;
+}
+
+.church-video-modal-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.church-video-modal-card {
+  width: min(920px, 94vw);
+  background: #0f172a;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  transform: scale(0.94);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.church-video-modal-backdrop.open .church-video-modal-card {
+  transform: scale(1);
+}
+
+.video-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: rgba(30, 41, 59, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.video-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.video-modal-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.video-modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.08);
+}
+
+.video-modal-player-wrap {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  background: #000000;
+}
+
+.video-modal-player-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ==========================================================================
+   Modernized Weekly Gathering Times Cards & Calendar Download UX
+   ========================================================================== */
+
+.gathering-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .gathering-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .gathering-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gathering-modern-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.gathering-modern-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(176, 129, 26, 0.4);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+}
+
+.gathering-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.gathering-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(176, 129, 26, 0.1);
+  color: #b0811a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gathering-icon-badge svg {
+  width: 22px;
+  height: 22px;
+}
+
+.gathering-time-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.gathering-time-pill svg {
+  width: 14px;
+  height: 14px;
+  color: #b0811a;
+}
+
+.gathering-card-body {
+  margin-bottom: 20px;
+}
+
+.gathering-title {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.gathering-desc {
+  font-size: 0.84rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.gathering-cal-btn {
+  width: 100%;
+  height: 44px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(176, 129, 26, 0.3);
+  background: rgba(176, 129, 26, 0.05);
+  color: #b0811a;
+  font-size: 0.85rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gathering-cal-btn:hover {
+  background: #b0811a;
+  border-color: #b0811a;
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(176, 129, 26, 0.3);
+  transform: translateY(-1px);
+}
+
+/* ========================================================================== 
+   Electric Intelligence — shared platform theme
+   ========================================================================== */
+:root {
+  --brand-cyan: #1798e5;
+  --brand-blue: #3378ec;
+  --brand-violet: #7356eb;
+  --brand-violet-soft: #8374ed;
+  --background: #f6f6fe;
+  --background-secondary: #eceefc;
+  --surface: #ffffff;
+  --surface-soft: #f4f5fd;
+  --surface-hover: #eef4ff;
+  --text-primary: #041234;
+  --text-secondary: #33405a;
+  --text-muted: #5b6d89;
+  --text-disabled: #8992a7;
+  --border: #d1d9ee;
+  --border-subtle: #e5e8f5;
+  --primary: #3378ec;
+  --primary-hover: #286ade;
+  --primary-soft: #eef4ff;
+  --secondary: #7356eb;
+  --secondary-hover: #6547df;
+  --secondary-soft: #f1eeff;
+  --success: #16a66a;
+  --success-soft: #eaf9f2;
+  --warning: #e69a22;
+  --warning-soft: #fff7e6;
+  --danger: #e24b5b;
+  --danger-soft: #fff0f2;
+  --info: #1798e5;
+  --info-soft: #eaf7fe;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --shadow-card: 0 12px 35px rgba(22, 42, 87, 0.06), 0 3px 10px rgba(115, 86, 235, 0.04);
+  --shadow-primary: 0 10px 28px rgba(51, 120, 236, 0.2);
+  --gradient-brand: linear-gradient(135deg, #1798e5 0%, #3378ec 45%, #7356eb 100%);
+
+  /* Legacy token compatibility */
+  --color-primary-gold: var(--brand-blue);
+  --color-primary-gold-dark: var(--primary-hover);
+  --ink: var(--text-primary);
+  --muted: var(--text-muted);
+  --soft: var(--background);
+  --soft-2: var(--background-secondary);
+  --line: var(--border);
+  --forest: var(--brand-blue);
+  --teal: var(--brand-cyan);
+  --gold: var(--brand-blue);
+  --clay: var(--brand-violet);
+  --plum: var(--brand-violet);
+  --blue: var(--brand-blue);
+  --shadow: var(--shadow-card);
+  --radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: Inter, "Twemoji Country Flags", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html { background: var(--background); }
+
+body {
+  color: var(--text-primary);
+  background:
+    radial-gradient(circle at 8% 5%, rgba(115, 86, 235, 0.08), transparent 28%),
+    radial-gradient(circle at 92% 12%, rgba(23, 152, 229, 0.09), transparent 30%),
+    var(--background);
+  font-family: Inter, "Twemoji Country Flags", ui-sans-serif, system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6,
+.brand strong,
+.dash-title h1,
+.search-card-header h2 {
+  color: var(--text-primary);
+  font-family: Manrope, Inter, ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.035em;
+}
+
+p, .lead, .subtitle, .text-muted { color: var(--text-muted); }
+
+::selection { color: #ffffff; background: var(--brand-violet); }
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 3px solid rgba(51, 120, 236, 0.28);
+  outline-offset: 3px;
+}
+
+/* Shared navigation */
+.topbar,
+.dash-topbar,
+.live-page .topbar {
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+  background: rgba(246, 246, 254, 0.88);
+  box-shadow: 0 8px 30px rgba(22, 42, 87, 0.045);
+  backdrop-filter: blur(18px);
+}
+
+.brand { color: var(--text-primary); }
+.brand small { color: var(--text-muted); }
+.brand-mark,
+.footer-brand-mark,
+.mini-footer-mark {
+  border: 0;
+  color: #ffffff;
+  background: var(--gradient-brand);
+  box-shadow: 0 8px 22px rgba(51, 120, 236, 0.18);
+}
+
+.nav-links a { color: var(--text-secondary); }
+.nav-links a:hover,
+.nav-links a.active { color: var(--text-primary); background: var(--primary-soft); }
+.nav-links a.active::after { background: var(--brand-blue); }
+.nav-links a.highlight-link { color: var(--brand-violet); background: var(--secondary-soft); }
+.mobile-menu-toggle { color: var(--brand-blue); border-color: var(--border); background: #ffffff; }
+
+/* Buttons and actions */
+:where(.button.primary, .button.gold, .btn-gold, .search-submit-button, .footer-button.primary,
+  .hero-action-btn.primary, .form-nav-btn.btn-gold, .salvation-confirm-btn,
+  .gathering-cal-btn:hover, .dashboard-primary-action, .profile-primary-action) {
+  border-color: transparent !important;
+  color: #ffffff !important;
+  background: var(--gradient-brand) !important;
+  box-shadow: var(--shadow-primary) !important;
+}
+
+:where(.button.primary, .button.gold, .btn-gold, .search-submit-button, .footer-button.primary,
+  .hero-action-btn.primary, .form-nav-btn.btn-gold, .salvation-confirm-btn):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(51, 120, 236, 0.26), 0 6px 18px rgba(115, 86, 235, 0.18) !important;
+}
+
+:where(.button.secondary, .button.ghost, .button.outline, .footer-button, .form-nav-btn.btn-outline) {
+  border-color: var(--border) !important;
+  color: var(--text-secondary) !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+:where(.button.secondary, .button.ghost, .button.outline, .footer-button, .form-nav-btn.btn-outline):hover {
+  border-color: #aeb9e2 !important;
+  color: var(--brand-blue) !important;
+  background: var(--surface-soft) !important;
+}
+
+/* Inputs and selected states */
+:where(input, select, textarea, .field, .floating-input, .search-hero-input, .share-link-input) {
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+  background: #ffffff !important;
+}
+
+:where(input, select, textarea, .field, .floating-input, .search-hero-input):focus {
+  border-color: var(--brand-blue) !important;
+  box-shadow: 0 0 0 4px rgba(51, 120, 236, 0.1) !important;
+  outline: 0;
+}
+
+:where(input, textarea)::placeholder { color: var(--text-disabled) !important; }
+
+:where(.active, .selected, [aria-selected="true"]):not(.button):not(.nav-links a) {
+  --selected-color: var(--brand-blue);
+}
+
+/* Reusable surfaces */
+:where(.card, .dash-panel, .side-card, .kpi-card, .live-card, .modal-card, .search-card,
+  .gateway-card, .explainer-video-card, .salvation-card, .content-callout,
+  .readable-grid > div, .master-giving-card, .master-kpi-card, .master-pillar-card,
+  .app-banner-card, .foundation-project-card, .event-card, .church-card,
+  .filter-dropdown-panel, .church-quick-contact-card, .sticky-connection-card) {
+  border-color: rgba(209, 217, 238, 0.78) !important;
+  background: rgba(255, 255, 255, 0.93) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+:where(.card, .gateway-card, .event-card, .church-card, .master-pillar-card):hover {
+  border-color: rgba(51, 120, 236, 0.28) !important;
+  box-shadow: 0 18px 46px rgba(22, 42, 87, 0.09), 0 5px 16px rgba(115, 86, 235, 0.06) !important;
+}
+
+:where(.gateway-icon, .category-icon, .kpi-card .icon, .command-card .icon,
+  .progress-item i, .activity-item i, .control-dot, .gathering-icon-badge) {
+  color: var(--brand-blue) !important;
+  background: var(--primary-soft) !important;
+  box-shadow: 0 8px 22px rgba(51, 120, 236, 0.08);
+}
+
+.kicker, .eyebrow, .eyebrow-light, .gateway-link { color: var(--brand-blue) !important; }
+.tag, .badge, .pill { border-color: #dce5fa; color: var(--brand-blue); background: var(--primary-soft); }
+
+/* Landing page: bright immersive technology atmosphere */
+body[data-page="home"] .hero-fullscreen {
+  color: var(--text-primary);
+  background:
+    radial-gradient(circle at 17% 44%, rgba(115, 86, 235, 0.15), transparent 34%),
+    radial-gradient(circle at 70% 35%, rgba(23, 152, 229, 0.16), transparent 36%),
+    var(--background);
+}
+
+body[data-page="home"] .video-background { opacity: 0.07; filter: saturate(0.65) hue-rotate(165deg); }
+body[data-page="home"] .hero-glow-overlay { background: rgba(246, 246, 254, 0.62); }
+body[data-page="home"] .hero-left h1 { color: var(--text-primary); text-shadow: none; }
+body[data-page="home"] .hero-left .lead { color: var(--text-secondary); text-shadow: none; }
+body[data-page="home"] .eyebrow-light { border-color: rgba(51,120,236,0.18); color: var(--brand-blue) !important; background: rgba(255,255,255,0.68); }
+body[data-page="home"] .search-card { color: var(--text-primary); backdrop-filter: blur(18px); }
+body[data-page="home"] .slider-label { color: var(--brand-blue); }
+body[data-page="home"] .slider-container-box { border-color: var(--border); background: rgba(255,255,255,0.78); box-shadow: var(--shadow-card); }
+body[data-page="home"] .platform-gateway-section,
+body[data-page="home"] .bg-soft { background: rgba(236, 238, 252, 0.54) !important; }
+
+/* Directory, event, content, donation and foundation pages */
+.search-hero-section,
+.directory-hero,
+.events-hero,
+.foundation-hero,
+.privacy-hero,
+.donate-master-hero {
+  background:
+    radial-gradient(circle at 18% 35%, rgba(115, 86, 235, 0.11), transparent 35%),
+    radial-gradient(circle at 78% 28%, rgba(23, 152, 229, 0.12), transparent 38%),
+    var(--background) !important;
+}
+
+.search-hero-icon { color: var(--brand-blue); }
+.filter-trigger.active,
+.filter-chip.active,
+.live-tab-button.active,
+.dash-nav a.active,
+.dash-nav a:hover,
+.dash-nav button:hover {
+  border-color: #d7e3fb !important;
+  color: var(--brand-blue) !important;
+  background: var(--primary-soft) !important;
+}
+
+.donate-hero-slide::after { background: linear-gradient(90deg, rgba(4,18,52,0.78), rgba(4,18,52,0.22)); }
+.donate-hero-slide .button.primary,
+.master-giving-card .button.primary,
+.foundation-app-banner .button.primary { background: var(--gradient-brand) !important; border-color: transparent !important; }
+.master-kpi-card strong, .impact-value { color: var(--brand-blue) !important; }
+
+/* Dashboards and portals */
+.dash-body,
+.login-screen,
+.live-page {
+  color: var(--text-primary);
+  background:
+    radial-gradient(circle at 12% 4%, rgba(115,86,235,0.08), transparent 28%),
+    radial-gradient(circle at 90% 8%, rgba(23,152,229,0.09), transparent 30%),
+    var(--background);
+}
+
+.dash-sidebar { border-color: var(--border-subtle); background: rgba(255,255,255,0.9); }
+.avatar { color: var(--brand-blue); background: var(--primary-soft); }
+.field-category { border-color: var(--border-subtle); }
+.block-editor, .command-card, .pastor-readable { border-color: var(--border); background: var(--surface-soft); }
+.block-editor[open] { background: rgba(4,18,52,0.52); }
+.mini-chart .bar, .bar { background: var(--background-secondary); }
+.bar span { background: var(--gradient-brand); }
+
+/* Livestream */
+.live-player, .live-sidebar-tabs { border-color: var(--border); box-shadow: var(--shadow-card); }
+.live-control-bar, .live-card, .live-tab-list { background: rgba(255,255,255,0.94); }
+.live-tab-button { border-color: var(--border); color: var(--text-secondary); background: #ffffff; }
+.chat-list, #player-chat-box { border-color: var(--border-subtle); background: var(--surface-soft) !important; }
+
+/* Footer */
+.platform-footer,
+.mini-footer {
+  border-color: var(--border-subtle);
+  color: var(--text-secondary);
+  background: #eef0fb;
+}
+
+.footer-brand, .mini-footer-brand, .footer-column h2 { color: var(--text-primary); }
+.footer-description, .footer-links a, .footer-contact-row, .footer-bottom, .mini-footer-meta { color: var(--text-muted); }
+.footer-links a:hover, .mini-footer-links a:hover { color: var(--brand-blue); }
+.footer-contact-card { border-color: rgba(209,217,238,0.8); background: rgba(255,255,255,0.6); }
+.footer-status { color: var(--success); background: var(--success-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
+
+/* Strict legacy-gold purge: no amber/yellow styling remains visible */
+.kicker,
+.section-head .kicker,
+.donate-slide-eyebrow,
+.impact-card-badge,
+.master-pillar-icon-badge,
+.master-kpi-icon,
+.donation-trust-icon,
+.gathering-icon-badge,
+.event-category-badge,
+.category-badge,
+.filter-count-badge {
+  border-color: rgba(51, 120, 236, 0.18) !important;
+  color: var(--brand-blue) !important;
+  background: var(--primary-soft) !important;
+  box-shadow: 0 8px 22px rgba(51, 120, 236, 0.08) !important;
+}
+
+.master-pillar-card:hover,
+.master-kpi-card:hover,
+.gateway-card:hover,
+.foundation-project-card:hover {
+  border-color: rgba(51, 120, 236, 0.3) !important;
+}
+
+:where(.testimony-stars, .rating-stars, .event-price, .donation-highlight,
+  .profile-link, .gathering-time-pill, .category-card-btn,
+  .foundation-project-card .project-link, .master-giving-card a) {
+  color: var(--brand-blue) !important;
+}
+
+body [style*="color: #b0811a"],
+body [style*="color:#b0811a"],
+body [style*="color: #c79624"],
+body [style*="color:#c79624"],
+body [style*="color: var(--gold)"],
+body [style*="color:var(--gold)"],
+body [style*="color: var(--color-primary-gold)"],
+body [style*="color:var(--color-primary-gold)"] {
+  color: var(--brand-blue) !important;
+}
+
+body [style*="background: #b0811a"],
+body [style*="background:#b0811a"],
+body [style*="background: #c79624"],
+body [style*="background:#c79624"],
+body [style*="background: var(--gold)"],
+body [style*="background:var(--gold)"],
+body [style*="background: var(--color-primary-gold)"],
+body [style*="background:var(--color-primary-gold)"] {
+  border-color: transparent !important;
+  color: #ffffff !important;
+  background: var(--gradient-brand) !important;
+  box-shadow: var(--shadow-primary) !important;
+}
+
+body [style*="176, 129, 26"],
+body [style*="199, 150, 36"],
+body [style*="226, 168, 87"] {
+  border-color: rgba(51, 120, 236, 0.28) !important;
+  box-shadow: 0 8px 22px rgba(51, 120, 236, 0.12) !important;
+}
+
+.master-dark-banner .eyebrow,
+.master-dark-banner [style*="176, 129, 26"] {
+  border-color: rgba(131, 116, 237, 0.4) !important;
+  color: #dcd6ff !important;
+  background: rgba(115, 86, 235, 0.22) !important;
+}
+
+.master-dark-banner [data-lucide="check-circle-2"] { color: #8fb3ff !important; }
+
+.hero-standalone-play-btn,
+.play-btn-circle-standalone,
+.audio-control-btn.btn-play-pause,
+.success-check-circle {
+  border-color: transparent !important;
+  color: #ffffff !important;
+  background: var(--gradient-brand) !important;
+  box-shadow: 0 12px 32px rgba(51, 120, 236, 0.26) !important;
+}
+
+.filter-pill.active,
+.advanced-filter-pill.active,
+.event-filter-pill.active,
+.church-tab-button.active {
+  border-color: var(--brand-blue) !important;
+  color: var(--brand-blue) !important;
+  background: var(--primary-soft) !important;
+  box-shadow: 0 6px 18px rgba(51, 120, 236, 0.14) !important;
+}
+
+.master-impact-section {
+  border-color: var(--border-subtle) !important;
+  background: rgba(246, 246, 254, 0.72) !important;
 }

@@ -3,24 +3,42 @@
   "name": "my-way-of-evangelism",
   "account_id": "431b9efd75ed20c548b4a06fe85960f0",
   "main": "./src/worker.js",
-  "compatibility_date": "2026-06-25",
+  "compatibility_date": "2026-08-19",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS"
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "my-way-of-evangelism",
+      "migrations_dir": "./migrations"
+    }
+  ],
   "vars": {
     "APP_NAME": "My Way of Evangelism",
     "ENVIRONMENT": "production"
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
+    "head_sampling_rate": 1
   },
   "env": {
     "preview": {
+      "name": "my-way-of-evangelism-preview",
       "vars": {
         "APP_NAME": "My Way of Evangelism",
         "ENVIRONMENT": "preview"
-      }
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "my-way-of-evangelism-preview",
+          "database_id": "90459ead-80ef-4b6d-b88b-b47216bf9ce5",
+          "migrations_dir": "./migrations"
+        }
+      ]
     }
   }
 }

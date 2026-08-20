@@ -1,22 +1,45 @@
-const corsHeaders = {
-  "access-control-allow-origin": "*",
+const apiHeaders = {
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "access-control-allow-headers": "content-type, authorization"
+  "access-control-allow-headers": "content-type, authorization",
+  "cache-control": "no-store",
+  "x-content-type-options": "nosniff"
 };
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status,
   headers: {
     "content-type": "application/json; charset=utf-8",
-    ...corsHeaders
+    ...apiHeaders
   }
 });
 
 const unauthorized = () => json({ ok: false, error: "unauthorized" }, 401);
+const storageUnavailable = () => json({
+  ok: false,
+  error: "storage unavailable",
+  message: "The database binding is not configured for this environment."
+}, 503);
+
+function constantTimeEqual(left, right) {
+  const encoder = new TextEncoder();
+  const leftBytes = encoder.encode(String(left || ""));
+  const rightBytes = encoder.encode(String(right || ""));
+  const length = Math.max(leftBytes.length, rightBytes.length);
+  let difference = leftBytes.length ^ rightBytes.length;
+
+  for (let index = 0; index < length; index += 1) {
+    difference |= (leftBytes[index] || 0) ^ (rightBytes[index] || 0);
+  }
+
+  return difference === 0;
+}
 
 function isAuthorized(request, env) {
-  if (!env.ADMIN_API_TOKEN) return true;
-  return request.headers.get("authorization") === `Bearer ${env.ADMIN_API_TOKEN}`;
+  if (!env.ADMIN_API_TOKEN) return false;
+  return constantTimeEqual(
+    request.headers.get("authorization"),
+    `Bearer ${env.ADMIN_API_TOKEN}`
+  );
 }
 
 function slugify(text) {
@@ -28,7 +51,28 @@ function slugify(text) {
 }
 
 async function readJson(request) {
-  return request.json().catch(() => null);
+  const declaredLength = Number(request.headers.get("content-length") || 0);
+  if (declaredLength > 64 * 1024) {
+    throw new ApiError(413, "request body too large");
+  }
+
+  try {
+    return await request.json();
+  } catch {
+    throw new ApiError(400, "invalid JSON body");
+  }
+}
+
+class ApiError extends Error {
+  constructor(status, message) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+function registrationCode() {
+  return `REG-${crypto.randomUUID().replaceAll("-", "").slice(0, 12).toUpperCase()}`;
 }
 
 async function handleStatus(env) {
@@ -36,9 +80,13 @@ async function handleStatus(env) {
     ok: true,
     app: "my-way-of-evangelism-api",
     role: "Shared synchronization API for public website, church portal, and owner dashboard",
+    environment: env.ENVIRONMENT || "unknown",
     storage: {
       d1Bound: Boolean(env.DB),
       binding: "DB"
+    },
+    security: {
+      adminAuthorizationConfigured: Boolean(env.ADMIN_API_TOKEN)
     },
     applications: [
       { name: "Public Website", route: "/", authentication: "none" },
@@ -50,9 +98,9 @@ async function handleStatus(env) {
 }
 
 async function handlePublicChurches(request, env) {
-  if (request.method === "GET") {
-    if (!env.DB) return json({ ok: true, churches: [] });
+  if (!env.DB) return storageUnavailable();
 
+  if (request.method === "GET") {
     const { results } = await env.DB.prepare(`
       select
         c.id, c.name, c.city, c.country, c.postal_code, c.denomination,
@@ -117,10 +165,9 @@ async function handlePublicChurches(request, env) {
 
 async function handleAdminChurches(request, env) {
   if (!isAuthorized(request, env)) return unauthorized();
+  if (!env.DB) return storageUnavailable();
 
   if (request.method === "GET") {
-    if (!env.DB) return json({ ok: true, churches: [] });
-
     const { results } = await env.DB.prepare(`
       select
         c.id, c.name, c.city, c.country, c.website, c.phone, c.email,
@@ -146,11 +193,16 @@ async function handleAdminChurches(request, env) {
 
     if (env.DB) {
       await env.DB.batch([
+        env.DB.prepare("delete from event_registrations where event_id in (select id from events where church_id = ?)").bind(id),
+        env.DB.prepare("delete from ride_followups where ride_request_id in (select id from ride_requests where church_id = ?)").bind(id),
         env.DB.prepare("delete from service_schedules where church_id = ?").bind(id),
         env.DB.prepare("delete from ministries where church_id = ?").bind(id),
         env.DB.prepare("delete from events where church_id = ?").bind(id),
         env.DB.prepare("delete from visitor_connections where church_id = ?").bind(id),
         env.DB.prepare("delete from prayer_requests where church_id = ?").bind(id),
+        env.DB.prepare("delete from ride_requests where church_id = ?").bind(id),
+        env.DB.prepare("delete from salvation_decisions where church_id = ?").bind(id),
+        env.DB.prepare("delete from church_staff_roles where church_id = ?").bind(id),
         env.DB.prepare("delete from church_profiles where church_id = ?").bind(id),
         env.DB.prepare("delete from livestream_activations where church_id = ?").bind(id),
         env.DB.prepare("delete from churches where id = ?").bind(id)
@@ -230,6 +282,7 @@ async function upsertChurch(request, env) {
 }
 
 async function handleChurchApplication(request, env) {
+  if (!env.DB) return storageUnavailable();
   const payload = await readJson(request);
   if (!payload?.churchName || !payload?.pastorName || !payload?.adminEmail) {
     return json({ ok: false, error: "churchName, pastorName, and adminEmail are required" }, 400);
@@ -265,6 +318,7 @@ async function handleChurchApplication(request, env) {
 }
 
 async function handleLivestreamActivation(request, env) {
+  if (!env.DB) return storageUnavailable();
   const payload = await readJson(request);
   if (!payload?.churchId || !payload?.livestreamUrl) {
     return json({ ok: false, error: "churchId and livestreamUrl are required" }, 400);
@@ -285,6 +339,7 @@ async function handleLivestreamActivation(request, env) {
 }
 
 async function handleVisitor(request, env) {
+  if (!env.DB) return storageUnavailable();
   const payload = await readJson(request);
   if (!payload?.fullName || !payload?.email || !payload?.churchId) {
     return json({ ok: false, error: "fullName, email, and churchId are required" }, 400);
@@ -316,6 +371,7 @@ async function handleVisitor(request, env) {
 }
 
 async function handlePrayer(request, env) {
+  if (!env.DB) return storageUnavailable();
   const payload = await readJson(request);
   if (!payload?.request) return json({ ok: false, error: "request is required" }, 400);
 
@@ -364,9 +420,9 @@ function assetRequest(request) {
 }
 
 async function handleEvents(request, env) {
-  if (request.method === "GET") {
-    if (!env.DB) return json({ ok: true, events: [] });
+  if (!env.DB) return storageUnavailable();
 
+  if (request.method === "GET") {
     const url = new URL(request.url);
     const city = url.searchParams.get("city");
     const churchId = url.searchParams.get("churchId");
@@ -473,6 +529,7 @@ async function handleEvents(request, env) {
 
 async function handleEventRegister(request, env) {
   if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
+  if (!env.DB) return storageUnavailable();
 
   const payload = await readJson(request);
   if (!payload?.eventId || !payload?.fullName || !payload?.email) {
@@ -481,7 +538,7 @@ async function handleEventRegister(request, env) {
 
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
-  const regCode = "REG-" + Math.floor(100000 + Math.random() * 900000);
+  const regCode = registrationCode();
   const qty = Number(payload.ticketQuantity || 1);
   const price = Number(payload.ticketPriceCents || 0);
   const amountPaid = qty * price;
@@ -505,23 +562,40 @@ async function handleEventRegister(request, env) {
 }
 
 async function handleApi(request, env) {
-  const url = new URL(request.url);
-  const path = url.pathname.replace(/\/+$/, "");
+  const requestId = crypto.randomUUID();
 
-  if (request.method === "OPTIONS") return json({ ok: true });
-  if (path === "/api/status" && request.method === "GET") return handleStatus(env);
-  if (path === "/api/churches") return handlePublicChurches(request, env);
-  if (path === "/api/admin/churches") return handleAdminChurches(request, env);
-  if (path === "/api/events") return handleEvents(request, env);
+  try {
+    const url = new URL(request.url);
+    const path = url.pathname.replace(/\/+$/, "");
 
-  if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
-  if (path === "/api/church-application") return handleChurchApplication(request, env);
-  if (path === "/api/livestream-activation") return handleLivestreamActivation(request, env);
-  if (path === "/api/visitor") return handleVisitor(request, env);
-  if (path === "/api/prayer") return handlePrayer(request, env);
-  if (path === "/api/event-register") return handleEventRegister(request, env);
+    if (request.method === "OPTIONS") return json({ ok: true });
+    if (path === "/api/status" && request.method === "GET") return await handleStatus(env);
+    if (path === "/api/churches") return await handlePublicChurches(request, env);
+    if (path === "/api/admin/churches") return await handleAdminChurches(request, env);
+    if (path === "/api/events") return await handleEvents(request, env);
 
-  return json({ ok: false, error: "not found" }, 404);
+    if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
+    if (path === "/api/church-application") return await handleChurchApplication(request, env);
+    if (path === "/api/livestream-activation") return await handleLivestreamActivation(request, env);
+    if (path === "/api/visitor") return await handleVisitor(request, env);
+    if (path === "/api/prayer") return await handlePrayer(request, env);
+    if (path === "/api/event-register") return await handleEventRegister(request, env);
+
+    return json({ ok: false, error: "not found" }, 404);
+  } catch (error) {
+    const status = error instanceof ApiError ? error.status : 500;
+    const message = error instanceof ApiError ? error.message : "internal server error";
+
+    console.error(JSON.stringify({
+      level: "error",
+      requestId,
+      method: request.method,
+      path: new URL(request.url).pathname,
+      error: error instanceof Error ? error.message : String(error)
+    }));
+
+    return json({ ok: false, error: message, requestId }, status);
+  }
 }
 
 export default {
@@ -544,3 +618,5 @@ export default {
     });
   }
 };
+
+export { constantTimeEqual, readJson, registrationCode };

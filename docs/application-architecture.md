@@ -40,7 +40,7 @@ My Way of Evangelism is organized as four applications that share one platform d
 ## 4. API App
 
 - Route: `/api/*`
-- Runtime: Cloudflare Pages Functions
+- Runtime: Cloudflare Worker (`src/worker.js`)
 - Data: D1, with R2/Queues/Turnstile planned
 - Responsibilities:
   - Provide synchronized church data to the public website, church portal, and owner dashboard
@@ -55,3 +55,5 @@ The current local preview uses a lightweight browser login gate for private app 
 - `/church-portal`: church account authentication with ownership verification
 - `/api/admin/*`: bearer/session authorization
 - `/api/churches` write paths: church session or application review workflow
+
+The files under `functions/api` are retained only as migration reference. New API work belongs in `src/worker.js` so there is one deployable backend.
