@@ -11544,3 +11544,51 @@ html[data-theme="dark"] .module-search {
   background: #131d31 !important;
   border-color: #1e293b !important;
 }
+
+/* More Dark Mode UI Fixes */
+html[data-theme="dark"] .custom-select-trigger {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+html[data-theme="dark"] .custom-select-trigger.country-dropdown {
+  background-image: none !important;
+}
+html[data-theme="dark"] .custom-options-panel {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+}
+html[data-theme="dark"] .custom-option {
+  color: #cbd5e1 !important;
+}
+html[data-theme="dark"] .custom-option:hover,
+html[data-theme="dark"] .custom-option.selected {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+html[data-theme="dark"] .country-section .custom-options-panel {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+}
+
+/* Member Account Menu Dropdown */
+html[data-theme="dark"] .member-account-menu {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  color: #f8fafc !important;
+}
+html[data-theme="dark"] .member-account-menu strong {
+  color: #f8fafc !important;
+}
+html[data-theme="dark"] .member-account-menu span {
+  color: #cbd5e1 !important;
+}
+html[data-theme="dark"] .member-account-menu a,
+html[data-theme="dark"] .member-account-menu button {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+html[data-theme="dark"] .member-account-menu a:hover,
+html[data-theme="dark"] .member-account-menu button:hover {
+  background: #334155 !important;
+}
