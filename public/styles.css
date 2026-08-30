@@ -2016,7 +2016,7 @@ body.hero-only-page main {
   display: none; /* Safari/Chrome */
 }
 
-/* Glassmorphism Church Cards */
+/* Responsive Church Slider Cards */
 .tiny-church-card {
   flex: 0 0 310px;
   display: flex;
@@ -2024,12 +2024,12 @@ body.hero-only-page main {
   gap: 12px;
   padding: 12px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.12) 100%);
+  border: 1px solid var(--border);
+  background: var(--surface-card);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  color: #fff;
-  opacity: 0.55;
+  color: var(--text-primary);
+  opacity: 0.95;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
               border-color 0.25s ease, 
               background-color 0.25s ease, 
@@ -2039,11 +2039,11 @@ body.hero-only-page main {
 }
 
 .tiny-church-card:hover {
-  transform: scale(1.07);
+  transform: scale(1.05);
   z-index: 10;
-  border-color: rgba(255, 255, 255, 0.45);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.20) 100%);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  border-color: var(--primary);
+  background: var(--surface-soft);
+  box-shadow: var(--shadow-card);
   opacity: 1;
 }
 
@@ -2052,8 +2052,8 @@ body.hero-only-page main {
   height: 80px;
   border-radius: 12px;
   object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
 }
 
 .tiny-card-info {
@@ -2067,7 +2067,7 @@ body.hero-only-page main {
 .tiny-card-name {
   font-size: 0.85rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2075,7 +2075,7 @@ body.hero-only-page main {
 
 .tiny-card-details {
   font-size: 0.74rem;
-  color: rgba(221, 230, 225, 0.75);
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2087,12 +2087,12 @@ body.hero-only-page main {
   gap: 4px;
   font-size: 0.65rem;
   font-weight: 900;
-  color: #f5cb6c;
+  color: var(--gold);
   text-transform: uppercase;
 }
 
 .slider-loading {
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-muted);
   font-size: 0.88rem;
   font-style: italic;
   padding: 10px 4px;
@@ -10227,9 +10227,10 @@ html[data-theme="dark"] .form-field span {
 }
 
 /* 4. Global Buttons & Action Controls */
-html[data-theme="dark"] .button,
+html[data-theme="dark"] .button.secondary,
+html[data-theme="dark"] .button.ghost,
 html[data-theme="dark"] button.ghost,
-html[data-theme="dark"] .button.ghost {
+html[data-theme="dark"] .button:not(.primary):not(.gold):not(.search-submit-button):not(.accent):not(.btn-gold):not(.btn-primary):not([type="submit"]):not(.light):not(.profile-primary-action):not(.profile-new-here) {
   background: #131d31;
   color: #f8fafc;
   border-color: #1e293b;
@@ -11968,4 +11969,158 @@ html[data-theme="dark"] .leader-facts > div {
 html[data-theme="dark"] .leader-bio .kicker {
   background-color: var(--surface-soft) !important;
   color: var(--primary) !important;
+}
+
+/* Explicit Theme Control for Slider Cards in Light vs Dark Mode */
+html:not([data-theme="dark"]) .tiny-church-card {
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: #0f172a !important;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06) !important;
+}
+html:not([data-theme="dark"]) .tiny-church-card:hover {
+  border-color: var(--primary) !important;
+  background: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12) !important;
+}
+html:not([data-theme="dark"]) .tiny-card-name {
+  color: #0f172a !important;
+}
+html:not([data-theme="dark"]) .tiny-card-details {
+  color: #64748b !important;
+}
+html:not([data-theme="dark"]) .tiny-card-tag {
+  color: var(--gold-text, #92400e) !important;
+}
+html:not([data-theme="dark"]) .slider-loading {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .tiny-church-card {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: rgba(20, 31, 54, 0.85) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+html[data-theme="dark"] .tiny-church-card:hover {
+  border-color: var(--primary) !important;
+  background: rgba(26, 41, 72, 0.95) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6) !important;
+}
+html[data-theme="dark"] .tiny-card-name {
+  color: #f8fafc !important;
+}
+html[data-theme="dark"] .tiny-card-details {
+  color: #94a3b8 !important;
+}
+html[data-theme="dark"] .tiny-card-tag {
+  color: var(--gold) !important;
+}
+html[data-theme="dark"] .slider-loading {
+  color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   UNIVERSAL THEME-COLORED BUTTON ENGINE (LIGHT & DARK MODE)
+   Guarantees all primary & theme buttons preserve selected spectrum accent color
+   ========================================================================== */
+.button.primary,
+.btn-primary,
+.search-submit-button,
+.button.search-submit-button,
+.profile-primary-action,
+.profile-new-here,
+.btn-submit,
+.auth-submit-btn,
+a.button.primary,
+button.primary,
+button.search-submit-button,
+button[type="submit"].primary,
+html[data-theme="dark"] .button.primary,
+html[data-theme="dark"] .btn-primary,
+html[data-theme="dark"] .search-submit-button,
+html[data-theme="dark"] .button.search-submit-button,
+html[data-theme="dark"] .profile-primary-action,
+html[data-theme="dark"] .profile-new-here,
+html[data-theme="dark"] .btn-submit,
+html[data-theme="dark"] .auth-submit-btn,
+html[data-theme="dark"] a.button.primary,
+html[data-theme="dark"] button.primary,
+html[data-theme="dark"] button.search-submit-button,
+html[data-theme="dark"] button[type="submit"].primary {
+  background: var(--gradient-brand, var(--primary-gradient, var(--primary))) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 6px 20px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.35) !important;
+}
+
+.button.primary:hover,
+.btn-primary:hover,
+.search-submit-button:hover,
+.button.search-submit-button:hover,
+.profile-primary-action:hover,
+.profile-new-here:hover,
+.btn-submit:hover,
+.auth-submit-btn:hover,
+a.button.primary:hover,
+button.primary:hover,
+button.search-submit-button:hover,
+button[type="submit"].primary:hover,
+html[data-theme="dark"] .button.primary:hover,
+html[data-theme="dark"] .btn-primary:hover,
+html[data-theme="dark"] .search-submit-button:hover,
+html[data-theme="dark"] .button.search-submit-button:hover,
+html[data-theme="dark"] .profile-primary-action:hover,
+html[data-theme="dark"] .profile-new-here:hover,
+html[data-theme="dark"] .btn-submit:hover,
+html[data-theme="dark"] .auth-submit-btn:hover,
+html[data-theme="dark"] a.button.primary:hover,
+html[data-theme="dark"] button.primary:hover,
+html[data-theme="dark"] button.search-submit-button:hover,
+html[data-theme="dark"] button[type="submit"].primary:hover {
+  background: var(--primary-hover, hsl(var(--primary-h), var(--primary-s), calc(var(--primary-l) - 7%))) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 28px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.5) !important;
+}
+
+/* Universal Gold Buttons */
+.button.gold,
+.btn-gold,
+a.button.gold,
+button.gold,
+html[data-theme="dark"] .button.gold,
+html[data-theme="dark"] .btn-gold,
+html[data-theme="dark"] a.button.gold,
+html[data-theme="dark"] button.gold {
+  background: var(--gold-gradient, var(--gold)) !important;
+  color: #000000 !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(var(--gold-rgb), 0.35) !important;
+}
+
+.button.gold:hover,
+.btn-gold:hover,
+a.button.gold:hover,
+button.gold:hover,
+html[data-theme="dark"] .button.gold:hover,
+html[data-theme="dark"] .btn-gold:hover,
+html[data-theme="dark"] a.button.gold:hover,
+html[data-theme="dark"] button.gold:hover {
+  background: var(--gold-hover, #d97706) !important;
+  color: #000000 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 28px rgba(var(--gold-rgb), 0.45) !important;
+}
+
+/* Active Chips & Filter Pills */
+html[data-theme="dark"] .filter-pill.active,
+html[data-theme="dark"] .category-pill.active,
+html[data-theme="dark"] .tab-btn.active,
+html[data-theme="dark"] .live-tab-btn.active,
+html[data-theme="dark"] .amount-btn.active,
+html[data-theme="dark"] .frequency-btn.active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
 }
