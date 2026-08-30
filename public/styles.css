@@ -12903,3 +12903,181 @@ html[data-theme="dark"] .member-auth-submit:hover {
   transform: translateY(-2px) !important;
   box-shadow: 0 10px 25px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.5) !important;
 }
+
+/* ==========================================================================
+   COMPREHENSIVE DYNAMIC THEME COLOR ACCENTS (LIGHT & DARK MODES)
+   ========================================================================== */
+
+/* 1. Event Cards: Month & Price Badge (events.html) */
+.event-date-month,
+.is-featured-banner .event-date-month,
+html[data-theme="dark"] .event-date-month,
+html[data-theme="dark"] .is-featured-banner .event-date-month {
+  color: var(--primary) !important;
+}
+
+.event-price-tag-sub,
+.is-featured-banner .event-price-tag-sub,
+html[data-theme="dark"] .event-price-tag-sub,
+html[data-theme="dark"] .is-featured-banner .event-price-tag-sub {
+  color: var(--primary) !important;
+  background: var(--primary-surface) !important;
+  border: 1px solid var(--primary-border) !important;
+}
+
+/* 2. Kickers & Category Badges (livestream.html, channels.html, store.html, etc.) */
+.kicker,
+.module-kicker,
+.broadcast-kicker,
+.hero-badge,
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .module-kicker,
+html[data-theme="dark"] .broadcast-kicker,
+html[data-theme="dark"] .hero-badge {
+  color: var(--primary) !important;
+  background: var(--primary-surface) !important;
+  border-color: var(--primary-border) !important;
+}
+
+.kicker svg,
+.kicker i,
+.module-kicker svg,
+.module-kicker i,
+html[data-theme="dark"] .kicker svg,
+html[data-theme="dark"] .kicker i,
+html[data-theme="dark"] .module-kicker svg,
+html[data-theme="dark"] .module-kicker i {
+  color: var(--primary) !important;
+}
+
+/* 3. Livestream Buttons & Chat Send (livestream.html) */
+#visit-church-btn,
+.stream-action-primary,
+.stream-chat-send-btn,
+.stream-chat-send,
+#stream-chat-submit,
+html[data-theme="dark"] #visit-church-btn,
+html[data-theme="dark"] .stream-action-primary,
+html[data-theme="dark"] .stream-chat-send-btn,
+html[data-theme="dark"] .stream-chat-send,
+html[data-theme="dark"] #stream-chat-submit {
+  background: var(--gradient-brand, var(--primary-gradient, var(--primary))) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 16px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.35) !important;
+}
+
+#visit-church-btn:hover,
+.stream-chat-send-btn:hover,
+#stream-chat-submit:hover,
+html[data-theme="dark"] #visit-church-btn:hover,
+html[data-theme="dark"] .stream-chat-send-btn:hover,
+html[data-theme="dark"] #stream-chat-submit:hover {
+  background: var(--primary-hover) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) scale(1.02) !important;
+}
+
+#share-stream-btn,
+html[data-theme="dark"] #share-stream-btn {
+  border: 1px solid var(--primary-border) !important;
+  color: var(--primary) !important;
+  background: var(--primary-surface) !important;
+}
+
+#share-stream-btn:hover,
+html[data-theme="dark"] #share-stream-btn:hover {
+  border-color: var(--primary) !important;
+  background: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+/* 4. Module Hero Ambient Blobs (store.html, channels.html, resources.html, seller-dashboard.html) */
+.module-hero::before,
+html[data-theme="dark"] .module-hero::before {
+  background: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.22) !important;
+}
+
+.module-hero::after,
+html[data-theme="dark"] .module-hero::after {
+  background: hsla(calc(var(--primary-h) + 25), var(--primary-s), var(--primary-l), 0.18) !important;
+}
+
+.store-hero-actions .button i,
+.store-hero-actions .button svg,
+.module-hero .button i,
+.module-hero .button svg {
+  color: var(--primary) !important;
+}
+
+/* 5. Product & Resource Details (product-detail.html, resource-detail.html) */
+.product-detail-category,
+.product-detail-rating span:first-child,
+.product-detail-features svg,
+.product-seller-panel button,
+.product-seller-panel a,
+.view-seller-link,
+.audio-artwork button,
+.channel-audio-art button,
+#resource-audio-toggle,
+.resource-cover-icon,
+html[data-theme="dark"] .product-detail-category,
+html[data-theme="dark"] .product-detail-rating span:first-child,
+html[data-theme="dark"] .product-detail-features svg,
+html[data-theme="dark"] .product-seller-panel button,
+html[data-theme="dark"] .product-seller-panel a,
+html[data-theme="dark"] .view-seller-link,
+html[data-theme="dark"] .audio-artwork button,
+html[data-theme="dark"] .channel-audio-art button,
+html[data-theme="dark"] #resource-audio-toggle,
+html[data-theme="dark"] .resource-cover-icon {
+  color: var(--primary) !important;
+}
+
+.product-thumbnails button.active,
+html[data-theme="dark"] .product-thumbnails button.active {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--primary-surface) !important;
+}
+
+.product-detail-add,
+#product-detail-add,
+#resource-read-action,
+html[data-theme="dark"] .product-detail-add,
+html[data-theme="dark"] #product-detail-add,
+html[data-theme="dark"] #resource-read-action {
+  background: var(--gradient-brand, var(--primary-gradient, var(--primary))) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 10px 28px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.35) !important;
+}
+
+.product-detail-add:hover,
+#product-detail-add:hover,
+#resource-read-action:hover,
+html[data-theme="dark"] .product-detail-add:hover,
+html[data-theme="dark"] #product-detail-add:hover,
+html[data-theme="dark"] #resource-read-action:hover {
+  background: var(--primary-hover) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 14px 34px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.45) !important;
+}
+
+.resource-download-action,
+#resource-download-action,
+html[data-theme="dark"] .resource-download-action,
+html[data-theme="dark"] #resource-download-action {
+  border: 1px solid var(--primary-border) !important;
+  color: var(--primary) !important;
+  background: var(--primary-surface) !important;
+}
+
+.resource-download-action:hover,
+#resource-download-action:hover,
+html[data-theme="dark"] .resource-download-action:hover,
+html[data-theme="dark"] #resource-download-action:hover {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #ffffff !important;
+}
