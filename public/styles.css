@@ -10613,24 +10613,48 @@ html[data-theme="dark"] .church-card-immersive {
 }
 
 /* 11. Page 3: Church Profile (church-profile.html) */
+html[data-theme="dark"] body[data-page="profile"] .church-tabs-nav {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
 html[data-theme="dark"] body[data-page="profile"] .church-tab-button {
-  background: #131d31 !important;
-  border: 1.5px solid #1e293b !important;
-  color: #94a3b8 !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2) !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-muted) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] body[data-page="profile"] .church-tab-button + .church-tab-button {
+  border-left: 1px solid var(--border) !important;
 }
 
 html[data-theme="dark"] body[data-page="profile"] .church-tab-button:hover {
-  background: #182540 !important;
-  color: #f8fafc !important;
-  border-color: var(--primary) !important;
+  background: var(--primary-surface) !important;
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] body[data-page="profile"] .church-tab-button:hover svg,
+html[data-theme="dark"] body[data-page="profile"] .church-tab-button:hover i {
+  color: var(--primary) !important;
 }
 
 html[data-theme="dark"] body[data-page="profile"] .church-tab-button.active {
-  background: #182540 !important;
-  color: #f8fafc !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 6px 20px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.3) !important;
+  background: transparent !important;
+  color: var(--primary) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] body[data-page="profile"] .church-tab-button.active svg,
+html[data-theme="dark"] body[data-page="profile"] .church-tab-button.active i {
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] body[data-page="profile"] .church-tab-button.active::after {
+  background: var(--primary) !important;
+  box-shadow: 0 0 10px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.45) !important;
 }
 
 html[data-theme="dark"] body[data-page="profile"] .leader-bio h2.leader-name {
@@ -12375,4 +12399,85 @@ html[data-theme="dark"] .member-auth-close {
 html[data-theme="dark"] .member-auth-close:hover {
   background: var(--border) !important;
   color: var(--text-primary) !important;
+}
+
+/* ==========================================================================
+   UNIVERSAL CHURCH TAB NAVIGATION THEME ACCENT (LIGHT & DARK MODE)
+   Active tab: theme-colored icon, theme-colored text, theme-colored bottom underline.
+   No outer colored rectangle borders!
+   ========================================================================== */
+.church-tabs-nav,
+body[data-page="profile"] .church-tabs-nav {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.church-tab-button,
+body[data-page="profile"] .church-tab-button {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--text-secondary) !important;
+}
+
+.church-tab-button + .church-tab-button,
+body[data-page="profile"] .church-tab-button + .church-tab-button {
+  border-left: 1px solid var(--border) !important;
+}
+
+.church-tab-button svg,
+.church-tab-button i,
+body[data-page="profile"] .church-tab-button svg,
+body[data-page="profile"] .church-tab-button i {
+  color: var(--text-muted) !important;
+  transition: color 0.2s ease;
+}
+
+.church-tab-button:hover,
+body[data-page="profile"] .church-tab-button:hover {
+  background: var(--primary-surface) !important;
+  color: var(--primary) !important;
+}
+
+.church-tab-button:hover svg,
+.church-tab-button:hover i,
+body[data-page="profile"] .church-tab-button:hover svg,
+body[data-page="profile"] .church-tab-button:hover i {
+  color: var(--primary) !important;
+}
+
+.church-tab-button.active,
+body[data-page="profile"] .church-tab-button.active,
+html[data-theme="dark"] .church-tab-button.active,
+html[data-theme="dark"] body[data-page="profile"] .church-tab-button.active {
+  background: transparent !important;
+  color: var(--primary) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.church-tab-button.active svg,
+.church-tab-button.active i,
+body[data-page="profile"] .church-tab-button.active svg,
+body[data-page="profile"] .church-tab-button.active i,
+html[data-theme="dark"] .church-tab-button.active svg,
+html[data-theme="dark"] .church-tab-button.active i,
+html[data-theme="dark"] body[data-page="profile"] .church-tab-button.active svg,
+html[data-theme="dark"] body[data-page="profile"] .church-tab-button.active i {
+  color: var(--primary) !important;
+}
+
+.church-tab-button.active::after,
+body[data-page="profile"] .church-tab-button.active::after,
+html[data-theme="dark"] .church-tab-button.active::after,
+html[data-theme="dark"] body[data-page="profile"] .church-tab-button.active::after {
+  position: absolute;
+  right: 18px;
+  bottom: 0;
+  left: 18px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--primary) !important;
+  content: "";
+  box-shadow: 0 0 10px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.45) !important;
 }
