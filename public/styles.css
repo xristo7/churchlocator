@@ -12124,3 +12124,80 @@ html[data-theme="dark"] .frequency-btn.active {
   color: #ffffff !important;
   border-color: var(--primary) !important;
 }
+
+/* ==========================================================================
+   EVENT CARD & GRID DARK MODE FIXES (events.html, index.html, etc.)
+   ========================================================================== */
+html[data-theme="dark"] .event-card-modern {
+  background: var(--surface-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme="dark"] .event-card-modern:hover {
+  border-color: var(--primary) !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+html[data-theme="dark"] .event-card-modern .event-card-title-new {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .event-card-modern .event-date-num {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .event-card-modern .event-date-month {
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] .event-card-modern .event-price-tag-sub {
+  background: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.18) !important;
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] .event-card-modern .event-date-divider {
+  background: var(--border) !important;
+}
+
+html[data-theme="dark"] .event-card-modern .event-location-pill {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] .event-card-modern .event-card-desc {
+  color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"] .event-card-top-badge {
+  background: rgba(15, 23, 42, 0.88) !important;
+  color: #f8fafc !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Gathering / Schedule Cards on Profile Page */
+html[data-theme="dark"] .gathering-modern-card {
+  background: var(--surface-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .gathering-card-header h4 {
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .gathering-card-body p {
+  color: var(--text-secondary) !important;
+}
+
+/* Master Giving Cards & Pillar Cards on Donate Page */
+html[data-theme="dark"] .master-giving-card,
+html[data-theme="dark"] .master-kpi-card,
+html[data-theme="dark"] .master-pillar-card,
+html[data-theme="dark"] .impact-media-card,
+html[data-theme="dark"] .hero-impact-card,
+html[data-theme="dark"] .app-banner-card,
+html[data-theme="dark"] .footer-contact-card {
+  background: var(--surface-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
