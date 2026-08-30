@@ -217,6 +217,10 @@
   frame.addEventListener("load", () => {
     loading?.classList.add("is-hidden");
     frame.classList.add("is-ready");
+    const currentTheme = document.documentElement.dataset.theme || "light";
+    const currentPrimary = document.documentElement.dataset.primary || "blue";
+    frame.contentWindow?.postMessage({ type: "mwe-theme", theme: currentTheme }, window.location.origin);
+    frame.contentWindow?.postMessage({ type: "mwe-primary-color", primaryColor: currentPrimary }, window.location.origin);
   });
 
   window.addEventListener("message", event => {

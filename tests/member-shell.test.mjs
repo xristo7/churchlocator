@@ -196,3 +196,47 @@ test("security headers allow only same-origin pages inside the member shell", as
   assert.match(headers, /Content-Security-Policy:\s*frame-ancestors 'self'/);
   assert.doesNotMatch(headers, /X-Frame-Options:\s*DENY/);
 });
+
+test("two-pillar theme system supports rainbow primary palette, gold accents, and scroll reveal", async () => {
+  const app = await readProjectFile("public/app.js");
+  const styles = await readProjectFile("public/styles.css");
+  const shell = await readProjectFile("public/app-shell.js");
+
+  // Rainbow Palette & Theme Keys
+  assert.match(app, /mwe\.platform\.primary\.v1/);
+  assert.match(app, /RAINBOW_PALETTES/);
+  assert.match(app, /Sapphire Blue/);
+  assert.match(app, /Electric Indigo/);
+  assert.match(app, /Royal Amethyst/);
+  assert.match(app, /Radiant Rose/);
+  assert.match(app, /Crimson Ruby/);
+  assert.match(app, /Sunset Flame/);
+  assert.match(app, /Emerald Forest/);
+  assert.match(app, /Ocean Cyan/);
+  assert.doesNotMatch(app, /Honey Amber/);
+
+  // Standard Gold token constancy & elements
+  assert.match(styles, /--gold:\s*#e5a93c/);
+  assert.match(styles, /--gold-gradient:/);
+  assert.match(styles, /\.member-header-giving[\s\S]*--gold-gradient/);
+
+  // CSS Rainbow Presets
+  assert.match(styles, /html\[data-primary="blue"\]/);
+  assert.match(styles, /html\[data-primary="indigo"\]/);
+  assert.match(styles, /html\[data-primary="purple"\]/);
+  assert.match(styles, /html\[data-primary="pink"\]/);
+  assert.match(styles, /html\[data-primary="red"\]/);
+  assert.match(styles, /html\[data-primary="orange"\]/);
+  assert.match(styles, /html\[data-primary="green"\]/);
+  assert.match(styles, /html\[data-primary="teal"\]/);
+
+  // Scroll reveal animation classes
+  assert.match(styles, /\.reveal-on-scroll/);
+  assert.match(styles, /\.reveal-on-scroll\.is-revealed/);
+  assert.match(app, /initScrollReveal/);
+
+  // Cross-frame sync for theme and primary color
+  assert.match(app, /mwe-primary-color/);
+  assert.match(shell, /mwe-primary-color/);
+});
+

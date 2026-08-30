@@ -17,6 +17,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: ['selector', '[data-theme="dark"]'],
       theme: {
         extend: {
           fontFamily: {
@@ -24,32 +25,15 @@
           },
           colors: {
             brand: {
-              50: '#f0f5fa',
-              100: '#dce8f5',
-              200: '#b8d0eb',
-              300: '#8fadde',
-              400: '#5c85cc',
-              500: '#1a4478', // Theme blue
-              600: '#153660',
-              700: '#102948',
-              800: '#0b1c31',
-              900: '#060e19',
-            },
-            clay: {
-              50: '#fdfbf7',
-              100: '#fbf7e6',
-              200: '#f6ebc2',
-              500: '#3378ec',
-              600: '#286ade',
-              700: '#906915',
+              50: 'var(--primary-surface)',
+              100: 'var(--primary-soft)',
+              500: 'var(--primary)',
+              600: 'var(--primary-hover)',
+              700: 'var(--primary-active)',
             },
             gold: {
-              50: '#fefcf6',
-              100: '#fdf7e7',
-              200: '#faedc3',
-              500: '#8374ed',
-              600: '#dda23e',
-              700: '#c4862e',
+              500: 'var(--gold)',
+              600: 'var(--gold-hover)',
             }
           },
           animation: {
@@ -94,12 +78,12 @@
     
     /* Premium Glassmorphism and effects */
     .glassmorphism {
-      background: rgba(255, 255, 255, 0.75);
+      background: var(--surface-card);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
     }
     .text-gradient {
-      background: linear-gradient(135deg, #1798e5 0%, #3378ec 45%, #7356eb 100%);
+      background: var(--primary-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -112,7 +96,7 @@
       inset: 0;
       border-radius: inherit;
       padding: 1.5px;
-      background: linear-gradient(135deg, #1798e5, #3378ec 45%, #7356eb);
+      background: var(--primary-gradient);
       -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
@@ -128,11 +112,11 @@
       background: transparent;
     }
     ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
+      background: var(--border);
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+      background: var(--text-muted);
     }
     
     /* Organizer lead gold link color overrides inside the cover image overlay */
@@ -140,12 +124,12 @@
       color: rgba(255, 255, 255, 0.85) !important;
     }
     #event-profile-organizer-lead a {
-      color: #a9c5ff !important;
+      color: #ffffff !important;
+      text-decoration: underline !important;
       font-weight: 700 !important;
     }
     #event-profile-organizer-lead a:hover {
-      color: #ffffff !important;
-      text-decoration: underline !important;
+      color: var(--gold) !important;
     }
   </style>
 </head>

@@ -1,9 +1,27 @@
 const MWE_THEME_KEY = "mwe.platform.theme.v1";
+const MWE_PRIMARY_COLOR_KEY = "mwe.platform.primary.v1";
+
+const RAINBOW_PALETTES = [
+  { id: "blue", name: "Sapphire Blue", color: "#2563eb", class: "swatch-blue" },
+  { id: "indigo", name: "Electric Indigo", color: "#4f46e5", class: "swatch-indigo" },
+  { id: "purple", name: "Royal Amethyst", color: "#7c3aed", class: "swatch-purple" },
+  { id: "pink", name: "Radiant Rose", color: "#db2777", class: "swatch-pink" },
+  { id: "red", name: "Crimson Ruby", color: "#e11d48", class: "swatch-red" },
+  { id: "orange", name: "Sunset Flame", color: "#ea580c", class: "swatch-orange" },
+  { id: "green", name: "Emerald Forest", color: "#059669", class: "swatch-green" },
+  { id: "teal", name: "Ocean Cyan", color: "#0d9488", class: "swatch-teal" }
+];
 
 function getPreferredTheme() {
   const saved = localStorage.getItem(MWE_THEME_KEY);
   if (saved === "light" || saved === "dark") return saved;
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function getPreferredPrimaryColor() {
+  const saved = localStorage.getItem(MWE_PRIMARY_COLOR_KEY);
+  if (RAINBOW_PALETTES.some(p => p.id === saved)) return saved;
+  return "blue";
 }
 
 function applyTheme(theme, persist = false) {
@@ -20,39 +38,212 @@ function applyTheme(theme, persist = false) {
     button.innerHTML = `<i data-lucide="${isDark ? "sun" : "moon"}"></i><span>${isDark ? "Light" : "Dark"}</span>`;
   });
 
+  document.querySelectorAll("[data-mode-toggle-btn]").forEach(btn => {
+    const active = btn.dataset.modeToggleBtn === resolved;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-pressed", String(active));
+  });
+
   const frame = document.getElementById("member-shell-frame");
   frame?.contentWindow?.postMessage({ type: "mwe-theme", theme: resolved }, window.location.origin);
   if (window.lucide?.createIcons) window.lucide.createIcons();
 }
 
+function applyPrimaryColor(primaryColor, persist = false) {
+  const resolved = RAINBOW_PALETTES.some(p => p.id === primaryColor) ? primaryColor : "blue";
+  document.documentElement.dataset.primary = resolved;
+  if (persist) localStorage.setItem(MWE_PRIMARY_COLOR_KEY, resolved);
+
+  const pal = RAINBOW_PALETTES.find(p => p.id === resolved);
+
+  document.querySelectorAll("[data-primary-indicator]").forEach(el => {
+    if (pal) el.style.background = pal.color;
+  });
+
+  document.querySelectorAll("[data-palette-swatch]").forEach(btn => {
+    const active = btn.dataset.paletteSwatch === resolved;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-checked", String(active));
+  });
+
+  const frame = document.getElementById("member-shell-frame");
+  frame?.contentWindow?.postMessage({ type: "mwe-primary-color", primaryColor: resolved }, window.location.origin);
+}
+
 function initThemeControl() {
   applyTheme(getPreferredTheme());
+  applyPrimaryColor(getPreferredPrimaryColor());
 
   const target = document.body.classList.contains("member-app-shell")
     ? document.querySelector(".member-shell-actions")
     : document.querySelector(".nav-actions");
 
-  if (target && !target.querySelector("[data-theme-toggle]")) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "theme-toggle";
-    button.dataset.themeToggle = "";
-    target.prepend(button);
+  if (target && !target.querySelector(".theme-palette-container")) {
+    const currentPrimary = getPreferredPrimaryColor();
+    const currentTheme = getPreferredTheme();
+    const currentPal = RAINBOW_PALETTES.find(p => p.id === currentPrimary) || RAINBOW_PALETTES[0];
+
+    const container = document.createElement("div");
+    container.className = "theme-palette-container";
+    container.innerHTML = `
+      <button type="button" class="theme-palette-btn" id="theme-palette-trigger" aria-haspopup="dialog" aria-expanded="false" title="Theme & Color Palette">
+        <span class="theme-palette-indicator" data-primary-indicator style="background: ${currentPal.color};"></span>
+        <i data-lucide="palette"></i>
+        <span>Theme</span>
+      </button>
+      <div class="theme-palette-popover" id="theme-palette-menu" hidden role="dialog" aria-label="Theme and color palette settings">
+        <div class="theme-palette-header">
+          <strong><i data-lucide="palette"></i> Appearance & Colors</strong>
+        </div>
+        
+        <div class="mode-toggle-group">
+          <button type="button" class="mode-toggle-btn ${currentTheme === 'light' ? 'active' : ''}" data-mode-toggle-btn="light">
+            <i data-lucide="sun"></i> Light
+          </button>
+          <button type="button" class="mode-toggle-btn ${currentTheme === 'dark' ? 'active' : ''}" data-mode-toggle-btn="dark">
+            <i data-lucide="moon"></i> Dark
+          </button>
+        </div>
+
+        <div>
+          <div class="palette-section-title">Primary Color Accent</div>
+          <div class="rainbow-swatch-grid" role="radiogroup" aria-label="Primary color options">
+            ${RAINBOW_PALETTES.map(p => `
+              <button
+                type="button"
+                class="swatch-btn ${p.class} ${p.id === currentPrimary ? 'active' : ''}"
+                data-palette-swatch="${p.id}"
+                title="${p.name}"
+                aria-label="${p.name}"
+                role="radio"
+                aria-checked="${p.id === currentPrimary}"
+              ></button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; padding-top: 4px; border-top: 1px solid var(--border-subtle);">
+          <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--gold); box-shadow:0 0 6px var(--gold);"></span>
+          <span>Gold accents are standard across all themes.</span>
+        </div>
+      </div>
+    `;
+
+    target.prepend(container);
+
+    const trigger = container.querySelector("#theme-palette-trigger");
+    const popover = container.querySelector("#theme-palette-menu");
+
+    trigger?.addEventListener("click", event => {
+      event.stopPropagation();
+      const isHidden = popover.hidden;
+      popover.hidden = !isHidden;
+      trigger.setAttribute("aria-expanded", String(isHidden));
+    });
+
+    popover?.addEventListener("click", event => {
+      event.stopPropagation();
+      const modeBtn = event.target.closest("[data-mode-toggle-btn]");
+      if (modeBtn) {
+        applyTheme(modeBtn.dataset.modeToggleBtn, true);
+        return;
+      }
+
+      const swatchBtn = event.target.closest("[data-palette-swatch]");
+      if (swatchBtn) {
+        applyPrimaryColor(swatchBtn.dataset.paletteSwatch, true);
+        return;
+      }
+    });
+
+    document.addEventListener("click", () => {
+      if (popover && !popover.hidden) {
+        popover.hidden = true;
+        trigger?.setAttribute("aria-expanded", "false");
+      }
+    });
   }
 
-  applyTheme(document.documentElement.dataset.theme || getPreferredTheme());
+  // Also maintain existing data-theme-toggle compatibility
   document.querySelectorAll("[data-theme-toggle]").forEach(button => {
     button.addEventListener("click", () => {
       applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark", true);
     });
   });
+
+  if (window.lucide?.createIcons) window.lucide.createIcons();
+}
+
+function initScrollReveal() {
+  if (typeof window === "undefined" || !("IntersectionObserver" in window)) return;
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll(".reveal-on-scroll").forEach(el => el.classList.add("is-revealed"));
+    return;
+  }
+
+  const selector = [
+    ".church-card",
+    ".event-card",
+    ".channel-card",
+    ".channel-profile-card",
+    ".store-product-card",
+    ".resource-card",
+    ".kpi-card",
+    ".dash-panel",
+    ".donation-impact-card",
+    ".content-callout",
+    ".readable-grid > div",
+    ".hero-feature-pill",
+    ".tiny-church-card",
+    ".search-card",
+    ".profile-story",
+    ".command-card",
+    ".live-card",
+    ".card",
+    ".story-card",
+    ".stream-info-card"
+  ].join(", ");
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("is-revealed");
+        obs.unobserve(entry.target);
+      }
+    });
+  }, {
+    rootMargin: "0px 0px -40px 0px",
+    threshold: 0.08
+  });
+
+  function scanAndObserve() {
+    document.querySelectorAll(selector).forEach(el => {
+      if (!el.classList.contains("reveal-on-scroll")) {
+        el.classList.add("reveal-on-scroll");
+        observer.observe(el);
+      }
+    });
+  }
+
+  scanAndObserve();
+
+  // Monitor DOM modifications to reveal new cards (e.g. filters or pagination)
+  if (window.MutationObserver) {
+    const domObserver = new MutationObserver(() => scanAndObserve());
+    domObserver.observe(document.body, { childList: true, subtree: true });
+  }
 }
 
 applyTheme(getPreferredTheme());
+applyPrimaryColor(getPreferredPrimaryColor());
 
 window.addEventListener("message", event => {
-  if (event.origin !== window.location.origin || event.data?.type !== "mwe-theme") return;
-  applyTheme(event.data.theme);
+  if (event.origin !== window.location.origin) return;
+  if (event.data?.type === "mwe-theme") {
+    applyTheme(event.data.theme);
+  } else if (event.data?.type === "mwe-primary-color") {
+    applyPrimaryColor(event.data.primaryColor);
+  }
 });
 
 const MWE = (() => {
@@ -5847,6 +6038,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initTranslations();
   initGlobalHeaderAndFooter();
   initThemeControl();
+  initScrollReveal();
   initMobileMenu();
   initOnboardingCarousel();
 
