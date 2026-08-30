@@ -3609,7 +3609,11 @@ function initTranslations() {
     }
   };
 
-  const flags = { en: "🇺🇸", fr: "🇫🇷", es: "🇪🇸" };
+  const flags = {
+    en: '<svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg>',
+    fr: '<svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="6.67" height="15" fill="#002654"/><rect x="6.67" width="6.66" height="15" fill="#ffffff"/><rect x="13.33" width="6.67" height="15" fill="#ce1126"/></svg>',
+    es: '<svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#aa151b"/><rect y="3.75" width="20" height="7.5" fill="#f1bf00"/><circle cx="6" cy="7.5" r="2" fill="#aa151b"/></svg>'
+  };
   const shortNames = { en: "EN", fr: "FR", es: "ES" };
 
   let currentLang = localStorage.getItem("mwe.lang") || "en";
@@ -3620,7 +3624,7 @@ function initTranslations() {
     currentLang = lang;
 
     document.querySelectorAll(".lang-selector-btn .lang-flag").forEach(el => {
-      el.textContent = flags[lang];
+      el.innerHTML = flags[lang] || flags.en;
     });
     document.querySelectorAll(".lang-selector-btn .lang-text").forEach(el => {
       el.textContent = shortNames[lang];
@@ -3671,9 +3675,9 @@ function initTranslations() {
     const panel = document.createElement("div");
     panel.className = "lang-selector-panel";
     panel.innerHTML = `
-      <div class="lang-option" data-lang="en"><span class="lang-flag">🇺🇸</span> English</div>
-      <div class="lang-option" data-lang="fr"><span class="lang-flag">🇫🇷</span> Français</div>
-      <div class="lang-option" data-lang="es"><span class="lang-flag">🇪🇸</span> Español</div>
+      <div class="lang-option" data-lang="en"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg></span> English</div>
+      <div class="lang-option" data-lang="fr"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="6.67" height="15" fill="#002654"/><rect x="6.67" width="6.66" height="15" fill="#ffffff"/><rect x="13.33" width="6.67" height="15" fill="#ce1126"/></svg></span> Français</div>
+      <div class="lang-option" data-lang="es"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#aa151b"/><rect y="3.75" width="20" height="7.5" fill="#f1bf00"/><circle cx="6" cy="7.5" r="2" fill="#aa151b"/></svg></span> Español</div>
     `;
     container.appendChild(panel);
 

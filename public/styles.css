@@ -10971,11 +10971,7 @@ html[data-theme="dark"] .channel-platform-stats small {
   color: #94a3b8 !important;
 }
 
-html[data-theme="dark"] .channel-contact-button {
-  background: #182540 !important;
-  color: #f8fafc !important;
-  border: 1px solid #2e3f5b !important;
-}
+/* channel-contact-button retains vibrant theme color in dark mode */
 
 html[data-theme="dark"] .channel-contact-button:hover {
   background: var(--primary) !important;
@@ -12814,4 +12810,96 @@ button.channel-contact-button:hover,
   transform: translateY(-2px) !important;
   box-shadow: 0 10px 24px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.45) !important;
   color: #ffffff !important;
+}
+
+/* ==========================================================================
+   BULLETPROOF THEME COLOR PRESERVATION FOR ALL BUTTONS (LIGHT & DARK MODE)
+   Ensures buttons NEVER lose their dynamic theme gradient or color in Dark Mode.
+   ========================================================================== */
+.button.primary,
+.button.btn-primary,
+.btn-primary,
+.search-submit-button,
+.button.search-submit-button,
+.profile-primary-action,
+.btn-submit,
+.auth-submit-btn,
+a.button.primary,
+button.primary,
+button.search-submit-button,
+button[type="submit"].primary,
+.channel-contact-button,
+a.channel-contact-button,
+button.channel-contact-button,
+.channel-detail-profile a,
+.channel-detail-actions a,
+.resource-download-action,
+.checkout-pay-button,
+.module-primary-action,
+.product-add-button,
+.store-item-btn,
+.member-auth-submit,
+html[data-theme="dark"] .button.primary,
+html[data-theme="dark"] .button.btn-primary,
+html[data-theme="dark"] .btn-primary,
+html[data-theme="dark"] .search-submit-button,
+html[data-theme="dark"] .button.search-submit-button,
+html[data-theme="dark"] .profile-primary-action,
+html[data-theme="dark"] .btn-submit,
+html[data-theme="dark"] .auth-submit-btn,
+html[data-theme="dark"] a.button.primary,
+html[data-theme="dark"] button.primary,
+html[data-theme="dark"] button.search-submit-button,
+html[data-theme="dark"] button[type="submit"].primary,
+html[data-theme="dark"] .channel-contact-button,
+html[data-theme="dark"] a.channel-contact-button,
+html[data-theme="dark"] button.channel-contact-button,
+html[data-theme="dark"] .channel-detail-profile a,
+html[data-theme="dark"] .channel-detail-actions a,
+html[data-theme="dark"] .resource-download-action,
+html[data-theme="dark"] .checkout-pay-button,
+html[data-theme="dark"] .module-primary-action,
+html[data-theme="dark"] .product-add-button,
+html[data-theme="dark"] .store-item-btn,
+html[data-theme="dark"] .member-auth-submit {
+  background: var(--gradient-brand, var(--primary-gradient, var(--primary))) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 6px 18px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.35) !important;
+}
+
+.button.primary:hover,
+.btn-primary:hover,
+.search-submit-button:hover,
+.profile-primary-action:hover,
+.channel-contact-button:hover,
+a.channel-contact-button:hover,
+button.channel-contact-button:hover,
+.channel-detail-profile a:hover,
+.channel-detail-actions a:hover,
+.resource-download-action:hover,
+.checkout-pay-button:hover,
+.module-primary-action:hover,
+.product-add-button:hover,
+.store-item-btn:hover,
+.member-auth-submit:hover,
+html[data-theme="dark"] .button.primary:hover,
+html[data-theme="dark"] .btn-primary:hover,
+html[data-theme="dark"] .search-submit-button:hover,
+html[data-theme="dark"] .profile-primary-action:hover,
+html[data-theme="dark"] .channel-contact-button:hover,
+html[data-theme="dark"] a.channel-contact-button:hover,
+html[data-theme="dark"] button.channel-contact-button:hover,
+html[data-theme="dark"] .channel-detail-profile a:hover,
+html[data-theme="dark"] .channel-detail-actions a:hover,
+html[data-theme="dark"] .resource-download-action:hover,
+html[data-theme="dark"] .checkout-pay-button:hover,
+html[data-theme="dark"] .module-primary-action:hover,
+html[data-theme="dark"] .product-add-button:hover,
+html[data-theme="dark"] .store-item-btn:hover,
+html[data-theme="dark"] .member-auth-submit:hover {
+  background: var(--primary-hover) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 25px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.5) !important;
 }

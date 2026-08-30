@@ -191,12 +191,20 @@
     }
   });
 
-  const languages = { en: ["🇺🇸", "EN"], fr: ["🇫🇷", "FR"], es: ["🇪🇸", "ES"] };
+    const flagSvgs = {
+    en: '<svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg>',
+    fr: '<svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="6.67" height="15" fill="#002654"/><rect x="6.67" width="6.66" height="15" fill="#ffffff"/><rect x="13.33" width="6.67" height="15" fill="#ce1126"/></svg>',
+    es: '<svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#aa151b"/><rect y="3.75" width="20" height="7.5" fill="#f1bf00"/><circle cx="6" cy="7.5" r="2" fill="#aa151b"/></svg>'
+  };
+  const languages = { en: "EN", fr: "FR", es: "ES" };
   function setMemberLanguage(lang) {
-    const selected = languages[lang] || languages.en;
+    const selectedText = languages[lang] || "EN";
+    const selectedSvg = flagSvgs[lang] || flagSvgs.en;
     localStorage.setItem("mwe.lang", lang);
-    langButton?.querySelector(".lang-flag")?.replaceChildren(selected[0]);
-    langButton?.querySelector(".lang-text")?.replaceChildren(selected[1]);
+    const flagContainer = langButton?.querySelector(".lang-flag");
+    if (flagContainer) flagContainer.innerHTML = selectedSvg;
+    const textContainer = langButton?.querySelector(".lang-text");
+    if (textContainer) textContainer.textContent = selectedText;
     langSelector?.classList.remove("open");
     langButton?.setAttribute("aria-expanded", "false");
   }
