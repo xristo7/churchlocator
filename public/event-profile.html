@@ -94,6 +94,18 @@
     }
     
     /* Premium Glassmorphism and effects */
+
+    html[data-theme="dark"] .glassmorphism {
+      background: rgba(19, 29, 49, 0.85) !important;
+    }
+    html[data-theme="dark"] .ticket-tier-card,
+    html[data-theme="dark"] .speaker-card,
+    html[data-theme="dark"] .countdown-box {
+      background: var(--surface-card) !important;
+      border-color: var(--border) !important;
+      color: var(--text-primary) !important;
+    }
+
     .glassmorphism {
       background: rgba(255, 255, 255, 0.75);
       backdrop-filter: blur(14px);

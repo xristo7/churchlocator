@@ -102,7 +102,7 @@
               
               <!-- Frequency Switcher -->
               <div class="form-group-block">
-                <label class="form-label-bold" style="display: block; margin-bottom: 8px; font-weight: 800; font-size: 0.9rem; color: #0f172a;">Giving Frequency</label>
+                <label class="form-label-bold" style="display: block; margin-bottom: 8px; font-weight: 800; font-size: 0.9rem; color: var(--ink);">Giving Frequency</label>
                 <div class="master-freq-switcher">
                   <button type="button" class="master-freq-btn active" data-freq="one-time" onclick="MWE.setGivingFreq(this, 'one-time')">One-Time</button>
                   <button type="button" class="master-freq-btn" data-freq="weekly" onclick="MWE.setGivingFreq(this, 'weekly')">Weekly</button>
@@ -112,7 +112,7 @@
 
               <!-- Amount Pills Grid -->
               <div class="form-group-block" style="margin-bottom: 24px;">
-                <label class="form-label-bold" style="display: block; margin-bottom: 10px; font-weight: 800; font-size: 0.9rem; color: #0f172a;">Contribution Amount (USD)</label>
+                <label class="form-label-bold" style="display: block; margin-bottom: 10px; font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">Contribution Amount (USD)</label>
                 <div class="master-amount-grid">
                   <button type="button" class="master-amount-pill" onclick="MWE.setDonateAmount(25, this)">$25</button>
                   <button type="button" class="master-amount-pill active" onclick="MWE.setDonateAmount(50, this)">$50</button>
@@ -127,7 +127,7 @@
 
               <!-- Payment Method Selector -->
               <div class="form-group-block" style="margin-bottom: 24px;">
-                <label class="form-label-bold" style="display: block; margin-bottom: 10px; font-weight: 800; font-size: 0.9rem; color: #0f172a;">Payment Method</label>
+                <label class="form-label-bold" style="display: block; margin-bottom: 10px; font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">Payment Method</label>
                 <div class="master-pay-method-grid">
                   <label class="master-pay-radio active">
                     <input type="radio" name="payMethod" value="card" checked onchange="MWE.setPayMethod(this)" style="position: absolute; opacity: 0;" />
@@ -147,11 +147,11 @@
               <!-- Donor Details -->
               <div class="form-group-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
                 <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem; color: #475569;">Full Name</label>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem; color: var(--text-secondary);">Full Name</label>
                   <input type="text" name="donorName" class="master-custom-amount-input" style="padding-left: 16px;" placeholder="John Doe" required />
                 </div>
                 <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem; color: #475569;">Email Address</label>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem; color: var(--text-secondary);">Email Address</label>
                   <input type="email" name="donorEmail" class="master-custom-amount-input" style="padding-left: 16px;" placeholder="john@example.com" required />
                 </div>
               </div>
@@ -199,7 +199,7 @@
               <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                 <i data-lucide="award" style="color: var(--gold); width: 20px; height: 20px;"></i> Transparency Guarantee
               </h4>
-              <p style="font-size: 0.88rem; color: #64748b; line-height: 1.6; margin: 0;">
+              <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin: 0;">
                 All contributions undergo independent quarterly auditing. 100% of public gifts directly sustain platform software infrastructure and verified bi-monthly humanitarian relief operations.
               </p>
             </div>
@@ -230,7 +230,7 @@
       <div class="container">
         <div class="section-head center" style="margin-bottom: 48px;">
           <p class="kicker"><i data-lucide="sparkles"></i> Impact Pillars</p>
-          <h2 style="font-size: 2.2rem; font-weight: 900; color: #0f172a;">Where Your Support Goes</h2>
+          <h2 style="font-size: 2.2rem; font-weight: 900; color: var(--text-primary);">Where Your Support Goes</h2>
           <p class="lead">Centralized platform contributions deliver tangible holistic support across three primary focus pillars.</p>
         </div>
 

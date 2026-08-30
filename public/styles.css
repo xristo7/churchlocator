@@ -11479,116 +11479,493 @@ html[data-theme="dark"] table td {
   color: #f8fafc !important;
 }
 
+/* ==========================================================================
+   COMPREHENSIVE GLOBAL THEME & DARK MODE ENGINE (SYSTEM-WIDE)
+   Covers all 24+ pages, modules, forms, dropdowns, dashboards, and modals
+   ========================================================================== */
 
-/* Dark Mode UI Fixes */
-/* 1. Donate page impact gallery */
-html[data-theme="dark"] .donation-impact-gallery {
-  background: radial-gradient(circle at 14% 18%, rgba(68,218,255,.05), transparent 28%), linear-gradient(180deg, #0b1120, #0f172a) !important;
-}
-html[data-theme="dark"] .impact-gallery-head h2 {
-  color: #f8fafc !important;
-}
-html[data-theme="dark"] .impact-gallery-head p {
-  color: #cbd5e1 !important;
-}
-
-/* 2. Member Auth Modal */
-html[data-theme="dark"] .member-auth-card {
-  background: #101a2e !important;
-  border-color: #1e293b !important;
-  color: #f8fafc !important;
-}
-html[data-theme="dark"] .member-auth-close {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: #fff !important;
-}
-html[data-theme="dark"] .member-auth-close:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-}
-html[data-theme="dark"] .member-auth-card p {
-  color: #cbd5e1 !important;
-}
-html[data-theme="dark"] .member-auth-card h2 {
-  color: #f8fafc !important;
-}
-
-/* 3. Livestream chat input */
-html[data-theme="dark"] .stream-chat-form-container {
-  background: #0f172a !important;
-  border-top-color: #1e293b !important;
-}
-html[data-theme="dark"] .stream-chat-form-inner {
-  background: #1e293b !important;
-  border-color: #334155 !important;
-}
-html[data-theme="dark"] .stream-chat-input-field {
-  color: #f8fafc !important;
-}
-
-/* 4. Channels module hero and toolbar */
-html[data-theme="dark"] .module-hero {
-  background: linear-gradient(145deg, rgba(15,23,42,0.96), rgba(11,17,32,0.92)) !important;
-  border-color: #1e293b !important;
-}
-html[data-theme="dark"] .module-hero h1 {
-  color: #f8fafc !important;
-}
-html[data-theme="dark"] .module-hero p {
-  color: #cbd5e1 !important;
-}
-html[data-theme="dark"] .module-toolbar {
-  background: #101a2e !important;
-  border-color: #1e293b !important;
-}
-html[data-theme="dark"] .module-search {
-  background: #131d31 !important;
-  border-color: #1e293b !important;
+html[data-theme="dark"],
+body.dark-mode {
+  --background: #090d16;
+  --background-secondary: #0f172a;
+  --surface: #131d31;
+  --surface-card: #141f36;
+  --surface-soft: #182540;
+  --surface-canvas: #090d16;
+  --surface-glass: rgba(19, 29, 49, 0.85);
+  --surface-glass-hover: rgba(24, 37, 64, 0.95);
+  --surface-muted: #1e293b;
+  --border: #1e293b;
+  --border-default: #1e293b;
+  --border-subtle: #172033;
+  --border-strong: #334155;
+  --border-light: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-disabled: #64748b;
+  --text-tertiary: #64748b;
+  --ink: #f8fafc;
+  --muted: #94a3b8;
+  --soft: #0f172a;
+  --soft-2: #182540;
+  --line: #1e293b;
+  --ai-navy: #f8fafc;
+  --ai-slate: #cbd5e1;
+  --ai-muted: #94a3b8;
+  --ai-border: #1e293b;
+  --brand-navy: #f8fafc;
+  --input-bg: #0f172a;
+  --input-border: #1e293b;
+  --input-text: #f8fafc;
+  --input-placeholder: #64748b;
+  --card-bg: #141f36;
+  --card-border: #1e293b;
+  --panel-bg: #131d31;
+  --panel-border: #1e293b;
+  --table-stripe: #0f172a;
+  --modal-bg: #131d31;
+  --modal-overlay: rgba(3, 7, 18, 0.82);
+  --dropdown-bg: #0f172a;
+  --dropdown-hover: #1e293b;
+  --dropdown-border: #1e293b;
+  --dropdown-text: #f8fafc;
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --gold: #f59e0b;
+  --gold-hover: #d97706;
+  --gold-rgb: 245, 158, 11;
+  --gold-surface: rgba(245, 158, 11, 0.16);
+  --gold-border: rgba(245, 158, 11, 0.40);
+  --gold-text: #fbbf24;
 }
 
-/* More Dark Mode UI Fixes */
+/* 1. Global Base, Typography & Canvases */
+html[data-theme="dark"] body {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6 {
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] p {
+  color: var(--text-secondary) !important;
+}
+html[data-theme="dark"] hr {
+  border-color: var(--border) !important;
+}
+html[data-theme="dark"] .dash-body {
+  background-color: var(--background) !important;
+}
+
+/* 2. Universal Form Controls, Inputs, Selects & Buttons */
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="range"]),
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select,
+html[data-theme="dark"] .field,
+html[data-theme="dark"] .input-group input,
+html[data-theme="dark"] .input-group textarea,
+html[data-theme="dark"] .input-group select,
+html[data-theme="dark"] .form-field input,
+html[data-theme="dark"] .form-field textarea,
+html[data-theme="dark"] .form-field select,
+html[data-theme="dark"] .block-editor[open] .form-field input,
+html[data-theme="dark"] .block-editor[open] .form-field select,
+html[data-theme="dark"] .block-editor[open] .form-field textarea,
+html[data-theme="dark"] .share-link-input {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-border) !important;
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: var(--input-placeholder) !important;
+}
+html[data-theme="dark"] select option {
+  background-color: var(--dropdown-bg) !important;
+  color: var(--dropdown-text) !important;
+}
 html[data-theme="dark"] .custom-select-trigger {
-  background: #0f172a !important;
-  border-color: #1e293b !important;
-  color: #f8fafc !important;
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-border) !important;
 }
 html[data-theme="dark"] .custom-select-trigger.country-dropdown {
   background-image: none !important;
 }
-html[data-theme="dark"] .custom-options-panel {
-  background: #0f172a !important;
-  border-color: #1e293b !important;
+html[data-theme="dark"] .custom-options-panel,
+html[data-theme="dark"] .country-section .custom-options-panel {
+  background-color: var(--dropdown-bg) !important;
+  border-color: var(--dropdown-border) !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55) !important;
 }
 html[data-theme="dark"] .custom-option {
-  color: #cbd5e1 !important;
+  color: var(--text-secondary) !important;
 }
 html[data-theme="dark"] .custom-option:hover,
 html[data-theme="dark"] .custom-option.selected {
-  background: #1e293b !important;
-  color: #f8fafc !important;
+  background-color: var(--dropdown-hover) !important;
+  color: var(--text-primary) !important;
 }
-html[data-theme="dark"] .country-section .custom-options-panel {
-  background: #0f172a !important;
-  border-color: #1e293b !important;
+html[data-theme="dark"] .checkbox-card {
+  background-color: var(--surface-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .checkbox-card:hover {
+  background-color: var(--surface-soft) !important;
+}
+html[data-theme="dark"] .checkbox-card.selected {
+  background-color: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.15) !important;
+  border-color: var(--primary) !important;
+}
+html[data-theme="dark"] .btn-outline,
+html[data-theme="dark"] .button.ghost,
+html[data-theme="dark"] .profile-secondary-action {
+  background-color: transparent !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .btn-outline:hover,
+html[data-theme="dark"] .button.ghost:hover,
+html[data-theme="dark"] .profile-secondary-action:hover {
+  background-color: var(--surface-soft) !important;
+}
+html[data-theme="dark"] .button.light,
+html[data-theme="dark"] .btn-white {
+  background-color: var(--surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
 }
 
-/* Member Account Menu Dropdown */
+/* 3. Cards, Panels, KPI Strips & Structural Surfaces */
+html[data-theme="dark"] .dash-panel,
+html[data-theme="dark"] .kpi-card,
+html[data-theme="dark"] .side-card,
+html[data-theme="dark"] .readable-grid > div,
+html[data-theme="dark"] .pastor-readable,
+html[data-theme="dark"] .content-callout,
+html[data-theme="dark"] .church-card,
+html[data-theme="dark"] .church-grid-card,
+html[data-theme="dark"] .event-card,
+html[data-theme="dark"] .channel-card,
+html[data-theme="dark"] .product-card,
+html[data-theme="dark"] .product-card-inner,
+html[data-theme="dark"] .resource-card,
+html[data-theme="dark"] .testimony-card,
+html[data-theme="dark"] .glass-card,
+html[data-theme="dark"] .glassmorphism,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .member-view-card,
+html[data-theme="dark"] .member-stat-box,
+html[data-theme="dark"] .info-card,
+html[data-theme="dark"] .channel-content-grid article,
+html[data-theme="dark"] .block-editor summary,
+html[data-theme="dark"] .block-editor .editor-body,
+html[data-theme="dark"] .profile-invite-card,
+html[data-theme="dark"] .profile-next-service,
+html[data-theme="dark"] .profile-next-step,
+html[data-theme="dark"] .stories-section,
+html[data-theme="dark"] .price-summary-box,
+html[data-theme="dark"] .ticket-tier-card,
+html[data-theme="dark"] .speaker-card,
+html[data-theme="dark"] .countdown-box,
+html[data-theme="dark"] .cart-summary-box,
+html[data-theme="dark"] .checkout-form,
+html[data-theme="dark"] .impact-card,
+html[data-theme="dark"] .amount-card {
+  background: var(--surface-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+html[data-theme="dark"] .pastor-readable img {
+  background-color: var(--surface-soft) !important;
+}
+html[data-theme="dark"] .kpi-card .icon,
+html[data-theme="dark"] .category-icon,
+html[data-theme="dark"] .avatar,
+html[data-theme="dark"] .profile-side-heading > span,
+html[data-theme="dark"] .info-card-icon {
+  background-color: var(--surface-soft) !important;
+  border-color: var(--border) !important;
+}
+html[data-theme="dark"] .ministry-chip-grid .tag,
+html[data-theme="dark"] .tag,
+html[data-theme="dark"] .tag-row .tag,
+html[data-theme="dark"] .badge,
+html[data-theme="dark"] .filter-chip,
+html[data-theme="dark"] .filter-pill,
+html[data-theme="dark"] .category-pill,
+html[data-theme="dark"] .badge-pill,
+html[data-theme="dark"] .status-badge {
+  background-color: var(--surface-soft) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 4. Navigation, Headers, Rails, Tabs & Account Menus */
+html[data-theme="dark"] .topbar,
+html[data-theme="dark"] .dash-topbar,
+html[data-theme="dark"] .profile-app-header,
+html[data-theme="dark"] .member-shell-header {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-bottom-color: var(--border) !important;
+  backdrop-filter: blur(14px) !important;
+}
+html[data-theme="dark"] .dash-sidebar,
+html[data-theme="dark"] .profile-left-rail,
+html[data-theme="dark"] .member-shell-rail,
+html[data-theme="dark"] .messages-sidebar {
+  background: var(--surface) !important;
+  border-right-color: var(--border) !important;
+}
+html[data-theme="dark"] .dash-nav a,
+html[data-theme="dark"] .dash-nav button,
+html[data-theme="dark"] .profile-rail-nav a,
+html[data-theme="dark"] .profile-rail-nav a svg {
+  color: var(--text-secondary) !important;
+}
+html[data-theme="dark"] .dash-nav a:hover,
+html[data-theme="dark"] .dash-nav button:hover,
+html[data-theme="dark"] .profile-rail-nav a:hover {
+  background-color: var(--surface-soft) !important;
+  color: var(--primary) !important;
+}
+html[data-theme="dark"] .dash-nav a.active,
+html[data-theme="dark"] .profile-rail-nav a.active {
+  background-color: var(--surface-soft) !important;
+  color: var(--primary) !important;
+}
+html[data-theme="dark"] .profile-app-search {
+  background-color: var(--input-bg) !important;
+  border-color: var(--border) !important;
+}
+html[data-theme="dark"] .profile-app-search input {
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .profile-app-account {
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .profile-app-account button {
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .profile-app-account button:hover {
+  background-color: var(--surface-soft) !important;
+}
+html[data-theme="dark"] .profile-mobile-menu {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .church-tabs-nav {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+html[data-theme="dark"] .church-tab-button {
+  color: var(--text-secondary) !important;
+}
+html[data-theme="dark"] .church-tab-button + .church-tab-button {
+  border-left-color: var(--border) !important;
+}
+html[data-theme="dark"] .church-tab-button:hover {
+  background-color: var(--surface-soft) !important;
+  color: var(--primary) !important;
+}
+html[data-theme="dark"] .church-tab-button.active {
+  color: var(--primary) !important;
+}
+html[data-theme="dark"] .lang-selector-btn {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .lang-selector-panel {
+  background-color: var(--dropdown-bg) !important;
+  border-color: var(--dropdown-border) !important;
+  box-shadow: var(--shadow) !important;
+}
+html[data-theme="dark"] .lang-selector-panel button {
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .lang-selector-panel button:hover {
+  background-color: var(--dropdown-hover) !important;
+}
 html[data-theme="dark"] .member-account-menu {
-  background: #0f172a !important;
-  border: 1px solid #1e293b !important;
-  color: #f8fafc !important;
+  background-color: var(--dropdown-bg) !important;
+  border-color: var(--dropdown-border) !important;
+  box-shadow: var(--shadow) !important;
+  color: var(--text-primary) !important;
 }
 html[data-theme="dark"] .member-account-menu strong {
-  color: #f8fafc !important;
+  color: var(--text-primary) !important;
 }
 html[data-theme="dark"] .member-account-menu span {
-  color: #cbd5e1 !important;
+  color: var(--text-muted) !important;
 }
 html[data-theme="dark"] .member-account-menu a,
 html[data-theme="dark"] .member-account-menu button {
-  background: #1e293b !important;
-  color: #f8fafc !important;
+  background-color: var(--surface-soft) !important;
+  color: var(--text-primary) !important;
 }
 html[data-theme="dark"] .member-account-menu a:hover,
 html[data-theme="dark"] .member-account-menu button:hover {
-  background: #334155 !important;
+  background-color: var(--dropdown-hover) !important;
+}
+
+/* 5. Modals, Overlays, Dialogs & Drawers */
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .alert-modal,
+html[data-theme="dark"] .member-auth-card,
+html[data-theme="dark"] .login-modal-card,
+html[data-theme="dark"] .profile-modal-card,
+html[data-theme="dark"] .global-video-modal-content,
+html[data-theme="dark"] .global-audio-modal-content,
+html[data-theme="dark"] .form-success-overlay,
+html[data-theme="dark"] .sticky-connection-card,
+html[data-theme="dark"] .cart-drawer,
+html[data-theme="dark"] .checkout-modal {
+  background-color: var(--modal-bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+  box-shadow: var(--shadow) !important;
+}
+html[data-theme="dark"] .modal-backdrop,
+html[data-theme="dark"] .alert-modal-backdrop,
+html[data-theme="dark"] .login-modal-overlay,
+html[data-theme="dark"] .global-video-modal,
+html[data-theme="dark"] .global-audio-modal,
+html[data-theme="dark"] body[data-page="profile"].visit-panel-open::after {
+  background: var(--modal-overlay) !important;
+  backdrop-filter: blur(8px) !important;
+}
+html[data-theme="dark"] .visit-panel-close,
+html[data-theme="dark"] .member-auth-close,
+html[data-theme="dark"] .global-video-modal-close,
+html[data-theme="dark"] .global-audio-modal-close {
+  background-color: var(--surface-soft) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 6. Tables, Lists & Dividers */
+html[data-theme="dark"] table {
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] thead th,
+html[data-theme="dark"] table th {
+  background-color: var(--surface-soft) !important;
+  border-color: var(--border) !important;
+  color: var(--text-secondary) !important;
+}
+html[data-theme="dark"] tbody td,
+html[data-theme="dark"] table td {
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] tbody tr:nth-child(even) td {
+  background-color: hsla(var(--primary-h), 20%, 15%, 0.15) !important;
+}
+html[data-theme="dark"] .field-category {
+  border-top-color: var(--border) !important;
+}
+html[data-theme="dark"] .admin-filter-row {
+  border-bottom-color: var(--border) !important;
+}
+
+/* 7. Livestream & Messaging Modules */
+html[data-theme="dark"] .stream-chat-wrapper,
+html[data-theme="dark"] .stream-chat-header,
+html[data-theme="dark"] .stream-chat-messages,
+html[data-theme="dark"] .messages-page,
+html[data-theme="dark"] .messages-main,
+html[data-theme="dark"] .message-thread-header,
+html[data-theme="dark"] .message-thread-history {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .stream-chat-form-container,
+html[data-theme="dark"] .message-composer-bar {
+  background-color: var(--surface-soft) !important;
+  border-color: var(--border) !important;
+}
+html[data-theme="dark"] .stream-chat-form-inner,
+html[data-theme="dark"] .message-input-field,
+html[data-theme="dark"] .stream-chat-input-field {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .chat-message-bubble,
+html[data-theme="dark"] .message-bubble-incoming {
+  background-color: var(--surface-soft) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .message-bubble-outgoing {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+}
+html[data-theme="dark"] .conversation-list-item:hover {
+  background-color: var(--surface-soft) !important;
+}
+html[data-theme="dark"] .conversation-list-item.active {
+  background-color: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.18) !important;
+}
+
+/* 8. Channels, Commerce, Resources & Reader */
+html[data-theme="dark"] .module-hero,
+html[data-theme="dark"] .store-hero,
+html[data-theme="dark"] .channels-hero {
+  background: linear-gradient(145deg, rgba(15,23,42,0.96), rgba(11,17,32,0.92)) !important;
+  border-color: var(--border) !important;
+}
+html[data-theme="dark"] .module-toolbar,
+html[data-theme="dark"] .module-search {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .resource-reader-wrapper,
+html[data-theme="dark"] .reader-page-viewport {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .reader-toolbar,
+html[data-theme="dark"] .reader-toc-sidebar {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .donation-impact-gallery {
+  background: radial-gradient(circle at 14% 18%, rgba(68,218,255,.05), transparent 28%), linear-gradient(180deg, #0b1120, #0f172a) !important;
+}
+
+/* 9. Leadership, Stories & Profile Sections */
+html[data-theme="dark"] .leader-bio h2.leader-name,
+html[data-theme="dark"] .leader-facts strong,
+html[data-theme="dark"] .testimony-user-info h4,
+html[data-theme="dark"] .stories-heading h3 {
+  color: var(--text-primary) !important;
+}
+html[data-theme="dark"] .leader-bio-text,
+html[data-theme="dark"] .leader-facts small,
+html[data-theme="dark"] .testimony-text,
+html[data-theme="dark"] .testimony-user-info span {
+  color: var(--text-secondary) !important;
+}
+html[data-theme="dark"] .leader-facts > div {
+  border-right-color: var(--border) !important;
+}
+html[data-theme="dark"] .leader-bio .kicker {
+  background-color: var(--surface-soft) !important;
+  color: var(--primary) !important;
 }
