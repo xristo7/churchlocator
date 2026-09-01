@@ -11,13 +11,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   
   <!-- Global site styles (for topbar header and footers) -->
-  <link rel="stylesheet" href="styles.css?v=20260831" />
+  <link rel="stylesheet" href="styles.css?v=20260901" />
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: ['selector', '[data-theme="dark"]'] }</script>
   <script>
     tailwind.config = {
+      darkMode: ['selector', '[data-theme="dark"]'],
       theme: {
         extend: {
           fontFamily: {
@@ -25,32 +26,29 @@
           },
           colors: {
             brand: {
-              50: '#f0f5fa',
-              100: '#dce8f5',
-              200: '#b8d0eb',
-              300: '#8fadde',
-              400: '#5c85cc',
-              500: '#1a4478', // Theme blue
-              600: '#153660',
-              700: '#102948',
-              800: '#0b1c31',
-              900: '#060e19',
+              50: 'hsla(var(--primary-h), 80%, 96%, 1)',
+              100: 'hsla(var(--primary-h), 75%, 90%, 1)',
+              200: 'hsla(var(--primary-h), 70%, 80%, 1)',
+              300: 'hsla(var(--primary-h), 65%, 70%, 1)',
+              400: 'hsla(var(--primary-h), 65%, 60%, 1)',
+              500: 'var(--primary)',
+              600: 'var(--primary-hover)',
+              700: 'hsla(var(--primary-h), 65%, 35%, 1)',
+              800: 'hsla(var(--primary-h), 65%, 25%, 1)',
+              900: 'hsla(var(--primary-h), 65%, 15%, 1)',
             },
             clay: {
-              50: '#fdfbf7',
-              100: '#fbf7e6',
-              200: '#f6ebc2',
-              500: '#3378ec',
-              600: '#286ade',
-              700: '#906915',
+              50: 'hsla(var(--primary-h), 80%, 96%, 1)',
+              100: 'hsla(var(--primary-h), 75%, 90%, 1)',
+              200: 'hsla(var(--primary-h), 70%, 80%, 1)',
+              500: 'var(--primary)',
+              600: 'var(--primary-hover)',
+              700: 'var(--primary)',
             },
             gold: {
-              50: '#fefcf6',
-              100: '#fdf7e7',
-              200: '#faedc3',
-              500: '#8374ed',
-              600: '#dda23e',
-              700: '#c4862e',
+              500: 'var(--gold)',
+              600: 'var(--gold)',
+              700: 'var(--gold)',
             }
           },
           animation: {
@@ -156,9 +154,82 @@
       color: #a9c5ff !important;
       font-weight: 700 !important;
     }
+    #event-profile-organizer-lead a {
+      color: var(--primary) !important;
+      font-weight: 700 !important;
+    }
     #event-profile-organizer-lead a:hover {
       color: #ffffff !important;
       text-decoration: underline !important;
+    }
+    body[data-page="event-profile"] {
+      background: var(--background) !important;
+      color: var(--text-primary) !important;
+    }
+    .sticky.top-\[70px\] {
+      background: var(--background-secondary) !important;
+      border-bottom: 1px solid var(--border-subtle) !important;
+    }
+    #local-nav-menu button {
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+    #local-nav-menu button:hover {
+      color: var(--primary);
+    }
+    #local-nav-menu button.active,
+    #local-nav-menu button.border-brand-500 {
+      color: var(--primary) !important;
+      border-bottom: 2px solid var(--primary) !important;
+    }
+    .tab-panel {
+      background: var(--background) !important;
+    }
+    #event-expect-grid > div {
+      background: var(--surface) !important;
+      border-color: var(--border-subtle) !important;
+      color: var(--text-primary) !important;
+    }
+    #event-expect-grid h3 {
+      color: var(--text-primary) !important;
+    }
+    #event-expect-grid p {
+      color: var(--text-secondary) !important;
+    }
+    #countdown-grid > div {
+      background: var(--surface-soft) !important;
+      border-color: var(--border-subtle) !important;
+    }
+    #countdown-grid span.block {
+      color: var(--text-primary) !important;
+    }
+    #cd-secs {
+      color: var(--primary) !important;
+    }
+    .gradient-border {
+      background: var(--surface-card) !important;
+      border-color: var(--border-subtle) !important;
+    }
+    .gradient-border::before {
+      background: var(--primary-gradient) !important;
+    }
+    .text-gradient {
+      background: var(--primary-gradient) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+    .text-brand-600 {
+      color: var(--primary) !important;
+    }
+    .bg-brand-500, .bg-clay-500 {
+      background-color: var(--primary) !important;
+    }
+    .bg-brand-500\/10, .bg-clay-500\/10 {
+      background-color: var(--primary-surface) !important;
+    }
+    .text-brand-500, .text-clay-500 {
+      color: var(--primary) !important;
     }
   </style>
 </head>

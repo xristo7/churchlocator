@@ -33,8 +33,9 @@
     checkout: { source: "checkout.html", title: "Checkout" },
     "store-manager": { source: "seller-dashboard.html", title: "Store Manager" },
     resources: { source: "resources.html", title: "Christian Resources" },
-    "resource-detail": { source: "resource-detail.html", title: "Resource Details" }
-    ,"resource-reader": { source: "resource-reader.html", title: "Resource Reader" }
+    "resource-detail": { source: "resource-detail.html", title: "Resource Details" },
+    "resource-reader": { source: "resource-reader.html", title: "Resource Reader" },
+    portal: { source: "church-portal.html", title: "Creator & Ministry Hub" }
   };
 
   const sectionContexts = {
@@ -44,7 +45,8 @@
     livestream: ["Live", "radio"],
     store: ["Store", "shopping-bag"], product: ["Store", "shopping-bag"], cart: ["Store", "shopping-bag"], checkout: ["Store", "shopping-bag"], "store-manager": ["Store", "shopping-bag"],
     resources: ["Resources", "book-open"], "resource-detail": ["Resources", "book-open"], "resource-reader": ["Resources", "book-open"],
-    giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"]
+    giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"],
+    portal: ["Creator Hub", "rocket"]
   };
 
   function updateSectionContext(view) {
@@ -105,16 +107,20 @@
   function setActiveNavigation(view) {
     document.querySelectorAll("[data-shell-view]").forEach(link => {
       const linkView = link.dataset.shellView;
-      const isActive = linkView === view || (view === "church" && linkView === "directory") || (["channel-detail", "channel-content"].includes(view) && linkView === "channels") || (view === "event" && linkView === "events") || (["store-manager", "product", "cart", "checkout"].includes(view) && linkView === "store") || (["resource-detail", "resource-reader"].includes(view) && linkView === "resources");
+      const isActive = linkView === view || (view === "portal" && linkView === "portal") || (view === "church" && linkView === "directory") || (["channel-detail", "channel-content"].includes(view) && linkView === "channels") || (view === "event" && linkView === "events") || (["store-manager", "product", "cart", "checkout"].includes(view) && linkView === "store") || (["resource-detail", "resource-reader"].includes(view) && linkView === "resources");
       link.classList.toggle("active", isActive);
       if (isActive) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     });
   }
 
+  function isProtectedView(view) {
+    return ["messages", "store-manager", "cart", "checkout"].includes(view);
+  }
+
   function loadRoute(route, options = {}) {
     const safeRoute = views[route.view] ? route : { view: "directory", id: "", q: "", compose: "" };
-    if (!isAuthenticated()) {
+    if (isProtectedView(safeRoute.view) && !isAuthenticated()) {
       const destination = buildShellUrl(safeRoute);
       if (window.MWE?.openMemberLogin) {
         window.MWE.openMemberLogin(destination, { locked: true });

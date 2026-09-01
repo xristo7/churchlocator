@@ -240,3 +240,69 @@ test("two-pillar theme system supports rainbow primary palette, gold accents, an
   assert.match(shell, /mwe-primary-color/);
 });
 
+test("Creator & Ministry Hub loads inside SPA shell with 3-step registration and launchpad", async () => {
+  const html = await readProjectFile("public/app.html");
+  const shell = await readProjectFile("public/app-shell.js");
+  const app = await readProjectFile("public/app.js");
+  const portalHtml = await readProjectFile("public/church-portal.html");
+  const worker = await readProjectFile("src/worker.js");
+
+  // SPA navigation rail in app.html
+  assert.match(html, /data-shell-view="portal"/);
+  assert.match(html, /Creator Hub/);
+  assert.match(html, /data-lucide="rocket"/);
+
+  // Router in app-shell.js
+  assert.match(shell, /portal:\s*\{\s*source:\s*"church-portal\.html",\s*title:\s*"Creator & Ministry Hub"\s*\}/);
+
+  // Route map and top-level redirection to SPA shell in app.js
+  assert.match(app, /"church-portal":\s*"portal"/);
+  assert.match(app, /portal:\s*"portal"/);
+  assert.match(app, /currentRoute\.view === "portal"/);
+  assert.match(app, /body\[data-page="portal"\]\.member-shell-embed/);
+  assert.match(shell, /isProtectedView\(safeRoute\.view\)/);
+
+  // Worker routes
+  assert.match(worker, /\["\/portal",\s*"\/church-portal\.html"\]/);
+  assert.match(worker, /\["\/creator-hub",\s*"\/church-portal\.html"\]/);
+
+  // 3-step creator registration form in church-portal.html
+  assert.match(portalHtml, /Create Creator Account/);
+  assert.match(portalHtml, /data-step="1"/);
+  assert.match(portalHtml, /data-step="2"/);
+  assert.match(portalHtml, /data-step="3"/);
+  assert.match(portalHtml, /name="launchGoal"/);
+
+  // Launchpad overview and workspace cards in church-portal.html
+  assert.match(portalHtml, /id="launchpad-grid-container"/);
+  assert.match(portalHtml, /data-launch-target="church"/);
+  assert.match(portalHtml, /data-launch-target="channels"/);
+  assert.match(portalHtml, /data-launch-target="events"/);
+  assert.match(portalHtml, /data-launch-target="store"/);
+  assert.match(portalHtml, /data-launch-target="resources"/);
+});
+
+test("dark mode adapts background surfaces and subtle borders to primary theme and homepage overlay adjusts dynamically", async () => {
+  const styles = await readProjectFile("public/styles.css");
+  const home = await readProjectFile("public/index.html");
+
+  // Fainter, subtle borders and dynamic primary-tinted dark mode tokens
+  assert.match(styles, /html\[data-theme="dark"\][\s\S]*--border:\s*hsla\(var\(--primary-h\)/);
+  assert.match(styles, /html\[data-theme="dark"\][\s\S]*--border-subtle:\s*hsla\(var\(--primary-h\)/);
+  assert.match(styles, /html\[data-theme="dark"\][\s\S]*--background:\s*hsl\(var\(--primary-h\)/);
+  assert.match(styles, /html\[data-theme="dark"\][\s\S]*--surface:\s*hsl\(var\(--primary-h\)/);
+
+  // Cart drawer dividers use subtle borders in dark mode
+  assert.match(styles, /\.store-cart-drawer\s*\{[\s\S]*border-left:\s*1px solid var\(--border-subtle\)/);
+  assert.match(styles, /\.store-cart-drawer \.store-cart-head\s*\{[\s\S]*border-bottom:\s*1px solid var\(--border-subtle\)/);
+  assert.match(styles, /\.store-cart-drawer \.cart-summary\s*\{[\s\S]*border-top:\s*1px solid var\(--border-subtle\)/);
+
+  // Transparent hero overlay with primary color gradient and transition
+  assert.match(home, /class="hero-glow-overlay"/);
+  assert.match(styles, /\.hero-glow-overlay\s*\{[\s\S]*hsla\(var\(--primary-h\)/);
+  assert.match(styles, /\.hero-glow-overlay\s*\{[\s\S]*transition:\s*background/);
+  assert.match(styles, /html\[data-theme="dark"\] \.hero-glow-overlay\s*\{[\s\S]*hsla\(var\(--primary-h\)/);
+});
+
+
+

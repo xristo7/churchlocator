@@ -1170,8 +1170,13 @@ MWE.getMemberShellRoute = function(input) {
     checkout: "checkout",
     "seller-dashboard": "store-manager",
     resources: "resources",
-    "resource-detail": "resource-detail"
-    ,"resource-reader": "resource-reader"
+    "resource-detail": "resource-detail",
+    "resource-reader": "resource-reader",
+    "church-portal": "portal",
+    portal: "portal",
+    "register-church": "portal",
+    creator: "portal",
+    "creator-hub": "portal"
   };
   const view = routeMap[file];
   if (!view) return null;
@@ -1304,6 +1309,17 @@ MWE.applyMemberShellEmbed = function() {
       }
       body[data-page="profile"].member-shell-embed > main > .container,
       body[data-page="profile"].member-shell-embed > section > .container { width: min(var(--max), calc(100% - 44px)) !important; }
+      body[data-page="portal"].member-shell-embed .login-screen {
+        height: auto !important;
+        min-height: calc(100vh - 40px) !important;
+        overflow: visible !important;
+        padding: 24px max(22px, calc((100% - var(--max)) / 2)) 60px !important;
+        background: transparent !important;
+      }
+      body[data-page="portal"].member-shell-embed .dash-shell {
+        min-height: 100vh !important;
+        padding: 20px max(22px, calc((100% - var(--max)) / 2)) 60px !important;
+      }
       @media (max-width: 720px) {
         body[data-page="profile"].member-shell-embed > main > .container { width: calc(100% - 28px) !important; }
         body.member-shell-embed.module-page:not([data-page="messages"]) > main.module-shell {
@@ -1383,7 +1399,7 @@ MWE.initMemberExperience = function() {
   const currentRoute = MWE.getMemberShellRoute(window.location.href);
   if (!currentRoute) return "public";
 
-  if (MWE.isMemberAuthenticated()) {
+  if (MWE.isMemberAuthenticated() || currentRoute.view === "portal") {
     window.location.replace(MWE.buildMemberShellUrl(currentRoute));
     return "redirecting";
   }
@@ -1460,10 +1476,24 @@ function initPrivateAppAuth() {
     document.body.classList.add("is-authenticated");
   }
 
+  function updateUserDisplay() {
+    const savedName = localStorage.getItem("mwe.username") || localStorage.getItem("mwe.orgName") || "Creator Workspace";
+    const userTitle = document.getElementById("dash-user-title");
+    const userAvatar = document.getElementById("dash-user-avatar");
+    if (userTitle) userTitle.textContent = savedName;
+    if (userAvatar) {
+      const initials = savedName.split(" ").map(w => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "FL";
+      userAvatar.textContent = initials;
+    }
+  }
+  updateUserDisplay();
+
   function signIn() {
     localStorage.setItem(key, "authenticated");
+    localStorage.setItem("mwe.userLoggedIn", "true");
     document.body.classList.add("is-authenticated");
-    showToast("Signed in");
+    updateUserDisplay();
+    showToast("Welcome to Creator Hub");
   }
 
   // Toggle Tabs between Sign In and Registration panels
@@ -1479,7 +1509,7 @@ function initPrivateAppAuth() {
       // Dynamically update the card title at the top
       const titleEl = document.getElementById("portal-active-title");
       if (titleEl) {
-        titleEl.textContent = btn.dataset.tab === "register" ? "Register your Church" : "Sign in Church Profile";
+        titleEl.textContent = btn.dataset.tab === "register" ? "Create Creator Account" : "Sign in to Creator Hub";
       }
     });
   });
@@ -1495,56 +1525,59 @@ function initPrivateAppAuth() {
     signIn();
   });
 
-  // Handle multi-step registration forms
+  // Launch Goal selection cards
+  document.querySelectorAll(".launch-goal-card").forEach(card => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".launch-goal-card").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      const radio = card.querySelector("input[type='radio']");
+      if (radio) radio.checked = true;
+    });
+  });
+
+  // Handle multi-step registration forms (Step 1 -> Step 2 -> Step 3)
   const regForm = document.querySelector("[data-register-form]");
-  const nextBtn = regForm?.querySelector("[data-next-step]");
-  const prevBtn = regForm?.querySelector("[data-prev-step]");
   const step1 = regForm?.querySelector("[data-step='1']");
   const step2 = regForm?.querySelector("[data-step='2']");
+  const step3 = regForm?.querySelector("[data-step='3']");
 
-  nextBtn?.addEventListener("click", () => {
+  regForm?.querySelector("[data-next-step='1']")?.addEventListener("click", () => {
+    if (step1 && step2) {
+      step1.style.display = "none";
+      step2.style.display = "block";
+    }
+  });
+
+  regForm?.querySelector("[data-prev-step='2']")?.addEventListener("click", () => {
+    if (step1 && step2) {
+      step2.style.display = "none";
+      step1.style.display = "block";
+    }
+  });
+
+  regForm?.querySelector("[data-next-step='2']")?.addEventListener("click", () => {
     const nameInput = regForm.querySelector("#reg-name");
     const cityInput = regForm.querySelector("#reg-city");
     if (!nameInput?.value || !cityInput?.value) {
-      showToast("Please fill in all church information fields.");
+      showToast("Please fill in organization name and location.");
       if (!nameInput?.value) nameInput?.reportValidity();
       else if (!cityInput?.value) cityInput?.reportValidity();
       return;
     }
-    if (step1 && step2) {
-      step1.style.display = "none";
-      step2.style.display = "block";
+    if (step2 && step3) {
+      step2.style.display = "none";
+      step3.style.display = "block";
       regForm.querySelector("#reg-registrant-name")?.setAttribute("required", "true");
       regForm.querySelector("#reg-email")?.setAttribute("required", "true");
       regForm.querySelector("#reg-pass")?.setAttribute("required", "true");
       regForm.querySelector("#reg-pass-confirm")?.setAttribute("required", "true");
-      
-      const roleSelect = regForm.querySelector("#reg-role");
-      const customWrapper = regForm.querySelector("#reg-role-custom-wrapper");
-      const customInput = regForm.querySelector("#reg-role-custom-input");
-      if (customWrapper && customWrapper.style.display === "block") {
-        customInput?.setAttribute("required", "true");
-        roleSelect?.removeAttribute("required");
-      } else {
-        roleSelect?.setAttribute("required", "true");
-        customInput?.removeAttribute("required");
-      }
     }
   });
 
-  prevBtn?.addEventListener("click", () => {
-    if (step1 && step2) {
-      step2.style.display = "none";
-      step1.style.display = "block";
-      regForm.querySelector("#reg-registrant-name")?.removeAttribute("required");
-      regForm.querySelector("#reg-role")?.removeAttribute("required");
-      regForm.querySelector("#reg-role-custom-input")?.removeAttribute("required");
-      regForm.querySelector("#reg-email")?.removeAttribute("required");
-      regForm.querySelector("#reg-pass")?.removeAttribute("required");
-      regForm.querySelector("#reg-pass-confirm")?.removeAttribute("required");
-      
-      // Reset custom role
-      customClearBtn?.click();
+  regForm?.querySelector("[data-prev-step='3']")?.addEventListener("click", () => {
+    if (step2 && step3) {
+      step3.style.display = "none";
+      step2.style.display = "block";
     }
   });
 
@@ -1636,10 +1669,10 @@ function initPrivateAppAuth() {
         city: cityInput.value,
         country: countrySelect ? countrySelect.value : "CA",
         area: "Downtown",
-        denomination: "Non-Denominational",
+        denomination: "Christian Ministry",
         language: "English",
         worship: "Contemporary",
-        tagline: "A welcoming church family in your community.",
+        tagline: "A vibrant faith community sharing God's love.",
         sunday: "10:00 AM",
         midweek: "Wednesday 7:00 PM",
         phone: "780-555-0199",
@@ -1652,9 +1685,9 @@ function initPrivateAppAuth() {
         pastor: registrantNameInput && registrantNameInput.value ? registrantNameInput.value : "Pastor John Doe",
         pastorTitle: finalRole,
         pastorPhoto: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300",
-        pastorBio: "Welcome to our fellowship! We would love to meet you.",
-        about: "We are a Bible-believing fellowship committed to sharing God's love.",
-        ministries: ["kids", "youth", "worship"],
+        pastorBio: "Welcome to our ministry fellowship! We would love to connect with you.",
+        about: "We are committed to sharing God's love and reaching communities globally.",
+        ministries: ["worship", "community", "prayer", "youth"],
         livestream: { enabled: false, status: "Offline", player: "", paid: false }
       };
       
@@ -1667,10 +1700,68 @@ function initPrivateAppAuth() {
         portalSelect.value = newId;
         portalSelect.dispatchEvent(new Event("change"));
       }
+
+      localStorage.setItem("mwe.orgName", nameInput.value);
+      if (registrantNameInput && registrantNameInput.value) {
+        localStorage.setItem("mwe.username", registrantNameInput.value);
+      }
     }
     
-    showToast("Registration successful!");
+    showToast("Creator account created successfully!");
     signIn();
+  });
+
+  // Setup Launchpad Quick Actions and Tabs
+  function switchCreatorWorkspace(target) {
+    const launchpad = document.getElementById("launchpad-grid-container");
+    const churchProfile = document.getElementById("church-profile-container");
+    const channelHub = document.getElementById("channel-hub-panel");
+    const storeHub = document.getElementById("store-hub-panel");
+    const resourcesHub = document.getElementById("resources-hub-panel");
+    const eventsPanel = document.getElementById("events-manager-panel");
+    const overviewHeader = document.getElementById("overview");
+    const kpiStrip = document.querySelector(".kpi-strip");
+
+    // Hide all panels
+    if (launchpad) launchpad.style.display = target === "overview" ? "grid" : "none";
+    if (churchProfile) churchProfile.style.display = (target === "overview" || target === "church" || ["identity", "pastor", "services", "ministries", "rides", "salvation", "prayer", "verification", "roles", "livestream"].includes(target)) ? "grid" : "none";
+    if (channelHub) channelHub.style.display = target === "channels" ? "block" : "none";
+    if (storeHub) storeHub.style.display = target === "store" ? "block" : "none";
+    if (resourcesHub) resourcesHub.style.display = target === "resources" ? "block" : "none";
+    if (eventsPanel) eventsPanel.style.display = target === "events" ? "block" : "none";
+
+    // Header visibility
+    if (overviewHeader) overviewHeader.style.display = "flex";
+    if (kpiStrip) kpiStrip.style.display = "grid";
+
+    // Update active nav state
+    document.querySelectorAll(".dash-nav a").forEach(tab => {
+      const tabTarget = tab.getAttribute("data-portal-tab") || (tab.getAttribute("href") || "").replace(/^#/, "");
+      const isActive = tabTarget === target || (target === "overview" && tabTarget === "overview");
+      tab.classList.toggle("active", isActive);
+    });
+
+    if (target === "events") {
+      const select = document.querySelector("[data-portal-select]");
+      if (select && select.value) MWE.renderPortalEvents(select.value);
+    }
+  }
+
+  document.querySelectorAll("[data-launch-target]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.launchTarget;
+      switchCreatorWorkspace(target);
+    });
+  });
+
+  document.querySelectorAll(".dash-nav a").forEach(tab => {
+    tab.addEventListener("click", (e) => {
+      const target = tab.getAttribute("data-portal-tab") || (tab.getAttribute("href") || "").replace(/^#/, "");
+      if (["overview", "church", "channels", "events", "store", "resources"].includes(target)) {
+        e.preventDefault();
+        switchCreatorWorkspace(target);
+      }
+    });
   });
 
   document.querySelectorAll("[data-logout]").forEach(button => {
@@ -1691,7 +1782,6 @@ function getServiceTimes(church) {
   const defaultTimes = ["10:00 AM"];
   if (!church.sunday) return defaultTimes;
   
-  // Try to match times like 9:00 AM, 11:30 AM, etc.
   const matches = church.sunday.match(/\b\d{1,2}:\d{2}\s*(?:AM|PM)\b/gi);
   if (matches && matches.length > 0) {
     if (church.id === "beulah-alliance-west") {
@@ -2851,6 +2941,7 @@ function initChurchPortal() {
   const churches = MWE.getChurches();
 
   function refreshSelect(selectedId = churches[0]?.id) {
+    if (!select) return;
     const list = MWE.getChurches();
     select.innerHTML = list.map(church => `<option value="${church.id}">${MWE.escapeHtml(church.name)}</option>`).join("");
     if (selectedId) select.value = selectedId;
@@ -3026,8 +3117,10 @@ function initChurchPortal() {
   }
 
   function loadSelected() {
+    if (!select || !select.value) return;
     const church = MWE.getChurch(select.value);
-    MWE.fillChurchForm(form, church);
+    if (!church) return;
+    if (form) MWE.fillChurchForm(form, church);
     renderReadableProfile(church);
     renderPreview(church);
     renderPortalRides();
@@ -3790,44 +3883,48 @@ function initOnboardingCarousel() {
 
   const features = [
     {
-      text: "Customize your public profile",
-      icon: "check-circle-2",
+      text: "Register & grow your Church profile",
+      icon: "church",
       stats: [
         { label: "Churches Connected", value: 1284, icon: "church" },
-        { label: "Cities Covered", value: 312, icon: "map-pin" },
+        { label: "New Church Visitors", value: 4732, icon: "user-plus" },
+        { label: "Cities Covered", value: 312, icon: "map-pin" }
+      ]
+    },
+    {
+      text: "Broadcast video & podcast Channels",
+      icon: "podcast",
+      stats: [
+        { label: "Media Subscribers", value: 8420, icon: "users" },
+        { label: "Audio & Video Episodes", value: 1150, icon: "mic-2" },
         { label: "Countries Reached", value: 44, icon: "globe" }
       ]
     },
     {
-      text: "Share schedules, ministries & contact details",
-      icon: "check-circle-2",
-      stats: [
-        { label: "New Church Visitors", value: 4732, icon: "user-plus" },
-        { label: "Churches Connected", value: 1284, icon: "church" }
-      ]
-    },
-    {
-      text: "Publicise your ministry events",
-      icon: "check-circle-2",
+      text: "Schedule conferences & sell Event tickets",
+      icon: "calendar",
       stats: [
         { label: "Events Publicised", value: 3842, icon: "calendar" },
-        { label: "Attendees Registered", value: 19450, icon: "users" }
+        { label: "Attendees Registered", value: 19450, icon: "users" },
+        { label: "Ticket Check-ins", value: 14200, icon: "ticket" }
       ]
     },
     {
-      text: "Stream your services live",
-      icon: "check-circle-2",
+      text: "Open your Christian Store & Merch catalog",
+      icon: "shopping-bag",
       stats: [
-        { label: "People Connected", value: 28640, icon: "users" },
-        { label: "Countries Reached", value: 44, icon: "globe" }
+        { label: "Products Listed", value: 620, icon: "package" },
+        { label: "Store Orders", value: 1830, icon: "shopping-bag" },
+        { label: "Books & Apparel", value: 450, icon: "tag" }
       ]
     },
     {
-      text: "Receive prayer & follow-up requests",
-      icon: "check-circle-2",
+      text: "Publish Study Guides & PDF Resources",
+      icon: "book-open",
       stats: [
-        { label: "Prayer Requests Submitted", value: 9108, icon: "heart" },
-        { label: "People Connected", value: 28640, icon: "users" }
+        { label: "Digital Downloads", value: 12900, icon: "download-cloud" },
+        { label: "Study Guides", value: 780, icon: "file-text" },
+        { label: "Global Readers", value: 34200, icon: "globe" }
       ]
     }
   ];
@@ -4282,6 +4379,39 @@ MWE.showNewEventForm = function() {
 MWE.hideEventEditor = function() {
   const card = document.getElementById("event-editor-card");
   if (card) card.style.display = "none";
+};
+
+MWE.openCreatorChannelModal = function(type) {
+  if (MWE.isMemberShellEmbed()) {
+    window.parent.postMessage({
+      type: "faithlink:navigate",
+      view: "channels"
+    }, window.location.origin);
+    return;
+  }
+  window.location.href = "channels.html";
+};
+
+MWE.openCreatorStoreModal = function() {
+  if (MWE.isMemberShellEmbed()) {
+    window.parent.postMessage({
+      type: "faithlink:navigate",
+      view: "store-manager"
+    }, window.location.origin);
+    return;
+  }
+  window.location.href = "seller-dashboard.html";
+};
+
+MWE.openCreatorResourceModal = function() {
+  if (MWE.isMemberShellEmbed()) {
+    window.parent.postMessage({
+      type: "faithlink:navigate",
+      view: "resources"
+    }, window.location.origin);
+    return;
+  }
+  window.location.href = "resources.html";
 };
 
 MWE.handlePortalEventSubmit = function(e) {

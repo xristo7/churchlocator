@@ -393,6 +393,8 @@ function assetRequest(request) {
   const routes = new Map([
     ["/", "/index.html"],
     ["/church-portal", "/church-portal.html"],
+    ["/portal", "/church-portal.html"],
+    ["/creator-hub", "/church-portal.html"],
     ["/register-church", "/church-portal.html"],
     ["/owner-dashboard", "/owner-dashboard.html"],
     ["/admin", "/owner-dashboard.html"],

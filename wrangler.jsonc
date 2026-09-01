@@ -34,8 +34,7 @@
       "d1_databases": [
         {
           "binding": "DB",
-          "database_name": "my-way-of-evangelism-preview",
-          "database_id": "90459ead-80ef-4b6d-b88b-b47216bf9ce5",
+          "database_name": "my-way-of-evangelism",
           "migrations_dir": "./migrations"
         }
       ]
