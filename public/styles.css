@@ -14789,6 +14789,29 @@ body.hero-only-page .topbar .nav-links a {
 }
 
 /* ==========================================================================
+   LANDING PAGE & LIGHT MODE CARD CONTRAST ENHANCEMENTS
+   ========================================================================== */
+.location-combined-group .country-dropdown {
+  background-image: none !important;
+}
+
+html:not([data-theme="dark"]) .tiny-card-name {
+  color: #0f172a !important;
+}
+
+html:not([data-theme="dark"]) .church-card h3,
+html:not([data-theme="dark"]) .church-card-title,
+html:not([data-theme="dark"]) .event-card h3,
+html:not([data-theme="dark"]) .channel-card h3,
+html:not([data-theme="dark"]) .product-card h3 {
+  color: #0f172a !important;
+}
+
+body.hero-only-page .topbar .nav-links a {
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
    MEDITATION SANCTUARY MODULE (2-COLUMN THEME-AWARE IMMERSIVE SYSTEM)
    ========================================================================== */
 
@@ -15013,7 +15036,7 @@ body[data-theme="dark"] .meditation-room-view {
   color: #ffffff !important;
 }
 
-/* Atmospheric Backdrop */
+/* Atmospheric Backdrop Image Layer */
 .meditation-room-view .meditation-backdrop {
   position: absolute !important;
   inset: 0 !important;
@@ -15022,21 +15045,46 @@ body[data-theme="dark"] .meditation-room-view {
   z-index: 0 !important;
   background-size: cover !important;
   background-position: center !important;
-  transition: background-image 0.8s ease, opacity 0.5s ease !important;
+  background-repeat: no-repeat !important;
+  transition: background-image 0.8s ease, opacity 0.5s ease, filter 0.5s ease !important;
 }
 
+/* Atmosphere Theme Image Maps */
+.meditation-backdrop.bg-chapel {
+  background-image: url('https://images.unsplash.com/photo-1548625361-16eb10f845a7?auto=format&fit=crop&w=2000&q=85') !important;
+}
+
+.meditation-backdrop.bg-mountains {
+  background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=85') !important;
+}
+
+.meditation-backdrop.bg-stars {
+  background-image: url('https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=2000&q=85') !important;
+}
+
+.meditation-backdrop.bg-stream {
+  background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=2000&q=85') !important;
+}
+
+.meditation-backdrop.bg-deepdark {
+  background: radial-gradient(circle at 65% 45%, #0d1527 0%, #060a14 60%, #020408 100%) !important;
+}
+
+/* Light Mode: Vivid Scenic Background with Soft Heavenly Brightness */
 html[data-theme="light"] .meditation-backdrop,
 body:not([data-theme="dark"]) .meditation-backdrop {
-  opacity: 0.18 !important;
-  filter: saturate(1.2) blur(1px) !important;
+  opacity: 0.88 !important;
+  filter: brightness(1.08) saturate(1.15) !important;
 }
 
+/* Dark Mode: Deep Atmospheric Backdrop */
 html[data-theme="dark"] .meditation-backdrop,
 body[data-theme="dark"] .meditation-backdrop {
   opacity: 0.65 !important;
+  filter: brightness(0.75) contrast(1.1) !important;
 }
 
-/* Atmospheric Overlay */
+/* Atmospheric Overlay Layer */
 .meditation-room-view .meditation-overlay {
   position: absolute !important;
   inset: 0 !important;
@@ -15046,11 +15094,13 @@ body[data-theme="dark"] .meditation-backdrop {
   transition: background 0.3s ease !important;
 }
 
+/* Light Mode: Soft Translucent Gradient allowing full background image visibility */
 html[data-theme="light"] .meditation-overlay,
 body:not([data-theme="dark"]) .meditation-overlay {
-  background: linear-gradient(135deg, rgba(248, 250, 252, 0.94) 0%, rgba(241, 245, 249, 0.88) 50%, rgba(238, 242, 255, 0.92) 100%) !important;
+  background: radial-gradient(circle at 65% 45%, rgba(255, 255, 255, 0.1) 0%, rgba(248, 250, 252, 0.35) 60%, rgba(241, 245, 249, 0.6) 100%) !important;
 }
 
+/* Dark Mode: Deep Midnight Gradient */
 html[data-theme="dark"] .meditation-overlay,
 body[data-theme="dark"] .meditation-overlay {
   background: radial-gradient(circle at 65% 45%, rgba(4, 7, 18, 0.45) 0%, rgba(3, 6, 15, 0.85) 75%, rgba(2, 4, 10, 0.96) 100%) !important;
@@ -15076,10 +15126,10 @@ body[data-theme="dark"] .meditation-overlay {
 
 html[data-theme="light"] .meditation-room-sidebar,
 body:not([data-theme="dark"]) .meditation-room-sidebar {
-  background: rgba(255, 255, 255, 0.92) !important;
-  backdrop-filter: blur(24px) !important;
-  border-right: 1px solid var(--border-subtle) !important;
-  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.05) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(28px) !important;
+  border-right: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.08) !important;
   color: var(--text-primary) !important;
 }
 
@@ -15444,6 +15494,7 @@ html[data-theme="dark"] .sidebar-utility-btn {
 html[data-theme="light"] .sacred-breath-guide,
 body:not([data-theme="dark"]) .sacred-breath-guide {
   color: #0f172a !important;
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9) !important;
 }
 
 html[data-theme="dark"] .sacred-breath-guide,
@@ -15477,9 +15528,10 @@ body[data-theme="dark"] .sacred-breath-guide {
 
 html[data-theme="light"] .room-scripture-display,
 body:not([data-theme="dark"]) .room-scripture-display {
-  background: var(--surface) !important;
-  border: 1.5px solid var(--border-subtle) !important;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(28px) !important;
+  border: 1.5px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12) !important;
 }
 
 html[data-theme="dark"] .room-scripture-display,
@@ -15612,9 +15664,10 @@ html[data-theme="dark"] .room-pill-btn:hover {
 
 html[data-theme="light"] .room-bottom-player,
 body:not([data-theme="dark"]) .room-bottom-player {
-  background: var(--surface) !important;
-  border: 1.5px solid var(--border-subtle) !important;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(28px) !important;
+  border: 1.5px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12) !important;
   color: #0f172a !important;
 }
 

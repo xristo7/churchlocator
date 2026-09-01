@@ -54,11 +54,11 @@ test('3. Audio Selection In-Room Only (No audio before entering room)', () => {
   assert.match(html, /data-audio-type="silence"/, 'Silence / Ambience option exists');
 });
 
-test('4. Platform Theme UI Compliance (Light & Dark Mode rules)', () => {
+test('4. Platform Theme UI Compliance (Light & Dark Mode rules & Visible Backdrop)', () => {
   assert.match(css, /html\[data-theme="light"\] \.meditation-room-view[\s\S]*?background:\s*#f8fafc/i, 'Light mode uses bright #f8fafc background');
   assert.match(css, /html\[data-theme="light"\] \.meditation-room-sidebar[\s\S]*?background:\s*rgba\(255,\s*255,\s*255/i, 'Light mode uses bright white sidebar');
   assert.match(css, /html\[data-theme="light"\] \.room-scripture-display blockquote[\s\S]*?color:\s*#0f172a/i, 'Light mode scripture text is high-contrast dark #0f172a');
-  assert.match(css, /html\[data-theme="light"\] \.room-bottom-player[\s\S]*?background:\s*var\(--surface\)/i, 'Light mode bottom player uses surface background');
+  assert.match(css, /html\[data-theme="light"\] \.meditation-backdrop[\s\S]*?opacity:\s*0.88/i, 'Light mode backdrop has high visibility opacity');
 
   assert.match(css, /html\[data-theme="dark"\] \.meditation-room-view[\s\S]*?background:\s*#030712/i, 'Dark mode uses dark #030712 background');
   assert.match(css, /html\[data-theme="dark"\] \.meditation-room-sidebar[\s\S]*?background:\s*rgba\(8,\s*12,\s*24/i, 'Dark mode uses dark sidebar');
