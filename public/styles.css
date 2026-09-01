@@ -4711,8 +4711,7 @@ html[data-theme="dark"] body.member-app-shell .profile-rail-nav a.active { color
 html[data-theme="dark"] body.member-app-shell .profile-invite-card,
 html[data-theme="dark"] body.member-app-shell .member-mobile-actions { border-color: var(--border-subtle) !important; background: var(--surface-card) !important; }
 html[data-theme="dark"] body.member-app-shell .profile-rail-utility { border-color: var(--border-subtle) !important; }
-html[data-theme="dark"] body.member-app-shell .profile-app-search,
-html[data-theme="dark"] body.member-app-shell .profile-app-search input { color: var(--text-primary) !important; border-color: var(--border-subtle) !important; background: var(--surface-soft) !important; }
+html[data-theme="dark"] body.member-app-shell .profile-app-search { color: var(--text-primary) !important; border-color: var(--border-subtle) !important; background: var(--surface-soft) !important; }
 
 html[data-theme="dark"] body[data-page="home"] .search-card input,
 html[data-theme="dark"] body[data-page="home"] .search-card select,
@@ -10719,11 +10718,10 @@ html[data-theme="dark"] body.member-app-shell .profile-rail-utility {
   border-color: var(--border-subtle) !important;
 }
 
-html[data-theme="dark"] body.member-app-shell .profile-app-search,
-html[data-theme="dark"] body.member-app-shell .profile-app-search input {
+html[data-theme="dark"] body.member-app-shell .profile-app-search {
   color: #eaf0ff !important;
   border-color: var(--border-subtle) !important;
-  background: var(--background-secondary) !important;
+  background: var(--surface-soft) !important;
 }
 
 /* 8. Modals, Dialogs, Popovers & Drawers */
@@ -14118,4 +14116,95 @@ html[data-theme="dark"] .profile-app-search {
   border: 1px solid var(--border-subtle) !important;
   border-radius: 14px !important;
   overflow: hidden !important;
+}
+
+/* ==========================================================================
+   UNIFIED SEARCH BARS: Strict Zero-Background & Zero-Border on Focus
+   ========================================================================== */
+#member-shell-search input,
+#message-search,
+#recipient-search,
+#channel-search,
+#store-search,
+#resource-search,
+#seller-product-search,
+.profile-app-search input,
+.messages-search input,
+.module-search input,
+.search-field input,
+.search-input-box-main input,
+.search-box-unified input,
+.search-hero-input,
+html[data-theme="dark"] #member-shell-search input,
+html[data-theme="dark"] #message-search,
+html[data-theme="dark"] #recipient-search,
+html[data-theme="dark"] #channel-search,
+html[data-theme="dark"] #store-search,
+html[data-theme="dark"] #resource-search,
+html[data-theme="dark"] #seller-product-search,
+html[data-theme="dark"] .profile-app-search input,
+html[data-theme="dark"] .messages-search input,
+html[data-theme="dark"] .module-search input,
+html[data-theme="dark"] .search-field input,
+html[data-theme="dark"] .search-input-box-main input,
+html[data-theme="dark"] .search-box-unified input,
+html[data-theme="dark"] .search-hero-input,
+#member-shell-search input:focus,
+#message-search:focus,
+#recipient-search:focus,
+#channel-search:focus,
+#store-search:focus,
+#resource-search:focus,
+#seller-product-search:focus,
+.profile-app-search input:focus,
+.messages-search input:focus,
+.module-search input:focus,
+.search-field input:focus,
+.search-input-box-main input:focus,
+.search-box-unified input:focus,
+.search-hero-input:focus,
+html[data-theme="dark"] #member-shell-search input:focus,
+html[data-theme="dark"] #message-search:focus,
+html[data-theme="dark"] #recipient-search:focus,
+html[data-theme="dark"] #channel-search:focus,
+html[data-theme="dark"] #store-search:focus,
+html[data-theme="dark"] #resource-search:focus,
+html[data-theme="dark"] #seller-product-search:focus,
+html[data-theme="dark"] .profile-app-search input:focus,
+html[data-theme="dark"] .messages-search input:focus,
+html[data-theme="dark"] .module-search input:focus,
+html[data-theme="dark"] .search-field input:focus,
+html[data-theme="dark"] .search-input-box-main input:focus,
+html[data-theme="dark"] .search-box-unified input:focus,
+html[data-theme="dark"] .search-hero-input:focus,
+html[data-theme="dark"] body.member-app-shell .profile-app-search input,
+html[data-theme="dark"] body.member-app-shell .profile-app-search input:focus {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  color: var(--text-primary) !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+/* Outer search container focus ring */
+.profile-app-search:focus-within,
+.messages-search:focus-within,
+.module-search:focus-within,
+.search-field:focus-within,
+.search-input-box-main:focus-within,
+html[data-theme="dark"] .profile-app-search:focus-within,
+html[data-theme="dark"] .messages-search:focus-within,
+html[data-theme="dark"] .module-search:focus-within,
+html[data-theme="dark"] .search-field:focus-within,
+html[data-theme="dark"] .search-input-box-main:focus-within {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px hsla(var(--primary-h), 80%, 55%, 0.22) !important;
+  outline: none !important;
 }
