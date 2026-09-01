@@ -9,7 +9,7 @@
       category: "featured",
       categoryLabel: "⭐ Favorite Room",
       icon: "heart",
-      cover: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=700&q=80",
+      cover: "https://images.unsplash.com/photo-1548625361-195fe578ae14?auto=format&fit=crop&w=800&q=80",
       theme: "chapel",
       toneFreq: 432,
       verses: [
@@ -31,7 +31,7 @@
       category: "featured",
       categoryLabel: "⭐ Favorite Room",
       icon: "sparkles",
-      cover: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=700&q=80",
+      cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
       theme: "stream",
       toneFreq: 528,
       verses: [
@@ -53,7 +53,7 @@
       category: "featured",
       categoryLabel: "⭐ Favorite Room",
       icon: "shield",
-      cover: "https://images.unsplash.com/photo-1548625361-195fe578ae14?auto=format&fit=crop&w=700&q=80",
+      cover: "https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=800&q=80",
       theme: "chapel",
       toneFreq: 396,
       verses: [
@@ -74,7 +74,7 @@
       category: "featured",
       categoryLabel: "⭐ Favorite Room",
       icon: "moon",
-      cover: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=700&q=80",
+      cover: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=800&q=80",
       theme: "stars",
       toneFreq: 432,
       verses: [
@@ -540,6 +540,7 @@
 
   function closeAllDropdowns() {
     document.querySelectorAll(".room-dropdown-menu").forEach(m => m.hidden = true);
+    document.querySelectorAll(".room-tab-trigger").forEach(t => t.classList.remove("active"));
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -578,9 +579,12 @@
 
       trigger.addEventListener("click", e => {
         e.stopPropagation();
-        const wasHidden = menu.hidden;
+        const isCurrentlyOpen = !menu.hidden;
         closeAllDropdowns();
-        menu.hidden = !wasHidden;
+        if (!isCurrentlyOpen) {
+          menu.hidden = false;
+          trigger.classList.add("active");
+        }
       });
     }
 
