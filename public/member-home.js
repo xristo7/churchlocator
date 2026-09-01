@@ -29,18 +29,35 @@
 
   function renderChannels() {
     const container = document.getElementById("member-channels-grid");
-    if (!container) return;
+    if (!container || !data()) return;
     const channels = data().getChannels().slice(0, 3);
     container.innerHTML = channels.map(c => {
-      return '<article class="channel-card">' +
-        '<div class="channel-card-cover"><img src="' + c.cover + '" alt="' + c.name + '" /></div>' +
-        '<div class="channel-card-avatar"><img src="' + c.avatar + '" alt="' + c.owner + '" /></div>' +
-        '<div class="channel-card-body">' +
-          '<h3><a href="channel-detail.html?id=' + c.id + '">' + c.name + '</a></h3>' +
-          '<p class="channel-handle">' + c.handle + ' · ' + c.topic + '</p>' +
-          '<p class="channel-desc">' + c.description + '</p>' +
-          '<div class="channel-stats-row"><span>' + c.followers.toLocaleString() + ' followers</span><span>' + c.items + ' episodes</span></div>' +
-          '<a class="channel-view-btn" href="channel-detail.html?id=' + c.id + '">View Channel</a>' +
+      const icon = c.format === "Podcast" ? "mic-2" : c.format === "Livestream" ? "radio" : "play-square";
+      const followers = Number(c.followers) >= 1000 ? (Number(c.followers) / 1000).toFixed(1) + 'K' : Number(c.followers);
+      const itemsLabel = c.format === "Podcast" ? "Episodes" : "Posts";
+
+      return '<article class="channel-profile-card">' +
+        '<a class="channel-profile-cover" href="channel-detail.html?id=' + encodeURIComponent(c.id) + '" aria-label="Open ' + data().escapeHtml(c.name) + '">' +
+          '<img src="' + data().escapeHtml(c.cover) + '" alt="' + data().escapeHtml(c.name) + ' cover" />' +
+          '<span class="channel-format"><i data-lucide="' + icon + '"></i>' + data().escapeHtml(c.format) + '</span>' +
+          (c.live ? '<span class="channel-live"><i data-lucide="radio"></i> Live</span>' : '') +
+          '<img class="channel-profile-avatar" src="' + data().escapeHtml(c.avatar) + '" alt="' + data().escapeHtml(c.owner) + '" />' +
+        '</a>' +
+        '<div class="channel-profile-body">' +
+          '<div class="channel-profile-identity">' +
+            '<div>' +
+              '<h3><a href="channel-detail.html?id=' + encodeURIComponent(c.id) + '">' + data().escapeHtml(c.name) + '</a>' + (c.verified ? '<i data-lucide="badge-check" aria-label="Verified"></i>' : '') + '</h3>' +
+              '<span>' + data().escapeHtml(c.owner) + ' · ' + data().escapeHtml(c.topic) + '</span>' +
+            '</div>' +
+            '<span class="channel-online"><i></i>' + (c.live ? "Live now" : "Active") + '</span>' +
+          '</div>' +
+          '<p>' + data().escapeHtml(c.description) + '</p>' +
+          '<div class="channel-platform-stats">' +
+            '<span><strong>' + followers + '</strong><small>Followers</small></span>' +
+            '<span><strong>' + Number(c.items).toLocaleString() + '</strong><small>' + itemsLabel + '</small></span>' +
+            '<span><strong>' + (c.verified ? "4.9" : "4.7") + '</strong><small>Rating</small></span>' +
+          '</div>' +
+          '<a class="channel-contact-button" href="messages.html?compose=channel&id=' + encodeURIComponent(c.id) + '"><i data-lucide="message-circle"></i> Connect with ' + data().escapeHtml(c.owner.split(' ')[0]) + '</a>' +
         '</div>' +
       '</article>';
     }).join("");
@@ -48,16 +65,29 @@
 
   function renderResources() {
     const container = document.getElementById("member-resources-grid");
-    if (!container) return;
+    if (!container || !data()) return;
     const resources = data().getResources().slice(0, 3);
-    container.innerHTML = resources.map(r => {
-      return '<article class="resource-card">' +
-        '<div class="resource-cover"><img src="' + r.image + '" alt="' + r.title + '" /></div>' +
+    container.innerHTML = resources.map((r, index) => {
+      const icon = r.type === "Video" ? "video" : r.type === "Audio" ? "headphones" : "file-text";
+      const priceTag = r.access === "Free" ? "Free" : data().money(r.price);
+
+      return '<article class="resource-card editorial-card tone-' + (index % 6) + '">' +
+        '<a class="resource-cover" href="resource-detail.html?id=' + encodeURIComponent(r.id) + '" aria-label="View ' + data().escapeHtml(r.title) + '">' +
+          '<img class="resource-image" src="' + data().escapeHtml(r.image) + '" alt="" />' +
+          '<span class="resource-cover-icon"><i data-lucide="' + icon + '"></i></span>' +
+          '<span class="resource-type-label">' + data().escapeHtml(r.format) + '</span>' +
+        '</a>' +
         '<div class="resource-card-body">' +
-          '<span class="resource-format">' + r.topic + ' · ' + r.format + '</span>' +
-          '<h3><a href="resource-detail.html?id=' + r.id + '">' + r.title + '</a></h3>' +
-          '<p>' + r.description + '</p>' +
-          '<div class="resource-meta"><span>' + r.duration + '</span> · <strong>' + (r.access === "Free" ? "Free" : data().money(r.price)) + '</strong></div>' +
+          '<div class="resource-identity">' +
+            '<span class="resource-topic">' + data().escapeHtml(r.topic) + '</span>' +
+            '<h3><a href="resource-detail.html?id=' + encodeURIComponent(r.id) + '">' + data().escapeHtml(r.title) + '</a></h3>' +
+            '<span class="resource-creator">By ' + data().escapeHtml(r.creator) + '</span>' +
+          '</div>' +
+          '<p class="resource-desc">' + data().escapeHtml(r.description) + '</p>' +
+          '<div class="resource-card-footer">' +
+            '<span class="resource-duration"><i data-lucide="clock"></i> ' + data().escapeHtml(r.duration) + '</span>' +
+            '<strong class="resource-price-badge">' + priceTag + '</strong>' +
+          '</div>' +
         '</div>' +
       '</article>';
     }).join("");
@@ -65,17 +95,24 @@
 
   function renderStore() {
     const container = document.getElementById("member-store-grid");
-    if (!container) return;
+    if (!container || !data()) return;
     const products = data().getProducts().slice(0, 3);
     container.innerHTML = products.map(p => {
-      return '<div class="store-card">' +
-        '<div class="store-card-image"><img src="' + p.image + '" alt="' + p.title + '" /></div>' +
-        '<div class="store-card-body">' +
-          '<span class="store-card-category">' + p.category + '</span>' +
-          '<h3><a href="product-detail.html?id=' + p.id + '">' + p.title + '</a></h3>' +
-          '<div class="store-card-price"><strong>' + data().money(p.price) + '</strong></div>' +
+      return '<article class="store-product-card product-card">' +
+        '<a class="product-image-wrap" href="product-detail.html?id=' + encodeURIComponent(p.id) + '" aria-label="View ' + data().escapeHtml(p.title) + '">' +
+          '<img class="product-image" src="' + data().escapeHtml(p.image) + '" alt="' + data().escapeHtml(p.title) + '" />' +
+          '<span class="product-badge">' + data().escapeHtml(p.sellerType) + ' · ' + data().escapeHtml(p.category) + '</span>' +
+        '</a>' +
+        '<div class="product-card-body">' +
+          '<span class="product-seller">Sold by ' + data().escapeHtml(p.seller) + '</span>' +
+          '<h3><a href="product-detail.html?id=' + encodeURIComponent(p.id) + '">' + data().escapeHtml(p.title) + '</a></h3>' +
+          '<span class="product-rating"><i data-lucide="star"></i>' + Number(p.rating).toFixed(1) + ' · ' + Number(p.inventory) + ' in stock</span>' +
+          '<div class="product-price-row">' +
+            '<div><span class="product-price">' + data().money(p.price) + '</span>' + (p.compareAt ? '<span class="product-compare">' + data().money(p.compareAt) + '</span>' : '') + '</div>' +
+            '<a class="button ghost sm" href="product-detail.html?id=' + encodeURIComponent(p.id) + '">Details</a>' +
+          '</div>' +
         '</div>' +
-      '</div>';
+      '</article>';
     }).join("");
   }
 
