@@ -304,5 +304,42 @@ test("dark mode adapts background surfaces and subtle borders to primary theme a
   assert.match(styles, /html\[data-theme="dark"\] \.hero-glow-overlay\s*\{[\s\S]*hsla\(var\(--primary-h\)/);
 });
 
+test("SPA shell supports member home dashboard and interactive meditation sanctuary module", async () => {
+  const appHtml = await readProjectFile("public/app.html");
+  const shellJs = await readProjectFile("public/app-shell.js");
+  const memberHomeHtml = await readProjectFile("public/member-home.html");
+  const memberHomeJs = await readProjectFile("public/member-home.js");
+  const medHtml = await readProjectFile("public/meditation.html");
+  const medJs = await readProjectFile("public/meditation.js");
+  const styles = await readProjectFile("public/styles.css");
+
+  // Navigation routes in app.html
+  assert.match(appHtml, /data-shell-view="home"/);
+  assert.match(appHtml, /data-shell-view="meditation"/);
+
+  // Router definitions in app-shell.js
+  assert.match(shellJs, /home:\s*\{\s*source:\s*"member-home\.html"/);
+  assert.match(shellJs, /meditation:\s*\{\s*source:\s*"meditation\.html"/);
+
+  // Member home sections
+  assert.match(memberHomeHtml, /Welcome to Your Fellowship/);
+  assert.match(memberHomeHtml, /Meditation Sanctuary/);
+  assert.match(memberHomeHtml, /Virtual Sanctuary Streams/);
+  assert.match(memberHomeHtml, /Inspiring Channels & Podcasts/);
+  assert.match(memberHomeHtml, /Featured Ministry Essentials/);
+
+  // Meditation Sanctuary features
+  assert.match(medHtml, /Meditation Sanctuary/);
+  assert.match(medHtml, /Christian Worship/);
+  assert.match(medHtml, /Audio Bible/);
+  assert.match(medHtml, /Soaking Instrumental/);
+  assert.match(medHtml, /Sermons & Preaching/);
+  assert.match(medHtml, /Prayer & Sleep Timer/);
+
+  // Landing page topbar bright text exemption
+  assert.match(styles, /body\.hero-only-page \.topbar \.nav-links a[\s\S]*#ffffff !important/);
+});
+
+
 
 

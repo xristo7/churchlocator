@@ -17,6 +17,8 @@
   if (!frame) return;
 
   const views = {
+    home: { source: "member-home.html", title: "Member Home" },
+    meditation: { source: "meditation.html", title: "Meditation Sanctuary" },
     directory: { source: "churches.html", title: "Church Directory" },
     channels: { source: "channels.html", title: "Christian Channels" },
     "channel-detail": { source: "channel-detail.html", title: "Channel" },
@@ -39,6 +41,8 @@
   };
 
   const sectionContexts = {
+    home: ["Home", "layout-grid"],
+    meditation: ["Meditation", "sparkles"],
     directory: ["Churches", "church"], church: ["Churches", "church"],
     channels: ["Channels", "podcast"], "channel-detail": ["Channels", "podcast"], "channel-content": ["Channels", "podcast"],
     events: ["Events", "calendar-days"], event: ["Events", "calendar-days"],
