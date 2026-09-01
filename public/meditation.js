@@ -377,9 +377,11 @@
     activeRoom = room;
     activeVerseIndex = 0;
 
+    document.body.classList.add("in-meditation-room");
     document.getElementById("meditation-lobby").hidden = true;
     const roomView = document.getElementById("meditation-room-view");
     roomView.hidden = false;
+    window.scrollTo({ top: 0, behavior: "instant" });
 
     document.getElementById("room-badge-title").textContent = room.title;
     const iconEl = document.getElementById("room-badge-icon");
@@ -408,9 +410,10 @@
 
     if (isFullscreen) toggleFullscreen(false);
 
+    document.body.classList.remove("in-meditation-room");
     document.getElementById("meditation-room-view").hidden = true;
     document.getElementById("meditation-lobby").hidden = false;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "instant" });
   }
 
   function renderRoomScripture() {
@@ -550,6 +553,12 @@
     const initialRoom = params.get("room");
     if (initialRoom) {
       enterRoom(initialRoom, false);
+    } else {
+      document.body.classList.remove("in-meditation-room");
+      const lobby = document.getElementById("meditation-lobby");
+      const roomView = document.getElementById("meditation-room-view");
+      if (lobby) lobby.hidden = false;
+      if (roomView) roomView.hidden = true;
     }
 
     document.getElementById("lobby-filter-tabs")?.addEventListener("click", e => {

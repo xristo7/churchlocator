@@ -15739,13 +15739,18 @@ body[data-page="meditation"] .room-audio-count {
 /* --------------------------------------------------------------------------
    IN-ROOM PURE SANCTUARY VIEW (DISTRACTION FREE)
    -------------------------------------------------------------------------- */
-.meditation-room-view {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 0;
-  position: relative;
+.meditation-room-view,
+.meditation-room-view[hidden] {
+  display: none !important;
+}
+
+.meditation-room-view:not([hidden]) {
+  min-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 0 !important;
+  position: relative !important;
   color: #ffffff !important;
 }
 
