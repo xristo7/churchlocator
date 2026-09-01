@@ -5015,9 +5015,9 @@ html[data-theme="dark"] :where(.channel-profile-card, .store-product-card, .reso
 .resource-detail-includes ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; color: #50678d; }
 .resource-detail-includes li { display: flex; align-items: center; gap: 9px; }
 .resource-detail-includes svg { width: 17px; color: #2777f5; }
-.donation-impact-gallery { padding: 78px 0; background: radial-gradient(circle at 14% 18%, rgba(68,218,255,.13), transparent 28%), linear-gradient(180deg, #f7faff, #fff); }
+.donation-impact-gallery { padding: 78px 0; background: var(--background); }
 .impact-gallery-head { max-width: 720px; margin: 0 auto 34px; text-align: center; }
-.impact-gallery-head .section-kicker { color: #2777f5; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.impact-gallery-head .section-kicker { color: var(--primary); font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
 .impact-gallery-head h2 { margin: 10px 0 12px; color: #071a48; font-size: clamp(2rem,4vw,3rem); }
 .impact-gallery-head p { color: #5e7398; font-size: 1.05rem; line-height: 1.7; }
 .impact-gallery-grid { display: grid; grid-template-columns: 1.15fr .85fr .85fr; grid-template-rows: 245px 245px; gap: 16px; }
@@ -12356,7 +12356,7 @@ html[data-theme="dark"] .reader-toc-sidebar {
   color: var(--text-primary) !important;
 }
 html[data-theme="dark"] .donation-impact-gallery {
-  background: radial-gradient(circle at 14% 18%, rgba(68,218,255,.05), transparent 28%), linear-gradient(180deg, #0b1120, var(--background-secondary)) !important;
+  background: var(--background) !important;
 }
 
 /* 9. Leadership, Stories & Profile Sections */
@@ -14278,4 +14278,48 @@ html[data-theme="dark"] .product-detail-rating span:first-child {
 
 html[data-theme="dark"] .product-seller-panel button {
   color: var(--primary) !important;
+}
+
+/* ==========================================================================
+   Donation Page: Impact Gallery Dynamic Theme & Subtle White Typography
+   ========================================================================== */
+html[data-theme="dark"] .donation-impact-gallery {
+  background: var(--background) !important;
+}
+
+html[data-theme="dark"] .impact-gallery-head .section-kicker {
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] .impact-gallery-head h2 {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .impact-gallery-head p {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+html[data-theme="dark"] .impact-media-card {
+  background: var(--surface-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+html[data-theme="dark"] .impact-video-badge {
+  background: var(--surface-soft) !important;
+  color: var(--primary) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+html[data-theme="dark"] .impact-media-overlay {
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.92)) !important;
+}
+
+html[data-theme="dark"] .impact-media-overlay strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .impact-media-overlay span {
+  color: rgba(255, 255, 255, 0.78) !important;
 }
