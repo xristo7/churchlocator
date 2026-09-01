@@ -379,20 +379,19 @@
     
     roomView.style.setProperty("--room-color", color);
     roomView.style.setProperty("--room-hue", hue);
-    roomView.style.setProperty("--room-glow", `hsla(${hue}, 90%, 60%, 0.65)`);
-    roomView.style.setProperty("--room-glow-soft", `hsla(${hue}, 90%, 60%, 0.25)`);
+    roomView.style.setProperty("--room-glow", `hsla(${hue}, 90%, 55%, 0.55)`);
+    roomView.style.setProperty("--room-glow-soft", `hsla(${hue}, 90%, 55%, 0.2)`);
     
     const orb = document.getElementById("sacred-pulsing-orb");
     if (orb) {
-      orb.style.background = `radial-gradient(circle at 35% 35%, #ffffff 0%, ${color} 60%, hsla(${hue}, 90%, 25%, 0.95) 100%)`;
-      orb.style.boxShadow = `0 0 45px hsla(${hue}, 90%, 60%, 0.75), 0 0 90px hsla(${hue}, 90%, 60%, 0.35), inset -4px -4px 14px rgba(0, 0, 0, 0.45)`;
+      orb.style.background = `radial-gradient(circle at 35% 35%, #ffffff 0%, ${color} 55%, hsla(${hue}, 85%, 35%, 1) 100%)`;
+      orb.style.boxShadow = `0 10px 40px hsla(${hue}, 85%, 50%, 0.45), 0 0 80px hsla(${hue}, 85%, 50%, 0.25)`;
     }
     
-    const topicTag = document.getElementById("room-scripture-topic");
-    if (topicTag) {
-      topicTag.style.background = `hsla(${hue}, 80%, 55%, 0.25)`;
-      topicTag.style.borderColor = `hsla(${hue}, 80%, 55%, 0.5)`;
-      topicTag.style.color = `#ffffff`;
+    const playBtn = document.getElementById("bottom-play-btn");
+    if (playBtn) {
+      playBtn.style.background = color;
+      playBtn.style.boxShadow = `0 4px 16px hsla(${hue}, 85%, 50%, 0.45)`;
     }
   }
 

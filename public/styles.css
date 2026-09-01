@@ -17108,3 +17108,683 @@ body.in-meditation-room .meditation-room-view {
   width: clamp(50px, 6vw, 80px) !important;
   accent-color: var(--room-color, var(--primary)) !important;
 }
+
+/* ==========================================================================
+   THEME-AWARE 2-COLUMN MEDITATION SANCTUARY
+   Clean, bright & crisp in Light Mode; Deep & contemplative in Dark Mode
+   ========================================================================== */
+
+/* Full Viewport Lock when inside Room */
+body.in-meditation-room {
+  overflow: hidden !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.in-meditation-room .topbar,
+body.in-meditation-room header.topbar {
+  display: none !important;
+}
+
+.meditation-room-view,
+.meditation-room-view[hidden] {
+  display: none !important;
+}
+
+.meditation-room-view:not([hidden]),
+body.in-meditation-room .meditation-room-view {
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  position: fixed !important;
+  inset: 0 !important;
+  overflow: hidden !important;
+  z-index: 9999 !important;
+  transition: background 0.3s ease, color 0.3s ease !important;
+}
+
+/* LIGHT MODE DEFAULT STYLING FOR MEDITATION ROOM */
+html[data-theme="light"] .meditation-room-view,
+body:not([data-theme="dark"]) .meditation-room-view {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* DARK MODE STYLING FOR MEDITATION ROOM */
+html[data-theme="dark"] .meditation-room-view,
+body[data-theme="dark"] .meditation-room-view {
+  background: #030712 !important;
+  color: #ffffff !important;
+}
+
+/* Backdrop image layer */
+.meditation-room-view .meditation-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 0 !important;
+  background-size: cover !important;
+  background-position: center !important;
+  transition: background-image 0.8s ease, opacity 0.5s ease !important;
+}
+
+html[data-theme="light"] .meditation-backdrop,
+body:not([data-theme="dark"]) .meditation-backdrop {
+  opacity: 0.18 !important;
+  filter: saturate(1.2) blur(1px) !important;
+}
+
+html[data-theme="dark"] .meditation-backdrop,
+body[data-theme="dark"] .meditation-backdrop {
+  opacity: 0.65 !important;
+}
+
+/* Overlay gradient layer */
+.meditation-room-view .meditation-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1 !important;
+  transition: background 0.3s ease !important;
+}
+
+html[data-theme="light"] .meditation-overlay,
+body:not([data-theme="dark"]) .meditation-overlay {
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.94) 0%, rgba(241, 245, 249, 0.88) 50%, rgba(238, 242, 255, 0.92) 100%) !important;
+}
+
+html[data-theme="dark"] .meditation-overlay,
+body[data-theme="dark"] .meditation-overlay {
+  background: radial-gradient(circle at 65% 45%, rgba(4, 7, 18, 0.45) 0%, rgba(3, 6, 15, 0.85) 75%, rgba(2, 4, 10, 0.96) 100%) !important;
+}
+
+/* ==========================================================================
+   COLUMN 1: LEFT SIDEBAR NAVIGATION (THEME AWARE)
+   ========================================================================== */
+.meditation-room-sidebar {
+  position: relative !important;
+  z-index: 20 !important;
+  width: clamp(280px, 22vw, 340px) !important;
+  min-width: clamp(280px, 22vw, 340px) !important;
+  max-width: clamp(280px, 22vw, 340px) !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: clamp(16px, 2.2vh, 22px) clamp(14px, 1.6vw, 20px) !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  transition: background 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Light Mode Sidebar */
+html[data-theme="light"] .meditation-room-sidebar,
+body:not([data-theme="dark"]) .meditation-room-sidebar {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(24px) !important;
+  border-right: 1px solid var(--border-subtle) !important;
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.05) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Dark Mode Sidebar */
+html[data-theme="dark"] .meditation-room-sidebar,
+body[data-theme="dark"] .meditation-room-sidebar {
+  background: rgba(8, 12, 24, 0.9) !important;
+  backdrop-filter: blur(32px) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 12px 0 45px rgba(0, 0, 0, 0.7) !important;
+  color: #ffffff !important;
+}
+
+.sidebar-top-section {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  padding-bottom: 16px !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+html[data-theme="dark"] .sidebar-top-section {
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-exit-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 9px 15px !important;
+  border-radius: 12px !important;
+  font-size: 0.88rem !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+html[data-theme="light"] .sidebar-exit-btn,
+body:not([data-theme="dark"]) .sidebar-exit-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="light"] .sidebar-exit-btn:hover {
+  background: var(--surface) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] .sidebar-exit-btn,
+body[data-theme="dark"] .sidebar-exit-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+}
+
+.sidebar-room-badge {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 14px !important;
+  border-radius: 14px !important;
+}
+
+html[data-theme="light"] .sidebar-room-badge {
+  background: #f8fafc !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+html[data-theme="dark"] .sidebar-room-badge {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-room-badge .room-badge-icon {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
+  background: hsla(var(--primary-h), 80%, 55%, 0.15) !important;
+  color: var(--primary) !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+.sidebar-room-meta {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  overflow: hidden !important;
+}
+
+.sidebar-badge-kicker {
+  font-size: 0.7rem !important;
+  font-weight: 850 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--primary) !important;
+}
+
+.sidebar-room-meta strong {
+  font-size: 0.9rem !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+html[data-theme="light"] .sidebar-room-meta strong {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .sidebar-room-meta strong {
+  color: #ffffff !important;
+}
+
+/* Accordion Nav List */
+.sidebar-accordion-nav {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  margin: 16px 0 !important;
+  flex: 1 !important;
+}
+
+.sidebar-nav-trigger {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 11px 14px !important;
+  border-radius: 12px !important;
+  font-size: 0.88rem !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+html[data-theme="light"] .sidebar-nav-trigger {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="light"] .sidebar-nav-trigger:hover,
+html[data-theme="light"] .sidebar-nav-trigger.active,
+html[data-theme="light"] .sidebar-nav-trigger[aria-expanded="true"] {
+  background: hsla(var(--primary-h), 80%, 55%, 0.08) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] .sidebar-nav-trigger {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+html[data-theme="dark"] .sidebar-nav-trigger:hover,
+html[data-theme="dark"] .sidebar-nav-trigger.active,
+html[data-theme="dark"] .sidebar-nav-trigger[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+.sidebar-nav-trigger[aria-expanded="true"] .accordion-arrow,
+.sidebar-nav-trigger.active .accordion-arrow {
+  transform: rotate(180deg) !important;
+}
+
+/* Accordion Subitems Panel */
+.sidebar-subitems-panel {
+  display: grid !important;
+  gap: 3px !important;
+  padding: 8px 8px 8px 10px !important;
+  border-radius: 12px !important;
+  margin-top: 4px !important;
+  animation: sidebarSlideDown 0.2s ease forwards !important;
+}
+
+html[data-theme="light"] .sidebar-subitems-panel {
+  background: #f8fafc !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+html[data-theme="dark"] .sidebar-subitems-panel {
+  background: rgba(4, 8, 20, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.sidebar-subitems-panel[hidden] {
+  display: none !important;
+}
+
+.sidebar-panel-header {
+  padding: 4px 6px !important;
+  font-size: 0.7rem !important;
+  font-weight: 850 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--text-muted) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  margin-bottom: 4px !important;
+}
+
+.sidebar-subitems-panel button {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 10px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: 0.84rem !important;
+  font-weight: 650 !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+
+html[data-theme="light"] .sidebar-subitems-panel button {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="light"] .sidebar-subitems-panel button:hover {
+  background: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .sidebar-subitems-panel button {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+html[data-theme="dark"] .sidebar-subitems-panel button:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.sidebar-subitems-panel button.active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.sidebar-scroll-subitems {
+  max-height: 220px !important;
+  overflow-y: auto !important;
+}
+
+.sidebar-footer-section {
+  padding-top: 14px !important;
+  border-top: 1px solid var(--border-subtle) !important;
+}
+
+html[data-theme="dark"] .sidebar-footer-section {
+  border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-utility-btn {
+  width: 100% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  font-size: 0.86rem !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+html[data-theme="light"] .sidebar-utility-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .sidebar-utility-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   COLUMN 2: RIGHT MEDITATION SANCTUARY SECTION (THEME AWARE & GUARANTEED FIT)
+   ========================================================================== */
+.meditation-room-main {
+  flex: 1 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: clamp(12px, 2vh, 24px) clamp(20px, 3.5vw, 48px) clamp(12px, 2vh, 24px) !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 10 !important;
+  overflow: hidden !important;
+  text-align: center !important;
+}
+
+/* 1. SACRED GLOWING BREATHING ORB (VISIBLE IN BOTH MODES) */
+.sacred-orb-section {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  margin-top: clamp(2px, 1vh, 12px) !important;
+}
+
+.sacred-orb-container {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.sacred-pulsing-orb {
+  width: clamp(54px, 8vh, 80px) !important;
+  height: clamp(54px, 8vh, 80px) !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle at 35% 35%, #ffffff 0%, var(--primary) 55%, hsla(var(--primary-h), 85%, 35%, 1) 100%) !important;
+  box-shadow: 0 10px 40px hsla(var(--primary-h), 85%, 50%, 0.45),
+              0 0 80px hsla(var(--primary-h), 85%, 50%, 0.25) !important;
+  animation: sacredBreathPulse 8s infinite ease-in-out !important;
+  transition: background 0.8s ease, box-shadow 0.8s ease !important;
+}
+
+.sacred-orb-aura-inner {
+  position: absolute !important;
+  width: clamp(90px, 13vh, 130px) !important;
+  height: clamp(90px, 13vh, 130px) !important;
+  border-radius: 50% !important;
+  border: 1.5px solid hsla(var(--primary-h), 80%, 55%, 0.35) !important;
+  animation: auraPulse 8s infinite ease-in-out !important;
+  pointer-events: none !important;
+}
+
+.sacred-orb-aura-outer {
+  position: absolute !important;
+  width: clamp(130px, 18vh, 180px) !important;
+  height: clamp(130px, 18vh, 180px) !important;
+  border-radius: 50% !important;
+  border: 1px solid hsla(var(--primary-h), 80%, 55%, 0.18) !important;
+  animation: auraPulse 8s infinite ease-in-out 1s !important;
+  pointer-events: none !important;
+}
+
+.sacred-breath-guide {
+  font-size: clamp(0.72rem, 1.3vh, 0.84rem) !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  margin-top: clamp(8px, 1.4vh, 14px) !important;
+}
+
+html[data-theme="light"] .sacred-breath-guide,
+body:not([data-theme="dark"]) .sacred-breath-guide {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .sacred-breath-guide,
+body[data-theme="dark"] .sacred-breath-guide {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* 2. SCRIPTURE CARD (THEME AWARE & GUARANTEED VISIBLE) */
+.room-scripture-display {
+  flex: 0 1 auto !important;
+  width: 100% !important;
+  max-width: clamp(460px, 50vw, 700px) !important;
+  border-radius: clamp(16px, 2.2vh, 22px) !important;
+  padding: clamp(12px, 2vh, 22px) clamp(16px, 2.8vw, 32px) !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  margin: clamp(4px, 1vh, 12px) 0 !important;
+  transition: background 0.3s ease, border-color 0.3s ease !important;
+}
+
+html[data-theme="light"] .room-scripture-display,
+body:not([data-theme="dark"]) .room-scripture-display {
+  background: var(--surface) !important;
+  border: 1.5px solid var(--border-subtle) !important;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08) !important;
+}
+
+html[data-theme="dark"] .room-scripture-display,
+body[data-theme="dark"] .room-scripture-display {
+  background: rgba(8, 12, 28, 0.82) !important;
+  backdrop-filter: blur(28px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65) !important;
+}
+
+.scripture-topic-tag {
+  display: inline-block !important;
+  padding: 3px 12px !important;
+  border-radius: 99px !important;
+  font-size: clamp(0.68rem, 1.2vh, 0.78rem) !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  margin-bottom: clamp(4px, 1vh, 8px) !important;
+}
+
+html[data-theme="light"] .scripture-topic-tag {
+  background: hsla(var(--primary-h), 80%, 55%, 0.12) !important;
+  border: 1px solid hsla(var(--primary-h), 80%, 55%, 0.35) !important;
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] .scripture-topic-tag {
+  background: hsla(var(--primary-h), 80%, 55%, 0.25) !important;
+  border: 1px solid hsla(var(--primary-h), 80%, 55%, 0.45) !important;
+  color: #ffffff !important;
+}
+
+.room-scripture-display blockquote {
+  font-family: inherit !important;
+  font-size: clamp(0.98rem, 1.9vh, 1.25rem) !important;
+  line-height: 1.45 !important;
+  font-style: italic !important;
+  font-weight: 600 !important;
+  margin: 0 0 clamp(4px, 1vh, 8px) 0 !important;
+}
+
+html[data-theme="light"] .room-scripture-display blockquote {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .room-scripture-display blockquote {
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
+}
+
+.room-scripture-display cite {
+  display: block !important;
+  font-size: clamp(0.78rem, 1.3vh, 0.88rem) !important;
+  font-weight: 750 !important;
+  font-style: normal !important;
+  margin-bottom: clamp(6px, 1.2vh, 10px) !important;
+}
+
+html[data-theme="light"] .room-scripture-display cite {
+  color: #475569 !important;
+}
+
+html[data-theme="dark"] .room-scripture-display cite {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.room-verse-actions {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.room-pill-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding: clamp(5px, 1vh, 8px) clamp(12px, 1.8vw, 18px) !important;
+  border-radius: 99px !important;
+  font-size: clamp(0.76rem, 1.3vh, 0.84rem) !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+html[data-theme="light"] .room-pill-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid var(--border-strong) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="light"] .room-pill-btn:hover {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .room-pill-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .room-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* 3. DOCKED BOTTOM AUDIO PLAYER (THEME AWARE, ZERO OVERLAP) */
+.meditation-room-view .room-bottom-player {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: auto !important;
+  min-width: clamp(320px, 42vw, 580px) !important;
+  max-width: 95% !important;
+  height: clamp(48px, 6.2vh, 56px) !important;
+  padding: 0 clamp(14px, 1.8vw, 24px) !important;
+  border-radius: 99px !important;
+  box-sizing: border-box !important;
+  margin-bottom: clamp(2px, 0.8vh, 8px) !important;
+  z-index: 20 !important;
+  transition: background 0.3s ease, border-color 0.3s ease !important;
+}
+
+html[data-theme="light"] .room-bottom-player,
+body:not([data-theme="dark"]) .room-bottom-player {
+  background: var(--surface) !important;
+  border: 1.5px solid var(--border-subtle) !important;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .room-bottom-player,
+body[data-theme="dark"] .room-bottom-player {
+  background: rgba(10, 14, 28, 0.94) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(24px) !important;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.7) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .bottom-player-text strong {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .bottom-player-text span {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .bottom-player-controls .bottom-btn {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .bottom-player-controls .bottom-btn:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .bottom-player-volume {
+  color: #475569 !important;
+}

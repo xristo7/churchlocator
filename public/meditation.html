@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meditation Sanctuary | My Way</title>
-  <link rel="stylesheet" href="styles.css?v=20260901t" />
+  <link rel="stylesheet" href="styles.css?v=20260901u" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="app.js?v=20260831"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
-  <script defer src="meditation.js?v=20260901t"></script>
+  <script defer src="meditation.js?v=20260901u"></script>
 </head>
 <body class="module-page" data-page="meditation">
   <header class="topbar"></header>
@@ -75,10 +75,10 @@
 
   </main>
 
-  <!-- VIEW 2: 2-COLUMN FULL-VIEWPORT SANCTUARY ROOM (SIDEBAR LEFT + MEDITATION RIGHT) -->
+  <!-- VIEW 2: 2-COLUMN SANCTUARY ROOM (SIDEBAR LEFT + MEDITATION RIGHT, THEME AWARE) -->
   <div class="meditation-room-view" id="meditation-room-view" hidden>
     
-    <!-- Atmosphere Backdrop & Cinematic Overlay (Fills 100% of all sides) -->
+    <!-- Atmosphere Backdrop & Theme Overlay -->
     <div class="meditation-backdrop bg-chapel" id="meditation-backdrop"></div>
     <div class="meditation-overlay" id="meditation-overlay"></div>
 
@@ -88,7 +88,7 @@
       <!-- Top: Back to Rooms & Current Sanctuary Badge -->
       <div class="sidebar-top-section">
         <button type="button" class="sidebar-exit-btn" id="room-exit-btn" aria-label="Exit to All Rooms">
-          <i data-lucide="arrow-left"></i> <span>All Sanctuary Rooms</span>
+          <i data-lucide="arrow-left"></i> <span>All Rooms</span>
         </button>
         
         <div class="sidebar-room-badge">
@@ -110,7 +110,7 @@
             <i data-lucide="chevron-down" class="accordion-arrow"></i>
           </button>
           <div class="sidebar-subitems-panel" id="audio-select-menu" hidden>
-            <div class="sidebar-panel-header">🎵 In-Room Audio Selection</div>
+            <div class="sidebar-panel-header">🎵 In-Room Audio</div>
             <button type="button" data-audio-type="bible" class="active"><i data-lucide="book-open"></i> Dramatized Audio Bible</button>
             <button type="button" data-audio-type="instrumental"><i data-lucide="audio-lines"></i> Soaking Instrumental (432Hz)</button>
             <button type="button" data-audio-type="worship"><i data-lucide="music"></i> Christian Worship</button>
@@ -126,7 +126,7 @@
             <i data-lucide="chevron-down" class="accordion-arrow"></i>
           </button>
           <div class="sidebar-subitems-panel sidebar-scroll-subitems" id="room-switch-menu" hidden>
-            <div class="sidebar-panel-header">🚪 Switch Sanctuary Room</div>
+            <div class="sidebar-panel-header">🚪 Switch Sanctuary</div>
             <div class="sidebar-sub-list" id="room-switch-list"></div>
           </div>
         </div>
@@ -134,11 +134,11 @@
         <!-- 3. Atmosphere Theme -->
         <div class="sidebar-nav-group" data-group="theme">
           <button type="button" class="sidebar-nav-trigger" id="theme-select-trigger" aria-expanded="false">
-            <span class="trigger-label"><i data-lucide="image"></i> <span>Atmosphere Theme</span></span>
+            <span class="trigger-label"><i data-lucide="image"></i> <span>Atmosphere</span></span>
             <i data-lucide="chevron-down" class="accordion-arrow"></i>
           </button>
           <div class="sidebar-subitems-panel" id="theme-select-menu" hidden>
-            <div class="sidebar-panel-header">🖼️ Background Atmosphere</div>
+            <div class="sidebar-panel-header">🖼️ Background Scene</div>
             <button type="button" data-bg-theme="chapel" class="active"><i data-lucide="church"></i> Candlelit Chapel</button>
             <button type="button" data-bg-theme="mountains"><i data-lucide="mountain"></i> Mountain Sunrise</button>
             <button type="button" data-bg-theme="stars"><i data-lucide="moon"></i> Starry Night Sky</button>
@@ -154,7 +154,7 @@
             <i data-lucide="chevron-down" class="accordion-arrow"></i>
           </button>
           <div class="sidebar-subitems-panel ambient-sub-panel" id="ambient-menu" hidden>
-            <div class="sidebar-panel-header">🌊 Natural Sound Layers</div>
+            <div class="sidebar-panel-header">🌊 Natural Sounds</div>
             <div class="ambient-mixer-body">
               <div class="ambient-row">
                 <div class="ambient-label"><i data-lucide="cloud-rain"></i> Gentle Rain</div>
@@ -198,13 +198,13 @@
       <div class="sidebar-footer-section">
         <button type="button" class="sidebar-utility-btn" id="room-fullscreen-btn" aria-label="Toggle Fullscreen Mode">
           <i data-lucide="maximize-2" id="fullscreen-icon"></i>
-          <span id="fullscreen-text">Full Screen Sanctuary</span>
+          <span id="fullscreen-text">Full Screen</span>
         </button>
       </div>
 
     </aside>
 
-    <!-- COLUMN 2: RIGHT MEDITATION SECTION (100% SINGLE VIEWPORT WITH RESPONSIVE ALIGNMENT) -->
+    <!-- COLUMN 2: RIGHT MEDITATION SECTION (100% SINGLE VIEWPORT, VISIBLE ORB + SCRIPTURE + DOCKED PLAYER) -->
     <main class="meditation-room-main" id="meditation-room-main">
       
       <!-- Top Area: Sacred Glowing Breathing Orb -->
@@ -219,9 +219,9 @@
 
       <!-- Middle Area: Centered Responsive Scripture Card -->
       <div class="room-scripture-display" id="room-scripture-display">
-        <span class="scripture-topic-tag" id="room-scripture-topic">RESTORATION</span>
-        <blockquote id="room-scripture-text">“For I will restore health to you, and your wounds I will heal, declares the Lord.”</blockquote>
-        <cite id="room-scripture-ref">— Jeremiah 30:17</cite>
+        <span class="scripture-topic-tag" id="room-scripture-topic">PERFECT PEACE</span>
+        <blockquote id="room-scripture-text">“Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid.”</blockquote>
+        <cite id="room-scripture-ref">— John 14:27</cite>
         <div class="room-verse-actions">
           <button type="button" id="room-next-verse-btn" class="room-pill-btn">
             <i data-lucide="refresh-cw"></i> <span>Next Scripture</span>
@@ -235,8 +235,8 @@
         <div class="bottom-player-info">
           <span class="audio-pulse-indicator" id="audio-pulse-indicator"><span></span><span></span><span></span></span>
           <div class="bottom-player-text">
-            <strong id="bottom-track-title">Restoration Ambient Piano Pads</strong>
-            <span id="bottom-track-cat">Soaking Instrumental (528Hz)</span>
+            <strong id="bottom-track-title">Audio Bible: Psalms of Peace</strong>
+            <span id="bottom-track-cat">Dramatized Audio Bible</span>
           </div>
         </div>
 
