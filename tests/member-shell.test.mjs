@@ -340,6 +340,19 @@ test("SPA shell supports member home dashboard and interactive meditation sanctu
   assert.match(styles, /body\.hero-only-page \.topbar \.nav-links a[\s\S]*#ffffff !important/);
 });
 
+test("landing page location dropdown has unified single element with single arrow and light mode cards have dark readable text", async () => {
+  const styles = await readProjectFile("public/styles.css");
+  const homeHtml = await readProjectFile("public/index.html");
+
+  // Location group unification and single arrow
+  assert.match(homeHtml, /class="location-combined-group"/);
+  assert.match(styles, /\.location-combined-group \.country-dropdown[\s\S]*background-image:\s*none !important/);
+
+  // Light mode card text contrast
+  assert.match(styles, /html:not\(\[data-theme="dark"\]\)\s*\.tiny-card-name[\s\S]*#0f172a !important/);
+  assert.match(styles, /html:not\(\[data-theme="dark"\]\)\s*\.church-card h3/);
+});
+
 
 
 

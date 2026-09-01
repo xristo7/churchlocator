@@ -244,6 +244,10 @@
   window.addEventListener("message", event => {
     if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
     const message = event.data || {};
+    if (message.type === "faithlink:fullscreen" || message.type === "mwe-fullscreen") {
+      document.body.classList.toggle("member-shell-fullscreen", !!message.fullscreen);
+      return;
+    }
     if (message.type !== "faithlink:navigate") return;
     if (message.leaveShell && message.href) {
       window.location.href = message.href;

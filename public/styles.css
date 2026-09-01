@@ -15400,3 +15400,152 @@ html[data-theme="dark"] .member-hero-banner {
   .meditation-audio-grid { grid-template-columns: 1fr; }
   .player-track-info { display: none; }
 }
+
+/* ==========================================================================
+   LANDING PAGE DROPDOWN UNIFICATION & SINGLE ARROW FIX
+   ========================================================================== */
+.location-combined-group {
+  display: flex !important;
+  align-items: stretch !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  background: #f8fafc !important;
+  overflow: hidden !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  min-height: 48px !important;
+  padding: 0 !important;
+}
+
+.location-combined-group:focus-within {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.15) !important;
+}
+
+.location-combined-group .city-section {
+  flex: 1 1 auto !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  background: transparent !important;
+}
+
+.location-combined-group .city-section input.field {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  min-height: 48px !important;
+  padding-left: 42px !important;
+  padding-right: 12px !important;
+  color: var(--text-primary) !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.location-combined-group .country-section {
+  flex-shrink: 0 !important;
+  border-left: 1.5px solid var(--border) !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+.location-combined-group .country-dropdown,
+.location-combined-group .country-section .custom-select-trigger,
+.location-combined-group .country-section select {
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important; /* REMOVES DUPLICATE CSS ARROW */
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  min-height: 48px !important;
+  padding: 0 14px 0 12px !important;
+  font-weight: 750 !important;
+  font-size: 0.92rem !important;
+  color: var(--text-primary) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.location-combined-group .country-section .trigger-arrow {
+  margin-left: 2px !important;
+  color: var(--text-muted) !important;
+}
+
+/* Dark mode location combined group overrides */
+html[data-theme="dark"] body[data-page="home"] .location-combined-group {
+  background: var(--input-bg, #1a1426) !important;
+  border-color: var(--input-border, rgba(255, 255, 255, 0.15)) !important;
+}
+
+html[data-theme="dark"] body[data-page="home"] .location-combined-group .city-section,
+html[data-theme="dark"] body[data-page="home"] .location-combined-group .country-section,
+html[data-theme="dark"] body[data-page="home"] .location-combined-group input.field,
+html[data-theme="dark"] body[data-page="home"] .location-combined-group .country-dropdown,
+html[data-theme="dark"] body[data-page="home"] .location-combined-group .custom-select-trigger {
+  background: transparent !important;
+  color: #edf3ff !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-right: none !important;
+}
+
+html[data-theme="dark"] body[data-page="home"] .location-combined-group .country-section {
+  border-left: 1.5px solid var(--border-subtle, rgba(255, 255, 255, 0.12)) !important;
+}
+
+/* ==========================================================================
+   LIGHT MODE CARD TITLES & TEXT CONTRAST (DARK TEXT ON WHITE CARDS)
+   ========================================================================== */
+html:not([data-theme="dark"]) .tiny-church-card,
+html[data-theme="light"] .tiny-church-card {
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06) !important;
+}
+
+html:not([data-theme="dark"]) .tiny-church-card:hover,
+html[data-theme="light"] .tiny-church-card:hover {
+  border-color: var(--primary) !important;
+  background: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12) !important;
+}
+
+html:not([data-theme="dark"]) .tiny-card-name,
+html[data-theme="light"] .tiny-card-name,
+html:not([data-theme="dark"]) .tiny-church-card strong,
+html[data-theme="light"] .tiny-church-card strong {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+html:not([data-theme="dark"]) .tiny-card-details,
+html[data-theme="light"] .tiny-card-details {
+  color: #475569 !important;
+}
+
+html:not([data-theme="dark"]) .tiny-card-tag,
+html[data-theme="light"] .tiny-card-tag {
+  color: #92400e !important;
+}
+
+/* Universal Light Mode Card Header Contrast Across All Pages */
+html:not([data-theme="dark"]) .church-card h3,
+html:not([data-theme="dark"]) .channel-card h3,
+html:not([data-theme="dark"]) .product-card h3,
+html:not([data-theme="dark"]) .resource-card h3,
+html:not([data-theme="dark"]) .event-card h3,
+html:not([data-theme="dark"]) .store-product-card h3,
+html:not([data-theme="dark"]) .channel-profile-card h3,
+html:not([data-theme="dark"]) .gateway-card h3,
+html:not([data-theme="dark"]) .editorial-card h3,
+html:not([data-theme="dark"]) .member-account-menu strong,
+html:not([data-theme="dark"]) .member-account-menu a {
+  color: #0f172a !important;
+}

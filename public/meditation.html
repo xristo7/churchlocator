@@ -4,189 +4,225 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meditation Sanctuary | My Way</title>
-  <link rel="stylesheet" href="styles.css?v=20260901g" />
+  <link rel="stylesheet" href="styles.css?v=20260901h" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="app.js?v=20260831"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
-  <script defer src="meditation.js?v=20260901"></script>
+  <script defer src="meditation.js?v=20260901b"></script>
 </head>
 <body class="module-page meditation-page-body" data-page="meditation">
-  <div class="meditation-sanctuary" id="meditation-sanctuary">
-    
-    <!-- Atmospheric Background Layer -->
-    <div class="meditation-backdrop" id="meditation-backdrop"></div>
-    <div class="meditation-overlay"></div>
+  
+  <div class="meditation-backdrop bg-chapel" id="meditation-backdrop"></div>
+  <div class="meditation-overlay" id="meditation-overlay"></div>
 
-    <!-- Sanctuary Top Toolbar -->
-    <header class="meditation-topbar">
-      <div class="meditation-brand">
-        <span class="meditation-icon-glow"><i data-lucide="sparkles"></i></span>
-        <div>
-          <h1>Meditation Sanctuary</h1>
-          <p>Quiet your soul • Abide in His Presence</p>
-        </div>
-      </div>
+  <div class="meditation-container" id="meditation-container">
 
-      <div class="meditation-toolbar-actions">
-        <!-- Ambient Atmosphere Theme Switcher -->
-        <div class="meditation-theme-picker">
-          <button type="button" class="med-tool-btn" id="theme-menu-btn" aria-label="Change Atmosphere Theme">
-            <i data-lucide="image"></i> <span id="current-theme-label">Chapel</span>
-          </button>
-          <div class="med-theme-dropdown" id="theme-dropdown" hidden>
-            <button type="button" data-theme-bg="chapel" class="active"><i data-lucide="church"></i> Candlelit Chapel</button>
-            <button type="button" data-theme-bg="mountains"><i data-lucide="mountain"></i> Mountain Sunrise</button>
-            <button type="button" data-theme-bg="stars"><i data-lucide="moon"></i> Starry Night Sky</button>
-            <button type="button" data-theme-bg="stream"><i data-lucide="waves"></i> Peaceful Stream</button>
-          </div>
-        </div>
-
-        <!-- Breathing Guide Toggle -->
-        <button type="button" class="med-tool-btn" id="breathing-toggle-btn" aria-label="Toggle Breathing Guide">
-          <i data-lucide="wind"></i> <span>Breathing</span>
-        </button>
-
-        <!-- Ambient Sound Mixer Button -->
-        <button type="button" class="med-tool-btn" id="ambient-mixer-btn" aria-label="Ambient Background Sounds">
-          <i data-lucide="sliders"></i> <span>Ambience</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- Main Meditation Sanctuary Content -->
-    <main class="meditation-main-content">
+    <!-- VIEW 1: LOBBY WITH ROOM CARDS -->
+    <main class="meditation-lobby" id="meditation-lobby">
       
-      <!-- Centerpiece Scripture & Contemplation Card -->
-      <section class="meditation-scripture-hero">
-        <div class="breathing-circle-wrap" id="breathing-circle" hidden>
-          <div class="breathing-circle"></div>
-          <span class="breathing-text" id="breathing-text">Inhale...</span>
-        </div>
-
-        <div class="scripture-card" id="scripture-card">
-          <span class="scripture-kicker"><i data-lucide="heart"></i> <span id="verse-topic">Peace & Stillness</span></span>
-          <blockquote id="verse-text">“Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid.”</blockquote>
-          <cite id="verse-reference">— John 14:27</cite>
-          <div class="verse-actions">
-            <button type="button" id="next-verse-btn"><i data-lucide="refresh-cw"></i> New Verse</button>
+      <header class="meditation-lobby-header">
+        <div class="lobby-brand-row">
+          <span class="meditation-icon-glow"><i data-lucide="sparkles"></i></span>
+          <div>
+            <h1>Meditation Sanctuary</h1>
+            <p>Select a room below to enter. Music and audio are selected while inside the room.</p>
           </div>
         </div>
+
+        <div class="lobby-filter-tabs" id="lobby-filter-tabs">
+          <button type="button" class="lobby-tab-btn active" data-lobby-filter="all"><i data-lucide="layout-grid"></i> All Rooms</button>
+          <button type="button" class="lobby-tab-btn" data-lobby-filter="featured"><i data-lucide="star"></i> Favorites & Featured</button>
+          <button type="button" class="lobby-tab-btn" data-lobby-filter="bible-books"><i data-lucide="book-open"></i> Bible Books</button>
+          <button type="button" class="lobby-tab-btn" data-lobby-filter="themes"><i data-lucide="heart"></i> Scriptural Themes</button>
+        </div>
+      </header>
+
+      <section class="lobby-section" id="sec-featured">
+        <div class="lobby-section-head">
+          <div>
+            <span class="section-kicker"><i data-lucide="star"></i> Daily Sanctuary</span>
+            <h2>Favorite & Featured Rooms</h2>
+          </div>
+        </div>
+        <div class="rooms-grid" id="grid-featured"></div>
       </section>
 
-      <!-- Category Filter Tabs -->
-      <section class="meditation-categories-section">
-        <div class="med-cat-tabs" id="med-cat-tabs" role="tablist">
-          <button class="med-tab-btn active" data-cat="all" role="tab"><i data-lucide="layout-grid"></i> All Audio</button>
-          <button class="med-tab-btn" data-cat="worship" role="tab"><i data-lucide="music"></i> Christian Worship</button>
-          <button class="med-tab-btn" data-cat="bible" role="tab"><i data-lucide="book-open"></i> Audio Bible</button>
-          <button class="med-tab-btn" data-cat="instrumental" role="tab"><i data-lucide="audio-lines"></i> Soaking Instrumental</button>
-          <button class="med-tab-btn" data-cat="sermons" role="tab"><i data-lucide="mic"></i> Sermons & Preaching</button>
+      <section class="lobby-section" id="sec-books">
+        <div class="lobby-section-head">
+          <div>
+            <span class="section-kicker"><i data-lucide="book-open"></i> Sacred Scripture</span>
+            <h2>Books of the Bible</h2>
+          </div>
         </div>
+        <div class="rooms-grid" id="grid-books"></div>
+      </section>
 
-        <!-- Audio Grid Container -->
-        <div class="meditation-audio-grid" id="meditation-audio-grid"></div>
+      <section class="lobby-section" id="sec-themes">
+        <div class="lobby-section-head">
+          <div>
+            <span class="section-kicker"><i data-lucide="heart"></i> Biblical Truths</span>
+            <h2>Scriptural Themes & Entities</h2>
+          </div>
+        </div>
+        <div class="rooms-grid" id="grid-themes"></div>
       </section>
 
     </main>
 
-    <!-- Ambient Sound Overlay Panel (Flyout) -->
-    <div class="ambient-mixer-drawer" id="ambient-mixer-drawer" hidden>
-      <div class="ambient-mixer-header">
-        <h3><i data-lucide="sliders"></i> Ambient Sound Layer</h3>
-        <button type="button" id="ambient-close-btn" aria-label="Close mixer"><i data-lucide="x"></i></button>
-      </div>
-      <p class="ambient-mixer-desc">Layer peaceful natural sounds over your meditation audio.</p>
+    <!-- VIEW 2: IN-ROOM PURE SANCTUARY (DISTRACTION FREE) -->
+    <div class="meditation-room-view" id="meditation-room-view" hidden>
       
-      <div class="ambient-tracks-list">
-        <div class="ambient-row" data-sound="rain">
-          <div class="ambient-info"><i data-lucide="cloud-rain"></i> <span>Gentle Rain</span></div>
-          <input type="range" class="ambient-slider" min="0" max="100" value="0" />
+      <header class="room-topbar" id="room-topbar">
+        
+        <button type="button" class="room-nav-btn room-exit-btn" id="room-exit-btn" aria-label="Exit to All Rooms">
+          <i data-lucide="arrow-left"></i> <span>All Rooms</span>
+        </button>
+
+        <div class="room-identity-badge" id="room-identity-badge">
+          <span class="room-badge-icon" id="room-badge-icon"><i data-lucide="sparkles"></i></span>
+          <strong id="room-badge-title">Sanctuary of Peace</strong>
         </div>
-        <div class="ambient-row" data-sound="stream">
-          <div class="ambient-info"><i data-lucide="waves"></i> <span>River Stream</span></div>
-          <input type="range" class="ambient-slider" min="0" max="100" value="0" />
+
+        <div class="room-dropdown-tabs">
+          
+          <div class="room-dropdown-wrap">
+            <button type="button" class="room-tab-trigger" id="audio-select-trigger" aria-label="Select Audio">
+              <i data-lucide="music"></i> <span id="current-audio-label">Select Audio</span> <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="room-dropdown-menu" id="audio-select-menu" hidden>
+              <div class="dropdown-menu-header">🎵 In-Room Audio Selection</div>
+              <button type="button" data-audio-type="bible" class="active"><i data-lucide="book-open"></i> Dramatized Audio Bible</button>
+              <button type="button" data-audio-type="instrumental"><i data-lucide="audio-lines"></i> Soaking Instrumental (Harp & Strings 432Hz)</button>
+              <button type="button" data-audio-type="worship"><i data-lucide="music"></i> Christian Worship</button>
+              <button type="button" data-audio-type="sermon"><i data-lucide="mic"></i> Sermons & Preaching</button>
+              <button type="button" data-audio-type="silence"><i data-lucide="volume-x"></i> Silence / Ambience Only</button>
+            </div>
+          </div>
+
+          <div class="room-dropdown-wrap">
+            <button type="button" class="room-tab-trigger" id="room-switch-trigger" aria-label="Switch Room">
+              <i data-lucide="door-open"></i> <span>Change Room</span> <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="room-dropdown-menu" id="room-switch-menu" hidden>
+              <div class="dropdown-menu-header">🚪 Switch Sanctuary Room</div>
+              <div class="dropdown-scroll-list" id="room-switch-list"></div>
+            </div>
+          </div>
+
+          <div class="room-dropdown-wrap">
+            <button type="button" class="room-tab-trigger" id="theme-select-trigger" aria-label="Atmosphere Theme">
+              <i data-lucide="image"></i> <span>Atmosphere</span> <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="room-dropdown-menu" id="theme-select-menu" hidden>
+              <div class="dropdown-menu-header">🖼️ Background Atmosphere</div>
+              <button type="button" data-bg-theme="chapel" class="active"><i data-lucide="church"></i> Candlelit Chapel</button>
+              <button type="button" data-bg-theme="mountains"><i data-lucide="mountain"></i> Mountain Sunrise</button>
+              <button type="button" data-bg-theme="stars"><i data-lucide="moon"></i> Starry Night Sky</button>
+              <button type="button" data-bg-theme="stream"><i data-lucide="waves"></i> Peaceful Stream</button>
+              <button type="button" data-bg-theme="deepdark"><i data-lucide="circle"></i> Midnight Sanctuary</button>
+            </div>
+          </div>
+
+          <div class="room-dropdown-wrap">
+            <button type="button" class="room-tab-trigger" id="ambient-trigger" aria-label="Ambient Sound Layer">
+              <i data-lucide="sliders"></i> <span>Ambience</span> <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="room-dropdown-menu ambient-mixer-menu" id="ambient-menu" hidden>
+              <div class="dropdown-menu-header">🌊 Natural Ambient Sounds</div>
+              <div class="ambient-mixer-body">
+                <div class="ambient-row">
+                  <div class="ambient-label"><i data-lucide="cloud-rain"></i> Gentle Rain</div>
+                  <input type="range" class="ambient-slider" data-amb-sound="rain" min="0" max="100" value="0" />
+                </div>
+                <div class="ambient-row">
+                  <div class="ambient-label"><i data-lucide="waves"></i> River Stream</div>
+                  <input type="range" class="ambient-slider" data-amb-sound="stream" min="0" max="100" value="0" />
+                </div>
+                <div class="ambient-row">
+                  <div class="ambient-label"><i data-lucide="flame"></i> Campfire</div>
+                  <input type="range" class="ambient-slider" data-amb-sound="fire" min="0" max="100" value="0" />
+                </div>
+                <div class="ambient-row">
+                  <div class="ambient-label"><i data-lucide="wind"></i> Night Breeze</div>
+                  <input type="range" class="ambient-slider" data-amb-sound="breeze" min="0" max="100" value="0" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="room-dropdown-wrap">
+            <button type="button" class="room-tab-trigger" id="timer-trigger" aria-label="Prayer & Sleep Timer">
+              <i data-lucide="clock"></i> <span id="timer-label">Timer: Off</span> <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="room-dropdown-menu" id="timer-menu" hidden>
+              <div class="dropdown-menu-header">⏱️ Prayer & Sleep Timer</div>
+              <button type="button" data-room-timer="0" class="active">Turn Off</button>
+              <button type="button" data-room-timer="15">15 Minutes</button>
+              <button type="button" data-room-timer="30">30 Minutes</button>
+              <button type="button" data-room-timer="45">45 Minutes</button>
+              <button type="button" data-room-timer="60">60 Minutes</button>
+            </div>
+          </div>
+
+          <button type="button" class="room-nav-btn room-fullscreen-btn" id="room-fullscreen-btn" aria-label="Toggle Fullscreen Mode">
+            <i data-lucide="maximize-2" id="fullscreen-icon"></i>
+            <span id="fullscreen-text">Full Screen</span>
+          </button>
+
         </div>
-        <div class="ambient-row" data-sound="fire">
-          <div class="ambient-info"><i data-lucide="flame"></i> <span>Campfire</span></div>
-          <input type="range" class="ambient-slider" min="0" max="100" value="0" />
+
+      </header>
+
+      <main class="room-sacred-center" id="room-sacred-center">
+        
+        <div class="sacred-orb-container" id="sacred-orb-container">
+          <div class="sacred-orb-aura-outer"></div>
+          <div class="sacred-orb-aura-inner"></div>
+          <div class="sacred-pulsing-orb" id="sacred-pulsing-orb"></div>
+          <span class="sacred-breath-guide" id="sacred-breath-guide">Inhale His Peace...</span>
         </div>
-        <div class="ambient-row" data-sound="breeze">
-          <div class="ambient-info"><i data-lucide="wind"></i> <span>Night Breeze</span></div>
-          <input type="range" class="ambient-slider" min="0" max="100" value="0" />
+
+        <div class="room-scripture-display" id="room-scripture-display">
+          <span class="scripture-topic-tag" id="room-scripture-topic"></span>
+          <blockquote id="room-scripture-text"></blockquote>
+          <cite id="room-scripture-ref"></cite>
+          <div class="room-verse-actions">
+            <button type="button" id="room-next-verse-btn" class="room-pill-btn">
+              <i data-lucide="refresh-cw"></i> <span>Next Scripture</span>
+            </button>
+          </div>
         </div>
-      </div>
+
+      </main>
+
+      <footer class="room-bottom-player" id="room-bottom-player">
+        
+        <div class="bottom-player-info">
+          <span class="audio-pulse-indicator" id="audio-pulse-indicator"><span></span><span></span><span></span></span>
+          <div class="bottom-player-text">
+            <strong id="bottom-track-title">Audio Bible: Psalms of Peace</strong>
+            <span id="bottom-track-cat">Dramatized Audio Bible</span>
+          </div>
+        </div>
+
+        <div class="bottom-player-controls">
+          <button type="button" class="bottom-btn" id="bottom-prev-btn" aria-label="Previous Track"><i data-lucide="skip-back"></i></button>
+          <button type="button" class="bottom-play-btn" id="bottom-play-btn" aria-label="Play / Pause"><i data-lucide="play" id="bottom-play-icon"></i></button>
+          <button type="button" class="bottom-btn" id="bottom-next-btn" aria-label="Next Track"><i data-lucide="skip-forward"></i></button>
+          <button type="button" class="bottom-btn" id="bottom-loop-btn" aria-label="Loop Track"><i data-lucide="repeat"></i></button>
+        </div>
+
+        <div class="bottom-player-volume">
+          <i data-lucide="volume-2"></i>
+          <input type="range" class="volume-slider" id="bottom-volume-slider" min="0" max="100" value="85" aria-label="Master Volume" />
+        </div>
+
+      </footer>
+
     </div>
 
-    <!-- In-Room Persistent Audio Player & Channel Switcher Bar -->
-    <footer class="meditation-player-bar" id="meditation-player-bar">
-      
-      <!-- Current Track Info -->
-      <div class="player-track-info">
-        <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=120&q=80" alt="" id="player-thumb" class="player-thumb" />
-        <div class="player-titles">
-          <strong id="player-title">Still Waters & Harp</strong>
-          <span id="player-subtitle">Soaking Instrumental • 432Hz</span>
-        </div>
-      </div>
-
-      <!-- Center Player Controls & Waveform -->
-      <div class="player-center-controls">
-        <div class="player-btn-row">
-          <button type="button" class="player-btn" id="player-prev" aria-label="Previous Track"><i data-lucide="skip-back"></i></button>
-          <button type="button" class="player-play-btn" id="player-play-toggle" aria-label="Play or Pause"><i data-lucide="play" id="play-icon"></i></button>
-          <button type="button" class="player-btn" id="player-next" aria-label="Next Track"><i data-lucide="skip-forward"></i></button>
-          <button type="button" class="player-btn" id="player-loop" aria-label="Loop Track"><i data-lucide="repeat"></i></button>
-        </div>
-
-        <div class="player-progress-bar-wrap">
-          <span class="player-time" id="player-current-time">0:00</span>
-          <div class="player-progress-track" id="player-progress-track">
-            <div class="player-progress-fill" id="player-progress-fill"></div>
-          </div>
-          <span class="player-time" id="player-duration">18:40</span>
-        </div>
-      </div>
-
-      <!-- Right In-Room Channel Switcher & Timer -->
-      <div class="player-right-controls">
-        <!-- Quick Switch Category Pill -->
-        <div class="player-channel-switcher">
-          <button type="button" class="channel-switch-pill" id="channel-switch-btn">
-            <i data-lucide="audio-lines"></i> <span id="current-channel-tag">Instrumental</span> <i data-lucide="chevron-up"></i>
-          </button>
-          <div class="channel-switch-menu" id="channel-switch-menu" hidden>
-            <button type="button" data-switch-cat="worship"><i data-lucide="music"></i> Worship Music</button>
-            <button type="button" data-switch-cat="bible"><i data-lucide="book-open"></i> Audio Bible</button>
-            <button type="button" data-switch-cat="instrumental"><i data-lucide="audio-lines"></i> Soaking Instrumental</button>
-            <button type="button" data-switch-cat="sermons"><i data-lucide="mic"></i> Sermons & Preaching</button>
-          </div>
-        </div>
-
-        <!-- Sleep / Prayer Timer -->
-        <div class="player-timer-dropdown-wrap">
-          <button type="button" class="player-timer-btn" id="player-timer-btn" aria-label="Prayer & Sleep Timer">
-            <i data-lucide="clock"></i> <span id="timer-badge">Off</span>
-          </button>
-          <div class="timer-dropdown" id="timer-dropdown" hidden>
-            <strong>Prayer & Sleep Timer</strong>
-            <button type="button" data-timer-min="0" class="active">Turn Off</button>
-            <button type="button" data-timer-min="15">15 Minutes</button>
-            <button type="button" data-timer-min="30">30 Minutes</button>
-            <button type="button" data-timer-min="45">45 Minutes</button>
-            <button type="button" data-timer-min="60">60 Minutes</button>
-          </div>
-        </div>
-
-        <!-- Volume Slider -->
-        <div class="player-volume-wrap">
-          <i data-lucide="volume-2" id="volume-icon"></i>
-          <input type="range" class="volume-slider" id="master-volume" min="0" max="100" value="85" />
-        </div>
-      </div>
-
-    </footer>
-
   </div>
+
   <div class="toast" data-toast role="status" aria-live="polite"></div>
 </body>
 </html>
