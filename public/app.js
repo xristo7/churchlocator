@@ -1131,7 +1131,7 @@ const MWE = (() => {
 
 window.MWE = MWE;
 
-/* FaithLink member experience: public discovery + authenticated SPA shell. */
+/* My Way member experience: public discovery + authenticated SPA shell. */
 MWE.isMemberAuthenticated = function() {
   return localStorage.getItem("mwe.userLoggedIn") === "true";
 };
@@ -1218,7 +1218,7 @@ MWE.ensureMemberLoginModal = function() {
       <button class="member-auth-close" type="button" aria-label="Close sign in"><i data-lucide="x"></i></button>
       <div class="member-auth-icon"><i data-lucide="sparkles"></i></div>
       <h2 id="member-auth-title">Sign in to continue</h2>
-      <p>Your selected church, event, or livestream will open inside your FaithLink member app.</p>
+      <p>Your selected church, event, or livestream will open inside your My Way member app.</p>
       <form class="member-auth-form" data-member-auth-form>
         <label>Email address
           <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />

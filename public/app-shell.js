@@ -27,7 +27,7 @@
     church: { source: "church-profile.html", title: "Church Profile" },
     event: { source: "event-profile.html", title: "Event Details" },
     giving: { source: "donate.html", title: "Giving" },
-    store: { source: "store.html", title: "FaithLink Store" },
+    store: { source: "store.html", title: "My Way Store" },
     product: { source: "product-detail.html", title: "Product Details" },
     cart: { source: "cart.html", title: "Your Cart" },
     checkout: { source: "checkout.html", title: "Checkout" },
@@ -134,7 +134,7 @@
     frame.classList.remove("is-ready");
     frame.src = buildSource(safeRoute);
     frame.title = views[safeRoute.view].title;
-    document.title = `${views[safeRoute.view].title} | FaithLink`;
+    document.title = `${views[safeRoute.view].title} | My Way`;
     setActiveNavigation(safeRoute.view);
     updateSectionContext(safeRoute.view);
 

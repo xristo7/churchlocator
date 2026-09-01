@@ -19,7 +19,7 @@ My Way of Evangelism is organized as five applications that share one platform d
 - Route: `/app`
 - Login: Required
 - Users: church seekers and signed-in community members
-- Persistent regions: FaithLink header and left navigation
+- Persistent regions: My Way of Evangelism header and left navigation
 - Changing region: the existing page-specific content loaded into the shell
 - Responsibilities:
   - Load Churches from the existing church card listing

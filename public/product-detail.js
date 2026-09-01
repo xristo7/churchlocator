@@ -28,7 +28,7 @@
       window.lucide?.createIcons();
       return;
     }
-    document.title = `${product.title} | FaithLink Store`;
+    document.title = `${product.title} | My Way Store`;
     container.innerHTML = `
       <div class="product-gallery">
         <div class="product-main-image"><img id="product-main-image" src="${data().escapeHtml(product.image)}" alt="${data().escapeHtml(product.title)}" /></div>

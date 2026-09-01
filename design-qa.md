@@ -74,7 +74,7 @@ final result: passed
 - Verified Resource detail evidence: `artifacts/qa-shell-resource-padding-final.png`; the Back to Resources control and resource card no longer touch the iframe edge.
 - Channel detail and Channel Content inherit the same enforced shell rule; computed browser padding is 22px in the authenticated shell.
 - The fixed River City Church context has been replaced with a live icon and section title. Detail routes retain their parent title: Resources, Channels, Churches, Events, Live, or Store.
-- On mobile, Give and Profile are moved into the navigation drawer. The fixed header contains the FaithLink brand, language selector, and hamburger control.
+- On mobile, Give and Profile are moved into the navigation drawer. The fixed header contains the My Way of Evangelism brand, language selector, and hamburger control.
 - Mobile drawer evidence: `artifacts/qa-mobile-drawer-actions.png`.
 - Messages remains the only edge-to-edge exception.
 - Automated tests, syntax checks, Cloudflare dry-run, and browser inspection pass.
@@ -108,11 +108,11 @@ final result: passed
 
 ### Full-view and focused comparison evidence
 
-The reference and implementation were opened and then combined into one comparison artifact. The implementation preserves the source's white rounded frame, inset cover image, overlapping circular avatar, identity/status row, three equal stat cells, and high-contrast full-width contact action. The application intentionally uses a wider three-column desktop grid so the cards remain legible inside the FaithLink content shell. A separate focused region was not required because the combined comparison renders the card typography, imagery, statistics, borders, radii, and action treatment clearly at readable size.
+The reference and implementation were opened and then combined into one comparison artifact. The implementation preserves the source's white rounded frame, inset cover image, overlapping circular avatar, identity/status row, three equal stat cells, and high-contrast full-width contact action. The application intentionally uses a wider three-column desktop grid so the cards remain legible inside the My Way of Evangelism content shell. A separate focused region was not required because the combined comparison renders the card typography, imagery, statistics, borders, radii, and action treatment clearly at readable size.
 
 ### Required fidelity surfaces
 
-- Fonts and typography: existing FaithLink sans-serif typography matches the reference's compact geometric hierarchy; card titles, metadata, statistics, and CTA weights remain distinct and readable.
+- Fonts and typography: existing My Way of Evangelism sans-serif typography matches the reference's compact geometric hierarchy; card titles, metadata, statistics, and CTA weights remain distinct and readable.
 - Spacing and layout rhythm: cover inset, avatar overlap, content padding, three-cell stat row, and CTA spacing follow the reference. The wider desktop cards are an intentional responsive adaptation.
 - Colors and visual tokens: cards remain white with soft neutral borders, pale gray stat panels, dark CTA buttons, blue verified state, and green activity status. No dark-mode styling was introduced.
 - Image quality and asset fidelity: existing high-resolution channel cover and avatar assets are used with source-like crops; no placeholder or code-drawn imagery replaces visible assets.

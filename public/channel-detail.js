@@ -10,7 +10,7 @@
       return;
     }
     const posts = ["A new beginning in faith", "How to stay grounded in Scripture", "Prayer, purpose, and everyday life"];
-    document.title = `${channel.name} | FaithLink`;
+    document.title = `${channel.name} | My Way`;
     root.innerHTML = `<article class="channel-detail-hero channel-detail-modern">
       <div class="channel-detail-cover"><img src="${data().escapeHtml(channel.cover)}" alt="${data().escapeHtml(channel.name)} cover" /><span class="channel-cover-type"><i data-lucide="${channel.format === "Podcast" ? "headphones" : "radio"}"></i>${data().escapeHtml(channel.format)} · ${data().escapeHtml(channel.topic)}</span></div>
       <div class="channel-detail-profile"><img src="${data().escapeHtml(channel.avatar)}" alt="${data().escapeHtml(channel.owner)}" /><div class="channel-detail-identity"><h1>${data().escapeHtml(channel.name)} ${channel.verified ? `<i data-lucide="badge-check"></i>` : ""}</h1><p>${data().escapeHtml(channel.handle)} <span>·</span> Created by ${data().escapeHtml(channel.owner)}</p></div><a href="messages.html?compose=channel&id=${encodeURIComponent(channel.id)}"><i data-lucide="message-circle"></i> Get in touch</a></div>
