@@ -372,6 +372,30 @@
     window.lucide?.createIcons();
   }
 
+  
+  function applyThemeColors(color, hue) {
+    const roomView = document.getElementById("meditation-room-view");
+    if (!roomView) return;
+    
+    roomView.style.setProperty("--room-color", color);
+    roomView.style.setProperty("--room-hue", hue);
+    roomView.style.setProperty("--room-glow", `hsla(${hue}, 90%, 60%, 0.65)`);
+    roomView.style.setProperty("--room-glow-soft", `hsla(${hue}, 90%, 60%, 0.25)`);
+    
+    const orb = document.getElementById("sacred-pulsing-orb");
+    if (orb) {
+      orb.style.background = `radial-gradient(circle at 35% 35%, #ffffff 0%, ${color} 60%, hsla(${hue}, 90%, 25%, 0.95) 100%)`;
+      orb.style.boxShadow = `0 0 45px hsla(${hue}, 90%, 60%, 0.75), 0 0 90px hsla(${hue}, 90%, 60%, 0.35), inset -4px -4px 14px rgba(0, 0, 0, 0.45)`;
+    }
+    
+    const topicTag = document.getElementById("room-scripture-topic");
+    if (topicTag) {
+      topicTag.style.background = `hsla(${hue}, 80%, 55%, 0.25)`;
+      topicTag.style.borderColor = `hsla(${hue}, 80%, 55%, 0.5)`;
+      topicTag.style.color = `#ffffff`;
+    }
+  }
+
   function enterRoom(roomId, autoStartAudio = false) {
     const room = roomsCatalog.find(r => r.id === roomId) || roomsCatalog[0];
     activeRoom = room;
@@ -399,6 +423,8 @@
     if (iconEl) iconEl.innerHTML = '<i data-lucide="' + room.icon + '"></i>';
 
     setAtmosphereTheme(room.theme || "chapel");
+    const themeInfo = ({"room-peace":{"color":"#3b82f6","hue":220},"room-healing":{"color":"#10b981","hue":160},"room-secret-place":{"color":"#8b5cf6","hue":265},"room-bedtime":{"color":"#6366f1","hue":240},"room-psalms":{"color":"#f59e0b","hue":38},"room-proverbs":{"color":"#d97706","hue":32},"room-gospels":{"color":"#ec4899","hue":330},"room-epistles":{"color":"#06b6d4","hue":190},"room-faith":{"color":"#0ea5e9","hue":200},"room-love":{"color":"#f43f5e","hue":350},"room-salvation":{"color":"#14b8a6","hue":175},"room-victory":{"color":"#f97316","hue":25}})[room.id] || { color: "#3b82f6", hue: 220 };
+    applyThemeColors(themeInfo.color, themeInfo.hue);
     renderRoomScripture();
     updateAudioDropdownLabels();
 
