@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meditation Sanctuary | My Way</title>
-  <link rel="stylesheet" href="styles.css?v=20260901m" />
+  <link rel="stylesheet" href="styles.css?v=20260901s" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="app.js?v=20260831"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
-  <script defer src="meditation.js?v=20260901m"></script>
+  <script defer src="meditation.js?v=20260901s"></script>
 </head>
 <body class="module-page" data-page="meditation">
   <header class="topbar"></header>
@@ -81,49 +81,63 @@
       <div class="meditation-backdrop bg-chapel" id="meditation-backdrop"></div>
       <div class="meditation-overlay" id="meditation-overlay"></div>
 
-      <header class="room-topbar" id="room-topbar">
+      <!-- LEFT SIDE NAVIGATION MENU WITH ACCORDION SUBITEMS -->
+      <aside class="meditation-room-sidebar" id="meditation-room-sidebar">
         
-        <button type="button" class="room-nav-btn room-exit-btn" id="room-exit-btn" aria-label="Exit to All Rooms">
-          <i data-lucide="arrow-left"></i> <span>All Rooms</span>
-        </button>
-
-        <div class="room-identity-badge" id="room-identity-badge">
-          <span class="room-badge-icon" id="room-badge-icon"><i data-lucide="sparkles"></i></span>
-          <strong id="room-badge-title">Sanctuary of Peace</strong>
+        <!-- Top Section: Return to Rooms & Active Room Indicator -->
+        <div class="sidebar-top-section">
+          <button type="button" class="sidebar-exit-btn" id="room-exit-btn" aria-label="Exit to All Rooms">
+            <i data-lucide="arrow-left"></i> <span>All Rooms</span>
+          </button>
+          
+          <div class="sidebar-room-badge">
+            <span class="room-badge-icon" id="room-badge-icon"><i data-lucide="sparkles"></i></span>
+            <div class="sidebar-room-meta">
+              <span class="sidebar-badge-kicker">Sanctuary Room</span>
+              <strong id="room-badge-title">Sanctuary of Peace</strong>
+            </div>
+          </div>
         </div>
 
-        <div class="room-dropdown-tabs">
+        <!-- Accordion Navigation List in Same Element -->
+        <nav class="sidebar-accordion-nav">
           
-          <div class="room-dropdown-wrap">
-            <button type="button" class="room-tab-trigger" id="audio-select-trigger" aria-label="Select Audio">
-              <i data-lucide="music"></i> <span id="current-audio-label">Select Audio</span> <i data-lucide="chevron-down"></i>
+          <!-- 1. Audio Stream Selector -->
+          <div class="sidebar-nav-group" data-group="audio">
+            <button type="button" class="sidebar-nav-trigger" id="audio-select-trigger" aria-expanded="false">
+              <span class="trigger-label"><i data-lucide="music"></i> <span id="current-audio-label">Select Audio</span></span>
+              <i data-lucide="chevron-down" class="accordion-arrow"></i>
             </button>
-            <div class="room-dropdown-menu" id="audio-select-menu" hidden>
-              <div class="dropdown-menu-header">🎵 In-Room Audio Selection</div>
+            <div class="sidebar-subitems-panel" id="audio-select-menu" hidden>
+              <div class="sidebar-panel-header">🎵 In-Room Audio</div>
               <button type="button" data-audio-type="bible" class="active"><i data-lucide="book-open"></i> Dramatized Audio Bible</button>
-              <button type="button" data-audio-type="instrumental"><i data-lucide="audio-lines"></i> Soaking Instrumental (Harp & Strings 432Hz)</button>
+              <button type="button" data-audio-type="instrumental"><i data-lucide="audio-lines"></i> Soaking Instrumental (432Hz)</button>
               <button type="button" data-audio-type="worship"><i data-lucide="music"></i> Christian Worship</button>
               <button type="button" data-audio-type="sermon"><i data-lucide="mic"></i> Sermons & Preaching</button>
               <button type="button" data-audio-type="silence"><i data-lucide="volume-x"></i> Silence / Ambience Only</button>
             </div>
           </div>
 
-          <div class="room-dropdown-wrap">
-            <button type="button" class="room-tab-trigger" id="room-switch-trigger" aria-label="Switch Room">
-              <i data-lucide="door-open"></i> <span>Change Room</span> <i data-lucide="chevron-down"></i>
+          <!-- 2. Switch Sanctuary Room -->
+          <div class="sidebar-nav-group" data-group="rooms">
+            <button type="button" class="sidebar-nav-trigger" id="room-switch-trigger" aria-expanded="false">
+              <span class="trigger-label"><i data-lucide="door-open"></i> <span>Change Room</span></span>
+              <i data-lucide="chevron-down" class="accordion-arrow"></i>
             </button>
-            <div class="room-dropdown-menu" id="room-switch-menu" hidden>
-              <div class="dropdown-menu-header">🚪 Switch Sanctuary Room</div>
-              <div class="dropdown-scroll-list" id="room-switch-list"></div>
+            <div class="sidebar-subitems-panel sidebar-scroll-subitems" id="room-switch-menu" hidden>
+              <div class="sidebar-panel-header">🚪 Switch Sanctuary</div>
+              <div class="sidebar-sub-list" id="room-switch-list"></div>
             </div>
           </div>
 
-          <div class="room-dropdown-wrap">
-            <button type="button" class="room-tab-trigger" id="theme-select-trigger" aria-label="Atmosphere Theme">
-              <i data-lucide="image"></i> <span>Atmosphere</span> <i data-lucide="chevron-down"></i>
+          <!-- 3. Atmosphere Backdrop -->
+          <div class="sidebar-nav-group" data-group="theme">
+            <button type="button" class="sidebar-nav-trigger" id="theme-select-trigger" aria-expanded="false">
+              <span class="trigger-label"><i data-lucide="image"></i> <span>Atmosphere</span></span>
+              <i data-lucide="chevron-down" class="accordion-arrow"></i>
             </button>
-            <div class="room-dropdown-menu" id="theme-select-menu" hidden>
-              <div class="dropdown-menu-header">🖼️ Background Atmosphere</div>
+            <div class="sidebar-subitems-panel" id="theme-select-menu" hidden>
+              <div class="sidebar-panel-header">🖼️ Background Scene</div>
               <button type="button" data-bg-theme="chapel" class="active"><i data-lucide="church"></i> Candlelit Chapel</button>
               <button type="button" data-bg-theme="mountains"><i data-lucide="mountain"></i> Mountain Sunrise</button>
               <button type="button" data-bg-theme="stars"><i data-lucide="moon"></i> Starry Night Sky</button>
@@ -132,12 +146,14 @@
             </div>
           </div>
 
-          <div class="room-dropdown-wrap">
-            <button type="button" class="room-tab-trigger" id="ambient-trigger" aria-label="Ambient Sound Layer">
-              <i data-lucide="sliders"></i> <span>Ambience</span> <i data-lucide="chevron-down"></i>
+          <!-- 4. Ambient Mixer -->
+          <div class="sidebar-nav-group" data-group="ambient">
+            <button type="button" class="sidebar-nav-trigger" id="ambient-trigger" aria-expanded="false">
+              <span class="trigger-label"><i data-lucide="sliders"></i> <span>Ambience Mixer</span></span>
+              <i data-lucide="chevron-down" class="accordion-arrow"></i>
             </button>
-            <div class="room-dropdown-menu ambient-mixer-menu" id="ambient-menu" hidden>
-              <div class="dropdown-menu-header">🌊 Natural Ambient Sounds</div>
+            <div class="sidebar-subitems-panel ambient-sub-panel" id="ambient-menu" hidden>
+              <div class="sidebar-panel-header">🌊 Natural Sounds</div>
               <div class="ambient-mixer-body">
                 <div class="ambient-row">
                   <div class="ambient-label"><i data-lucide="cloud-rain"></i> Gentle Rain</div>
@@ -159,12 +175,14 @@
             </div>
           </div>
 
-          <div class="room-dropdown-wrap">
-            <button type="button" class="room-tab-trigger" id="timer-trigger" aria-label="Prayer & Sleep Timer">
-              <i data-lucide="clock"></i> <span id="timer-label">Timer: Off</span> <i data-lucide="chevron-down"></i>
+          <!-- 5. Timer -->
+          <div class="sidebar-nav-group" data-group="timer">
+            <button type="button" class="sidebar-nav-trigger" id="timer-trigger" aria-expanded="false">
+              <span class="trigger-label"><i data-lucide="clock"></i> <span id="timer-label">Timer: Off</span></span>
+              <i data-lucide="chevron-down" class="accordion-arrow"></i>
             </button>
-            <div class="room-dropdown-menu" id="timer-menu" hidden>
-              <div class="dropdown-menu-header">⏱️ Prayer & Sleep Timer</div>
+            <div class="sidebar-subitems-panel" id="timer-menu" hidden>
+              <div class="sidebar-panel-header">⏱️ Prayer & Sleep Timer</div>
               <button type="button" data-room-timer="0" class="active">Turn Off</button>
               <button type="button" data-room-timer="15">15 Minutes</button>
               <button type="button" data-room-timer="30">30 Minutes</button>
@@ -173,14 +191,17 @@
             </div>
           </div>
 
-          <button type="button" class="room-nav-btn room-fullscreen-btn" id="room-fullscreen-btn" aria-label="Toggle Fullscreen Mode">
+        </nav>
+
+        <!-- Sidebar Footer / Utility Controls -->
+        <div class="sidebar-footer-section">
+          <button type="button" class="sidebar-utility-btn" id="room-fullscreen-btn" aria-label="Toggle Fullscreen Mode">
             <i data-lucide="maximize-2" id="fullscreen-icon"></i>
             <span id="fullscreen-text">Full Screen</span>
           </button>
-
         </div>
 
-      </header>
+      </aside>
 
       <main class="room-sacred-center" id="room-sacred-center">
         

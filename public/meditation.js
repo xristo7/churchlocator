@@ -563,8 +563,11 @@
   }
 
   function closeAllDropdowns() {
-    document.querySelectorAll(".room-dropdown-menu").forEach(m => m.hidden = true);
-    document.querySelectorAll(".room-tab-trigger").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".sidebar-subitems-panel, .room-dropdown-menu").forEach(m => m.hidden = true);
+    document.querySelectorAll(".sidebar-nav-trigger, .room-tab-trigger").forEach(t => {
+      t.classList.remove("active");
+      t.setAttribute("aria-expanded", "false");
+    });
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -622,6 +625,7 @@
         if (!isCurrentlyOpen) {
           menu.hidden = false;
           trigger.classList.add("active");
+          trigger.setAttribute("aria-expanded", "true");
         }
       });
     }

@@ -16410,3 +16410,350 @@ body[data-page="meditation"] .lobby-tab-btn.active {
   width: 80px !important;
   accent-color: var(--primary) !important;
 }
+
+/* ==========================================================================
+   MEDITATION ROOM LEFT SIDE NAVIGATION MENU & ACCORDION SUBITEMS
+   ========================================================================== */
+.meditation-room-view:not([hidden]) {
+  display: flex !important;
+  flex-direction: row !important;
+  min-height: 100vh !important;
+  position: relative !important;
+  overflow: hidden !important;
+  color: #ffffff !important;
+}
+
+.meditation-room-sidebar {
+  position: relative !important;
+  z-index: 100 !important;
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+  height: 100vh !important;
+  background: rgba(10, 15, 30, 0.9) !important;
+  backdrop-filter: blur(30px) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.14) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 24px 20px !important;
+  box-shadow: 12px 0 40px rgba(0, 0, 0, 0.6) !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+}
+
+.sidebar-top-section {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+  padding-bottom: 20px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-exit-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 16px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  font-size: 0.88rem !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.sidebar-exit-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  transform: translateX(-2px) !important;
+}
+
+.sidebar-room-badge {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 12px 16px !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-room-badge .room-badge-icon {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+  background: hsla(var(--primary-h), 80%, 55%, 0.2) !important;
+  color: var(--primary) !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+.sidebar-room-meta {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  overflow: hidden !important;
+}
+
+.sidebar-badge-kicker {
+  font-size: 0.72rem !important;
+  font-weight: 850 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--primary) !important;
+}
+
+.sidebar-room-meta strong {
+  font-size: 0.92rem !important;
+  color: #ffffff !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Accordion Nav List */
+.sidebar-accordion-nav {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  margin: 20px 0 !important;
+  flex: 1 !important;
+}
+
+.sidebar-nav-group {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.sidebar-nav-trigger {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 16px !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 0.9rem !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+.sidebar-nav-trigger .trigger-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 220px !important;
+}
+
+.sidebar-nav-trigger .accordion-arrow {
+  transition: transform 0.25s ease !important;
+}
+
+.sidebar-nav-trigger:hover,
+.sidebar-nav-trigger.active,
+.sidebar-nav-trigger[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+.sidebar-nav-trigger[aria-expanded="true"] .accordion-arrow,
+.sidebar-nav-trigger.active .accordion-arrow {
+  transform: rotate(180deg) !important;
+}
+
+/* Accordion Subitems Panel */
+.sidebar-subitems-panel {
+  display: grid !important;
+  gap: 4px !important;
+  padding: 10px 8px 10px 12px !important;
+  background: rgba(4, 8, 20, 0.6) !important;
+  border-radius: 12px !important;
+  margin-top: 6px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  animation: sidebarSlideDown 0.2s ease forwards !important;
+}
+
+.sidebar-subitems-panel[hidden] {
+  display: none !important;
+}
+
+@keyframes sidebarSlideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sidebar-panel-header {
+  padding: 6px 8px 4px !important;
+  font-size: 0.72rem !important;
+  font-weight: 850 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  margin-bottom: 4px !important;
+}
+
+.sidebar-subitems-panel button {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 0.86rem !important;
+  font-weight: 650 !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+
+.sidebar-subitems-panel button:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.sidebar-subitems-panel button.active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 12px hsla(var(--primary-h), 80%, 55%, 0.35) !important;
+}
+
+.sidebar-scroll-subitems {
+  max-height: 260px !important;
+  overflow-y: auto !important;
+}
+
+.sidebar-sub-list {
+  display: grid !important;
+  gap: 4px !important;
+}
+
+.ambient-sub-panel {
+  padding: 14px 12px !important;
+}
+
+.ambient-sub-panel .ambient-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 6px 0 !important;
+}
+
+.ambient-sub-panel .ambient-label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 0.82rem !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  min-width: 90px !important;
+}
+
+.ambient-sub-panel .ambient-slider {
+  flex: 1 !important;
+  accent-color: var(--primary) !important;
+}
+
+/* Sidebar Footer */
+.sidebar-footer-section {
+  padding-top: 16px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-utility-btn {
+  width: 100% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 11px 16px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  font-size: 0.88rem !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.sidebar-utility-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Center Canvas Layout inside Room */
+.meditation-room-view .room-sacred-center {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 40px 40px 140px !important;
+  position: relative !important;
+  z-index: 10 !important;
+  text-align: center !important;
+  height: 100vh !important;
+  box-sizing: border-box !important;
+}
+
+.meditation-room-view .room-bottom-player {
+  position: fixed !important;
+  bottom: 22px !important;
+  left: calc(50% + 160px) !important;
+  transform: translateX(-50%) !important;
+  z-index: 100 !important;
+  background: rgba(10, 14, 28, 0.94) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(24px) !important;
+  border-radius: 99px !important;
+  padding: 10px 28px !important;
+  gap: 32px !important;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.75) !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 1024px) {
+  .meditation-room-sidebar {
+    width: 280px !important;
+    min-width: 280px !important;
+  }
+  .meditation-room-view .room-bottom-player {
+    left: calc(50% + 140px) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .meditation-room-view:not([hidden]) {
+    flex-direction: column !important;
+  }
+  .meditation-room-sidebar {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  .meditation-room-view .room-bottom-player {
+    left: 50% !important;
+    width: calc(100% - 32px) !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+  }
+}
+
