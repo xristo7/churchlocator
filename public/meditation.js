@@ -378,12 +378,23 @@
     activeVerseIndex = 0;
 
     document.body.classList.add("in-meditation-room");
-    document.getElementById("meditation-lobby").hidden = true;
+    
+    const lobby = document.getElementById("meditation-lobby");
     const roomView = document.getElementById("meditation-room-view");
-    roomView.hidden = false;
+    if (lobby) {
+      lobby.hidden = true;
+      lobby.style.display = "none";
+    }
+    if (roomView) {
+      roomView.hidden = false;
+      roomView.style.display = "flex";
+    }
+
     window.scrollTo({ top: 0, behavior: "instant" });
 
-    document.getElementById("room-badge-title").textContent = room.title;
+    const titleEl = document.getElementById("room-badge-title");
+    if (titleEl) titleEl.textContent = room.title;
+    
     const iconEl = document.getElementById("room-badge-icon");
     if (iconEl) iconEl.innerHTML = '<i data-lucide="' + room.icon + '"></i>';
 
@@ -411,8 +422,18 @@
     if (isFullscreen) toggleFullscreen(false);
 
     document.body.classList.remove("in-meditation-room");
-    document.getElementById("meditation-room-view").hidden = true;
-    document.getElementById("meditation-lobby").hidden = false;
+    
+    const lobby = document.getElementById("meditation-lobby");
+    const roomView = document.getElementById("meditation-room-view");
+    if (roomView) {
+      roomView.hidden = true;
+      roomView.style.display = "none";
+    }
+    if (lobby) {
+      lobby.hidden = false;
+      lobby.style.display = "block";
+    }
+
     window.scrollTo({ top: 0, behavior: "instant" });
   }
 
@@ -572,14 +593,22 @@
       document.getElementById("sec-themes").hidden = (filter !== "all" && filter !== "themes");
     });
 
-    document.getElementById("meditation-lobby")?.addEventListener("click", e => {
+    document.addEventListener("click", e => {
       const card = e.target.closest("[data-enter-room]");
-      if (!card) return;
-      const roomId = card.dataset.enterRoom;
-      enterRoom(roomId, false);
-    });
+      if (card) {
+        e.preventDefault();
+        const roomId = card.dataset.enterRoom;
+        if (roomId) enterRoom(roomId, false);
+        return;
+      }
 
-    document.getElementById("room-exit-btn")?.addEventListener("click", exitToLobby);
+      const exitBtn = e.target.closest("#room-exit-btn, .room-exit-btn");
+      if (exitBtn) {
+        e.preventDefault();
+        exitToLobby();
+        return;
+      }
+    });
 
     function setupDropdown(triggerId, menuId) {
       const trigger = document.getElementById(triggerId);

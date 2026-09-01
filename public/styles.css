@@ -15559,8 +15559,31 @@ body[data-page="meditation"] {
   color: var(--text-primary) !important;
 }
 
-body[data-page="meditation"] .meditation-lobby {
+body[data-page="meditation"] .meditation-lobby,
+.meditation-lobby {
   display: block;
+}
+
+body[data-page="meditation"] .meditation-lobby[hidden],
+.meditation-lobby[hidden],
+body.in-meditation-room .meditation-lobby {
+  display: none !important;
+}
+
+body[data-page="meditation"] .meditation-room-view[hidden],
+.meditation-room-view[hidden],
+body:not(.in-meditation-room) .meditation-room-view {
+  display: none !important;
+}
+
+body.in-meditation-room .meditation-room-view:not([hidden]),
+body.in-meditation-room .meditation-room-view {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  min-height: 100vh !important;
+  position: relative !important;
+  color: #ffffff !important;
 }
 
 body[data-page="meditation"] .lobby-section {
