@@ -4,41 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meditation Sanctuary | My Way</title>
-  <link rel="stylesheet" href="styles.css?v=20260901h" />
+  <link rel="stylesheet" href="styles.css?v=20260901m" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="app.js?v=20260831"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
-  <script defer src="meditation.js?v=20260901b"></script>
+  <script defer src="meditation.js?v=20260901m"></script>
 </head>
-<body class="module-page meditation-page-body" data-page="meditation">
-  
-  <div class="meditation-backdrop bg-chapel" id="meditation-backdrop"></div>
-  <div class="meditation-overlay" id="meditation-overlay"></div>
+<body class="module-page" data-page="meditation">
+  <header class="topbar"></header>
 
-  <div class="meditation-container" id="meditation-container">
-
-    <!-- VIEW 1: LOBBY WITH ROOM CARDS -->
-    <main class="meditation-lobby" id="meditation-lobby">
-      
-      <header class="meditation-lobby-header">
-        <div class="lobby-brand-row">
-          <span class="meditation-icon-glow"><i data-lucide="sparkles"></i></span>
-          <div>
-            <h1>Meditation Sanctuary</h1>
-            <p>Select a room below to enter. Music and audio are selected while inside the room.</p>
-          </div>
+  <!-- VIEW 1: STANDARD MODULE LOBBY WITH ROOM CARDS -->
+  <main class="meditation-lobby" id="meditation-lobby">
+    
+    <section class="module-hero">
+      <div class="module-shell module-hero-inner">
+        <div>
+          <span class="module-kicker"><i data-lucide="sparkles"></i> Meditation Sanctuary</span>
+          <h1>Quiet your soul. Abide in His presence.</h1>
+          <p>Select a sanctuary room below to quiet your mind and meditate on Scripture. Music and audio streams are selected while inside the room.</p>
         </div>
+      </div>
+    </section>
 
+    <section class="module-shell module-content">
+      
+      <!-- Filter Toolbar -->
+      <div class="module-toolbar">
         <div class="lobby-filter-tabs" id="lobby-filter-tabs">
           <button type="button" class="lobby-tab-btn active" data-lobby-filter="all"><i data-lucide="layout-grid"></i> All Rooms</button>
           <button type="button" class="lobby-tab-btn" data-lobby-filter="featured"><i data-lucide="star"></i> Favorites & Featured</button>
           <button type="button" class="lobby-tab-btn" data-lobby-filter="bible-books"><i data-lucide="book-open"></i> Bible Books</button>
           <button type="button" class="lobby-tab-btn" data-lobby-filter="themes"><i data-lucide="heart"></i> Scriptural Themes</button>
         </div>
-      </header>
+      </div>
 
+      <!-- Section 1: Favorite & Featured Sanctuary Rooms -->
       <section class="lobby-section" id="sec-featured">
-        <div class="lobby-section-head">
+        <div class="module-results-head">
           <div>
             <span class="section-kicker"><i data-lucide="star"></i> Daily Sanctuary</span>
             <h2>Favorite & Featured Rooms</h2>
@@ -47,8 +49,9 @@
         <div class="rooms-grid" id="grid-featured"></div>
       </section>
 
+      <!-- Section 2: Books of the Bible -->
       <section class="lobby-section" id="sec-books">
-        <div class="lobby-section-head">
+        <div class="module-results-head">
           <div>
             <span class="section-kicker"><i data-lucide="book-open"></i> Sacred Scripture</span>
             <h2>Books of the Bible</h2>
@@ -57,8 +60,9 @@
         <div class="rooms-grid" id="grid-books"></div>
       </section>
 
+      <!-- Section 3: Biblical & Scriptural Themes -->
       <section class="lobby-section" id="sec-themes">
-        <div class="lobby-section-head">
+        <div class="module-results-head">
           <div>
             <span class="section-kicker"><i data-lucide="heart"></i> Biblical Truths</span>
             <h2>Scriptural Themes & Entities</h2>
@@ -67,11 +71,17 @@
         <div class="rooms-grid" id="grid-themes"></div>
       </section>
 
-    </main>
+    </section>
+
+  </main>
 
     <!-- VIEW 2: IN-ROOM PURE SANCTUARY (DISTRACTION FREE) -->
     <div class="meditation-room-view" id="meditation-room-view" hidden>
       
+      <!-- Atmosphere Backdrop (Active only inside sanctuary room) -->
+      <div class="meditation-backdrop bg-chapel" id="meditation-backdrop"></div>
+      <div class="meditation-overlay" id="meditation-overlay"></div>
+
       <header class="room-topbar" id="room-topbar">
         
         <button type="button" class="room-nav-btn room-exit-btn" id="room-exit-btn" aria-label="Exit to All Rooms">
@@ -220,8 +230,6 @@
       </footer>
 
     </div>
-
-  </div>
 
   <div class="toast" data-toast role="status" aria-live="polite"></div>
 </body>
