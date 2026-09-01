@@ -14208,3 +14208,74 @@ html[data-theme="dark"] .search-input-box-main:focus-within {
   box-shadow: 0 0 0 3px hsla(var(--primary-h), 80%, 55%, 0.22) !important;
   outline: none !important;
 }
+
+/* ==========================================================================
+   Subtle White Links & Dynamic Feature Perks (Eliminate Hardcoded Blue)
+   ========================================================================== */
+
+/* 1. Back Links & Return Navigation (Subtle White in Dark Mode) */
+.product-back-link,
+.resource-back-link,
+.back-link,
+html[data-theme="dark"] .product-back-link,
+html[data-theme="dark"] .resource-back-link,
+html[data-theme="dark"] .back-link,
+html[data-theme="dark"] .module-shell > a:first-child {
+  color: rgba(255, 255, 255, 0.82) !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease !important;
+}
+
+.product-back-link:hover,
+.resource-back-link:hover,
+.back-link:hover,
+html[data-theme="dark"] .product-back-link:hover,
+html[data-theme="dark"] .resource-back-link:hover,
+html[data-theme="dark"] .back-link:hover,
+html[data-theme="dark"] .module-shell > a:first-child:hover {
+  color: #ffffff !important;
+}
+
+/* 2. Product Detail & Resource Detail Feature Lists */
+html[data-theme="dark"] .product-detail-features,
+html[data-theme="dark"] .product-detail-features li,
+html[data-theme="dark"] .resource-detail-includes ul,
+html[data-theme="dark"] .resource-detail-includes li,
+html[data-theme="dark"] .product-detail-features li span,
+html[data-theme="dark"] .resource-detail-includes li span {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+/* Feature list checkmark/truck/return icons use dynamic active theme color */
+html[data-theme="dark"] .product-detail-features svg,
+html[data-theme="dark"] .product-detail-features i,
+html[data-theme="dark"] .resource-detail-includes svg,
+html[data-theme="dark"] .resource-detail-includes i,
+html[data-theme="dark"] .product-detail-features li svg,
+html[data-theme="dark"] .resource-detail-includes li svg {
+  color: var(--primary) !important;
+}
+
+/* Product Detail Shell & Rating */
+html[data-theme="dark"] .product-detail-shell,
+html[data-theme="dark"] .resource-detail-shell {
+  background: var(--surface-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme="dark"] .product-detail-description {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+html[data-theme="dark"] .product-detail-rating {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+html[data-theme="dark"] .product-detail-rating span:first-child {
+  color: var(--primary) !important;
+}
+
+html[data-theme="dark"] .product-seller-panel button {
+  color: var(--primary) !important;
+}
