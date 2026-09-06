@@ -90,7 +90,11 @@
       const visible = rows.slice((state.page - 1) * pageSize, state.page * pageSize);
       const table = '<div class="aw-table-scroll"><table><thead><tr><th scope="col">' + mod.singular + '</th><th scope="col">Owner / host</th><th scope="col">' + (state.view === "churches" ? "City" : "Category") + '</th><th scope="col">' + (state.view === "resources" ? "Access" : "Status") + '</th><th scope="col">Actions</th></tr></thead><tbody>' +
         visible.map(r => '<tr><td><div class="aw-record"><span class="aw-record-icon">' + icon(mod.icon) + '</span><div><strong>' + esc(mod.title(r)) + '</strong><small>' + esc(mod.detail(r)) + '</small></div></div></td><td>' + esc(mod.owner(r) || "Not set") + '</td><td>' + esc(mod.category(r) || "Not set") + '</td><td>' + badge(mod.status(r)) + '</td><td><div style="display:flex;gap:5px"><button type="button" class="aw-button" data-edit-module="' + state.view + '" data-edit-id="' + esc(r.id) + '">Edit<span class="sr-only"> ' + esc(mod.title(r)) + '</span></button><a class="aw-icon-button" target="_blank" rel="noopener" href="' + esc(mod.preview(r)) + '" aria-label="Preview ' + esc(mod.title(r)) + ' (new tab)">' + icon("external-link") + '</a></div></td></tr>').join("") + '</tbody></table></div>';
-      $("aw-results").innerHTML = (rows.length ? table : '<div class="aw-empty"><h3>No matching ' + mod.noun + '</h3><p>Try a different search or clear your filters.</p>' + button("clear", "Clear filters") + '</div>') +
+      const emptyCollection = mod.get().length === 0;
+      const empty = emptyCollection
+        ? '<div class="aw-empty"><h3>No ' + mod.noun + ' yet</h3><p>' + (state.view === "store" ? 'Store profiles are separate from products. Create a store, then connect its products using Manage products.' : 'Create your first ' + mod.singular + ' to get started.') + '</p>' + button("new", "Add " + mod.singular, true) + '</div>'
+        : '<div class="aw-empty"><h3>No matching ' + mod.noun + '</h3><p>Try a different search or clear your filters.</p>' + button("clear", "Clear filters") + '</div>';
+      $("aw-results").innerHTML = (rows.length ? table : empty) +
         '<div class="aw-pagination"><span>' + rows.length + ' ' + mod.noun + (rows.length ? ' · Showing ' + ((state.page - 1) * pageSize + 1) + '–' + Math.min(state.page * pageSize, rows.length) : "") + '</span><div><button class="aw-icon-button" type="button" data-aw-action="prev" aria-label="Previous page"' + (state.page <= 1 ? " disabled" : "") + '>' + icon("chevron-left") + '</button><span>Page ' + state.page + ' of ' + pages + '</span><button class="aw-icon-button" type="button" data-aw-action="next" aria-label="Next page"' + (state.page >= pages ? " disabled" : "") + '>' + icon("chevron-right") + '</button></div></div>';
       drawIcons();
     }
@@ -259,11 +263,6 @@
         document.body.classList.remove("aw-nav-open");
         $("aw-menu").setAttribute("aria-expanded", "false");
       }
-    });
-    $("aw-theme").addEventListener("click", () => {
-      const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      window.applyTheme(next, true);
-      $("aw-theme").setAttribute("aria-label", "Switch to " + (next === "dark" ? "light" : "dark") + " theme");
     });
     window.addEventListener("hashchange", navigate);
     window.addEventListener("storage", () => { if (!$("aw-editor").open) render(); });

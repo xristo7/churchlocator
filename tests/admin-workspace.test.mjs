@@ -139,6 +139,45 @@ test("all six creation adapters save to their shared collections and survive rel
   const reloaded = await setup(true, env.storage);
   for (const key of ["churches", "channels", "meditation", "events", "store", "resources"]) assert.equal(reloaded.MWEAdmin.modules[key].get().length, 1, key);
   assert.equal(reloaded.MWEAdmin.modules.churches.get()[0].verified, false);
+
+  // Owner moderation and public readers must observe the same records without
+  // changing the original creator's ownership.
+  const owner = await setup(false, env.storage);
+  const publicReaders = {
+    churches: () => owner.MWE.getChurches(),
+    channels: () => owner.FaithLinkModules.getChannels(),
+    meditation: () => owner.MWEMeditation.getRooms(),
+    events: () => owner.MWE.getEvents(),
+    store: () => owner.MWECreator.getStores(),
+    resources: () => owner.FaithLinkModules.getResources()
+  };
+  for (const key of Object.keys(publicReaders)) {
+    const created = modules[key].get()[0];
+    const ownerModule = owner.MWEAdmin.modules[key];
+    const record = ownerModule.get().find(r => r.id === created.id);
+    assert.ok(record, key + " visible to owner");
+    assert.ok(publicReaders[key]().some(r => r.id === created.id), key + " visible to public reader");
+    const entries = formValues(ownerModule, record);
+    for (const field of ownerModule.groups().flatMap(g => g.fields)) {
+      if (field.required && !entries[field.key]) {
+        entries[field.key] = field.type === "email" ? "creator@example.test" : field.type === "url" ? "https://example.test/cover.jpg" : "Test " + field.label;
+      }
+    }
+    const values = owner.MWEAdmin.valuesFromEntries(key, entries);
+    const titleField = ["churches", "channels", "store"].includes(key) ? "name" : "title";
+    values[titleField] = "Owner reviewed " + key;
+    ownerModule.save(record, values);
+    const creatorRecord = reloaded.MWEAdmin.modules[key].get().find(r => r.id === created.id);
+    assert.equal(creatorRecord[titleField], values[titleField], key + " owner edit returns to creator");
+    assert.equal(creatorRecord.createdBy, created.createdBy);
+    assert.equal(publicReaders[key]().find(r => r.id === created.id)[titleField], values[titleField]);
+  }
+  owner.MWECreator.setAccount("Other Creator", "other@example.test");
+  for (const key of Object.keys(publicReaders)) assert.equal(reloaded.MWEAdmin.modules[key].get().length, 0, key + " hidden from another creator");
+  const differentBrowser = await setup(false);
+  for (const key of Object.keys(publicReaders)) {
+    assert.ok(!differentBrowser.MWEAdmin.modules[key].get().some(r => r.createdBy === "local:creator@example.test"), key + " is not server-published");
+  }
 });
 
 test("store and channel live toggles require HTTPS broadcast links", async () => {

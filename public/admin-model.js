@@ -28,7 +28,7 @@
     meditation: {
       label: "Meditation", singular: "room", icon: "flower-2", noun: "rooms",
       description: "Sanctuary rooms, scripture and atmosphere.", page: "meditation.html",
-      get: () => root.MWEMeditation.getRooms(), title: r => r.title, owner: () => "My Way",
+      get: () => root.MWEMeditation.getRooms(), title: r => r.title, owner: r => r.ownerName || "My Way",
       detail: r => r.subtitle, category: r => ({ featured: "Featured", "bible-books": "Bible books", themes: "Scriptural themes" }[r.category] || r.category),
       status: () => "Available", statuses: ["Available"],
       preview: r => "meditation.html?room=" + encodeURIComponent(r.id),

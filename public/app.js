@@ -76,7 +76,7 @@ function initThemeControl() {
 
   const target = document.body.classList.contains("member-app-shell")
     ? document.querySelector(".member-shell-actions")
-    : document.querySelector(".nav-actions");
+    : document.querySelector(".aw-top-actions, .nav-actions");
 
   if (target && !target.querySelector(".theme-palette-container")) {
     const currentPrimary = getPreferredPrimaryColor();
@@ -236,6 +236,11 @@ function initScrollReveal() {
 
 applyTheme(getPreferredTheme());
 applyPrimaryColor(getPreferredPrimaryColor());
+
+window.addEventListener("storage", event => {
+  if (event.key === MWE_THEME_KEY) applyTheme(getPreferredTheme());
+  if (event.key === MWE_PRIMARY_COLOR_KEY) applyPrimaryColor(getPreferredPrimaryColor());
+});
 
 window.addEventListener("message", event => {
   if (event.origin !== window.location.origin) return;

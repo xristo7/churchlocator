@@ -11858,19 +11858,12 @@ html[data-theme="dark"] table td {
 
 html[data-theme="dark"],
 body.dark-mode {
-  --background: var(--background);
-  --background-secondary: var(--background-secondary);
-  --surface: var(--surface);
-  --surface-card: var(--surface-card);
-  --surface-soft: var(--surface-soft);
   --surface-canvas: var(--background);
   --surface-glass: rgba(19, 29, 49, 0.85);
   --surface-glass-hover: rgba(24, 37, 64, 0.95);
   --surface-muted: var(--border-subtle);
   --border: var(--border-subtle);
   --border-default: var(--border-subtle);
-  --border-subtle: var(--border-subtle);
-  --border-strong: var(--border-strong);
   --border-light: var(--border-subtle);
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
