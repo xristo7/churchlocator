@@ -9,7 +9,7 @@
   <title>My Way of Evangelism | Find a Church Family Near You</title>
   <link rel="stylesheet" href="styles.css?v=20260901g" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script defer src="app.js?v=20260831"></script>
+  <script defer src="app.js?v=20260905d"></script>
 </head>
 <body class="hero-only-page" data-page="home">
   <!-- Topbar Header -->
@@ -53,22 +53,22 @@
         <!-- Left Side Content -->
         <div class="hero-left">
           <span class="eyebrow-light"><i data-lucide="sparkles"></i> Love in Action • Verified Fellowships</span>
-          <h1>Find a Church Family Near You.</h1>
-          <p class="lead">We bridge the path from search to local church community—helping seekers find verified fellowships, request free Sunday rides, receive prayer, accept Jesus Christ, and support bi-monthly orphanage outreach.</p>
+          <h1 data-t="hero_title">Find a Church Family Near You.</h1>
+          <p class="lead" data-t="hero_subtitle">We bridge the path from search to local church community—helping seekers find verified fellowships, request free Sunday rides, receive prayer, accept Jesus Christ, and support bi-monthly orphanage outreach.</p>
 
           <!-- Primary Hero CTA Buttons -->
           <div class="hero-cta-row">
             <a href="churches.html" class="button primary lg">
-              <i data-lucide="search"></i> <span>Find a Church Family</span>
+              <i data-lucide="search"></i> <span data-t="find_church_family">Find a Church Family</span>
             </a>
             <a href="events.html" class="button secondary lg">
-              <i data-lucide="calendar"></i> <span>Explore Events</span>
+              <i data-lucide="calendar"></i> <span data-t="explore_events">Explore Events</span>
             </a>
           </div>
 
           <!-- Nearby Churches Slider Overlay -->
           <div class="slider-wrapper mt-6">
-            <span class="slider-label"><i data-lucide="compass"></i> <span>Verified churches near you</span></span>
+            <span class="slider-label"><i data-lucide="compass"></i> <span data-t="verified_near">Verified churches near you</span></span>
             <div class="slider-container-box">
               <div class="slider-track" data-hero-slider>
                 <div class="slider-loading">Checking your location...</div>
@@ -81,13 +81,13 @@
         <div class="hero-right">
           <div class="search-card">
             <div class="search-card-header">
-              <h2>Search Fellowships & Streams</h2>
-              <p>Find trusted local churches by city, worship style, or ministry focus.</p>
+              <h2 data-t="search_title">Search Fellowships & Streams</h2>
+              <p data-t="search_desc">Find trusted local churches by city, worship style, or ministry focus.</p>
             </div>
             
             <form data-hero-search-form action="churches.html" method="GET">
               <div class="form-group">
-                <label for="hero-city-input">City / Location</label>
+                <label for="hero-city-input" data-t="city_location">City / Location</label>
                 <div class="location-combined-group">
                   <div class="input-with-icon city-section">
                     <i data-lucide="map-pin" class="input-icon"></i>
@@ -104,20 +104,20 @@
               </div>
 
               <div class="form-group">
-                <label for="hero-ministry-select">Interested in</label>
+                <label for="hero-ministry-select" data-t="interested_in">Interested in</label>
                 <select id="hero-ministry-select" name="ministry" class="field">
-                  <option value="">All Ministries & Features</option>
-                  <option value="kids">Kids & Children</option>
-                  <option value="youth">Youth & Students</option>
-                  <option value="prayer">Prayer Groups</option>
-                  <option value="worship">Worship Team</option>
-                  <option value="transportation">Free Sunday Transportation</option>
+                  <option value="" data-t-option="all_interests">All Ministries & Features</option>
+                  <option value="kids" data-t-option="kids">Kids & Children</option>
+                  <option value="youth" data-t-option="youth">Youth & Students</option>
+                  <option value="prayer" data-t-option="prayer">Prayer Groups</option>
+                  <option value="worship" data-t-option="worship">Worship Team</option>
+                  <option value="transportation" data-t-option="transportation">Free Sunday Transportation</option>
                 </select>
               </div>
 
               <div class="form-group toggle-group">
                 <label class="toggle-label-wrapper">
-                  <span class="toggle-label-text">Only show livestreaming churches</span>
+                  <span class="toggle-label-text" data-t="only_livestream">Only show livestreaming churches</span>
                   <div class="toggle-switch">
                     <input type="checkbox" id="hero-stream-toggle" name="stream" value="true" />
                     <span class="toggle-slider"></span>
@@ -126,7 +126,7 @@
               </div>
 
               <button type="submit" class="button search-submit-button">
-                <i data-lucide="search"></i> <span>Find a Church Family</span>
+                <i data-lucide="search"></i> <span data-t="find_button">Find a Church Family</span>
               </button>
             </form>
           </div>
@@ -139,9 +139,9 @@
     <section class="section platform-gateway-section bg-soft border-b">
       <div class="container">
         <div class="section-head center">
-          <p class="kicker"><i data-lucide="grid"></i> Platform Doorways</p>
-          <h2>How Can We Serve You Today?</h2>
-          <p class="lead">Choose an action below to find a fellowship, explore upcoming events, watch live streams, or support outreach.</p>
+          <p class="kicker"><i data-lucide="grid"></i> <span data-t="platform_doorways">Platform Doorways</span></p>
+          <h2 data-t="serve_title">How Can We Serve You Today?</h2>
+          <p class="lead" data-t="serve_desc">Choose an action below to find a fellowship, explore upcoming events, watch live streams, or support outreach.</p>
         </div>
 
         <div class="gateway-cards-grid">

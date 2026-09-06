@@ -7,9 +7,9 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>My Way of Evangelism | Find a Church Family</title>
-  <link rel="stylesheet" href="styles.css?v=20260901g" />
+    <link rel="stylesheet" href="styles.css?v=20260905module19" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script defer src="app.js?v=20260831"></script>
+  <script defer src="app.js?v=20260905u"></script>
 </head>
 <body data-page="public">
   <header class="topbar">
@@ -36,26 +36,31 @@
   </header>
 
   <main>
-    <section class="section" id="find">
-      <div class="container">
+    <section class="module-hero module-directory-hero" id="find">
+      <div class="module-shell module-hero-inner">
         <div class="section-head mb-8">
           <div>
+            <p class="module-kicker"><i data-lucide="church"></i> Church Directory</p>
             <h2>Find a Church Family Near You</h2>
             <p class="lead">Search verified fellowships by location, denomination, or pastor.</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="module-shell module-content">
 
         <!-- Modern Green Pill-Style Search & Filter Bar -->
-        <div class="pill-filter-bar-container">
-          <div class="pill-search-input-wrapper">
+        <div class="site-search-bar">
+          <label class="pill-search-input-wrapper module-search site-search">
             <i data-lucide="search" class="search-hero-icon"></i>
             <input class="search-hero-input" data-search placeholder="Search by church name, city, pastor, or denomination..." />
-          </div>
+          </label>
 
-          <div class="filter-pills-row">
+          <div class="filter-pills-row module-filter-group">
             <!-- City Pill -->
-            <div class="custom-pill-filter" id="church-city-pill" data-filter-group="city">
-              <button type="button" class="filter-pill-btn" onclick="MWE.toggleFilterPillDropdown(this, event)">
+            <div class="custom-pill-filter module-filter-control" id="church-city-pill" data-filter-group="city">
+              <button type="button" class="filter-pill-btn module-filter-trigger" onclick="MWE.toggleFilterPillDropdown(this, event)">
                 <span class="pill-title">City</span>
                 <span class="pill-badge" style="display: none;">0</span>
                 <i data-lucide="chevron-down" class="pill-arrow"></i>
@@ -69,8 +74,8 @@
             </div>
 
             <!-- Denomination Pill -->
-            <div class="custom-pill-filter" id="church-denom-pill" data-filter-group="denomination">
-              <button type="button" class="filter-pill-btn" onclick="MWE.toggleFilterPillDropdown(this, event)">
+            <div class="custom-pill-filter module-filter-control" id="church-denom-pill" data-filter-group="denomination">
+              <button type="button" class="filter-pill-btn module-filter-trigger" onclick="MWE.toggleFilterPillDropdown(this, event)">
                 <span class="pill-title">Denomination</span>
                 <span class="pill-badge" style="display: none;">0</span>
                 <i data-lucide="chevron-down" class="pill-arrow"></i>
@@ -103,14 +108,13 @@
             </div>
 
             <!-- Reset Button -->
-            <button type="button" class="filter-pill-reset-btn" onclick="MWE.resetChurchPillFilters()">
+            <button type="button" class="filter-pill-reset-btn module-filter-trigger module-filter-overflow-only" onclick="MWE.resetChurchPillFilters()">
               <i data-lucide="rotate-ccw"></i> Reset
             </button>
           </div>
         </div>
 
         <div class="cards-grid" data-church-grid></div>
-      </div>
     </section>
 
 

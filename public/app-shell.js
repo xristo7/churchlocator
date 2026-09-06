@@ -54,7 +54,9 @@
   };
 
   function updateSectionContext(view) {
-    const [label, icon] = sectionContexts[view] || sectionContexts.directory;
+    const [defaultLabel, icon] = sectionContexts[view] || sectionContexts.directory;
+    const translationKey = ({ church: "directory", "channel-detail": "channels", "channel-content": "channels", event: "events", product: "store", cart: "store", checkout: "store", "store-manager": "store", "resource-detail": "resources", "resource-reader": "resources" })[view] || view;
+    const label = shellTranslations?.[currentMemberLanguage]?.[translationKey] || defaultLabel;
     sectionContext?.querySelector("strong")?.replaceChildren(label);
     const oldIcon = sectionContext?.querySelector("svg, i");
     if (oldIcon) { const replacement = document.createElement("i"); replacement.dataset.lucide = icon; replacement.id = "member-section-icon"; oldIcon.replaceWith(replacement); }
@@ -122,8 +124,30 @@
     return ["messages", "store-manager", "cart", "checkout"].includes(view);
   }
 
+  function hasMatchingCreatorIdentity() {
+    if (localStorage.getItem("mwe.userLoggedIn") !== "true") return false;
+    const publicEmail = (localStorage.getItem("mwe.userEmail") || "").trim().toLowerCase();
+    if (!publicEmail) return false;
+    try {
+      const creator = JSON.parse(localStorage.getItem("mwe.creator.account.v1") || "null");
+      return (creator?.email || "").trim().toLowerCase() === publicEmail;
+    } catch {
+      return false;
+    }
+  }
+
+  function openCreatorWorkspace() {
+    const workspace = window.open("creator-workspace.html", "_blank", "noopener");
+    if (!workspace) window.location.href = "creator-workspace.html";
+  }
+
   function loadRoute(route, options = {}) {
     const safeRoute = views[route.view] ? route : { view: "directory", id: "", q: "", compose: "" };
+    if (safeRoute.view === "portal" && localStorage.getItem("mwe.session.church.v1") === "authenticated" && hasMatchingCreatorIdentity()) {
+      openCreatorWorkspace();
+      loadRoute({ view: "directory", id: "", q: "" }, { replace: true });
+      return;
+    }
     if (isProtectedView(safeRoute.view) && !isAuthenticated()) {
       const destination = buildShellUrl(safeRoute);
       if (window.MWE?.openMemberLogin) {
@@ -155,6 +179,12 @@
     link.addEventListener("click", event => {
       event.preventDefault();
       const view = link.dataset.shellView;
+      if (view === "portal" && localStorage.getItem("mwe.session.church.v1") === "authenticated" && hasMatchingCreatorIdentity()) {
+        openCreatorWorkspace();
+        document.body.classList.remove("member-nav-open");
+        mobileMenu?.setAttribute("aria-expanded", "false");
+        return;
+      }
       loadRoute({ view, id: "", q: "" });
     });
   });
@@ -189,6 +219,7 @@
   document.getElementById("member-sign-out")?.addEventListener("click", () => {
     localStorage.removeItem("mwe.userLoggedIn");
     localStorage.removeItem("mwe.username");
+    localStorage.removeItem("mwe.userEmail");
     window.location.href = "index.html";
   });
 
@@ -207,9 +238,43 @@
     es: '<svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#aa151b"/><rect y="3.75" width="20" height="7.5" fill="#f1bf00"/><circle cx="6" cy="7.5" r="2" fill="#aa151b"/></svg>'
   };
   const languages = { en: "EN", fr: "FR", es: "ES" };
+  const shellTranslations = {
+    en: { home: "Home", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", portal: "Creator Hub", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Send Invite", loading: "Loading your My Way view…", search: "Search churches, channels, events...", member: "My Way member", signOut: "Sign out" },
+    fr: { home: "Accueil", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", portal: "Espace créateur", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Envoyer l’invitation", loading: "Chargement de votre espace My Way…", search: "Rechercher des églises, chaînes, événements…", member: "Membre My Way", signOut: "Se déconnecter" },
+    es: { home: "Inicio", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", portal: "Centro de creadores", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Enviar invitación", loading: "Cargando tu espacio My Way…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de My Way", signOut: "Cerrar sesión" }
+  };
+  let currentMemberLanguage = localStorage.getItem("mwe.lang") || "en";
+  if (!shellTranslations[currentMemberLanguage]) currentMemberLanguage = "en";
+
+  function applyShellLanguage(lang) {
+    const dict = shellTranslations[lang] || shellTranslations.en;
+    currentMemberLanguage = shellTranslations[lang] ? lang : "en";
+    document.documentElement.lang = currentMemberLanguage;
+    document.querySelectorAll("[data-shell-view]").forEach(link => {
+      const label = link.querySelector("span");
+      if (label && dict[link.dataset.shellView]) label.textContent = dict[link.dataset.shellView];
+    });
+    const search = shellSearch?.querySelector('input[name="q"]');
+    if (search) { search.placeholder = dict.search; search.setAttribute("aria-label", dict.search); }
+    const utility = document.querySelectorAll(".profile-rail-utility a span");
+    if (utility[1]) utility[1].textContent = dict.help;
+    const invite = document.querySelector(".profile-invite-card");
+    if (invite) {
+      const strong = invite.querySelector("strong");
+      if (strong) strong.lastChild.textContent = " " + dict.invite;
+      const body = invite.querySelector("p"); if (body) body.textContent = dict.inviteBody;
+      const action = invite.querySelector("button"); if (action) action.childNodes[0].textContent = dict.inviteAction + " ";
+    }
+    const memberLabel = document.querySelector("#member-account-menu > span"); if (memberLabel) memberLabel.textContent = dict.member;
+    const signOut = document.getElementById("member-sign-out"); if (signOut) signOut.lastChild.textContent = " " + dict.signOut;
+    const loadingText = loading?.querySelector("p"); if (loadingText) loadingText.textContent = dict.loading;
+    updateSectionContext(getRoute().view);
+    window.lucide?.createIcons();
+  }
   function setMemberLanguage(lang) {
-    const selectedText = languages[lang] || "EN";
-    const selectedSvg = flagSvgs[lang] || flagSvgs.en;
+    if (!languages[lang]) lang = "en";
+    const selectedText = languages[lang];
+    const selectedSvg = flagSvgs[lang];
     localStorage.setItem("mwe.lang", lang);
     const flagContainer = langButton?.querySelector(".lang-flag");
     if (flagContainer) flagContainer.innerHTML = selectedSvg;
@@ -217,6 +282,10 @@
     if (textContainer) textContainer.textContent = selectedText;
     langSelector?.classList.remove("open");
     langButton?.setAttribute("aria-expanded", "false");
+    window.MWE?.setLanguage?.(lang);
+    applyShellLanguage(lang);
+    frame.contentWindow?.MWE?.setLanguage?.(lang);
+    frame.contentWindow?.postMessage({ type: "mwe-language", lang }, window.location.origin);
   }
   setMemberLanguage(localStorage.getItem("mwe.lang") || "en");
   langButton?.addEventListener("click", event => { event.stopPropagation(); const open = langSelector.classList.toggle("open"); langButton.setAttribute("aria-expanded", String(open)); });
@@ -239,6 +308,8 @@
     const currentPrimary = document.documentElement.dataset.primary || "blue";
     frame.contentWindow?.postMessage({ type: "mwe-theme", theme: currentTheme }, window.location.origin);
     frame.contentWindow?.postMessage({ type: "mwe-primary-color", primaryColor: currentPrimary }, window.location.origin);
+    frame.contentWindow?.MWE?.setLanguage?.(currentMemberLanguage);
+    frame.contentWindow?.postMessage({ type: "mwe-language", lang: currentMemberLanguage }, window.location.origin);
   });
 
   window.addEventListener("message", event => {

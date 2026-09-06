@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meditation Sanctuary | My Way</title>
-  <link rel="stylesheet" href="styles.css?v=20260901u" />
+    <link rel="stylesheet" href="styles.css?v=20260905module19" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script defer src="app.js?v=20260831"></script>
+  <script defer src="app.js?v=20260905u"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
-  <script defer src="meditation.js?v=20260901u"></script>
+  <script defer src="meditation.js?v=20260905a"></script>
 </head>
 <body class="module-page" data-page="meditation">
   <header class="topbar"></header>
@@ -16,7 +16,7 @@
   <!-- VIEW 1: STANDARD MODULE LOBBY WITH ROOM CARDS -->
   <main class="meditation-lobby" id="meditation-lobby">
     
-    <section class="module-hero">
+    <section class="module-hero module-directory-hero">
       <div class="module-shell module-hero-inner">
         <div>
           <span class="module-kicker"><i data-lucide="sparkles"></i> Meditation Sanctuary</span>
@@ -29,12 +29,13 @@
     <section class="module-shell module-content">
       
       <!-- Filter Toolbar -->
-      <div class="meditation-filter-bar">
-        <div class="lobby-filter-tabs" id="lobby-filter-tabs">
-          <button type="button" class="lobby-tab-btn active" data-lobby-filter="all"><i data-lucide="layout-grid"></i> All Rooms</button>
-          <button type="button" class="lobby-tab-btn" data-lobby-filter="featured"><i data-lucide="star"></i> Favorites & Featured</button>
-          <button type="button" class="lobby-tab-btn" data-lobby-filter="bible-books"><i data-lucide="book-open"></i> Bible Books</button>
-          <button type="button" class="lobby-tab-btn" data-lobby-filter="themes"><i data-lucide="heart"></i> Scriptural Themes</button>
+      <div class="site-search-bar">
+        <label class="module-search site-search"><i data-lucide="search"></i><input id="meditation-search" type="search" placeholder="Search rooms, books, or themes..." /></label>
+        <div class="lobby-filter-tabs module-filter-group" id="lobby-filter-tabs">
+          <button type="button" class="lobby-tab-btn module-filter-trigger active" data-lobby-filter="all"><i data-lucide="layout-grid"></i> All Rooms</button>
+          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="featured"><i data-lucide="star"></i> Favorites & Featured</button>
+          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="bible-books"><i data-lucide="book-open"></i> Bible Books</button>
+          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="themes"><i data-lucide="heart"></i> Scriptural Themes</button>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 (function initMeditationSanctuary() {
 
-  const roomsCatalog = [
+  const roomSeeds = [
     // 1. Favorite & Featured
     {
       id: "room-peace",
@@ -262,6 +262,23 @@
     }
   ];
 
+  // One catalog for the sanctuary and owner workspace, using existing local-preview storage.
+  const roomsKey = "mwe.meditation.rooms.v1";
+  function getRooms() {
+    const raw = localStorage.getItem(roomsKey);
+    if (raw === null) return JSON.parse(JSON.stringify(roomSeeds));
+    const saved = JSON.parse(raw);
+    if (!Array.isArray(saved)) throw new Error("The meditation catalog could not be read.");
+    return saved;
+  }
+  window.MWEMeditation = {
+    getRooms,
+    saveRooms: rooms => localStorage.setItem(roomsKey, JSON.stringify(rooms))
+  };
+  if (document.body.hasAttribute("data-admin-workspace")) return;
+  const roomsCatalog = getRooms();
+  const escape = value => String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+
   let activeRoom = null;
   let activeVerseIndex = 0;
   let activeAudioType = "bible";
@@ -341,6 +358,7 @@
     if (!featuredGrid || !booksGrid || !themesGrid) return;
 
     function cardHtml(room) {
+      room = { ...room, ...Object.fromEntries(["id", "cover", "title", "subtitle", "categoryLabel", "icon"].map(key => [key, escape(room[key])])) };
       return '<div class="sanctuary-room-card" data-enter-room="' + room.id + '">' +
         '<div class="room-card-cover">' +
           '<img src="' + room.cover + '" alt="' + room.title + '" />' +
@@ -365,7 +383,7 @@
     const switchList = document.getElementById("room-switch-list");
     if (switchList) {
       switchList.innerHTML = roomsCatalog.map(r => {
-        return '<button type="button" data-switch-room-id="' + r.id + '"><i data-lucide="' + r.icon + '"></i> ' + r.title + '</button>';
+        return '<button type="button" data-switch-room-id="' + escape(r.id) + '"><i data-lucide="' + escape(r.icon) + '"></i> ' + escape(r.title) + '</button>';
       }).join("");
     }
 
@@ -397,6 +415,7 @@
 
   function enterRoom(roomId, autoStartAudio = false) {
     const room = roomsCatalog.find(r => r.id === roomId) || roomsCatalog[0];
+    if (!room) return;
     activeRoom = room;
     activeVerseIndex = 0;
 
@@ -619,6 +638,16 @@
       document.getElementById("sec-featured").hidden = (filter !== "all" && filter !== "featured");
       document.getElementById("sec-books").hidden = (filter !== "all" && filter !== "bible-books");
       document.getElementById("sec-themes").hidden = (filter !== "all" && filter !== "themes");
+    });
+
+    document.getElementById("meditation-search")?.addEventListener("input", e => {
+      const query = e.target.value.trim().toLowerCase();
+      document.querySelectorAll(".sanctuary-room-card").forEach(card => {
+        card.hidden = !!query && !card.textContent.toLowerCase().includes(query);
+      });
+      document.querySelectorAll(".lobby-section").forEach(section => {
+        if (query) section.hidden = !section.querySelector(".sanctuary-room-card:not([hidden])");
+      });
     });
 
     document.addEventListener("click", e => {

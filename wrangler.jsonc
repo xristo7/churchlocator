@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "my-way-of-evangelism",
-  "account_id": "431b9efd75ed20c548b4a06fe85960f0",
+  "account_id": "17e900e2ac8567adf3e60c83fc64589e",
   "main": "./src/worker.js",
   "compatibility_date": "2026-08-19",
   "compatibility_flags": ["nodejs_compat"],
@@ -9,6 +9,13 @@
     "directory": "./public",
     "binding": "ASSETS"
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "my-way-of-evangelism",
+      "database_id": "2a60c9f6-2850-4db3-9df3-ac80f69adb00"
+    }
+  ],
   "vars": {
     "APP_NAME": "My Way of Evangelism",
     "ENVIRONMENT": "production"
@@ -20,6 +27,13 @@
   "env": {
     "preview": {
       "name": "my-way-of-evangelism-preview",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "my-way-of-evangelism-preview",
+          "database_id": "9d5c6215-602b-4641-bea9-dca104a1c3ba"
+        }
+      ],
       "vars": {
         "APP_NAME": "My Way of Evangelism",
         "ENVIRONMENT": "preview"

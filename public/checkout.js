@@ -38,6 +38,17 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     if (!cartRows().length) { location.href = "cart.html"; return; }
+    document.querySelectorAll(".accelerated-checkout .accelerated").forEach(button => button.addEventListener("click", () => {
+      const usePayPal = button.classList.contains("paypal");
+      const payment = document.querySelector(`input[name="payment"][value="${usePayPal ? "paypal" : "card"}"]`);
+      if (payment) {
+        payment.checked = true;
+        payment.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      const message = document.getElementById("checkout-form-error");
+      message.textContent = `${usePayPal ? "PayPal" : button.classList.contains("google") ? "Google Pay" : "Shop Pay"} selected. Complete your contact and delivery details to continue in this local preview.`;
+      document.querySelector('#checkout-form input[name="email"]')?.focus();
+    }));
     document.querySelectorAll('input[name="shipping"],input[name="deliveryType"]').forEach(input => input.addEventListener("change", () => {
       const pickup = document.querySelector('input[name="deliveryType"]:checked')?.value === "pickup";
       document.getElementById("shipping-fields").classList.toggle("checkout-fields-disabled", pickup);

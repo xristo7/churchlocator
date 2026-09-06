@@ -4,16 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Way Store</title>
-  <link rel="stylesheet" href="styles.css?v=20260901g" />
+    <link rel="stylesheet" href="styles.css?v=20260905module19" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script defer src="app.js?v=20260831"></script>
+  <script defer src="app.js?v=20260905u"></script>
   <script defer src="platform-modules.js?v=20260825"></script>
   <script defer src="store.js?v=20260825"></script>
+  <link rel="stylesheet" href="creator-public.css?v=20260904" />
+  <script defer src="creator-data.js?v=20260904"></script>
+  <script defer src="creator-public.js?v=20260904"></script>
 </head>
 <body class="module-page" data-page="store">
   <header class="topbar"></header>
   <main>
-    <section class="module-hero">
+    <section class="module-hero module-directory-hero">
       <div class="module-shell module-hero-inner">
         <div>
           <span class="module-kicker"><i data-lucide="shopping-bag"></i> Christian Marketplace</span>
@@ -25,8 +28,8 @@
     </section>
 
     <section class="module-shell module-content">
-      <div class="module-toolbar">
-        <label class="module-search"><i data-lucide="search"></i><input id="store-search" type="search" placeholder="Search products or sellers..." /></label>
+      <div class="site-search-bar">
+        <label class="module-search site-search"><i data-lucide="search"></i><input id="store-search" type="search" placeholder="Search products or sellers..." /></label>
         <select class="module-select" id="store-category" aria-label="Product category"><option value="all">All categories</option></select>
         <select class="module-select" id="store-seller" aria-label="Seller type"><option value="all">All sellers</option><option>Church</option><option>Channel</option></select>
         <select class="module-select" id="store-sort" aria-label="Sort products"><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="rating">Highest rated</option></select>

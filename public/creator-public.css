@@ -1,0 +1,13 @@
+.creator-public { max-width:1160px; padding:38px 24px 70px; margin:auto; }
+.creator-public h1 { font-size:32px; margin:20px 0 12px; }
+.creator-public>p { color:var(--text-muted); }
+.creator-live-player { width:100%; aspect-ratio:16/9; border:0; border-radius:14px; background:#0f172a; margin:24px 0; }
+.creator-store-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px; margin:22px 0; }
+.creator-store-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; display:block; }
+.creator-store-card img { width:100%; height:155px; object-fit:cover; }
+.creator-store-card>div { padding:20px; }
+.creator-store-card h3 { font-size:17px; margin:0 0 6px; }
+.creator-store-card p { font-size:13px; color:var(--text-muted); margin:0; }
+.creator-store-card small { color:var(--primary); display:block; margin-top:14px; }
+.creator-stores-section { width:100%; padding:20px 0; }
+.creator-store-actions { display:flex; gap:12px; flex-wrap:wrap; margin:20px 0; }

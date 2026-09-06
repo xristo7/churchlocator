@@ -124,7 +124,7 @@ Use Cloudflare services as the project grows:
 - Queues for SMS, email, reminders, receipts, and moderation jobs.
 - Workers AI and Vectorize later for semantic church/media search.
 
-The `DB` binding and migration directory are declared in `wrangler.jsonc`. Apply pending migrations before deploying application code:
+The production and isolated preview `DB` bindings and migration directory are declared in `wrangler.jsonc`. Apply pending migrations before deploying application code:
 
 ```bash
 npm run db:migrate:preview

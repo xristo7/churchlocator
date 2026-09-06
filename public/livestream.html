@@ -4,9 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Livestream | My Way of Evangelism</title>
-  <link rel="stylesheet" href="styles.css?v=20260901g" />
+    <link rel="stylesheet" href="styles.css?v=20260905module19" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script defer src="app.js?v=20260831"></script>
+  <script defer src="app.js?v=20260905u"></script>
+  <script defer src="platform-modules.js?v=20260831"></script>
+  <link rel="stylesheet" href="creator-public.css?v=20260904" />
+  <script defer src="creator-data.js?v=20260904"></script>
+  <script defer src="creator-public.js?v=20260904"></script>
 </head>
 <body class="live-page" data-page="livestream">
   <header class="topbar">
@@ -36,14 +40,24 @@
   <main style="min-height: 100vh; padding-bottom: 60px;">
     
     <!-- Section 1: Streams Landing Hub (Directory Mode) -->
-    <section id="streams-landing-view" class="section" style="display: none; padding-top: 70px;">
-      <div class="container">
+    <section id="streams-landing-view" style="display: none;">
+      <div class="module-hero module-directory-hero">
+        <div class="module-shell module-hero-inner">
         <div class="section-head">
           <div>
             <p class="kicker"><i data-lucide="radio"></i> Broadcast Center</p>
             <h2>Evangelism Live Channels</h2>
             <p>Tune in to live Sunday services, Bible study broadcasts, and worship events streaming now.</p>
           </div>
+        </div>
+        </div>
+      </div>
+
+      <div class="module-shell module-content">
+        <div class="site-search-bar">
+          <label class="module-search site-search"><i data-lucide="search"></i><input id="livestream-search" type="search" placeholder="Search churches or broadcasts..." /></label>
+          <select class="module-select" id="livestream-status" aria-label="Broadcast status"><option value="all">All broadcasts</option><option value="live">Live now</option><option value="scheduled">Scheduled</option></select>
+          <select class="module-select" id="livestream-type" aria-label="Broadcast type"><option value="all">All services</option><option value="worship">Worship</option><option value="teaching">Teaching</option><option value="prayer">Prayer</option></select>
         </div>
 
         <!-- Active Streams Grid -->

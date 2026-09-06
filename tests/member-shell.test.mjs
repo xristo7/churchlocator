@@ -105,6 +105,14 @@ test("Store has dedicated cart and Shopify-style checkout routes", async () => {
   assert.match(checkoutScript, /faithlink\.store\.orders\.v1/);
 });
 
+test("checkout login and express payment controls have working destinations", async () => {
+  const checkout = await readProjectFile("public/checkout.html");
+  const checkoutJs = await readProjectFile("public/checkout.js");
+  assert.match(checkout, /href="app\.html\?view=checkout" target="_top">Log in/);
+  assert.match(checkoutJs, /\.accelerated-checkout \.accelerated/);
+  assert.match(checkoutJs, /payment\.dispatchEvent\(new Event\("change"/);
+});
+
 test("Channels use creator profile cards and connect to member messaging", async () => {
   const app = await readProjectFile("public/app.html");
   const shell = await readProjectFile("public/app-shell.js");
@@ -143,6 +151,23 @@ test("light and dark themes persist across the public site and member shell", as
   assert.match(styles, /html\[data-theme="dark"\]/);
   assert.match(styles, /body\[data-page="home"\] \.tiny-church-card/);
   assert.match(styles, /body\.member-app-shell \.member-shell-rail/);
+});
+
+test("language changes translate the shell and active embedded module", async () => {
+  const shell = await readProjectFile("public/app-shell.js");
+  const app = await readProjectFile("public/app.js");
+  const home = await readProjectFile("public/index.html");
+  assert.match(shell, /const shellTranslations = \{/);
+  assert.match(shell, /applyShellLanguage\(lang\)/);
+  assert.match(shell, /postMessage\(\{ type: "mwe-language", lang \}/);
+  assert.match(shell, /frame\.addEventListener\("load",[\s\S]*postMessage\(\{ type: "mwe-language", lang: currentMemberLanguage \}/);
+  assert.match(app, /event\.data\?\.type !== "mwe-language"/);
+  assert.match(app, /document\.documentElement\.lang = lang/);
+  assert.match(app, /translateModuleCopy\(document, lang\)/);
+  assert.match(app, /new MutationObserver/);
+  assert.match(home, /data-t="hero_title"/);
+  assert.match(home, /data-t-option="all_interests"/);
+  assert.doesNotMatch(app, /Evangélice/);
 });
 
 test("single pages share spacing and content uses media-specific readers", async () => {
@@ -240,7 +265,7 @@ test("two-pillar theme system supports rainbow primary palette, gold accents, an
   assert.match(shell, /mwe-primary-color/);
 });
 
-test("Creator & Ministry Hub loads inside SPA shell with 3-step registration and launchpad", async () => {
+test("Creator Hub keeps SPA registration and opens the user workspace separately", async () => {
   const html = await readProjectFile("public/app.html");
   const shell = await readProjectFile("public/app-shell.js");
   const app = await readProjectFile("public/app.js");
@@ -254,6 +279,10 @@ test("Creator & Ministry Hub loads inside SPA shell with 3-step registration and
 
   // Router in app-shell.js
   assert.match(shell, /portal:\s*\{\s*source:\s*"church-portal\.html",\s*title:\s*"Creator & Ministry Hub"\s*\}/);
+  assert.match(shell, /window\.open\("creator-workspace\.html"/);
+  assert.match(shell, /hasMatchingCreatorIdentity/);
+  assert.match(shell, /mwe\.userEmail/);
+  assert.match(shell, /creator\?\.email/);
 
   // Route map and top-level redirection to SPA shell in app.js
   assert.match(app, /"church-portal":\s*"portal"/);
@@ -266,12 +295,18 @@ test("Creator & Ministry Hub loads inside SPA shell with 3-step registration and
   assert.match(worker, /\["\/portal",\s*"\/church-portal\.html"\]/);
   assert.match(worker, /\["\/creator-hub",\s*"\/church-portal\.html"\]/);
 
-  // 3-step creator registration form in church-portal.html
+  // Original 3-step creator registration remains inside the SPA shell.
   assert.match(portalHtml, /Create Creator Account/);
+  assert.match(portalHtml, /data-register-form/);
   assert.match(portalHtml, /data-step="1"/);
   assert.match(portalHtml, /data-step="2"/);
   assert.match(portalHtml, /data-step="3"/);
   assert.match(portalHtml, /name="launchGoal"/);
+  const creator = await readProjectFile("public/creator-workspace.html");
+  assert.match(creator, /data-creator-account-form/);
+  assert.match(app, /window\.open\(`creator-workspace\.html#\$\{module\}`/);
+  assert.match(app, /creatorIdentityMatches/);
+  assert.match(app, /if \(!creatorIdentityMatches\) localStorage\.removeItem\(key\)/);
 
   // Launchpad overview and workspace cards in church-portal.html
   assert.match(portalHtml, /id="launchpad-grid-container"/);
@@ -335,9 +370,38 @@ test("SPA shell supports member home dashboard and interactive meditation sanctu
   assert.match(medHtml, /Soaking Instrumental/);
   assert.match(medHtml, /Sermons & Preaching/);
   assert.match(medHtml, /Prayer & Sleep Timer/);
+  assert.match(medHtml, /id="meditation-search"/);
+  assert.match(medJs, /meditation-search/);
 
   // Landing page topbar bright text exemption
   assert.match(styles, /body\.hero-only-page \.topbar \.nav-links a[\s\S]*#ffffff !important/);
+});
+
+test("directory modules share the standardized atmospheric hero and filter tray", async () => {
+  const styles = await readProjectFile("public/styles.css");
+  const appJs = await readProjectFile("public/app.js");
+  for (const page of ["churches", "meditation", "events", "store", "livestream", "resources", "channels"]) {
+    const html = await readProjectFile(`public/${page}.html`);
+    assert.match(html, /module-directory-hero/, `${page} needs the shared hero`);
+    assert.match(html, /site-search-bar/, `${page} needs the shared filter tray`);
+  }
+  assert.doesNotMatch(styles, /module-hero-blob\.png/);
+  assert.match(styles, /\.module-directory-hero::before/);
+  assert.match(styles, /@keyframes module-hero-atmosphere/);
+  assert.match(styles, /\.module-directory-hero::before[\s\S]*hsla\(var\(--primary-h\), var\(--primary-s\), var\(--primary-l\)/);
+  assert.match(styles, /--module-control-height:\s*56px/);
+  assert.match(styles, /--module-control-radius:\s*14px/);
+  assert.match(styles, /\.site-search-bar \{[\s\S]*flex-wrap:\s*nowrap !important/);
+  assert.match(styles, /\.site-search-bar \.site-search[\s\S]*min-width:\s*360px !important/);
+  assert.match(styles, /@media\(max-width:700px\)[\s\S]*\.site-search-bar > \.module-filter-group \{ display: none !important; \}/);
+  assert.match(appJs, /function initModuleDirectoryToolbars\(\)/);
+  assert.match(appJs, /module-filter-overflow/);
+  assert.match(appJs, /module-mobile-filter-button/);
+  assert.match(appJs, /filterItems\.slice\(capacity\)/);
+  assert.match(appJs, /const visibleLimit = Math\.min\(3, filterItems\.length\)/);
+  assert.match(appJs, /filterItems\.length <= 3 && available >= searchMinWidth/);
+  const livestream = await readProjectFile("public/livestream.html");
+  assert.match(livestream, /id="livestream-search"/);
 });
 
 test("landing page location dropdown has unified single element with single arrow and light mode cards have dark readable text", async () => {

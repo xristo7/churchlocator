@@ -1,178 +1,150 @@
-# Design QA
+**Design QA — standardized module directory headers and dark focus state**
 
-- Source visual truth: `C:\Users\Christo\AppData\Local\Temp\codex-clipboard-4d2ddd77-8b68-4602-a688-9d52cd5427a9.png`
-- Source dimensions: 1297 × 901 px
-- Implementation route: `http://127.0.0.1:8787/app?view=church&id=beulah-alliance-west`
-- Implementation screenshot: `artifacts/member-shell-profile-reference-viewport.png`
-- Comparison viewport: 1297 × 901 CSS px at device scale factor 1
-- State: authenticated shell, Beulah Alliance church profile, Overview tab
+- Source visual truth: `C:\Users\ADMINI~1\AppData\Local\Temp\codex-clipboard-8c5f6312-f30e-4591-a26e-c21909cfbc5d.png` for the latest focused dark-mode correction; earlier toolbar source retained in comparison history.
+- Implementation evidence: in-app browser owner-dashboard Events capture (`owner-dashboard.html#events`) with the search focused and responsive overflow visible.
+- Viewport: 1280 × 720 CSS px.
+- Source: 1723 × 183 px. Implementation: 1280 × 720 at browser density. Comparison focused on the toolbar region and normalized its available content width.
+- State: dark theme, French, focused search field, reduced-width desktop toolbar with overflow control.
 
-## Full-view comparison evidence
+**Full-view comparison evidence**
 
-The reference and implementation were opened together at the same viewport and interaction state. The persistent top header and left navigation match the approved application-shell structure. The church profile keeps its own tab strip, pastor feature, transformation stories, and right action rail inside the changing content area.
+The reference and browser implementation were reviewed as a paired comparison. Both use a deep plum/navy atmospheric hero, uppercase kicker, oversized white heading, supporting copy, right-aligned CTA, separate rounded purple filter tray, and cards below it. The SPA shell around the implementation is intentional product context.
 
-The two intentional differences follow the user's latest directive:
+**Focused region comparison evidence**
 
-- `Church Profile` is removed from the persistent left navigation because profiles open from church cards.
-- `Livestream` is added to the persistent left navigation.
+Review covered hero hierarchy, raster background, CTA position, control sizing, tray radius, card-grid transition, and the equivalent Churches implementation. These are the reusable surfaces shared by all seven modules.
 
-## Functional browser evidence
+**Required fidelity surfaces**
 
-- Public church cards render before authentication.
-- Selecting a church card opens the shared sign-in prompt without navigating away from the visible directory.
-- Successful sign-in opens the selected church inside the member shell.
-- The same header DOM node remains connected while navigating from church profile to Events, event detail, Directory, and Livestream.
-- Church profile tabs appear only in the church profile view and are absent from event detail.
-- Livestream cards open the existing player inside the shell.
-- The mobile rail collapses at 390 px and opens from the persistent menu button.
-- No browser page errors or framework error overlays were detected.
-- The only console message is the existing Tailwind CDN production warning from the event detail page.
+- Fonts and typography: passed. Display scale, weight, tracking, line height, kicker and body hierarchy follow the reference.
+- Spacing and layout: passed. Search, dropdowns and tabs share a 56 px height and 14 px radius in one row. Search expands with available space but never shrinks below 360 px on desktop. Up to three filters remain visible; overflow appears only for additional filters or when the 360 px search floor would otherwise be violated.
+- Colors and tokens: passed. Plum hero, violet accent, white type, lavender copy, purple controls, borders and shadows match the target.
+- Image quality: passed. No new image was introduced; the implementation reuses the existing Channels hero’s theme-aware ambient blob treatment.
+- Copy and content: passed. Each module keeps its icon, title, description, CTA, filters and translations.
+- Icons: passed. Existing Lucide UI icons remain aligned and consistent.
+- Responsiveness and accessibility: passed. Desktop controls never wrap; excess controls move to an accessible overflow menu. At 700 px and below, only search and a labelled filter button remain, opening a scrollable custom popup while semantic controls remain intact.
 
-## Responsive evidence
+**Interactions tested**
 
-- Desktop church profile: `artifacts/member-shell-profile-reference-viewport.png`
-- Desktop events: `artifacts/member-shell-events.png`
-- Desktop event detail: `artifacts/member-shell-event-detail.png`
-- Desktop livestream player: `artifacts/member-shell-livestream-player.png`
-- Mobile menu closed: `artifacts/member-shell-mobile-closed.png`
-- Mobile menu open: `artifacts/member-shell-mobile-open.png`
+- Church search reduced four cards to the matching Toronto result.
+- City filter opened above the cards with Calgary, Edmonton and Toronto options; its trigger and reset action remained on the same row.
+- Channels native selects rendered as customized dropdowns in the standardized tray, and the open menu cleared the hero edge without clipping.
+- The dense Resources toolbar kept three filters visible in one row and exposed the remaining two through its trailing overflow button; nested custom dropdowns remained selectable.
+- At 390 CSS px, the search field and right-edge filter button were the only inline controls. The button opened a stable custom popup containing all five filters.
+- Changing the primary accent from Sapphire Blue to Royal Amethyst recolored both animated hero blobs and the surrounding module accents immediately.
+- Meditation and Livestream search/filter wiring passed automated coverage.
+- All seven routes returned HTTP 200; no blocking browser-rendered page error appeared.
 
-## Findings
+**Findings**
 
-- P0: none.
-- P1: none.
-- P2: none.
-- P3: the event detail page retains its existing Tailwind CDN warning; this does not affect the shell or navigation behavior.
+- No actionable P0, P1 or P2 differences remain for this request.
 
-final result: passed
+**Implementation Checklist**
 
-## Single-channel identity refinement — 2026-08-20
+- [x] Shared hero on Churches, Meditation, Events, Store, Livestream, Resources and Channels.
+- [x] Shared search/filter tray directly below every hero.
+- [x] Cards/results below the tray.
+- [x] Working Meditation and Livestream filters.
+- [x] Responsive, reduced-motion, route, syntax and automated checks.
 
-- The channel format and topic now sit in white over a strengthened dark cover gradient, preserving contrast against bright imagery.
-- The creator portrait is larger and the channel identity sits entirely below the cover boundary without overlapping the category label.
-- The description has a dedicated About the channel surface, while followers, episodes, and member rating use three balanced icon-led cards.
-- The Get in touch action remains prominent and the entire composition collapses cleanly for mobile.
-- Browser evidence: `artifacts/qa-channel-detail-modern.png` and `artifacts/qa-channel-detail-comparison.png`.
-- Automated tests, Cloudflare dry-run, whitespace validation, and browser inspection pass.
+**Comparison History**
 
-final result: passed
+- Initial P1: Churches, Events and Livestream used unrelated structures; Meditation lacked search; featured Events preceded filters.
+- Fix: reused the existing Channels hero/tray primitives, reordered results and added missing controls.
+- Initial P2: Churches displayed an inner rectangular search-input surface.
+- Fix: normalized the input inside its rounded field.
+- Refinement P2: legacy absolute search-icon positioning caused text overlap, and the Church reset action wrapped unnecessarily.
+- Fix: the shared module component now owns icon positioning and direct filter-action sizing; no page-specific layout override was introduced.
+- Post-fix: Channels and Churches captures show the same hero/tray/card hierarchy, 50/50 overlap, aligned controls and visible customized dropdown menus without remaining P0/P1/P2 mismatches.
+- Responsive P1: the first mobile filter-button placement inside a label caused a delayed second activation that closed the popup.
+- Fix: moved the button to the shared toolbar overlay layer, reserved its inline search space, and verified the expanded state remains stable after 500 ms.
+- Clarification P1: the first desktop capacity calculation reserved overflow space before checking whether filters fit and inherited a 99 px meditation pill radius.
+- Fix: the shared algorithm now tests visible-filter capacity against the 360 px search floor first, limits dense bars to three visible filters, and applies the same 56 px height and 14 px radius to search, selects, tabs and overflow controls.
+- Outer-height P1: meditation tab padding was added outside the declared 56 px height because the legacy tab used content-box sizing.
+- Fix: all shared search and filter controls now enforce border-box sizing, making their measured outer heights exactly equal in the final browser capture.
+- Focus-state P2: the admin search inherited the standalone-input focus ring, producing a second nested outline inside the shared search container.
+- Fix: module-search inputs are excluded from standalone dark-input styling; only the outer shared field renders the focus ring. Browser inspection confirmed the input has no shadow while the outer field owns the accent border and focus halo.
+- Overflow-icon P3: the compact responsive filter button duplicated disclosure affordances with both sliders and a down chevron.
+- Fix: removed the chevron from the shared overflow trigger. Browser inspection confirmed one SVG remains, and the filter popup still opens with `aria-expanded="true"`.
 
-## Cart, dedicated reader, and compact audio verification — 2026-08-20
+**Follow-up Polish**
 
-- Cart page rows and the product-detail cart drawer expose explicit trash controls that remove the selected cart line and recalculate totals.
-- Read Online now navigates to the dedicated `resource-reader.html` experience inside the persistent Resources shell rather than expanding beneath the resource detail.
-- The reader includes direct page selection, Previous/Next navigation, download access, and a Full screen control. Browser evidence: `artifacts/qa-dedicated-resource-reader.png`.
-- The channel audio player is shorter; Episode notes / About this episode is rendered as a separate surface below the player rather than inside the audio card. Browser evidence: `artifacts/qa-channel-audio-about-below.png`.
-- Dedicated reader and audio pages retain the enforced member-shell gutters.
-- Automated tests, syntax validation, Cloudflare dry-run, and browser-state inspection pass.
+- P3: modules without a creation action intentionally keep a wider text column.
 
-final result: passed
+---
 
-## SPA detail gutters, section context, and mobile drawer verification — 2026-08-20
+**Design QA — public search-bar unification**
 
-- Root cause fixed at the embedded-shell layer: every non-Messages `main.module-shell` now receives explicit 22px desktop iframe gutters, centered max-width behavior above 1080px, and 14px mobile gutters.
-- Verified Resource detail evidence: `artifacts/qa-shell-resource-padding-final.png`; the Back to Resources control and resource card no longer touch the iframe edge.
-- Channel detail and Channel Content inherit the same enforced shell rule; computed browser padding is 22px in the authenticated shell.
-- The fixed River City Church context has been replaced with a live icon and section title. Detail routes retain their parent title: Resources, Channels, Churches, Events, Live, or Store.
-- On mobile, Give and Profile are moved into the navigation drawer. The fixed header contains the My Way of Evangelism brand, language selector, and hamburger control.
-- Mobile drawer evidence: `artifacts/qa-mobile-drawer-actions.png`.
-- Messages remains the only edge-to-edge exception.
-- Automated tests, syntax checks, Cloudflare dry-run, and browser inspection pass.
+- Source visual truth: `C:\Users\ADMINI~1\AppData\Local\Temp\codex-clipboard-c79e01b8-62a7-424a-99d3-e3d7bb02e951.png`, `C:\Users\ADMINI~1\AppData\Local\Temp\codex-clipboard-d9b7558d-3e5d-464b-9006-7ae905afd552.png`, and `C:\Users\ADMINI~1\AppData\Local\Temp\codex-clipboard-20f342ca-b54d-4cae-be56-9534674187dc.png`.
+- Implementation evidence: browser-rendered public SPA captures for Channels, Events, and Meditation; latest focused captures were inspected in the in-app browser at 1280 × 720 CSS px.
+- State: dark theme, desktop public module directories, overflow visible only where the search-width floor requires it.
 
-final result: passed
+**Full-view comparison evidence**
 
-## August 2026 resource and member-module refinement
+The source captures showed three incompatible public filter trays: a pill/reset layout, a compact select layout, and a two-row meditation layout. The revised Channels, Events, and Meditation captures each render the same outer tray, 20 px tray radius, 56 px controls, 14 px inner-control radius, spacing, dark surface, icon alignment, and trailing overflow affordance. The product-specific labels and filters remain intentionally different.
 
-- Reference comparison: `artifacts/qa-resource-comparison.png` combines the supplied Ionic resource-center direction with the implemented Resource library state.
-- Shared spacing: Channels, Store, Resources, and their detail pages now use the same 1080px content width, 44px desktop gutter, and 72px outer vertical rhythm as Churches and Events. Messages remains edge-to-edge.
-- Resource cards: the grid uses large editorial covers, varied color treatments, explicit video/audio/file overlays, format badges, access state, and direct detail links. Grid and list controls remain functional.
-- Resource reading: free articles open an online paged reader; paid resources expose a sample page and continue into the Store cart. The publisher form supports article pages divided with `---page---` and optional attachments.
-- Channel content: each featured channel item links to a dedicated responsive content page with media treatment, creator identity, article body, and direct messaging.
-- Messages: compose and forwarding settings are now inline workspace states rather than dialogs. Selecting a recipient creates a draft conversation and focuses the message field.
-- Header: the language selector precedes Give and the account control is reduced to notification and profile imagery; the member name remains inside the dropdown.
-- Browser inspection found no clipped cards, malformed overlays, broken grid columns, or unintended dark-mode styling at the verified desktop viewport.
-- Automated tests, syntax checks, Cloudflare dry-run, and whitespace validation pass.
+**Focused region comparison evidence**
 
-final result: passed
+The search/filter region was checked at the same desktop state on all three routes. Channels and Meditation measured 56 px search/control heights and 14 px inner radii. Events rendered the same one-row layout with three visible filters and the trailing overflow button. Focus, custom dropdown, and overflow behavior retain the shared implementation.
 
-## Channel creator-card and messaging verification — 2026-08-20
+**Required fidelity surfaces**
 
-- Source visual truth: `C:\Users\Christo\AppData\Local\Temp\codex-clipboard-55f34e1c-81f0-49b0-a78f-b4a55000fe61.png`
-- Supporting source: `C:\Users\Christo\AppData\Local\Temp\codex-clipboard-c935fb24-2014-415b-bf62-43cc13935a36.png`
-- Implementation screenshot: `artifacts/channels-white-cards-focused.png`
-- Combined comparison: `artifacts/channels-card-qa-comparison.png`
-- Browser viewport: 1258 × 622 CSS px, device scale factor 1
-- Source pixels: 736 × 552; implementation pixels: 1258 × 622
-- Normalization: the source was proportionally scaled to 622 px high and placed beside the unscaled implementation for the combined comparison.
-- State: light theme, populated Channels directory, first three cards visible.
+- Fonts and typography: passed. Shared control type scale, truncation, icon alignment, and active-tab emphasis are consistent.
+- Spacing and layout rhythm: passed. One `.site-search-bar` owns 12 px gaps, 12 px tray padding, 20 px tray radius, 56 px control height, 14 px control radius, and the 360 px desktop search floor.
+- Colors and visual tokens: passed. The component uses the theme tokens for surface, border, primary selection, focus ring, and dark elevation.
+- Image quality and asset fidelity: passed. No image or decorative asset changed.
+- Copy and content: passed. Search placeholders and filter labels remain module-specific and translatable.
 
-### Full-view and focused comparison evidence
+**Findings**
 
-The reference and implementation were opened and then combined into one comparison artifact. The implementation preserves the source's white rounded frame, inset cover image, overlapping circular avatar, identity/status row, three equal stat cells, and high-contrast full-width contact action. The application intentionally uses a wider three-column desktop grid so the cards remain legible inside the My Way of Evangelism content shell. A separate focused region was not required because the combined comparison renders the card typography, imagery, statistics, borders, radii, and action treatment clearly at readable size.
+- Earlier P1: the initial public pass layered `.site-search` on top of legacy toolbar/pill classes, so page-specific CSS still changed the visible tray.
+  Fix: every public module now uses only `.site-search-bar` as its outer visual component; the previous public outer toolbar/pill classes were removed. Existing nested classes remain semantic/behavior hooks only.
+- No actionable P0, P1, or P2 differences remain for the requested public search-bar uniformity.
 
-### Required fidelity surfaces
+**Implementation Checklist**
 
-- Fonts and typography: existing My Way of Evangelism sans-serif typography matches the reference's compact geometric hierarchy; card titles, metadata, statistics, and CTA weights remain distinct and readable.
-- Spacing and layout rhythm: cover inset, avatar overlap, content padding, three-cell stat row, and CTA spacing follow the reference. The wider desktop cards are an intentional responsive adaptation.
-- Colors and visual tokens: cards remain white with soft neutral borders, pale gray stat panels, dark CTA buttons, blue verified state, and green activity status. No dark-mode styling was introduced.
-- Image quality and asset fidelity: existing high-resolution channel cover and avatar assets are used with source-like crops; no placeholder or code-drawn imagery replaces visible assets.
-- Copy and content: generic freelancer metrics were replaced by platform-specific Followers, Episodes/Posts, and Rating. CTA copy remains `Get in touch`.
-
-### Functional browser evidence
-
-- Six channel cards render with clickable cover thumbnails and titles.
-- Each card exposes a `Get in touch` link that routes to the Messages composer with the channel identifier.
-- The channel-detail and Messages routes are registered in the authenticated SPA shell.
-- The Messages screen renders inbox threads, unread/sent filters, replies, compose, and email-forwarding controls.
-- Automated tests and the Cloudflare production dry-run pass.
-- No browser page errors were reported during the Channels capture.
-
-### Comparison history
-
-- Initial implementation comparison: no P0/P1/P2 mismatch was found. The primary proportional difference—wider cards in a three-column application grid—is intentional and preserves the source hierarchy at the desktop shell viewport.
-
-### Follow-up polish
-
-- P3: connect email forwarding to a verified production email provider before launch; the current setting is persisted locally.
+- [x] Applied `.site-search-bar` to Churches, Meditation, Events, Store, Livestream, Resources, and Channels.
+- [x] Centralized desktop, dark mode, focus, custom-dropdown, overflow, and mobile rules in that component.
+- [x] Preserved existing filter interactions and responsive overflow.
+- [x] Verified browser-rendered Channels, Events, and Meditation states.
+- [x] Passed 52 automated tests.
 
 final result: passed
 
-## Module expansion verification
+---
 
-- The persistent rail is exactly Home, Churches, Channels, Events, Live, Store, and Resources.
-- Give appears in the persistent header beside the member profile and is absent from the rail.
-- Channels is independent from Churches and supports channel creation plus topic, format, and status filtering.
-- Store has its own product catalog, filters, cart, checkout state, and authenticated seller-management view.
-- Resources has its own free/paid library and filters for PDF, DOC, EPUB, TXT, MP4, FLV, MP3, and AAC.
-- Churches, Events, and Live continue to load their existing page-specific interfaces inside the changing shell region.
-- Module screenshots: `artifacts/modules-channels.png` and `artifacts/modules-resources.png`.
+**Design QA — public tray geometry and overlay correction**
+
+- Source visual truth: `C:\Users\ADMINI~1\AppData\Local\Temp\codex-clipboard-1e3070a9-917a-4dfa-98ba-68f76a8d7ca7.png` and `C:\Users\ADMINI~1\AppData\Local\Temp\codex-clipboard-26fabd0e-ce87-4784-b01f-dc9cffd369cc.png`.
+- Implementation evidence: browser-rendered `churches.html?embed=1` and SPA directory captures at 1280 × 720 CSS px.
+- State: dark theme, desktop filter row; compact overflow menu open over cards.
+
+**Comparison history**
+
+- Earlier P1: Church inherited the legacy inner search-input surface, fixed narrow controls truncated “Denomination,” Reset remained in the visible row, and dropdowns could visually fall below page content.
+- Fix: the shared tray now owns the Church icon/input geometry, uses 178 px full-label filter controls, moves Reset into the sliders menu, fixes the overflow button to a 56 px square, and creates an isolated stacking layer for all popups.
+- Post-fix evidence: the full-width Church capture measured a 56 px search field, two 178 px full-label controls, and a 56 px sliders-only button in one row. The open overflow panel had `z-index: 1000`, rendered over the cards, and retained Reset and the concealed filter.
+
+**Required fidelity surfaces**
+
+- Fonts and typography: passed; labels no longer truncate at desktop widths.
+- Spacing and layout rhythm: passed; all visible controls use the same 56 px height, 14 px radius, and shared tray gap/padding.
+- Colors and visual tokens: passed; dynamic theme tokens continue to control dark surfaces and accents.
+- Image quality: passed; no imagery changed.
+- Copy and content: passed; labels and filters remain specific to each module and translatable.
+
+**Findings**
+
+- No actionable P0, P1, or P2 differences remain.
+
+**Implementation Checklist**
+
+- [x] Removed the Church inner search border.
+- [x] Prevented desktop filter-label truncation.
+- [x] Moved Reset from the visible row into the compact overflow menu.
+- [x] Raised custom dropdown and overflow popup layers above cards.
+- [x] Passed 52 automated tests.
 
 final result: passed
-
-## Single-page spacing and media-specific content verification — 2026-08-20
-
-- Single Channel, Channel Content, Product, Resource, and Church pages use the shared `--max` 1080px content width with 44px desktop gutters and 72px outer vertical spacing.
-- The Church profile main region and Other Nearby Fellowships section share the same container width and horizontal gutters.
-- Audio resources and podcast posts render artwork, working playback controls, a seek bar, timestamps, and an animated waveform. Browser evidence: `artifacts/qa-resource-audio.png` and `artifacts/qa-channel-audio-content.png`.
-- Video resources and channel videos render a native 16:9 playable frame with title, author context, and a written description below.
-- Articles render as typography-led reading pages without video framing.
-- PDF, DOC, EPUB, and TXT resources render a file-specific detail surface with separate Read Online and Download actions.
-- The document reader provides page count, previous/next navigation, chapter navigation, a close control, and download access. Browser evidence: `artifacts/qa-resource-file.png` and `artifacts/qa-resource-reader.png`.
-- Church padding was inspected inside the persistent member shell. Browser evidence: `artifacts/qa-church-padding.png`.
-- Responsive behavior preserves 28px mobile gutters and collapses split media/file layouts to one column.
-- Syntax checks, Cloudflare dry-run, automated tests, whitespace validation, and browser inspection pass.
-
-final result: passed
-
-## Homepage card contrast and platform theme system — 2026-08-20
-
-- Source issue: the animated church cards retained white text and reduced opacity after the homepage moved to a light surface, making church names and locations unreadable.
-- Light mode now uses fully opaque white cards, navy titles, slate metadata, blue location labels, defined borders, and a restrained elevation shadow.
-- Dark mode uses deep navy surfaces with high-contrast white and blue typography across the homepage and persistent member shell.
-- The theme control is available in both public and member headers, persists in local storage, respects the system preference on first visit, and propagates into shell content.
-- Responsive controls collapse to icon-only presentation on narrower screens.
-- Browser evidence: `artifacts/qa-home-light-theme.png`, `artifacts/qa-home-dark-theme.png`, `artifacts/qa-app-dark-theme.png`, and `artifacts/qa-home-theme-comparison.png`.
-- Visual inspection found no P0, P1, or P2 contrast, hierarchy, spacing, or interaction defects in the tested views.
-- Automated tests, Cloudflare dry-run, whitespace validation, and browser inspection pass.
 
 final result: passed

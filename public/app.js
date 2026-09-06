@@ -455,6 +455,9 @@ const MWE = (() => {
     const email = church.email || "";
 
     return {
+      createdBy: church.createdBy || "",
+      ownerName: church.ownerName || "",
+      updatedAt: church.updatedAt || "",
       id: church.id || slugify(church.name),
       name: church.name || "Unnamed Church",
       city: titleCase(church.city || ""),
@@ -1251,7 +1254,7 @@ MWE.ensureMemberLoginModal = function() {
     const email = form.get("email")?.toString().trim() || "Member";
     localStorage.setItem("mwe.userLoggedIn", "true");
     localStorage.setItem("mwe.username", email.split("@")[0] || "Member");
-
+    localStorage.setItem("mwe.userEmail", email.toLowerCase());
     let destination = modal.dataset.destination || "app.html?view=directory";
     try {
       const safeDestination = new URL(destination, window.location.href);
@@ -1472,7 +1475,17 @@ function initPrivateAppAuth() {
   if (!app) return;
 
   const key = `mwe.session.${app}.v1`;
-  if (localStorage.getItem(key) === "authenticated") {
+  let creatorIdentityMatches = true;
+  if (app === "church") {
+    creatorIdentityMatches = false;
+    const publicEmail = (localStorage.getItem("mwe.userEmail") || "").trim().toLowerCase();
+    try {
+      const creator = JSON.parse(localStorage.getItem("mwe.creator.account.v1") || "null");
+      creatorIdentityMatches = localStorage.getItem("mwe.userLoggedIn") === "true" && !!publicEmail && (creator?.email || "").trim().toLowerCase() === publicEmail;
+    } catch {}
+    if (!creatorIdentityMatches) localStorage.removeItem(key);
+  }
+  if (localStorage.getItem(key) === "authenticated" && creatorIdentityMatches) {
     document.body.classList.add("is-authenticated");
   }
 
@@ -1488,12 +1501,27 @@ function initPrivateAppAuth() {
   }
   updateUserDisplay();
 
-  function signIn() {
+  function openCreatorWorkspace(target = "overview", account = {}) {
+    const moduleMap = { channel: "channels", event: "events", resource: "resources", all: "overview" };
+    const module = moduleMap[target] || target || "overview";
+    const loginEmail = document.querySelector("[data-login-form] input[type='text']")?.value.trim().toLowerCase() || "";
+    const email = (account.email || loginEmail).trim().toLowerCase();
+    const name = account.name || localStorage.getItem("mwe.username") || (email ? email.split("@")[0] : "Creator");
+    if (email) {
+      localStorage.setItem("mwe.userEmail", email);
+      localStorage.setItem("mwe.creator.account.v1", JSON.stringify({ id: `local:${email}`, email, name }));
+    }
+    const workspace = window.open(`creator-workspace.html#${module}`, "_blank", "noopener");
+    if (!workspace) window.location.href = `creator-workspace.html#${module}`;
+  }
+
+  function signIn(target = "overview", account = {}) {
     localStorage.setItem(key, "authenticated");
     localStorage.setItem("mwe.userLoggedIn", "true");
     document.body.classList.add("is-authenticated");
     updateUserDisplay();
-    showToast("Welcome to Creator Hub");
+    showToast(app === "owner" ? "Welcome to your admin workspace" : "Welcome to Creator Hub");
+    if (app === "church") openCreatorWorkspace(target, account);
   }
 
   // Toggle Tabs between Sign In and Registration panels
@@ -1522,7 +1550,7 @@ function initPrivateAppAuth() {
   document.querySelector("[data-login-form]")?.addEventListener("keydown", event => {
     if (event.key !== "Enter") return;
     event.preventDefault();
-    signIn();
+    if (event.currentTarget.reportValidity()) signIn();
   });
 
   // Launch Goal selection cards
@@ -1708,7 +1736,11 @@ function initPrivateAppAuth() {
     }
     
     showToast("Creator account created successfully!");
-    signIn();
+    const launchGoal = event.target.querySelector("input[name='launchGoal']:checked")?.value || "overview";
+    signIn(launchGoal, {
+      name: registrantNameInput?.value || nameInput?.value || "Creator",
+      email: emailInput?.value || ""
+    });
   });
 
   // Setup Launchpad Quick Actions and Tabs
@@ -3195,6 +3227,7 @@ function initChurchPortal() {
 }
 
 function initAdminPage() {
+  if (document.body.hasAttribute("data-admin-workspace")) return;
   const table = document.querySelector("[data-admin-table]");
   const form = document.querySelector("[data-admin-form]");
   const search = document.querySelector("[data-admin-search]");
@@ -3461,7 +3494,7 @@ async function initHeroPage() {
 }
 
 function initCustomDropdowns() {
-  const selectElements = document.querySelectorAll("select.field, select.custom-select-target");
+  const selectElements = document.querySelectorAll("select.field, select.custom-select-target, .site-search-bar select.module-select, .module-directory-toolbar select.module-select");
   
   selectElements.forEach(select => {
     if (select.dataset.customInitialized) {
@@ -3475,15 +3508,15 @@ function initCustomDropdowns() {
     
     // Create wrapper
     const wrapper = document.createElement("div");
-    wrapper.className = "custom-select-container";
+    wrapper.className = "custom-select-container module-filter-control";
     select.classList.forEach(cls => {
-      if (cls !== "field") wrapper.classList.add(cls);
+      if (cls !== "field" && cls !== "module-select") wrapper.classList.add(cls);
     });
     
     // Create trigger button
     const trigger = document.createElement("button");
     trigger.type = "button";
-    trigger.className = "custom-select-trigger field";
+    trigger.className = "custom-select-trigger module-filter-trigger field";
     if (select.id === "hero-country-select") {
       trigger.classList.add("country-dropdown");
     }
@@ -3607,6 +3640,7 @@ function initCustomDropdowns() {
     select.addEventListener("change", () => {
       updateOptions();
     });
+    new MutationObserver(updateOptions).observe(select, { childList: true, subtree: true });
   });
 
   document.addEventListener("click", () => {
@@ -3624,6 +3658,10 @@ MWE.initCustomDropdowns = initCustomDropdowns;
 
 // Lightweight Dynamic Translation System (EN, FR, ES)
 function initTranslations() {
+  const translatedTitles = {
+    fr: { home: "Accueil", public: "Annuaire des églises", profile: "Profil de l’église", events: "Événements", "event-profile": "Détails de l’événement", livestream: "Diffusions en direct", donate: "Faire un don", foundation: "Fondation", channels: "Chaînes chrétiennes", "channel-detail": "Chaîne", "channel-content": "Contenu de la chaîne", store: "Boutique My Way", product: "Détails du produit", "product-detail": "Détails du produit", cart: "Votre panier", checkout: "Paiement", resources: "Ressources chrétiennes", "resource-detail": "Détails de la ressource", "resource-reader": "Lecteur", messages: "Messages", meditation: "Sanctuaire de méditation", portal: "Espace créateur", creator: "Espace créateur", owner: "Administration de la plateforme", "store-manager": "Gestion de la boutique", storefront: "Profil de la boutique", broadcast: "Diffusion en direct", privacy: "Confidentialité et conditions", "member-home": "Accueil membre" },
+    es: { home: "Inicio", public: "Directorio de iglesias", profile: "Perfil de la iglesia", events: "Eventos", "event-profile": "Detalles del evento", livestream: "Transmisiones en vivo", donate: "Donar", foundation: "Fundación", channels: "Canales cristianos", "channel-detail": "Canal", "channel-content": "Contenido del canal", store: "Tienda My Way", product: "Detalles del producto", "product-detail": "Detalles del producto", cart: "Tu carrito", checkout: "Pago", resources: "Recursos cristianos", "resource-detail": "Detalles del recurso", "resource-reader": "Lector", messages: "Mensajes", meditation: "Santuario de meditación", portal: "Centro de creadores", creator: "Espacio del creador", owner: "Administración de la plataforma", "store-manager": "Gestión de la tienda", storefront: "Perfil de la tienda", broadcast: "Transmisión en vivo", privacy: "Privacidad y condiciones", "member-home": "Inicio del miembro" }
+  };
   const translations = {
     en: {
       find_churches: "Churches",
@@ -3648,7 +3686,8 @@ function initTranslations() {
       youth: "Youth & Youth Ministry",
       prayer: "Prayer Groups",
       worship: "Worship Team",
-      missions: "Missions & Outreach"
+      missions: "Missions & Outreach",
+      explore_events: "Explore Events", verified_near: "Verified churches near you", search_title: "Search Fellowships & Streams", search_desc: "Find trusted local churches by city, worship style, or ministry focus.", platform_doorways: "Platform Doorways", serve_title: "How Can We Serve You Today?", serve_desc: "Choose an action below to find a fellowship, explore upcoming events, watch live streams, or support outreach.", transportation: "Free Sunday Transportation", donation: "Donation"
     },
     fr: {
       find_churches: "Églises",
@@ -3673,7 +3712,8 @@ function initTranslations() {
       youth: "Ministère des Jeunes",
       prayer: "Groupes de Prière",
       worship: "Groupe de Louange",
-      missions: "Missions & Évangélisation"
+      missions: "Missions et évangélisation",
+      explore_events: "Découvrir les événements", verified_near: "Églises vérifiées près de chez vous", search_title: "Rechercher des communautés et des directs", search_desc: "Trouvez des églises locales fiables par ville, style de culte ou domaine de ministère.", platform_doorways: "Accès à la plateforme", serve_title: "Comment pouvons-nous vous servir aujourd’hui ?", serve_desc: "Choisissez une action pour trouver une communauté, découvrir des événements, regarder des directs ou soutenir une mission.", transportation: "Transport gratuit le dimanche", donation: "Faire un don"
     },
     es: {
       find_churches: "Iglesias",
@@ -3698,9 +3738,72 @@ function initTranslations() {
       youth: "Ministerio de Jóvenes",
       prayer: "Grupos de Oración",
       worship: "Equipo de Alabanza",
-      missions: "Misiones y Evangélice"
+      missions: "Misiones y evangelización",
+      explore_events: "Explorar eventos", verified_near: "Iglesias verificadas cerca de ti", search_title: "Buscar comunidades y transmisiones", search_desc: "Encuentra iglesias locales de confianza por ciudad, estilo de adoración o enfoque ministerial.", platform_doorways: "Accesos de la plataforma", serve_title: "¿Cómo podemos ayudarte hoy?", serve_desc: "Elige una acción para encontrar una comunidad, explorar eventos, ver transmisiones en vivo o apoyar una misión.", transportation: "Transporte dominical gratuito", donation: "Donación"
     }
   };
+
+  // Exact UI-copy translations used by every embedded SPA module. Published
+  // names and user-authored descriptions are deliberately left untouched.
+  const uiPhrases = {
+    fr: {
+      "Home": "Accueil", "Churches": "Églises", "Channels": "Chaînes", "Events": "Événements", "Livestreams": "Diffusions en direct", "Store": "Boutique", "Resources": "Ressources", "Messages": "Messages", "Donation": "Faire un don",
+      "Search": "Rechercher", "Filter": "Filtrer", "All": "Tous", "Featured": "En vedette", "Newest": "Plus récents", "Popular": "Populaires", "Free": "Gratuit", "Paid": "Payant", "Live": "En direct", "Upcoming": "À venir", "Past": "Passés", "Open": "Ouvrir", "View": "Voir", "Close": "Fermer", "Cancel": "Annuler", "Save": "Enregistrer", "Apply": "Appliquer", "Continue": "Continuer", "Back": "Retour", "Next": "Suivant", "Previous": "Précédent", "Share": "Partager", "Download": "Télécharger", "Read": "Lire", "Watch": "Regarder", "Listen": "Écouter", "Register": "S’inscrire", "Sign In": "Se connecter", "Create Account": "Créer un compte",
+      "Find a Church": "Trouver une église", "Find Churches": "Trouver des églises", "Church Directory": "Annuaire des églises", "Churches near you": "Églises près de chez vous", "Verified churches": "Églises vérifiées", "View Church": "Voir l’église", "View Profile": "Voir le profil", "Get Directions": "Obtenir l’itinéraire", "Contact Church": "Contacter l’église", "Request a Ride": "Demander un transport", "Join Livestream": "Rejoindre le direct",
+      "Share the Gospel with the world.": "Partagez l’Évangile avec le monde.", "Create a Channel": "Créer une chaîne", "Create Channel": "Créer la chaîne", "Channels to explore": "Chaînes à découvrir", "Christian Channels": "Chaînes chrétiennes", "Create your Christian channel": "Créez votre chaîne chrétienne", "Channel name": "Nom de la chaîne", "Channel handle": "Identifiant de la chaîne", "Your name": "Votre nom", "Primary format": "Format principal", "Topic": "Thème", "Description": "Description", "Subscribe": "S’abonner", "Subscribed": "Abonné",
+      "Discover Christian podcasts, livestreams, video teaching, worship, testimony, and creator-led communities—or start a channel of your own.": "Découvrez des podcasts chrétiens, des directs, des enseignements vidéo, de la louange, des témoignages et des communautés de créateurs — ou lancez votre propre chaîne.", "Search channels, creators, or topics...": "Rechercher des chaînes, créateurs ou thèmes…", "Filter by topic": "Filtrer par thème", "Filter by format": "Filtrer par format", "Filter by status": "Filtrer par statut", "All topics": "Tous les thèmes", "All formats": "Tous les formats", "Any status": "Tous les statuts", "Bible Teaching": "Enseignement biblique", "Bible Study": "Étude biblique", "Worship": "Louange", "Family": "Famille", "Leadership": "Leadership", "Youth": "Jeunesse", "Livestream": "Direct", "Video": "Vidéo", "Live now": "En direct", "Verified": "Vérifié", "Active": "Actif", "Followers": "Abonnés", "Episodes": "Épisodes", "Posts": "Publications", "Rating": "Note", "Get in touch": "Contacter",
+      "Explore Events": "Découvrir les événements", "Upcoming Events": "Événements à venir", "Event Details": "Détails de l’événement", "About": "À propos", "Host & Speakers": "Hôte et intervenants", "Agenda": "Programme", "Frequently Asked Questions": "Questions fréquentes", "Book Your Pass": "Réserver votre pass", "First Name": "Prénom", "Last Name": "Nom", "Email Address": "Adresse e-mail", "Quantity": "Quantité", "Your Message": "Votre message", "Send Message": "Envoyer le message",
+      "Live Now": "En direct maintenant", "Watch Live": "Regarder en direct", "Start watching": "Commencer à regarder", "Meditation Sanctuary": "Sanctuaire de méditation", "Create a Meditation Room": "Créer une salle de méditation", "Join Room": "Rejoindre la salle", "Start Session": "Commencer la séance", "End Session": "Terminer la séance",
+      "Shop with churches and Christian creators.": "Achetez auprès d’églises et de créateurs chrétiens.", "Marketplace products": "Produits de la marketplace", "Cart": "Panier", "Your Cart": "Votre panier", "Your cart": "Votre panier", "Shopping cart": "Panier", "Continue shopping": "Continuer vos achats", "Order summary": "Récapitulatif de la commande", "Subtotal": "Sous-total", "Shipping": "Livraison", "Discount": "Réduction", "Total": "Total", "Checkout": "Paiement", "Contact": "Coordonnées", "Delivery": "Livraison", "Ship": "Expédier", "Pick up": "Retirer", "Country/Region": "Pays/région", "First name": "Prénom", "Last name": "Nom", "Address": "Adresse", "City": "Ville", "Postal code": "Code postal", "Shipping method": "Mode de livraison", "Payment": "Paiement", "Credit card": "Carte de crédit", "Card number": "Numéro de carte", "Security code": "Code de sécurité", "Name on card": "Nom sur la carte", "Pay now": "Payer maintenant", "Continue shopping": "Continuer vos achats",
+      "Study, grow, teach, and share.": "Étudiez, grandissez, enseignez et partagez.", "Publish resource": "Publier une ressource", "Purchased": "Achats", "Resource library": "Bibliothèque de ressources", "Publish a Christian resource": "Publier une ressource chrétienne", "Title": "Titre", "Content type": "Type de contenu", "Format": "Format", "Access": "Accès", "Price": "Prix", "Summary": "Résumé", "Optional attachment": "Pièce jointe facultative",
+      "Communication": "Communication", "Unread": "Non lus", "Sent": "Envoyés", "New message": "Nouveau message", "Email forwarding": "Transfert d’e-mails", "Not connected": "Non connecté", "Your My Way inbox": "Votre messagerie My Way", "Start a conversation": "Démarrer une conversation",
+      "Create Creator Account": "Créer un compte créateur", "What would you like to launch first?": "Que souhaitez-vous lancer en premier ?", "Church Profile": "Profil d’église", "Channel / Media": "Chaîne / Média", "Events & Tickets": "Événements et billets", "Store & Merch": "Boutique et produits", "Study Resources": "Ressources d’étude", "All-in-One": "Tout-en-un", "Next: Organization Info": "Suivant : informations sur l’organisation"
+    },
+    es: {
+      "Home": "Inicio", "Churches": "Iglesias", "Channels": "Canales", "Events": "Eventos", "Livestreams": "Transmisiones en vivo", "Store": "Tienda", "Resources": "Recursos", "Messages": "Mensajes", "Donation": "Donar",
+      "Search": "Buscar", "Filter": "Filtrar", "All": "Todos", "Featured": "Destacados", "Newest": "Más recientes", "Popular": "Populares", "Free": "Gratis", "Paid": "De pago", "Live": "En vivo", "Upcoming": "Próximos", "Past": "Pasados", "Open": "Abrir", "View": "Ver", "Close": "Cerrar", "Cancel": "Cancelar", "Save": "Guardar", "Apply": "Aplicar", "Continue": "Continuar", "Back": "Atrás", "Next": "Siguiente", "Previous": "Anterior", "Share": "Compartir", "Download": "Descargar", "Read": "Leer", "Watch": "Ver", "Listen": "Escuchar", "Register": "Registrarse", "Sign In": "Iniciar sesión", "Create Account": "Crear cuenta",
+      "Find a Church": "Encontrar una iglesia", "Find Churches": "Encontrar iglesias", "Church Directory": "Directorio de iglesias", "Churches near you": "Iglesias cerca de ti", "Verified churches": "Iglesias verificadas", "View Church": "Ver iglesia", "View Profile": "Ver perfil", "Get Directions": "Cómo llegar", "Contact Church": "Contactar con la iglesia", "Request a Ride": "Solicitar transporte", "Join Livestream": "Unirse a la transmisión",
+      "Share the Gospel with the world.": "Comparte el Evangelio con el mundo.", "Create a Channel": "Crear un canal", "Create Channel": "Crear canal", "Channels to explore": "Canales para explorar", "Christian Channels": "Canales cristianos", "Create your Christian channel": "Crea tu canal cristiano", "Channel name": "Nombre del canal", "Channel handle": "Identificador del canal", "Your name": "Tu nombre", "Primary format": "Formato principal", "Topic": "Tema", "Description": "Descripción", "Subscribe": "Suscribirse", "Subscribed": "Suscrito",
+      "Discover Christian podcasts, livestreams, video teaching, worship, testimony, and creator-led communities—or start a channel of your own.": "Descubre podcasts cristianos, transmisiones en vivo, enseñanzas en vídeo, adoración, testimonios y comunidades de creadores, o inicia tu propio canal.", "Search channels, creators, or topics...": "Buscar canales, creadores o temas…", "Filter by topic": "Filtrar por tema", "Filter by format": "Filtrar por formato", "Filter by status": "Filtrar por estado", "All topics": "Todos los temas", "All formats": "Todos los formatos", "Any status": "Cualquier estado", "Bible Teaching": "Enseñanza bíblica", "Bible Study": "Estudio bíblico", "Worship": "Adoración", "Family": "Familia", "Leadership": "Liderazgo", "Youth": "Jóvenes", "Livestream": "Transmisión en vivo", "Video": "Vídeo", "Live now": "En vivo ahora", "Verified": "Verificado", "Active": "Activo", "Followers": "Seguidores", "Episodes": "Episodios", "Posts": "Publicaciones", "Rating": "Valoración", "Get in touch": "Contactar",
+      "Explore Events": "Explorar eventos", "Upcoming Events": "Próximos eventos", "Event Details": "Detalles del evento", "About": "Acerca de", "Host & Speakers": "Anfitrión y ponentes", "Agenda": "Programa", "Frequently Asked Questions": "Preguntas frecuentes", "Book Your Pass": "Reserva tu entrada", "First Name": "Nombre", "Last Name": "Apellido", "Email Address": "Correo electrónico", "Quantity": "Cantidad", "Your Message": "Tu mensaje", "Send Message": "Enviar mensaje",
+      "Live Now": "En vivo ahora", "Watch Live": "Ver en vivo", "Start watching": "Empezar a ver", "Meditation Sanctuary": "Santuario de meditación", "Create a Meditation Room": "Crear una sala de meditación", "Join Room": "Unirse a la sala", "Start Session": "Iniciar sesión", "End Session": "Finalizar sesión",
+      "Shop with churches and Christian creators.": "Compra a iglesias y creadores cristianos.", "Marketplace products": "Productos del mercado", "Cart": "Carrito", "Your Cart": "Tu carrito", "Your cart": "Tu carrito", "Shopping cart": "Carrito", "Continue shopping": "Seguir comprando", "Order summary": "Resumen del pedido", "Subtotal": "Subtotal", "Shipping": "Envío", "Discount": "Descuento", "Total": "Total", "Checkout": "Pago", "Contact": "Contacto", "Delivery": "Entrega", "Ship": "Enviar", "Pick up": "Recoger", "Country/Region": "País/región", "First name": "Nombre", "Last name": "Apellido", "Address": "Dirección", "City": "Ciudad", "Postal code": "Código postal", "Shipping method": "Método de envío", "Payment": "Pago", "Credit card": "Tarjeta de crédito", "Card number": "Número de tarjeta", "Security code": "Código de seguridad", "Name on card": "Nombre en la tarjeta", "Pay now": "Pagar ahora",
+      "Study, grow, teach, and share.": "Estudia, crece, enseña y comparte.", "Publish resource": "Publicar recurso", "Purchased": "Comprados", "Resource library": "Biblioteca de recursos", "Publish a Christian resource": "Publicar un recurso cristiano", "Title": "Título", "Content type": "Tipo de contenido", "Format": "Formato", "Access": "Acceso", "Price": "Precio", "Summary": "Resumen", "Optional attachment": "Archivo adjunto opcional",
+      "Communication": "Comunicación", "Unread": "No leídos", "Sent": "Enviados", "New message": "Nuevo mensaje", "Email forwarding": "Reenvío de correo", "Not connected": "No conectado", "Your My Way inbox": "Tu bandeja de entrada de My Way", "Start a conversation": "Iniciar una conversación",
+      "Create Creator Account": "Crear cuenta de creador", "What would you like to launch first?": "¿Qué te gustaría lanzar primero?", "Church Profile": "Perfil de iglesia", "Channel / Media": "Canal / Medios", "Events & Tickets": "Eventos y entradas", "Store & Merch": "Tienda y productos", "Study Resources": "Recursos de estudio", "All-in-One": "Todo en uno", "Next: Organization Info": "Siguiente: información de la organización"
+    }
+  };
+  const originalText = new WeakMap();
+  const originalAttributes = new WeakMap();
+
+  function translateModuleCopy(root, lang) {
+    const phraseMap = { ...(window.MWE_TRANSLATIONS?.[lang] || {}), ...(uiPhrases[lang] || {}) };
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        return node.parentElement?.closest("script, style, textarea, [data-no-translate]") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => {
+      if (!originalText.has(node)) originalText.set(node, node.nodeValue);
+      const source = originalText.get(node);
+      const clean = source.trim();
+      const translated = lang === "en" ? clean : phraseMap[clean];
+      if (translated) node.nodeValue = source.replace(clean, translated);
+      else if (lang === "en") node.nodeValue = source;
+    });
+    root.querySelectorAll?.("[placeholder], [aria-label], [title]").forEach(el => {
+      if (!originalAttributes.has(el)) originalAttributes.set(el, {});
+      const originals = originalAttributes.get(el);
+      ["placeholder", "aria-label", "title"].forEach(attribute => {
+        if (!el.hasAttribute(attribute)) return;
+        if (!(attribute in originals)) originals[attribute] = el.getAttribute(attribute);
+        const source = originals[attribute];
+        el.setAttribute(attribute, lang === "en" ? source : (phraseMap[source] || source));
+      });
+    });
+  }
 
   const flags = {
     en: '<svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg>',
@@ -3715,6 +3818,9 @@ function initTranslations() {
   const applyLanguage = (lang) => {
     localStorage.setItem("mwe.lang", lang);
     currentLang = lang;
+    document.documentElement.lang = lang;
+    const page = document.body?.dataset.page;
+    if (lang !== "en" && translatedTitles[lang]?.[page]) document.title = `${translatedTitles[lang][page]} | My Way`;
 
     document.querySelectorAll(".lang-selector-btn .lang-flag").forEach(el => {
       el.innerHTML = flags[lang] || flags.en;
@@ -3750,7 +3856,18 @@ function initTranslations() {
         select.dispatchEvent(new Event("change", { bubbles: true }));
       }
     });
+    translateModuleCopy(document, lang);
+    window.dispatchEvent(new CustomEvent("mwe:languagechange", { detail: { lang } }));
   };
+
+  MWE.setLanguage = applyLanguage;
+  if (!window.__mweLanguageMessageBound) {
+    window.__mweLanguageMessageBound = true;
+    window.addEventListener("message", event => {
+      if (event.origin !== window.location.origin || event.data?.type !== "mwe-language") return;
+      if (translations[event.data.lang]) applyLanguage(event.data.lang);
+    });
+  }
 
   const topbars = document.querySelectorAll(".topbar-inner .nav-actions");
   topbars.forEach(navActions => {
@@ -3822,7 +3939,157 @@ function initTranslations() {
   });
 
   applyLanguage(currentLang);
+
+  // Cards and results are rendered after page load. Re-run the exact-copy
+  // translator for newly inserted UI without translating published content.
+  if (!window.__mweTranslationObserver) {
+    let translationQueued = false;
+    const observer = new MutationObserver(() => {
+      if (translationQueued) return;
+      translationQueued = true;
+      queueMicrotask(() => {
+        observer.disconnect();
+        translateModuleCopy(document, currentLang);
+        observer.observe(document.body, { childList: true, subtree: true });
+        translationQueued = false;
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    window.__mweTranslationObserver = observer;
+  }
 }
+
+function initModuleDirectoryToolbars() {
+  document.querySelectorAll(".site-search-bar, .module-directory-toolbar").forEach(toolbar => {
+    if (toolbar.dataset.responsiveFiltersInitialized) return;
+    toolbar.dataset.responsiveFiltersInitialized = "true";
+
+    const search = toolbar.querySelector(":scope > .module-search");
+    if (!search) return;
+
+    let group = toolbar.querySelector(":scope > .module-filter-group");
+    if (!group) {
+      group = document.createElement("div");
+      group.className = "module-filter-group";
+      [...toolbar.children].filter(child => child !== search).forEach(child => group.appendChild(child));
+      toolbar.appendChild(group);
+    }
+
+    const filterItems = [...group.children].filter(child =>
+      !child.matches(".module-filter-overflow-only") && child.matches(".module-filter-control, .module-filter-trigger, .lobby-tab-btn")
+    );
+    const overflowOnlyItems = [...group.children].filter(child => child.matches(".module-filter-overflow-only"));
+    if (!filterItems.length && !overflowOnlyItems.length) return;
+
+    const overflow = document.createElement("div");
+    overflow.className = "module-filter-overflow module-filter-control";
+    overflow.innerHTML = `
+      <button class="module-filter-trigger module-overflow-trigger" type="button" aria-expanded="false">
+        <i data-lucide="sliders-horizontal"></i>
+        <span class="module-overflow-label">More filters</span>
+      </button>
+      <div class="module-filter-popup" aria-hidden="true"></div>`;
+    toolbar.appendChild(overflow);
+
+    const mobileButton = document.createElement("button");
+    mobileButton.type = "button";
+    mobileButton.className = "module-mobile-filter-button";
+    mobileButton.setAttribute("aria-label", "Open filters");
+    mobileButton.setAttribute("aria-expanded", "false");
+    mobileButton.innerHTML = '<i data-lucide="sliders-horizontal"></i><span class="module-filter-count" hidden></span>';
+    toolbar.appendChild(mobileButton);
+
+    const popup = overflow.querySelector(".module-filter-popup");
+    const desktopTrigger = overflow.querySelector(".module-overflow-trigger");
+
+    const closePopup = () => {
+      overflow.classList.remove("open");
+      desktopTrigger.setAttribute("aria-expanded", "false");
+      mobileButton.setAttribute("aria-expanded", "false");
+      popup.setAttribute("aria-hidden", "true");
+    };
+    const togglePopup = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const opening = !overflow.classList.contains("open");
+      closePopup();
+      overflow.classList.toggle("open", opening);
+      desktopTrigger.setAttribute("aria-expanded", String(opening));
+      mobileButton.setAttribute("aria-expanded", String(opening));
+      popup.setAttribute("aria-hidden", String(!opening));
+    };
+
+    desktopTrigger.addEventListener("click", togglePopup);
+    mobileButton.addEventListener("click", togglePopup);
+    popup.addEventListener("click", event => event.stopPropagation());
+    document.addEventListener("click", event => {
+      if (!overflow.contains(event.target) && !mobileButton.contains(event.target)) closePopup();
+    });
+    document.addEventListener("keydown", event => { if (event.key === "Escape") closePopup(); });
+
+    const layout = () => {
+      filterItems.forEach(item => group.appendChild(item));
+      const mobile = window.matchMedia("(max-width: 700px)").matches;
+
+      if (mobile) {
+        filterItems.forEach(item => popup.appendChild(item));
+        overflowOnlyItems.forEach(item => popup.appendChild(item));
+        overflow.classList.add("mobile-filter-mode");
+        overflow.hidden = false;
+        mobileButton.hidden = false;
+        return;
+      }
+
+      overflow.classList.remove("mobile-filter-mode");
+      mobileButton.hidden = true;
+      const available = toolbar.clientWidth - 24;
+      const searchMinWidth = 360;
+      const itemWidth = 178;
+      const gap = 12;
+      const overflowWidth = 56;
+      const visibleLimit = Math.min(3, filterItems.length);
+      const visibleFiltersWidth = (visibleLimit * itemWidth) + (Math.max(0, visibleLimit - 1) * gap);
+      const allFiltersFit = filterItems.length <= 3 && available >= searchMinWidth + gap + visibleFiltersWidth;
+      let capacity = visibleLimit;
+
+      if (!allFiltersFit) {
+        const filterSpace = available - searchMinWidth - gap - overflowWidth - gap;
+        capacity = Math.max(1, Math.min(filterItems.length, Math.floor((filterSpace + gap) / (itemWidth + gap))));
+      }
+
+      if (capacity < filterItems.length) {
+        filterItems.slice(capacity).forEach(item => popup.appendChild(item));
+        overflow.hidden = false;
+      } else {
+        overflow.hidden = !overflowOnlyItems.length;
+      }
+      overflowOnlyItems.forEach(item => popup.appendChild(item));
+    };
+
+    let resizeFrame = 0;
+    let lastToolbarWidth = toolbar.clientWidth;
+    const scheduleLayout = () => {
+      if (Math.abs(toolbar.clientWidth - lastToolbarWidth) < 1) return;
+      lastToolbarWidth = toolbar.clientWidth;
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(layout);
+    };
+    new ResizeObserver(scheduleLayout).observe(toolbar);
+    layout();
+    createIcons();
+  });
+}
+
+function initStandardPublicSearchBars(root = document) {
+  root.querySelectorAll(".module-search, .profile-app-search, .messages-search").forEach(search => {
+    search.classList.add("site-search");
+  });
+}
+
+// Shared by the public directories and the dynamically rendered admin workspaces.
+MWE.initCustomDropdowns = initCustomDropdowns;
+MWE.initModuleDirectoryToolbars = initModuleDirectoryToolbars;
+MWE.initStandardPublicSearchBars = initStandardPublicSearchBars;
 
 // Initialize mobile menu toggle logic
 const initMobileMenu = () => {
@@ -5516,7 +5783,9 @@ function initEventsPage() {
   if (priceSelect) priceSelect.addEventListener("change", MWE.renderEventsList);
   if (timeSelect) timeSelect.addEventListener("change", MWE.renderEventsList);
 
+  initStandardPublicSearchBars();
   initCustomDropdowns();
+  initModuleDirectoryToolbars();
 
   // Initial render
   MWE.renderEventsList();
@@ -6151,6 +6420,30 @@ function renderFoundationPage() {
   createIcons();
 }
 
+function initLivestreamDirectoryFilters() {
+  const search = document.getElementById("livestream-search");
+  const status = document.getElementById("livestream-status");
+  const type = document.getElementById("livestream-type");
+  const list = document.getElementById("active-streams-list");
+  if (!search || !status || !type || !list) return;
+  const apply = () => {
+    const query = search.value.trim().toLowerCase();
+    const statusValue = status.value;
+    const typeValue = type.value;
+    [...list.children].forEach(card => {
+      const text = card.textContent.toLowerCase();
+      const matchesQuery = !query || text.includes(query);
+      const matchesStatus = statusValue === "all" || text.includes(statusValue === "live" ? "live" : "scheduled");
+      const matchesType = typeValue === "all" || text.includes(typeValue);
+      card.hidden = !(matchesQuery && matchesStatus && matchesType);
+    });
+  };
+  search.addEventListener("input", apply);
+  status.addEventListener("change", apply);
+  type.addEventListener("change", apply);
+  new MutationObserver(apply).observe(list, { childList: true });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const memberExperienceState = MWE.initMemberExperience();
   if (memberExperienceState === "redirecting" || memberExperienceState === "locked") return;
@@ -6161,6 +6454,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "public") initPublicSite();
   if (page === "profile") initProfilePage();
   if (page === "livestream") initLivestreamPage();
+  if (page === "livestream") initLivestreamDirectoryFilters();
   if (page === "portal") initChurchPortal();
   if (page === "admin" || page === "owner") initAdminPage();
   if (page === "events") initEventsPage();
@@ -6169,6 +6463,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "portal") setupPortalEventsTab();
   
   initCustomDropdowns();
+  initModuleDirectoryToolbars();
   initTranslations();
   initGlobalHeaderAndFooter();
   initThemeControl();
@@ -6204,10 +6499,10 @@ function initGlobalHeaderAndFooter() {
   </button>
   <div class="topbar-menu-group">
     <nav class="nav-links">
-      <a href="churches.html" data-nav="churches">Churches</a>
-      <a href="events.html" data-nav="events">Events</a>
-      <a href="livestream.html" data-nav="livestream">Livestreams</a>
-      <a href="donate.html" data-nav="donate" class="highlight-link">Donation</a>
+      <a href="churches.html" data-nav="churches" data-t="find_churches">Churches</a>
+      <a href="events.html" data-nav="events" data-t="events">Events</a>
+      <a href="livestream.html" data-nav="livestream" data-t="streams">Livestreams</a>
+      <a href="donate.html" data-nav="donate" data-t="donation" class="highlight-link">Donation</a>
     </nav>
     <div class="nav-actions">
     </div>

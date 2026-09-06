@@ -12,6 +12,11 @@
     const library = JSON.parse(localStorage.getItem(libraryKey) || "[]"); if (!library.includes(resource.id)) library.push(resource.id); localStorage.setItem(libraryKey, JSON.stringify(library));
   }
   function downloadResource(resource) {
+    if (resource.sourceUrl) {
+      const url = new URL(resource.sourceUrl, location.href);
+      if (["https:", "http:"].includes(url.protocol)) window.open(url.href, "_blank", "noopener,noreferrer");
+      return;
+    }
     if (resource.attachmentData) { const exactFile = document.createElement("a"); exactFile.href = resource.attachmentData; exactFile.download = resource.attachment || resource.title; exactFile.click(); return; }
     const extension = "txt";
     const content = pagesFor(resource).map((page, index) => `${resource.title}\nPage ${index + 1}\n\n${page}`).join("\n\n---\n\n");
