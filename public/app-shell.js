@@ -16,6 +16,34 @@
 
   if (!frame) return;
 
+  const navBackdrop = document.createElement("button");
+  navBackdrop.type = "button";
+  navBackdrop.className = "member-nav-backdrop";
+  navBackdrop.setAttribute("aria-label", "Close navigation");
+  document.body.append(navBackdrop);
+
+  function setMemberNav(open) {
+    document.body.classList.toggle("member-nav-open", open);
+    mobileMenu?.setAttribute("aria-expanded", String(open));
+    mobileMenu?.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+    mobileMenu?.classList.toggle("is-open", open);
+  }
+
+  if (mobileMenu) mobileMenu.dataset.drawerReady = "true";
+  mobileMenu?.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+    setMemberNav(!document.body.classList.contains("member-nav-open"));
+  }, { capture: true });
+  navBackdrop.addEventListener("click", () => setMemberNav(false));
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && document.body.classList.contains("member-nav-open")) {
+      setMemberNav(false);
+      mobileMenu?.focus();
+    }
+  });
+
   const views = {
     home: { source: "member-home.html", title: "Member Home" },
     meditation: { source: "meditation.html", title: "Meditation Sanctuary" },
@@ -189,11 +217,6 @@
     });
   });
 
-  mobileMenu?.addEventListener("click", () => {
-    const isOpen = document.body.classList.toggle("member-nav-open");
-    mobileMenu.setAttribute("aria-expanded", String(isOpen));
-  });
-
   document.addEventListener("click", event => {
     if (document.body.classList.contains("member-nav-open") && rail && !rail.contains(event.target) && !mobileMenu?.contains(event.target)) {
       document.body.classList.remove("member-nav-open");
@@ -311,7 +334,6 @@
     frame.contentWindow?.MWE?.setLanguage?.(currentMemberLanguage);
     frame.contentWindow?.postMessage({ type: "mwe-language", lang: currentMemberLanguage }, window.location.origin);
   });
-
   window.addEventListener("message", event => {
     if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
     const message = event.data || {};

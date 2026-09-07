@@ -254,14 +254,21 @@
       if (action === "clear") { Object.assign(state, { query: "", status: "", category: "", page: 1 }); list(); }
       if (action === "retry") render();
     });
-    $("aw-menu").addEventListener("click", () => {
-      const open = document.body.classList.toggle("aw-nav-open");
+    const navBackdrop = document.createElement("button");
+    navBackdrop.type = "button";
+    navBackdrop.className = "aw-nav-backdrop";
+    navBackdrop.setAttribute("aria-label", "Close navigation");
+    document.body.append(navBackdrop);
+    const setAdminNav = open => {
+      document.body.classList.toggle("aw-nav-open", open);
       $("aw-menu").setAttribute("aria-expanded", String(open));
-    });
+      $("aw-menu").setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+    };
+    $("aw-menu").addEventListener("click", () => setAdminNav(!document.body.classList.contains("aw-nav-open")));
+    navBackdrop.addEventListener("click", () => setAdminNav(false));
     document.addEventListener("keydown", e => {
       if (e.key === "Escape" && !$("aw-editor").open) {
-        document.body.classList.remove("aw-nav-open");
-        $("aw-menu").setAttribute("aria-expanded", "false");
+        setAdminNav(false);
       }
     });
     window.addEventListener("hashchange", navigate);

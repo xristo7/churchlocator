@@ -4101,6 +4101,8 @@ const initMobileMenu = () => {
   const toggleBtn = document.querySelector(".mobile-menu-toggle");
   const menuGroup = document.querySelector(".topbar-menu-group");
   if (!toggleBtn || !menuGroup) return;
+  if (toggleBtn.dataset.mobileMenuReady === "true") return;
+  toggleBtn.dataset.mobileMenuReady = "true";
 
   // Create backdrop element if it doesn't exist
   let backdrop = document.querySelector(".mobile-menu-backdrop");
@@ -4115,9 +4117,11 @@ const initMobileMenu = () => {
     menuGroup.classList.toggle("open", isOpen);
     backdrop.classList.toggle("open", isOpen);
     document.body.classList.toggle("mobile-menu-active", isOpen);
+    toggleBtn.setAttribute("aria-expanded", String(isOpen));
+    toggleBtn.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
     
     // Toggle toggle button icon between menu and x
-    const icon = toggleBtn.querySelector("i");
+    const icon = toggleBtn.querySelector("i, svg");
     if (icon) {
       icon.setAttribute("data-lucide", isOpen ? "x" : "menu");
       if (window.lucide) window.lucide.createIcons();
@@ -4145,6 +4149,12 @@ const initMobileMenu = () => {
   window.addEventListener("resize", () => {
     if (window.innerWidth > 768 && menuGroup.classList.contains("open")) {
       toggleMenu(false);
+    }
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && menuGroup.classList.contains("open")) {
+      toggleMenu(false);
+      toggleBtn.focus();
     }
   });
 };

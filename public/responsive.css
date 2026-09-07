@@ -11,11 +11,29 @@
   .member-meditation-showcase { grid-template-columns: minmax(0, 1fr); }
   .master-giving-grid { grid-template-columns: minmax(0, 1fr); }
   .admin-workspace .aw-sidebar { height: 100dvh; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+  .admin-workspace .aw-sidebar { width: min(86vw, 320px); transition: transform .24s ease; }
+  .admin-workspace.aw-nav-open { overflow: hidden; }
+  .aw-nav-backdrop { position: fixed; inset: 0; z-index: 29; border: 0; padding: 0; background: rgba(3, 7, 18, .58); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s ease, visibility .2s ease; }
+  .admin-workspace.aw-nav-open .aw-nav-backdrop { opacity: 1; visibility: visible; pointer-events: auto; }
+  .member-app-shell .member-shell-rail { top: 0; bottom: 0; z-index: 1200; width: min(86vw, 320px); padding-top: max(78px, calc(env(safe-area-inset-top) + 64px)); padding-bottom: max(20px, env(safe-area-inset-bottom)); transition: transform .24s ease; }
+  .member-app-shell.member-nav-open { overflow: hidden; }
+  .member-nav-backdrop { position: fixed; inset: 0; z-index: 1190; border: 0; padding: 0; background: rgba(3, 7, 18, .58); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s ease, visibility .2s ease; }
+  .member-app-shell.member-nav-open .member-nav-backdrop { opacity: 1; visibility: visible; pointer-events: auto; }
+  .member-app-shell.member-nav-open #member-mobile-menu { position: fixed; top: max(13px, env(safe-area-inset-top)); left: min(calc(86vw - 58px), 262px); z-index: 1210; color: var(--text-primary); background: var(--surface) !important; border: 1px solid var(--border) !important; }
+  #member-mobile-menu.is-open svg { display: none; }
+  #member-mobile-menu.is-open::before { content: "\00d7"; font-size: 28px; line-height: 1; font-weight: 400; }
   .admin-workspace .aw-topbar { gap: 8px; }
   .admin-workspace .aw-breadcrumb { min-width: 0; flex-wrap: wrap; }
 }
 
 @media (max-width: 700px) {
+  body.mobile-menu-active { position: static !important; width: auto !important; overflow: hidden !important; }
+  .topbar-menu-group { right: 0 !important; width: min(86vw, 320px) !important; height: 100dvh !important; padding: max(76px, calc(env(safe-area-inset-top) + 64px)) 20px max(24px, env(safe-area-inset-bottom)) !important; transform: translateX(105%) !important; }
+  body.mobile-menu-active .topbar-menu-group { transform: translateX(0) !important; }
+  body.mobile-menu-active .brand, body.mobile-menu-active main,
+  body.mobile-menu-active .topbar-inner .lang-selector-container { transform: none !important; }
+  body.mobile-menu-active .mobile-menu-toggle { position: fixed; top: max(14px, env(safe-area-inset-top)); right: 16px; z-index: 1001; transform: none !important; color: var(--text-primary) !important; background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: 12px; }
+  .mobile-menu-backdrop { z-index: 999; background: rgba(3, 7, 18, .58); }
   body.in-meditation-room .meditation-room-view:not([hidden]) { flex-direction: column !important; height: 100dvh !important; max-height: 100dvh !important; }
   .meditation-room-view .meditation-room-sidebar { width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; max-height: 45dvh !important; flex: 0 0 auto; padding: 10px 14px !important; }
   .meditation-room-sidebar .sidebar-top-section { flex-direction: row !important; align-items: center; gap: 10px !important; padding-bottom: 8px !important; }
