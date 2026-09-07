@@ -1,4 +1,6 @@
 /* Shared responsive contract, loaded after each page's component styles. */
+.member-app-shell .profile-app-brand strong,
+.member-app-shell .member-section-context { display: none !important; }
 .room-mobile-controls { display: none; }
 @media (max-width: 900px) {
   body[data-page="profile"] .church-profile-tabs-wrapper::before { left: 0; right: 0; }
