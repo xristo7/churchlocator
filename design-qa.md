@@ -164,3 +164,13 @@ final result: passed
 - Remaining P3: thumbnail focal composition varies naturally by broadcaster.
 
 final result: passed
+
+### Dedicated livestream player restoration
+
+- Desktop verification: passed at 1280 × 800. The content area resolves to a measured 645px player column and 323px chat column, preserving the requested 2:1 ratio.
+- Player hierarchy: passed. Video/poster appears first, followed by live status, title, description, and provider action.
+- Chat: passed. The right column includes a header, scrollable messages, composer, keyboard submission, and visible appended messages.
+- Mobile verification: passed at 390 × 844. Player, details, and chat stack into one 347px content column without horizontal overflow.
+- Theme compatibility: passed through existing surface, text, border, primary, and soft-background tokens.
+
+final result: passed

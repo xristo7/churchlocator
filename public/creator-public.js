@@ -71,9 +71,34 @@
       const vimeoId = url.pathname.match(/(?:\/video)?\/(\d+)$/)?.[1];
       if (vimeoId) embed = "https://player.vimeo.com/video/" + vimeoId;
     }
-    target.innerHTML = '<a href="livestream.html">← All live broadcasts</a><h1>' + esc(stream.name) + '</h1><p>Live ' + esc(stream.type) + ' broadcast · Hosted by an external provider</p>' +
-      (embed ? '<iframe class="creator-live-player" title="' + esc(stream.name) + ' broadcast" src="' + esc(embed) + '" allow="encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>' : '<p>This provider opens in a separate tab.</p>') +
-      '<div class="creator-store-actions"><a class="button primary" target="_blank" rel="noopener noreferrer" href="' + esc(url.href) + '">Open broadcast provider</a>' + (stream.type === "store" ? '<a class="button ghost" href="storefront.html?id=' + encodeURIComponent(stream.id) + '">Shop this store</a>' : "") + '</div>';
+    const description = stream.description || ("Live " + stream.type + " broadcast");
+    const player = embed
+      ? '<iframe class="creator-live-player" title="' + esc(stream.name) + ' broadcast" src="' + esc(embed) + '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>'
+      : '<div class="broadcast-player-fallback" style="background-image:url(&quot;' + esc(thumbnail(stream)) + '&quot;)"><span aria-hidden="true"></span><a target="_blank" rel="noopener noreferrer" href="' + esc(url.href) + '"><i data-lucide="play"></i><b>Play livestream</b></a></div>';
+    target.innerHTML = '<a class="broadcast-back-link" href="livestream.html"><i data-lucide="arrow-left"></i> All live broadcasts</a>' +
+      '<div class="broadcast-watch-layout"><section class="broadcast-main-column">' + player +
+      '<div class="broadcast-details"><div><span class="broadcast-live-label"><i data-lucide="radio"></i> Live now</span><h1>' + esc(stream.name) + '</h1><p>' + esc(description) + '</p></div>' +
+      '<div class="creator-store-actions"><a class="button primary" target="_blank" rel="noopener noreferrer" href="' + esc(url.href) + '"><i data-lucide="external-link"></i> Open provider</a>' + (stream.type === "store" ? '<a class="button ghost" href="storefront.html?id=' + encodeURIComponent(stream.id) + '">Shop this store</a>' : "") + '</div></div></section>' +
+      '<aside class="broadcast-chat" aria-label="Livestream chat"><header><div><span class="broadcast-live-dot"></span><strong>Live chat</strong></div><small>Community conversation</small></header>' +
+      '<div class="broadcast-chat-messages" id="broadcast-chat-messages" aria-live="polite"><article><b>Host</b><p>Welcome to the livestream. Tell us where you are joining from.</p></article><article><b>Sarah</b><p>Glad to worship with everyone today!</p></article><article><b>Daniel</b><p>Watching with my family. Blessings to all.</p></article></div>' +
+      '<form class="broadcast-chat-form" id="broadcast-chat-form"><label class="sr-only" for="broadcast-chat-input">Chat message</label><input id="broadcast-chat-input" maxlength="300" required placeholder="Write a message…"><button type="submit" aria-label="Send message"><i data-lucide="send"></i></button></form></aside></div>';
+    const chatForm = target.querySelector("#broadcast-chat-form");
+    chatForm?.addEventListener("submit", event => {
+      event.preventDefault();
+      const input = chatForm.querySelector("input");
+      const message = input.value.trim();
+      if (!message) return;
+      const article = document.createElement("article");
+      const sender = document.createElement("b");
+      const copy = document.createElement("p");
+      sender.textContent = "You";
+      copy.textContent = message;
+      article.append(sender, copy);
+      target.querySelector("#broadcast-chat-messages")?.append(article);
+      input.value = "";
+      article.scrollIntoView({ block: "nearest" });
+    });
+    window.lucide?.createIcons();
   }
   document.addEventListener("DOMContentLoaded", () => {
     liveDirectory();

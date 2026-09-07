@@ -47,3 +47,47 @@
   .livestream-showcase-card { min-height: 220px; aspect-ratio: auto; padding: 20px; border-radius: 22px; }
   .livestream-showcase-copy { max-width: 88%; }
 }
+
+.broadcast-back-link { display:inline-flex; align-items:center; gap:8px; margin-bottom:20px; color:var(--text-secondary); font-size:.86rem; font-weight:750; text-decoration:none; }
+.broadcast-back-link svg { width:17px; height:17px; }
+.broadcast-watch-layout { display:grid; grid-template-columns:minmax(0,2fr) minmax(300px,1fr); gap:24px; align-items:start; }
+.broadcast-main-column { min-width:0; }
+.broadcast-main-column .creator-live-player,
+.broadcast-player-fallback { display:block; width:100%; aspect-ratio:16/9; margin:0; border:0; border-radius:22px; overflow:hidden; background:#07152d center/cover no-repeat; box-shadow:0 18px 48px rgba(4,18,52,.2); }
+.broadcast-player-fallback { position:relative; display:grid; place-items:center; }
+.broadcast-player-fallback > span { position:absolute; inset:0; background:rgba(4,18,45,.48); }
+.broadcast-player-fallback > a { position:relative; display:inline-flex; align-items:center; gap:10px; min-height:52px; padding:0 24px; border-radius:999px; background:#fff; color:#10233f; font-weight:850; text-decoration:none; box-shadow:0 12px 34px rgba(0,0,0,.25); }
+.broadcast-player-fallback svg { width:20px; height:20px; fill:currentColor; }
+.broadcast-details { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; padding:24px 4px 0; }
+.creator-public .broadcast-details h1 { margin:8px 0 8px; color:var(--text-primary); font-size:clamp(1.65rem,3vw,2.35rem); line-height:1.12; }
+.broadcast-details p { max-width:760px; margin:0; color:var(--text-secondary); line-height:1.65; }
+.broadcast-live-label { display:inline-flex; align-items:center; gap:7px; color:#ef4444; font-size:.72rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+.broadcast-live-label svg { width:15px; height:15px; }
+.broadcast-details .creator-store-actions { flex:0 0 auto; margin:0; }
+.broadcast-chat { display:flex; flex-direction:column; height:min(620px,calc(100dvh - 170px)); min-height:460px; overflow:hidden; border:1px solid var(--border); border-radius:22px; background:var(--surface); box-shadow:0 18px 48px rgba(4,18,52,.1); }
+.broadcast-chat > header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:18px 20px; border-bottom:1px solid var(--border); background:var(--surface-soft); }
+.broadcast-chat > header div { display:flex; align-items:center; gap:9px; }
+.broadcast-chat > header strong { color:var(--text-primary); }
+.broadcast-chat > header small { color:var(--text-muted); font-size:.7rem; }
+.broadcast-live-dot { width:9px; height:9px; border-radius:50%; background:#ef4444; box-shadow:0 0 0 5px rgba(239,68,68,.12); }
+.broadcast-chat-messages { flex:1; display:flex; flex-direction:column; gap:14px; min-height:0; padding:18px; overflow-y:auto; }
+.broadcast-chat-messages article { align-self:flex-start; max-width:88%; }
+.broadcast-chat-messages article b { display:block; margin:0 0 5px 4px; color:var(--text-secondary); font-size:.72rem; }
+.broadcast-chat-messages article p { margin:0; padding:11px 13px; border-radius:5px 15px 15px 15px; background:var(--surface-soft); color:var(--text-primary); font-size:.82rem; line-height:1.45; }
+.broadcast-chat-form { display:grid; grid-template-columns:minmax(0,1fr) 44px; gap:9px; padding:14px; border-top:1px solid var(--border); }
+.broadcast-chat-form input { width:100%; min-width:0; height:44px; padding:0 13px; border:1px solid var(--border); border-radius:12px; outline:0; background:var(--surface-soft); color:var(--text-primary); font:inherit; font-size:.84rem; }
+.broadcast-chat-form input:focus { border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-soft); }
+.broadcast-chat-form button { display:grid; width:44px; height:44px; place-items:center; border:0; border-radius:12px; background:var(--primary); color:#fff; cursor:pointer; }
+.broadcast-chat-form button svg { width:18px; height:18px; }
+@media (max-width: 900px) {
+  .broadcast-watch-layout { grid-template-columns:minmax(0,1fr); }
+  .broadcast-details { flex-direction:column; }
+  .broadcast-chat { height:520px; min-height:420px; }
+}
+@media (max-width: 520px) {
+  .creator-public:has(.broadcast-watch-layout) { padding-inline:14px; }
+  .broadcast-main-column .creator-live-player, .broadcast-player-fallback { border-radius:16px; }
+  .broadcast-details { padding-top:18px; }
+  .broadcast-chat { height:460px; border-radius:16px; }
+  .broadcast-chat > header { align-items:flex-start; }
+}

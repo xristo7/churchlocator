@@ -119,6 +119,21 @@ test("active livestreams retain thumbnail cards and open dedicated broadcast pag
   assert.match(styles, /\.livestream-showcase-play/);
 });
 
+test("dedicated livestream pages use a two-to-one player and chat layout", async () => {
+  const broadcast = await readProjectFile("public/broadcast.html");
+  const renderer = await readProjectFile("public/creator-public.js");
+  const styles = await readProjectFile("public/creator-public.css");
+
+  assert.match(broadcast, /data-page="broadcast"/);
+  assert.match(renderer, /broadcast-watch-layout/);
+  assert.match(renderer, /broadcast-main-column/);
+  assert.match(renderer, /broadcast-chat/);
+  assert.match(renderer, /id="broadcast-chat-form"/);
+  assert.match(styles, /grid-template-columns:minmax\(0,2fr\) minmax\(300px,1fr\)/);
+  assert.match(styles, /\.broadcast-main-column \.creator-live-player/);
+  assert.match(styles, /@media \(max-width: 900px\)[\s\S]*\.broadcast-watch-layout \{ grid-template-columns:minmax\(0,1fr\)/);
+});
+
 test("checkout login and express payment controls have working destinations", async () => {
   const checkout = await readProjectFile("public/checkout.html");
   const checkoutJs = await readProjectFile("public/checkout.js");
