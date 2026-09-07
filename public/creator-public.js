@@ -3,6 +3,20 @@
   const safe = value => window.MWECreator.safeLiveUrl(value);
   const broadcastLink = (type, id) => "broadcast.html?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id);
   function image(url, alt) { return safe(url) ? '<img src="' + esc(url) + '" alt="' + esc(alt) + '" loading="lazy">' : ""; }
+  function thumbnail(stream) {
+    const liveUrl = safe(stream.url);
+    if (liveUrl) {
+      const url = new URL(liveUrl);
+      const host = url.hostname.replace(/^www\./, "");
+      const youtubeId = host === "youtu.be"
+        ? url.pathname.slice(1)
+        : ["youtube.com", "youtube-nocookie.com"].includes(host)
+          ? (url.searchParams.get("v") || url.pathname.match(/^\/(?:embed|live)\/([^/]+)/)?.[1])
+          : "";
+      if (/^[\w-]{11}$/.test(youtubeId || "")) return "https://i.ytimg.com/vi/" + youtubeId + "/hqdefault.jpg";
+    }
+    return safe(stream.image) || window.MWE.defaultImage;
+  }
   function liveDirectory() {
     const target = document.getElementById("active-streams-list");
     if (!target || new URLSearchParams(location.search).has("id")) return;
@@ -11,9 +25,13 @@
     target.style.display = streams.length ? "grid" : "none";
     streams.forEach(stream => {
       const card = document.createElement("a");
-      card.className = "creator-store-card";
+      card.className = "livestream-showcase-card";
       card.href = broadcastLink(stream.type, stream.id);
-      card.innerHTML = image(stream.image, stream.name) + '<div><span class="badge live">LIVE · ' + esc(stream.type) + '</span><h3>' + esc(stream.name) + '</h3><p>' + esc(stream.description || "") + '</p><small>Watch broadcast →</small></div>';
+      card.style.backgroundImage = 'url("' + esc(thumbnail(stream)) + '")';
+      card.setAttribute("aria-label", "Play " + stream.name);
+      card.innerHTML = '<span class="livestream-showcase-shade" aria-hidden="true"></span>' +
+        '<div class="livestream-showcase-copy"><h3>' + esc(stream.name) + '</h3><p>' + esc(stream.description || "Live broadcast") + '</p></div>' +
+        '<span class="livestream-showcase-play"><i data-lucide="play"></i><b>Play</b></span>';
       target.append(card);
     });
     const empty = document.getElementById("streams-empty-state");
@@ -21,6 +39,7 @@
       empty.style.display = streams.length ? "none" : "block";
       empty.querySelector("p").textContent = "No churches, channels or stores have an active broadcast link right now.";
     }
+    window.lucide?.createIcons();
   }
   function renderStores() {
     const stores = window.MWECreator.getStores();

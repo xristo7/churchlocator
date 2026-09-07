@@ -105,6 +105,20 @@ test("Store has dedicated cart and Shopify-style checkout routes", async () => {
   assert.match(checkoutScript, /faithlink\.store\.orders\.v1/);
 });
 
+test("active livestreams retain thumbnail cards and open dedicated broadcast pages", async () => {
+  const directory = await readProjectFile("public/creator-public.js");
+  const styles = await readProjectFile("public/creator-public.css");
+
+  assert.match(directory, /className = "livestream-showcase-card"/);
+  assert.match(directory, /broadcastLink\(stream\.type, stream\.id\)/);
+  assert.match(directory, /i\.ytimg\.com\/vi/);
+  assert.match(directory, /data-lucide="play"/);
+  assert.doesNotMatch(directory, /Check Availability/);
+  assert.match(styles, /\.livestream-showcase-card\s*\{[\s\S]*border:\s*3px solid/);
+  assert.match(styles, /\.livestream-showcase-card\s*\{[\s\S]*background-size:\s*cover/);
+  assert.match(styles, /\.livestream-showcase-play/);
+});
+
 test("checkout login and express payment controls have working destinations", async () => {
   const checkout = await readProjectFile("public/checkout.html");
   const checkoutJs = await readProjectFile("public/checkout.js");
