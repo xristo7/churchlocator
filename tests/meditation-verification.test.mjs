@@ -65,27 +65,23 @@ test('4. Platform Theme UI Compliance (Light & Dark Mode rules & Visible Backdro
   assert.match(css, /html\[data-theme="dark"\] \.room-scripture-display blockquote[\s\S]*?color:\s*#ffffff/i, 'Dark mode scripture text is bright #ffffff');
 });
 
-test('5. 2-Column Layout with Left-Side Navigation & Collapsible Accordion Subitems', () => {
-  assert.match(css, /\.meditation-room-view:not\(\[hidden\]\)[\s\S]*?display:\s*flex !important;\s*flex-direction:\s*row !important;/, 'Room view is flex row 2-column');
-  
-  assert.match(html, /<aside class="meditation-room-sidebar" id="meditation-room-sidebar">/, 'Sidebar is an aside tag');
-  assert.match(html, /id="room-exit-btn"/, 'Sidebar exit button exists');
-  assert.match(html, /id="room-badge-title"/, 'Sidebar room badge title exists');
-  
-  assert.match(html, /id="audio-select-trigger"/, 'Audio accordion trigger exists');
-  assert.match(html, /id="room-switch-trigger"/, 'Room switch accordion trigger exists');
-  assert.match(html, /id="theme-select-trigger"/, 'Atmosphere accordion trigger exists');
-  assert.match(html, /id="ambient-trigger"/, 'Ambient mixer accordion trigger exists');
-  assert.match(html, /id="timer-trigger"/, 'Timer accordion trigger exists');
+test('5. Distraction-Free Sidebar-Free Sanctuary with Creator Settings, Invite Links & Live Chat', () => {
+  assert.ok(!html.includes('<aside class="meditation-room-sidebar"'), 'Sanctuary room view has no sidebar');
+  assert.match(html, /class="sanctuary-top-bar"/, 'Sanctuary top bar exists');
+  assert.match(html, /id="room-exit-btn"/, 'Room exit button exists');
+  assert.match(html, /id="room-badge-title"/, 'Room badge title exists');
+  assert.match(html, /id="room-invite-btn"/, 'Invite friend button exists');
+  assert.match(html, /id="modal-invite-friend"/, 'Invite modal dialog exists');
+  assert.match(html, /id="modal-create-room"/, 'Create virtual room modal dialog exists');
 
-  assert.match(html, /id="audio-select-menu"/, 'Audio menu panel exists');
-  assert.match(html, /id="room-switch-menu"/, 'Room switch menu panel exists');
-  assert.match(html, /id="theme-select-menu"/, 'Theme menu panel exists');
-  assert.match(html, /id="ambient-menu"/, 'Ambient menu panel exists');
-  assert.match(html, /id="timer-menu"/, 'Timer menu panel exists');
+  assert.match(html, /id="chat-toggle-btn"/, 'Minimized live chat toggle pill exists');
+  assert.match(html, /id="meditation-chat-drawer"/, 'Chat drawer panel exists');
+  assert.match(html, /id="chat-enable-toggle"/, 'Host comment moderation toggle exists');
+  assert.match(html, /id="chat-messages-feed"/, 'Live messages feed exists');
 
-  assert.match(js, /aria-expanded/, 'Manages aria-expanded attribute on triggers');
-  assert.match(js, /function closeAllDropdowns\(/, 'Closes open accordions for mutual exclusivity');
+  assert.match(js, /function openInviteFriendModal\(/, 'Invite friend modal opener exists');
+  assert.match(js, /function toggleLiveComments\(/, 'Host comment toggle function exists');
+  assert.match(js, /function sendComment\(/, 'Send comment function exists');
 });
 
 test('6. Single-Viewport Responsive Fit (100vh No Overflow & Docked Audio Player without Overlap)', () => {

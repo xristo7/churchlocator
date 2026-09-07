@@ -98,8 +98,10 @@
 .admin-workspace tr:last-child td { border-bottom:0; }
 .admin-workspace tbody tr:hover { background:var(--surface-soft); }
 .admin-workspace table { background:var(--surface); }
-.admin-workspace .aw-top-actions>.theme-palette-container { display:block; }
-.admin-workspace .theme-palette-popover { max-width:calc(100vw - 32px); }
+.admin-workspace .aw-top-actions>.theme-palette-container { display:block; position:relative; z-index:100000; }
+.admin-workspace .theme-palette-popover { max-width:calc(100vw - 32px); z-index:100000!important; }
+.admin-workspace .aw-topbar.has-active-popover,
+.admin-workspace .aw-topbar:has(.theme-palette-popover:not([hidden])) { z-index:100000!important; }
 html[data-theme="dark"] .admin-workspace .aw-badge.good { color:#a7f3d0; background:#14532d; }
 html[data-theme="dark"] .admin-workspace .aw-badge.warn { color:#fde68a; background:#713f12; }
 html[data-theme="dark"] .admin-workspace #aw-editor-error { color:#fecaca; background:#7f1d1d; }
@@ -176,7 +178,7 @@ html[data-theme="dark"] .admin-workspace #aw-editor-error { color:#fecaca; backg
 .admin-workspace .aw-nav-link small { color:var(--text-secondary); background:var(--background-secondary); border-radius:999px; }
 .admin-workspace .aw-environment { border-bottom-color:var(--border); }
 .admin-workspace .aw-page { background:transparent; }
-.admin-workspace .aw-topbar { position:sticky; top:0; z-index:20; background:color-mix(in srgb,var(--surface) 88%,transparent); border-bottom-color:var(--border-subtle); backdrop-filter:blur(18px); }
+.admin-workspace .aw-topbar { position:sticky; top:0; z-index:1000; background:color-mix(in srgb,var(--surface) 88%,transparent); border-bottom-color:var(--border-subtle); backdrop-filter:blur(18px); }
 .admin-workspace #aw-main { padding-top:30px; }
 .admin-workspace .aw-page-heading { position:relative; min-height:138px; padding:29px 31px; overflow:hidden; border:1px solid var(--border-subtle); border-radius:22px; background:linear-gradient(135deg,color-mix(in srgb,var(--surface) 94%,#dce8ff) 0%,color-mix(in srgb,var(--surface) 92%,#eee5ff) 100%); box-shadow:var(--aw-panel-shadow); }
 .admin-workspace .aw-page-heading::after { content:""; position:absolute; width:210px; height:210px; right:-70px; top:-105px; border-radius:50%; background:var(--primary-gradient); opacity:.12; filter:blur(2px); pointer-events:none; }

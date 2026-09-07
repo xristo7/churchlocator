@@ -21,7 +21,12 @@
         <div>
           <span class="module-kicker"><i data-lucide="sparkles"></i> Meditation Sanctuary</span>
           <h1>Quiet your soul. Abide in His presence.</h1>
-          <p>Select a sanctuary room below to quiet your mind and meditate on Scripture. Music and audio streams are selected while inside the room.</p>
+          <p>Select a sanctuary room below or create your own custom room to quiet your mind and meditate on Scripture. Invite friends to enter and meditate together in real time with ambient streams and Prayer & Sleep Timer.</p>
+        </div>
+        <div class="module-hero-actions">
+          <button type="button" class="btn btn-primary" id="btn-open-create-room">
+            <i data-lucide="plus-circle"></i> <span>Create Sanctuary Room</span>
+          </button>
         </div>
       </div>
     </section>
@@ -36,6 +41,7 @@
           <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="featured"><i data-lucide="star"></i> Favorites & Featured</button>
           <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="bible-books"><i data-lucide="book-open"></i> Bible Books</button>
           <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="themes"><i data-lucide="heart"></i> Scriptural Themes</button>
+          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="community"><i data-lucide="users"></i> Community & Custom</button>
         </div>
       </div>
 
@@ -72,141 +78,54 @@
         <div class="rooms-grid" id="grid-themes"></div>
       </section>
 
+      <!-- Section 4: Community & Custom Rooms -->
+      <section class="lobby-section" id="sec-community">
+        <div class="module-results-head">
+          <div>
+            <span class="section-kicker"><i data-lucide="users"></i> Creator & Fellowship Rooms</span>
+            <h2>Virtual Fellowship Sanctuaries</h2>
+          </div>
+        </div>
+        <div class="rooms-grid" id="grid-community"></div>
+      </section>
+
     </section>
 
   </main>
 
-  <!-- VIEW 2: 2-COLUMN SANCTUARY ROOM (SIDEBAR LEFT + MEDITATION RIGHT, THEME AWARE) -->
+  <!-- VIEW 2: DISTRACTION-FREE SANCTUARY ROOM (SIDEBAR-FREE, CREATOR-ESTABLISHED SETTINGS) -->
   <div class="meditation-room-view" id="meditation-room-view" hidden>
     
     <!-- Atmosphere Backdrop & Theme Overlay -->
     <div class="meditation-backdrop bg-chapel" id="meditation-backdrop"></div>
     <div class="meditation-overlay" id="meditation-overlay"></div>
 
-    <!-- COLUMN 1: LEFT SIDEBAR NAVIGATION WITH ACCORDION SUBITEMS -->
-    <aside class="meditation-room-sidebar" id="meditation-room-sidebar">
-      
-      <!-- Top: Back to Rooms & Current Sanctuary Badge -->
-      <div class="sidebar-top-section">
-        <button type="button" class="sidebar-exit-btn" id="room-exit-btn" aria-label="Exit to All Rooms">
-          <i data-lucide="arrow-left"></i> <span>All Rooms</span>
+    <!-- FLOATING TOP CONTROLS (OVERLAYING THE BACKGROUND, NO SOLID BAR) -->
+    <header class="sanctuary-top-bar" id="sanctuary-top-bar">
+      <div class="sanctuary-top-left">
+        <button type="button" class="room-exit-btn sanctuary-action-btn" id="room-exit-btn" aria-label="Back to Rooms">
+          <i data-lucide="arrow-left"></i> <span>Back to Rooms</span>
         </button>
-        
-        <div class="sidebar-room-badge">
-          <span class="room-badge-icon" id="room-badge-icon"><i data-lucide="sparkles"></i></span>
-          <div class="sidebar-room-meta">
-            <span class="sidebar-badge-kicker">Sanctuary Room</span>
-            <strong id="room-badge-title">Sanctuary of Peace</strong>
-          </div>
+      </div>
+
+      <div class="sanctuary-top-center">
+        <div class="sanctuary-top-desc" id="sanctuary-top-desc" title="Room Description">
+          <span id="top-desc-text">Calm your soul and release all anxiety into His hands.</span>
         </div>
       </div>
 
-      <button type="button" class="room-mobile-controls" id="room-mobile-controls" aria-expanded="false" aria-controls="room-controls-nav">Audio & room controls</button>
-      <!-- Accordion Navigation List -->
-      <nav class="sidebar-accordion-nav" id="room-controls-nav">
-        
-        <!-- 1. In-Room Audio Stream -->
-        <div class="sidebar-nav-group" data-group="audio">
-          <button type="button" class="sidebar-nav-trigger" id="audio-select-trigger" aria-expanded="false">
-            <span class="trigger-label"><i data-lucide="music"></i> <span id="current-audio-label">Select Audio</span></span>
-            <i data-lucide="chevron-down" class="accordion-arrow"></i>
-          </button>
-          <div class="sidebar-subitems-panel" id="audio-select-menu" hidden>
-            <div class="sidebar-panel-header">🎵 In-Room Audio</div>
-            <button type="button" data-audio-type="bible" class="active"><i data-lucide="book-open"></i> Dramatized Audio Bible</button>
-            <button type="button" data-audio-type="instrumental"><i data-lucide="audio-lines"></i> Soaking Instrumental (432Hz)</button>
-            <button type="button" data-audio-type="worship"><i data-lucide="music"></i> Christian Worship</button>
-            <button type="button" data-audio-type="sermon"><i data-lucide="mic"></i> Sermons & Preaching</button>
-            <button type="button" data-audio-type="silence"><i data-lucide="volume-x"></i> Silence / Ambience Only</button>
-          </div>
-        </div>
-
-        <!-- 2. Switch Sanctuary Room -->
-        <div class="sidebar-nav-group" data-group="rooms">
-          <button type="button" class="sidebar-nav-trigger" id="room-switch-trigger" aria-expanded="false">
-            <span class="trigger-label"><i data-lucide="door-open"></i> <span>Change Room</span></span>
-            <i data-lucide="chevron-down" class="accordion-arrow"></i>
-          </button>
-          <div class="sidebar-subitems-panel sidebar-scroll-subitems" id="room-switch-menu" hidden>
-            <div class="sidebar-panel-header">🚪 Switch Sanctuary</div>
-            <div class="sidebar-sub-list" id="room-switch-list"></div>
-          </div>
-        </div>
-
-        <!-- 3. Atmosphere Theme -->
-        <div class="sidebar-nav-group" data-group="theme">
-          <button type="button" class="sidebar-nav-trigger" id="theme-select-trigger" aria-expanded="false">
-            <span class="trigger-label"><i data-lucide="image"></i> <span>Atmosphere</span></span>
-            <i data-lucide="chevron-down" class="accordion-arrow"></i>
-          </button>
-          <div class="sidebar-subitems-panel" id="theme-select-menu" hidden>
-            <div class="sidebar-panel-header">🖼️ Background Scene</div>
-            <button type="button" data-bg-theme="chapel" class="active"><i data-lucide="church"></i> Candlelit Chapel</button>
-            <button type="button" data-bg-theme="mountains"><i data-lucide="mountain"></i> Mountain Sunrise</button>
-            <button type="button" data-bg-theme="stars"><i data-lucide="moon"></i> Starry Night Sky</button>
-            <button type="button" data-bg-theme="stream"><i data-lucide="waves"></i> Peaceful Stream</button>
-            <button type="button" data-bg-theme="deepdark"><i data-lucide="circle"></i> Midnight Sanctuary</button>
-          </div>
-        </div>
-
-        <!-- 4. Natural Ambience Mixer -->
-        <div class="sidebar-nav-group" data-group="ambient">
-          <button type="button" class="sidebar-nav-trigger" id="ambient-trigger" aria-expanded="false">
-            <span class="trigger-label"><i data-lucide="sliders"></i> <span>Ambience Mixer</span></span>
-            <i data-lucide="chevron-down" class="accordion-arrow"></i>
-          </button>
-          <div class="sidebar-subitems-panel ambient-sub-panel" id="ambient-menu" hidden>
-            <div class="sidebar-panel-header">🌊 Natural Sounds</div>
-            <div class="ambient-mixer-body">
-              <div class="ambient-row">
-                <div class="ambient-label"><i data-lucide="cloud-rain"></i> Gentle Rain</div>
-                <input type="range" class="ambient-slider" data-amb-sound="rain" min="0" max="100" value="0" />
-              </div>
-              <div class="ambient-row">
-                <div class="ambient-label"><i data-lucide="waves"></i> River Stream</div>
-                <input type="range" class="ambient-slider" data-amb-sound="stream" min="0" max="100" value="0" />
-              </div>
-              <div class="ambient-row">
-                <div class="ambient-label"><i data-lucide="flame"></i> Campfire</div>
-                <input type="range" class="ambient-slider" data-amb-sound="fire" min="0" max="100" value="0" />
-              </div>
-              <div class="ambient-row">
-                <div class="ambient-label"><i data-lucide="wind"></i> Night Breeze</div>
-                <input type="range" class="ambient-slider" data-amb-sound="breeze" min="0" max="100" value="0" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 5. Prayer & Sleep Timer -->
-        <div class="sidebar-nav-group" data-group="timer">
-          <button type="button" class="sidebar-nav-trigger" id="timer-trigger" aria-expanded="false">
-            <span class="trigger-label"><i data-lucide="clock"></i> <span id="timer-label">Timer: Off</span></span>
-            <i data-lucide="chevron-down" class="accordion-arrow"></i>
-          </button>
-          <div class="sidebar-subitems-panel" id="timer-menu" hidden>
-            <div class="sidebar-panel-header">⏱️ Prayer & Sleep Timer</div>
-            <button type="button" data-room-timer="0" class="active">Turn Off</button>
-            <button type="button" data-room-timer="15">15 Minutes</button>
-            <button type="button" data-room-timer="30">30 Minutes</button>
-            <button type="button" data-room-timer="45">45 Minutes</button>
-            <button type="button" data-room-timer="60">60 Minutes</button>
-          </div>
-        </div>
-
-      </nav>
-
-      <!-- Sidebar Footer -->
-      <div class="sidebar-footer-section">
-        <button type="button" class="sidebar-utility-btn" id="room-fullscreen-btn" aria-label="Toggle Fullscreen Mode">
+      <div class="sanctuary-top-right">
+        <button type="button" class="sanctuary-action-btn" id="room-invite-btn" title="Invite a friend to meditate together">
+          <i data-lucide="user-plus"></i> <span>Invite Friend</span>
+        </button>
+        <button type="button" class="sanctuary-action-btn" id="room-fullscreen-btn" aria-label="Toggle Fullscreen Mode" title="Toggle Full Screen">
           <i data-lucide="maximize-2" id="fullscreen-icon"></i>
-          <span id="fullscreen-text">Full Screen</span>
+          <span id="fullscreen-text" class="sr-only">Full Screen</span>
         </button>
       </div>
+    </header>
 
-    </aside>
-
-    <!-- COLUMN 2: RIGHT MEDITATION SECTION (100% SINGLE VIEWPORT, VISIBLE ORB + SCRIPTURE + DOCKED PLAYER) -->
+    <!-- SINGLE-VIEWPORT SANCTUARY CONTENT (100% DISTRACTION FREE) -->
     <main class="meditation-room-main" id="meditation-room-main">
       
       <!-- Top Area: Sacred Glowing Breathing Orb -->
@@ -231,14 +150,33 @@
         </div>
       </div>
 
-      <!-- Bottom Area: Docked Floating Audio Player (No overlap) -->
+      <!-- Bottom Area: Room Title, Creator Tag & Session Presence Bar (Docked Below) -->
+      <div class="sanctuary-room-bottom-bar" id="sanctuary-room-bottom-bar">
+        <div class="sanctuary-room-badge">
+          <span class="room-badge-icon" id="room-badge-icon"><i data-lucide="sparkles"></i></span>
+          <div class="sanctuary-room-meta">
+            <strong id="room-badge-title">Sanctuary of Peace</strong>
+            <span class="room-desc-tag" id="room-creator-tag">Calm your soul and release all anxiety into His hands.</span>
+          </div>
+        </div>
+
+        <div class="session-presence-badge" id="session-presence-badge" title="Virtual room participants meditating together">
+          <span class="presence-pulse-dot"></span>
+          <span id="session-presence-text"><i data-lucide="users"></i> 1 Meditating</span>
+        </div>
+      </div>
+
+      <!-- Bottom Area: Docked Floating Audio Player (Creator-Established Tracks) -->
       <footer class="room-bottom-player" id="room-bottom-player">
         
         <div class="bottom-player-info">
           <span class="audio-pulse-indicator" id="audio-pulse-indicator"><span></span><span></span><span></span></span>
           <div class="bottom-player-text">
             <strong id="bottom-track-title">Audio Bible: Psalms of Peace</strong>
-            <span id="bottom-track-cat">Dramatized Audio Bible</span>
+            <div class="bottom-track-meta">
+              <span id="bottom-track-cat">Dramatized Audio Bible (432Hz)</span>
+              <span class="bottom-ambience-tag" id="bottom-ambience-tag"><i data-lucide="sliders"></i> Ambience set by creator</span>
+            </div>
           </div>
         </div>
 
@@ -254,11 +192,234 @@
           <input type="range" class="volume-slider" id="bottom-volume-slider" min="0" max="100" value="85" aria-label="Master Volume" />
         </div>
 
+        <!-- Minimized Live Chat Toggle Button -->
+        <div class="bottom-player-chat-pill">
+          <button type="button" class="chat-toggle-pill" id="chat-toggle-btn" aria-expanded="false" title="Toggle Live Chat & Comments">
+            <i data-lucide="message-square"></i>
+            <span id="chat-status-pill">Live Chat (Deactivated)</span>
+            <span class="chat-unread-badge" id="chat-unread-badge" hidden>0</span>
+          </button>
+        </div>
+
       </footer>
 
     </main>
 
+    <!-- LIVE CHAT & COMMENTS FLOATING DRAWER (MINIMIZED BY DEFAULT) -->
+    <aside class="meditation-chat-drawer" id="meditation-chat-drawer" hidden>
+      <div class="chat-drawer-header">
+        <div class="chat-header-title">
+          <div class="chat-title-row">
+            <i data-lucide="messages-square"></i>
+            <strong>Sanctuary Live Chat</strong>
+          </div>
+          <span class="chat-subtitle" id="chat-subtitle">Quiet reflections & prayers</span>
+        </div>
+        <div class="chat-header-actions">
+          <button type="button" class="chat-icon-btn" id="chat-close-btn" aria-label="Minimize Chat">
+            <i data-lucide="minus"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Host Controls Banner: shown to host or informs guest -->
+      <div class="chat-moderation-banner" id="chat-moderation-banner">
+        <div class="host-toggle-wrapper" id="host-toggle-wrapper" hidden>
+          <label class="host-switch-label">
+            <input type="checkbox" id="chat-enable-toggle" />
+            <span class="switch-slider"></span>
+            <span class="host-switch-text">Enable Live Comments for Room</span>
+          </label>
+        </div>
+        <div class="guest-status-banner" id="guest-status-banner">
+          <i data-lucide="shield-alert"></i>
+          <span id="guest-status-text">Comments are deactivated by the room host.</span>
+        </div>
+      </div>
+
+      <!-- Live Messages Feed -->
+      <div class="chat-messages-feed" id="chat-messages-feed" role="log" aria-live="polite">
+        <div class="chat-empty-state" id="chat-empty-state">
+          <i data-lucide="sparkles"></i>
+          <p>No comments yet. When enabled by the room creator, participants can share reflections here.</p>
+        </div>
+      </div>
+
+      <!-- Live Message Input Form -->
+      <form class="chat-input-form" id="chat-input-form">
+        <div class="chat-input-wrapper">
+          <input type="text" id="chat-input" placeholder="Comments are currently disabled..." maxlength="300" autocomplete="off" disabled />
+          <button type="submit" id="chat-send-btn" class="chat-send-btn" disabled aria-label="Send Comment">
+            <i data-lucide="send"></i>
+          </button>
+        </div>
+      </form>
+    </aside>
+
   </div>
+
+  <!-- MODAL: INVITE A FRIEND -->
+  <dialog class="sanctuary-dialog" id="modal-invite-friend">
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <div class="dialog-title-group">
+          <i data-lucide="user-plus" class="dialog-icon"></i>
+          <h3>Invite a Friend to Meditate</h3>
+        </div>
+        <button type="button" class="dialog-close-btn" id="btn-close-invite" aria-label="Close dialog"><i data-lucide="x"></i></button>
+      </div>
+      <div class="dialog-body">
+        <p class="dialog-desc">Share this sanctuary with friends to enter the same virtual room and meditate together in real time.</p>
+        
+        <!-- Direct Social Share Links: WhatsApp, Telegram, Facebook, Twitter, Email -->
+        <div class="invite-social-grid">
+          <a href="#" class="social-share-btn social-whatsapp" id="share-whatsapp" target="_blank" rel="noopener noreferrer" title="Share via WhatsApp">
+            <i data-lucide="message-circle"></i>
+            <span>WhatsApp</span>
+          </a>
+          <a href="#" class="social-share-btn social-telegram" id="share-telegram" target="_blank" rel="noopener noreferrer" title="Share via Telegram">
+            <i data-lucide="send"></i>
+            <span>Telegram</span>
+          </a>
+          <a href="#" class="social-share-btn social-facebook" id="share-facebook" target="_blank" rel="noopener noreferrer" title="Share on Facebook">
+            <i data-lucide="facebook"></i>
+            <span>Facebook</span>
+          </a>
+          <a href="#" class="social-share-btn social-twitter" id="share-twitter" target="_blank" rel="noopener noreferrer" title="Share on Twitter / X">
+            <i data-lucide="twitter"></i>
+            <span>Twitter / X</span>
+          </a>
+          <a href="#" class="social-share-btn social-email" id="share-email" title="Share via Email">
+            <i data-lucide="mail"></i>
+            <span>Email</span>
+          </a>
+        </div>
+
+        <!-- Single Integrated Entity: Copyable Link Field + Button Inside One Unified Enclosure -->
+        <div class="unified-copy-entity" id="unified-copy-entity">
+          <span class="unified-copy-icon"><i data-lucide="link"></i></span>
+          <input type="text" id="invite-share-url" readonly aria-label="Room invite URL" />
+          <button type="button" class="unified-copy-btn" id="btn-copy-invite-url" title="Copy room link">
+            <i data-lucide="copy" id="copy-btn-icon"></i>
+            <span id="copy-btn-text">Copy Link</span>
+          </button>
+        </div>
+        
+        <div class="invite-meta-notes">
+          <span class="invite-note"><i data-lucide="check-circle"></i> Same room ambience & audio</span>
+          <span class="invite-note"><i data-lucide="check-circle"></i> Real-time presence & live chat</span>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- MODAL: CREATE VIRTUAL SANCTUARY ROOM -->
+  <dialog class="sanctuary-dialog sanctuary-dialog-lg" id="modal-create-room">
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <div class="dialog-title-group">
+          <i data-lucide="sparkles" class="dialog-icon"></i>
+          <h3>Create Virtual Sanctuary Room</h3>
+        </div>
+        <button type="button" class="dialog-close-btn" id="btn-close-create-room" aria-label="Close dialog"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-create-sanctuary" class="dialog-body create-room-form">
+        <p class="dialog-desc">As creator, establish the atmosphere, background, audio track, and ambience mix for your room. Meditators who join will experience your curated sanctuary.</p>
+        
+        <div class="form-row">
+          <label class="form-label">
+            <span>Room Title *</span>
+            <input type="text" id="new-room-title" required placeholder="e.g. Morning Solace Sanctuary" />
+          </label>
+          <label class="form-label">
+            <span>Category / Collection *</span>
+            <select id="new-room-category">
+              <option value="featured">Favorites & Featured</option>
+              <option value="bible-books">Books of the Bible</option>
+              <option value="themes">Scriptural Themes</option>
+              <option value="community">Community & Fellowship</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="form-label">
+          <span>Introduction / Subtitle *</span>
+          <textarea id="new-room-subtitle" rows="2" required placeholder="Brief reflection or guidance for this sanctuary..."></textarea>
+        </label>
+
+        <div class="form-row">
+          <label class="form-label">
+            <span>Atmosphere Scene *</span>
+            <select id="new-room-theme">
+              <option value="chapel">Candlelit Chapel</option>
+              <option value="mountains">Mountain Sunrise</option>
+              <option value="stars">Starry Night Sky</option>
+              <option value="stream">Peaceful Stream</option>
+              <option value="deepdark">Midnight Sanctuary</option>
+            </select>
+          </label>
+          <label class="form-label">
+            <span>Background Audio Stream *</span>
+            <select id="new-room-audio">
+              <option value="bible" data-audio-type="bible">Dramatized Audio Bible</option>
+              <option value="instrumental" data-audio-type="instrumental">Soaking Instrumental (432Hz)</option>
+              <option value="worship" data-audio-type="worship">Christian Worship</option>
+              <option value="sermon" data-audio-type="sermon">Sermons & Preaching</option>
+              <option value="silence" data-audio-type="silence">Silence / Ambience Only</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-section-title">🌊 Natural Ambience Mix-Up</div>
+        <div class="ambient-mixer-grid">
+          <div class="ambient-mix-field">
+            <span><i data-lucide="cloud-rain"></i> Gentle Rain</span>
+            <input type="range" id="new-amb-rain" min="0" max="100" value="20" />
+          </div>
+          <div class="ambient-mix-field">
+            <span><i data-lucide="waves"></i> River Stream</span>
+            <input type="range" id="new-amb-stream" min="0" max="100" value="20" />
+          </div>
+          <div class="ambient-mix-field">
+            <span><i data-lucide="flame"></i> Campfire</span>
+            <input type="range" id="new-amb-fire" min="0" max="100" value="0" />
+          </div>
+          <div class="ambient-mix-field">
+            <span><i data-lucide="wind"></i> Night Breeze</span>
+            <input type="range" id="new-amb-breeze" min="0" max="100" value="10" />
+          </div>
+        </div>
+
+        <div class="form-section-title">📖 Sacred Scripture Passage</div>
+        <div class="form-row">
+          <label class="form-label">
+            <span>Topic Tag</span>
+            <input type="text" id="new-scripture-topic" placeholder="e.g. ABIDING IN PEACE" value="DIVINE PEACE" />
+          </label>
+          <label class="form-label">
+            <span>Scripture Reference</span>
+            <input type="text" id="new-scripture-ref" placeholder="e.g. — Philippians 4:6-7" value="— John 14:27" />
+          </label>
+        </div>
+        <label class="form-label">
+          <span>Scripture Verse Text *</span>
+          <textarea id="new-scripture-text" rows="2" required placeholder="“Peace I leave with you; my peace I give you...”">“Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid.”</textarea>
+        </label>
+
+        <div class="form-section-title">💬 Live Fellowship & Comments</div>
+        <label class="host-switch-label form-switch-row">
+          <input type="checkbox" id="new-room-comments" />
+          <span class="switch-slider"></span>
+          <span>Enable live comments by default for this room (can be toggled in room anytime)</span>
+        </label>
+
+        <div class="dialog-actions">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-create-room">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i data-lucide="door-open"></i> Create & Enter Room</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 
   <div class="toast" data-toast role="status" aria-live="polite"></div>
 </body>

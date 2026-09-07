@@ -34,11 +34,12 @@
       preview: r => "meditation.html?room=" + encodeURIComponent(r.id),
       groups: () => [
         group("01 · Room details", [field("title", "Room title", "text", true), field("category", "Collection", "select", true, [["featured", "Featured"], ["bible-books", "Bible books"], ["themes", "Scriptural themes"]]), field("subtitle", "Introduction", "textarea", true)]),
-        group("02 · Atmosphere", [field("cover", "Background image URL", "url", true), field("theme", "Atmosphere", "select", true, ["chapel", "stream", "stars", "forest"]), field("toneFreq", "Ambient tone (Hz)", "number", true, null, "Synthesized ambient tone; this is not an audio file upload.")]),
-        group("03 · Scripture", [field("scriptures", "Room scriptures", "textarea", true, null, "One per line: Topic | Scripture text | Reference. Existing audio track definitions are preserved.")])
+        group("02 · Atmosphere & audio", [field("cover", "Background image URL", "url", true), field("theme", "Atmosphere", "select", true, ["chapel", "stream", "stars", "forest", "mountains"]), field("toneFreq", "Ambient tone (Hz)", "number", true, null, "Synthesized ambient tone; this is not an audio file upload."), field("selectedAudio", "Background audio track", "select", false, [["bible", "Dramatized Audio Bible"], ["instrumental", "Soaking Instrumental (432Hz)"], ["worship", "Christian Worship"], ["sermon", "Sermons & Preaching"], ["silence", "Silence / Ambience Only"]])]),
+        group("03 · Scripture", [field("scriptures", "Room scriptures", "textarea", true, null, "One per line: Topic | Scripture text | Reference. Existing audio track definitions are preserved.")]),
+        group("04 · Fellowship & live chat", [field("commentsEnabled", "Enable live comments", "select", false, yesNo, "Allow participants to share comments and prayer notes in the room.")])
       ],
-      flatten: r => ({ ...r, scriptures: (r.verses || []).map(v => [v.topic, v.text, v.ref].join(" | ")).join("\n") }),
-      defaults: () => ({ category: "featured", theme: "chapel", toneFreq: 432 }),
+      flatten: r => ({ ...r, selectedAudio: r.selectedAudio || "bible", commentsEnabled: String(!!r.commentsEnabled), scriptures: (r.verses || []).map(v => [v.topic, v.text, v.ref].join(" | ")).join("\n") }),
+      defaults: () => ({ category: "featured", theme: "chapel", toneFreq: 432, selectedAudio: "bible", commentsEnabled: false }),
       save(r, v) {
         const { scriptures, ...values } = v;
         const verses = scriptures.split("\n").filter(x => x.trim()).map(line => {
@@ -49,7 +50,9 @@
         if (!verses.length) throw new Error("Add at least one scripture.");
         if (v.toneFreq < 20 || v.toneFreq > 2000) throw new Error("Use an ambient tone between 20 and 2,000 Hz.");
         const audioTracks = r.audioTracks || Object.fromEntries(["bible", "instrumental", "worship", "sermon"].map(key => [key, { title: "Ambient reflection", cat: "Synthesized tone", freq: v.toneFreq }]));
-        const saved = { ...r, ...values, verses, audioTracks, icon: r.icon || "book-open", categoryLabel: { featured: "Featured room", "bible-books": "Bible book", themes: "Scriptural theme" }[v.category] };
+        const selectedAudio = v.selectedAudio || r.selectedAudio || "bible";
+        const commentsEnabled = typeof v.commentsEnabled === "boolean" ? v.commentsEnabled : (r.commentsEnabled ?? false);
+        const saved = { ...r, ...values, selectedAudio, commentsEnabled, verses, audioTracks, icon: r.icon || "book-open", categoryLabel: { featured: "Featured room", "bible-books": "Bible book", themes: "Scriptural theme" }[v.category] };
         replace(root.MWEMeditation.getRooms(), saved, root.MWEMeditation.saveRooms);
         return saved;
       }

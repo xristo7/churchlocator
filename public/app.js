@@ -139,6 +139,8 @@ function initThemeControl() {
       const isHidden = popover.hidden;
       popover.hidden = !isHidden;
       trigger.setAttribute("aria-expanded", String(isHidden));
+      container.classList.toggle("has-active-popover", !isHidden);
+      container.closest(".topbar, .aw-topbar, .dash-topbar, header, .member-shell-header")?.classList.toggle("has-active-popover", !isHidden);
     });
 
     popover?.addEventListener("click", event => {
@@ -160,6 +162,8 @@ function initThemeControl() {
       if (popover && !popover.hidden) {
         popover.hidden = true;
         trigger?.setAttribute("aria-expanded", "false");
+        container.classList.remove("has-active-popover");
+        container.closest(".topbar, .aw-topbar, .dash-topbar, header, .member-shell-header")?.classList.remove("has-active-popover");
       }
     });
   }
@@ -3636,10 +3640,17 @@ function initCustomDropdowns() {
     
     trigger.addEventListener("click", (e) => {
       e.stopPropagation();
+      const willOpen = !wrapper.classList.contains("open");
       document.querySelectorAll(".custom-select-container").forEach(c => {
         if (c !== wrapper) c.classList.remove("open");
       });
-      wrapper.classList.toggle("open");
+      document.querySelectorAll(".site-search-bar, .aw-filters, .module-directory-toolbar").forEach(tb => {
+        tb.classList.remove("has-open-dropdown");
+      });
+      wrapper.classList.toggle("open", willOpen);
+      if (willOpen) {
+        wrapper.closest(".site-search-bar, .aw-filters, .module-directory-toolbar")?.classList.add("has-open-dropdown");
+      }
     });
     
     select.addEventListener("change", () => {
@@ -3651,6 +3662,9 @@ function initCustomDropdowns() {
   document.addEventListener("click", () => {
     document.querySelectorAll(".custom-select-container").forEach(c => {
       c.classList.remove("open");
+    });
+    document.querySelectorAll(".site-search-bar, .aw-filters, .module-directory-toolbar").forEach(tb => {
+      tb.classList.remove("has-open-dropdown");
     });
   });
 
@@ -4009,6 +4023,7 @@ function initModuleDirectoryToolbars() {
 
     const closePopup = () => {
       overflow.classList.remove("open");
+      toolbar.classList.remove("has-open-dropdown");
       desktopTrigger.setAttribute("aria-expanded", "false");
       mobileButton.setAttribute("aria-expanded", "false");
       popup.setAttribute("aria-hidden", "true");
@@ -4019,6 +4034,7 @@ function initModuleDirectoryToolbars() {
       const opening = !overflow.classList.contains("open");
       closePopup();
       overflow.classList.toggle("open", opening);
+      toolbar.classList.toggle("has-open-dropdown", opening);
       desktopTrigger.setAttribute("aria-expanded", String(opening));
       mobileButton.setAttribute("aria-expanded", String(opening));
       popup.setAttribute("aria-hidden", String(!opening));

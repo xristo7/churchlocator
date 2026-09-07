@@ -224,3 +224,28 @@ test("creator workspace accepts only the matching public account session", async
   assert.match(source, /localStorage\.removeItem\("mwe\.session\.church\.v1"\)/);
   assert.doesNotMatch(source, /password[^\n]*localStorage\.setItem/);
 });
+
+test("dropdowns and live popup modals have elevated stacking context to prevent obstruction", async () => {
+  const adminCss = await read("admin-workspace.css");
+  const stylesCss = await read("styles.css");
+  const responsiveCss = await read("responsive.css");
+  const appJs = await read("app.js");
+
+  // Verify headers elevate to 100000 when active popover is present
+  assert.match(adminCss, /\.admin-workspace \.aw-topbar\.has-active-popover[\s\S]*z-index:\s*100000!important/);
+  assert.match(adminCss, /\.admin-workspace \.theme-palette-popover[\s\S]*z-index:\s*100000!important/);
+  assert.match(stylesCss, /\.topbar\.has-active-popover[\s\S]*z-index:\s*100000 !important/);
+  assert.match(stylesCss, /\.theme-palette-popover[\s\S]*z-index:\s*100000 !important/);
+  assert.match(stylesCss, /\.lang-selector-panel[\s\S]*z-index:\s*100000 !important/);
+  assert.match(responsiveCss, /\.theme-palette-popover[\s\S]*z-index:\s*100000 !important/);
+
+  // Verify site-search-bar and filter trays do not obstruct popovers
+  assert.match(stylesCss, /\.site-search-bar\.has-open-dropdown[\s\S]*z-index:\s*500 !important/);
+  assert.match(stylesCss, /\.site-search-bar \.custom-options-panel[\s\S]*z-index:\s*10001 !important/);
+  assert.match(stylesCss, /\.custom-select-container\.open[\s\S]*z-index:\s*10000 !important/);
+
+  // Verify app.js toggles has-active-popover and has-open-dropdown classes
+  assert.match(appJs, /classList\.toggle\("has-active-popover"/);
+  assert.match(appJs, /classList\.add\("has-open-dropdown"\)/);
+});
+

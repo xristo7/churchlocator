@@ -54,6 +54,11 @@
   body.mobile-menu-active .topbar-menu-group .nav-links a:hover,
   body.mobile-menu-active .topbar-menu-group .nav-links a:focus-visible { color: var(--primary) !important; background: var(--primary-surface) !important; }
   body.in-meditation-room .meditation-room-view:not([hidden]) { flex-direction: column !important; height: 100dvh !important; max-height: 100dvh !important; }
+  .sanctuary-top-bar { padding: 6px 12px !important; height: auto !important; min-height: 52px !important; gap: 6px !important; }
+  .sanctuary-room-meta strong { font-size: 0.9rem !important; }
+  .session-presence-badge { padding: 3px 10px !important; font-size: 0.75rem !important; }
+  .sanctuary-action-btn { padding: 5px 10px !important; font-size: 0.78rem !important; }
+  .meditation-chat-drawer { bottom: 74px !important; right: 12px !important; left: 12px !important; width: auto !important; max-width: none !important; height: 50dvh !important; }
   .meditation-room-view .meditation-room-sidebar { width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; max-height: 45dvh !important; flex: 0 0 auto; padding: 10px 14px !important; }
   .meditation-room-sidebar .sidebar-top-section { flex-direction: row !important; align-items: center; gap: 10px !important; padding-bottom: 8px !important; }
   .meditation-room-sidebar .sidebar-exit-btn { width: auto !important; flex-shrink: 0; }
@@ -147,7 +152,7 @@
   .admin-workspace .aw-editor-footer { flex-wrap: wrap; }
   .modal-close, .module-modal-close, .member-auth-close, .global-video-modal-close, .global-audio-modal-close { min-width: 44px; min-height: 44px; }
   .global-video-modal-content { width: 100%; max-width: 100%; }
-  .theme-palette-popover { position: fixed; top: 74px; right: 12px; left: auto; width: min(320px, calc(100vw - 24px)); max-width: calc(100vw - 24px); max-height: calc(100dvh - 90px); overflow-y: auto; }
+  .theme-palette-popover { position: fixed; top: 74px; right: 12px; left: auto; width: min(320px, calc(100vw - 24px)); max-width: calc(100vw - 24px); max-height: calc(100dvh - 90px); overflow-y: auto; z-index: 100000 !important; }
   .toast { max-width: calc(100vw - 24px); white-space: normal; bottom: max(16px, env(safe-area-inset-bottom)); }
 }
 
