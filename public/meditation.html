@@ -9,7 +9,7 @@
   <script defer src="app.js?v=20260905u"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <script defer src="meditation.js?v=20260905a"></script>
-</head>
+<link rel="stylesheet" href="responsive.css?v=20260906a" /></head>
 <body class="module-page" data-page="meditation">
   <header class="topbar"></header>
 
@@ -101,8 +101,9 @@
         </div>
       </div>
 
+      <button type="button" class="room-mobile-controls" id="room-mobile-controls" aria-expanded="false" aria-controls="room-controls-nav">Audio & room controls</button>
       <!-- Accordion Navigation List -->
-      <nav class="sidebar-accordion-nav">
+      <nav class="sidebar-accordion-nav" id="room-controls-nav">
         
         <!-- 1. In-Room Audio Stream -->
         <div class="sidebar-nav-group" data-group="audio">

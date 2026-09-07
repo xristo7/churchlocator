@@ -2086,8 +2086,7 @@ tr:last-child td {
 
 /* Redesigned 100vh Hero Page Styles */
 body.hero-only-page {
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--background);
@@ -2108,6 +2107,7 @@ body.hero-only-page main {
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
+  flex-direction: column;
 }
 
 .hero-fullscreen {

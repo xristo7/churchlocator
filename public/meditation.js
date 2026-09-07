@@ -615,6 +615,10 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("room-mobile-controls")?.addEventListener("click", event => {
+      const open = document.getElementById("meditation-room-sidebar").classList.toggle("mobile-controls-open");
+      event.currentTarget.setAttribute("aria-expanded", String(open));
+    });
     renderLobby();
 
     const params = new URLSearchParams(window.location.search);

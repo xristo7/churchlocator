@@ -1,0 +1,127 @@
+/* Shared responsive contract, loaded after each page's component styles. */
+.room-mobile-controls { display: none; }
+@media (max-width: 900px) {
+  body[data-page="profile"] .church-profile-tabs-wrapper::before { left: 0; right: 0; }
+  .custom-select-container:not(.open) .custom-options-panel { display: none; }
+  .module-directory-toolbar .custom-options-panel { width: 100%; min-width: 0; max-width: 100%; }
+  .member-hero-content { flex-direction: column; align-items: stretch; gap: 20px; }
+  .member-hero-greeting, .member-verse-pill { width: 100%; min-width: 0; max-width: none; }
+  .member-quick-launchpad { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .member-quick-launchpad > *, .member-hero-content > * { min-width: 0; }
+  .member-meditation-showcase { grid-template-columns: minmax(0, 1fr); }
+  .master-giving-grid { grid-template-columns: minmax(0, 1fr); }
+  .admin-workspace .aw-sidebar { height: 100dvh; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+  .admin-workspace .aw-topbar { gap: 8px; }
+  .admin-workspace .aw-breadcrumb { min-width: 0; flex-wrap: wrap; }
+}
+
+@media (max-width: 700px) {
+  body.in-meditation-room .meditation-room-view:not([hidden]) { flex-direction: column !important; height: 100dvh !important; max-height: 100dvh !important; }
+  .meditation-room-view .meditation-room-sidebar { width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; max-height: 45dvh !important; flex: 0 0 auto; padding: 10px 14px !important; }
+  .meditation-room-sidebar .sidebar-top-section { flex-direction: row !important; align-items: center; gap: 10px !important; padding-bottom: 8px !important; }
+  .meditation-room-sidebar .sidebar-exit-btn { width: auto !important; flex-shrink: 0; }
+  .meditation-room-sidebar .sidebar-room-badge { flex: 1; min-width: 0; padding: 8px !important; }
+  .room-mobile-controls { display: block; width: 100%; padding: 10px; margin-top: 8px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface); color: var(--text-primary); font: inherit; }
+  .meditation-room-sidebar:not(.mobile-controls-open) .sidebar-accordion-nav,
+  .meditation-room-sidebar:not(.mobile-controls-open) .sidebar-footer-section { display: none !important; }
+  .meditation-room-view .meditation-room-main { min-height: 0 !important; width: 100% !important; overflow-y: auto !important; padding: 18px 14px max(14px, env(safe-area-inset-bottom)) !important; gap: 20px; }
+  .meditation-room-main .room-scripture-display { width: 100% !important; max-width: 100% !important; flex: 0 0 auto !important; padding: 18px 14px !important; }
+  .meditation-room-main .room-scripture-display blockquote { font-size: clamp(1rem, 4.4vw, 1.3rem) !important; line-height: 1.6 !important; }
+  .meditation-room-view .room-bottom-player { width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; min-height: 64px; border-radius: 16px !important; padding: 12px !important; flex-wrap: wrap; justify-content: center !important; gap: 10px; }
+  .room-bottom-player .bottom-player-info { width: 100%; min-width: 0; justify-content: center; }
+  .room-bottom-player .bottom-player-volume { max-width: 100px; }
+  html { -webkit-text-size-adjust: 100%; scroll-padding-top: 80px; }
+  *, *::before, *::after { box-sizing: border-box; }
+  main, section, article, aside, form, fieldset { min-width: 0; }
+  fieldset { max-width: 100%; }
+  p, h1, h2, h3, h4, label, a, button { overflow-wrap: anywhere; }
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea { min-width: 0; max-width: 100%; font-size: 16px !important; }
+  textarea { resize: vertical; }
+  button, .button, [role="button"], .aw-button, .aw-icon-button { min-height: 44px; }
+  .button, .aw-button { white-space: normal; text-align: center; }
+  video, audio { max-width: 100%; }
+  iframe:not(#hero-video-iframe):not(#member-shell-frame) { max-width: 100%; }
+  .container, .module-shell, .creator-public { max-width: 100%; }
+  body[data-page="profile"] .church-profile-tabs-wrapper::before { left: 0; right: 0; }
+  .hero-fullscreen { flex-basis: auto; min-width: 0; }
+  body.hero-only-page main > section { width: 100%; min-width: 0; flex-shrink: 0; }
+  .hero-container { min-width: 0; }
+  .hero-left, .hero-right, .hero-search-card { min-width: 0; max-width: 100%; }
+  .readable-grid.three, .dashboard-grid, .form-group-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .section-head, .member-section-head, .module-section-heading { gap: 16px; flex-wrap: wrap; }
+  .section-head h2, .member-section-head h2 { font-size: clamp(1.4rem, 6vw, 2rem); }
+  .member-hero-banner { padding: 24px 18px; }
+  .member-hero-content { display: flex; }
+  .member-verse-pill { padding: 16px; }
+  .member-hero-greeting h1 { font-size: clamp(1.7rem, 7vw, 2.4rem); }
+  .member-quick-launchpad { gap: 12px; }
+  .launch-card { padding: 16px; }
+  .member-streams-grid, .member-channels-grid, .member-resources-grid, .member-store-grid { grid-template-columns: minmax(0, 1fr); }
+  .med-showcase-copy { padding: 24px 18px; }
+  .med-showcase-features { flex-wrap: wrap; }
+  .master-giving-card, .master-impact-card { padding: 24px 18px; min-width: 0; }
+  .master-amount-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .master-freq-switcher, .master-payment-methods { flex-wrap: wrap; }
+  .master-giving-card .button { height: auto !important; padding: 14px; }
+  .donate-slide-content { padding: 24px 20px; max-width: 100%; }
+  .donate-slide-title { font-size: clamp(1.7rem, 7vw, 2.5rem); }
+  .creator-store-cards { grid-template-columns: minmax(0, 1fr); }
+  #active-streams-list { grid-template-columns: minmax(0, 1fr) !important; }
+  .creator-store-actions { flex-wrap: wrap; }
+  .checkout-layout, .cart-page-layout, .product-detail-shell { grid-template-columns: minmax(0, 1fr); }
+  .checkout-fields { grid-template-columns: minmax(0, 1fr); }
+  .checkout-order-item { grid-template-columns: 52px minmax(0, 1fr) auto; gap: 10px; }
+  .checkout-order-item img { width: 52px; height: 52px; }
+  .dedicated-reader-toolbar { flex-wrap: wrap; padding: 16px; }
+  .dedicated-reader-toolbar > div { min-width: 0; }
+  .dedicated-reader-book { grid-template-columns: minmax(0, 1fr); }
+  .dedicated-reader-book aside, .dedicated-reader-book article { padding: 20px 16px; }
+  .dedicated-reader-book article footer { flex-wrap: wrap; gap: 12px; }
+  .admin-workspace .aw-topbar { padding-inline: 12px; height: auto; min-height: 65px; }
+  .admin-workspace .aw-top-actions { flex-shrink: 0; gap: 6px; }
+  .admin-workspace .aw-avatar { display: none; }
+  .admin-workspace .aw-heading-actions, #aw-heading-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .admin-workspace .aw-panel-heading, .admin-workspace .aw-pagination { flex-wrap: wrap; gap: 12px; }
+  .aw-table-scroll, .table-wrap, .table-responsive { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+  .admin-workspace .aw-table-scroll { -webkit-overflow-scrolling: touch; }
+
+  /* Constrain overlay content rather than hiding overflowing controls. */
+  .modal-overlay, .module-modal, .member-auth-modal, .alert-modal-backdrop,
+  .global-video-modal, .global-audio-modal, .church-video-modal-backdrop,
+  .checkout-success { padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) !important; overflow-y: auto; overscroll-behavior: contain; }
+  .modal-card, .module-modal-card, .member-auth-card, .alert-modal, .modal-dialog,
+  .modal-content, .alert-modal-backdrop > .dash-panel, .global-audio-modal-content, .church-video-modal-card,
+  .checkout-success > div, .admin-workspace #aw-editor {
+    width: min(100%, 560px) !important; min-width: 0 !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+    overflow-y: auto; overscroll-behavior: contain; border-radius: 16px;
+  }
+  .modal-card, .module-modal-card, .member-auth-card, .alert-modal, .checkout-success > div { padding: 24px 18px !important; }
+  .alert-modal-backdrop > .dash-panel { margin: 0 auto !important; padding: 20px 16px; }
+  .alert-modal-backdrop .compact-grid, .module-modal-card .module-form { grid-template-columns: minmax(0, 1fr); }
+  .alert-modal-backdrop .category-head { align-items: start; gap: 8px; }
+  .alert-modal-backdrop .category-head > button { flex-shrink: 0; }
+  .modal-card form, .module-modal-card form, .member-auth-card form { min-width: 0; }
+  .modal-card .form-grid, .module-modal-card .form-grid, .member-auth-card .form-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .admin-workspace #aw-editor-form { max-height: calc(100dvh - 26px); }
+  .admin-workspace .aw-editor-header, .admin-workspace .aw-editor-footer { padding: 16px; gap: 10px; }
+  .admin-workspace .aw-editor-body { padding: 16px; min-height: 0; }
+  .admin-workspace .aw-editor-footer { flex-wrap: wrap; }
+  .modal-close, .module-modal-close, .member-auth-close, .global-video-modal-close, .global-audio-modal-close { min-width: 44px; min-height: 44px; }
+  .global-video-modal-content { width: 100%; max-width: 100%; }
+  .theme-palette-popover { position: fixed; top: 74px; right: 12px; left: auto; width: min(320px, calc(100vw - 24px)); max-width: calc(100vw - 24px); max-height: calc(100dvh - 90px); overflow-y: auto; }
+  .toast { max-width: calc(100vw - 24px); white-space: normal; bottom: max(16px, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 380px) {
+  .member-quick-launchpad { grid-template-columns: minmax(0, 1fr); }
+  .admin-workspace .aw-module-grid { grid-template-columns: minmax(0, 1fr); }
+  .admin-workspace .aw-module-card { border-right: 0 !important; border-bottom: 1px solid var(--border) !important; }
+  .member-shell-search { display: none; }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal-overlay, .module-modal, .member-auth-modal { align-items: start; }
+  .modal-card, .module-modal-card, .member-auth-card { margin-block: 12px; max-height: calc(100dvh - 24px); overflow-y: auto; }
+}
