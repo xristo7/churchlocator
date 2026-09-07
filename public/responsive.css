@@ -28,12 +28,15 @@
 
 @media (max-width: 700px) {
   body.mobile-menu-active { position: static !important; width: auto !important; overflow: hidden !important; }
-  .topbar-menu-group { right: 0 !important; width: min(86vw, 320px) !important; height: 100dvh !important; padding: max(76px, calc(env(safe-area-inset-top) + 64px)) 20px max(24px, env(safe-area-inset-bottom)) !important; transform: translateX(105%) !important; }
+  .topbar-menu-group { right: 0 !important; width: min(86vw, 320px) !important; height: 100dvh !important; padding: max(76px, calc(env(safe-area-inset-top) + 64px)) 20px max(24px, env(safe-area-inset-bottom)) !important; transform: translateX(105%) !important; background: var(--surface) !important; color: var(--text-primary) !important; opacity: 1 !important; }
   body.mobile-menu-active .topbar-menu-group { transform: translateX(0) !important; }
   body.mobile-menu-active .brand, body.mobile-menu-active main,
   body.mobile-menu-active .topbar-inner .lang-selector-container { transform: none !important; }
   body.mobile-menu-active .mobile-menu-toggle { position: fixed; top: max(14px, env(safe-area-inset-top)); right: 16px; z-index: 1001; transform: none !important; color: var(--text-primary) !important; background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: 12px; }
-  .mobile-menu-backdrop { z-index: 999; background: rgba(3, 7, 18, .58); }
+  .mobile-menu-backdrop { z-index: 29; background: rgba(3, 7, 18, .58); }
+  body.mobile-menu-active .topbar-menu-group .nav-links a { color: var(--text-primary) !important; background: var(--surface-soft) !important; text-shadow: none !important; }
+  body.mobile-menu-active .topbar-menu-group .nav-links a:hover,
+  body.mobile-menu-active .topbar-menu-group .nav-links a:focus-visible { color: var(--primary) !important; background: var(--primary-surface) !important; }
   body.in-meditation-room .meditation-room-view:not([hidden]) { flex-direction: column !important; height: 100dvh !important; max-height: 100dvh !important; }
   .meditation-room-view .meditation-room-sidebar { width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; max-height: 45dvh !important; flex: 0 0 auto; padding: 10px 14px !important; }
   .meditation-room-sidebar .sidebar-top-section { flex-direction: row !important; align-items: center; gap: 10px !important; padding-bottom: 8px !important; }

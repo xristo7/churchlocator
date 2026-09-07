@@ -29,7 +29,6 @@
     mobileMenu?.classList.toggle("is-open", open);
   }
 
-  if (mobileMenu) mobileMenu.dataset.drawerReady = "true";
   mobileMenu?.addEventListener("click", event => {
     event.preventDefault();
     event.stopImmediatePropagation();

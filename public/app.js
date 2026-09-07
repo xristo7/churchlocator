@@ -4140,7 +4140,7 @@ const initMobileMenu = () => {
   // Close menu on navigation click
   menuGroup.querySelectorAll("a, button").forEach(el => {
     el.addEventListener("click", () => {
-      if (!el.classList.contains("lang-selector-btn")) {
+      if (!el.classList.contains("lang-selector-btn") && !el.closest(".theme-palette-container")) {
         toggleMenu(false);
       }
     });
