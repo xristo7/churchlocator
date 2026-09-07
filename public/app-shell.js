@@ -94,8 +94,10 @@
     const mobile = window.matchMedia("(max-width: 900px)").matches;
     const destination = mobile ? mobileActions : desktopActions;
     if (!destination) return;
-    if (mobile) { if (givingAction?.parentElement !== destination) destination.append(givingAction); if (accountWrap?.parentElement !== destination) destination.append(accountWrap); }
-    else { if (givingAction?.parentElement !== destination) destination.append(givingAction); if (accountWrap?.parentElement !== destination) destination.append(accountWrap); }
+    const themeControl = document.querySelector(".theme-palette-container");
+    [themeControl, langSelector, givingAction, accountWrap].forEach(action => {
+      if (action && action.parentElement !== destination) destination.append(action);
+    });
   }
 
   function isAuthenticated() {
@@ -351,6 +353,7 @@
 
   window.addEventListener("popstate", () => loadRoute(getRoute(), { history: false }));
   window.addEventListener("resize", placeResponsiveActions);
+  window.addEventListener("DOMContentLoaded", placeResponsiveActions);
 
   placeResponsiveActions();
   loadRoute(getRoute(), { history: false });
