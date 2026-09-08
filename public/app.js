@@ -6616,8 +6616,12 @@ function initGlobalHeaderAndFooter() {
     headerElem.innerHTML = headerHTML;
   }
   if (footerElem) {
-    footerElem.innerHTML = isSinglePage ? minimalFooterHTML : footerHTML;
-    if (isSinglePage) footerElem.classList.add("minimal");
+    if (document.body.classList.contains("hero-only-page") || currentPage === "home" || rawPath === "index.html" || rawPath === "") {
+      footerElem.remove();
+    } else {
+      footerElem.innerHTML = isSinglePage ? minimalFooterHTML : footerHTML;
+      if (isSinglePage) footerElem.classList.add("minimal");
+    }
   }
 
   // Highlight active nav link based on current page URL / body data-page

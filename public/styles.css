@@ -2106,6 +2106,11 @@ body.hero-only-page .topbar {
   flex-shrink: 0;
 }
 
+body.hero-only-page footer,
+body.hero-only-page .platform-footer {
+  display: none !important;
+}
+
 body.hero-only-page .hero-main {
   flex: 1;
   min-height: 0;
