@@ -138,14 +138,37 @@
         </div>
       </div>
 
+      <!-- Media Type Navigation Pills: Scriptures, Pictures, Prayers, Teachings, Worship Audio -->
+      <div class="sanctuary-media-tabs" id="sanctuary-media-tabs" role="tablist" aria-label="Sanctuary Media Types">
+        <button type="button" class="sanctuary-media-tab active" data-media-type="scriptures" role="tab" aria-selected="true">
+          <i data-lucide="book-open"></i> <span>Scriptures</span>
+        </button>
+        <button type="button" class="sanctuary-media-tab" data-media-type="pictures" role="tab" aria-selected="false">
+          <i data-lucide="image"></i> <span>Pictures</span>
+        </button>
+        <button type="button" class="sanctuary-media-tab" data-media-type="prayers" role="tab" aria-selected="false">
+          <i data-lucide="heart-handshake"></i> <span>Prayers</span>
+        </button>
+        <button type="button" class="sanctuary-media-tab" data-media-type="teachings" role="tab" aria-selected="false">
+          <i data-lucide="graduation-cap"></i> <span>Teachings</span>
+        </button>
+        <button type="button" class="sanctuary-media-tab" data-media-type="worship" role="tab" aria-selected="false">
+          <i data-lucide="music"></i> <span>Worship Audio</span>
+        </button>
+      </div>
+
       <!-- Middle Area: Centered Responsive Scripture Card -->
       <div class="room-scripture-display" id="room-scripture-display">
+        <div class="room-picture-display" id="room-picture-display" hidden>
+          <img id="room-picture-img" src="" alt="Sacred Contemplation Picture" />
+          <span class="room-picture-caption" id="room-picture-caption"></span>
+        </div>
         <span class="scripture-topic-tag" id="room-scripture-topic">PERFECT PEACE</span>
         <blockquote id="room-scripture-text">“Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid.”</blockquote>
         <cite id="room-scripture-ref">— John 14:27</cite>
         <div class="room-verse-actions">
           <button type="button" id="room-next-verse-btn" class="room-pill-btn">
-            <i data-lucide="refresh-cw"></i> <span>Next Scripture</span>
+            <i data-lucide="refresh-cw"></i> <span id="room-next-btn-text">Next Scripture</span>
           </button>
         </div>
       </div>
@@ -271,7 +294,7 @@
       <div class="dialog-body">
         <p class="dialog-desc">Share this sanctuary with friends to enter the same virtual room and meditate together in real time.</p>
         
-        <!-- Direct Social Share Links: WhatsApp, Telegram, Facebook, Twitter, Email -->
+        <!-- Direct Social Share Links: WhatsApp, Telegram, SMS, Facebook, Twitter, Email -->
         <div class="invite-social-grid">
           <a href="#" class="social-share-btn social-whatsapp" id="share-whatsapp" target="_blank" rel="noopener noreferrer" title="Share via WhatsApp">
             <i data-lucide="message-circle"></i>
@@ -280,6 +303,10 @@
           <a href="#" class="social-share-btn social-telegram" id="share-telegram" target="_blank" rel="noopener noreferrer" title="Share via Telegram">
             <i data-lucide="send"></i>
             <span>Telegram</span>
+          </a>
+          <a href="#" class="social-share-btn social-sms" id="share-sms" title="Share via SMS Text">
+            <i data-lucide="smartphone"></i>
+            <span>SMS Text</span>
           </a>
           <a href="#" class="social-share-btn social-facebook" id="share-facebook" target="_blank" rel="noopener noreferrer" title="Share on Facebook">
             <i data-lucide="facebook"></i>
@@ -365,6 +392,7 @@
               <option value="instrumental" data-audio-type="instrumental">Soaking Instrumental (432Hz)</option>
               <option value="worship" data-audio-type="worship">Christian Worship</option>
               <option value="sermon" data-audio-type="sermon">Sermons & Preaching</option>
+              <option value="prayer" data-audio-type="prayer">Guided Contemplative Prayer</option>
               <option value="silence" data-audio-type="silence">Silence / Ambience Only</option>
             </select>
           </label>

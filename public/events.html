@@ -30,6 +30,9 @@
           <a href="donate.html" class="highlight-link">Donation</a>
         </nav>
         <div class="nav-actions">
+          <button type="button" class="topbar-host-btn" onclick="MWE.openHostEventStudio()">
+            <i data-lucide="plus-circle"></i> Host Event
+          </button>
         </div>
       </div>
     </div>
@@ -38,11 +41,17 @@
   <main>
     <section class="module-hero module-directory-hero" id="find-events">
       <div class="module-shell module-hero-inner">
-        <div class="section-head flex-between">
+        <div class="section-head flex-between" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
           <div>
             <p class="kicker"><i data-lucide="calendar"></i> Church Events & Outreaches</p>
             <h2>Search Upcoming Gatherings</h2>
             <p class="lead">Discover in-person gatherings, conferences, outreach efforts, and streamed virtual services.</p>
+          </div>
+          <div class="hero-actions host-hero-actions" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <button type="button" class="btn-host-event" onclick="MWE.openHostEventStudio()">
+              <i data-lucide="calendar-plus"></i> Host a Workshop / Event
+            </button>
+            <div id="host-auth-status"></div>
           </div>
         </div>
       </div>
@@ -81,6 +90,11 @@
                     <input type="checkbox" value="sunday-services" onchange="MWE.onEventPillChange()" />
                     <span class="checkbox-box"><i data-lucide="check"></i></span>
                     <span class="checkbox-label">Sunday Services</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="workshops" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Workshops & Masterclasses</span>
                   </label>
                   <label class="custom-checkbox-row">
                     <input type="checkbox" value="conferences" onchange="MWE.onEventPillChange()" />

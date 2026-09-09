@@ -58,6 +58,35 @@
           </label>
 
           <div class="filter-pills-row module-filter-group">
+            <!-- Region Pill -->
+            <div class="custom-pill-filter module-filter-control" id="church-country-pill" data-filter-group="country">
+              <button type="button" class="filter-pill-btn module-filter-trigger" onclick="MWE.toggleFilterPillDropdown(this, event)">
+                <span class="pill-title">Region</span>
+                <span class="pill-badge" style="display: none;">0</span>
+                <i data-lucide="chevron-down" class="pill-arrow"></i>
+              </button>
+              <div class="filter-dropdown-panel">
+                <span class="dropdown-panel-title">Filter by Region</span>
+                <div class="dropdown-options-list">
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="Canada" onchange="MWE.onChurchPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">🇨🇦 Canada</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="United States" onchange="MWE.onChurchPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">🇺🇸 United States</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="United Kingdom" onchange="MWE.onChurchPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">🇬🇧 United Kingdom</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
             <!-- City Pill -->
             <div class="custom-pill-filter module-filter-control" id="church-city-pill" data-filter-group="city">
               <button type="button" class="filter-pill-btn module-filter-trigger" onclick="MWE.toggleFilterPillDropdown(this, event)">

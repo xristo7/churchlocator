@@ -82,10 +82,22 @@
             <div class="modern-video-wrapper" style="position: relative;">
               <iframe id="main-player-iframe" src="" style="width: 100%; height: 100%; border: none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
               
-              <!-- Video Lock Overlay (10s inactive state trigger) -->
-              <div id="video-lock-overlay" class="hidden" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; z-index: 30; box-sizing: border-box;">
-                <h3 style="color: #ffffff; font-size: 1.25rem; font-weight: 800; margin: 0 0 16px 0; font-family: inherit;">Login Required to Continue</h3>
-                <button onclick="openLoginModal(event)" style="padding: 10px 20px; border-radius: 12px; background: var(--gold); border: none; color: #ffffff; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: transform 0.2s;">Sign In / Register</button>
+              <!-- Split-Screen Interactive Stage Guest Window -->
+              <div id="stage-guest-container" class="stage-guest-container" style="display: none;">
+                <div class="stage-guest-header">
+                  <span class="stage-guest-badge"><i data-lucide="mic"></i> <strong id="stage-guest-name">Guest Speaker</strong> (On Stage)</span>
+                  <div class="stage-guest-actions">
+                    <button type="button" class="stage-btn-mute" id="btn-mute-guest" onclick="MWE.toggleGuestMute()" title="Mute Guest"><i data-lucide="mic"></i></button>
+                    <button type="button" class="stage-btn-remove" id="btn-remove-guest" onclick="MWE.removeGuestFromStage()" title="Return to Audience"><i data-lucide="user-minus"></i></button>
+                  </div>
+                </div>
+                <div class="stage-guest-feed">
+                  <img id="stage-guest-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" alt="Guest Speaker on Stage" />
+                  <div class="stage-audio-waves">
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                  <span class="stage-topic-pill" id="stage-topic-pill">Interactive Discussion</span>
+                </div>
               </div>
 
               <!-- Video Overlay Badge Layers -->
@@ -93,6 +105,7 @@
                 <span class="badge live">
                   <span style="width:6px; height:6px; background:#fff; border-radius:50%; display:inline-block; vertical-align:middle; margin-right:3px;"></span> LIVE
                 </span>
+                <span class="free-broadcast-pill"><i data-lucide="shield-check"></i> Free Broadcast</span>
               </div>
               <div class="player-overlay-badge player-overlay-right">
                 <span class="viewer-count-overlay">
@@ -106,22 +119,57 @@
               <!-- Left Column: Title, Link, and Description -->
               <div style="flex: 1; min-width: 280px;">
                 <h2 id="player-stream-title" style="margin: 0 0 8px 0; font-size: 1.6rem; font-weight: 800; color: var(--ink);">Sunday Worship Broadcast</h2>
-                <div style="margin-bottom: 12px;">
+                <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <a id="player-church-link" href="church-profile.html" style="color: var(--clay); font-weight: 700; text-decoration: none; font-size: 1.05rem; display: inline-flex; align-items: center; gap: 6px;">
                     <i data-lucide="church"></i> <span id="player-church-name">Church Name</span>
                   </a>
+                  <span class="free-broadcast-pill"><i data-lucide="unlock"></i> 100% Free · No Checkout</span>
                 </div>
                 <p id="player-stream-desc" style="color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin: 0;">Worship, Word, prayer, and visitor connection</p>
               </div>
 
-              <!-- Right Column: Buttons aligned next to Title -->
-              <div class="stream-action-buttons" style="display: flex; gap: 10px; flex-shrink: 0; align-items: center; margin-top: 8px;">
-                <a id="visit-church-btn" class="button primary">
-                  <i class="fa-solid fa-church"></i> Visit Church
+              <!-- Right Column: Interactive Stage & Action Buttons -->
+              <div class="stream-action-buttons" style="display: flex; gap: 10px; flex-shrink: 0; align-items: center; margin-top: 8px; flex-wrap: wrap;">
+                <button type="button" id="btn-request-stage" class="button primary" onclick="MWE.toggleStageRequest()">
+                  <i data-lucide="hand"></i> <span>Request Stage</span>
+                </button>
+                <button type="button" id="btn-toggle-host-panel" class="button ghost" onclick="MWE.toggleHostPanel()" title="Toggle Host & Moderator Controls">
+                  <i data-lucide="sliders"></i> <span>Host Controls</span>
+                </button>
+                <a id="visit-church-btn" class="button ghost">
+                  <i data-lucide="church"></i> Visit Church
                 </a>
                 <button id="share-stream-btn" onclick="shareStreamLink()" class="button ghost">
-                  <i class="fa-solid fa-share-nodes"></i> Share Stream
+                  <i data-lucide="share-2"></i> Share Stream
                 </button>
+              </div>
+            </div>
+
+            <!-- Host Stage Controls & Queue Drawer Panel -->
+            <div id="host-controls-panel" class="host-controls-panel" style="display: none; margin-top: 16px;">
+              <div class="host-panel-header">
+                <div class="host-panel-title">
+                  <i data-lucide="radio"></i>
+                  <strong>Interactive Fellowship & Stage Hosting</strong>
+                </div>
+                <div class="host-session-mode">
+                  <label for="host-session-format"><strong>Format:</strong></label>
+                  <select id="host-session-format" onchange="MWE.changeSessionFormat(this.value)">
+                    <option value="bible-study" selected>📖 Interactive Bible Study</option>
+                    <option value="qa">❓ Audience Q&A & Prayer</option>
+                    <option value="sermon">🎙️ Sermon / Main Service</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="host-queue-container">
+                <div class="host-queue-title">
+                  <span><i data-lucide="users"></i> Audience Stage Requests (<span id="stage-queue-count">2</span>)</span>
+                  <small>Invite guest on screen for live discussion or Q&A</small>
+                </div>
+                <div class="host-queue-list" id="host-queue-list">
+                  <!-- Injected dynamically by MWE.renderStageQueue -->
+                </div>
               </div>
             </div>
           </div>

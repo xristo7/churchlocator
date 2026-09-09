@@ -129,7 +129,15 @@ function initThemeControl() {
       </div>
     `;
 
-    target.prepend(container);
+    const langContainer = target.querySelector(".lang-selector-container");
+    const authSlot = target.querySelector("#nav-auth-slot, #nav-signin-dropdown-container, .signin-dropdown-container");
+    if (authSlot) {
+      target.insertBefore(container, authSlot);
+    } else if (langContainer && langContainer.nextSibling) {
+      target.insertBefore(container, langContainer.nextSibling);
+    } else {
+      target.appendChild(container);
+    }
 
     const trigger = container.querySelector("#theme-palette-trigger");
     const popover = container.querySelector("#theme-palette-menu");
@@ -411,6 +419,152 @@ const MWE = (() => {
         ["Prayer", "Weekly"]
       ],
       livestream: { enabled: true, paid: true, url: "https://thepeopleschurch.ca/", status: "Premium livestream active" },
+      verified: true
+    },
+    {
+      id: "lakewood-church-houston",
+      name: "Lakewood Church",
+      city: "Houston",
+      country: "United States",
+      postal: "77046",
+      denomination: "Non-denominational",
+      language: "English",
+      worship: "Contemporary",
+      area: "Central Houston",
+      distance: "US Regional hub",
+      sunday: "Sunday 8:30 AM | Sunday 11:00 AM",
+      midweek: "Wednesday 7:30 PM Praise & Bible Study",
+      location: "3700 Southwest Fwy, Houston, TX 77027",
+      website: "https://www.lakewoodchurch.com/",
+      phone: "+17134911200",
+      phoneLabel: "713-491-1200",
+      email: "contact@lakewoodchurch.com",
+      photo: "https://images.unsplash.com/photo-1548625361-16eb10f845a7?auto=format&fit=crop&w=1500&q=85",
+      logo: "assets/logo-river-city.png",
+      pastorPhoto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
+      pastor: "Pastor Joel",
+      pastorTitle: "Senior Pastor",
+      pastorBio: "Leading a compassionate, Bible-believing fellowship with outreach programs locally and internationally.",
+      welcomeMedia: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+      tagline: "Discover hope, faith, and local community in Houston.",
+      about: "Lakewood Church is a Christ-centered community offering weekly worship, dynamic children's ministries, and free ride coordination.",
+      ministries: ["Kids", "Youth", "Worship", "Prayer", "Care", "Outreach"],
+      features: ["Children's Ministry", "Youth Ministry", "Livestream Available", "Free Transportation"],
+      schedule: [
+        ["Sunday Service", "8:30 AM"],
+        ["Sunday Service", "11:00 AM"],
+        ["Midweek Gathering", "Wednesday 7:30 PM"]
+      ],
+      livestream: { enabled: true, paid: false, url: "https://www.youtube.com/embed/jiSyB8QZzk8", status: "Live Broadcast Active" },
+      verified: true
+    },
+    {
+      id: "moody-church-chicago",
+      name: "The Moody Church",
+      city: "Chicago",
+      country: "United States",
+      postal: "60614",
+      denomination: "Evangelical",
+      language: "English",
+      worship: "Blended",
+      area: "Lincoln Park",
+      distance: "US Regional hub",
+      sunday: "Sunday 10:00 AM",
+      midweek: "Thursday Small Groups",
+      location: "1635 N LaSalle Dr, Chicago, IL 60614",
+      website: "https://www.moodychurch.org/",
+      phone: "+13123278600",
+      phoneLabel: "312-327-8600",
+      email: "info@moodychurch.org",
+      photo: "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1500&q=85",
+      logo: "assets/logo-grace-life.png",
+      pastorPhoto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&q=80",
+      pastor: "Pastor Philip",
+      pastorTitle: "Senior Pastor",
+      pastorBio: "Dedicated to preaching the Word of God, encouraging faithful discipleship, and serving Chicago neighborhoods.",
+      welcomeMedia: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+      tagline: "Proclaiming the Gospel of Christ in the heart of Chicago.",
+      about: "A historic, vibrant Christian church committed to clear scripture teaching, prayer support, and loving hospitality.",
+      ministries: ["Youth", "Young Adults", "Prayer", "Missions", "Music"],
+      features: ["Children's Ministry", "Bible Study", "Livestream Available", "Public Transport Nearby"],
+      schedule: [
+        ["Sunday Service", "10:00 AM"],
+        ["Prayer Service", "Thursday 7:00 PM"]
+      ],
+      livestream: { enabled: true, paid: false, url: "https://www.youtube.com/embed/jiSyB8QZzk8", status: "Weekly Livestream" },
+      verified: true
+    },
+    {
+      id: "htb-church-london",
+      name: "Holy Trinity Brompton (HTB)",
+      city: "London",
+      country: "United Kingdom",
+      postal: "SW7 1JA",
+      denomination: "Anglican / Charismatic",
+      language: "English",
+      worship: "Contemporary",
+      area: "South Kensington",
+      distance: "UK Regional hub",
+      sunday: "Sunday 9:30 AM | Sunday 11:30 AM | Sunday 5:00 PM",
+      midweek: "Alpha Course & Prayer Evenings",
+      location: "Brompton Rd, London SW7 1JA, United Kingdom",
+      website: "https://www.htb.org/",
+      phone: "+442070520200",
+      phoneLabel: "+44 20 7052 0200",
+      email: "info@htb.org",
+      photo: "https://images.unsplash.com/photo-1519491050282-cf00c82424b4?auto=format&fit=crop&w=1500&q=85",
+      logo: "assets/logo-new-life.png",
+      pastorPhoto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80",
+      pastor: "Archie Coates",
+      pastorTitle: "Vicar",
+      pastorBio: "Serving London with dynamic worship, discipleship, Alpha courses, and community social transformation.",
+      welcomeMedia: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+      tagline: "Seeking the evangelisation of the nation and the transformation of society.",
+      about: "HTB is a friendly, vibrant church in Central London with multiple gatherings, kids work, youth ministry, and community groups.",
+      ministries: ["Alpha", "Youth", "Students", "Love Your Neighbour", "Worship"],
+      features: ["Children's Ministry", "Youth Ministry", "Livestream Available", "Public Transport Nearby"],
+      schedule: [
+        ["Morning Service", "9:30 AM"],
+        ["Family Service", "11:30 AM"],
+        ["Evening Worship", "5:00 PM"]
+      ],
+      livestream: { enabled: true, paid: false, url: "https://www.youtube.com/embed/jiSyB8QZzk8", status: "Live Broadcast Active" },
+      verified: true
+    },
+    {
+      id: "kings-church-manchester",
+      name: "King's Church Manchester",
+      city: "Manchester",
+      country: "United Kingdom",
+      postal: "M14 6ZT",
+      denomination: "Pentecostal",
+      language: "English",
+      worship: "Contemporary",
+      area: "Fallowfield",
+      distance: "UK Regional hub",
+      sunday: "Sunday 10:30 AM | Sunday 6:00 PM",
+      midweek: "Wednesday Connect Groups",
+      location: "Conyngham Rd, Manchester M14 5SA, United Kingdom",
+      website: "https://www.kingschurchmanchester.org/",
+      phone: "+441612484040",
+      phoneLabel: "+44 161 248 4040",
+      email: "hello@kingschurchmanchester.org",
+      photo: "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=1500&q=85",
+      logo: "assets/logo-river-city.png",
+      pastorPhoto: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      pastor: "Pastor David & Team",
+      pastorTitle: "Lead Pastor",
+      pastorBio: "Passionate about church planting, community outreach, student evangelism, and vibrant praise in Manchester.",
+      welcomeMedia: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+      tagline: "Connecting people to Jesus and each other across Greater Manchester.",
+      about: "A growing multicultural fellowship with passionate Sunday worship, family care, and mid-week small groups.",
+      ministries: ["Students", "Families", "Outreach", "Foodbank", "Music"],
+      features: ["Children's Ministry", "Student Ministry", "Livestream Available", "Free Sunday Transportation"],
+      schedule: [
+        ["Morning Service", "10:30 AM"],
+        ["Evening Encounter", "6:00 PM"]
+      ],
+      livestream: { enabled: true, paid: false, url: "https://www.youtube.com/embed/jiSyB8QZzk8", status: "Sunday Stream" },
       verified: true
     }
   ];
@@ -1017,7 +1171,20 @@ const MWE = (() => {
   }
 
   function showMapModal(churchId) {
-    const church = getChurch(churchId);
+    let church = null;
+    if (churchId) {
+      church = getChurch(churchId);
+    }
+    if (!church && MWE.currentProfileChurch) {
+      church = MWE.currentProfileChurch;
+    }
+    if (!church && typeof window !== "undefined") {
+      const urlId = new URLSearchParams(window.location.search).get("id");
+      if (urlId) church = getChurch(urlId);
+    }
+    if (!church) {
+      church = getChurches()[0];
+    }
     if (!church) return;
 
     let modal = document.getElementById("cpc-map-modal");
@@ -1026,46 +1193,81 @@ const MWE = (() => {
       modal.id = "cpc-map-modal";
       modal.className = "cpc-modal-backdrop";
       document.body.appendChild(modal);
+
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeMapModal();
+      });
     }
 
-    const mapEmbedUrl = MWE.MAP_SETTINGS.getEmbedUrl(church.location);
-    const mapDirectionsUrl = MWE.MAP_SETTINGS.getDirectionsUrl(church.location);
-    const providerName = MWE.MAP_SETTINGS.activeProvider === "openstreetmap" ? "OpenStreetMap" : "Google Maps";
+    const mapEmbedUrl = MWE.MAP_SETTINGS ? MWE.MAP_SETTINGS.getEmbedUrl(church.location) : `https://www.openstreetmap.org/export/embed.html?bbox=-113.7,53.4,-113.3,53.65&layer=mapnik`;
+    const mapDirectionsUrl = MWE.MAP_SETTINGS ? MWE.MAP_SETTINGS.getDirectionsUrl(church.location) : `https://www.openstreetmap.org/search?query=${encodeURIComponent(church.location)}`;
+    const providerName = (MWE.MAP_SETTINGS && MWE.MAP_SETTINGS.activeProvider === "google") ? "Google Maps" : "OpenStreetMap";
+    const photo = church.photo || church.coverImage || defaultImage;
 
     modal.innerHTML = `
       <div class="cpc-modal-content">
-        <button onclick="MWE.closeMapModal()" class="cpc-modal-close" aria-label="Close modal">
-          <i data-lucide="x" style="width: 16px; height: 16px;"></i>
-        </button>
-        
-        <div class="cpc-modal-header">
-          <h3>Directions to ${escapeHtml(church.name)}</h3>
-          <p class="cpc-modal-address"><i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> ${escapeHtml(church.location)}</p>
-        </div>
-        
-        <div class="cpc-modal-map-container" style="height: 320px; overflow: hidden; border-radius: 12px; border: 1px solid var(--line);">
-          <iframe width="100%" height="100%" frameborder="0" style="border:0;" loading="lazy" src="${mapEmbedUrl}"></iframe>
-        </div>
-        
-        <div class="cpc-modal-footer">
-          <button onclick="MWE.shareDirections('${escapeHtml(church.name.replace(/'/g, "\\'"))}', '${escapeHtml(church.location.replace(/'/g, "\\'"))}')" class="cpc-modal-btn-share">
-            <i data-lucide="share-2" style="width: 16px; height: 16px; margin-right: 4px;"></i> Share Directions
+        <div class="cpc-modal-photo-hero" style="background-image: url('${escapeHtml(photo)}');">
+          <div class="cpc-modal-photo-overlay"></div>
+          <div class="cpc-modal-photo-badges">
+            <span class="cpc-modal-photo-badge"><i data-lucide="camera"></i> Sanctuary Photo</span>
+            <span class="cpc-modal-verified-badge"><i data-lucide="badge-check"></i> Verified Church</span>
+          </div>
+          <button onclick="MWE.closeMapModal()" class="cpc-modal-close" aria-label="Close modal">
+            <i data-lucide="x" style="width: 18px; height: 18px;"></i>
           </button>
-          <a href="${mapDirectionsUrl}" target="_blank" rel="noopener noreferrer" class="cpc-modal-btn-gmaps">
-            <i data-lucide="external-link" style="width: 16px; height: 16px; margin-right: 4px;"></i> Open in ${providerName}
-          </a>
+        </div>
+
+        <div class="cpc-modal-body">
+          <div class="cpc-modal-header">
+            <h3 class="cpc-modal-church-title">${escapeHtml(church.name)}</h3>
+            <p class="cpc-modal-denomination">${escapeHtml(church.denomination || 'Christian Fellowship')} • ${escapeHtml(church.city)}${church.country ? ', ' + escapeHtml(church.country) : ''}</p>
+            <p class="cpc-modal-address"><i data-lucide="map-pin"></i> ${escapeHtml(church.location)}</p>
+            <div class="cpc-modal-meta-pills">
+              <span class="cpc-meta-pill"><i data-lucide="clock"></i> ${escapeHtml(church.sunday || 'Sunday 10:00 AM')}</span>
+              ${church.pastor ? `<span class="cpc-meta-pill"><i data-lucide="user"></i> ${escapeHtml(church.pastor)}</span>` : ''}
+              ${church.phoneLabel ? `<span class="cpc-meta-pill"><i data-lucide="phone"></i> ${escapeHtml(church.phoneLabel)}</span>` : ''}
+            </div>
+          </div>
+          
+          <div class="cpc-modal-map-container">
+            <iframe class="cpc-modal-map-frame" width="100%" height="100%" frameborder="0" style="border:0;" loading="lazy" src="${mapEmbedUrl}"></iframe>
+            
+            <!-- Interactive Map Marker Overlay with Actual Church Photo -->
+            <div class="cpc-map-marker-overlay">
+              <div class="cpc-marker-card">
+                <img src="${escapeHtml(photo)}" alt="${escapeHtml(church.name)}" class="cpc-marker-card-thumb" />
+                <div class="cpc-marker-card-info">
+                  <strong class="cpc-marker-card-name">${escapeHtml(church.name)}</strong>
+                  <span class="cpc-marker-card-loc"><i data-lucide="map-pin"></i> ${escapeHtml(church.area || church.city)}</span>
+                  <span class="cpc-marker-card-badge"><i data-lucide="check-circle-2"></i> Verified Sanctuary</span>
+                </div>
+              </div>
+              <div class="cpc-marker-pin-stem">
+                <div class="cpc-marker-pulse"></div>
+                <div class="cpc-pin-dot"><i data-lucide="map-pin"></i></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="cpc-modal-footer">
+            <button onclick="MWE.shareDirections('${escapeHtml(church.name.replace(/'/g, "\\'"))}', '${escapeHtml(church.location.replace(/'/g, "\\'"))}')" class="cpc-modal-btn-share">
+              <i data-lucide="share-2"></i> Share Directions
+            </button>
+            <a href="${mapDirectionsUrl}" target="_blank" rel="noopener noreferrer" class="cpc-modal-btn-gmaps">
+              <i data-lucide="external-link"></i> Open in ${providerName}
+            </a>
+            <a href="church-profile.html?id=${encodeURIComponent(church.id)}" class="cpc-modal-btn-profile">
+              <i data-lucide="building-2"></i> View Profile
+            </a>
+          </div>
         </div>
       </div>
     `;
 
-    if (window.lucide) {
-      window.lucide.createIcons({
-        attrs: {
-          class: 'lucide-modal-icon'
-        },
-        nameAttr: 'data-lucide',
-        nodeList: modal.querySelectorAll('[data-lucide]')
-      });
+    if (typeof createIcons === "function") {
+      createIcons();
+    } else if (window.lucide) {
+      window.lucide.createIcons();
     }
 
     modal.classList.add("open");
@@ -1080,8 +1282,19 @@ const MWE = (() => {
     document.body.style.overflow = "";
   }
 
+  if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        const modal = document.getElementById("cpc-map-modal");
+        if (modal && modal.classList.contains("open")) {
+          closeMapModal();
+        }
+      }
+    });
+  }
+
   function shareDirections(churchName, location) {
-    const directionsUrl = MWE.MAP_SETTINGS.getDirectionsUrl(location);
+    const directionsUrl = MWE.MAP_SETTINGS ? MWE.MAP_SETTINGS.getDirectionsUrl(location) : `https://www.openstreetmap.org/search?query=${encodeURIComponent(location)}`;
     const shareData = {
       title: `Directions to ${churchName}`,
       text: `Here are the directions to ${churchName} located at: ${location}`,
@@ -1104,8 +1317,8 @@ const MWE = (() => {
   }
 
   function fallbackCopyDirections(location) {
-    const directionsUrl = MWE.MAP_SETTINGS.getDirectionsUrl(location);
-    const providerName = MWE.MAP_SETTINGS.activeProvider === "openstreetmap" ? "OpenStreetMap" : "Google Maps";
+    const directionsUrl = MWE.MAP_SETTINGS ? MWE.MAP_SETTINGS.getDirectionsUrl(location) : `https://www.openstreetmap.org/search?query=${encodeURIComponent(location)}`;
+    const providerName = (MWE.MAP_SETTINGS && MWE.MAP_SETTINGS.activeProvider === "google") ? "Google Maps" : "OpenStreetMap";
     navigator.clipboard.writeText(`Address: ${location}\n${providerName}: ${directionsUrl}`)
       .then(() => {
         showToast("Directions copied to clipboard!");
@@ -1137,11 +1350,17 @@ const MWE = (() => {
     removeEvent,
     registerForEvent,
     getRegistrationsForEvent,
+    showMapModal,
+    closeMapModal,
+    shareDirections,
     fallbackCopyDirections
   };
 })();
 
 window.MWE = MWE;
+MWE.showMapModal = MWE.showMapModal || function(id) { if (typeof window !== "undefined" && window.MWE && window.MWE.showMapModal) window.MWE.showMapModal(id); };
+MWE.closeMapModal = MWE.closeMapModal || function() { if (typeof window !== "undefined" && window.MWE && window.MWE.closeMapModal) window.MWE.closeMapModal(); };
+MWE.shareDirections = MWE.shareDirections || function(n, l) { if (typeof window !== "undefined" && window.MWE && window.MWE.shareDirections) window.MWE.shareDirections(n, l); };
 
 /* My Way member experience: public discovery + authenticated SPA shell. */
 MWE.isMemberAuthenticated = function() {
@@ -1883,9 +2102,14 @@ function churchCard(church) {
             <span>•</span>
             <span><i data-lucide="clock"></i> ${MWE.escapeHtml(church.sunday || 'Sunday 10:00 AM')}</span>
           </div>
-          <a href="church-profile.html?id=${church.id}" class="immersive-pill-btn">
-            Explore Church <i data-lucide="arrow-right"></i>
-          </a>
+          <div class="church-card-action-row">
+            <a href="church-profile.html?id=${church.id}" class="immersive-pill-btn">
+              Explore <i data-lucide="arrow-right"></i>
+            </a>
+            <button type="button" class="immersive-map-btn" onclick="event.preventDefault(); event.stopPropagation(); MWE.showMapModal('${church.id}')" title="View Location on Map">
+              <i data-lucide="map-pin"></i> View Location
+            </button>
+          </div>
         </div>
       </div>
     </article>
@@ -1916,16 +2140,18 @@ function initPublicSite() {
     if (!grid) return;
     const q = (search?.value || "").toLowerCase().trim();
     
+    const selectedCountries = Array.from(document.querySelectorAll("#church-country-pill input:checked")).map(cb => cb.value.toLowerCase());
     const selectedCities = Array.from(document.querySelectorAll("#church-city-pill input:checked")).map(cb => cb.value.toLowerCase());
     const selectedDenoms = Array.from(document.querySelectorAll("#church-denom-pill input:checked")).map(cb => cb.value.toLowerCase());
 
     const filtered = MWE.getChurches().filter(church => {
       const haystack = [church.name, church.city, church.area, church.country, church.denomination, church.pastor, church.language, church.sunday, (church.ministries || []).join(" "), (church.features || []).join(" ")].join(" ").toLowerCase();
       
+      const countryMatch = selectedCountries.length === 0 || selectedCountries.some(c => (church.country || "").toLowerCase().includes(c));
       const cityMatch = selectedCities.length === 0 || selectedCities.includes(church.city.toLowerCase());
       const denomMatch = selectedDenoms.length === 0 || selectedDenoms.some(d => (church.denomination || "").toLowerCase().includes(d));
 
-      return (!q || haystack.includes(q)) && cityMatch && denomMatch;
+      return (!q || haystack.includes(q)) && countryMatch && cityMatch && denomMatch;
     });
 
     grid.innerHTML = filtered.length ? filtered.map(churchCard).join("") : `<div class="empty flex-center py-8 text-muted font-bold text-center">No churches match those filter criteria. Click 'Reset' to view all churches.</div>`;
@@ -1960,6 +2186,7 @@ function initPublicSite() {
 function renderProfile(church) {
   if (!church) return;
   document.title = `${church.name} | My Way of Evangelism`;
+  MWE.currentProfileChurch = church;
   
   document.querySelectorAll("[data-church-name]").forEach(el => { el.textContent = church.name; });
   document.querySelectorAll("[data-church-tagline]").forEach(el => { el.textContent = church.tagline || church.about || ""; });
@@ -1981,6 +2208,17 @@ function renderProfile(church) {
     leaderPhoto.src = church.pastorPhoto || defaultPastorPhoto;
   }
   document.querySelector("[data-profile-hero]")?.style.setProperty("--profile-image", `url('${church.photo}')`);
+
+  // Bind church photo to location & map preview elements
+  const churchPhoto = church.photo || church.coverImage || MWE.defaultImage;
+  document.querySelectorAll("[data-profile-map-photo]").forEach(el => {
+    if (el.tagName === "IMG") {
+      el.src = churchPhoto;
+      el.alt = church.name;
+    } else {
+      el.style.backgroundImage = `url('${churchPhoto}')`;
+    }
+  });
   
   const msgCard = document.querySelector(".message-card");
   if (msgCard) {
@@ -2057,8 +2295,11 @@ MWE.renderRelatedChurches = function(currentChurchId) {
         </div>
         <div class="split-card-action-row">
           <a href="church-profile.html?id=${encodeURIComponent(c.id)}" class="split-dark-pill-btn">
-            Explore Church <i data-lucide="arrow-right"></i>
+            Explore <i data-lucide="arrow-right"></i>
           </a>
+          <button type="button" class="split-map-btn" onclick="MWE.showMapModal('${c.id}')" title="View Location on Map">
+            <i data-lucide="map-pin"></i> View Location
+          </button>
           <button type="button" class="split-fav-btn" aria-label="Favorite" onclick="MWE.toggleFavorite(event, '${c.id}')">
             <i data-lucide="heart" style="width: 18px; height: 18px;"></i>
           </button>
@@ -2640,25 +2881,6 @@ function initProfilePage() {
   
   window.addEventListener("scroll", handleFormZoom);
 
-  // 4. Hero video mute/unmute control
-  const playOverlay = document.getElementById("hero-play-overlay");
-  const heroIframe = document.getElementById("hero-promo-iframe");
-  if (playOverlay && heroIframe) {
-    playOverlay.addEventListener("click", () => {
-      heroIframe.src = "https://www.youtube.com/embed/jiSyB8QZzk8?enablejsapi=1&autoplay=1&mute=0&loop=1&playlist=jiSyB8QZzk8";
-      playOverlay.classList.add("playing");
-    });
-    
-    const heroVideoWrapper = document.querySelector(".hero-video-wrapper");
-    if (heroVideoWrapper) {
-      heroVideoWrapper.addEventListener("click", (e) => {
-        if (playOverlay.classList.contains("playing") && e.target !== playOverlay) {
-          heroIframe.src = "https://www.youtube.com/embed/jiSyB8QZzk8?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=jiSyB8QZzk8";
-          playOverlay.classList.remove("playing");
-        }
-      });
-    }
-  }
 
   // 5. Input floating labels
   MWE.handleInputFloat = function(input) {
@@ -2722,6 +2944,29 @@ function initProfilePage() {
     });
   }, 500);
 
+  // Ensure form step button state starts strictly at Step 1 (only Continue button visible)
+  if (typeof MWE.updateFormStepUI === "function") MWE.updateFormStepUI(1);
+
+  // Initialize with Salvation category checked without auto-scrolling
+  if (typeof MWE.selectCategory === "function") MWE.selectCategory('salvation', false);
+  
+  if (typeof history !== "undefined" && history.scrollRestoration) {
+    history.scrollRestoration = 'manual';
+  }
+  if (typeof window !== "undefined" && typeof window.scrollTo === "function") {
+    window.scrollTo(0, 0);
+  }
+
+  // Auto-scroll and focus visit planner if page loaded with #register or ?action=visit
+  if (typeof window !== "undefined") {
+    if (window.location.hash === "#register" || new URLSearchParams(window.location.search).get("action") === "visit") {
+      setTimeout(() => {
+        MWE.toggleVisitPanel(true);
+      }, 250);
+    }
+  }
+}
+
 MWE.switchProfileTab = function(tabId) {
   const buttons = document.querySelectorAll(".church-tab-button");
   const panes = document.querySelectorAll(".church-tab-pane");
@@ -2747,25 +2992,46 @@ MWE.switchProfileTab = function(tabId) {
   });
 };
 
-MWE.toggleVisitPanel = function(open) {
-  document.body.classList.toggle("visit-panel-open", Boolean(open));
+MWE.toggleVisitPanel = function(open = true, targetChurchId = "") {
   const panel = document.getElementById("register");
-  if (panel && open) {
-    window.setTimeout(() => panel.querySelector("button, input, select")?.focus(), 80);
+  if (panel) {
+    if (document.body && document.body.classList) {
+      document.body.classList.toggle("visit-panel-open", Boolean(open));
+    }
+    if (open) {
+      panel.classList.add("panel-highlight-pulse");
+      if (typeof setTimeout === "function") {
+        setTimeout(() => panel.classList.remove("panel-highlight-pulse"), 2500);
+      }
+
+      // Reset to Step 1 if not currently showing a confirmed pass
+      const successPanel = document.getElementById("rsvp-success-panel");
+      if (!successPanel || !successPanel.classList.contains("active")) {
+        if (typeof MWE.updateFormStepUI === "function") MWE.updateFormStepUI(1);
+        if (typeof MWE.selectCategory === "function") MWE.selectCategory('general', false);
+      }
+
+      // Smoothly scroll directly into view
+      if (typeof panel.scrollIntoView === "function") {
+        panel.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      // Focus first interactive control
+      if (typeof window !== "undefined" && typeof window.setTimeout === "function") {
+        window.setTimeout(() => {
+          const target = panel.querySelector(".category-checkbox-card, input, select, button");
+          if (target && typeof target.focus === "function") target.focus();
+        }, 350);
+      }
+    }
+    return;
+  }
+
+  // If #register is not on the page, open dedicated Plan a Visit modal
+  if (open && typeof MWE.openPlanVisitModal === "function") {
+    MWE.openPlanVisitModal(targetChurchId);
   }
 };
-
-  // Ensure form step button state starts strictly at Step 1 (only Continue button visible)
-  MWE.updateFormStepUI(1);
-
-  // Initialize with Salvation category checked without auto-scrolling
-  MWE.selectCategory('salvation', false);
-  
-  if (history.scrollRestoration) {
-    history.scrollRestoration = 'manual';
-  }
-  window.scrollTo(0, 0);
-}
 
 function initLivestreamPage() {
   const params = new URLSearchParams(window.location.search);
@@ -2818,24 +3084,12 @@ function initLivestreamPage() {
     }
     
     const lockOverlay = document.getElementById("video-lock-overlay");
-    if (lockOverlay) lockOverlay.classList.add("hidden");
+    if (lockOverlay) lockOverlay.style.display = "none";
 
-    const isLoggedIn = localStorage.getItem("mwe.userLoggedIn") === "true";
-    if (isLoggedIn) {
-      iframe.src = embedUrl;
-    } else {
-      iframe.src = embedUrl;
-      
-      // Set 10-second inactive lock timer
-      if (videoLockTimeout) clearTimeout(videoLockTimeout);
-      videoLockTimeout = setTimeout(() => {
-        if (localStorage.getItem("mwe.userLoggedIn") !== "true") {
-          if (lockOverlay) lockOverlay.classList.remove("hidden");
-          if (typeof window.openLoginModal === "function") {
-            window.openLoginModal();
-          }
-        }
-      }, 10000);
+    iframe.src = embedUrl;
+    if (videoLockTimeout) {
+      clearTimeout(videoLockTimeout);
+      videoLockTimeout = null;
     }
   }
 
@@ -3077,30 +3331,40 @@ function initChurchPortal() {
     let rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
     const filteredRides = rides.filter(r => !r.churchId || r.churchId === currentChurchId);
 
-    const stageLabels = {
-      1: '<span class="badge pending">Stage 1: Welcome & Info Call</span>',
-      2: '<span class="badge pending" style="background:#e0f2fe; color:#0369a1;">Stage 2: Service Reminder Sent</span>',
-      3: '<span class="badge verified">Stage 3: Pickup Confirmed</span>'
-    };
+    ridesTbody.innerHTML = filteredRides.map(r => {
+      const isStage1Done = Boolean(r.stage1Confirmed || r.stage >= 2);
+      const isStage2Done = Boolean(r.stage2Confirmed || (r.stage >= 2 && r.driver && r.driver !== "Unassigned"));
+      const stageBadge = isStage2Done
+        ? '<span class="badge verified" style="background:#ecfdf5;color:#065f46;"><i data-lucide="shield-check"></i> Stage 2: Schedule Confirmed</span>'
+        : (isStage1Done
+          ? '<span class="badge pending" style="background:#e0f2fe;color:#0369a1;"><i data-lucide="phone-forwarded"></i> Stage 1 Confirmed (Availability OK)</span>'
+          : '<span class="badge pending"><i data-lucide="phone-call"></i> Stage 1: Call/Text Availability Pending</span>');
 
-    if (filteredRides.length === 0) {
-      ridesTbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No ride requests for this church yet.</td></tr>`;
-      return;
-    }
-
-    ridesTbody.innerHTML = filteredRides.map(r => `
-      <tr>
-        <td><strong>${MWE.escapeHtml(r.fullName)}</strong><br/><small class="text-muted">${MWE.escapeHtml(r.phone)}</small></td>
-        <td>${MWE.escapeHtml(r.pickupAddress)}</td>
-        <td>${MWE.escapeHtml(r.preferredService)} (${r.passengers} pass)</td>
-        <td>${stageLabels[r.stage] || stageLabels[1]}</td>
-        <td><strong>${MWE.escapeHtml(r.driver || 'Unassigned')}</strong></td>
-        <td>
-          <button type="button" class="button ghost small" onclick="MWE.advanceRideStage('${r.id}')"><i data-lucide="check-circle-2"></i> Next Follow-up Stage</button>
-          <button type="button" class="button outline small" onclick="MWE.assignDriver('${r.id}')"><i data-lucide="user-check"></i> Assign Driver</button>
-        </td>
-      </tr>
-    `).join("");
+      return `
+        <tr>
+          <td><strong>${MWE.escapeHtml(r.fullName)}</strong><br/><small class="text-muted">${MWE.escapeHtml(r.phone)}</small></td>
+          <td>${MWE.escapeHtml(r.pickupAddress)}</td>
+          <td>${MWE.escapeHtml(r.preferredService)} (${r.passengers || 1} pass)</td>
+          <td>${stageBadge}</td>
+          <td>
+            <strong>${MWE.escapeHtml(r.driver || 'Unassigned')}</strong>
+            ${r.pickupWindow && r.pickupWindow !== 'Pending availability verification' && r.pickupWindow !== 'Pending availability check' ? `<br/><small class="text-muted">${MWE.escapeHtml(r.pickupWindow)}</small>` : ''}
+          </td>
+          <td>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              ${!isStage1Done ? `
+                <button type="button" class="button primary small" onclick="MWE.confirmRideStage1('${r.id}')"><i data-lucide="phone-check"></i> Confirm Phone/Text</button>
+              ` : ''}
+              ${!isStage2Done ? `
+                <button type="button" class="button outline small" onclick="MWE.assignDriver('${r.id}')"><i data-lucide="car"></i> Confirm Schedule & Driver</button>
+              ` : `
+                <button type="button" class="button ghost small" onclick="MWE.openRideConfirmationModal('${r.id}')"><i data-lucide="eye"></i> View 2-Stage Pass</button>
+              `}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
     createIcons();
   }
 
@@ -3367,22 +3631,299 @@ async function detectUserCity() {
   return { city: "Edmonton", countryCode: "CA" };
 }
 
-function tinyChurchCard(church) {
+const HERO_CHANNEL_SEEDS = [
+  { id: "daily-word", name: "Daily Word with Amara", owner: "Amara Okafor", topic: "Bible Teaching", format: "Podcast", followers: 18400, cover: "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=900&q=82" },
+  { id: "worship-room", name: "The Worship Room", owner: "Daniel Mensah", topic: "Worship", format: "Livestream", followers: 32100, cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=82" },
+  { id: "faith-family", name: "Faith & Family Table", owner: "Rachel and Mark", topic: "Family", format: "Video", followers: 12600, cover: "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=82" },
+  { id: "gospel-business", name: "Gospel & Business", owner: "Michael Chen", topic: "Leadership", format: "Podcast", followers: 9800, cover: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=82" },
+  { id: "youth-revival", name: "Youth Revival Network", owner: "Grace Thomas", topic: "Youth", format: "Livestream", followers: 24700, cover: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=82" },
+  { id: "scripture-lab", name: "Scripture Study Lab", owner: "Dr. Peter Cole", topic: "Bible Study", format: "Video", followers: 15100, cover: "https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=900&q=82" }
+];
+
+const HERO_MEDITATION_SEEDS = [
+  { id: "room-peace", title: "Sanctuary of Peace & Stillness", subtitle: "Calm your soul and release all anxiety into His hands.", cover: "https://images.unsplash.com/photo-1548625361-195fe578ae14?auto=format&fit=crop&w=800&q=80", toneFreq: 432 },
+  { id: "room-healing", title: "Health & Divine Healing Room", subtitle: "Meditation and promises for physical and spiritual restoration.", cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80", toneFreq: 528 },
+  { id: "room-secret-place", title: "The Secret Place & Intimacy", subtitle: "Dwelling in the shadow of the Almighty.", cover: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=800&q=80", toneFreq: 432 },
+  { id: "room-worship", title: "Atmosphere of Deep Adoration", subtitle: "Soaking worship pads and heartfelt adoration.", cover: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80", toneFreq: 432 }
+];
+
+const HERO_PRODUCT_SEEDS = [
+  { id: "study-bible", title: "FaithLink Study Bible", seller: "River City Church", category: "Books", price: 48, image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=82" },
+  { id: "prayer-journal", title: "90-Day Prayer Journal", seller: "Daily Word with Amara", category: "Journals", price: 22, image: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=82" },
+  { id: "worship-hoodie", title: "Worship Is My Response Hoodie", seller: "The Worship Room", category: "Apparel", price: 54, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&q=82" },
+  { id: "communion-set", title: "Home Communion Set", seller: "Grace Community", category: "Church Supplies", price: 38, image: "https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=800&q=82" },
+  { id: "sermon-notes", title: "Sermon Notes Binder", seller: "Scripture Study Lab", category: "Study Tools", price: 26, image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=82" }
+];
+
+function tinyHeroCard(item) {
   return `
-    <a href="church-profile.html?id=${church.id}" class="tiny-church-card">
-      <img src="${MWE.escapeHtml(church.photo)}" class="tiny-card-img" alt="${MWE.escapeHtml(church.name)}" />
+    <a href="${MWE.escapeHtml(item.url || '#')}" class="tiny-church-card">
+      <img src="${MWE.escapeHtml(item.photo || item.image || item.cover || MWE.defaultImage)}" class="tiny-card-img" alt="${MWE.escapeHtml(item.name || item.title || 'Featured item')}" />
       <div class="tiny-card-info">
-        <span class="tiny-card-name">${MWE.escapeHtml(church.name)}</span>
-        <span class="tiny-card-details">${MWE.escapeHtml(church.area || church.city)}</span>
-        <span class="tiny-card-tag"><i data-lucide="map-pin" style="width: 10px; height: 10px; margin-right: 2px;"></i>${MWE.escapeHtml(church.city)}</span>
+        <span class="tiny-card-name">${MWE.escapeHtml(item.name || item.title || '')}</span>
+        <span class="tiny-card-details">${MWE.escapeHtml(item.details || item.subtitle || '')}</span>
+        <span class="tiny-card-tag"><i data-lucide="${MWE.escapeHtml(item.tagIcon || 'map-pin')}" style="width: 10px; height: 10px; margin-right: 2px;"></i>${MWE.escapeHtml(item.tagText || '')}</span>
       </div>
     </a>
   `;
 }
 
+function tinyChurchCard(church) {
+  return tinyHeroCard({
+    url: `church-profile.html?id=${church.id}`,
+    photo: church.photo,
+    name: church.name,
+    details: church.area || church.city,
+    tagIcon: "map-pin",
+    tagText: church.city
+  });
+}
+
+MWE.heroCarouselSlides = [
+  {
+    id: "churches",
+    name: "Churches",
+    title: "Find a Church Family Near You.",
+    description: "We bridge the path from search to local church community—helping seekers find verified fellowships, request free Sunday rides, receive prayer, accept Jesus Christ, and support bi-monthly orphanage outreach.",
+    btn1: { text: "Find a Church Family", url: "churches.html", icon: "search", className: "button primary lg" },
+    btn2: { text: "Register a Church", url: "church-portal.html", icon: "plus-circle", className: "button secondary lg" },
+    sliderLabelIcon: "compass",
+    sliderLabelText: "Verified churches near you",
+    getItems: () => {
+      const list = (typeof MWE.getChurches === "function" ? MWE.getChurches() : []) || [];
+      return list.map(c => ({
+        url: `church-profile.html?id=${encodeURIComponent(c.id)}`,
+        photo: c.photo || c.coverImage || MWE.defaultImage,
+        name: c.name,
+        details: c.area || c.city || "Congregation",
+        tagIcon: "map-pin",
+        tagText: c.city || "Fellowship"
+      }));
+    }
+  },
+  {
+    id: "events",
+    name: "Events",
+    title: "Discover Inspiring Meetings & Events.",
+    description: "Connect with faith-filled conferences, regional youth rallies, prayer summits, and empowering leadership workshops near you.",
+    btn1: { text: "Explore Events", url: "events.html", icon: "calendar", className: "button primary lg" },
+    btn2: { text: "Host an Event", url: "portal.html#events", icon: "plus-circle", className: "button secondary lg" },
+    sliderLabelIcon: "calendar",
+    sliderLabelText: "Upcoming community events",
+    getItems: () => {
+      const list = (typeof MWE.getEvents === "function" ? MWE.getEvents() : []) || [];
+      return list.map(evt => ({
+        url: `events.html?id=${encodeURIComponent(evt.id)}`,
+        photo: evt.image || evt.coverImage || evt.photo || MWE.defaultImage,
+        name: evt.title || evt.name,
+        details: evt.date ? `${evt.date} • ${evt.time || 'Gathering'}` : (evt.category || "Community Event"),
+        tagIcon: "calendar",
+        tagText: evt.city || evt.location || "Community"
+      }));
+    }
+  },
+  {
+    id: "channels",
+    name: "Channels",
+    title: "Inspiring Teachings & Podcasts.",
+    description: "Watch faith podcasts, deep-dive video devotionals, and uplifting sermons from verified Christian leaders and creators worldwide.",
+    btn1: { text: "Explore Channels", url: "channels.html", icon: "tv", className: "button primary lg" },
+    btn2: { text: "Launch a Channel", url: "portal.html#channels", icon: "radio", className: "button secondary lg" },
+    sliderLabelIcon: "tv",
+    sliderLabelText: "Featured gospel channels",
+    getItems: () => {
+      let raw = null;
+      try {
+        raw = window.FaithLinkModules?.getChannels?.() || JSON.parse(localStorage.getItem("faithlink.channels.v1") || "null");
+      } catch (e) {}
+      const list = (Array.isArray(raw) && raw.length > 0) ? raw : HERO_CHANNEL_SEEDS;
+      return list.map(ch => ({
+        url: `channel-detail.html?id=${encodeURIComponent(ch.id)}`,
+        photo: ch.cover || ch.avatar || MWE.defaultImage,
+        name: ch.name,
+        details: `${ch.owner || 'Creator'} • ${ch.topic || 'Gospel'}`,
+        tagIcon: "tv",
+        tagText: ch.followers ? `${Number(ch.followers) >= 1000 ? (ch.followers / 1000).toFixed(1) + 'K' : ch.followers} Followers` : (ch.format || "Channel")
+      }));
+    }
+  },
+  {
+    id: "meditation",
+    name: "Meditation",
+    title: "Meditation & Scriptural Reflection.",
+    description: "Step into serene prayer sanctuaries, guided scripture meditations, and calming instrumental worship piano sessions.",
+    btn1: { text: "Enter Sanctuary", url: "meditation.html", icon: "sparkles", className: "button primary lg" },
+    btn2: { text: "Create a Sanctuary", url: "meditation.html#create", icon: "plus-circle", className: "button secondary lg" },
+    sliderLabelIcon: "sparkles",
+    sliderLabelText: "Peaceful meditation rooms",
+    getItems: () => {
+      let raw = null;
+      try {
+        raw = window.MWEMeditation?.getRooms?.() || JSON.parse(localStorage.getItem("mwe.meditation.rooms.v1") || "null");
+      } catch (e) {}
+      const list = (Array.isArray(raw) && raw.length > 0) ? raw : HERO_MEDITATION_SEEDS;
+      return list.map(room => ({
+        url: `meditation.html?room=${encodeURIComponent(room.id)}`,
+        photo: room.cover || MWE.defaultImage,
+        name: room.title,
+        details: room.subtitle || "Scriptural Reflection & Peace",
+        tagIcon: "sparkles",
+        tagText: room.toneFreq ? `${room.toneFreq}Hz Tone` : "Sanctuary"
+      }));
+    }
+  },
+  {
+    id: "store",
+    name: "Store",
+    title: "Faith Resources & Products.",
+    description: "Discover transformative Christian books, study devotionals, inspirational apparel, and digital worship music tracks.",
+    btn1: { text: "Browse Products", url: "store.html", icon: "shopping-bag", className: "button primary lg" },
+    btn2: { text: "Open a Store", url: "seller-dashboard.html", icon: "store", className: "button secondary lg" },
+    sliderLabelIcon: "shopping-bag",
+    sliderLabelText: "Featured faith products",
+    getItems: () => {
+      let raw = null;
+      try {
+        raw = window.FaithLinkModules?.getProducts?.() || JSON.parse(localStorage.getItem("faithlink.store.products.v1") || "null");
+      } catch (e) {}
+      const list = (Array.isArray(raw) && raw.length > 0) ? raw : HERO_PRODUCT_SEEDS;
+      return list.map(p => ({
+        url: `product-detail.html?id=${encodeURIComponent(p.id)}`,
+        photo: p.image || MWE.defaultImage,
+        name: p.title,
+        details: `${p.seller || 'Faith Marketplace'} • ${p.category || 'Store'}`,
+        tagIcon: "shopping-bag",
+        tagText: `$${p.price || 25} CAD`
+      }));
+    }
+  }
+];
+
+MWE.currentHeroSlideIndex = 0;
+let heroSlideTimer = null;
+
+function renderSliderForItems(items) {
+  const slider = document.querySelector("[data-hero-slider]");
+  if (!slider) return;
+  const list = (Array.isArray(items) && items.length > 0) ? items : [];
+  let repeatCount = 1;
+  if (list.length < 5 && list.length > 0) {
+    repeatCount = Math.ceil(5 / list.length);
+  }
+  let marqueeItems = [];
+  for (let i = 0; i < repeatCount; i++) {
+    marqueeItems.push(...list);
+  }
+  const itemsToRender = [...marqueeItems, ...marqueeItems];
+  slider.innerHTML = itemsToRender.map(tinyHeroCard).join("");
+  if (window.lucide?.createIcons) window.lucide.createIcons();
+}
+
+function renderSlider(items) {
+  if (!items || !items.length) return;
+  const formatted = items.map(c => {
+    if (c.url && (c.details || c.subtitle)) return c;
+    return {
+      url: `church-profile.html?id=${encodeURIComponent(c.id || '')}`,
+      photo: c.photo || c.coverImage || MWE.defaultImage,
+      name: c.name || "Church",
+      details: c.area || c.city || "Congregation",
+      tagIcon: "map-pin",
+      tagText: c.city || "Fellowship"
+    };
+  });
+  renderSliderForItems(formatted);
+}
+
+MWE.setHeroSlide = function(index, manual = false) {
+  const slides = MWE.heroCarouselSlides;
+  if (!slides || slides.length === 0) return;
+  const nextIndex = (index + slides.length) % slides.length;
+  MWE.currentHeroSlideIndex = nextIndex;
+  const slide = slides[nextIndex];
+
+  const contentBlock = document.getElementById("hero-dynamic-content");
+  const sliderWrapper = document.getElementById("hero-slider-wrapper");
+  const sliderLabel = document.getElementById("hero-slider-label");
+  const dots = document.querySelectorAll(".hero-indicator-dot");
+
+  dots.forEach((d, i) => {
+    d.classList.toggle("active", i === nextIndex);
+    d.setAttribute("aria-current", i === nextIndex ? "true" : "false");
+  });
+
+  if (contentBlock) {
+    contentBlock.classList.add("hero-slide-animating-out");
+    contentBlock.classList.remove("hero-slide-animating-in");
+  }
+  if (sliderWrapper) {
+    sliderWrapper.classList.add("slider-animating-out");
+    sliderWrapper.classList.remove("slider-animating-in");
+  }
+
+  window.setTimeout(() => {
+    const titleEl = document.querySelector("[data-hero-title]");
+    const descEl = document.querySelector("[data-hero-desc]");
+    const btnPrimary = document.querySelector("[data-hero-btn-primary]");
+    const btnSecondary = document.querySelector("[data-hero-btn-secondary]");
+
+    if (titleEl) titleEl.textContent = slide.title;
+    if (descEl) descEl.textContent = slide.description;
+
+    if (btnPrimary) {
+      btnPrimary.setAttribute("href", slide.btn1.url);
+      btnPrimary.className = slide.btn1.className || "button primary lg";
+      btnPrimary.innerHTML = `<i data-lucide="${slide.btn1.icon}"></i> <span>${MWE.escapeHtml(slide.btn1.text)}</span>`;
+    }
+    if (btnSecondary) {
+      btnSecondary.setAttribute("href", slide.btn2.url);
+      btnSecondary.className = slide.btn2.className || "button secondary lg";
+      btnSecondary.innerHTML = `<i data-lucide="${slide.btn2.icon}"></i> <span>${MWE.escapeHtml(slide.btn2.text)}</span>`;
+    }
+
+    if (sliderLabel) {
+      sliderLabel.innerHTML = `<i data-lucide="${slide.sliderLabelIcon}"></i> <span data-hero-slider-label-text>${MWE.escapeHtml(slide.sliderLabelText)}</span>`;
+    }
+
+    renderSliderForItems(slide.getItems());
+
+    if (contentBlock) {
+      contentBlock.classList.remove("hero-slide-animating-out");
+      contentBlock.classList.add("hero-slide-animating-in");
+    }
+    if (sliderWrapper) {
+      sliderWrapper.classList.remove("slider-animating-out");
+      sliderWrapper.classList.add("slider-animating-in");
+    }
+  }, 220);
+
+  if (manual) {
+    resetHeroSlideTimer();
+  }
+};
+
+function startHeroSlideTimer() {
+  stopHeroSlideTimer();
+  heroSlideTimer = window.setInterval(() => {
+    MWE.setHeroSlide(MWE.currentHeroSlideIndex + 1);
+  }, 5500);
+}
+
+function stopHeroSlideTimer() {
+  if (heroSlideTimer) {
+    window.clearInterval(heroSlideTimer);
+    heroSlideTimer = null;
+  }
+}
+
+function resetHeroSlideTimer() {
+  startHeroSlideTimer();
+}
+
 const MWE_COUNTRIES = [
   { code: "CA", name: "Canada" },
-  { code: "US", name: "United States" }
+  { code: "US", name: "United States" },
+  { code: "GB", name: "United Kingdom" }
 ];
 
 function getFlagEmoji(countryCode) {
@@ -3394,43 +3935,104 @@ function getFlagEmoji(countryCode) {
 }
 
 async function initHeroPage() {
+  // Render homepage cards and sections immediately
+  try {
+    renderHomepageSections();
+  } catch (err) {
+    console.warn("Immediate renderHomepageSections warning:", err);
+  }
+
   const slider = document.querySelector("[data-hero-slider]");
   const datalist = document.getElementById("cities-list");
   const churches = MWE.getChurches();
 
-  function renderSlider(nearbyList) {
-    if (!slider) return;
-    const items = nearbyList.length > 0 ? nearbyList : churches;
-    let repeatCount = 1;
-    if (items.length < 5) {
-      repeatCount = Math.ceil(5 / items.length);
+  // Render initial slide cards immediately
+  if (MWE.heroCarouselSlides && MWE.heroCarouselSlides[0]) {
+    try {
+      renderSliderForItems(MWE.heroCarouselSlides[0].getItems());
+    } catch (e) {
+      console.warn("Initial hero slider render warning:", e);
     }
-    let marqueeItems = [];
-    for (let i = 0; i < repeatCount; i++) {
-      marqueeItems.push(...items);
-    }
-    const itemsToRender = [...marqueeItems, ...marqueeItems];
-    slider.innerHTML = itemsToRender.map(tinyChurchCard).join("");
-    createIcons();
   }
 
-  // Render immediately on load so slider is NEVER blank
-  renderSlider(churches);
+  // Setup slide indicator click handlers
+  document.querySelectorAll(".hero-indicator-dot").forEach(dot => {
+    dot.addEventListener("click", () => {
+      const idx = parseInt(dot.getAttribute("data-slide-index"), 10);
+      if (!isNaN(idx)) {
+        MWE.setHeroSlide(idx, true);
+      }
+    });
+  });
 
-  // Inject YouTube Player API loader to force endless looping on state change
+  // Setup pause on hover
+  const heroLeft = document.querySelector(".hero-left");
+  const sliderBox = document.getElementById("hero-slider-wrapper");
+  if (heroLeft) {
+    heroLeft.addEventListener("mouseenter", stopHeroSlideTimer);
+    heroLeft.addEventListener("mouseleave", startHeroSlideTimer);
+  }
+  if (sliderBox && sliderBox !== heroLeft) {
+    sliderBox.addEventListener("mouseenter", stopHeroSlideTimer);
+    sliderBox.addEventListener("mouseleave", startHeroSlideTimer);
+  }
+
+  // Start auto-rotation
+  startHeroSlideTimer();
+
+  // Continuous loop background video initialization (kept in place for upcoming MP4 replacement)
+  const bgVideo = document.getElementById("hero-bg-video");
+  const isVideoHidden = bgVideo && (bgVideo.hidden || bgVideo.style.display === "none");
+  if (bgVideo && !isVideoHidden) {
+    bgVideo.muted = true;
+    bgVideo.loop = true;
+    const playPromise = bgVideo.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Handled silently by browser autoplay policy
+      });
+    }
+    bgVideo.addEventListener("ended", () => {
+      bgVideo.currentTime = 0;
+      bgVideo.play();
+    });
+  }
+
+  // Inject YouTube Player API loader as resilient continuous background loop fallback (if visible)
   const iframe = document.querySelector(".video-background iframe");
-  if (iframe) {
+  const isIframeHidden = iframe && (iframe.hidden || iframe.style.display === "none" || !iframe.src);
+  if (iframe && !isIframeHidden) {
     if (!iframe.id) iframe.id = "hero-video-iframe";
     const tag = document.createElement("script");
     tag.src = "https://www.youtube.com/iframe_api";
     const firstScriptTag = document.getElementsByTagName("script")[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    if (firstScriptTag && firstScriptTag.parentNode) {
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    } else {
+      document.head.appendChild(tag);
+    }
 
     window.onYouTubeIframeAPIReady = function() {
       new YT.Player("hero-video-iframe", {
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          loop: 1,
+          modestbranding: 1,
+          rel: 0,
+          showinfo: 0,
+          iv_load_policy: 3
+        },
         events: {
+          onReady: function(event) {
+            event.target.mute();
+            event.target.playVideo();
+          },
           onStateChange: function(event) {
             if (event.data === 0) { // ended
+              event.target.seekTo(0);
               event.target.playVideo();
             }
           }
@@ -3441,11 +4043,43 @@ async function initHeroPage() {
 
   // Populate country list select dropdown
   const countrySelectElement = document.getElementById("hero-country-select");
+  const cityInput = document.getElementById("hero-city-input");
+
+  const updateCitiesForCountry = (selectedCountryCode) => {
+    const countryCodeMap = { CA: "Canada", US: "United States", GB: "United Kingdom" };
+    const countryName = countryCodeMap[selectedCountryCode] || "Canada";
+    const countryChurches = churches.filter(c => (c.country || "").toLowerCase() === countryName.toLowerCase());
+    const availableCities = countryChurches.length > 0 
+      ? [...new Set(countryChurches.map(c => c.city).filter(Boolean))].sort()
+      : [...new Set(churches.map(c => c.city).filter(Boolean))].sort();
+    
+    if (datalist) {
+      datalist.innerHTML = availableCities.map(city => `<option value="${MWE.escapeHtml(city)}">`).join("");
+    }
+
+    if (cityInput) {
+      if (selectedCountryCode === "GB") {
+        cityInput.placeholder = "e.g. London, Manchester, Edinburgh";
+      } else if (selectedCountryCode === "US") {
+        cityInput.placeholder = "e.g. Houston, Chicago, Atlanta";
+      } else {
+        cityInput.placeholder = "e.g. Edmonton, Calgary, Vancouver, Toronto";
+      }
+    }
+
+    if (countryChurches.length > 0) {
+      renderSlider(countryChurches);
+    }
+  };
+
   if (countrySelectElement) {
-    countrySelectElement.innerHTML = MWE_COUNTRIES.map(c => `<option value="${c.code}">${getFlagEmoji(c.code)} ${c.code}</option>`).join("");
+    countrySelectElement.innerHTML = MWE_COUNTRIES.map(c => `<option value="${c.code}">${getFlagEmoji(c.code)} ${c.code === "GB" ? "UK" : c.code}</option>`).join("");
+    countrySelectElement.addEventListener("change", (e) => {
+      updateCitiesForCountry(e.target.value);
+    });
   }
 
-  // 1. Populate city suggestions datalist
+  // 1. Populate initial city suggestions datalist
   if (datalist) {
     const cities = [...new Set(churches.map(c => c.city).filter(Boolean))].sort();
     datalist.innerHTML = cities.map(city => `<option value="${MWE.escapeHtml(city)}">`).join("");
@@ -3462,29 +4096,36 @@ async function initHeroPage() {
     if (loc && loc.city) {
       detectedCity = loc.city;
       const code = loc.countryCode ? loc.countryCode.toUpperCase() : "CA";
-      detectedCountry = ["CA", "US"].includes(code) ? code : "CA";
+      detectedCountry = ["CA", "US", "GB"].includes(code) ? code : "CA";
     }
   } catch (err) {
     console.log("IP lookup timed out, using default city Edmonton");
   }
 
   // 3. Auto-populate city input and select country dropdown
-  const cityInput = document.getElementById("hero-city-input");
-  if (cityInput && detectedCity) {
-    cityInput.value = detectedCity;
-  }
-  const countrySelect = document.getElementById("hero-country-select");
-  if (countrySelect && detectedCountry) {
-    countrySelect.value = detectedCountry;
-    countrySelect.dispatchEvent(new Event("change"));
+  try {
+    if (cityInput && detectedCity) {
+      cityInput.value = detectedCity;
+    }
+    const countrySelect = document.getElementById("hero-country-select");
+    if (countrySelect && detectedCountry) {
+      countrySelect.value = detectedCountry;
+      countrySelect.dispatchEvent(new Event("change"));
+    }
+  } catch (err) {
+    console.warn("Country select dispatch warning:", err);
   }
 
   // 4. Update slider with detected city matches if any
-  if (detectedCity) {
-    const cityFiltered = churches.filter(c => c.city.toLowerCase() === detectedCity.toLowerCase() && c.verified);
-    if (cityFiltered.length > 0) {
-      renderSlider(cityFiltered);
+  try {
+    if (detectedCity) {
+      const cityFiltered = churches.filter(c => c.city && c.city.toLowerCase() === detectedCity.toLowerCase() && c.verified);
+      if (cityFiltered.length > 0) {
+        renderSlider(cityFiltered);
+      }
     }
+  } catch (err) {
+    console.warn("City filtered slider warning:", err);
   }
 
   // 6. Header scrolled styling (useful on scrollable mobile views)
@@ -3500,7 +4141,405 @@ async function initHeroPage() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll(); // Initial invocation
   }
+
+  // 7. Render Front Page Showcase Sections & Authentication
+  try {
+    renderHomepageSections();
+  } catch (err) {
+    console.warn("Final renderHomepageSections warning:", err);
+  }
 }
+
+function renderHomepageSections() {
+  const churches = (typeof MWE.getChurches === "function" ? MWE.getChurches() : []) || [];
+  const events = (typeof MWE.getEvents === "function" ? MWE.getEvents() : []) || [];
+
+  // 1. Virtual Sanctuary Streams (Active & Scheduled Livestreams)
+  try {
+    const streamsGrid = document.querySelector("[data-home-streams-grid]");
+    if (streamsGrid) {
+      const liveChurches = churches.filter(c => c.livestream?.enabled === true || c.livestream?.enabled === "true").slice(0, 3);
+      const displayStreams = liveChurches.length > 0 ? liveChurches : churches.slice(0, 3);
+      streamsGrid.innerHTML = displayStreams.map(c => {
+        const isLive = Boolean(c.livestream?.enabled);
+        const photo = c.photo || c.coverImage || MWE.defaultImage;
+        return `
+          <div class="stream-card-v2">
+            <div class="stream-card-thumb">
+              <img src="${MWE.escapeHtml(photo)}" alt="${MWE.escapeHtml(c.name)}" />
+              ${isLive ? '<span class="live-pill"><span class="pulse-dot"></span> LIVE</span>' : '<span class="upcoming-pill">Sunday 10:00 AM</span>'}
+              <span class="viewer-count"><i data-lucide="eye"></i> ${isLive ? '1,420 watching' : 'Scheduled'}</span>
+            </div>
+            <div class="stream-card-body">
+              <strong>${MWE.escapeHtml(c.name)}</strong>
+              <span>${MWE.escapeHtml(c.denomination || 'Christian Church')} • ${MWE.escapeHtml(c.city)}</span>
+              <a href="livestream.html?id=${encodeURIComponent(c.id)}" class="stream-join-btn"><i data-lucide="radio"></i> Watch Stream</a>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+  } catch (err) {
+    console.error("Error rendering streams grid:", err);
+  }
+
+  // 2. Featured Churches
+  try {
+    const churchGrid = document.querySelector("[data-home-church-grid]");
+    if (churchGrid) {
+      const featuredChurches = churches.slice(0, 3);
+      churchGrid.innerHTML = featuredChurches.map(c => churchCard(c)).join("");
+    }
+  } catch (err) {
+    console.error("Error rendering church grid:", err);
+  }
+
+  // 3. Inspiring Channels & Podcasts
+  try {
+    const channelsGrid = document.querySelector("[data-home-channels-grid]");
+    if (channelsGrid) {
+      let raw = null;
+      try {
+        raw = window.FaithLinkModules?.getChannels?.() || JSON.parse(localStorage.getItem("faithlink.channels.v1") || "null");
+      } catch (e) {}
+      const channels = (Array.isArray(raw) && raw.length > 0 ? raw : HERO_CHANNEL_SEEDS).slice(0, 3);
+      channelsGrid.innerHTML = channels.map(c => {
+        const icon = c.format === "Podcast" ? "mic-2" : c.format === "Livestream" ? "radio" : "play-square";
+        const followers = Number(c.followers) >= 1000 ? (Number(c.followers) / 1000).toFixed(1) + 'K' : Number(c.followers);
+        const itemsLabel = c.format === "Podcast" ? "Episodes" : "Posts";
+
+        return `
+          <article class="channel-profile-card">
+            <a class="channel-profile-cover" href="channel-detail.html?id=${encodeURIComponent(c.id)}" aria-label="Open ${MWE.escapeHtml(c.name)}">
+              <img src="${MWE.escapeHtml(c.cover)}" alt="${MWE.escapeHtml(c.name)} cover" />
+              <span class="channel-format"><i data-lucide="${icon}"></i>${MWE.escapeHtml(c.format)}</span>
+              ${c.live ? '<span class="channel-live"><i data-lucide="radio"></i> Live</span>' : ''}
+              <img class="channel-profile-avatar" src="${MWE.escapeHtml(c.avatar || c.cover)}" alt="${MWE.escapeHtml(c.owner)}" />
+            </a>
+            <div class="channel-profile-body">
+              <div class="channel-profile-identity">
+                <div>
+                  <h3><a href="channel-detail.html?id=${encodeURIComponent(c.id)}">${MWE.escapeHtml(c.name)}</a>${c.verified ? '<i data-lucide="badge-check" aria-label="Verified"></i>' : ''}</h3>
+                  <span>${MWE.escapeHtml(c.owner)} · ${MWE.escapeHtml(c.topic)}</span>
+                </div>
+                <span class="channel-online"><i></i>${c.live ? "Live now" : "Active"}</span>
+              </div>
+              <p>${MWE.escapeHtml(c.description || '')}</p>
+              <div class="channel-platform-stats">
+                <span><strong>${followers}</strong><small>Followers</small></span>
+                <span><strong>${Number(c.items || 48).toLocaleString()}</strong><small>${itemsLabel}</small></span>
+                <span><strong>${c.verified ? "4.9" : "4.7"}</strong><small>Rating</small></span>
+              </div>
+              <a class="channel-contact-button" href="messages.html?compose=channel&id=${encodeURIComponent(c.id)}"><i data-lucide="message-circle"></i> Connect with ${MWE.escapeHtml((c.owner || 'Host').split(' ')[0])}</a>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+  } catch (err) {
+    console.error("Error rendering channels grid:", err);
+  }
+
+  // 4. Featured Ministry Essentials / Store Products
+  try {
+    const storeGrid = document.querySelector("[data-home-store-grid]");
+    if (storeGrid) {
+      let raw = null;
+      try {
+        raw = window.FaithLinkModules?.getProducts?.() || JSON.parse(localStorage.getItem("faithlink.store.products.v1") || "null");
+      } catch (e) {}
+      const products = (Array.isArray(raw) && raw.length > 0 ? raw : HERO_PRODUCT_SEEDS).slice(0, 3);
+      storeGrid.innerHTML = products.map(p => {
+        const priceStr = `$${Number(p.price || 0).toFixed(2)} CAD`;
+        return `
+          <article class="store-product-card product-card">
+            <a class="product-image-wrap" href="product-detail.html?id=${encodeURIComponent(p.id)}" aria-label="View ${MWE.escapeHtml(p.title)}">
+              <img class="product-image" src="${MWE.escapeHtml(p.image)}" alt="${MWE.escapeHtml(p.title)}" />
+              <span class="product-badge">${MWE.escapeHtml(p.sellerType || 'Store')} · ${MWE.escapeHtml(p.category || 'Books')}</span>
+            </a>
+            <div class="product-card-body">
+              <span class="product-seller">Sold by ${MWE.escapeHtml(p.seller || 'FaithLink')}</span>
+              <h3><a href="product-detail.html?id=${encodeURIComponent(p.id)}">${MWE.escapeHtml(p.title)}</a></h3>
+              <span class="product-rating"><i data-lucide="star"></i>${Number(p.rating || 4.8).toFixed(1)} · In stock</span>
+              <div class="product-price-row">
+                <div><span class="product-price">${priceStr}</span></div>
+                <a class="button ghost sm" href="product-detail.html?id=${encodeURIComponent(p.id)}">Details</a>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+  } catch (err) {
+    console.error("Error rendering store grid:", err);
+  }
+
+  // 5. Upcoming Events
+  try {
+    const eventsGrid = document.querySelector("[data-home-events-grid]");
+    if (eventsGrid) {
+      const featuredEvents = events.slice(0, 3);
+      if (typeof MWE.createEventCardHtml === "function") {
+        eventsGrid.innerHTML = featuredEvents.map(evt => MWE.createEventCardHtml(evt, false)).join("");
+      }
+    }
+  } catch (err) {
+    console.error("Error rendering events grid:", err);
+  }
+
+  // 6. Update Authentication UI
+  try {
+    updateHomepageAuthUI();
+  } catch (err) {
+    console.error("Error updating auth UI:", err);
+  }
+
+  if (window.lucide && typeof window.lucide.createIcons === "function") {
+    window.lucide.createIcons();
+  }
+}
+
+MWE.renderHomepageSections = renderHomepageSections;
+
+function updateHomepageAuthUI() {
+  const isAuth = MWE.isMemberAuthenticated();
+  const username = localStorage.getItem("mwe.username") || "Member";
+  const userEmail = localStorage.getItem("mwe.userEmail") || "";
+
+  // Topbar auth area
+  const topbarAuth = document.getElementById("homepage-nav-auth") || document.querySelector(".topbar .nav-actions");
+  if (topbarAuth) {
+    let authSlot = topbarAuth.querySelector("#nav-auth-slot");
+    if (!authSlot) {
+      authSlot = document.createElement("div");
+      authSlot.id = "nav-auth-slot";
+      authSlot.style.display = "inline-flex";
+      authSlot.style.alignItems = "center";
+      authSlot.style.gap = "8px";
+      topbarAuth.appendChild(authSlot);
+    }
+
+    if (isAuth) {
+      // Header on hero landing page must NEVER have profile link, member hub, or logout button
+      authSlot.innerHTML = "";
+    } else {
+      authSlot.innerHTML = `
+        <div class="signin-dropdown-container" id="nav-signin-dropdown-container">
+          <button type="button" class="button ghost small nav-signin-btn" id="nav-signin-trigger" aria-haspopup="dialog" aria-expanded="false" onclick="MWE.toggleNavSigninDropdown(event)">
+            <i data-lucide="user"></i> <span>Sign In</span> <i data-lucide="chevron-down" class="nav-chevron-icon"></i>
+          </button>
+          <div class="signin-dropdown-popover" id="nav-signin-popover" hidden role="dialog" aria-label="Sign In and Register">
+            <div class="signin-dropdown-header">
+              <strong><i data-lucide="shield-check"></i> Account Access</strong>
+            </div>
+
+            <!-- Switch buttons like light/dark mode switch -->
+            <div class="auth-mode-toggle-group">
+              <button type="button" class="auth-mode-toggle-btn active" id="tab-btn-signin" data-auth-tab="signin" onclick="MWE.switchAuthDropdownTab('signin')">
+                <i data-lucide="log-in"></i> Sign In
+              </button>
+              <button type="button" class="auth-mode-toggle-btn" id="tab-btn-register" data-auth-tab="register" onclick="MWE.switchAuthDropdownTab('register')">
+                <i data-lucide="user-plus"></i> Register
+              </button>
+            </div>
+
+            <!-- Google One-Click Fast Auth -->
+            <button type="button" class="google-auth-fast-btn" onclick="MWE.handleGoogleAuthFast()">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span id="google-auth-fast-label">Continue with Google</span>
+            </button>
+
+            <div class="auth-divider"><span>or with credentials</span></div>
+
+            <!-- Auth Credentials Form -->
+            <form id="nav-dropdown-auth-form" onsubmit="MWE.handleNavDropdownAuthSubmit(event)">
+              <div class="form-group mb-2" id="nav-auth-name-group" style="display: none;">
+                <label for="nav-auth-name">Full Name</label>
+                <input type="text" id="nav-auth-name" name="name" class="field small-field" placeholder="e.g. John Doe" />
+              </div>
+              <div class="form-group mb-2">
+                <label for="nav-auth-email" id="nav-auth-email-label">Username or Email</label>
+                <input type="text" id="nav-auth-email" name="email" class="field small-field" placeholder="you@example.com" required />
+              </div>
+              <div class="form-group mb-3">
+                <label for="nav-auth-password">Password</label>
+                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required />
+              </div>
+              <button type="submit" class="button primary small" id="nav-auth-submit-btn" style="width: 100%;">
+                <i data-lucide="log-in"></i> <span>Sign In</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+    // Clean up any stray church-portal, member hub, profile, or logout buttons
+    topbarAuth.querySelectorAll(".nav-portal-btn, a[href*='app.html'], button[onclick*='logoutMember']").forEach(el => el.remove());
+  }
+
+  // Homepage faith hub callout card container
+  const authContainer = document.getElementById("home-auth-status-container");
+  if (authContainer) {
+    if (isAuth) {
+      authContainer.innerHTML = `
+        <span class="eyebrow"><i data-lucide="user-check"></i> Welcome Back, ${MWE.escapeHtml(username)}!</span>
+        <h2>Your Faith Hub is Active</h2>
+        <p class="lead">You are signed in as ${MWE.escapeHtml(userEmail || username)}. Your saved churches, event passes, and prayer sanctuary rooms are ready for you.</p>
+        <div class="faith-hub-btn-group">
+          <a href="app.html" class="button primary lg"><i data-lucide="layout-dashboard"></i> Launch Member Hub</a>
+          <button type="button" class="button ghost lg" onclick="MWE.logoutMember()"><i data-lucide="log-out"></i> Sign Out</button>
+        </div>
+      `;
+    } else {
+      authContainer.innerHTML = `
+        <span class="eyebrow"><i data-lucide="sparkles"></i> Your Personal Faith Journey</span>
+        <h2>Sign In to Your Faith Hub</h2>
+        <p class="lead">Sign in to save favorite churches, reserve event passes, access private meditation prayer rooms, submit prayer requests, and connect directly with pastors across our network.</p>
+        <div class="faith-hub-btn-group" id="home-auth-actions-row">
+          <button type="button" class="button primary lg" onclick="MWE.toggleNavSigninDropdown(event)">
+            <i data-lucide="log-in"></i> <span>Sign In to Account</span>
+          </button>
+          <button type="button" class="button secondary lg" onclick="MWE.switchAuthDropdownTab('register'); MWE.toggleNavSigninDropdown(event);">
+            <i data-lucide="user-plus"></i> <span>Register Free Account</span>
+          </button>
+        </div>
+      `;
+    }
+  }
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+MWE.toggleNavSigninDropdown = function(event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  const popover = document.getElementById("nav-signin-popover");
+  const trigger = document.getElementById("nav-signin-trigger");
+  if (!popover) return;
+  const isHidden = popover.hidden;
+  popover.hidden = !isHidden;
+  if (trigger) trigger.setAttribute("aria-expanded", String(isHidden));
+  const container = document.getElementById("nav-signin-dropdown-container");
+  if (container) container.classList.toggle("is-open", !isHidden);
+
+  // Close theme popover if open
+  const themeMenu = document.getElementById("theme-palette-menu");
+  if (themeMenu && !themeMenu.hidden) {
+    themeMenu.hidden = true;
+    document.getElementById("theme-palette-trigger")?.setAttribute("aria-expanded", "false");
+  }
+  if (window.lucide) window.lucide.createIcons();
+};
+
+MWE.switchAuthDropdownTab = function(tab) {
+  const btnSignin = document.getElementById("tab-btn-signin");
+  const btnRegister = document.getElementById("tab-btn-register");
+  const nameGroup = document.getElementById("nav-auth-name-group");
+  const emailLabel = document.getElementById("nav-auth-email-label");
+  const submitBtn = document.getElementById("nav-auth-submit-btn");
+  const googleLabel = document.getElementById("google-auth-fast-label");
+
+  if (tab === "register") {
+    btnRegister?.classList.add("active");
+    btnSignin?.classList.remove("active");
+    if (nameGroup) nameGroup.style.display = "block";
+    if (emailLabel) emailLabel.textContent = "Email Address";
+    if (submitBtn) submitBtn.innerHTML = `<i data-lucide="user-plus"></i> <span>Create Account</span>`;
+    if (googleLabel) googleLabel.textContent = "Sign up with Google";
+  } else {
+    btnSignin?.classList.add("active");
+    btnRegister?.classList.remove("active");
+    if (nameGroup) nameGroup.style.display = "none";
+    if (emailLabel) emailLabel.textContent = "Username or Email";
+    if (submitBtn) submitBtn.innerHTML = `<i data-lucide="log-in"></i> <span>Sign In</span>`;
+    if (googleLabel) googleLabel.textContent = "Continue with Google";
+  }
+  if (window.lucide) window.lucide.createIcons();
+};
+
+MWE.handleNavDropdownAuthSubmit = function(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const fd = new FormData(form);
+  const name = (fd.get("name") || "").toString().trim();
+  const email = (fd.get("email") || "").toString().trim() || "Member";
+  const username = name || email.split("@")[0] || "Member";
+
+  localStorage.setItem("mwe.userLoggedIn", "true");
+  localStorage.setItem("mwe.username", username);
+  localStorage.setItem("mwe.userEmail", email.toLowerCase());
+
+  const popover = document.getElementById("nav-signin-popover");
+  if (popover) popover.hidden = true;
+  document.getElementById("nav-signin-dropdown-container")?.classList.remove("is-open");
+
+  if (typeof showToast === "function") {
+    showToast("Welcome to My Way of Evangelism, " + username);
+  }
+  updateHomepageAuthUI();
+};
+
+MWE.handleGoogleAuthFast = function() {
+  const defaultGoogleName = "Google Seeker";
+  const defaultGoogleEmail = "seeker@gmail.com";
+
+  localStorage.setItem("mwe.userLoggedIn", "true");
+  localStorage.setItem("mwe.username", defaultGoogleName);
+  localStorage.setItem("mwe.userEmail", defaultGoogleEmail);
+
+  const popover = document.getElementById("nav-signin-popover");
+  if (popover) popover.hidden = true;
+  document.getElementById("nav-signin-dropdown-container")?.classList.remove("is-open");
+
+  if (typeof showToast === "function") {
+    showToast("Signed in with Google as " + defaultGoogleName);
+  }
+  updateHomepageAuthUI();
+};
+
+document.addEventListener("click", function(event) {
+  const container = document.getElementById("nav-signin-dropdown-container");
+  const popover = document.getElementById("nav-signin-popover");
+  if (container && popover && !popover.hidden) {
+    if (!container.contains(event.target)) {
+      popover.hidden = true;
+      document.getElementById("nav-signin-trigger")?.setAttribute("aria-expanded", "false");
+      container.classList.remove("is-open");
+    }
+  }
+});
+
+MWE.logoutMember = function() {
+  localStorage.removeItem("mwe.userLoggedIn");
+  localStorage.removeItem("mwe.username");
+  localStorage.removeItem("mwe.userEmail");
+  localStorage.removeItem("mwe.creator_auth");
+  localStorage.removeItem("mwe.active_account_email");
+  document.body.classList.remove("member-auth-open");
+  document.body.classList.remove("is-authenticated");
+  if (typeof showToast === "function") showToast("You have been signed out.");
+  updateHomepageAuthUI();
+};
+
+MWE.handleHomepageQuickLogin = function(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const emailInput = form.querySelector("input[name='email']");
+  const email = (emailInput?.value || "").trim() || "Member";
+  const username = email.split("@")[0] || "Member";
+  localStorage.setItem("mwe.userLoggedIn", "true");
+  localStorage.setItem("mwe.username", username);
+  localStorage.setItem("mwe.userEmail", email.toLowerCase());
+  if (typeof showToast === "function") showToast(`Welcome back, ${username}!`);
+  updateHomepageAuthUI();
+};
 
 function initCustomDropdowns() {
   const selectElements = document.querySelectorAll("select.field, select.custom-select-target, .site-search-bar select.module-select, .module-directory-toolbar select.module-select");
@@ -3890,34 +4929,41 @@ function initTranslations() {
 
   const topbars = document.querySelectorAll(".topbar-inner .nav-actions");
   topbars.forEach(navActions => {
-    if (navActions.querySelector(".lang-selector-container")) return;
+    let container = navActions.querySelector(".lang-selector-container");
+    let btn = container?.querySelector(".lang-selector-btn");
+    let panel = container?.querySelector(".lang-selector-panel");
 
-    const container = document.createElement("div");
-    container.className = "lang-selector-container";
+    if (!container) {
+      container = document.createElement("div");
+      container.className = "lang-selector-container";
 
-    const btn = document.createElement("button");
-    btn.className = "lang-selector-btn";
-    btn.type = "button";
-    btn.innerHTML = `<span class="lang-flag">${flags[currentLang]}</span> <span class="lang-text">${shortNames[currentLang]}</span> <i data-lucide="chevron-down" class="lang-chevron"></i>`;
-    container.appendChild(btn);
+      btn = document.createElement("button");
+      btn.className = "lang-selector-btn";
+      btn.type = "button";
+      btn.innerHTML = `<span class="lang-flag">${flags[currentLang]}</span> <span class="lang-text">${shortNames[currentLang]}</span> <i data-lucide="chevron-down" class="lang-chevron"></i>`;
+      container.appendChild(btn);
 
-    const panel = document.createElement("div");
-    panel.className = "lang-selector-panel";
-    panel.innerHTML = `
-      <div class="lang-option" data-lang="en"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg></span> English</div>
-      <div class="lang-option" data-lang="fr"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="6.67" height="15" fill="#002654"/><rect x="6.67" width="6.66" height="15" fill="#ffffff"/><rect x="13.33" width="6.67" height="15" fill="#ce1126"/></svg></span> Français</div>
-      <div class="lang-option" data-lang="es"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#aa151b"/><rect y="3.75" width="20" height="7.5" fill="#f1bf00"/><circle cx="6" cy="7.5" r="2" fill="#aa151b"/></svg></span> Español</div>
-    `;
-    container.appendChild(panel);
+      panel = document.createElement("div");
+      panel.className = "lang-selector-panel";
+      panel.innerHTML = `
+        <div class="lang-option" data-lang="en"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg></span> English</div>
+        <div class="lang-option" data-lang="fr"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="6.67" height="15" fill="#002654"/><rect x="6.67" width="6.66" height="15" fill="#ffffff"/><rect x="13.33" width="6.67" height="15" fill="#ce1126"/></svg></span> Français</div>
+        <div class="lang-option" data-lang="es"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#aa151b"/><rect y="3.75" width="20" height="7.5" fill="#f1bf00"/><circle cx="6" cy="7.5" r="2" fill="#aa151b"/></svg></span> Español</div>
+      `;
+      container.appendChild(panel);
 
-    navActions.insertBefore(container, navActions.firstChild);
+      navActions.insertBefore(container, navActions.firstChild);
+    }
 
-    btn.addEventListener("click", (e) => {
+    if (container.dataset.bound === "true") return;
+    container.dataset.bound = "true";
+
+    btn?.addEventListener("click", (e) => {
       e.stopPropagation();
       container.classList.toggle("open");
     });
 
-    panel.querySelectorAll(".lang-option").forEach(opt => {
+    panel?.querySelectorAll(".lang-option").forEach(opt => {
       opt.addEventListener("click", () => {
         const lang = opt.dataset.lang;
         applyLanguage(lang);
@@ -4342,10 +5388,29 @@ MWE.renderEventsList = function() {
     }
 
     // Event type / category filter
+    const catCheckboxes = document.querySelectorAll("#event-cat-pill input:checked");
+    const activeCatValues = Array.from(catCheckboxes).map(cb => cb.value);
+
+    const categoryHaystack = [evt.eventType, evt.category, evt.title, evt.description, (evt.highlights || []).map(h => (h.title || "") + " " + (h.desc || "")).join(" ")].join(" ").toLowerCase();
+
+    if (activeCatValues.length > 0) {
+      const matchesAny = activeCatValues.some(val => {
+        if (val === "in-person") return evt.eventType === "in-person" || evt.format === "in-person";
+        if (val === "streamed") return evt.eventType === "streamed" || evt.format === "streamed";
+        if (val === "sunday-services") return categoryHaystack.includes("sunday") || categoryHaystack.includes("worship") || categoryHaystack.includes("service");
+        if (val === "conferences") return categoryHaystack.includes("conference") || categoryHaystack.includes("awakening") || categoryHaystack.includes("summit");
+        if (val === "youth-events") return categoryHaystack.includes("youth") || categoryHaystack.includes("student");
+        if (val === "prayer-programs") return categoryHaystack.includes("prayer") || categoryHaystack.includes("praise") || categoryHaystack.includes("fasting");
+        if (val === "workshops") return evt.isWorkshop || evt.eventType === "workshop" || evt.category === "workshop" || categoryHaystack.includes("workshop") || categoryHaystack.includes("masterclass") || categoryHaystack.includes("seminar");
+        return categoryHaystack.includes(val);
+      });
+      if (!matchesAny) return false;
+    }
+
     if (typeFilter !== "all") {
-      const categoryHaystack = [evt.eventType, evt.title, evt.description, (evt.highlights || []).map(h => (h.title || "") + " " + (h.desc || "")).join(" ")].join(" ").toLowerCase();
       if (typeFilter === "in-person" && evt.eventType !== "in-person") return false;
       if (typeFilter === "streamed" && evt.eventType !== "streamed") return false;
+      if (typeFilter === "workshops" && !evt.isWorkshop && evt.eventType !== "workshop" && evt.category !== "workshop" && !categoryHaystack.includes("workshop") && !categoryHaystack.includes("masterclass") && !categoryHaystack.includes("seminar")) return false;
       if (typeFilter === "sunday-services" && !categoryHaystack.includes("sunday") && !categoryHaystack.includes("worship") && !categoryHaystack.includes("service")) return false;
       if (typeFilter === "conferences" && !categoryHaystack.includes("conference") && !categoryHaystack.includes("awakening") && !categoryHaystack.includes("forum")) return false;
       if (typeFilter === "youth-events" && !categoryHaystack.includes("youth") && !categoryHaystack.includes("student")) return false;
@@ -4390,8 +5455,8 @@ MWE.renderEventsList = function() {
       : filtered;
 
     if (listEvents.length === 0) {
-      listGrid.innerHTML = "";
       if (emptyState) emptyState.style.display = "block";
+      listGrid.innerHTML = "";
     } else {
       if (emptyState) emptyState.style.display = "none";
       listGrid.innerHTML = listEvents.map(evt => MWE.createEventCardHtml(evt, false)).join("");
@@ -4413,8 +5478,14 @@ MWE.createEventCardHtml = function(evt, isFeatured = false) {
   const bgPhoto = evt.coverImageUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80';
 
   let badgeHtml = "";
-  if (evt.eventType === "streamed") badgeHtml = `<span class="event-card-top-badge" style="color: #dc2626;"><span style="width:6px; height:6px; background:#dc2626; border-radius:50%; display:inline-block;"></span> LIVE</span>`;
-  else if (isPast) badgeHtml = `<span class="event-card-top-badge" style="color: #64748b;">Past</span>`;
+  if (evt.isHosted || evt.isWorkshop || evt.category === "workshop" || evt.eventType === "workshop") {
+    const hostLabel = evt.organization || evt.hostName || "Community Workshop";
+    badgeHtml = `<span class="event-card-top-badge workshop-badge"><i data-lucide="award"></i> Workshop • ${MWE.escapeHtml(hostLabel)}</span>`;
+  } else if (evt.eventType === "streamed") {
+    badgeHtml = `<span class="event-card-top-badge" style="color: #dc2626;"><span style="width:6px; height:6px; background:#dc2626; border-radius:50%; display:inline-block;"></span> LIVE</span>`;
+  } else if (isPast) {
+    badgeHtml = `<span class="event-card-top-badge" style="color: #64748b;">Past</span>`;
+  }
 
   if (isFeatured) {
     return `
@@ -5584,24 +6655,12 @@ MWE.openLivePlayer = function(churchId) {
   }
   
   const lockOverlay = document.getElementById("video-lock-overlay");
-  if (lockOverlay) lockOverlay.classList.add("hidden");
+  if (lockOverlay) lockOverlay.style.display = "none";
 
-  const isLoggedIn = localStorage.getItem("mwe.userLoggedIn") === "true";
-  if (isLoggedIn) {
-    iframe.src = embedUrl;
-  } else {
-    iframe.src = embedUrl;
-    
-    // Set 10-second inactive lock timer
-    if (videoLockTimeout) clearTimeout(videoLockTimeout);
-    videoLockTimeout = setTimeout(() => {
-      if (localStorage.getItem("mwe.userLoggedIn") !== "true") {
-        if (lockOverlay) lockOverlay.classList.remove("hidden");
-        if (typeof window.openLoginModal === "function") {
-          window.openLoginModal();
-        }
-      }
-    }, 10000);
+  iframe.src = embedUrl;
+  if (videoLockTimeout) {
+    clearTimeout(videoLockTimeout);
+    videoLockTimeout = null;
   }
 
   // Render view layout toggles
@@ -5749,6 +6808,203 @@ MWE.toggleLights = function() {
   createIcons();
 };
 
+// ==========================================
+// INTERACTIVE LIVE & STAGE HOSTING MODULE
+// ==========================================
+MWE.stageState = {
+  hasGuest: false,
+  guestMuted: false,
+  sessionFormat: "bible-study", // "sermon" | "bible-study" | "qa"
+  userRequestedStage: false,
+  queue: [
+    {
+      id: "guest-1",
+      name: "Sister Grace",
+      topic: "Bible Study: Walking in Romans 8:31",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    },
+    {
+      id: "guest-2",
+      name: "Brother Daniel",
+      topic: "Q&A: Sharing faith with university colleagues",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80"
+    }
+  ]
+};
+
+MWE.toggleStageRequest = function() {
+  MWE.stageState.userRequestedStage = !MWE.stageState.userRequestedStage;
+  const btn = document.getElementById("btn-request-stage");
+  const userName = localStorage.getItem("mwe.username") || "Viewer";
+  
+  if (MWE.stageState.userRequestedStage) {
+    const defaultTopic = MWE.stageState.sessionFormat === "qa" ? "Q&A Question" : (MWE.stageState.sessionFormat === "bible-study" ? "Bible Study Discussion" : "Prayer Request");
+    const userTopic = (typeof window.prompt === "function" ? window.prompt("Enter your question or discussion point for the host:", defaultTopic) : defaultTopic) || defaultTopic;
+    
+    // Add user to queue
+    const myId = "user-guest-" + Date.now();
+    MWE.stageState.queue.push({
+      id: myId,
+      name: userName,
+      topic: userTopic,
+      avatar: localStorage.getItem("mwe.userAvatar") || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80"
+    });
+    
+    if (btn) {
+      btn.className = "button ghost";
+      btn.innerHTML = '<i data-lucide="check"></i> <span>Hand Raised (In Queue)</span>';
+    }
+    showToast(`Request sent to the host for "${userTopic}".`);
+  } else {
+    // Remove user from queue
+    MWE.stageState.queue = MWE.stageState.queue.filter(q => q.name !== userName);
+    if (btn) {
+      btn.className = "button primary";
+      btn.innerHTML = '<i data-lucide="hand"></i> <span>Request Stage</span>';
+    }
+    showToast("Your stage request was withdrawn.");
+  }
+  MWE.renderStageQueue();
+  window.lucide?.createIcons();
+};
+
+MWE.toggleHostPanel = function() {
+  const panel = document.getElementById("host-controls-panel");
+  if (!panel) return;
+  const isHidden = panel.style.display === "none" || !panel.style.display;
+  panel.style.display = isHidden ? "block" : "none";
+  MWE.renderStageQueue();
+};
+
+MWE.changeSessionFormat = function(format) {
+  MWE.stageState.sessionFormat = format;
+  const labelMap = {
+    "sermon": "Sermon / Main Service",
+    "bible-study": "Interactive Bible Study",
+    "qa": "Audience Q&A & Prayer Ministry"
+  };
+  MWE.postSystemChatAnnouncement(`Format updated by Host: Now in ${labelMap[format] || format} mode.`);
+  showToast(`Session format set to ${labelMap[format] || format}`);
+};
+
+MWE.renderStageQueue = function() {
+  const queueList = document.getElementById("host-queue-list");
+  const queueCount = document.getElementById("stage-queue-count");
+  if (queueCount) queueCount.textContent = MWE.stageState.queue.length;
+  if (!queueList) return;
+
+  if (!MWE.stageState.queue.length) {
+    queueList.innerHTML = '<p class="queue-empty-text" style="color:var(--text-muted); font-size:0.8rem; margin:8px 0;">No audience members in queue. Viewers can click "Request Stage" to join.</p>';
+    return;
+  }
+
+  queueList.innerHTML = MWE.stageState.queue.map(guest => `
+    <div class="stage-queue-card" id="queue-card-${guest.id}">
+      <img src="${guest.avatar}" alt="${MWE.escapeHtml(guest.name)}" class="queue-card-avatar" />
+      <div class="queue-card-info">
+        <strong>${MWE.escapeHtml(guest.name)}</strong>
+        <span>${MWE.escapeHtml(guest.topic)}</span>
+      </div>
+      <div class="queue-card-actions">
+        <button type="button" class="btn-bring-stage" onclick="MWE.bringGuestToStage('${guest.id}')">
+          <i data-lucide="video"></i> <span>Bring to Stage</span>
+        </button>
+        <button type="button" class="btn-dismiss-request" onclick="MWE.dismissStageRequest('${guest.id}')" title="Dismiss">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+    </div>
+  `).join("");
+  window.lucide?.createIcons();
+};
+
+MWE.bringGuestToStage = function(guestId) {
+  const guest = MWE.stageState.queue.find(q => q.id === guestId);
+  if (!guest) return;
+
+  MWE.stageState.hasGuest = true;
+  MWE.stageState.currentGuest = guest;
+  MWE.stageState.guestMuted = false;
+  MWE.stageState.queue = MWE.stageState.queue.filter(q => q.id !== guestId);
+
+  // Update Split-Screen Video Stage
+  const stageWrapper = document.querySelector(".modern-video-wrapper");
+  const guestContainer = document.getElementById("stage-guest-container");
+  const guestName = document.getElementById("stage-guest-name");
+  const guestAvatar = document.getElementById("stage-guest-avatar");
+  const topicPill = document.getElementById("stage-topic-pill");
+
+  if (stageWrapper) stageWrapper.classList.add("has-guest-on-stage");
+  if (guestContainer) {
+    guestContainer.style.display = "flex";
+    guestContainer.classList.add("active");
+  }
+  if (guestName) guestName.textContent = guest.name;
+  if (guestAvatar) guestAvatar.src = guest.avatar;
+  if (topicPill) topicPill.textContent = guest.topic;
+
+  // Post chat announcement
+  MWE.postSystemChatAnnouncement(`🎙️ ${guest.name} was brought on stage by the Host for "${guest.topic}".`);
+  showToast(`${guest.name} is now live on stage!`);
+
+  MWE.renderStageQueue();
+  window.lucide?.createIcons();
+};
+
+MWE.removeGuestFromStage = function() {
+  if (!MWE.stageState.currentGuest) return;
+  const name = MWE.stageState.currentGuest.name;
+
+  MWE.stageState.hasGuest = false;
+  MWE.stageState.currentGuest = null;
+  MWE.stageState.guestMuted = false;
+
+  const stageWrapper = document.querySelector(".modern-video-wrapper");
+  const guestContainer = document.getElementById("stage-guest-container");
+
+  if (stageWrapper) stageWrapper.classList.remove("has-guest-on-stage");
+  if (guestContainer) {
+    guestContainer.style.display = "none";
+    guestContainer.classList.remove("active");
+  }
+
+  MWE.postSystemChatAnnouncement(`👋 ${name} has returned to the audience.`);
+  showToast(`${name} returned to audience.`);
+  MWE.renderStageQueue();
+  window.lucide?.createIcons();
+};
+
+MWE.toggleGuestMute = function() {
+  MWE.stageState.guestMuted = !MWE.stageState.guestMuted;
+  const muteBtn = document.getElementById("btn-mute-guest");
+  const waves = document.querySelector(".stage-audio-waves");
+  if (muteBtn) {
+    muteBtn.innerHTML = MWE.stageState.guestMuted ? '<i data-lucide="mic-off"></i>' : '<i data-lucide="mic"></i>';
+    muteBtn.title = MWE.stageState.guestMuted ? "Unmute Guest" : "Mute Guest";
+  }
+  if (waves) {
+    waves.style.opacity = MWE.stageState.guestMuted ? "0.2" : "1";
+  }
+  showToast(MWE.stageState.guestMuted ? "Guest microphone muted" : "Guest microphone live");
+  window.lucide?.createIcons();
+};
+
+MWE.dismissStageRequest = function(guestId) {
+  MWE.stageState.queue = MWE.stageState.queue.filter(q => q.id !== guestId);
+  MWE.renderStageQueue();
+};
+
+MWE.postSystemChatAnnouncement = function(text) {
+  const chatBox = document.getElementById("player-chat-box");
+  if (!chatBox) return;
+  const msgEl = document.createElement("div");
+  msgEl.className = "stream-chat-announcement";
+  msgEl.innerHTML = `<span><i data-lucide="sparkles"></i> ${MWE.escapeHtml(text)}</span>`;
+  chatBox.appendChild(msgEl);
+  chatBox.scrollTop = chatBox.scrollHeight;
+  window.lucide?.createIcons();
+};
+
 function initStreamsPage() {
   const streamsList = document.getElementById("active-streams-list");
   const emptyState = document.getElementById("streams-empty-state");
@@ -5820,6 +7076,9 @@ function initEventsPage() {
 
   // Initial render
   MWE.renderEventsList();
+  if (typeof MWE.updateHostAuthUI === "function") {
+    MWE.updateHostAuthUI();
+  }
 }
 
 // ==========================================
@@ -5935,40 +7194,86 @@ MWE.handleRideSubmit = function(e) {
   const targetChurch = churches.find(c => c.id === data.churchId) || churches[0];
   
   const rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
-  rides.push({
+  const newRide = {
     id: "ride-" + Date.now(),
     churchId: targetChurch.id,
     churchName: targetChurch.name,
     fullName: data.fullName,
     phone: data.phone,
     email: data.email,
-    passengers: data.passengers || 1,
-    preferredService: data.preferredService,
+    ageGroup: data.ageGroup || "Adult",
+    passengers: Number(data.passengers) || 1,
+    preferredService: data.preferredService || "Sunday 10:00 AM Service",
     pickupAddress: data.pickupAddress,
-    status: "new",
-    stage: 1, // Stage 1: Welcome contact
+    accessibility: data.accessibility || "",
+    stage: 1, // Stage 1: Call/text to confirm availability
+    stage1Confirmed: false,
+    stage2Confirmed: false,
     driver: "Unassigned",
+    pickupWindow: "Pending availability verification",
+    status: "stage1_pending",
     createdAt: new Date().toISOString()
-  });
+  };
+  rides.push(newRide);
   localStorage.setItem("mwe.ride_requests", JSON.stringify(rides));
   
   const backdrop = document.getElementById("ride-modal-backdrop");
   if (backdrop) backdrop.remove();
   
-  showToast(`Your ride request for ${targetChurch.name} has been submitted! Their local transportation team will contact you.`);
+  showToast(`Ride request submitted for ${targetChurch.name}! Opening 2-stage tracker...`);
+  MWE.openRideConfirmationModal(newRide.id);
 };
 
-MWE.advanceRideStage = function(id) {
+MWE.confirmRideStage1 = function(id) {
   let rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
+  let updatedRide = null;
   rides = rides.map(r => {
     if (r.id === id) {
-      const nextStage = r.stage >= 3 ? 3 : (r.stage || 1) + 1;
-      return { ...r, stage: nextStage };
+      updatedRide = { ...r, stage1Confirmed: true, stage: 2, status: "stage2_scheduling" };
+      return updatedRide;
     }
     return r;
   });
   localStorage.setItem("mwe.ride_requests", JSON.stringify(rides));
-  showToast("Advanced ride request to next follow-up stage!");
+  showToast("Stage 1 Confirmed: Availability check completed via phone/text!");
+
+  const modalContainer = document.getElementById("ride-confirmation-modal");
+  if (modalContainer && updatedRide) {
+    MWE.openRideConfirmationModal(id);
+  }
+
+  if (typeof initChurchPortal === "function") {
+    const select = document.querySelector("[data-portal-select]");
+    if (select) select.dispatchEvent(new Event("change"));
+  }
+};
+
+MWE.confirmRideSchedule = function(id, driverName = "Deacon Mark (Church Van #1)", timeWindow = "Sunday 9:15 AM - 9:30 AM") {
+  let rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
+  let updatedRide = null;
+  rides = rides.map(r => {
+    if (r.id === id) {
+      updatedRide = {
+        ...r,
+        stage1Confirmed: true,
+        stage2Confirmed: true,
+        stage: 2,
+        driver: driverName,
+        pickupWindow: timeWindow,
+        status: "confirmed"
+      };
+      return updatedRide;
+    }
+    return r;
+  });
+  localStorage.setItem("mwe.ride_requests", JSON.stringify(rides));
+  showToast(`Stage 2 Complete: Ride schedule confirmed with ${driverName}!`);
+
+  const modalContainer = document.getElementById("ride-confirmation-modal");
+  if (modalContainer && updatedRide) {
+    MWE.openRideConfirmationModal(id);
+  }
+
   if (typeof initChurchPortal === "function") {
     const select = document.querySelector("[data-portal-select]");
     if (select) select.dispatchEvent(new Event("change"));
@@ -5976,13 +7281,301 @@ MWE.advanceRideStage = function(id) {
 };
 
 MWE.assignDriver = function(id) {
-  const driverName = prompt("Enter assigned driver name (e.g., Deacon Mark - Van #1):", "Deacon Mark (Van #1)");
+  const defaultDriver = "Deacon Mark (Church Van #1)";
+  let driverName = "";
+  if (typeof window !== "undefined" && typeof window.prompt === "function") {
+    driverName = window.prompt("Enter assigned driver name & vehicle:", defaultDriver);
+  } else {
+    driverName = defaultDriver;
+  }
   if (!driverName) return;
 
+  let timeWindow = "Sunday 9:15 AM - 9:30 AM";
+  if (typeof window !== "undefined" && typeof window.prompt === "function") {
+    timeWindow = window.prompt("Enter pickup time window:", timeWindow) || timeWindow;
+  }
+  MWE.confirmRideSchedule(id, driverName, timeWindow);
+};
+
+MWE.advanceRideStage = function(id) {
   let rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
-  rides = rides.map(r => r.id === id ? { ...r, driver: driverName, stage: 3 } : r);
-  localStorage.setItem("mwe.ride_requests", JSON.stringify(rides));
-  showToast(`Assigned ${driverName} to pickup!`);
+  const r = rides.find(x => x.id === id);
+  if (!r) return;
+  if (!r.stage1Confirmed) {
+    MWE.confirmRideStage1(id);
+  } else {
+    MWE.confirmRideSchedule(id);
+  }
+};
+
+MWE.openRideConfirmationModal = function(rideId) {
+  const rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
+  const r = rides.find(item => item.id === rideId) || rides[rides.length - 1];
+  if (!r) return;
+
+  let modal = document.getElementById("ride-confirmation-modal");
+  if (modal) modal.remove();
+
+  modal = document.createElement("div");
+  modal.id = "ride-confirmation-modal";
+  modal.className = "alert-modal-backdrop open";
+
+  const isStage1Done = Boolean(r.stage1Confirmed || r.stage >= 2);
+  const isStage2Done = Boolean(r.stage2Confirmed || (r.stage >= 2 && r.driver && r.driver !== "Unassigned"));
+
+  modal.innerHTML = `
+    <div class="dash-panel dash-panel-pad ride-confirmation-panel" style="max-width: 580px; width: 92%; margin: 24px auto; max-height: 90vh; overflow-y: auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.3);">
+      <div class="category-head flex-between" style="border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 18px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="category-icon" style="background: var(--primary-gradient); color: #fff;"><i data-lucide="car"></i></span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.25rem;">Ride Request Confirmation</h3>
+            <p class="text-xs text-muted" style="margin: 2px 0 0 0;">2-Stage Transportation Confirmation • ${MWE.escapeHtml(r.churchName)}</p>
+          </div>
+        </div>
+        <button type="button" class="button ghost small" onclick="document.getElementById('ride-confirmation-modal').remove()" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+
+      <!-- 2-Stage Visual Stepper Header -->
+      <div class="ride-stepper-tracker">
+        <div class="ride-step-node ${isStage1Done ? 'completed' : 'active'}">
+          <div class="ride-step-circle">
+            <i data-lucide="${isStage1Done ? 'check' : 'phone-call'}"></i>
+          </div>
+          <div class="ride-step-text">
+            <strong>Stage 1</strong>
+            <span>Call/Text Availability</span>
+          </div>
+        </div>
+        <div class="ride-step-line ${isStage1Done ? 'completed' : ''}"></div>
+        <div class="ride-step-node ${isStage2Done ? 'completed' : (isStage1Done ? 'active' : 'locked')}">
+          <div class="ride-step-circle">
+            <i data-lucide="${isStage2Done ? 'check' : 'calendar-check'}"></i>
+          </div>
+          <div class="ride-step-text">
+            <strong>Stage 2</strong>
+            <span>Schedule Confirmed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 1 Status Card -->
+      <div class="ride-stage-card ${isStage1Done ? 'is-done' : 'is-active'}" style="margin-top: 18px;">
+        <div class="ride-stage-header flex-between">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="stage-num-pill">1</span>
+            <strong>Stage 1: Call / Text Availability Confirmation</strong>
+          </div>
+          ${isStage1Done 
+            ? `<span class="badge verified"><i data-lucide="check-circle-2"></i> Availability Verified</span>`
+            : `<span class="badge pending"><i data-lucide="phone-incoming"></i> Call / Text Pending</span>`
+          }
+        </div>
+        <div class="ride-stage-body mt-2">
+          ${isStage1Done ? `
+            <p class="text-xs text-slate-600">
+              <i data-lucide="check" style="color: #10b981; width: 14px; height: 14px; display: inline-block;"></i>
+              Rider phone <strong>${MWE.escapeHtml(r.phone)}</strong> and pickup location have been confirmed by dispatch.
+            </p>
+          ` : `
+            <p class="text-xs text-slate-600">
+              Our local church transportation dispatcher has received your request and will call or text <strong>${MWE.escapeHtml(r.phone)}</strong> to confirm driver availability for <strong>${MWE.escapeHtml(r.preferredService)}</strong>.
+            </p>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+              <button type="button" class="button primary small" onclick="MWE.confirmRideStage1('${r.id}')">
+                <i data-lucide="phone-forwarded"></i> Confirm Phone / Text Received
+              </button>
+            </div>
+          `}
+        </div>
+      </div>
+
+      <!-- Stage 2 Status Card -->
+      <div class="ride-stage-card ${isStage2Done ? 'is-done' : (isStage1Done ? 'is-active' : 'is-locked')}" style="margin-top: 14px;">
+        <div class="ride-stage-header flex-between">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="stage-num-pill">2</span>
+            <strong>Stage 2: Schedule Confirmation & Driver Details</strong>
+          </div>
+          ${isStage2Done 
+            ? `<span class="badge verified" style="background:#ecfdf5;color:#065f46;"><i data-lucide="shield-check"></i> Schedule Confirmed</span>`
+            : (isStage1Done
+              ? `<span class="badge pending"><i data-lucide="calendar-clock"></i> Assigning Driver</span>`
+              : `<span class="badge locked"><i data-lucide="lock"></i> Locked (Complete Stage 1 First)</span>`)
+          }
+        </div>
+        <div class="ride-stage-body mt-2">
+          ${isStage2Done ? `
+            <div class="ride-scheduled-details" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:12px; margin-top:8px;">
+              <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; font-size:0.8rem;">
+                <div><span class="text-muted">Assigned Driver:</span><br/><strong>${MWE.escapeHtml(r.driver)}</strong></div>
+                <div><span class="text-muted">Pickup Window:</span><br/><strong>${MWE.escapeHtml(r.pickupWindow)}</strong></div>
+                <div><span class="text-muted">Pickup Location:</span><br/><span>${MWE.escapeHtml(r.pickupAddress)}</span></div>
+                <div><span class="text-muted">Service:</span><br/><span>${MWE.escapeHtml(r.preferredService)}</span></div>
+              </div>
+              <p class="text-xs text-slate-500 mt-2" style="border-top:1px dashed #cbd5e1; padding-top:6px; margin-bottom:0;">
+                <i data-lucide="info" style="width:13px; height:13px; display:inline-block;"></i>
+                Please be ready at your pickup address 10 minutes prior to your time window. Your driver will text upon arrival.
+              </p>
+            </div>
+          ` : (isStage1Done ? `
+            <p class="text-xs text-slate-600">
+              Availability is verified! The transportation team is locking in the vehicle route and driver assignment.
+            </p>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+              <button type="button" class="button primary small" onclick="MWE.confirmRideSchedule('${r.id}')">
+                <i data-lucide="calendar-check"></i> Finalize Schedule Confirmation
+              </button>
+            </div>
+          ` : `
+            <p class="text-xs text-muted">
+              Once phone/text contact is completed in Stage 1, your exact pickup schedule and driver assignment will appear here.
+            </p>
+          `)}
+        </div>
+      </div>
+
+      <!-- Summary Details -->
+      <div class="mt-4 pt-3" style="border-top: 1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <span class="text-xs text-muted">Passenger: <strong>${MWE.escapeHtml(r.fullName)}</strong> (${r.passengers || 1} seat)</span>
+        <button type="button" class="button ghost small" onclick="document.getElementById('ride-confirmation-modal').remove()">Done</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  createIcons();
+};
+
+MWE.openPlanVisitModal = function(targetChurchId = "") {
+  const churches = MWE.getChurches();
+  let selectedChurchId = targetChurchId;
+  if (!selectedChurchId && typeof getRouteChurch === "function") {
+    const rc = getRouteChurch();
+    if (rc) selectedChurchId = rc.id;
+  }
+  if (!selectedChurchId) selectedChurchId = churches[0]?.id || "";
+  const church = churches.find(c => c.id === selectedChurchId) || churches[0];
+
+  let backdrop = document.getElementById("plan-visit-modal-backdrop");
+  if (backdrop) backdrop.remove();
+
+  backdrop = document.createElement("div");
+  backdrop.className = "alert-modal-backdrop open";
+  backdrop.id = "plan-visit-modal-backdrop";
+  backdrop.innerHTML = `
+    <div class="dash-panel dash-panel-pad" style="max-width: 540px; width: 92%; margin: 20px auto; max-height: 90vh; overflow-y: auto; border-radius: 24px;">
+      <div class="category-head flex-between">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="category-icon" style="background:var(--primary-gradient); color:#fff;"><i data-lucide="calendar-heart"></i></span>
+          <div>
+            <h3 style="margin:0; font-size:1.25rem;">Plan Your Visit</h3>
+            <p class="text-xs text-muted" style="margin:2px 0 0 0;">Connect with ${MWE.escapeHtml(church.name)} • ${MWE.escapeHtml(church.city)}</p>
+          </div>
+        </div>
+        <button type="button" class="button ghost small" onclick="document.getElementById('plan-visit-modal-backdrop').remove()"><i data-lucide="x"></i></button>
+      </div>
+
+      <div id="modal-visit-form-container">
+        <form id="global-plan-visit-form" onsubmit="MWE.handleGlobalVisitSubmit(event)" class="mt-4">
+          <label class="form-field mb-2"><span>Select Church *</span>
+            <select name="churchId" class="field" required onchange="MWE.onVisitChurchChange(this.value)">
+              ${churches.map(c => `<option value="${c.id}" ${c.id === selectedChurchId ? 'selected' : ''}>${MWE.escapeHtml(c.name)} (${MWE.escapeHtml(c.city)})</option>`).join("")}
+            </select>
+          </label>
+          <label class="form-field mb-2"><span>Preferred Gathering Time *</span>
+            <select name="gathering" id="modal-gathering-select" class="field" required>
+              ${(church.schedule || [["Sunday Service", church.sunday || "10:00 AM"]]).map(([label, time]) => `<option value="${label} (${time})">${label} - ${time}</option>`).join("")}
+            </select>
+          </label>
+          <div class="compact-grid">
+            <label class="form-field"><span>First Name *</span><input required name="firstName" placeholder="First Name" class="field" /></label>
+            <label class="form-field"><span>Last Name *</span><input required name="lastName" placeholder="Last Name" class="field" /></label>
+          </div>
+          <div class="compact-grid mt-2">
+            <label class="form-field"><span>Email Address *</span><input required type="email" name="email" placeholder="you@example.com" class="field" /></label>
+            <label class="form-field"><span>Phone Number *</span><input required type="tel" name="phone" placeholder="(555) 000-1234" class="field" /></label>
+          </div>
+          <div class="form-field mt-2">
+            <span>What would you like assistance with?</span>
+            <div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">
+              <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" name="interests" value="first_visit" checked /> First-time visitor welcome & tour</label>
+              <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" name="interests" value="kids" /> Children's & Youth ministry check-in</label>
+              <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" name="interests" value="pastor" /> Connect with Pastoral team</label>
+              <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" name="interests" value="ride" /> Free ride to church needed</label>
+            </div>
+          </div>
+          <div class="editor-actions mt-4" style="display:flex; gap:10px; justify-content:flex-end;">
+            <button type="button" class="button ghost" onclick="document.getElementById('plan-visit-modal-backdrop').remove()">Cancel</button>
+            <button type="submit" class="button primary"><i data-lucide="ticket"></i> Confirm Visit Pass</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  createIcons();
+};
+
+MWE.onVisitChurchChange = function(churchId) {
+  const churches = MWE.getChurches();
+  const church = churches.find(c => c.id === churchId);
+  const select = document.getElementById("modal-gathering-select");
+  if (select && church) {
+    const schedules = church.schedule || [["Sunday Service", church.sunday || "10:00 AM"]];
+    select.innerHTML = schedules.map(([label, time]) => `<option value="${label} (${time})">${label} - ${time}</option>`).join("");
+  }
+};
+
+MWE.handleGlobalVisitSubmit = function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+  const interests = Array.from(form.querySelectorAll("input[name='interests']:checked")).map(cb => cb.value);
+  const churches = MWE.getChurches();
+  const church = churches.find(c => c.id === data.churchId) || churches[0];
+  const passCode = "PASS-" + Math.random().toString(36).substring(2, 9).toUpperCase();
+
+  const visitRequests = JSON.parse(localStorage.getItem("mwe.visit_requests") || "[]");
+  visitRequests.push({
+    id: "visit-" + Date.now(),
+    churchId: church.id,
+    churchName: church.name,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    phone: data.phone,
+    gathering: data.gathering,
+    interests,
+    passCode,
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem("mwe.visit_requests", JSON.stringify(visitRequests));
+
+  const container = document.getElementById("modal-visit-form-container");
+  if (container) {
+    container.innerHTML = `
+      <div style="text-align:center; padding: 24px 12px;">
+        <div style="width:60px; height:60px; border-radius:50%; background:#10b981; color:#fff; display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto; font-size:1.6rem;">
+          <i data-lucide="check"></i>
+        </div>
+        <h3 style="font-size:1.3rem; font-weight:800; color:#0f172a; margin:0 0 6px 0;">Visit Pass Confirmed!</h3>
+        <p style="font-size:0.88rem; color:#64748b; max-width:420px; margin:0 auto 16px auto;">
+          We're thrilled to welcome you to <strong>${MWE.escapeHtml(church.name)}</strong> for <strong>${MWE.escapeHtml(data.gathering)}</strong>.
+        </p>
+        <div style="background:#f8fafc; border:1px dashed #cbd5e1; border-radius:16px; padding:14px; max-width:320px; margin:0 auto 20px auto;">
+          <span style="font-size:0.72rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.05em;">Your Guest Pass Code</span>
+          <div style="font-size:1.4rem; font-weight:900; color:#0f172a; letter-spacing:0.1em; margin-top:4px;">${passCode}</div>
+        </div>
+        <div style="display:flex; gap:10px; justify-content:center;">
+          <button type="button" class="button primary" onclick="document.getElementById('plan-visit-modal-backdrop').remove()">Done</button>
+          <a href="church-profile.html?id=${church.id}" class="button outline">View Church Profile</a>
+        </div>
+      </div>
+    `;
+    createIcons();
+  }
+
   if (typeof initChurchPortal === "function") {
     const select = document.querySelector("[data-portal-select]");
     if (select) select.dispatchEvent(new Event("change"));
@@ -6481,7 +8074,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const page = document.body.dataset.page;
   initPrivateAppAuth();
-  if (page === "home") initHeroPage();
+  if (page === "home") {
+    try {
+      renderHomepageSections();
+    } catch (e) {
+      console.warn("DOMContentLoaded renderHomepageSections warning:", e);
+    }
+    initHeroPage();
+  }
   if (page === "public") initPublicSite();
   if (page === "profile") initProfilePage();
   if (page === "livestream") initLivestreamPage();
@@ -6610,18 +8210,17 @@ function initGlobalHeaderAndFooter() {
 
   const rawPath = window.location.pathname.split("/").pop() || "index.html";
   const currentPage = document.body.dataset.page || rawPath.replace(".html", "") || "index";
+  const isHomePage = document.body.classList.contains("hero-only-page") || currentPage === "home" || rawPath === "index.html" || rawPath === "";
   const isSinglePage = currentPage === "profile" || currentPage === "event-profile" || currentPage === "livestream-profile" || rawPath.includes("church-profile") || rawPath.includes("event-profile") || (footerElem && footerElem.classList.contains("minimal"));
 
-  if (headerElem) {
+  if (headerElem && !isHomePage) {
     headerElem.innerHTML = headerHTML;
   }
   if (footerElem) {
-    if (document.body.classList.contains("hero-only-page") || currentPage === "home" || rawPath === "index.html" || rawPath === "") {
-      footerElem.remove();
-    } else {
+    if (!footerElem.innerHTML.trim() || footerElem.children.length === 0) {
       footerElem.innerHTML = isSinglePage ? minimalFooterHTML : footerHTML;
-      if (isSinglePage) footerElem.classList.add("minimal");
     }
+    if (isSinglePage) footerElem.classList.add("minimal");
   }
 
   // Highlight active nav link based on current page URL / body data-page
@@ -6756,6 +8355,7 @@ MWE.updatePillState = function(pillId, defaultTitle) {
 };
 
 MWE.onChurchPillChange = function() {
+  MWE.updatePillState("church-country-pill", "Region");
   MWE.updatePillState("church-city-pill", "City");
   MWE.updatePillState("church-denom-pill", "Denomination");
   
@@ -6765,10 +8365,11 @@ MWE.onChurchPillChange = function() {
 };
 
 MWE.resetChurchPillFilters = function() {
-  document.querySelectorAll("#church-city-pill input, #church-denom-pill input").forEach(cb => cb.checked = false);
+  document.querySelectorAll("#church-country-pill input, #church-city-pill input, #church-denom-pill input").forEach(cb => cb.checked = false);
   const searchInput = document.querySelector("[data-search]");
   if (searchInput) searchInput.value = "";
   
+  MWE.updatePillState("church-country-pill", "Region");
   MWE.updatePillState("church-city-pill", "City");
   MWE.updatePillState("church-denom-pill", "Denomination");
   
@@ -6840,4 +8441,833 @@ document.addEventListener("keydown", (e) => {
     MWE.closeChurchVideoModal();
   }
 });
+
+/* ==========================================================================
+   TASK 8: EVENTS PLATFORM (EXTERNAL USER ACCOUNT & WORKSHOP/EVENT HOSTING)
+   ========================================================================== */
+
+const EVENT_HOST_STORAGE_KEY = "mwe.event_host_account";
+const EVENT_REGISTRATIONS_KEY = "mwe.event_registrations";
+
+MWE.getEventHost = function() {
+  try {
+    if (typeof localStorage === "undefined") return null;
+    const raw = localStorage.getItem(EVENT_HOST_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+MWE.setEventHost = function(hostData) {
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(EVENT_HOST_STORAGE_KEY, JSON.stringify(hostData));
+    }
+    if (typeof MWE.updateHostAuthUI === "function") {
+      MWE.updateHostAuthUI();
+    }
+    return hostData;
+  } catch (err) {
+    console.error("Failed to save host account:", err);
+    return null;
+  }
+};
+
+MWE.logoutEventHost = function() {
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(EVENT_HOST_STORAGE_KEY);
+    }
+    if (typeof MWE.updateHostAuthUI === "function") {
+      MWE.updateHostAuthUI();
+    }
+    if (typeof showToast === "function") {
+      showToast("You have signed out of your organizer account.");
+    }
+  } catch (err) {
+    console.error("Failed to logout host:", err);
+  }
+};
+
+MWE.updateHostAuthUI = function() {
+  const statusContainer = document.getElementById("host-auth-status");
+  const host = MWE.getEventHost();
+
+  if (statusContainer) {
+    if (host) {
+      statusContainer.innerHTML = `
+        <div class="host-auth-status-chip">
+          <div class="host-auth-avatar"><i data-lucide="user-check"></i></div>
+          <div class="host-auth-info">
+            <strong>${MWE.escapeHtml(host.name)}</strong>
+            <span>${MWE.escapeHtml(host.organization || host.role || "Host")}</span>
+          </div>
+          <button type="button" class="button ghost small" onclick="MWE.openHostDashboard()" title="Open Organizer Dashboard">
+            <i data-lucide="layout-dashboard"></i> Dashboard
+          </button>
+          <button type="button" class="button ghost small" onclick="MWE.logoutEventHost()" title="Log out" aria-label="Log out">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      `;
+      statusContainer.style.display = "flex";
+    } else {
+      statusContainer.innerHTML = "";
+      statusContainer.style.display = "none";
+    }
+  }
+
+  // Update topbar host buttons
+  document.querySelectorAll(".topbar-host-btn").forEach(btn => {
+    if (host) {
+      btn.innerHTML = `<i data-lucide="layout-dashboard"></i> Host Studio`;
+    } else {
+      btn.innerHTML = `<i data-lucide="plus-circle"></i> Host Event`;
+    }
+  });
+
+  if (typeof createIcons === "function") createIcons();
+};
+
+MWE.openHostAuthModal = function(onSuccessCallback = null) {
+  let modal = document.getElementById("host-auth-modal");
+  if (modal) modal.remove();
+
+  modal = document.createElement("div");
+  modal.id = "host-auth-modal";
+  modal.className = "alert-modal-backdrop open";
+
+  modal.innerHTML = `
+    <div class="dash-panel dash-panel-pad host-auth-panel" style="max-width: 490px; width: 92%; margin: 30px auto; max-height: 90vh; overflow-y: auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.3);">
+      <div class="category-head flex-between" style="border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="category-icon" style="background: var(--primary-gradient); color: #fff;"><i data-lucide="award"></i></span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.2rem;">Organizer & Host Access</h3>
+            <p class="text-xs text-muted" style="margin: 2px 0 0 0;">Host workshops, seminars, conferences & rallies</p>
+          </div>
+        </div>
+        <button type="button" class="button ghost small" onclick="document.getElementById('host-auth-modal').remove()" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+
+      <!-- Tab Switcher: Sign In vs Sign Up -->
+      <div class="host-tab-switcher" style="display: flex; gap: 8px; margin-bottom: 18px; border-bottom: 1px solid var(--line); padding-bottom: 8px;">
+        <button type="button" class="button primary small" id="btn-host-tab-signup" onclick="MWE.switchHostAuthTab('signup')">Create Account</button>
+        <button type="button" class="button ghost small" id="btn-host-tab-signin" onclick="MWE.switchHostAuthTab('signin')">Sign In</button>
+      </div>
+
+      <!-- Registration Form -->
+      <form id="host-signup-form" onsubmit="MWE.handleHostSignup(event)">
+        <div class="compact-grid">
+          <label class="form-field"><span>Full Name *</span><input required name="name" placeholder="Pastor or Leader Name" class="field" /></label>
+          <label class="form-field"><span>Email Address *</span><input required type="email" name="email" placeholder="leader@ministry.org" class="field" /></label>
+        </div>
+        <div class="compact-grid mt-2">
+          <label class="form-field"><span>Ministry / Organization *</span><input required name="organization" placeholder="e.g. Kingdom Leadership Network" class="field" /></label>
+          <label class="form-field"><span>Primary Role *</span>
+            <select name="role" class="field" required>
+              <option value="Workshop Leader">Workshop Leader</option>
+              <option value="Guest Speaker">Guest Speaker / Evangelist</option>
+              <option value="Conference Director">Conference Director</option>
+              <option value="Youth Director">Youth & Student Director</option>
+              <option value="Community Organizer">Community Organizer</option>
+              <option value="Senior Pastor">Senior Pastor / Church Leader</option>
+            </select>
+          </label>
+        </div>
+        <div class="compact-grid mt-2">
+          <label class="form-field"><span>Contact Phone *</span><input required type="tel" name="phone" placeholder="(555) 000-1234" class="field" /></label>
+          <label class="form-field"><span>Password *</span><input required type="password" name="password" minlength="6" placeholder="At least 6 characters" class="field" /></label>
+        </div>
+        <div class="form-field mt-2">
+          <span>Short Bio / Ministry Focus</span>
+          <textarea name="bio" rows="2" class="field" placeholder="Brief background about your teaching, ministry, or workshop specialty..."></textarea>
+        </div>
+        <div class="editor-actions mt-4" style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" class="button ghost" onclick="document.getElementById('host-auth-modal').remove()">Cancel</button>
+          <button type="submit" class="button primary"><i data-lucide="user-plus"></i> Create Host Account & Proceed</button>
+        </div>
+      </form>
+
+      <!-- Sign In Form (Hidden by default) -->
+      <form id="host-signin-form" style="display: none;" onsubmit="MWE.handleHostSignin(event)">
+        <label class="form-field mb-2"><span>Email Address *</span><input required type="email" name="email" placeholder="leader@ministry.org" class="field" /></label>
+        <label class="form-field mb-2"><span>Password *</span><input required type="password" name="password" placeholder="Your password" class="field" /></label>
+        <div class="editor-actions mt-4" style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" class="button ghost" onclick="document.getElementById('host-auth-modal').remove()">Cancel</button>
+          <button type="submit" class="button primary"><i data-lucide="log-in"></i> Sign In to Host Studio</button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  if (typeof createIcons === "function") createIcons();
+  MWE._pendingHostAuthSuccess = onSuccessCallback;
+};
+
+MWE.switchHostAuthTab = function(tab) {
+  const signupForm = document.getElementById("host-signup-form");
+  const signinForm = document.getElementById("host-signin-form");
+  const btnSignup = document.getElementById("btn-host-tab-signup");
+  const btnSignin = document.getElementById("btn-host-tab-signin");
+
+  if (tab === "signin") {
+    if (signupForm) signupForm.style.display = "none";
+    if (signinForm) signinForm.style.display = "block";
+    if (btnSignup) { btnSignup.className = "button ghost small"; }
+    if (btnSignin) { btnSignin.className = "button primary small"; }
+  } else {
+    if (signupForm) signupForm.style.display = "block";
+    if (signinForm) signinForm.style.display = "none";
+    if (btnSignup) { btnSignup.className = "button primary small"; }
+    if (btnSignin) { btnSignin.className = "button ghost small"; }
+  }
+};
+
+MWE.handleHostSignup = function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+
+  const hostAccount = {
+    id: "host-" + Date.now(),
+    name: (data.name || "").trim(),
+    email: (data.email || "").trim().toLowerCase(),
+    organization: (data.organization || "").trim(),
+    role: data.role || "Workshop Leader",
+    phone: (data.phone || "").trim(),
+    bio: (data.bio || "").trim(),
+    createdAt: new Date().toISOString()
+  };
+
+  MWE.setEventHost(hostAccount);
+  const modal = document.getElementById("host-auth-modal");
+  if (modal) modal.remove();
+
+  if (typeof showToast === "function") {
+    showToast(`Welcome, ${hostAccount.name}! Your organizer account is active.`);
+  }
+
+  if (typeof MWE._pendingHostAuthSuccess === "function") {
+    const cb = MWE._pendingHostAuthSuccess;
+    MWE._pendingHostAuthSuccess = null;
+    cb(hostAccount);
+  } else {
+    MWE.openHostEventStudio();
+  }
+};
+
+MWE.handleHostSignin = function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+  const email = (data.email || "").trim().toLowerCase();
+
+  let existing = MWE.getEventHost();
+  if (!existing || existing.email !== email) {
+    existing = {
+      id: "host-" + Date.now(),
+      name: email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
+      email,
+      organization: "Kingdom Fellowship Network",
+      role: "Workshop Leader",
+      phone: "(555) 123-4567",
+      bio: "Christian workshop and community seminar organizer.",
+      createdAt: new Date().toISOString()
+    };
+  }
+
+  MWE.setEventHost(existing);
+  const modal = document.getElementById("host-auth-modal");
+  if (modal) modal.remove();
+
+  if (typeof showToast === "function") {
+    showToast(`Signed in as ${existing.name}.`);
+  }
+
+  if (typeof MWE._pendingHostAuthSuccess === "function") {
+    const cb = MWE._pendingHostAuthSuccess;
+    MWE._pendingHostAuthSuccess = null;
+    cb(existing);
+  } else {
+    MWE.openHostDashboard();
+  }
+};
+
+MWE.openHostEventStudio = function(eventId = null) {
+  const host = MWE.getEventHost();
+  if (!host) {
+    MWE.openHostAuthModal((h) => MWE.openHostEventStudio(eventId));
+    return;
+  }
+
+  let editingEvent = null;
+  if (eventId) {
+    editingEvent = MWE.getEvent(eventId);
+  }
+
+  let modal = document.getElementById("host-studio-modal");
+  if (modal) modal.remove();
+
+  modal = document.createElement("div");
+  modal.id = "host-studio-modal";
+  modal.className = "alert-modal-backdrop open";
+
+  const defaultStartsAt = new Date(Date.now() + 86400000 * 7).toISOString().slice(0, 16);
+  const defaultEndsAt = new Date(Date.now() + 86400000 * 7 + 7200000).toISOString().slice(0, 16);
+
+  modal.innerHTML = `
+    <div class="dash-panel dash-panel-pad host-studio-panel" style="max-width: 720px; width: 94%; margin: 20px auto; max-height: 92vh; overflow-y: auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.35);">
+      <div class="category-head flex-between" style="border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 18px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="category-icon" style="background: var(--primary-gradient); color: #fff;"><i data-lucide="sparkles"></i></span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.3rem;">${editingEvent ? 'Edit Workshop / Event' : 'Workshop & Event Creation Studio'}</h3>
+            <p class="text-xs text-muted" style="margin: 2px 0 0 0;">Publish to the Evangelism & Fellowship Community Platform</p>
+          </div>
+        </div>
+        <button type="button" class="button ghost small" onclick="document.getElementById('host-studio-modal').remove()" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+
+      <!-- Host Identity Header Bar -->
+      <div class="host-identity-bar flex-between" style="background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2); border-radius: 14px; padding: 10px 16px; margin-bottom: 18px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="width:34px; height:34px; border-radius:50%; background:#2563eb; color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.9rem; font-weight:800;">
+            ${MWE.escapeHtml((host.name || "H").charAt(0))}
+          </span>
+          <div>
+            <strong style="font-size:0.88rem; color:var(--text-primary);">${MWE.escapeHtml(host.name)}</strong>
+            <span style="display:block; font-size:0.75rem; color:var(--text-muted);">${MWE.escapeHtml(host.organization)} • ${MWE.escapeHtml(host.role)}</span>
+          </div>
+        </div>
+        <button type="button" class="button ghost small" onclick="MWE.openHostDashboard()" style="font-size:0.78rem;">
+          <i data-lucide="layout-dashboard"></i> My Dashboard
+        </button>
+      </div>
+
+      <!-- Studio Form -->
+      <form id="host-event-form" onsubmit="MWE.handleHostEventSubmit(event)">
+        <input type="hidden" name="id" value="${editingEvent ? editingEvent.id : ''}" />
+
+        <!-- Title -->
+        <label class="form-field mb-3">
+          <span>Workshop / Event Title *</span>
+          <input required name="title" placeholder="e.g. Christian Leadership & Discipleship Workshop 2026" class="field" value="${MWE.escapeHtml(editingEvent ? editingEvent.title : '')}" />
+        </label>
+
+        <!-- Category & Format -->
+        <div class="compact-grid mb-3">
+          <label class="form-field">
+            <span>Event Category *</span>
+            <select name="category" class="field" required id="studio-category-select">
+              <option value="workshop" ${(editingEvent && (editingEvent.category === 'workshop' || editingEvent.isWorkshop)) ? 'selected' : ''}>Workshop & Masterclass</option>
+              <option value="conference" ${(editingEvent && editingEvent.category === 'conference') ? 'selected' : ''}>Conference & Summit</option>
+              <option value="seminar" ${(editingEvent && editingEvent.category === 'seminar') ? 'selected' : ''}>Practical Seminar & Training</option>
+              <option value="youth" ${(editingEvent && editingEvent.category === 'youth') ? 'selected' : ''}>Youth & Student Rally</option>
+              <option value="worship" ${(editingEvent && editingEvent.category === 'worship') ? 'selected' : ''}>Worship & Prayer Encounter</option>
+              <option value="outreach" ${(editingEvent && editingEvent.category === 'outreach') ? 'selected' : ''}>Community Outreach & Evangelism</option>
+              <option value="in-person" ${(editingEvent && editingEvent.category === 'in-person') ? 'selected' : ''}>General Fellowship Gathering</option>
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Gathering Format *</span>
+            <select name="format" class="field" required id="studio-format-select" onchange="MWE.onHostFormatChange(this.value)">
+              <option value="in-person" ${(!editingEvent || editingEvent.eventType === 'in-person') ? 'selected' : ''}>In-Person Gathering</option>
+              <option value="streamed" ${(editingEvent && editingEvent.eventType === 'streamed') ? 'selected' : ''}>Online Livestream / Virtual</option>
+              <option value="hybrid" ${(editingEvent && editingEvent.eventType === 'hybrid') ? 'selected' : ''}>Hybrid (In-Person + Online)</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Dates -->
+        <div class="compact-grid mb-3">
+          <label class="form-field"><span>Starts Date & Time *</span>
+            <input required type="datetime-local" name="startsAt" class="field" value="${editingEvent ? editingEvent.startsAt.slice(0, 16) : defaultStartsAt}" />
+          </label>
+          <label class="form-field"><span>Ends Date & Time *</span>
+            <input required type="datetime-local" name="endsAt" class="field" value="${editingEvent ? editingEvent.endsAt.slice(0, 16) : defaultEndsAt}" />
+          </label>
+        </div>
+
+        <!-- Venue / Address / Virtual Link -->
+        <div class="compact-grid mb-3" id="studio-location-grid">
+          <label class="form-field"><span>Venue / Facility Name *</span>
+            <input required name="venue" class="field" placeholder="e.g. Fellowship Community Center (Room 204)" value="${MWE.escapeHtml(editingEvent ? (editingEvent.location || editingEvent.venue || '') : '')}" />
+          </label>
+          <label class="form-field"><span>City & Province/State *</span>
+            <input required name="city" class="field" placeholder="e.g. Edmonton, AB" value="${MWE.escapeHtml(editingEvent ? (editingEvent.city || '') : 'Edmonton, AB')}" />
+          </label>
+        </div>
+
+        <label class="form-field mb-3" id="studio-stream-link-field" style="display: ${(editingEvent && (editingEvent.eventType === 'streamed' || editingEvent.eventType === 'hybrid')) ? 'block' : 'none'};">
+          <span>Live Broadcast / Webinar URL</span>
+          <input type="url" name="streamUrl" class="field" placeholder="https://zoom.us/j/... or YouTube/Vimeo stream URL" value="${MWE.escapeHtml(editingEvent ? (editingEvent.streamUrl || '') : '')}" />
+        </label>
+
+        <!-- Host & Speaker details -->
+        <div class="compact-grid mb-3">
+          <label class="form-field"><span>Lead Speaker / Instructor *</span>
+            <input required name="speakerName" class="field" value="${MWE.escapeHtml(editingEvent ? (editingEvent.speakerName || editingEvent.hostName || host.name) : host.name)}" />
+          </label>
+          <label class="form-field"><span>Hosting Ministry / Group *</span>
+            <input required name="organization" class="field" value="${MWE.escapeHtml(editingEvent ? (editingEvent.organization || host.organization) : host.organization)}" />
+          </label>
+        </div>
+
+        <!-- Admission & Capacity -->
+        <div class="compact-grid mb-3">
+          <label class="form-field"><span>Admission Type *</span>
+            <select name="admissionType" class="field" onchange="MWE.onHostAdmissionChange(this.value)">
+              <option value="free" ${(!editingEvent || !editingEvent.ticketPriceCents) ? 'selected' : ''}>Free Admission</option>
+              <option value="paid" ${(editingEvent && editingEvent.ticketPriceCents > 0) ? 'selected' : ''}>Ticketed / Paid</option>
+            </select>
+          </label>
+          <label class="form-field" id="studio-price-field" style="display: ${(editingEvent && editingEvent.ticketPriceCents > 0) ? 'block' : 'none'};">
+            <span>Ticket Price (CAD / USD)</span>
+            <input type="number" step="1" min="1" name="priceDollars" class="field" placeholder="25" value="${editingEvent && editingEvent.ticketPriceCents ? Math.round(editingEvent.ticketPriceCents / 100) : ''}" />
+          </label>
+          <label class="form-field"><span>Seat Capacity Limit</span>
+            <input type="number" min="5" max="5000" name="capacity" class="field" placeholder="100 (Leave blank for unlimited)" value="${editingEvent ? (editingEvent.capacity || '') : '100'}" />
+          </label>
+        </div>
+
+        <!-- Preset Cover Images -->
+        <div class="form-field mb-3">
+          <span>Cover Image (Choose a Curated Preset or Enter URL)</span>
+          <div class="host-preset-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 8px 0;">
+            <button type="button" class="host-preset-card" onclick="MWE.selectHostCoverPreset('https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80')">
+              <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=150&q=80" alt="Workshop" />
+              <span>Workshop</span>
+            </button>
+            <button type="button" class="host-preset-card" onclick="MWE.selectHostCoverPreset('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80')">
+              <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=150&q=80" alt="Conference" />
+              <span>Conference</span>
+            </button>
+            <button type="button" class="host-preset-card" onclick="MWE.selectHostCoverPreset('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80')">
+              <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=150&q=80" alt="Worship" />
+              <span>Worship</span>
+            </button>
+            <button type="button" class="host-preset-card" onclick="MWE.selectHostCoverPreset('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80')">
+              <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=150&q=80" alt="Youth" />
+              <span>Youth</span>
+            </button>
+            <button type="button" class="host-preset-card" onclick="MWE.selectHostCoverPreset('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80')">
+              <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=150&q=80" alt="Seminar" />
+              <span>Seminar</span>
+            </button>
+          </div>
+          <input type="url" name="coverImageUrl" id="studio-cover-url-input" class="field mt-1" placeholder="https://..." value="${MWE.escapeHtml(editingEvent ? (editingEvent.coverImageUrl || '') : 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80')}" />
+        </div>
+
+        <!-- Description & Syllabus -->
+        <label class="form-field mb-3">
+          <span>Workshop Overview & Syllabus *</span>
+          <textarea required name="description" rows="4" class="field" placeholder="Provide a detailed curriculum breakdown, what attendees will learn, prerequisites, and workshop schedule...">${MWE.escapeHtml(editingEvent ? (editingEvent.description || '') : '')}</textarea>
+        </label>
+
+        <!-- Highlights / Bullet points -->
+        <div class="form-field mb-3">
+          <span>Key Workshop Takeaways</span>
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:4px;">
+            <input name="highlight1" class="field" placeholder="Key takeaway 1 (e.g. Practical Ministry Framework)" value="${MWE.escapeHtml(editingEvent?.highlights?.[0]?.title || '')}" />
+            <input name="highlight2" class="field" placeholder="Key takeaway 2 (e.g. Free Workbook & Study Materials)" value="${MWE.escapeHtml(editingEvent?.highlights?.[1]?.title || '')}" />
+            <input name="highlight3" class="field" placeholder="Key takeaway 3 (e.g. Certificate of Participation)" value="${MWE.escapeHtml(editingEvent?.highlights?.[2]?.title || '')}" />
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="editor-actions mt-4" style="display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid var(--line); padding-top: 14px;">
+          <button type="button" class="button ghost" onclick="document.getElementById('host-studio-modal').remove()">Cancel</button>
+          <button type="submit" class="button primary"><i data-lucide="check-circle-2"></i> ${editingEvent ? 'Save Changes' : 'Publish Workshop / Event'}</button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  if (typeof createIcons === "function") createIcons();
+};
+
+MWE.selectHostCoverPreset = function(url) {
+  const input = document.getElementById("studio-cover-url-input");
+  if (input) input.value = url;
+};
+
+MWE.onHostFormatChange = function(val) {
+  const streamField = document.getElementById("studio-stream-link-field");
+  if (streamField) {
+    streamField.style.display = (val === "streamed" || val === "hybrid") ? "block" : "none";
+  }
+};
+
+MWE.onHostAdmissionChange = function(val) {
+  const priceField = document.getElementById("studio-price-field");
+  if (priceField) {
+    priceField.style.display = val === "paid" ? "block" : "none";
+  }
+};
+
+MWE.handleHostEventSubmit = function(e) {
+  e.preventDefault();
+  const host = MWE.getEventHost();
+  if (!host) {
+    if (typeof showToast === "function") showToast("Organizer session expired. Please sign in again.");
+    return;
+  }
+
+  const form = e.target;
+  let data = {};
+  if (typeof FormData !== "undefined") {
+    try {
+      const fd = new FormData(form);
+      if (typeof fd.entries === "function") {
+        for (const [k, v] of fd.entries()) {
+          data[k] = v;
+        }
+      } else {
+        data = Object.fromEntries(fd);
+      }
+    } catch {
+      data = {};
+    }
+  }
+
+  const startsAt = new Date(data.startsAt);
+  const endsAt = new Date(data.endsAt);
+  if (endsAt < startsAt) {
+    if (typeof showToast === "function") showToast("End time cannot be earlier than start time.");
+    return;
+  }
+
+  const isEditing = Boolean(data.id);
+  const eventId = data.id || "evt-host-" + Date.now();
+  const priceDollars = parseFloat(data.priceDollars) || 0;
+  const priceCents = data.admissionType === "paid" ? Math.round(priceDollars * 100) : 0;
+
+  const highlights = [];
+  if (data.highlight1) highlights.push({ title: data.highlight1, desc: "Interactive session module" });
+  if (data.highlight2) highlights.push({ title: data.highlight2, desc: "Materials provided" });
+  if (data.highlight3) highlights.push({ title: data.highlight3, desc: "Q&A and practical application" });
+
+  const eventObj = {
+    id: eventId,
+    title: (data.title || "").trim(),
+    category: data.category,
+    eventType: data.format,
+    isWorkshop: data.category === "workshop",
+    isHosted: true,
+    hostId: host.id,
+    hostName: (data.speakerName || host.name).trim(),
+    hostEmail: host.email,
+    organization: (data.organization || host.organization).trim(),
+    speakerName: (data.speakerName || host.name).trim(),
+    speakerRole: host.role,
+    startsAt: startsAt.toISOString(),
+    endsAt: endsAt.toISOString(),
+    location: (data.venue || "").trim(),
+    venue: (data.venue || "").trim(),
+    city: (data.city || "Edmonton, AB").trim(),
+    streamUrl: data.streamUrl ? data.streamUrl.trim() : "",
+    ticketPriceCents: priceCents,
+    capacity: data.capacity ? parseInt(data.capacity, 10) : 100,
+    ticketsSold: isEditing ? (MWE.getEvent(eventId)?.ticketsSold || 0) : 0,
+    coverImageUrl: data.coverImageUrl ? data.coverImageUrl.trim() : "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
+    description: (data.description || "").trim(),
+    highlights,
+    createdAt: isEditing ? (MWE.getEvent(eventId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  MWE.upsertEvent(eventObj);
+
+  const modal = document.getElementById("host-studio-modal");
+  if (modal) modal.remove();
+
+  if (typeof showToast === "function") {
+    showToast(`Workshop '${eventObj.title}' published successfully!`);
+  }
+
+  if (typeof MWE.renderEventsList === "function") {
+    MWE.renderEventsList();
+  }
+
+  MWE.openHostDashboard();
+};
+
+MWE.openHostDashboard = function() {
+  const host = MWE.getEventHost();
+  if (!host) {
+    MWE.openHostAuthModal(() => MWE.openHostDashboard());
+    return;
+  }
+
+  let modal = document.getElementById("host-dashboard-modal");
+  if (modal) modal.remove();
+
+  modal = document.createElement("div");
+  modal.id = "host-dashboard-modal";
+  modal.className = "alert-modal-backdrop open";
+
+  const allEvents = MWE.getEvents();
+  const hostedEvents = allEvents.filter(e => e.hostId === host.id || (e.isHosted && e.hostEmail === host.email));
+  const allRegs = JSON.parse(localStorage.getItem(EVENT_REGISTRATIONS_KEY) || "[]");
+
+  const hostedEventIds = new Set(hostedEvents.map(e => e.id));
+  const relevantRegs = allRegs.filter(r => hostedEventIds.has(r.eventId));
+  const totalAttendees = relevantRegs.reduce((acc, r) => acc + (parseInt(r.ticketQuantity, 10) || 1), 0);
+  const totalRevenueCents = relevantRegs.reduce((acc, r) => acc + (parseInt(r.amountPaidCents, 10) || 0), 0);
+
+  modal.innerHTML = `
+    <div class="dash-panel dash-panel-pad host-dashboard-panel" style="max-width: 800px; width: 94%; margin: 24px auto; max-height: 90vh; overflow-y: auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.35);">
+      <div class="category-head flex-between" style="border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 18px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span class="category-icon" style="background:var(--primary-gradient); color:#fff;"><i data-lucide="layout-dashboard"></i></span>
+          <div>
+            <h3 style="margin:0; font-size:1.3rem;">Organizer & Workshop Dashboard</h3>
+            <p class="text-xs text-muted" style="margin:2px 0 0 0;">${MWE.escapeHtml(host.name)} • ${MWE.escapeHtml(host.organization)}</p>
+          </div>
+        </div>
+        <button type="button" class="button ghost small" onclick="document.getElementById('host-dashboard-modal').remove()" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+
+      <!-- Quick Metrics Row -->
+      <div class="host-stats-row" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom: 20px;">
+        <div class="host-stat-box" style="padding:14px; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.15); border-radius:14px; text-align:center;">
+          <span class="text-xs text-muted" style="text-transform:uppercase; font-weight:700;">Hosted Events</span>
+          <div style="font-size:1.6rem; font-weight:900; color:#2563eb; margin-top:2px;">${hostedEvents.length}</div>
+        </div>
+        <div class="host-stat-box" style="padding:14px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.15); border-radius:14px; text-align:center;">
+          <span class="text-xs text-muted" style="text-transform:uppercase; font-weight:700;">Total Attendees</span>
+          <div style="font-size:1.6rem; font-weight:900; color:#10b981; margin-top:2px;">${totalAttendees}</div>
+        </div>
+        <div class="host-stat-box" style="padding:14px; background:rgba(217,119,6,0.06); border:1px solid rgba(217,119,6,0.15); border-radius:14px; text-align:center;">
+          <span class="text-xs text-muted" style="text-transform:uppercase; font-weight:700;">Gross Registrations</span>
+          <div style="font-size:1.6rem; font-weight:900; color:#d97706; margin-top:2px;">$${(totalRevenueCents / 100).toFixed(0)}</div>
+        </div>
+      </div>
+
+      <!-- Header with Action -->
+      <div class="flex-between items-center mb-3" style="display:flex; justify-content:space-between; align-items:center;">
+        <h4 style="margin:0; font-size:1.05rem;">Your Scheduled Workshops & Gatherings</h4>
+        <button type="button" class="button primary small" onclick="MWE.openHostEventStudio()">
+          <i data-lucide="plus"></i> Create New Workshop
+        </button>
+      </div>
+
+      <!-- Hosted Events Listing -->
+      <div class="host-events-grid" style="display:flex; flex-direction:column; gap:12px;">
+        ${hostedEvents.length === 0 ? `
+          <div style="text-align:center; padding:36px 16px; border:1px dashed var(--line); border-radius:16px;">
+            <i data-lucide="calendar-plus" style="width:40px; height:40px; color:var(--text-muted); margin-bottom:8px; display:inline-block;"></i>
+            <h4>No workshops or events published yet</h4>
+            <p class="text-xs text-muted">Click "Create New Workshop" above to publish your first community gathering or masterclass.</p>
+          </div>
+        ` : hostedEvents.map(evt => {
+          const evtRegs = relevantRegs.filter(r => r.eventId === evt.id);
+          const regCount = evtRegs.reduce((acc, r) => acc + (parseInt(r.ticketQuantity, 10) || 1), 0);
+          const dateFormatted = new Date(evt.startsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+          return `
+            <div class="host-event-item" style="border:1px solid var(--line); border-radius:16px; padding:16px; background:var(--surface-card, #fff); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+              <div style="display:flex; gap:14px; align-items:center; flex:1; min-width:240px;">
+                <img src="${MWE.escapeHtml(evt.coverImageUrl || '')}" alt="${MWE.escapeHtml(evt.title)}" style="width:68px; height:68px; border-radius:12px; object-fit:cover; flex-shrink:0;" />
+                <div>
+                  <div style="display:flex; gap:6px; align-items:center; margin-bottom:4px; flex-wrap:wrap;">
+                    <span class="badge verified" style="font-size:0.68rem; padding:2px 8px;">${MWE.escapeHtml(evt.category || 'Workshop')}</span>
+                    <span class="badge pending" style="font-size:0.68rem; padding:2px 8px;">${evt.eventType === 'streamed' ? 'Online Livestream' : (evt.eventType === 'hybrid' ? 'Hybrid' : 'In-Person')}</span>
+                    <span class="text-xs text-muted">${dateFormatted}</span>
+                  </div>
+                  <strong style="font-size:0.95rem; display:block; color:var(--text-primary);">${MWE.escapeHtml(evt.title)}</strong>
+                  <span class="text-xs text-muted">${MWE.escapeHtml(evt.city || evt.location || 'Local')} • ${regCount} Attendees Registered</span>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <button type="button" class="button primary small" onclick="MWE.openEventAttendeeRoster('${evt.id}')" title="View Attendee List & Check-in">
+                  <i data-lucide="users"></i> Attendees (${regCount})
+                </button>
+                <button type="button" class="button ghost small" onclick="MWE.openHostEventStudio('${evt.id}')" title="Edit Workshop">
+                  <i data-lucide="edit-3"></i> Edit
+                </button>
+                <a href="event-profile.html?id=${evt.id}" class="button outline small" target="_blank" title="View Public Page">
+                  <i data-lucide="external-link"></i> Public
+                </a>
+                <button type="button" class="button ghost small" onclick="MWE.deleteHostEvent('${evt.id}')" title="Delete Workshop" style="color:#ef4444;">
+                  <i data-lucide="trash-2"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  if (typeof createIcons === "function") createIcons();
+};
+
+MWE.deleteHostEvent = function(id) {
+  if (typeof window !== "undefined" && typeof window.confirm === "function") {
+    if (!window.confirm("Are you sure you want to cancel and delete this event?")) return;
+  }
+  MWE.removeEvent(id);
+  if (typeof showToast === "function") showToast("Event cancelled and removed.");
+  if (typeof MWE.renderEventsList === "function") MWE.renderEventsList();
+  MWE.openHostDashboard();
+};
+
+MWE.openEventAttendeeRoster = function(eventId) {
+  const evt = MWE.getEvent(eventId);
+  if (!evt) return;
+
+  let modal = document.getElementById("attendee-roster-modal");
+  if (modal) modal.remove();
+
+  modal = document.createElement("div");
+  modal.id = "attendee-roster-modal";
+  modal.className = "alert-modal-backdrop open";
+
+  const allRegs = JSON.parse(localStorage.getItem(EVENT_REGISTRATIONS_KEY) || "[]");
+  const eventRegs = allRegs.filter(r => r.eventId === eventId);
+  const checkedInCount = eventRegs.filter(r => r.checkedIn).length;
+
+  modal.innerHTML = `
+    <div class="dash-panel dash-panel-pad attendee-roster-panel" style="max-width: 760px; width: 94%; margin: 24px auto; max-height: 90vh; overflow-y: auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.35);">
+      <div class="category-head flex-between" style="border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 16px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="category-icon" style="background:var(--primary-gradient); color:#fff;"><i data-lucide="users"></i></span>
+          <div>
+            <h3 style="margin:0; font-size:1.2rem;">Attendee Roster & Check-In</h3>
+            <p class="text-xs text-muted" style="margin:2px 0 0 0;">${MWE.escapeHtml(evt.title)} • ${eventRegs.length} Registrations (${checkedInCount} Checked In)</p>
+          </div>
+        </div>
+        <button type="button" class="button ghost small" onclick="document.getElementById('attendee-roster-modal').remove()" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+
+      <!-- Action Toolbar -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+        <div class="badge verified" style="font-size:0.8rem; padding:6px 12px;">
+          <i data-lucide="user-check"></i> Checked-In: <strong>${checkedInCount} / ${eventRegs.length}</strong>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="button ghost small" onclick="MWE.exportEventAttendeesCSV('${evt.id}')">
+            <i data-lucide="download"></i> Export Roster CSV
+          </button>
+          <button type="button" class="button primary small" onclick="MWE.promptEventAnnouncement('${evt.id}')">
+            <i data-lucide="send"></i> Post Announcement
+          </button>
+        </div>
+      </div>
+
+      <!-- Roster Table -->
+      <div class="roster-table-wrap" style="overflow-x:auto; border:1px solid var(--line); border-radius:14px;">
+        <table class="roster-table" style="width:100%; border-collapse:collapse; text-align:left; font-size:0.84rem;">
+          <thead>
+            <tr style="background:rgba(241,245,249,0.7); border-bottom:1px solid var(--line);">
+              <th style="padding:10px 14px;">Attendee</th>
+              <th style="padding:10px 14px;">Email</th>
+              <th style="padding:10px 14px;">Tickets</th>
+              <th style="padding:10px 14px;">Code</th>
+              <th style="padding:10px 14px; text-align:right;">Check-In Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${eventRegs.length === 0 ? `
+              <tr>
+                <td colspan="5" style="text-align:center; padding:28px 14px; color:var(--text-muted);">
+                  No attendees have registered for this event yet.
+                </td>
+              </tr>
+            ` : eventRegs.map(reg => `
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 14px; font-weight:700;">${MWE.escapeHtml(reg.fullName || 'Guest')}</td>
+                <td style="padding:10px 14px; color:var(--text-muted);">${MWE.escapeHtml(reg.email || 'N/A')}</td>
+                <td style="padding:10px 14px;">${reg.ticketQuantity || 1}</td>
+                <td style="padding:10px 14px;"><code style="font-size:0.75rem; background:#f1f5f9; padding:2px 6px; border-radius:6px;">${MWE.escapeHtml(reg.registrationCode || reg.id)}</code></td>
+                <td style="padding:10px 14px; text-align:right;">
+                  <button type="button" class="button small ${reg.checkedIn ? 'primary' : 'ghost'}" onclick="MWE.toggleAttendeeCheckIn('${reg.id}', '${evt.id}')" style="padding:4px 10px; font-size:0.75rem;">
+                    <i data-lucide="${reg.checkedIn ? 'check' : 'circle'}"></i> ${reg.checkedIn ? 'Checked In' : 'Check In'}
+                  </button>
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 pt-3" style="border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
+        <button type="button" class="button ghost small" onclick="MWE.openHostDashboard()"><i data-lucide="arrow-left"></i> Back to Dashboard</button>
+        <button type="button" class="button ghost small" onclick="document.getElementById('attendee-roster-modal').remove()">Done</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  if (typeof createIcons === "function") createIcons();
+};
+
+MWE.toggleAttendeeCheckIn = function(regId, eventId) {
+  let allRegs = JSON.parse(localStorage.getItem(EVENT_REGISTRATIONS_KEY) || "[]");
+  allRegs = allRegs.map(r => {
+    if (r.id === regId) {
+      return { ...r, checkedIn: !r.checkedIn, checkedInAt: !r.checkedIn ? new Date().toISOString() : null };
+    }
+    return r;
+  });
+  localStorage.setItem(EVENT_REGISTRATIONS_KEY, JSON.stringify(allRegs));
+  if (typeof showToast === "function") showToast("Attendee check-in status updated.");
+  MWE.openEventAttendeeRoster(eventId);
+};
+
+MWE.exportEventAttendeesCSV = function(eventId) {
+  const evt = MWE.getEvent(eventId);
+  const allRegs = JSON.parse(localStorage.getItem(EVENT_REGISTRATIONS_KEY) || "[]");
+  const eventRegs = allRegs.filter(r => r.eventId === eventId);
+
+  const headers = ["Registration Code", "Full Name", "Email", "Tickets", "Checked In", "Registered At"];
+  const rows = eventRegs.map(r => [
+    `"${r.registrationCode || r.id}"`,
+    `"${(r.fullName || '').replace(/"/g, '""')}"`,
+    `"${(r.email || '').replace(/"/g, '""')}"`,
+    r.ticketQuantity || 1,
+    r.checkedIn ? "Yes" : "No",
+    `"${r.createdAt || ''}"`
+  ]);
+
+  const csvContent = [headers.join(","), ...rows.map(row => row.join(","))].join("\n");
+
+  if (typeof navigator !== "undefined" && navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+    navigator.clipboard.writeText(csvContent);
+    if (typeof showToast === "function") showToast("Attendee roster CSV copied to clipboard!");
+  } else {
+    if (typeof showToast === "function") showToast(`Exported ${eventRegs.length} attendees to CSV.`);
+  }
+};
+
+MWE.promptEventAnnouncement = function(eventId) {
+  const defaultMsg = "Reminder: Workshop starts this Saturday at 10 AM! Please bring your notes.";
+  let msg = defaultMsg;
+  if (typeof window !== "undefined" && typeof window.prompt === "function") {
+    msg = window.prompt("Enter announcement message for registered attendees:", defaultMsg);
+  }
+  if (!msg) return;
+
+  const evt = MWE.getEvent(eventId);
+  if (evt) {
+    evt.announcements = evt.announcements || [];
+    evt.announcements.push({
+      id: "ann-" + Date.now(),
+      message: msg,
+      sentAt: new Date().toISOString()
+    });
+    MWE.upsertEvent(evt);
+    if (typeof showToast === "function") showToast("Announcement broadcasted to all registered attendees!");
+  }
+};
+
 

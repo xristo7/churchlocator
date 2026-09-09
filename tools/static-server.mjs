@@ -46,6 +46,8 @@ const routeMap = new Map([
   ["/privacy", "privacy.html"],
   ["/terms", "privacy.html"],
   ["/safeguarding", "privacy.html"],
+  ["/meditation", "meditation.html"],
+  ["/sanctuary", "meditation.html"],
   ["/about", "index.html"],
   ["/volunteer", "index.html"],
   ["/prayer", "index.html"]
@@ -60,7 +62,11 @@ const contentTypes = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".svg": "image/svg+xml",
-  ".ico": "image/x-icon"
+  ".ico": "image/x-icon",
+  ".webp": "image/webp",
+  ".mp4": "video/mp4",
+  ".mp3": "audio/mpeg",
+  ".webm": "video/webm"
 };
 
 function fileForUrl(url) {
@@ -80,14 +86,28 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  let resolvedPath = filePath;
+  let body;
   try {
-    const body = await readFile(filePath);
+    body = await readFile(resolvedPath);
+  } catch (err) {
+    if (!extname(resolvedPath)) {
+      try {
+        resolvedPath = filePath + ".html";
+        body = await readFile(resolvedPath);
+      } catch {
+        // Fall through to 404
+      }
+    }
+  }
+
+  if (body) {
     response.writeHead(200, {
-      "content-type": contentTypes[extname(filePath).toLowerCase()] || "application/octet-stream",
+      "content-type": contentTypes[extname(resolvedPath).toLowerCase()] || "application/octet-stream",
       "content-length": body.length
     });
     response.end(body);
-  } catch {
+  } else {
     response.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
     response.end("Not found");
   }

@@ -2072,7 +2072,8 @@
                 </div>
                 <div class="leader-actions">
                   <button type="button" class="profile-primary-action" onclick="MWE.toggleVisitPanel(true)"><i data-lucide="calendar-days"></i> Plan Your Visit</button>
-                  <button type="button" class="profile-secondary-action" onclick="MWE.switchProfileTab('location')"><i data-lucide="map"></i> View Location & Map</button>
+                  <button type="button" class="profile-secondary-action" onclick="MWE.showMapModal()"><i data-lucide="map-pin"></i> View Location on Map</button>
+                  <button type="button" class="profile-ride-action" onclick="MWE.openRideModal()" style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:12px;background:rgba(59,130,246,0.12);color:#2563eb;border:1px solid rgba(59,130,246,0.3);font-size:0.84rem;font-weight:700;cursor:pointer;"><i data-lucide="car"></i> Request a Ride</button>
                 </div>
               </div>
             </div>
@@ -2201,10 +2202,37 @@
 
           <!-- TAB PANE 4: LOCATION & MAP -->
           <div class="church-tab-pane" id="tab-pane-location" role="tabpanel" hidden>
-            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Sanctuary Location & Map</h3>
-            <p class="text-sm text-slate-600 mb-4" data-profile-location>Address Details Loading...</p>
-            <div style="height: 380px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line);">
-              <iframe id="footer-map-iframe" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-113.7,53.4,-113.3,53.65&layer=mapnik"></iframe>
+            <div class="flex-between items-center mb-4" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+              <div>
+                <h3 class="text-xl font-extrabold text-slate-900 mb-1">Sanctuary Location & Map</h3>
+                <p class="text-sm text-slate-600" data-profile-location>Address Details Loading...</p>
+              </div>
+              <button type="button" class="btn-open-interactive-map" onclick="MWE.showMapModal()" style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:12px;background:var(--primary-gradient);color:#fff;font-size:0.84rem;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.12);">
+                <i data-lucide="map-pin"></i> View Location on Map
+              </button>
+            </div>
+
+            <!-- Sanctuary Location Showcase with Actual Photo & Map -->
+            <div class="profile-location-showcase">
+              <div class="profile-location-photo-card">
+                <img id="profile-location-church-photo" data-profile-map-photo src="assets/hero-global-church.png" alt="Sanctuary Exterior" class="profile-location-church-img" />
+                <div class="profile-location-photo-badge">
+                  <i data-lucide="camera"></i> Actual Church Building
+                </div>
+              </div>
+              <div class="profile-location-map-wrap" style="height: 340px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); position: relative;">
+                <iframe id="footer-map-iframe" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-113.7,53.4,-113.3,53.65&layer=mapnik"></iframe>
+                
+                <!-- On-Map Marker Floating Card with Actual Church Photo -->
+                <div class="profile-on-map-card">
+                  <img id="profile-on-map-thumb" data-profile-map-photo src="assets/hero-global-church.png" alt="Sanctuary" class="profile-on-map-thumb" />
+                  <div class="profile-on-map-info">
+                    <strong class="profile-on-map-name" data-church-name>Church Sanctuary</strong>
+                    <span class="profile-on-map-address" data-profile-location>Location details</span>
+                    <span class="profile-on-map-badge"><i data-lucide="check-circle-2"></i> Verified Location</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -2218,6 +2246,7 @@
             <div class="profile-service-location"><i data-lucide="map-pin"></i><span><strong>Auditorium</strong><small data-profile-location>River City Church</small></span></div>
             <p class="profile-service-note">Modern worship • Inspiring message</p>
             <button type="button" class="profile-calendar-action" onclick="MWE.downloadCalendarICS('Sunday Worship', 'Sunday 10:00 AM', 'Main Auditorium')"><i data-lucide="calendar-plus"></i> Add to Calendar</button>
+            <button type="button" class="profile-ride-card-btn" onclick="MWE.openRideModal('Sunday Worship')" style="width:100%;margin-top:8px;padding:9px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:0.82rem;font-weight:700;background:rgba(59,130,246,0.08);color:#2563eb;border:1px dashed rgba(59,130,246,0.4);cursor:pointer;"><i data-lucide="car"></i> Need a Ride to Church?</button>
             <button type="button" class="profile-side-link" onclick="MWE.switchProfileTab('services')">View All Services <i data-lucide="arrow-right"></i></button>
           </section>
 

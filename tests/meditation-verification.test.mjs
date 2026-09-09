@@ -113,3 +113,26 @@ test('8. Room Entry & Exit Navigation (Opens on card click, returns on All Rooms
   assert.match(js, /data-enter-room/, 'Cards contain data-enter-room attributes');
   assert.match(js, /function exitToLobby\(/, 'exitToLobby function defined');
 });
+
+test('9. Task 4 Requirements: Dynamic Background Music on Entry, 5 Media Types & Friend Invite', () => {
+  // Background music starts and adapts on room entry
+  assert.match(js, /enterRoom\(roomId,\s*autoStartAudio\s*=\s*true/, 'enterRoom defaults autoStartAudio to true for automatic playback on entry');
+  assert.match(js, /startAudioHarmonics\(room\.toneFreq\s*\|\|\s*432\)/, 'Audio harmonics frequency adapts to room tone');
+
+  // 5 Media Types: Pictures, Teachings, Prayers, Worship Audio, Scriptures
+  assert.match(html, /id="sanctuary-media-tabs"/, 'Sanctuary media tabs container exists in HTML');
+  assert.match(html, /data-media-type="scriptures"/, 'Scriptures media type tab exists');
+  assert.match(html, /data-media-type="pictures"/, 'Pictures media type tab exists');
+  assert.match(html, /data-media-type="prayers"/, 'Prayers media type tab exists');
+  assert.match(html, /data-media-type="teachings"/, 'Teachings media type tab exists');
+  assert.match(html, /data-media-type="worship"/, 'Worship media type tab exists');
+  assert.match(html, /id="room-picture-display"/, 'Picture visualizer container exists');
+
+  assert.match(js, /function switchMediaType\(/, 'switchMediaType function defined in JS');
+  assert.match(js, /function renderActiveMediaContent\(/, 'renderActiveMediaContent function defined in JS');
+
+  // Invite Friend with SMS and Social Sharing
+  assert.match(html, /id="share-sms"/, 'SMS Text share button exists in invite dialog');
+  assert.match(js, /share-sms/, 'SMS share URL wired in JS');
+});
+

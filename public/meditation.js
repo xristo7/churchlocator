@@ -324,12 +324,98 @@
 
   // One catalog for the sanctuary and owner workspace, using existing local-preview storage.
   const roomsKey = "mwe.meditation.rooms.v1";
+  function enrichRoomWithMedia(room) {
+    if (!room) return room;
+    const title = room.title || "Sanctuary";
+    if (!room.pictures || !room.pictures.length) {
+      room.pictures = [
+        {
+          url: room.cover || "https://images.unsplash.com/photo-1548625361-195fe578ae14?auto=format&fit=crop&w=1200&q=80",
+          title: title + " — Sacred Presence",
+          caption: "“Be still, and know that I am God.” — Psalm 46:10",
+          credit: "Sacred Sanctuary Visuals"
+        },
+        {
+          url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+          title: "Still Waters & Living Streams",
+          caption: "“He leads me beside quiet waters, he refreshes my soul.” — Psalm 23:2-3",
+          credit: "Nature Sanctuary Photography"
+        },
+        {
+          url: "https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=1200&q=80",
+          title: "Heavenly Dawn Contemplation",
+          caption: "“The steadfast love of the Lord never ceases; his mercies are new every morning.” — Lamentations 3:22-23",
+          credit: "Sanctuary Visuals"
+        }
+      ];
+    }
+    if (!room.teachings || !room.teachings.length) {
+      room.teachings = [
+        {
+          title: "Walking in the Reality of " + title,
+          speaker: "Pastor Mark",
+          duration: "10 min",
+          summary: "Discover how to quiet mental chatter, yield your burdens to Christ, and dwell in uninterrupted spiritual communion.",
+          ref: "— Devotional Teaching"
+        },
+        {
+          title: "The Discipline of Sacred Stillness",
+          speaker: "Dr. Peter Cole",
+          duration: "14 min",
+          summary: "In a world of noise, stillness is an act of spiritual defiance and deep trust in God's sovereignty over every storm.",
+          ref: "— Expository Sermon"
+        }
+      ];
+    }
+    if (!room.prayers || !room.prayers.length) {
+      room.prayers = [
+        {
+          title: "Prayer of Surrender & Peace",
+          leader: "Amara Okafor",
+          text: "“Father, I quiet my soul in Your holy presence. Every anxious thought and heavy burden I place at the foot of the Cross. Holy Spirit, breathe life and quiet confidence into my spirit. In Jesus’ name, Amen.”",
+          ref: "— Guided Intercession"
+        },
+        {
+          title: "Prayer for Spiritual Strength & Restoration",
+          leader: "Pastor David",
+          text: "“Lord God of heaven and earth, You are my refuge and high tower. Restore my inner strength today. Let Your peace rule in my heart and let Your joy be my strength. Amen.”",
+          ref: "— Guided Contemplative Prayer"
+        }
+      ];
+    }
+    if (!room.worship || !room.worship.length) {
+      room.worship = [
+        {
+          title: room.audioTracks?.instrumental?.title || "Soaking Strings & Ambient Harp",
+          artist: "Davidic Soaking Harmonics",
+          freq: room.toneFreq || 432,
+          style: "Instrumental Soaking (" + (room.toneFreq || 432) + "Hz)"
+        },
+        {
+          title: room.audioTracks?.worship?.title || "Intimate Praise Reflection",
+          artist: "Grace Acoustic Collective",
+          freq: room.toneFreq || 432,
+          style: "Christian Acoustic Worship"
+        }
+      ];
+    }
+    if (!room.audioTracks) room.audioTracks = {};
+    if (!room.audioTracks.prayer) {
+      room.audioTracks.prayer = {
+        title: "Guided Prayer: " + (room.prayers[0]?.title || "Surrender & Peace"),
+        cat: "Contemplative Prayer (" + (room.toneFreq || 432) + "Hz)",
+        freq: room.toneFreq || 432
+      };
+    }
+    return room;
+  }
+
   function getRooms() {
     const raw = localStorage.getItem(roomsKey);
-    if (raw === null) return JSON.parse(JSON.stringify(roomSeeds));
+    if (raw === null) return JSON.parse(JSON.stringify(roomSeeds)).map(enrichRoomWithMedia);
     const saved = JSON.parse(raw);
     if (!Array.isArray(saved)) throw new Error("The meditation catalog could not be read.");
-    return saved;
+    return saved.map(enrichRoomWithMedia);
   }
   window.MWEMeditation = {
     getRooms,
@@ -341,6 +427,11 @@
 
   let activeRoom = null;
   let activeVerseIndex = 0;
+  let activePictureIndex = 0;
+  let activeTeachingIndex = 0;
+  let activePrayerIndex = 0;
+  let activeWorshipIndex = 0;
+  let currentMediaType = "scriptures";
   let activeAudioType = "bible";
   let isPlaying = false;
   let isFullscreen = false;
@@ -493,11 +584,17 @@
     backdrop.className = 'meditation-backdrop bg-' + theme;
   }
 
-  function enterRoom(roomId, autoStartAudio = false, sessionId = null) {
+  function enterRoom(roomId, autoStartAudio = true, sessionId = null) {
     const room = roomsCatalog.find(r => r.id === roomId) || roomsCatalog[0];
     if (!room) return;
+    enrichRoomWithMedia(room);
     activeRoom = room;
     activeVerseIndex = 0;
+    activePictureIndex = 0;
+    activeTeachingIndex = 0;
+    activePrayerIndex = 0;
+    activeWorshipIndex = 0;
+    currentMediaType = "scriptures";
     currentSessionId = sessionId || new URLSearchParams(window.location.search).get("session") || Math.random().toString(36).slice(2, 9);
 
     document.body.classList.add("in-meditation-room");
@@ -552,8 +649,6 @@
     if (atmoTitleEl) atmoTitleEl.textContent = atmo.title;
     if (atmoIconEl) atmoIconEl.setAttribute("data-lucide", atmo.icon);
 
-    renderRoomScripture();
-
     // Lock in Creator-Established Audio Stream
     const chosenAudio = room.selectedAudio || "bible";
     selectInRoomAudio(chosenAudio);
@@ -569,14 +664,28 @@
       ambTag.innerHTML = '<i data-lucide="sliders"></i> Ambience: ' + (parts.length ? parts.join(' · ') : 'Natural Stillness');
     }
 
+    // Dynamic background audio start & immediate frequency adaptation on room entry
     if (autoStartAudio) {
       isPlaying = true;
       startAudioHarmonics(room.toneFreq || 432);
+      const unlockAudio = () => {
+        if (audioContext && audioContext.state === "suspended") {
+          audioContext.resume().then(() => {
+            if (isPlaying && activeAudioType !== "silence") {
+              startAudioHarmonics(activeRoom?.toneFreq || 432);
+            }
+          }).catch(() => {});
+        }
+      };
+      document.addEventListener("click", unlockAudio, { once: true });
+      document.addEventListener("touchstart", unlockAudio, { once: true });
     } else {
       isPlaying = false;
       stopAudioHarmonics();
     }
     updatePlayState();
+
+    switchMediaType("scriptures");
 
     // Initialize Virtual Co-Meditation Session & Live Chat
     initVirtualRoomSession(room.id, currentSessionId);
@@ -641,10 +750,119 @@
     if (refEl) refEl.textContent = v.ref;
   }
 
+  function renderActiveMediaContent() {
+    if (!activeRoom) return;
+    enrichRoomWithMedia(activeRoom);
+
+    const picDisplay = document.getElementById("room-picture-display");
+    const picImg = document.getElementById("room-picture-img");
+    const picCaption = document.getElementById("room-picture-caption");
+    const topicEl = document.getElementById("room-scripture-topic");
+    const textEl = document.getElementById("room-scripture-text");
+    const refEl = document.getElementById("room-scripture-ref");
+    const nextBtnText = document.getElementById("room-next-btn-text");
+
+    if (currentMediaType === "pictures") {
+      const pictures = activeRoom.pictures || [];
+      const pic = pictures[activePictureIndex % Math.max(1, pictures.length)] || pictures[0];
+      if (picDisplay) {
+        picDisplay.hidden = false;
+        picDisplay.style.display = "block";
+      }
+      if (picImg && pic) {
+        picImg.src = pic.url;
+        picImg.alt = pic.title || "Sacred Picture";
+      }
+      if (picCaption && pic) picCaption.textContent = pic.title + (pic.caption ? " · " + pic.caption : "");
+      if (topicEl) topicEl.textContent = "SACRED VISUAL CONTEMPLATION";
+      if (textEl && pic) textEl.textContent = pic.caption || "Be still, and behold His divine presence.";
+      if (refEl && pic) refEl.textContent = pic.credit ? "— " + pic.credit : "— Sacred Visual";
+      if (nextBtnText) nextBtnText.textContent = "Next Picture";
+    } else if (currentMediaType === "prayers") {
+      if (picDisplay) {
+        picDisplay.hidden = true;
+        picDisplay.style.display = "none";
+      }
+      const prayers = activeRoom.prayers || [];
+      const prayer = prayers[activePrayerIndex % Math.max(1, prayers.length)] || prayers[0];
+      if (topicEl) topicEl.textContent = (prayer?.title || "GUIDED PRAYER").toUpperCase();
+      if (textEl && prayer) textEl.textContent = prayer.text;
+      if (refEl && prayer) refEl.textContent = prayer.ref || ("— " + (prayer.leader || "Guided Prayer"));
+      if (nextBtnText) nextBtnText.textContent = "Next Prayer";
+    } else if (currentMediaType === "teachings") {
+      if (picDisplay) {
+        picDisplay.hidden = true;
+        picDisplay.style.display = "none";
+      }
+      const teachings = activeRoom.teachings || [];
+      const teaching = teachings[activeTeachingIndex % Math.max(1, teachings.length)] || teachings[0];
+      if (topicEl) topicEl.textContent = (teaching?.title || "SPIRITUAL TEACHING").toUpperCase();
+      if (textEl && teaching) textEl.textContent = "“" + teaching.summary + "”";
+      if (refEl && teaching) refEl.textContent = teaching.speaker ? "— " + teaching.speaker + (teaching.duration ? " (" + teaching.duration + ")" : "") : (teaching?.ref || "— Pastoral Devotional");
+      if (nextBtnText) nextBtnText.textContent = "Next Teaching";
+    } else if (currentMediaType === "worship") {
+      if (picDisplay) {
+        picDisplay.hidden = true;
+        picDisplay.style.display = "none";
+      }
+      const worshipList = activeRoom.worship || [];
+      const item = worshipList[activeWorshipIndex % Math.max(1, worshipList.length)] || worshipList[0];
+      if (topicEl) topicEl.textContent = "SOAKING WORSHIP & PRAISE";
+      if (textEl && item) textEl.textContent = "“" + item.title + "” — " + (item.style || "Acoustic Worship") + ". Lift your heart in praise.";
+      if (refEl && item) refEl.textContent = item.artist ? "— " + item.artist + (item.freq ? " (" + item.freq + "Hz)" : "") : "— Worship Collective";
+      if (nextBtnText) nextBtnText.textContent = "Next Worship Track";
+    } else {
+      // scriptures
+      if (picDisplay) {
+        picDisplay.hidden = true;
+        picDisplay.style.display = "none";
+      }
+      renderRoomScripture();
+      if (nextBtnText) nextBtnText.textContent = "Next Scripture";
+    }
+  }
+
+  function switchMediaType(type) {
+    currentMediaType = type;
+    document.querySelectorAll(".sanctuary-media-tab").forEach(tab => {
+      const isActive = tab.dataset.mediaType === type;
+      tab.classList.toggle("active", isActive);
+      tab.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+
+    if (type === "scriptures") {
+      selectInRoomAudio("bible");
+    } else if (type === "prayers") {
+      selectInRoomAudio("prayer");
+    } else if (type === "teachings") {
+      selectInRoomAudio("sermon");
+    } else if (type === "worship") {
+      selectInRoomAudio("worship");
+    }
+
+    renderActiveMediaContent();
+    window.lucide?.createIcons();
+  }
+
   function nextVerse() {
-    if (!activeRoom || !activeRoom.verses || !activeRoom.verses.length) return;
-    activeVerseIndex = (activeVerseIndex + 1) % activeRoom.verses.length;
-    renderRoomScripture();
+    if (!activeRoom) return;
+    if (currentMediaType === "pictures") {
+      const len = activeRoom.pictures?.length || 1;
+      activePictureIndex = (activePictureIndex + 1) % len;
+    } else if (currentMediaType === "prayers") {
+      const len = activeRoom.prayers?.length || 1;
+      activePrayerIndex = (activePrayerIndex + 1) % len;
+    } else if (currentMediaType === "teachings") {
+      const len = activeRoom.teachings?.length || 1;
+      activeTeachingIndex = (activeTeachingIndex + 1) % len;
+    } else if (currentMediaType === "worship") {
+      const len = activeRoom.worship?.length || 1;
+      activeWorshipIndex = (activeWorshipIndex + 1) % len;
+    } else {
+      const len = activeRoom.verses?.length || 1;
+      activeVerseIndex = (activeVerseIndex + 1) % len;
+    }
+    renderActiveMediaContent();
   }
 
   function selectInRoomAudio(type) {
@@ -801,6 +1019,9 @@
 
     const tgBtn = document.getElementById("share-telegram");
     if (tgBtn) tgBtn.href = `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`;
+
+    const smsBtn = document.getElementById("share-sms");
+    if (smsBtn) smsBtn.href = `sms:?&body=${encodeURIComponent(shareText + " " + shareUrl)}`;
 
     const fbBtn = document.getElementById("share-facebook");
     if (fbBtn) fbBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
@@ -1029,7 +1250,7 @@
     const initialRoom = params.get("room");
     const initialSession = params.get("session");
     if (initialRoom) {
-      enterRoom(initialRoom, false, initialSession);
+      enterRoom(initialRoom, true, initialSession);
     } else {
       document.body.classList.remove("in-meditation-room");
       const lobby = document.getElementById("meditation-lobby");
@@ -1073,7 +1294,7 @@
       if (card) {
         e.preventDefault();
         const roomId = card.dataset.enterRoom;
-        if (roomId) enterRoom(roomId, false);
+        if (roomId) enterRoom(roomId, true);
         return;
       }
 
@@ -1083,6 +1304,13 @@
         exitToLobby();
         return;
       }
+    });
+
+    // Sanctuary Media Type Tabs
+    document.getElementById("sanctuary-media-tabs")?.addEventListener("click", e => {
+      const tab = e.target.closest(".sanctuary-media-tab");
+      if (!tab || !tab.dataset.mediaType) return;
+      switchMediaType(tab.dataset.mediaType);
     });
 
     // Core In-Room Controls
@@ -1207,7 +1435,7 @@
 
       createModal?.close?.();
       showToast("Sanctuary room created! You are the host.");
-      enterRoom(newId, false);
+      enterRoom(newId, true);
     });
 
     // Keyboard Shortcuts
