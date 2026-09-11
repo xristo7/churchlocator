@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="styles.css?v=20260906" />
   <link rel="stylesheet" href="admin-workspace.css?v=20260906" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script defer src="app.js?v=20260907themefix1"></script>
+  <script defer src="app.js?v=20260907themefix1"></script><script defer src="auth-client.js?v=20260911"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <script defer src="meditation.js?v=20260904"></script>
   <script defer src="admin-model.js?v=20260904"></script>
@@ -26,12 +26,13 @@
       <h1>Your account.<br>Your next beginning.</h1>
       <p>Create your account first. Then choose a church, meditation room, channel, event, store or resource. No church or organization is required.</p>
       <form data-creator-account-form>
+        <p class="member-auth-error" data-creator-account-error hidden></p>
         <label class="form-field"><span>Your name</span><input name="name" required autocomplete="name" placeholder="Your full name" /></label>
         <label class="form-field"><span>Email</span><input name="email" type="email" required autocomplete="username" placeholder="you@example.com" /></label>
-        <label class="form-field"><span>Password</span><input name="password" type="password" minlength="8" required autocomplete="new-password" placeholder="At least 8 characters (demo only)" /></label>
+        <label class="form-field"><span>Password</span><input name="password" type="password" minlength="8" required autocomplete="new-password" placeholder="At least 8 characters" /></label>
         <button class="aw-button aw-primary" type="submit">Create account & continue <i data-lucide="arrow-right"></i></button>
       </form>
-      <p class="aw-login-note"><i data-lucide="info"></i> Local demo only. Your password is not stored or verified. Account details and created content stay in this browser; production sign-up is not connected.</p>
+      <p class="aw-login-note"><i data-lucide="info"></i> Your account and password are securely stored on the server. Content you create in this workspace (churches, channels, stores, events) still lives in this browser only.</p>
       <button type="button" class="aw-button" id="creator-account-mode">Already have an account? Sign in</button>
       <a href="index.html">Back to public site</a>
     </div>

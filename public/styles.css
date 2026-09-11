@@ -13649,6 +13649,34 @@ body.member-auth-open {
   box-shadow: 0 12px 28px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.45) !important;
 }
 
+.member-auth-submit:disabled {
+  opacity: 0.65 !important;
+  cursor: progress !important;
+  transform: none !important;
+}
+
+.member-auth-error {
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  background: hsla(0, 84%, 60%, 0.12) !important;
+  color: hsl(0, 72%, 46%) !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+}
+
+.member-auth-hint {
+  margin: 0 !important;
+  text-align: center !important;
+  font-size: 0.82rem !important;
+  color: var(--text-secondary) !important;
+}
+
+.member-auth-hint a {
+  color: var(--primary) !important;
+  font-weight: 700 !important;
+}
+
 /* Dark Mode Overrides */
 html[data-theme="dark"] .member-auth-modal {
   background: rgba(3, 7, 18, 0.82) !important;

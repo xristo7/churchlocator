@@ -1451,6 +1451,7 @@ MWE.ensureMemberLoginModal = function() {
       <h2 id="member-auth-title">Sign in to continue</h2>
       <p>Your selected church, event, or livestream will open inside your My Way member app.</p>
       <form class="member-auth-form" data-member-auth-form>
+        <p class="member-auth-error" data-member-auth-error hidden></p>
         <label>Email address
           <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
         </label>
@@ -1458,6 +1459,7 @@ MWE.ensureMemberLoginModal = function() {
           <input type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required />
         </label>
         <button class="member-auth-submit" type="submit"><i data-lucide="log-in"></i> Sign in</button>
+        <p class="member-auth-hint">No account yet? <a href="index.html#register">Register free</a> first.</p>
       </form>
     </div>
   `;
@@ -1476,13 +1478,30 @@ MWE.ensureMemberLoginModal = function() {
   modal.addEventListener("keydown", event => {
     if (event.key === "Escape") close();
   });
-  modal.querySelector("[data-member-auth-form]")?.addEventListener("submit", event => {
+  modal.querySelector("[data-member-auth-form]")?.addEventListener("submit", async event => {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const email = form.get("email")?.toString().trim() || "Member";
-    localStorage.setItem("mwe.userLoggedIn", "true");
-    localStorage.setItem("mwe.username", email.split("@")[0] || "Member");
-    localStorage.setItem("mwe.userEmail", email.toLowerCase());
+    const formEl = event.currentTarget;
+    const errorEl = modal.querySelector("[data-member-auth-error]");
+    const submitBtn = formEl.querySelector(".member-auth-submit");
+    const form = new FormData(formEl);
+    const email = form.get("email")?.toString().trim() || "";
+    const password = form.get("password")?.toString() || "";
+    if (errorEl) { errorEl.hidden = true; errorEl.textContent = ""; }
+
+    if (!window.MWEAuth) {
+      if (errorEl) { errorEl.textContent = "Sign-in is unavailable right now. Please reload and try again."; errorEl.hidden = false; }
+      return;
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+    const result = await window.MWEAuth.login(email, password);
+    if (submitBtn) submitBtn.disabled = false;
+
+    if (!result.ok) {
+      if (errorEl) { errorEl.textContent = result.error || "Invalid email or password."; errorEl.hidden = false; }
+      return;
+    }
+
     let destination = modal.dataset.destination || "app.html?view=directory";
     try {
       const safeDestination = new URL(destination, window.location.href);
@@ -4358,17 +4377,18 @@ function updateHomepageAuthUI() {
 
             <!-- Auth Credentials Form -->
             <form id="nav-dropdown-auth-form" onsubmit="MWE.handleNavDropdownAuthSubmit(event)">
+              <p class="member-auth-error" id="nav-auth-error" hidden></p>
               <div class="form-group mb-2" id="nav-auth-name-group" style="display: none;">
                 <label for="nav-auth-name">Full Name</label>
                 <input type="text" id="nav-auth-name" name="name" class="field small-field" placeholder="e.g. John Doe" />
               </div>
               <div class="form-group mb-2">
-                <label for="nav-auth-email" id="nav-auth-email-label">Username or Email</label>
-                <input type="text" id="nav-auth-email" name="email" class="field small-field" placeholder="you@example.com" required />
+                <label for="nav-auth-email" id="nav-auth-email-label">Email Address</label>
+                <input type="email" id="nav-auth-email" name="email" class="field small-field" placeholder="you@example.com" required />
               </div>
               <div class="form-group mb-3">
                 <label for="nav-auth-password">Password</label>
-                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required />
+                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required minlength="8" />
               </div>
               <button type="submit" class="button primary small" id="nav-auth-submit-btn" style="width: 100%;">
                 <i data-lucide="log-in"></i> <span>Sign In</span>
@@ -4457,49 +4477,77 @@ MWE.switchAuthDropdownTab = function(tab) {
     btnSignin?.classList.add("active");
     btnRegister?.classList.remove("active");
     if (nameGroup) nameGroup.style.display = "none";
-    if (emailLabel) emailLabel.textContent = "Username or Email";
+    if (emailLabel) emailLabel.textContent = "Email Address";
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="log-in"></i> <span>Sign In</span>`;
     if (googleLabel) googleLabel.textContent = "Continue with Google";
   }
   if (window.lucide) window.lucide.createIcons();
 };
 
-MWE.handleNavDropdownAuthSubmit = function(event) {
+MWE.handleNavDropdownAuthSubmit = async function(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const fd = new FormData(form);
   const name = (fd.get("name") || "").toString().trim();
-  const email = (fd.get("email") || "").toString().trim() || "Member";
-  const username = name || email.split("@")[0] || "Member";
+  const email = (fd.get("email") || "").toString().trim();
+  const password = (fd.get("password") || "").toString();
+  const isRegister = document.getElementById("tab-btn-register")?.classList.contains("active");
+  const errorEl = document.getElementById("nav-auth-error");
+  const submitBtn = document.getElementById("nav-auth-submit-btn");
+  if (errorEl) { errorEl.hidden = true; errorEl.textContent = ""; }
 
-  localStorage.setItem("mwe.userLoggedIn", "true");
-  localStorage.setItem("mwe.username", username);
-  localStorage.setItem("mwe.userEmail", email.toLowerCase());
+  if (!window.MWEAuth) {
+    if (errorEl) { errorEl.textContent = "Sign-in is unavailable right now. Please reload and try again."; errorEl.hidden = false; }
+    return;
+  }
 
+  if (submitBtn) submitBtn.disabled = true;
+  const result = isRegister
+    ? await window.MWEAuth.register(name, email, password)
+    : await window.MWEAuth.login(email, password);
+  if (submitBtn) submitBtn.disabled = false;
+
+  if (!result.ok) {
+    if (errorEl) { errorEl.textContent = result.error || "Something went wrong. Please try again."; errorEl.hidden = false; }
+    return;
+  }
+
+  const username = result.user?.name || email.split("@")[0] || "Member";
   const popover = document.getElementById("nav-signin-popover");
   if (popover) popover.hidden = true;
   document.getElementById("nav-signin-dropdown-container")?.classList.remove("is-open");
 
   if (typeof showToast === "function") {
-    showToast("Welcome to My Way of Evangelism, " + username);
+    showToast((isRegister ? "Welcome to My Way of Evangelism, " : "Welcome back, ") + username);
   }
   updateHomepageAuthUI();
 };
 
-MWE.handleGoogleAuthFast = function() {
+MWE.handleGoogleAuthFast = async function() {
+  // Demo one-click account. Real Google OAuth requires a Google Cloud OAuth
+  // client to be configured separately; this signs the visitor into a real,
+  // server-persisted demo account rather than only faking it client-side.
   const defaultGoogleName = "Google Seeker";
   const defaultGoogleEmail = "seeker@gmail.com";
+  const demoPassword = "google-demo-account";
 
-  localStorage.setItem("mwe.userLoggedIn", "true");
-  localStorage.setItem("mwe.username", defaultGoogleName);
-  localStorage.setItem("mwe.userEmail", defaultGoogleEmail);
+  if (!window.MWEAuth) return;
+
+  let result = await window.MWEAuth.login(defaultGoogleEmail, demoPassword);
+  if (!result.ok) {
+    result = await window.MWEAuth.register(defaultGoogleName, defaultGoogleEmail, demoPassword);
+  }
+  if (!result.ok) {
+    if (typeof showToast === "function") showToast(result.error || "Could not sign in with Google right now.");
+    return;
+  }
 
   const popover = document.getElementById("nav-signin-popover");
   if (popover) popover.hidden = true;
   document.getElementById("nav-signin-dropdown-container")?.classList.remove("is-open");
 
   if (typeof showToast === "function") {
-    showToast("Signed in with Google as " + defaultGoogleName);
+    showToast("Signed in with Google as " + (result.user?.name || defaultGoogleName));
   }
   updateHomepageAuthUI();
 };
@@ -4517,6 +4565,7 @@ document.addEventListener("click", function(event) {
 });
 
 MWE.logoutMember = function() {
+  if (window.MWEAuth) window.MWEAuth.logout().catch(() => {});
   localStorage.removeItem("mwe.userLoggedIn");
   localStorage.removeItem("mwe.username");
   localStorage.removeItem("mwe.userEmail");

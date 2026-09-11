@@ -75,6 +75,238 @@ function registrationCode() {
   return `REG-${crypto.randomUUID().replaceAll("-", "").slice(0, 12).toUpperCase()}`;
 }
 
+// --- Authentication -------------------------------------------------------
+
+const SESSION_COOKIE = "mwe_session";
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+const PBKDF2_ITERATIONS = 120000;
+
+function toBase64(bytes) {
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
+function fromBase64(value) {
+  const binary = atob(value);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+  return bytes;
+}
+
+function randomToken(byteLength = 32) {
+  const bytes = crypto.getRandomValues(new Uint8Array(byteLength));
+  return toBase64(bytes).replace(/[+/=]/g, char => ({ "+": "-", "/": "_", "=": "" }[char]));
+}
+
+async function hashPassword(password, saltBase64) {
+  const encoder = new TextEncoder();
+  const salt = fromBase64(saltBase64);
+  const keyMaterial = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
+    keyMaterial,
+    256
+  );
+  return toBase64(new Uint8Array(bits));
+}
+
+async function hashNewPassword(password) {
+  const saltBytes = crypto.getRandomValues(new Uint8Array(16));
+  const salt = toBase64(saltBytes);
+  const hash = await hashPassword(password, salt);
+  return { salt, hash };
+}
+
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function parseCookies(request) {
+  const header = request.headers.get("cookie") || "";
+  const cookies = {};
+  header.split(";").forEach(part => {
+    const separatorIndex = part.indexOf("=");
+    if (separatorIndex < 0) return;
+    const key = part.slice(0, separatorIndex).trim();
+    const value = part.slice(separatorIndex + 1).trim();
+    if (!key) return;
+    try {
+      cookies[key] = decodeURIComponent(value);
+    } catch {
+      cookies[key] = value;
+    }
+  });
+  return cookies;
+}
+
+function isSecureEnvironment(env) {
+  return env.ENVIRONMENT === "production" || env.ENVIRONMENT === "preview";
+}
+
+function sessionCookieHeader(env, token, maxAgeSeconds) {
+  const attrs = [`${SESSION_COOKIE}=${token}`, "Path=/", "HttpOnly", "SameSite=Lax", `Max-Age=${maxAgeSeconds}`];
+  if (isSecureEnvironment(env)) attrs.push("Secure");
+  return attrs.join("; ");
+}
+
+function clearSessionCookieHeader(env) {
+  const attrs = [`${SESSION_COOKIE}=`, "Path=/", "HttpOnly", "SameSite=Lax", "Max-Age=0"];
+  if (isSecureEnvironment(env)) attrs.push("Secure");
+  return attrs.join("; ");
+}
+
+function jsonWithCookie(body, status, cookieValue) {
+  const res = json(body, status);
+  res.headers.append("set-cookie", cookieValue);
+  return res;
+}
+
+function publicUser(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    isCreator: Boolean(row.is_creator)
+  };
+}
+
+async function createSession(env, userId) {
+  const token = randomToken();
+  const now = new Date();
+  const expires = new Date(now.getTime() + SESSION_TTL_SECONDS * 1000);
+  await env.DB.prepare(`
+    insert into sessions (token, user_id, created_at, expires_at)
+    values (?, ?, ?, ?)
+  `).bind(token, userId, now.toISOString(), expires.toISOString()).run();
+  return token;
+}
+
+async function getSessionUser(request, env) {
+  if (!env.DB) return null;
+  const cookies = parseCookies(request);
+  const token = cookies[SESSION_COOKIE];
+  if (!token) return null;
+
+  const row = await env.DB.prepare(`
+    select u.id, u.name, u.email, u.is_creator, s.expires_at
+    from sessions s
+    join users u on u.id = s.user_id
+    where s.token = ?
+  `).bind(token).first();
+
+  if (!row) return null;
+  if (new Date(row.expires_at).getTime() < Date.now()) {
+    await env.DB.prepare("delete from sessions where token = ?").bind(token).run();
+    return null;
+  }
+
+  return row;
+}
+
+async function registerUser(request, env, { forceCreator = false } = {}) {
+  if (!env.DB) return storageUnavailable();
+  const payload = await readJson(request);
+  const name = String(payload?.name || "").trim();
+  const email = normalizeEmail(payload?.email);
+  const password = String(payload?.password || "");
+
+  if (!name) return json({ ok: false, error: "Enter your full name." }, 400);
+  if (!isValidEmail(email)) return json({ ok: false, error: "Enter a valid email address." }, 400);
+  if (password.length < 8) return json({ ok: false, error: "Password must be at least 8 characters." }, 400);
+
+  const existing = await env.DB.prepare("select id from users where email = ?").bind(email).first();
+  if (existing) {
+    return json({ ok: false, error: "An account with that email already exists. Sign in instead." }, 409);
+  }
+
+  const id = `local:${email}`;
+  const { salt, hash } = await hashNewPassword(password);
+  const createdAt = new Date().toISOString();
+  const isCreator = forceCreator || Boolean(payload?.isCreator);
+
+  await env.DB.prepare(`
+    insert into users (id, email, password_hash, password_salt, name, is_creator, created_at, last_login_at)
+    values (?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(id, email, hash, salt, name, Number(isCreator), createdAt, createdAt).run();
+
+  const token = await createSession(env, id);
+  return jsonWithCookie(
+    { ok: true, user: { id, name, email, isCreator } },
+    201,
+    sessionCookieHeader(env, token, SESSION_TTL_SECONDS)
+  );
+}
+
+async function handleAuthRegister(request, env) {
+  return registerUser(request, env);
+}
+
+async function handleCreatorRegister(request, env) {
+  return registerUser(request, env, { forceCreator: true });
+}
+
+async function handleAuthLogin(request, env) {
+  if (!env.DB) return storageUnavailable();
+  const payload = await readJson(request);
+  const email = normalizeEmail(payload?.email);
+  const password = String(payload?.password || "");
+
+  if (!isValidEmail(email) || !password) {
+    return json({ ok: false, error: "Invalid email or password." }, 401);
+  }
+
+  const row = await env.DB.prepare(`
+    select id, name, email, password_hash, password_salt, is_creator
+    from users where email = ?
+  `).bind(email).first();
+
+  if (!row) return json({ ok: false, error: "Invalid email or password." }, 401);
+
+  const computedHash = await hashPassword(password, row.password_salt);
+  if (!constantTimeEqual(computedHash, row.password_hash)) {
+    return json({ ok: false, error: "Invalid email or password." }, 401);
+  }
+
+  await env.DB.prepare("update users set last_login_at = ? where id = ?")
+    .bind(new Date().toISOString(), row.id)
+    .run();
+
+  const token = await createSession(env, row.id);
+  return jsonWithCookie(
+    { ok: true, user: publicUser(row) },
+    200,
+    sessionCookieHeader(env, token, SESSION_TTL_SECONDS)
+  );
+}
+
+async function handleAuthLogout(request, env) {
+  if (env.DB) {
+    const cookies = parseCookies(request);
+    const token = cookies[SESSION_COOKIE];
+    if (token) await env.DB.prepare("delete from sessions where token = ?").bind(token).run();
+  }
+  return jsonWithCookie({ ok: true }, 200, clearSessionCookieHeader(env));
+}
+
+async function handleAuthSession(request, env) {
+  const user = await getSessionUser(request, env);
+  if (!user) return json({ ok: true, user: null });
+  return json({ ok: true, user: publicUser(user) });
+}
+
+async function handleCreatorUpgrade(request, env) {
+  if (!env.DB) return storageUnavailable();
+  const user = await getSessionUser(request, env);
+  if (!user) return unauthorized();
+  await env.DB.prepare("update users set is_creator = 1 where id = ?").bind(user.id).run();
+  return json({ ok: true, user: { ...publicUser(user), isCreator: true } });
+}
+
 async function handleStatus(env) {
   return json({
     ok: true,
@@ -592,6 +824,7 @@ async function handleApi(request, env) {
     if (path === "/api/churches") return await handlePublicChurches(request, env);
     if (path === "/api/admin/churches") return await handleAdminChurches(request, env);
     if (path === "/api/events") return await handleEvents(request, env);
+    if (path === "/api/auth/session" && request.method === "GET") return await handleAuthSession(request, env);
 
     if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
     if (path === "/api/church-application") return await handleChurchApplication(request, env);
@@ -599,6 +832,11 @@ async function handleApi(request, env) {
     if (path === "/api/visitor") return await handleVisitor(request, env);
     if (path === "/api/prayer") return await handlePrayer(request, env);
     if (path === "/api/event-register") return await handleEventRegister(request, env);
+    if (path === "/api/auth/register") return await handleAuthRegister(request, env);
+    if (path === "/api/auth/login") return await handleAuthLogin(request, env);
+    if (path === "/api/auth/logout") return await handleAuthLogout(request, env);
+    if (path === "/api/creator/register") return await handleCreatorRegister(request, env);
+    if (path === "/api/creator/upgrade") return await handleCreatorUpgrade(request, env);
 
     return json({ ok: false, error: "not found" }, 404);
   } catch (error) {
