@@ -1253,8 +1253,8 @@ const MWE = (() => {
             <button onclick="MWE.shareDirections('${escapeHtml(church.name.replace(/'/g, "\\'"))}', '${escapeHtml(church.location.replace(/'/g, "\\'"))}')" class="cpc-modal-btn-share">
               <i data-lucide="share-2"></i> Share Directions
             </button>
-            <a href="${mapDirectionsUrl}" target="_blank" rel="noopener noreferrer" class="cpc-modal-btn-gmaps">
-              <i data-lucide="external-link"></i> Open in ${providerName}
+            <a href="${mapDirectionsUrl}" target="_blank" rel="noopener noreferrer" class="cpc-modal-btn-gmaps" title="Open directions in ${providerName}">
+              <i data-lucide="external-link"></i> ${providerName}
             </a>
             <a href="church-profile.html?id=${encodeURIComponent(church.id)}" class="cpc-modal-btn-profile">
               <i data-lucide="building-2"></i> View Profile
@@ -5067,23 +5067,54 @@ function initModuleDirectoryToolbars() {
     const popup = overflow.querySelector(".module-filter-popup");
     const desktopTrigger = overflow.querySelector(".module-overflow-trigger");
 
+    let popupHead = popup.querySelector(".module-filter-popup-head");
+    if (!popupHead) {
+      popupHead = document.createElement("div");
+      popupHead.className = "module-filter-popup-head";
+      popupHead.innerHTML = `
+        <span class="module-filter-popup-title"><i data-lucide="sliders-horizontal"></i> Filters</span>
+        <button type="button" class="module-filter-popup-close" aria-label="Close filters">
+          <i data-lucide="x"></i>
+        </button>
+      `;
+      popupHead.querySelector(".module-filter-popup-close").addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closePopup();
+      });
+      popup.prepend(popupHead);
+    }
+
     const closePopup = () => {
       overflow.classList.remove("open");
       toolbar.classList.remove("has-open-dropdown");
       desktopTrigger.setAttribute("aria-expanded", "false");
       mobileButton.setAttribute("aria-expanded", "false");
+      mobileButton.classList.remove("is-open");
+      mobileButton.setAttribute("aria-label", "Open filters");
+      mobileButton.innerHTML = '<i data-lucide="sliders-horizontal"></i><span class="module-filter-count" hidden></span>';
       popup.setAttribute("aria-hidden", "true");
+      if (typeof createIcons === "function") createIcons();
+      else if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
     };
     const togglePopup = event => {
       event.preventDefault();
       event.stopPropagation();
       const opening = !overflow.classList.contains("open");
-      closePopup();
-      overflow.classList.toggle("open", opening);
-      toolbar.classList.toggle("has-open-dropdown", opening);
-      desktopTrigger.setAttribute("aria-expanded", String(opening));
-      mobileButton.setAttribute("aria-expanded", String(opening));
-      popup.setAttribute("aria-hidden", String(!opening));
+      if (!opening) {
+        closePopup();
+        return;
+      }
+      overflow.classList.add("open");
+      toolbar.classList.add("has-open-dropdown");
+      desktopTrigger.setAttribute("aria-expanded", "true");
+      mobileButton.setAttribute("aria-expanded", "true");
+      mobileButton.classList.add("is-open");
+      mobileButton.setAttribute("aria-label", "Close filters");
+      mobileButton.innerHTML = '<i data-lucide="x"></i><span class="module-filter-count" hidden></span>';
+      popup.setAttribute("aria-hidden", "false");
+      if (typeof createIcons === "function") createIcons();
+      else if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
     };
 
     desktopTrigger.addEventListener("click", togglePopup);
@@ -5099,6 +5130,7 @@ function initModuleDirectoryToolbars() {
       const mobile = window.matchMedia("(max-width: 700px)").matches;
 
       if (mobile) {
+        if (!popup.contains(popupHead)) popup.prepend(popupHead);
         filterItems.forEach(item => popup.appendChild(item));
         overflowOnlyItems.forEach(item => popup.appendChild(item));
         overflow.classList.add("mobile-filter-mode");
@@ -5143,7 +5175,8 @@ function initModuleDirectoryToolbars() {
     };
     new ResizeObserver(scheduleLayout).observe(toolbar);
     layout();
-    createIcons();
+    if (typeof createIcons === "function") createIcons();
+    else if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
   });
 }
 
@@ -7996,6 +8029,236 @@ MWE.downloadCalendarICS = function(title, timeStr, location) {
   }
 
   showToast(`📅 Calendar event (.ics) downloaded for ${title}!`);
+};
+
+MWE.openCalendarModal = function(title, timeStr = "Sunday 10:00 AM", location = "") {
+  const currentChurch = MWE.activeChurchProfile || {};
+  const churchName = currentChurch.name || "My Way of Evangelism Church";
+  const finalLocation = location || currentChurch.location || "Church Sanctuary";
+  const cleanTitle = `${title} - ${churchName}`;
+  const details = `Join us for ${cleanTitle}.\nService time: ${timeStr}\nLocation: ${finalLocation}\nFind details & community updates on My Way of Evangelism.`;
+
+  // Calculate upcoming date based on day of week in timeStr
+  const dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  const lowerTime = (timeStr || "").toLowerCase();
+  let targetDay = 0; // Default Sunday
+  dayNames.forEach((d, idx) => {
+    if (lowerTime.includes(d)) targetDay = idx;
+  });
+
+  const now = new Date();
+  let daysUntil = (targetDay - now.getDay() + 7) % 7;
+  if (daysUntil === 0) daysUntil = 7; // Next occurrence
+  const eventDate = new Date(now.getTime() + daysUntil * 24 * 60 * 60 * 1000);
+
+  // Extract hour & minute if present
+  let hour = 10;
+  let minute = 0;
+  const timeMatch = lowerTime.match(/(\d{1,2}):(\d{2})\s*(am|pm)?/);
+  if (timeMatch) {
+    hour = parseInt(timeMatch[1], 10);
+    minute = parseInt(timeMatch[2], 10);
+    const isPm = timeMatch[3] === "pm";
+    const isAm = timeMatch[3] === "am";
+    if (isPm && hour < 12) hour += 12;
+    if (isAm && hour === 12) hour = 0;
+  }
+  eventDate.setHours(hour, minute, 0, 0);
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const formatISOForCal = (d) => `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
+
+  const startISO = formatISOForCal(eventDate);
+  const endEventDate = new Date(eventDate.getTime() + 90 * 60 * 1000); // 90 min duration
+  const endISO = formatISOForCal(endEventDate);
+
+  // URLs
+  const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(cleanTitle)}&dates=${startISO}/${endISO}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(finalLocation)}`;
+  const outlookUrl = `https://outlook.live.com/calendar/0/deeplink/compose?path=%2Fcalendar%2Faction%2Fcompose&rru=addevent&subject=${encodeURIComponent(cleanTitle)}&startdt=${startISO}&enddt=${endISO}&body=${encodeURIComponent(details)}&location=${encodeURIComponent(finalLocation)}`;
+
+  // Remove existing modal if any
+  document.getElementById("calendar-modal-backdrop")?.remove();
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "alert-modal-backdrop open";
+  backdrop.id = "calendar-modal-backdrop";
+  backdrop.style.zIndex = "2500";
+  backdrop.innerHTML = `
+    <div class="dash-panel dash-panel-pad" style="max-width: 480px; width: 92%; margin: 24px auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); background: var(--surface, #ffffff); border: 1px solid var(--border, #e2e8f0); position: relative;">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 44px; height: 44px; border-radius: 14px; background: var(--primary-surface, rgba(236,72,153,0.1)); color: var(--primary, #db2777); display: grid; place-items: center; font-size: 20px;">
+            <i data-lucide="calendar-check"></i>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--text-primary, #0f172a);">Add to Calendar</h3>
+            <p style="margin: 2px 0 0; font-size: 0.78rem; color: var(--text-muted, #64748b);">${MWE.escapeHtml(title)} • ${MWE.escapeHtml(timeStr)}</p>
+          </div>
+        </div>
+        <button type="button" style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border, #e2e8f0); background: transparent; color: var(--text-muted, #64748b); display: grid; place-items: center; cursor: pointer;" onclick="document.getElementById('calendar-modal-backdrop').remove()">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <p style="font-size: 0.82rem; color: var(--text-secondary, #475569); line-height: 1.5; margin: 0 0 16px 0;">
+        Choose your calendar below to set a reminder for this gathering on mobile or desktop:
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Google Calendar -->
+        <a href="${googleCalUrl}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--border, #e2e8f0); background: var(--surface, #ffffff); text-decoration: none; color: var(--text-primary, #0f172a); font-weight: 750; font-size: 0.88rem; transition: all 0.2s ease;" onclick="document.getElementById('calendar-modal-backdrop').remove()">
+          <span style="width: 32px; height: 32px; border-radius: 8px; background: #ea4335; color: #fff; display: grid; place-items: center; font-size: 15px; font-weight: 900;"><i class="fa-brands fa-google"></i></span>
+          <div style="flex: 1;">
+            <div>Google Calendar</div>
+            <small style="color: var(--text-muted, #64748b); font-size: 0.72rem; font-weight: 500;">Opens in Google Calendar</small>
+          </div>
+          <i data-lucide="external-link" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+        </a>
+
+        <!-- Apple Calendar / iOS iCal -->
+        <button type="button" style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--border, #e2e8f0); background: var(--surface, #ffffff); text-align: left; color: var(--text-primary, #0f172a); font-weight: 750; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease;" onclick="MWE.downloadCalendarICS('${MWE.escapeHtml(title).replace(/'/g, "\\'")}', '${MWE.escapeHtml(timeStr).replace(/'/g, "\\'")}', '${MWE.escapeHtml(finalLocation).replace(/'/g, "\\'")}'); document.getElementById('calendar-modal-backdrop').remove();">
+          <span style="width: 32px; height: 32px; border-radius: 8px; background: #000000; color: #fff; display: grid; place-items: center; font-size: 16px;"><i class="fa-brands fa-apple"></i></span>
+          <div style="flex: 1;">
+            <div>Apple Calendar (iPhone, iPad, Mac)</div>
+            <small style="color: var(--text-muted, #64748b); font-size: 0.72rem; font-weight: 500;">Direct calendar event import (.ics)</small>
+          </div>
+          <i data-lucide="download" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+        </button>
+
+        <!-- Microsoft Outlook / 365 -->
+        <a href="${outlookUrl}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--border, #e2e8f0); background: var(--surface, #ffffff); text-decoration: none; color: var(--text-primary, #0f172a); font-weight: 750; font-size: 0.88rem; transition: all 0.2s ease;" onclick="document.getElementById('calendar-modal-backdrop').remove()">
+          <span style="width: 32px; height: 32px; border-radius: 8px; background: #0078d4; color: #fff; display: grid; place-items: center; font-size: 15px;"><i class="fa-brands fa-microsoft"></i></span>
+          <div style="flex: 1;">
+            <div>Outlook & Microsoft 365</div>
+            <small style="color: var(--text-muted, #64748b); font-size: 0.72rem; font-weight: 500;">Outlook Live / Web compose</small>
+          </div>
+          <i data-lucide="external-link" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+        </a>
+
+        <!-- Standard ICS File Download -->
+        <button type="button" style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--border, #e2e8f0); background: var(--surface, #ffffff); text-align: left; color: var(--text-primary, #0f172a); font-weight: 750; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease;" onclick="MWE.downloadCalendarICS('${MWE.escapeHtml(title).replace(/'/g, "\\'")}', '${MWE.escapeHtml(timeStr).replace(/'/g, "\\'")}', '${MWE.escapeHtml(finalLocation).replace(/'/g, "\\'")}'); document.getElementById('calendar-modal-backdrop').remove();">
+          <span style="width: 32px; height: 32px; border-radius: 8px; background: var(--primary-surface, rgba(236,72,153,0.12)); color: var(--primary, #db2777); display: grid; place-items: center; font-size: 15px;"><i data-lucide="file-down"></i></span>
+          <div style="flex: 1;">
+            <div>Download .ICS Calendar File</div>
+            <small style="color: var(--text-muted, #64748b); font-size: 0.72rem; font-weight: 500;">Compatible with all calendar apps</small>
+          </div>
+          <i data-lucide="download" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+        </button>
+      </div>
+    </div>
+  `;
+
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) backdrop.remove();
+  });
+
+  document.body.appendChild(backdrop);
+  if (typeof createIcons === "function") createIcons();
+  if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+};
+
+MWE.openStoriesModal = function() {
+  document.getElementById("stories-modal-backdrop")?.remove();
+
+  const stories = [
+    {
+      name: "Sarah M.",
+      tenure: "Attending since 2022",
+      stars: 5,
+      photo: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=500&q=80",
+      quote: "Connecting with this church family completely changed my perspective. I found deep, word-based teachings and a youth network that coordinates outreach projects across the area."
+    },
+    {
+      name: "Jason L.",
+      tenure: "Attending since 2021",
+      stars: 5,
+      photo: "https://images.unsplash.com/photo-1602030028438-4cf153cbae9e?auto=format&fit=crop&w=500&q=80",
+      quote: "The children's programs and family gatherings are incredible. My kids look forward to Sunday School, and the virtual direct stream helps us stay tuned."
+    },
+    {
+      name: "David & Maria K.",
+      tenure: "Attending since 2020",
+      stars: 5,
+      photo: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80",
+      quote: "When we relocated to the area, we prayed for a spirit-filled church that prioritized discipleship and authentic community. We found our spiritual family here."
+    },
+    {
+      name: "Grace O.",
+      tenure: "Attending since 2023",
+      stars: 5,
+      photo: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=500&q=80",
+      quote: "The Midweek Bible study gave me clarity in God's Word like never before. The pastoral prayer team supported me during illness and we saw God's healing power in action."
+    },
+    {
+      name: "Marcus T.",
+      tenure: "Attending since 2019",
+      stars: 5,
+      photo: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=500&q=80",
+      quote: "Serving on the outreach and media teams has helped me discover my purpose and develop my leadership skills. This church truly lives out the Great Commission."
+    },
+    {
+      name: "Hannah W.",
+      tenure: "Attending since 2022",
+      stars: 5,
+      photo: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=500&q=80",
+      quote: "The Youth and Young Adult ministry provided a safe, encouraging space for me to ask hard questions and grow strong in faith with genuine friends."
+    }
+  ];
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "alert-modal-backdrop open";
+  backdrop.id = "stories-modal-backdrop";
+  backdrop.style.zIndex = "2500";
+  backdrop.innerHTML = `
+    <div class="dash-panel dash-panel-pad" style="max-width: 780px; width: 92%; max-height: 88vh; margin: 24px auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); background: var(--surface, #ffffff); border: 1px solid var(--border, #e2e8f0); display: flex; flex-direction: column; overflow: hidden;">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--border, #e2e8f0); flex-shrink: 0;">
+        <div>
+          <span style="font-size: 0.7rem; font-weight: 850; text-transform: uppercase; color: var(--primary, #db2777); letter-spacing: 0.06em;">Lives Transformed</span>
+          <h3 style="margin: 2px 0 0; font-size: 1.35rem; font-weight: 850; color: var(--text-primary, #0f172a);">Stories of Transformation</h3>
+        </div>
+        <button type="button" style="width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border, #e2e8f0); background: transparent; color: var(--text-muted, #64748b); display: grid; place-items: center; cursor: pointer;" onclick="document.getElementById('stories-modal-backdrop').remove()">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div style="overflow-y: auto; padding: 20px 4px 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+        ${stories.map(s => `
+          <div class="glass-card testimony-card" style="display: grid; grid-template-columns: 120px minmax(0,1fr); min-height: 190px; padding: 12px; border-radius: 16px; border: 1px solid var(--border, #e2e8f0); background: var(--surface-card, #ffffff); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
+            <img class="testimony-scene" src="${s.photo}" alt="${MWE.escapeHtml(s.name)}" style="width: 100%; height: 100%; min-height: 160px; object-fit: cover; border-radius: 12px;" />
+            <div class="testimony-content" style="display: flex; flex-direction: column; padding: 4px 6px 4px 12px;">
+              <div class="testimony-stars" style="display: flex; align-items: center; gap: 3px; margin-bottom: 8px; color: var(--gold, #e5a93c);">
+                <i data-lucide="quote" style="width: 16px; height: 16px; color: var(--primary, #db2777); margin-right: 4px;"></i>
+                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
+                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
+                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
+                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
+                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
+              </div>
+              <p class="testimony-text" style="font-size: 0.8rem; line-height: 1.5; color: var(--text-secondary, #475569); margin: 0 0 12px 0;">"${MWE.escapeHtml(s.quote)}"</p>
+              <div class="testimony-user" style="margin-top: auto;">
+                <div class="testimony-user-info">
+                  <h4 style="font-size: 0.82rem; font-weight: 800; color: var(--text-primary, #0f172a); margin: 0;">${MWE.escapeHtml(s.name)}</h4>
+                  <span style="font-size: 0.7rem; color: var(--text-muted, #64748b);">${MWE.escapeHtml(s.tenure)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+
+      <div style="padding-top: 14px; border-top: 1px solid var(--border, #e2e8f0); display: flex; justify-content: flex-end; flex-shrink: 0;">
+        <button type="button" class="button ghost" onclick="document.getElementById('stories-modal-backdrop').remove()">Close</button>
+      </div>
+    </div>
+  `;
+
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) backdrop.remove();
+  });
+
+  document.body.appendChild(backdrop);
+  if (typeof createIcons === "function") createIcons();
+  if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
 };
 
 MWE.toggleDirectoryMapView = function() {

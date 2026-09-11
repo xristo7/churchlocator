@@ -72,7 +72,7 @@
   .meditation-room-view .room-bottom-player { width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; min-height: 64px; border-radius: 16px !important; padding: 12px !important; flex-wrap: wrap; justify-content: center !important; gap: 10px; }
   .room-bottom-player .bottom-player-info { width: 100%; min-width: 0; justify-content: center; }
   .room-bottom-player .bottom-player-volume { max-width: 100px; }
-  html { -webkit-text-size-adjust: 100%; scroll-padding-top: 80px; }
+  html, body { -webkit-text-size-adjust: 100%; scroll-padding-top: 80px; overflow-x: hidden; max-width: 100%; }
   *, *::before, *::after { box-sizing: border-box; }
   main, section, article, aside, form, fieldset { min-width: 0; }
   fieldset { max-width: 100%; }

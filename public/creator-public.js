@@ -30,7 +30,8 @@
       card.style.backgroundImage = 'url("' + esc(thumbnail(stream)) + '")';
       card.setAttribute("aria-label", "Play " + stream.name);
       card.innerHTML = '<span class="livestream-showcase-shade" aria-hidden="true"></span>' +
-        '<div class="livestream-showcase-copy"><h3>' + esc(stream.name) + '</h3><p>' + esc(stream.description || "Live broadcast") + '</p></div>' +
+        '<span class="livestream-showcase-badge"><span class="livestream-showcase-badge-dot"></span> LIVE</span>' +
+        '<div class="livestream-showcase-copy"><h3>' + esc(stream.name) + '</h3><p><i data-lucide="map-pin"></i> ' + esc(stream.description || "Live broadcast") + '</p></div>' +
         '<span class="livestream-showcase-play"><i data-lucide="play"></i><b>Play</b></span>';
       target.append(card);
     });

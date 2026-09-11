@@ -56,3 +56,23 @@ test('Task 5.4: Bring Guest on Stage (Split Screen & Host Moderation)', () => {
   assert.match(js, /MWE\.toggleGuestMute/, 'toggleGuestMute method defined');
   assert.match(js, /MWE\.postSystemChatAnnouncement/, 'postSystemChatAnnouncement method defined');
 });
+
+test('Task 5.5: Responsive Grid Containment and Anti-Overlap Video Cards', () => {
+  const creatorCss = fs.readFileSync('public/creator-public.css', 'utf8');
+  const creatorJs = fs.readFileSync('public/creator-public.js', 'utf8');
+
+  // Anti-overlap sizing rules for .livestream-showcase-card
+  assert.match(creatorCss, /\.livestream-showcase-card\s*\{[\s\S]*min-width:\s*0/i, 'Card enforces min-width: 0 to prevent grid column overflow');
+  assert.match(creatorCss, /\.livestream-showcase-card\s*\{[\s\S]*width:\s*100%/i, 'Card expands to fill column without overflowing');
+  assert.match(creatorCss, /\.livestream-showcase-card\s*\{[\s\S]*box-sizing:\s*border-box/i, 'Card uses border-box sizing');
+  assert.doesNotMatch(creatorCss, /\.livestream-showcase-card\s*\{[\s\S]*min-height:\s*250px/i, 'Card eliminates rigid 250px min-height that caused 444px intrinsic width overlap');
+
+  // Responsive grid rules for .streams-hub-grid
+  assert.match(css, /\.streams-hub-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/i, 'Streams hub grid defines 3 columns with minmax(0, 1fr) constraint');
+  assert.match(css, /@media\s*\(max-width:\s*1050px\)[\s\S]*\.streams-hub-grid[\s\S]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/i, 'Streams hub grid adapts to 2 columns on tablet');
+  assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*\.streams-hub-grid[\s\S]*minmax\(0,\s*1fr\)/i, 'Streams hub grid adapts to 1 column on mobile');
+
+  // Live badge & metadata rendering
+  assert.match(creatorJs, /livestream-showcase-badge/, 'Card markup renders dedicated LIVE badge');
+  assert.match(creatorCss, /\.livestream-showcase-badge/, 'Live badge styled in creator-public.css');
+});
