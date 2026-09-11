@@ -144,19 +144,25 @@ function parseCookies(request) {
   return cookies;
 }
 
-function isSecureEnvironment(env) {
-  return env.ENVIRONMENT === "production" || env.ENVIRONMENT === "preview";
+function isSecureRequest(request) {
+  // Only mark the cookie Secure when actually served over https, so it still
+  // works with `wrangler dev`'s plain-http local server.
+  try {
+    return new URL(request.url).protocol === "https:";
+  } catch {
+    return true;
+  }
 }
 
-function sessionCookieHeader(env, token, maxAgeSeconds) {
+function sessionCookieHeader(request, token, maxAgeSeconds) {
   const attrs = [`${SESSION_COOKIE}=${token}`, "Path=/", "HttpOnly", "SameSite=Lax", `Max-Age=${maxAgeSeconds}`];
-  if (isSecureEnvironment(env)) attrs.push("Secure");
+  if (isSecureRequest(request)) attrs.push("Secure");
   return attrs.join("; ");
 }
 
-function clearSessionCookieHeader(env) {
+function clearSessionCookieHeader(request) {
   const attrs = [`${SESSION_COOKIE}=`, "Path=/", "HttpOnly", "SameSite=Lax", "Max-Age=0"];
-  if (isSecureEnvironment(env)) attrs.push("Secure");
+  if (isSecureRequest(request)) attrs.push("Secure");
   return attrs.join("; ");
 }
 
@@ -238,7 +244,7 @@ async function registerUser(request, env, { forceCreator = false } = {}) {
   return jsonWithCookie(
     { ok: true, user: { id, name, email, isCreator } },
     201,
-    sessionCookieHeader(env, token, SESSION_TTL_SECONDS)
+    sessionCookieHeader(request, token, SESSION_TTL_SECONDS)
   );
 }
 
@@ -280,7 +286,7 @@ async function handleAuthLogin(request, env) {
   return jsonWithCookie(
     { ok: true, user: publicUser(row) },
     200,
-    sessionCookieHeader(env, token, SESSION_TTL_SECONDS)
+    sessionCookieHeader(request, token, SESSION_TTL_SECONDS)
   );
 }
 
@@ -290,7 +296,7 @@ async function handleAuthLogout(request, env) {
     const token = cookies[SESSION_COOKIE];
     if (token) await env.DB.prepare("delete from sessions where token = ?").bind(token).run();
   }
-  return jsonWithCookie({ ok: true }, 200, clearSessionCookieHeader(env));
+  return jsonWithCookie({ ok: true }, 200, clearSessionCookieHeader(request));
 }
 
 async function handleAuthSession(request, env) {
