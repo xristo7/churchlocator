@@ -1444,8 +1444,14 @@
     @media (max-width: 968px) {
       body[data-page="profile"] .church-tabs-nav {
         position: sticky;
-        top: 72px;
+        top: 10px;
         z-index: 20;
+      }
+      body[data-page="profile"]:not(.member-shell-embed) .church-tabs-nav {
+        top: 74px;
+      }
+      body[data-page="profile"].member-shell-embed .church-tabs-nav {
+        top: 10px !important;
       }
 
       body[data-page="profile"] .leadership-grid {
@@ -1683,7 +1689,7 @@
     }
 
     body[data-page="profile"] > main > .container {
-      padding-top: 72px;
+      padding-top: 24px;
       padding-bottom: 72px;
     }
 
@@ -1722,6 +1728,9 @@
     }
 
     body[data-page="profile"] .church-tabs-nav {
+      position: sticky;
+      top: 10px;
+      z-index: 30;
       width: min(100%, 820px);
       margin: 0 auto 30px;
       padding: 4px;
@@ -1731,10 +1740,18 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       box-shadow: var(--shadow-card);
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
+    }
+    body[data-page="profile"]:not(.member-shell-embed) .church-tabs-nav {
+      top: 92px;
+    }
+    body[data-page="profile"].member-shell-embed .church-tabs-nav {
+      top: 10px !important;
     }
     body[data-page="profile"] .church-tabs-nav::-webkit-scrollbar { display: none; }
 
@@ -1985,25 +2002,190 @@
       line-height: 1.35;
     }
     .gathering-time-pill {
-      align-self: flex-end;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 3;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
+      gap: 5px;
+      padding: 4px 11px;
       border-radius: 999px;
-      background: var(--primary-surface, rgba(236, 72, 153, 0.08));
-      border: 1px solid var(--primary-border, rgba(236, 72, 153, 0.28));
-      font-size: 0.78rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: all 0.2s ease;
+      pointer-events: none;
+    }
+    /* Light Mode / Bright Mode: White background with subtle transparency, dark green text */
+    html:not([data-theme="dark"]) .gathering-time-pill,
+    body:not([data-theme="dark"]) .gathering-time-pill {
+      background: rgba(255, 255, 255, 0.9) !important;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #15803d !important;
+      border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    }
+    html:not([data-theme="dark"]) .gathering-time-pill svg,
+    html:not([data-theme="dark"]) .gathering-time-pill i,
+    body:not([data-theme="dark"]) .gathering-time-pill svg,
+    body:not([data-theme="dark"]) .gathering-time-pill i {
+      width: 12px;
+      height: 12px;
+      color: #16a34a !important;
+    }
+    /* Dark Mode: Dark background with subtle transparency, bright text */
+    html[data-theme="dark"] .gathering-time-pill,
+    body[data-theme="dark"] .gathering-time-pill {
+      background: rgba(15, 23, 42, 0.85) !important;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #f8fafc !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+    html[data-theme="dark"] .gathering-time-pill svg,
+    html[data-theme="dark"] .gathering-time-pill i,
+    body[data-theme="dark"] .gathering-time-pill svg,
+    body[data-theme="dark"] .gathering-time-pill i {
+      width: 12px;
+      height: 12px;
+      color: #4ade80 !important;
+    }
+
+    /* Church Profile Top Hero Showcase Section */
+    .church-hero-showcase {
+      position: relative;
+      width: 100%;
+      min-height: 380px;
+      border-radius: 24px;
+      overflow: hidden;
+      padding: 100px 40px;
+      margin-bottom: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-start;
+      background-color: #0f172a;
+      background-image: url('assets/hero-global-church.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .church-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(15, 23, 42, 0.2) 0%,
+        rgba(15, 23, 42, 0.55) 45%,
+        rgba(15, 23, 42, 0.88) 100%
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .church-hero-content-bottom-left {
+      position: relative;
+      z-index: 2;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    /* Play Button Hovering Over Thumbnail, directly above description */
+    .church-hero-play-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 7px 18px 7px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #ffffff;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    .church-hero-play-trigger:hover {
+      background: rgba(255, 255, 255, 0.28);
+      border-color: rgba(255, 255, 255, 0.7);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
+    }
+
+    .church-hero-play-circle {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.5);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .church-hero-play-circle svg,
+    .church-hero-play-circle i {
+      width: 20px;
+      height: 20px;
+      margin-left: 3px;
+      fill: #ffffff;
+      color: #ffffff;
+    }
+
+    .church-hero-play-pulse {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 2px solid rgba(251, 191, 36, 0.6);
+      animation: churchHeroPlayPulse 2.2s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
+      pointer-events: none;
+    }
+
+    @keyframes churchHeroPlayPulse {
+      0% { transform: scale(1); opacity: 0.85; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .church-hero-name {
+      font-size: 1.85rem;
       font-weight: 800;
-      color: var(--primary, #db2777);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+      color: #ffffff;
+      letter-spacing: -0.025em;
+      margin: 0;
+      line-height: 1.25;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
     }
-    .gathering-time-pill svg,
-    .gathering-time-pill i {
-      width: 13px;
-      height: 13px;
-      color: var(--primary, #db2777);
+
+    .church-hero-desc {
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.92);
+      margin: 0;
+      max-width: 620px;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
     }
+
+
     .gathering-desc {
       font-size: 0.84rem;
       color: var(--text-secondary, #64748b);
@@ -2069,13 +2251,20 @@
       body[data-page="profile"] > main, body[data-page="profile"] > section, body[data-page="profile"] > footer { margin-left: 0; }
       body[data-page="profile"] .church-profile-grid { grid-template-columns: 1fr; }
       body[data-page="profile"] .church-sidebar-stack { position: static; display: grid; grid-template-columns: 1fr 1fr; }
+      body[data-page="profile"] .church-tabs-nav { top: 10px; }
+      body[data-page="profile"]:not(.member-shell-embed) .church-tabs-nav { top: 74px; }
+      body[data-page="profile"].member-shell-embed .church-tabs-nav { top: 10px !important; }
+      .church-hero-showcase { padding: 70px 24px; min-height: 340px; }
     }
 
     @media (max-width: 720px) {
       body[data-page="profile"] > main > .container { width: calc(100% - 28px) !important; }
       .profile-app-account { padding: 0; }
-      body[data-page="profile"] .church-tabs-nav { position: static; width: 100%; border-radius: 14px; padding: 3px; gap: 2px; }
-      body[data-page="profile"] .church-tab-button { flex: 0 0 auto; min-width: max-content; padding: 10px 14px; font-size: 0.8rem; }
+      .church-hero-showcase { padding: 50px 18px; min-height: 290px; border-radius: 18px; }
+      .church-hero-name { font-size: 1.45rem; }
+      .church-hero-desc { font-size: 0.88rem; }
+      body[data-page="profile"] .church-tabs-nav { position: static; width: 100%; border-radius: 14px; padding: 3px; gap: 4px; overflow-x: auto; }
+      body[data-page="profile"] .church-tab-button { flex: 0 0 auto; min-width: max-content; padding: 9px 14px; font-size: 0.8rem; }
       body[data-page="profile"] .leadership-grid { grid-template-columns: 1fr; height: auto; gap: 24px; }
       body[data-page="profile"] .leader-photo-wrap { max-width: 280px; height: 380px; margin: 0 auto; }
       body[data-page="profile"] .leader-photo { min-height: 0; }
@@ -2148,35 +2337,25 @@
   </aside>
 
   <main>
-    <!-- Interactive Hero Section -->
-    <section class="landing-section profile-hero-campaign" id="hero" data-profile-hero>
-      <div class="container hero-grid">
-        <div class="hero-content">
-          <span class="hero-badge"><i data-lucide="badge-check"></i> Verified</span>
-          <h1 data-church-name>Church & Fellowship Profile</h1>
-          <p class="subtitle" data-church-tagline>Welcome to our community fellowship profile. We would love to meet you, connect with your goals, and join you in prayer.</p>
-          
-          <div class="hero-tags">
-            <div class="hero-tag"><i data-lucide="map-pin"></i> <span data-profile-location>Address details</span></div>
-            <div class="hero-tag"><i data-lucide="clock"></i> <span data-profile-sunday>Service schedule</span></div>
-          </div>
-          
-          <a href="#register" class="btn-gold font-bold px-7 py-3.5 rounded-2xl text-decoration-none shadow-lg inline-block hover:scale-[1.02] transition-all">Confirm RSVP Pass</a>
-        </div>
-        
-        <div class="hero-video-panel" style="display: flex; align-items: center; justify-content: center; height: 100%;">
-          <button type="button" class="hero-standalone-play-btn" onclick="MWE.openChurchVideoModal()" aria-label="Play Church Video">
-            <span class="play-btn-pulse-ring"></span>
-            <span class="play-btn-circle-standalone">
-              <i data-lucide="play" style="fill: #ffffff; width: 32px; height: 32px; margin-left: 4px; color: #ffffff;"></i>
-            </span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2-Column Restructured Main Shell -->
     <div class="container">
+      <!-- Large Hero Media Showcase Area (Full-width spanning above tabs and sidebar) -->
+      <section class="church-hero-showcase" id="church-hero-showcase" data-profile-hero>
+        <div class="church-hero-overlay"></div>
+        <div class="church-hero-content-bottom-left">
+          <!-- Interactive Play Button Hovering Over Thumbnail, directly above description -->
+          <button type="button" class="church-hero-play-trigger" id="church-hero-play-trigger" aria-label="Play church welcome video or audio message" onclick="MWE.playChurchMainMedia()">
+            <span class="church-hero-play-pulse"></span>
+            <span class="church-hero-play-circle">
+              <i data-lucide="play"></i>
+            </span>
+            <span class="church-hero-play-text">Play Welcome Message</span>
+          </button>
+          <h1 class="church-hero-name" data-church-name>Church &amp; Fellowship Profile</h1>
+          <p class="church-hero-desc" data-church-tagline>Welcome to our community fellowship profile. We would love to meet you, connect with your life journey, experience inspiring worship together, and partner with your family in faith, discipleship, and prayer.</p>
+        </div>
+      </section>
+
+      <!-- 2-Column Restructured Main Shell -->
       <div class="church-profile-grid">
 
         <!-- LEFT COLUMN (68% width): Tabbed Content Shell -->
@@ -2189,7 +2368,7 @@
             </button>
             <button type="button" class="church-tab-button" role="tab" aria-selected="false" aria-controls="tab-pane-services" data-tab="services" onclick="MWE.switchProfileTab('services')">
               <i data-lucide="clock"></i>
-              <span>Services & Schedule</span>
+              <span>Schedule</span>
             </button>
             <button type="button" class="church-tab-button" role="tab" aria-selected="false" aria-controls="tab-pane-events" data-tab="events" onclick="MWE.switchProfileTab('events')">
               <i data-lucide="calendar"></i>
@@ -2197,7 +2376,7 @@
             </button>
             <button type="button" class="church-tab-button" role="tab" aria-selected="false" aria-controls="tab-pane-location" data-tab="location" onclick="MWE.switchProfileTab('location')">
               <i data-lucide="map-pin"></i>
-              <span>Location & Map</span>
+              <span>Location &amp; Map</span>
             </button>
           </div>
 
@@ -2281,13 +2460,13 @@
               <div class="gathering-modern-card">
                 <div class="gathering-thumb-wrap">
                   <img src="https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=700&q=80" alt="Main Sunday Service & Worship" class="gathering-thumb" />
+                  <div class="gathering-time-pill">
+                    <i data-lucide="clock"></i> <span data-profile-sunday>Sunday 10:00 AM</span>
+                  </div>
                 </div>
                 <div class="gathering-card-body">
                   <div class="gathering-title-row">
                     <h4 class="gathering-title">Main Sunday Service & Worship</h4>
-                    <div class="gathering-time-pill">
-                      <i data-lucide="clock"></i> <span data-profile-sunday>Sunday 10:00 AM</span>
-                    </div>
                   </div>
                   <p class="gathering-desc">Dynamic worship, covenant teaching, children's ministry, and community fellowship.</p>
                 </div>
@@ -2302,13 +2481,13 @@
               <div class="gathering-modern-card">
                 <div class="gathering-thumb-wrap">
                   <img src="https://images.unsplash.com/photo-1519491058846-2679d63c5e8f?auto=format&fit=crop&w=700&q=80" alt="Midweek Bible Study & Prayer" class="gathering-thumb" />
+                  <div class="gathering-time-pill">
+                    <i data-lucide="clock"></i> <span data-profile-midweek>Wednesday 7:00 PM</span>
+                  </div>
                 </div>
                 <div class="gathering-card-body">
                   <div class="gathering-title-row">
                     <h4 class="gathering-title">Midweek Bible Study & Prayer</h4>
-                    <div class="gathering-time-pill">
-                      <i data-lucide="clock"></i> <span data-profile-midweek>Wednesday 7:00 PM</span>
-                    </div>
                   </div>
                   <p class="gathering-desc">Deep scriptural exposition, interactive Q&A, and corporate intercessory prayer night.</p>
                 </div>
@@ -2323,13 +2502,13 @@
               <div class="gathering-modern-card">
                 <div class="gathering-thumb-wrap">
                   <img src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=700&q=80" alt="Youth & Young Adults Friday" class="gathering-thumb" />
+                  <div class="gathering-time-pill">
+                    <i data-lucide="clock"></i> <span>Friday 7:00 PM</span>
+                  </div>
                 </div>
                 <div class="gathering-card-body">
                   <div class="gathering-title-row">
                     <h4 class="gathering-title">Youth & Young Adults Friday</h4>
-                    <div class="gathering-time-pill">
-                      <i data-lucide="clock"></i> <span>Friday 7:00 PM</span>
-                    </div>
                   </div>
                   <p class="gathering-desc">High-energy youth worship, real talk dispatches, music, games, and fellowship.</p>
                 </div>
@@ -2344,13 +2523,13 @@
               <div class="gathering-modern-card">
                 <div class="gathering-thumb-wrap">
                   <img src="https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=700&q=80" alt="Dawn Prayer & Intercession" class="gathering-thumb" />
+                  <div class="gathering-time-pill">
+                    <i data-lucide="clock"></i> <span>Saturday 8:00 AM</span>
+                  </div>
                 </div>
                 <div class="gathering-card-body">
                   <div class="gathering-title-row">
                     <h4 class="gathering-title">Dawn Prayer & Intercession</h4>
-                    <div class="gathering-time-pill">
-                      <i data-lucide="clock"></i> <span>Saturday 8:00 AM</span>
-                    </div>
                   </div>
                   <p class="gathering-desc">Early morning corporate prayer, interceding for families, our community, and the nations.</p>
                 </div>

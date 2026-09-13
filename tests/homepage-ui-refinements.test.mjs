@@ -18,7 +18,7 @@ test("Homepage Refinements: Video hidden, image background active, equal buttons
   // 2. Church card button labels & equal sizing
   assert.match(appJs, /Explore\s*<i data-lucide="arrow-right"/, "church card must have Explore label");
   assert.doesNotMatch(appJs, /Explore Church\s*<i data-lucide="arrow-right"/, "church card must not have old Explore Church label");
-  assert.match(appJs, /<i data-lucide="map-pin"><\/i>\s*View Location/, "church card must have View Location label");
+  assert.match(appJs, /<i data-lucide="map-pin"><\/i>\s*Location/, "church card must have Location label");
   assert.match(stylesCss, /\.immersive-pill-btn,\s*\.immersive-map-btn/, "styles.css must size both buttons equally");
   assert.match(stylesCss, /flex:\s*1\s*1\s*0\s*!important/, "buttons must have equal flex: 1 1 0");
 

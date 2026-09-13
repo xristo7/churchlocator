@@ -16,11 +16,9 @@ test("Task 6.1: Church Directory cards and profile include 'View Location on Map
   assert.match(appJs, /MWE\.showMapModal\(/, "church card should invoke MWE.showMapModal");
   assert.match(appJs, /View Location on Map/, "button label should say View Location on Map");
 
-  // Church profile leader actions have View Location on Map button
-  assert.match(churchProfileHtml, /onclick="MWE\.showMapModal\(\)"/, "church-profile.html should call MWE.showMapModal()");
-  assert.match(churchProfileHtml, /View Location on Map/, "church-profile.html leader action should say View Location on Map");
-
-  // Tab 4 Sanctuary Location & Map has photo showcase and on-map card
+  // Church profile tabs: Location & Map tab is reinstated per user requirements
+  assert.match(churchProfileHtml, /data-tab="location"/, "church-profile.html should have location tab");
+  assert.match(churchProfileHtml, /id="tab-pane-location"/, "church-profile.html should have location tab pane");
   assert.match(churchProfileHtml, /class="profile-location-showcase"/, "profile should have location showcase");
   assert.match(churchProfileHtml, /class="profile-location-photo-card"/, "profile should have location photo card");
   assert.match(churchProfileHtml, /class="profile-on-map-card"/, "profile should have on-map marker card");

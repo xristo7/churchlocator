@@ -293,7 +293,7 @@ const MWE = (() => {
       pastorTitle: "Lead Pastor",
       pastorBio: "A Word-based church family welcoming believers, visitors, and new Christians into worship, prayer, teaching, and evangelism.",
       welcomeMedia: "https://www.youtube.com/embed/jiSyB8QZzk8",
-      tagline: "Giving lives a meaning through the Word, worship, prayer, and evangelism.",
+      tagline: "A Bible-believing church family dedicated to giving lives divine meaning through the Word of God, dynamic worship, fervent corporate prayer, community discipleship, and evangelism outreach across Edmonton and the nations.",
       about: "Christ Embassy Edmonton is a Bible-believing church in Edmonton with Sunday worship, midweek service, sermons, and evangelism resources for members and visitors.",
       ministries: ["Kids", "Youth", "Prayer", "Worship", "Evangelism", "Rhapsody"],
       features: ["Children's Ministry", "Youth Ministry", "Bible Study", "Livestream Available", "Parking Available"],
@@ -331,7 +331,7 @@ const MWE = (() => {
       pastorTitle: "Lead Pastor",
       pastorBio: "A multi-generational church serving greater Edmonton through worship gatherings, groups, ministries, and community care.",
       welcomeMedia: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-      tagline: "A church family helping people take their next step with Jesus.",
+      tagline: "A welcoming, multi-generational church family helping people take their next step with Jesus through vibrant worship gatherings, covenant community groups, Christ-centered youth ministries, and caring outreach across greater Edmonton and beyond.",
       about: "Beulah Alliance Church serves greater Edmonton through in-person gatherings, online church, ministries, groups, and next-step pathways for families and individuals.",
       ministries: ["Kids", "Youth", "Groups", "Care", "Missions", "Prayer"],
       features: ["Children's Ministry", "Youth Ministry", "Bible Study", "Livestream Available", "Wheelchair Accessible"],
@@ -370,7 +370,7 @@ const MWE = (() => {
       pastorTitle: "Lead Pastor",
       pastorBio: "A Calgary church community focused on worship, formation, families, and joining Jesus in renewal.",
       welcomeMedia: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-      tagline: "Worship, formation, family ministry, and renewal in Calgary.",
+      tagline: "A multi-campus church community helping people worship, find authentic community, and grow in the life and mission of Jesus through transformational teaching, youth programs, and family ministries across Calgary and online.",
       about: "First Alliance Church Calgary is a multi-campus church helping people worship, find community, and grow in the life and mission of Jesus.",
       ministries: ["Kids", "Youth", "Young Adults", "Groups", "Care", "Arts"],
       features: ["Children's Ministry", "Youth Ministry", "Bible Study", "Livestream Available", "Parking Available"],
@@ -408,7 +408,7 @@ const MWE = (() => {
       pastorTitle: "Lead Pastor",
       pastorBio: "A Toronto church community focused on worship, global mission, discipleship, and serving people across cultures.",
       welcomeMedia: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-      tagline: "Growing the body of Christ for God's global mission.",
+      tagline: "A diverse, Christ-centered Toronto congregation focused on vibrant worship, global mission, deep biblical discipleship, and caring community outreach serving families and individuals across cultures both locally and worldwide.",
       about: "The Peoples Church is a Toronto church growing the body of Christ for God's global mission, with in-person services and online participation.",
       ministries: ["Kids", "Youth", "Groups", "Missions", "Prayer", "Care"],
       features: ["Children's Ministry", "Youth Ministry", "Livestream Available", "Public Transport Nearby"],
@@ -446,7 +446,7 @@ const MWE = (() => {
       pastorTitle: "Senior Pastor",
       pastorBio: "Leading a compassionate, Bible-believing fellowship with outreach programs locally and internationally.",
       welcomeMedia: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-      tagline: "Discover hope, faith, and local community in Houston.",
+      tagline: "A Christ-centered congregation offering uplifting worship, practical biblical teaching, dynamic children's ministries, and compassionate community care, welcoming thousands each week to experience hope, faith, and renewal in Jesus Christ.",
       about: "Lakewood Church is a Christ-centered community offering weekly worship, dynamic children's ministries, and free ride coordination.",
       ministries: ["Kids", "Youth", "Worship", "Prayer", "Care", "Outreach"],
       features: ["Children's Ministry", "Youth Ministry", "Livestream Available", "Free Transportation"],
@@ -483,7 +483,7 @@ const MWE = (() => {
       pastorTitle: "Senior Pastor",
       pastorBio: "Dedicated to preaching the Word of God, encouraging faithful discipleship, and serving Chicago neighborhoods.",
       welcomeMedia: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-      tagline: "Proclaiming the Gospel of Christ in the heart of Chicago.",
+      tagline: "Proclaiming the Gospel of Christ in the heart of Chicago through clear biblical exposition, intentional discipleship pathways, corporate prayer, and compassionate outreach serving individuals and families across our city and neighborhoods.",
       about: "A historic, vibrant Christian church committed to clear scripture teaching, prayer support, and loving hospitality.",
       ministries: ["Youth", "Young Adults", "Prayer", "Missions", "Music"],
       features: ["Children's Ministry", "Bible Study", "Livestream Available", "Public Transport Nearby"],
@@ -519,7 +519,7 @@ const MWE = (() => {
       pastorTitle: "Vicar",
       pastorBio: "Serving London with dynamic worship, discipleship, Alpha courses, and community social transformation.",
       welcomeMedia: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-      tagline: "Seeking the evangelisation of the nation and the transformation of society.",
+      tagline: "Seeking the evangelisation of the nation and the transformation of society through vibrant contemporary worship, discipleship courses, Alpha discussions, and compassionate social outreach across London and throughout our communities.",
       about: "HTB is a friendly, vibrant church in Central London with multiple gatherings, kids work, youth ministry, and community groups.",
       ministries: ["Alpha", "Youth", "Students", "Love Your Neighbour", "Worship"],
       features: ["Children's Ministry", "Youth Ministry", "Livestream Available", "Public Transport Nearby"],
@@ -556,7 +556,7 @@ const MWE = (() => {
       pastorTitle: "Lead Pastor",
       pastorBio: "Passionate about church planting, community outreach, student evangelism, and vibrant praise in Manchester.",
       welcomeMedia: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-      tagline: "Connecting people to Jesus and each other across Greater Manchester.",
+      tagline: "Connecting people to Jesus and each other across Greater Manchester through multicultural worship gatherings, active student discipleship, community outreach, and welcoming midweek fellowship groups for all individuals and families.",
       about: "A growing multicultural fellowship with passionate Sunday worship, family care, and mid-week small groups.",
       ministries: ["Students", "Families", "Outreach", "Foodbank", "Music"],
       features: ["Children's Ministry", "Student Ministry", "Livestream Available", "Free Sunday Transportation"],
@@ -646,7 +646,7 @@ const MWE = (() => {
       pastorTitle: church.pastorTitle || "Church Leadership",
       pastorBio: church.pastorBio || "A welcoming church leadership team ready to help visitors connect.",
       welcomeMedia: church.welcomeMedia || "https://www.youtube.com/embed/jiSyB8QZzk8",
-      tagline: church.tagline || "A local church ready to welcome visitors.",
+      tagline: church.tagline || "A welcoming Christ-centered community dedicated to vibrant worship, biblical teaching, loving discipleship, and joining together in corporate prayer to impact our city and nurture families.",
       about: church.about || church.description || "This church profile is ready for more details from the church team.",
       ministries,
       features: Array.isArray(church.features) ? church.features : [],
@@ -665,7 +665,15 @@ const MWE = (() => {
   function loadChurches() {
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
-      if (Array.isArray(saved) && saved.length > 0) return saved.map(normalizeChurch);
+      if (Array.isArray(saved) && saved.length > 0) {
+        return saved.map(item => {
+          const seed = seedChurches.find(s => s.id === item.id);
+          if (seed && (!item.tagline || item.tagline.split(/\s+/).filter(Boolean).length < 22)) {
+            item.tagline = seed.tagline;
+          }
+          return normalizeChurch(item);
+        });
+      }
     } catch {
       localStorage.removeItem(storageKey);
     }
@@ -1559,6 +1567,7 @@ MWE.applyMemberShellEmbed = function() {
       }
       body[data-page="profile"].member-shell-embed > main > .container,
       body[data-page="profile"].member-shell-embed > section > .container { width: min(var(--max), calc(100% - 44px)) !important; }
+      body[data-page="profile"].member-shell-embed .church-tabs-nav { top: 10px !important; }
       body[data-page="portal"].member-shell-embed .login-screen {
         height: auto !important;
         min-height: calc(100vh - 40px) !important;
@@ -2104,7 +2113,7 @@ function churchCard(church) {
   const bgPhoto = church.photo || church.coverImage || "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=800&q=80";
 
   return `
-    <article class="church-card-immersive" style="background-image: url('${MWE.escapeHtml(bgPhoto)}');">
+    <article class="church-card-immersive" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=' + encodeURIComponent('${church.id}'); }" style="background-image: url('${MWE.escapeHtml(bgPhoto)}'); cursor: pointer;">
       <div class="church-card-immersive-overlay">
         <div class="church-card-top-bar">
           <span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>
@@ -2126,7 +2135,7 @@ function churchCard(church) {
               Explore <i data-lucide="arrow-right"></i>
             </a>
             <button type="button" class="immersive-map-btn" onclick="event.preventDefault(); event.stopPropagation(); MWE.showMapModal('${church.id}')" title="View Location on Map">
-              <i data-lucide="map-pin"></i> View Location
+              <i data-lucide="map-pin"></i> Location
             </button>
           </div>
         </div>
@@ -2202,13 +2211,102 @@ function initPublicSite() {
   render();
 }
 
+MWE.formatHeroDescription = function(church) {
+  if (!church) return "";
+
+  // 1. If church already has a curated tagline of ~25-38 words, use it directly
+  const tagline = (church.tagline || "").trim();
+  const taglineWords = tagline ? tagline.split(/\s+/).filter(Boolean) : [];
+  if (taglineWords.length >= 25 && taglineWords.length <= 38) {
+    return tagline;
+  }
+
+  // 2. If it's a known seed church, check if seed definition has the updated ~30 word description
+  const seedChurchesList = [
+    {
+      id: "beulah-alliance-west",
+      tagline: "A welcoming, multi-generational church family helping people take their next step with Jesus through vibrant worship gatherings, covenant community groups, Christ-centered youth ministries, and caring outreach across greater Edmonton and beyond."
+    },
+    {
+      id: "christ-embassy-edmonton",
+      tagline: "A Bible-believing church family dedicated to giving lives divine meaning through the Word of God, dynamic worship, fervent corporate prayer, community discipleship, and evangelism outreach across Edmonton and the nations."
+    },
+    {
+      id: "first-alliance-calgary",
+      tagline: "A multi-campus church community helping people worship, find authentic community, and grow in the life and mission of Jesus through transformational teaching, youth programs, and family ministries across Calgary and online."
+    },
+    {
+      id: "the-peoples-church-toronto",
+      tagline: "A diverse, Christ-centered Toronto congregation focused on vibrant worship, global mission, deep biblical discipleship, and caring community outreach serving families and individuals across cultures both locally and worldwide."
+    },
+    {
+      id: "lakewood-church-houston",
+      tagline: "A Christ-centered congregation offering uplifting worship, practical biblical teaching, dynamic children's ministries, and compassionate community care, welcoming thousands each week to experience hope, faith, and renewal in Jesus Christ."
+    },
+    {
+      id: "moody-church-chicago",
+      tagline: "Proclaiming the Gospel of Christ in the heart of Chicago through clear biblical exposition, intentional discipleship pathways, corporate prayer, and compassionate outreach serving individuals and families across our city and neighborhoods."
+    },
+    {
+      id: "htb-church-london",
+      tagline: "Seeking the evangelisation of the nation and the transformation of society through vibrant contemporary worship, discipleship courses, Alpha discussions, and compassionate social outreach across London and throughout our communities."
+    },
+    {
+      id: "kings-church-manchester",
+      tagline: "Connecting people to Jesus and each other across Greater Manchester through multicultural worship gatherings, active student discipleship, community outreach, and welcoming midweek fellowship groups for all individuals and families."
+    }
+  ];
+
+  const matchedSeed = seedChurchesList.find(s => s.id === church.id);
+  if (matchedSeed && matchedSeed.tagline) {
+    return matchedSeed.tagline;
+  }
+
+  // 3. For any other church with a short tagline, combine tagline and about
+  const about = (church.about || church.pastorBio || "").trim();
+  if (tagline && about) {
+    let combined = tagline;
+    if (!combined.endsWith(".")) combined += ".";
+    if (!about.toLowerCase().includes(tagline.toLowerCase().replace(/\.$/, ""))) {
+      combined += " " + about;
+    } else {
+      combined = about;
+    }
+    const words = combined.split(/\s+/).filter(Boolean);
+    if (words.length >= 25 && words.length <= 38) {
+      return words.join(" ");
+    }
+    if (words.length > 38) {
+      return words.slice(0, 31).join(" ").replace(/[,;]$/, "") + ".";
+    }
+    const padded = combined.replace(/\.$/, "") + ", welcoming our local community into Christ-centered worship, intentional discipleship pathways, and compassionate fellowship for all individuals and families.";
+    return padded.split(/\s+/).slice(0, 31).join(" ").replace(/[,;]$/, "") + ".";
+  }
+
+  if (about) {
+    const words = about.split(/\s+/).filter(Boolean);
+    if (words.length >= 25 && words.length <= 38) return words.join(" ");
+    if (words.length > 38) return words.slice(0, 31).join(" ").replace(/[,;]$/, "") + ".";
+  }
+
+  if (tagline) {
+    const padded = tagline.replace(/\.$/, "") + " through vibrant worship gatherings, covenant community groups, Christ-centered ministry pathways, and caring outreach for individuals and families.";
+    return padded.split(/\s+/).slice(0, 31).join(" ").replace(/[,;]$/, "") + ".";
+  }
+
+  return "Welcome to our community fellowship profile. We would love to meet you, connect with your life journey, experience inspiring worship together, and partner with your family in faith, discipleship, and prayer.";
+};
+
 function renderProfile(church) {
   if (!church) return;
   document.title = `${church.name} | My Way of Evangelism`;
   MWE.currentProfileChurch = church;
+  MWE.activeChurchProfile = church;
   
   document.querySelectorAll("[data-church-name]").forEach(el => { el.textContent = church.name; });
-  document.querySelectorAll("[data-church-tagline]").forEach(el => { el.textContent = church.tagline || church.about || ""; });
+  document.querySelectorAll("[data-church-tagline]").forEach(el => {
+    el.textContent = MWE.formatHeroDescription(church);
+  });
   
   const setVal = (selector, val) => {
     document.querySelectorAll(selector).forEach(el => { el.textContent = val || ""; });
@@ -2226,7 +2324,12 @@ function renderProfile(church) {
   if (leaderPhoto) {
     leaderPhoto.src = church.pastorPhoto || defaultPastorPhoto;
   }
-  document.querySelector("[data-profile-hero]")?.style.setProperty("--profile-image", `url('${church.photo}')`);
+  const heroShowcase = document.getElementById("church-hero-showcase") || document.querySelector("[data-profile-hero]");
+  const churchBg = church.photo || church.coverImage || church.image || "assets/hero-global-church.png";
+  if (heroShowcase) {
+    heroShowcase.style.backgroundImage = `url('${churchBg}')`;
+  }
+  document.querySelector("[data-profile-hero]")?.style.setProperty("--profile-image", `url('${churchBg}')`);
 
   // Bind church photo to location & map preview elements
   const churchPhoto = church.photo || church.coverImage || MWE.defaultImage;
@@ -2302,8 +2405,8 @@ MWE.renderRelatedChurches = function(currentChurchId) {
   }
 
   container.innerHTML = otherChurches.map(c => `
-    <article class="church-card-split">
-      <div class="church-card-split-media" style="background-image: url('${MWE.escapeHtml(c.coverImage || c.photo || "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=600&q=80")}');">
+    <article class="church-card-split" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=' + encodeURIComponent('${c.id}'); }" style="cursor: pointer;">
+      <div class="church-card-split-media" style="background-image: url('${MWE.escapeHtml(c.coverImage || c.photo || "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=600&q=80")}'); cursor: pointer;">
         <span class="immersive-badge" style="position: absolute; top: 14px; left: 14px;"><i data-lucide="badge-check"></i> Verified</span>
       </div>
       <div class="church-card-split-body">
@@ -2317,7 +2420,7 @@ MWE.renderRelatedChurches = function(currentChurchId) {
             Explore <i data-lucide="arrow-right"></i>
           </a>
           <button type="button" class="split-map-btn" onclick="MWE.showMapModal('${c.id}')" title="View Location on Map">
-            <i data-lucide="map-pin"></i> View Location
+            <i data-lucide="map-pin"></i> Location
           </button>
           <button type="button" class="split-fav-btn" aria-label="Favorite" onclick="MWE.toggleFavorite(event, '${c.id}')">
             <i data-lucide="heart" style="width: 18px; height: 18px;"></i>
@@ -8735,6 +8838,31 @@ MWE.openChurchVideoModal = function() {
   modal.classList.add("open");
   document.body.style.overflow = "hidden";
   createIcons();
+};
+
+MWE.playChurchMainMedia = function() {
+  const church = MWE.currentProfileChurch || MWE.activeChurchProfile || (typeof getRouteChurch === "function" ? getRouteChurch() : null) || {};
+  const mediaUrl = church.videoUrl || church.welcomeMedia || church.video || church.audioUrl || "https://www.youtube.com/embed/jiSyB8QZzk8";
+  const isAudio = mediaUrl.endsWith(".mp3") || mediaUrl.includes(".mp3?") || church.mediaType === "audio";
+
+  if (isAudio) {
+    MWE.openAudioModal(church, mediaUrl);
+  } else {
+    const modal = document.getElementById("church-video-modal");
+    const iframe = document.getElementById("church-popup-iframe");
+    if (modal && iframe) {
+      const churchName = church.name || "Church Welcome Video";
+      const embedUrl = mediaUrl.includes("autoplay=1") ? mediaUrl : `${mediaUrl}${mediaUrl.includes("?") ? "&" : "?"}autoplay=1&enablejsapi=1`;
+      const titleEl = modal.querySelector("[data-church-name-video]");
+      if (titleEl) titleEl.textContent = `${churchName} — Welcome Video`;
+      iframe.src = embedUrl;
+      modal.classList.add("open");
+      document.body.style.overflow = "hidden";
+      if (window.lucide) window.lucide.createIcons();
+    } else {
+      MWE.playTestimonyVideo(church.name || 'Church Welcome Video', mediaUrl);
+    }
+  }
 };
 
 MWE.closeChurchVideoModal = function(e) {
