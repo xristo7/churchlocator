@@ -78,7 +78,45 @@ function fileForUrl(url) {
   return filePath;
 }
 
+let currentPort = port;
+
 const server = createServer(async (request, response) => {
+  const requestUrl = new URL(request.url || "/", `http://${host}:${currentPort}`);
+  if (requestUrl.pathname.startsWith("/api/")) {
+    try {
+      const targetBase = getArg("--api", "https://my-way-of-evangelism.doxalight-inc.workers.dev");
+      const targetUrl = new URL(requestUrl.pathname + requestUrl.search, targetBase);
+      const headers = new Headers();
+      for (const [k, v] of Object.entries(request.headers)) {
+        if (k.toLowerCase() === "host") continue;
+        headers.set(k, v);
+      }
+      const chunks = [];
+      for await (const chunk of request) {
+        chunks.push(chunk);
+      }
+      const body = ["GET", "HEAD"].includes(request.method) ? undefined : Buffer.concat(chunks);
+      const apiRes = await fetch(targetUrl, {
+        method: request.method,
+        headers,
+        body,
+        redirect: "manual"
+      });
+      const resHeaders = {};
+      for (const [k, v] of apiRes.headers.entries()) {
+        resHeaders[k] = v;
+      }
+      response.writeHead(apiRes.status, resHeaders);
+      const resBuffer = Buffer.from(await apiRes.arrayBuffer());
+      response.end(resBuffer);
+      return;
+    } catch (err) {
+      response.writeHead(502, { "content-type": "application/json" });
+      response.end(JSON.stringify({ ok: false, error: "API proxy error" }));
+      return;
+    }
+  }
+
   const filePath = fileForUrl(request.url || "/");
   if (!filePath) {
     response.writeHead(403);
@@ -113,6 +151,21 @@ const server = createServer(async (request, response) => {
   }
 });
 
-server.listen(port, host, () => {
-  console.log(`Serving ${root} at http://${host}:${port}/`);
+function listenOnPort(p) {
+  currentPort = p;
+  server.listen(p, host, () => {
+    console.log(`Serving ${root} at http://${host}:${p}/`);
+  });
+}
+
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE" && currentPort < port + 10) {
+    console.log(`Port ${currentPort} is in use, trying ${currentPort + 1}...`);
+    listenOnPort(currentPort + 1);
+  } else {
+    console.error(err);
+    process.exit(1);
+  }
 });
+
+listenOnPort(port);
