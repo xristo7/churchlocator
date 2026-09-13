@@ -5,6 +5,21 @@
  * already reads, so existing UI code needs no further changes.
  */
 (function (root) {
+  // Temporary launch-mode bypass. Keep this switch centralized so normal
+  // backend authentication can be restored without rewriting login screens.
+  const TEMPORARY_AUTH_BYPASS = true;
+
+  function temporaryUser(email) {
+    const normalizedEmail = String(email || "temporary@access.local").trim().toLowerCase();
+    const safeEmail = normalizedEmail.includes("@") ? normalizedEmail : "temporary@access.local";
+    return {
+      id: "temporary:" + safeEmail,
+      name: safeEmail.split("@")[0] || "Temporary Access",
+      email: safeEmail,
+      isCreator: true
+    };
+  }
+
   async function callApi(path, body) {
     let response;
     try {
@@ -56,6 +71,11 @@
   }
 
   async function login(email, password) {
+    if (TEMPORARY_AUTH_BYPASS) {
+      const user = temporaryUser(email);
+      applySession(user);
+      return { ok: true, user, authenticationBypassed: true };
+    }
     const result = await callApi("/api/auth/login", { email, password });
     if (result.ok) applySession(result.user);
     return result;
@@ -68,6 +88,13 @@
   }
 
   async function session() {
+    if (TEMPORARY_AUTH_BYPASS && localStorage.getItem("mwe.userLoggedIn") === "true") {
+      return {
+        ok: true,
+        user: temporaryUser(localStorage.getItem("mwe.userEmail")),
+        authenticationBypassed: true
+      };
+    }
     try {
       const response = await fetch("/api/auth/session", { credentials: "same-origin" });
       return await response.json();
