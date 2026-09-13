@@ -22618,3 +22618,322 @@ html[data-theme="dark"] .church-gallery-card {
 
 
 
+/* ========================================================
+   MEDITATION SANCTUARY — UNIFIED TEMPLATE SYSTEM (2026)
+   Shared design language, distinct meditation-method layouts.
+   Creator media and viewer theme/accent variables remain authoritative.
+   ======================================================== */
+.meditation-room-view {
+  --sanctuary-ink: color-mix(in srgb, var(--text-primary, #17201b) 92%, transparent);
+  --sanctuary-muted: color-mix(in srgb, var(--text-primary, #17201b) 62%, transparent);
+  --sanctuary-line: color-mix(in srgb, var(--text-primary, #17201b) 16%, transparent);
+  --sanctuary-wash: color-mix(in srgb, var(--surface-card, #fff) 76%, transparent);
+  --sanctuary-wash-strong: color-mix(in srgb, var(--surface-card, #fff) 90%, transparent);
+  --sanctuary-accent: var(--primary-color, #6d7c62);
+  --sanctuary-accent-soft: color-mix(in srgb, var(--sanctuary-accent) 18%, transparent);
+}
+
+html[data-theme="dark"] .meditation-room-view {
+  --sanctuary-ink: rgba(255,255,255,.94);
+  --sanctuary-muted: rgba(255,255,255,.64);
+  --sanctuary-line: rgba(255,255,255,.14);
+  --sanctuary-wash: rgba(8,12,16,.48);
+  --sanctuary-wash-strong: rgba(8,12,16,.72);
+}
+
+.sanctuary-template-stage {
+  max-width: 1180px !important;
+  padding: clamp(76px, 10vh, 108px) clamp(22px, 5vw, 72px) clamp(24px, 4vh, 48px) !important;
+}
+
+.template-stage-view {
+  color: var(--sanctuary-ink) !important;
+  isolation: isolate !important;
+}
+
+.template-stage-view::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 2% 0 !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+  background: radial-gradient(circle at 50% 45%, var(--sanctuary-accent-soft), transparent 58%) !important;
+  opacity: .7 !important;
+}
+
+.template-header-block {
+  gap: 8px !important;
+  margin-bottom: clamp(14px, 2.4vh, 26px) !important;
+}
+
+.template-main-title,
+html[data-theme="light"] .template-main-title,
+body:not([data-theme="dark"]) .template-main-title,
+html[data-theme="dark"] .template-main-title {
+  color: var(--sanctuary-ink) !important;
+  font-size: clamp(2rem, 4.8vh, 4rem) !important;
+  font-weight: 450 !important;
+  letter-spacing: -.035em !important;
+  text-wrap: balance !important;
+  text-shadow: none !important;
+}
+
+.template-subtitle-badge,
+html[data-theme="light"] .template-subtitle-badge,
+body:not([data-theme="dark"]) .template-subtitle-badge,
+html[data-theme="dark"] .template-subtitle-badge {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  color: var(--sanctuary-muted) !important;
+  font-size: .74rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .16em !important;
+  text-transform: uppercase !important;
+}
+
+.template-quote-text,
+html[data-theme="light"] .template-quote-text,
+body:not([data-theme="dark"]) .template-quote-text,
+html[data-theme="dark"] .template-quote-text {
+  color: var(--sanctuary-ink) !important;
+  font-size: clamp(1.05rem, 2.2vh, 1.45rem) !important;
+  font-weight: 450 !important;
+  line-height: 1.45 !important;
+  text-shadow: none !important;
+  text-wrap: balance !important;
+}
+
+.template-quote-ref,
+html[data-theme="light"] .template-quote-ref,
+body:not([data-theme="dark"]) .template-quote-ref,
+html[data-theme="dark"] .template-quote-ref {
+  color: var(--sanctuary-muted) !important;
+  font-size: .68rem !important;
+  letter-spacing: .18em !important;
+}
+
+.template-corner-text,
+.nature-tree-sign,
+.rock-tag-marker,
+.nature-bottom-center-tag { display: none !important; }
+
+.template-integrated-player {
+  width: min(100%, 720px) !important;
+  padding: 14px 18px !important;
+  border: 1px solid var(--sanctuary-line) !important;
+  border-radius: 22px !important;
+  background: var(--sanctuary-wash) !important;
+  color: var(--sanctuary-ink) !important;
+  box-shadow: 0 18px 50px color-mix(in srgb, #000 12%, transparent) !important;
+  backdrop-filter: blur(22px) saturate(115%) !important;
+}
+
+.integrated-timeline-track {
+  height: 3px !important;
+  background: var(--sanctuary-line) !important;
+}
+
+.integrated-timeline-fill,
+.sunburst-timeline-fill,
+.journey-track-fill { background: var(--sanctuary-accent) !important; }
+
+.timeline-time-label { color: var(--sanctuary-muted) !important; }
+
+.integrated-circle-play-btn,
+.timer-circle-btn.timer-primary-btn,
+.sunburst-crest-play-btn {
+  background: var(--sanctuary-accent) !important;
+  color: #fff !important;
+  border: 0 !important;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--sanctuary-accent) 32%, transparent) !important;
+}
+
+.integrated-pill-action-btn,
+.nature-reflection-pill-btn,
+.sunburst-praise-btn,
+.nature-soundscape-btn,
+.journey-skip-btn,
+.timer-circle-btn {
+  border-color: var(--sanctuary-line) !important;
+  background: var(--sanctuary-wash-strong) !important;
+  color: var(--sanctuary-ink) !important;
+  box-shadow: none !important;
+}
+
+.integrated-pill-action-btn:hover,
+.nature-reflection-pill-btn:hover,
+.sunburst-praise-btn:hover,
+.nature-soundscape-btn:hover,
+.journey-skip-btn:hover,
+.timer-circle-btn:hover {
+  border-color: color-mix(in srgb, var(--sanctuary-accent) 50%, var(--sanctuary-line)) !important;
+  background: color-mix(in srgb, var(--sanctuary-accent) 10%, var(--sanctuary-wash-strong)) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Silent prayer: a still, centered timepiece. */
+.timer-stage-inner {
+  max-width: 700px !important;
+  gap: clamp(12px, 2vh, 22px) !important;
+}
+
+.template-timer-view::before {
+  background:
+    linear-gradient(90deg, transparent, var(--sanctuary-line), transparent) 50% 74% / min(520px, 72%) 1px no-repeat,
+    radial-gradient(circle at 50% 43%, var(--sanctuary-accent-soft), transparent 52%) !important;
+}
+
+.timer-ring-wrapper {
+  width: clamp(210px, 31vh, 310px) !important;
+  height: clamp(210px, 31vh, 310px) !important;
+}
+
+.timer-track { stroke: var(--sanctuary-line) !important; stroke-width: 4 !important; }
+.timer-progress { stroke: var(--sanctuary-accent) !important; stroke-width: 5 !important; }
+.timer-countdown-digits { color: var(--sanctuary-ink) !important; font-size: clamp(2.8rem, 6vh, 4.6rem) !important; }
+.timer-countdown-label { color: var(--sanctuary-muted) !important; }
+.timer-actions-trio { gap: clamp(24px, 5vw, 54px) !important; }
+.timer-btn-caption { color: var(--sanctuary-muted) !important; font-size: .7rem !important; }
+
+/* Breath prayer: the breath cue and living orb are the experience. */
+.ripple-stage-inner {
+  display: grid !important;
+  grid-template-columns: minmax(260px, .85fr) minmax(330px, 1.15fr) !important;
+  grid-template-areas: "copy orb" "quote orb" "player player" !important;
+  column-gap: clamp(28px, 6vw, 80px) !important;
+  row-gap: 18px !important;
+  max-width: 940px !important;
+  text-align: left !important;
+}
+.ripple-stage-inner .template-header-block { grid-area: copy !important; align-items: flex-start !important; text-align: left !important; margin: 0 !important; }
+.ripple-rings-stage { grid-area: orb !important; width: clamp(280px, 42vh, 430px) !important; height: clamp(280px, 42vh, 430px) !important; }
+.ripple-scripture-quote { grid-area: quote !important; text-align: left !important; padding: 0 !important; }
+.ripple-integrated-player { grid-area: player !important; justify-self: center !important; }
+.concentric-wave { border-width: 1px !important; border-color: color-mix(in srgb, var(--sanctuary-accent) 50%, transparent) !important; }
+.ripple-center-orb,
+html[data-theme="dark"] .ripple-center-orb {
+  background: radial-gradient(circle at 38% 30%, rgba(255,255,255,.92), color-mix(in srgb, var(--sanctuary-accent) 66%, transparent) 46%, color-mix(in srgb, var(--sanctuary-accent) 92%, #173b37) 100%) !important;
+  box-shadow: 0 0 70px color-mix(in srgb, var(--sanctuary-accent) 30%, transparent), inset 0 0 28px rgba(255,255,255,.34) !important;
+}
+
+/* Guided prayer: a clear staged path with the current prompt in focus. */
+.journey-stage-inner { max-width: 880px !important; gap: clamp(14px, 2.3vh, 26px) !important; }
+.journey-track-wrapper { width: min(100%, 680px) !important; }
+.journey-track-line { background: var(--sanctuary-line) !important; }
+.journey-node .node-circle,
+html[data-theme="dark"] .journey-node .node-circle {
+  width: 38px !important; height: 38px !important;
+  background: var(--sanctuary-wash-strong) !important;
+  border-color: var(--sanctuary-line) !important;
+  color: var(--sanctuary-ink) !important;
+}
+.journey-node.completed .node-circle,
+.journey-node.active .node-circle { background: var(--sanctuary-accent) !important; border-color: var(--sanctuary-accent) !important; color: #fff !important; box-shadow: none !important; }
+.node-label,
+html[data-theme="dark"] .node-label,
+.journey-node.active .node-label,
+html[data-theme="dark"] .journey-node.active .node-label { color: var(--sanctuary-muted) !important; }
+.journey-node.active .node-label { color: var(--sanctuary-ink) !important; }
+.journey-contemplation-card,
+html[data-theme="dark"] .journey-contemplation-card {
+  width: min(100%, 720px) !important;
+  padding: clamp(24px, 4vh, 42px) clamp(22px, 5vw, 56px) !important;
+  background: var(--sanctuary-wash) !important;
+  border: 1px solid var(--sanctuary-line) !important;
+  border-radius: 4px 28px 4px 28px !important;
+  box-shadow: none !important;
+  color: var(--sanctuary-ink) !important;
+}
+.journey-question-prompt { color: var(--sanctuary-ink) !important; font-size: clamp(1.4rem, 3vh, 2.15rem) !important; }
+.journey-card-divider { background: var(--sanctuary-accent) !important; width: 38px !important; }
+
+/* Nature meditation: scripture and selectable ambience share the stage. */
+.nature-stage-inner {
+  display: grid !important;
+  grid-template-columns: minmax(280px, .9fr) minmax(360px, 1.1fr) !important;
+  grid-template-areas: "kicker player" "header player" "divider player" "scripture player" !important;
+  gap: 14px clamp(34px, 7vw, 92px) !important;
+  max-width: 980px !important;
+  text-align: left !important;
+}
+.nature-stage-inner .template-kicker-badge { grid-area: kicker !important; justify-self: start !important; }
+.nature-stage-inner .template-header-block { grid-area: header !important; align-items: flex-start !important; text-align: left !important; margin: 0 !important; }
+.nature-leaf-divider { grid-area: divider !important; width: 120px !important; margin: 4px 0 !important; }
+.nature-scripture-card,
+html[data-theme="dark"] .nature-scripture-card {
+  grid-area: scripture !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-align: left !important;
+}
+.nature-integrated-player { grid-area: player !important; align-self: center !important; padding: clamp(20px, 3vw, 32px) !important; }
+.nature-controls-mid-row { display: grid !important; grid-template-columns: 1fr auto !important; gap: 18px !important; }
+.nature-soundscape-dropdown-wrap { grid-column: 1 / -1 !important; width: 100% !important; }
+.nature-soundscape-btn { width: 100% !important; justify-content: flex-start !important; }
+.nature-reflection-row { margin-top: 16px !important; }
+
+/* Joy meditation: radiant and expressive, without decorative clutter. */
+.sunburst-stage-inner {
+  display: grid !important;
+  grid-template-columns: minmax(300px, 1fr) minmax(340px, 1fr) !important;
+  grid-template-areas: "header crest" "quote crest" "words scrub" "controls controls" !important;
+  gap: 16px clamp(34px, 7vw, 90px) !important;
+  max-width: 980px !important;
+  text-align: left !important;
+}
+.sunburst-stage-inner .template-header-block { grid-area: header !important; align-items: flex-start !important; text-align: left !important; margin: 0 !important; }
+.sunburst-scripture-quote { grid-area: quote !important; text-align: left !important; padding: 0 !important; }
+.sunburst-sun-crest-stage { grid-area: crest !important; align-self: center !important; }
+.sunburst-scrubber-row { grid-area: scrub !important; align-self: end !important; width: 100% !important; }
+.sunburst-calligraphy-container { grid-area: words !important; text-align: left !important; }
+.sunburst-bottom-controls-row { grid-area: controls !important; justify-self: center !important; }
+.sunburst-sun-semi {
+  background: radial-gradient(circle at 50% 92%, color-mix(in srgb, var(--sanctuary-accent) 78%, #fff), color-mix(in srgb, var(--sanctuary-accent) 20%, transparent) 48%, transparent 70%) !important;
+  filter: drop-shadow(0 20px 42px color-mix(in srgb, var(--sanctuary-accent) 26%, transparent)) !important;
+}
+.sunburst-calligraphy-text,
+html[data-theme="dark"] .sunburst-calligraphy-text { color: var(--sanctuary-ink) !important; text-shadow: none !important; }
+.sunburst-kicker-tags,
+.sunburst-sub-tag,
+html[data-theme="dark"] .sunburst-kicker-tags,
+html[data-theme="dark"] .sunburst-sub-tag { color: var(--sanctuary-muted) !important; }
+
+@media (max-width: 760px) {
+  .sanctuary-template-stage { padding: 76px 18px 22px !important; }
+  .template-main-title { font-size: clamp(1.7rem, 8vw, 2.45rem) !important; }
+  .ripple-stage-inner,
+  .nature-stage-inner,
+  .sunburst-stage-inner {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+    text-align: center !important;
+  }
+  .ripple-stage-inner .template-header-block,
+  .nature-stage-inner .template-header-block,
+  .sunburst-stage-inner .template-header-block { align-items: center !important; text-align: center !important; }
+  .ripple-scripture-quote,
+  .nature-scripture-card,
+  .sunburst-scripture-quote,
+  .sunburst-calligraphy-container { text-align: center !important; }
+  .ripple-rings-stage { width: min(54vw, 230px) !important; height: min(54vw, 230px) !important; margin: 0 auto !important; }
+  .nature-leaf-divider { margin-inline: auto !important; }
+  .sunburst-sun-crest-stage { min-height: 150px !important; }
+  .sunburst-calligraphy-container { display: none !important; }
+  .template-integrated-player { border-radius: 18px !important; padding: 12px 14px !important; }
+  .integrated-controls-trio-row { gap: 10px !important; }
+  .integrated-pill-action-btn span { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .concentric-wave,
+  .ripple-center-orb,
+  .template-stage-view { animation: none !important; }
+}
