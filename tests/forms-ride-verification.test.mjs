@@ -26,6 +26,8 @@ test("Task 7.1: 'Plan a Visit' opens above the page backdrop and retains its uni
   // CSS animations and styles
   assert.match(stylesCss, /@keyframes panelPulseHighlight/, "styles.css must define panelPulseHighlight keyframes");
   assert.match(stylesCss, /\.panel-highlight-pulse/, "styles.css must define .panel-highlight-pulse");
+  assert.match(stylesCss, /@keyframes visitPanelPulseCentered[\s\S]*?translate\(-50%, -50%\)/, "visit popup animation must preserve viewport centering");
+  assert.match(stylesCss, /visit-panel-open \.sticky-connection-card\.panel-highlight-pulse/, "visit popup must use the centered animation while open");
 });
 
 test("Task 7.2: 2-Stage Ride Request system lifecycle (Stage 1 Phone/Text & Stage 2 Schedule/Driver)", async () => {
