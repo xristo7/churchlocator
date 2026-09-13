@@ -156,6 +156,20 @@ test("login rejects wrong passwords and unknown emails without leaking which", a
   assert.equal((await wrongPassword.json()).error, (await unknownEmail.json()).error);
 });
 
+test("temporary auth bypass accepts arbitrary credentials and issues a creator session", async () => {
+  const bypassEnv = { ...baseEnv(), AUTH_BYPASS: "true" };
+  const response = await worker.fetch(
+    postJson("/api/auth/login", { email: "anyone@example.com", password: "anything" }),
+    bypassEnv
+  );
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.ok, true);
+  assert.equal(payload.authenticationBypassed, true);
+  assert.equal(payload.user.isCreator, true);
+  assert.match(response.headers.get("set-cookie") || "", /mwe_session=/);
+});
+
 test("a valid session cookie round-trips through /api/auth/session and clears on logout", async () => {
   const env = baseEnv();
   const registerResponse = await worker.fetch(

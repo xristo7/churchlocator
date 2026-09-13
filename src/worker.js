@@ -81,6 +81,10 @@ const SESSION_COOKIE = "mwe_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 const PBKDF2_ITERATIONS = 100000;
 
+function authBypassEnabled(env) {
+  return String(env?.AUTH_BYPASS || "").toLowerCase() === "true";
+}
+
 function toBase64(bytes) {
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
@@ -262,6 +266,39 @@ async function handleAuthLogin(request, env) {
   const email = normalizeEmail(payload?.email);
   const password = String(payload?.password || "");
 
+  if (authBypassEnabled(env)) {
+    const temporaryEmail = isValidEmail(email)
+      ? email
+      : `temporary-${crypto.randomUUID().slice(0, 12)}@access.local`;
+    let row = await env.DB.prepare(`
+      select id, name, email, password_hash, password_salt, is_creator
+      from users where email = ?
+    `).bind(temporaryEmail).first();
+
+    if (!row) {
+      const createdAt = new Date().toISOString();
+      row = {
+        id: `temporary:${temporaryEmail}`,
+        name: "Temporary Access",
+        email: temporaryEmail,
+        password_hash: "authentication-disabled",
+        password_salt: "authentication-disabled",
+        is_creator: 1
+      };
+      await env.DB.prepare(`
+        insert into users (id, email, password_hash, password_salt, name, is_creator, created_at, last_login_at)
+        values (?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(row.id, row.email, row.password_hash, row.password_salt, row.name, 1, createdAt, createdAt).run();
+    }
+
+    const token = await createSession(env, row.id);
+    return jsonWithCookie(
+      { ok: true, user: publicUser(row), authenticationBypassed: true },
+      200,
+      sessionCookieHeader(request, token, SESSION_TTL_SECONDS)
+    );
+  }
+
   if (!isValidEmail(email) || !password) {
     return json({ ok: false, error: "Invalid email or password." }, 401);
   }
@@ -324,7 +361,8 @@ async function handleStatus(env) {
       binding: "DB"
     },
     security: {
-      adminAuthorizationConfigured: Boolean(env.ADMIN_API_TOKEN)
+      adminAuthorizationConfigured: Boolean(env.ADMIN_API_TOKEN),
+      authenticationBypassed: authBypassEnabled(env)
     },
     applications: [
       { name: "Public Website", route: "/", authentication: "none" },

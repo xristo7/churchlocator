@@ -18,7 +18,8 @@
   ],
   "vars": {
     "APP_NAME": "My Way of Evangelism",
-    "ENVIRONMENT": "production"
+    "ENVIRONMENT": "production",
+    "AUTH_BYPASS": "true"
   },
   "observability": {
     "enabled": true,
@@ -36,7 +37,8 @@
       ],
       "vars": {
         "APP_NAME": "My Way of Evangelism",
-        "ENVIRONMENT": "preview"
+        "ENVIRONMENT": "preview",
+        "AUTH_BYPASS": "true"
       }
     }
   }
