@@ -818,6 +818,109 @@ async function handleEventRegister(request, env) {
   return json({ ok: true, id, registrationCode: regCode, amountPaidCents: amountPaid, status: "registered" }, 201);
 }
 
+function serviceBookingRef() {
+  return `SRV-${crypto.randomUUID().replaceAll("-", "").slice(0, 8).toUpperCase()}`;
+}
+
+async function handleServiceBooking(request, env) {
+  if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
+  const payload = await readJson(request);
+
+  const serviceId = String(payload?.serviceId || "").trim();
+  const serviceTitle = String(payload?.serviceTitle || "").trim();
+  const serviceType = String(payload?.serviceType || "service").trim();
+  const providerName = String(payload?.providerName || "").trim();
+  const providerType = String(payload?.providerType || "Provider").trim();
+  const packageTier = String(payload?.packageTier || "Standard").trim();
+  const estimatedAmount = String(payload?.estimatedAmount || "").trim();
+  const requestedDate = String(payload?.requestedDate || "").trim();
+  const requestedTime = String(payload?.requestedTime || "").trim();
+  const customerName = String(payload?.customerName || "").trim();
+  const customerEmail = normalizeEmail(payload?.customerEmail);
+  const customerPhone = String(payload?.customerPhone || "").trim();
+  const eventLocation = String(payload?.eventLocation || "").trim();
+  const notes = String(payload?.notes || "").trim();
+
+  if (!serviceId || !serviceTitle) {
+    return json({ ok: false, error: "Service information is missing." }, 400);
+  }
+  if (!customerName) {
+    return json({ ok: false, error: "Please enter your name." }, 400);
+  }
+  if (!isValidEmail(customerEmail)) {
+    return json({ ok: false, error: "Please provide a valid email address." }, 400);
+  }
+  if (!requestedDate) {
+    return json({ ok: false, error: "Please select a preferred date for the service." }, 400);
+  }
+
+  const id = `bk_${crypto.randomUUID()}`;
+  const bookingRef = serviceBookingRef();
+  const createdAt = new Date().toISOString();
+
+  let userId = null;
+  if (env.DB) {
+    const sessionUser = await getSessionUser(request, env);
+    if (sessionUser) userId = sessionUser.id;
+
+    await env.DB.prepare(`
+      insert into service_bookings (
+        id, booking_ref, service_id, service_title, service_type,
+        provider_name, provider_type, package_tier, estimated_amount,
+        requested_date, requested_time, customer_name, customer_email,
+        customer_phone, event_location, notes, status, user_id, created_at
+      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'inquiry_received', ?, ?)
+    `).bind(
+      id, bookingRef, serviceId, serviceTitle, serviceType,
+      providerName, providerType, packageTier, estimatedAmount,
+      requestedDate, requestedTime, customerName, customerEmail,
+      customerPhone, eventLocation, notes, userId, createdAt
+    ).run();
+  }
+
+  return json({
+    ok: true,
+    id,
+    bookingRef,
+    status: "inquiry_received",
+    message: "Your service booking request has been received. The church or ministry team will contact you shortly to confirm arrangements.",
+    booking: {
+      id,
+      bookingRef,
+      serviceTitle,
+      providerName,
+      packageTier,
+      requestedDate,
+      requestedTime,
+      customerName,
+      customerEmail
+    }
+  }, 201);
+}
+
+async function handleGetServiceBookings(request, env) {
+  if (!env.DB) return storageUnavailable();
+  const user = await getSessionUser(request, env);
+  const url = new URL(request.url);
+  const email = normalizeEmail(url.searchParams.get("email") || user?.email);
+
+  if (!email && !user) {
+    return json({ ok: false, error: "Authentication required to view service bookings." }, 401);
+  }
+
+  const { results } = await env.DB.prepare(`
+    select id, booking_ref, service_id, service_title, service_type,
+           provider_name, provider_type, package_tier, estimated_amount,
+           requested_date, requested_time, customer_name, customer_email,
+           status, created_at
+    from service_bookings
+    where customer_email = ? or user_id = ?
+    order by created_at desc
+  `).bind(email, user?.id || "").all();
+
+  return json({ ok: true, bookings: results || [] });
+}
+
 async function handleApi(request, env) {
   const requestId = crypto.randomUUID();
 
@@ -831,6 +934,7 @@ async function handleApi(request, env) {
     if (path === "/api/admin/churches") return await handleAdminChurches(request, env);
     if (path === "/api/events") return await handleEvents(request, env);
     if (path === "/api/auth/session" && request.method === "GET") return await handleAuthSession(request, env);
+    if (path === "/api/services/bookings" && request.method === "GET") return await handleGetServiceBookings(request, env);
 
     if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
     if (path === "/api/church-application") return await handleChurchApplication(request, env);
@@ -843,6 +947,7 @@ async function handleApi(request, env) {
     if (path === "/api/auth/logout") return await handleAuthLogout(request, env);
     if (path === "/api/creator/register") return await handleCreatorRegister(request, env);
     if (path === "/api/creator/upgrade") return await handleCreatorUpgrade(request, env);
+    if (path === "/api/services/book") return await handleServiceBooking(request, env);
 
     return json({ ok: false, error: "not found" }, 404);
   } catch (error) {
@@ -882,4 +987,4 @@ export default {
   }
 };
 
-export { constantTimeEqual, readJson, registrationCode };
+export { constantTimeEqual, readJson, registrationCode, handleServiceBooking, handleGetServiceBookings, serviceBookingRef };

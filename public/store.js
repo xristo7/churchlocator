@@ -3,10 +3,13 @@
 
   function filteredProducts() {
     const query = document.getElementById("store-search")?.value.trim().toLowerCase() || "";
+    const type = document.getElementById("store-type")?.value || "all";
     const category = document.getElementById("store-category")?.value || "all";
     const sellerType = document.getElementById("store-seller")?.value || "all";
     const sort = document.getElementById("store-sort")?.value || "featured";
     const products = data().getProducts().filter(product => {
+      if (type === "products" && product.itemType === "service") return false;
+      if (type === "services" && product.itemType !== "service") return false;
       const searchable = `${product.title} ${product.seller} ${product.category} ${product.description}`.toLowerCase();
       return product.status === "Active" && (!query || searchable.includes(query)) && (category === "all" || product.category === category) && (sellerType === "all" || product.sellerType === sellerType);
     });
@@ -22,29 +25,49 @@
     const grid = document.getElementById("store-products-grid");
     if (!grid || !data()) return;
     const products = filteredProducts();
-    document.getElementById("store-result-count").textContent = `${products.length} product${products.length === 1 ? "" : "s"}`;
+    const resultCountEl = document.getElementById("store-result-count");
+    if (resultCountEl) {
+      resultCountEl.textContent = `${products.length} offering${products.length === 1 ? "" : "s"}`;
+    }
     if (!products.length) {
-      grid.innerHTML = `<div class="module-empty"><i data-lucide="package-search"></i><strong>No products match your search.</strong><p>Try another category, seller, or keyword.</p></div>`;
+      grid.innerHTML = `<div class="module-empty"><i data-lucide="package-search"></i><strong>No items match your search.</strong><p>Try another category, seller type, or keyword.</p></div>`;
       window.lucide?.createIcons();
       return;
     }
-    grid.innerHTML = products.map(product => `
-      <article class="product-card">
+    grid.innerHTML = products.map(product => {
+      const isService = product.itemType === "service";
+      return `
+      <article class="product-card ${isService ? "service-card-item" : ""}">
         <a class="product-image-wrap" href="product-detail.html?id=${encodeURIComponent(product.id)}" aria-label="View ${data().escapeHtml(product.title)}">
           <img class="product-image" src="${data().escapeHtml(product.image)}" alt="${data().escapeHtml(product.title)}" />
-          <span class="product-badge">${data().escapeHtml(product.sellerType)} · ${data().escapeHtml(product.category)}</span>
+          <span class="product-badge ${isService ? "service-badge-pill" : ""}">${isService ? `<i data-lucide="sparkles"></i> Service · ` : ""}${data().escapeHtml(product.sellerType)} · ${data().escapeHtml(product.category)}</span>
         </a>
         <div class="product-card-body">
-          <span class="product-seller">Sold by ${data().escapeHtml(product.seller)}</span>
+          <span class="product-seller">${data().escapeHtml(product.sellerType)}: <strong>${data().escapeHtml(product.seller)}</strong></span>
           <h3><a href="product-detail.html?id=${encodeURIComponent(product.id)}">${data().escapeHtml(product.title)}</a></h3>
-          <span class="product-rating"><i data-lucide="star"></i>${Number(product.rating).toFixed(1)} · ${Number(product.inventory)} in stock</span>
+          <span class="product-rating">
+            <i data-lucide="star"></i>${Number(product.rating).toFixed(1)} · ${isService ? "Verified Service" : `${Number(product.inventory)} in stock`}
+          </span>
           <div class="product-price-row">
-            <div><span class="product-price">${data().money(product.price)}</span>${product.compareAt ? `<span class="product-compare">${data().money(product.compareAt)}</span>` : ""}</div>
-            <button class="product-add" type="button" data-add-product="${data().escapeHtml(product.id)}" aria-label="Add ${data().escapeHtml(product.title)} to cart"><i data-lucide="plus"></i></button>
+            <div>
+              <span class="product-price">${data().money(product.price)}</span>
+              ${product.pricingUnit ? `<small class="product-unit"> ${data().escapeHtml(product.pricingUnit)}</small>` : ""}
+              ${product.compareAt ? `<span class="product-compare">${data().money(product.compareAt)}</span>` : ""}
+            </div>
+            ${isService ? `
+              <a class="service-book-mini-btn" href="product-detail.html?id=${encodeURIComponent(product.id)}" aria-label="Book ${data().escapeHtml(product.title)}">
+                <i data-lucide="calendar-check"></i> Book
+              </a>
+            ` : `
+              <button class="product-add" type="button" data-add-product="${data().escapeHtml(product.id)}" aria-label="Add ${data().escapeHtml(product.title)} to cart">
+                <i data-lucide="plus"></i>
+              </button>
+            `}
           </div>
         </div>
       </article>
-    `).join("");
+      `;
+    }).join("");
     window.lucide?.createIcons();
   }
 
@@ -80,7 +103,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     const category = document.getElementById("store-category");
     [...new Set(data().getProducts().map(product => product.category))].sort().forEach(value => category.insertAdjacentHTML("beforeend", `<option>${data().escapeHtml(value)}</option>`));
-    ["store-search", "store-category", "store-seller", "store-sort"].forEach(id => document.getElementById(id)?.addEventListener(id === "store-search" ? "input" : "change", renderProducts));
+    ["store-search", "store-type", "store-category", "store-seller", "store-sort"].forEach(id => document.getElementById(id)?.addEventListener(id === "store-search" ? "input" : "change", renderProducts));
     document.addEventListener("click", event => {
       const add = event.target.closest("[data-add-product]");
       if (add) {
