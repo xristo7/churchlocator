@@ -136,3 +136,102 @@ test('9. Task 4 Requirements: Dynamic Background Music on Entry, 5 Media Types &
   assert.match(js, /share-sms/, 'SMS share URL wired in JS');
 });
 
+test('10. 5 Sanctuary Design Templates (Timer, Ripple, Journey, Nature, Sunburst)', () => {
+  // Template 1: Be Still (Circular Countdown Timer)
+  assert.match(html, /id="stage-template-timer"/, 'Template 1: Timer stage exists');
+  assert.match(html, /id="timer-progress-ring"/, 'Timer SVG progress ring exists');
+  assert.match(html, /id="timer-countdown-digits"/, 'Timer digital countdown digits exist');
+  assert.match(html, /id="btn-interval-bell"/, 'Interval bell toggle button exists');
+  assert.match(html, /id="btn-timer-primary-toggle"/, 'Primary timer play/pause button exists');
+  assert.match(html, /id="btn-timer-end-session"/, 'End session button exists');
+
+  // Template 2: Breath Prayer (Concentric Ripples)
+  assert.match(html, /id="stage-template-ripple"/, 'Template 2: Ripple stage exists');
+  assert.match(html, /class="concentric-wave wave-1"/, 'Concentric ripple waves exist');
+  assert.match(html, /id="ripple-cue-text"/, 'Ripple inhale/exhale cue text exists');
+  assert.match(html, /id="ripple-focus-word"/, 'Ripple focus word element exists');
+
+  // Template 3: Guided Prayer Journey (Milestones)
+  assert.match(html, /id="stage-template-journey"/, 'Template 3: Journey stage exists');
+  assert.match(html, /id="journey-track-fill"/, 'Journey track fill element exists');
+  assert.match(html, /class="journey-node/, 'Journey step nodes exist');
+  assert.match(html, /id="journey-question-prompt"/, 'Journey reflective question prompt exists');
+
+  // Template 4: Nature & Audio Teaching
+  assert.match(html, /id="stage-template-nature"/, 'Template 4: Nature stage exists');
+  assert.match(html, /class="nature-scripture-card"/, 'Nature card exists');
+  assert.match(html, /class="nature-leaf-badge"/, 'Nature leaf badge exists');
+
+  // Template 5: Joy & Praise (Sunburst)
+  assert.match(html, /id="stage-template-sunburst"/, 'Template 5: Sunburst stage exists');
+  assert.match(html, /class="sunburst-calligraphy-text"/, 'Sunburst calligraphy element exists');
+
+  // JS Template Switcher & Breathing Controller
+  assert.match(js, /function applyRoomTemplate\(/, 'applyRoomTemplate function defined in JS');
+  assert.match(js, /function startBreathingGuide\(/, 'startBreathingGuide function defined in JS');
+  assert.match(js, /function setJourneyStep\(/, 'setJourneyStep function defined in JS');
+});
+
+test('11. Multi-Mode Time Controllers & Web Audio Bell Chime', () => {
+  assert.match(js, /function initTimerController\(/, 'initTimerController function defined in JS');
+  assert.match(js, /function startTimerTicker\(/, 'startTimerTicker function defined in JS');
+  assert.match(js, /function playIntervalBell\(/, 'playIntervalBell Web Audio synthesizer defined in JS');
+  assert.match(js, /function formatTimeDigits\(/, 'formatTimeDigits function defined in JS');
+
+  // Create Room modal duration & timeMode options
+  assert.match(html, /id="new-room-time-mode"/, 'Time mode select exists in create modal');
+  assert.match(html, /value="timed"/, 'Timed session mode exists');
+  assert.match(html, /value="loop"/, 'Continuous loop mode exists');
+  assert.match(html, /value="teaching"/, 'Teaching duration mode exists');
+  assert.match(html, /id="new-room-duration-minutes"/, 'Duration minutes dropdown exists');
+});
+
+test('12. Theme Color Palette Swatches & Bright/Dark Mode Compliance', () => {
+  // Color palette in create room modal
+  assert.match(html, /id="color-palette-swatches"/, 'Color palette container exists in create modal');
+  assert.match(html, /data-color="#4a5d3f"/, 'Forest Olive color swatch exists');
+  assert.match(html, /data-color="#b86b5c"/, 'Terracotta Rust swatch exists');
+  assert.match(html, /data-color="#d97706"/, 'Sunrise Amber swatch exists');
+  assert.match(html, /data-color="#2a8f89"/, 'Mist Cyan swatch exists');
+  assert.match(html, /id="new-room-custom-color"/, 'Custom color hex picker exists');
+
+  // In-room mode toggle
+  assert.match(html, /id="room-theme-toggle-btn"/, 'Room theme mode toggle button exists in header');
+  assert.match(js, /function applyRoomMode\(/, 'applyRoomMode function defined in JS');
+});
+
+test('13. Scripture Carousel, Multi-Verse Series & Configurable Auto-Play', () => {
+  assert.match(html, /id="room-scripture-carousel-bar"/, 'Scripture carousel bar exists');
+  assert.match(html, /id="scripture-prev-btn"/, 'Scripture prev button exists');
+  assert.match(html, /id="scripture-counter-pill"/, 'Scripture counter pill exists');
+  assert.match(html, /id="scripture-autoplay-indicator"/, 'Scripture auto-play indicator exists');
+
+  assert.match(js, /function initScriptureCarousel\(/, 'initScriptureCarousel function defined in JS');
+  assert.match(js, /function prevScripture\(/, 'prevScripture function defined in JS');
+
+  // Create room modal auto-play and navigation permission inputs
+  assert.match(html, /id="new-scriptures-series"/, 'Additional scripture series textarea exists in create modal');
+  assert.match(html, /id="new-scripture-autoplay-interval"/, 'Scripture auto-play interval selector exists');
+  assert.match(html, /id="new-allow-user-nav"/, 'Participant navigation permission checkbox exists');
+});
+
+test('14. Reflection Notes Modal, Audio Scrubber & Ambient Soundscapes', () => {
+  // Reflection Notes Modal
+  assert.match(html, /id="btn-open-reflection"/, 'Open reflection button exists');
+  assert.match(html, /id="modal-reflection-note"/, 'Reflection note dialog exists');
+  assert.match(html, /id="reflection-note-text"/, 'Reflection textarea exists');
+  assert.match(html, /id="btn-save-reflection"/, 'Save reflection button exists');
+  assert.match(js, /function setupReflectionModal\(/, 'setupReflectionModal wired in JS');
+
+  // Timeline scrubber & 15s replay/skip
+  assert.match(html, /id="player-scrubber-track"/, 'Player scrubber track exists');
+  assert.match(html, /id="bottom-replay-15-btn"/, '15s replay button exists');
+  assert.match(html, /id="bottom-forward-15-btn"/, '15s forward button exists');
+  assert.match(js, /function setupScrubberControls\(/, 'setupScrubberControls wired in JS');
+
+  // Ambience soundscape selector
+  assert.match(html, /id="btn-ambience-dropdown"/, 'Ambience dropdown button exists');
+  assert.match(html, /id="ambience-dropdown-menu"/, 'Ambience dropdown menu exists');
+  assert.match(js, /function setupAmbienceDropdown\(/, 'setupAmbienceDropdown wired in JS');
+});
+

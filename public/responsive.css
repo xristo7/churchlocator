@@ -66,12 +66,14 @@
   .room-mobile-controls { display: block; width: 100%; padding: 10px; margin-top: 8px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface); color: var(--text-primary); font: inherit; }
   .meditation-room-sidebar:not(.mobile-controls-open) .sidebar-accordion-nav,
   .meditation-room-sidebar:not(.mobile-controls-open) .sidebar-footer-section { display: none !important; }
-  .meditation-room-view .meditation-room-main { min-height: 0 !important; width: 100% !important; overflow-y: auto !important; padding: 18px 14px max(14px, env(safe-area-inset-bottom)) !important; gap: 20px; }
-  .meditation-room-main .room-scripture-display { width: 100% !important; max-width: 100% !important; flex: 0 0 auto !important; padding: 18px 14px !important; }
-  .meditation-room-main .room-scripture-display blockquote { font-size: clamp(1rem, 4.4vw, 1.3rem) !important; line-height: 1.6 !important; }
-  .meditation-room-view .room-bottom-player { width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; min-height: 64px; border-radius: 16px !important; padding: 12px !important; flex-wrap: wrap; justify-content: center !important; gap: 10px; }
-  .room-bottom-player .bottom-player-info { width: 100%; min-width: 0; justify-content: center; }
-  .room-bottom-player .bottom-player-volume { max-width: 100px; }
+  .meditation-room-view .meditation-room-main { min-height: 0 !important; width: 100% !important; height: 100dvh !important; max-height: 100dvh !important; overflow: hidden !important; overflow-y: hidden !important; padding: clamp(50px, 7vh, 62px) 12px max(10px, env(safe-area-inset-bottom)) !important; gap: clamp(4px, 1vh, 10px); }
+  body.is-fullscreen-sanctuary .meditation-room-view,
+  body.is-fullscreen-sanctuary .meditation-room-main { overflow: hidden !important; overflow-y: hidden !important; height: 100dvh !important; max-height: 100dvh !important; }
+  .meditation-room-main .room-scripture-display { width: 100% !important; max-width: 100% !important; flex: 0 0 auto !important; padding: 10px 12px !important; }
+  .meditation-room-main .room-scripture-display blockquote { font-size: clamp(0.9rem, 3.8vw, 1.15rem) !important; line-height: 1.45 !important; margin: 4px 0 !important; }
+  .meditation-room-view .room-bottom-player { width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; min-height: 52px; border-radius: 99px !important; padding: 6px 14px !important; flex-wrap: nowrap; justify-content: space-between !important; gap: 8px; }
+  .room-bottom-player .bottom-player-info { min-width: 0; }
+  .room-bottom-player .bottom-player-volume { display: none !important; }
   html, body { -webkit-text-size-adjust: 100%; scroll-padding-top: 80px; overflow-x: hidden; max-width: 100%; }
   *, *::before, *::after { box-sizing: border-box; }
   main, section, article, aside, form, fieldset { min-width: 0; }

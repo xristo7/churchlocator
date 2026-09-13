@@ -16056,6 +16056,48 @@ body[data-theme="dark"] .meditation-room-view {
   background: radial-gradient(circle at 65% 45%, #0d1527 0%, #060a14 60%, #020408 100%) !important;
 }
 
+/* Template 1: Be Still (Warm Sandstone & Olive Shadow) */
+.meditation-backdrop.bg-template-timer {
+  background-color: #f5efe6 !important;
+  background-image: 
+    radial-gradient(circle at 85% 18%, rgba(74, 93, 63, 0.16) 0%, transparent 40%),
+    radial-gradient(circle at 10% 90%, rgba(200, 185, 165, 0.35) 0%, transparent 50%),
+    linear-gradient(135deg, #faf7f2 0%, #ede6db 50%, #e0d6c7 100%) !important;
+}
+
+html[data-theme="dark"] .meditation-backdrop.bg-template-timer {
+  background-color: #141712 !important;
+  background-image: 
+    radial-gradient(circle at 85% 20%, rgba(74, 93, 63, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 12% 85%, rgba(32, 36, 28, 0.6) 0%, transparent 60%),
+    linear-gradient(135deg, #181b14 0%, #11130e 50%, #0a0c08 100%) !important;
+}
+
+/* Template 2: Breath Prayer (Misty Dawn Lake) */
+.meditation-backdrop.bg-template-ripple {
+  background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2000&q=85') !important;
+  background-position: center bottom !important;
+}
+
+/* Template 3: Guided Prayer Journey (Desert Highway Sunrise) */
+.meditation-backdrop.bg-template-journey {
+  background-image: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=85') !important;
+  background-position: center 60% !important;
+}
+
+/* Template 4: Walk With God (Sunlit Forest Path & Mountain Waters) */
+.meditation-backdrop.bg-template-nature {
+  background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=2000&q=85') !important;
+  background-position: center !important;
+}
+
+/* Template 5: Joy Comes in the Morning (Radiant Sunrise & Warm Hills) */
+.meditation-backdrop.bg-template-sunburst {
+  background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=85') !important;
+  background-position: center top !important;
+}
+
+
 /* Light Mode: Vivid Scenic Background with Soft Heavenly Brightness */
 html[data-theme="light"] .meditation-backdrop,
 body:not([data-theme="dark"]) .meditation-backdrop {
@@ -17383,205 +17425,316 @@ html[data-theme="dark"] .chat-input-wrapper input {
 }
 
 /* SANCTUARY DIALOGS */
+/* ==========================================================================
+   SANCTUARY DIALOGS & MODAL OVERLAYS (LUXURY GLASSMORPHISM & SLEEK UI)
+   ========================================================================== */
 .sanctuary-dialog {
   border: none !important;
-  border-radius: 20px !important;
+  border-radius: 28px !important;
   padding: 0 !important;
-  max-width: 520px !important;
-  width: 90vw !important;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45) !important;
+  max-width: 540px !important;
+  width: min(92vw, 540px) !important;
   background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  animation: dialogZoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .sanctuary-dialog-lg {
-  max-width: 680px !important;
+  max-width: 760px !important;
+  width: min(94vw, 760px) !important;
 }
 
 .sanctuary-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.65) !important;
-  backdrop-filter: blur(8px) !important;
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.45) 0%, rgba(10, 14, 26, 0.8) 100%) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  animation: dialogFadeIn 0.3s ease-out !important;
+}
+
+@keyframes dialogZoomIn {
+  from { opacity: 0; transform: scale(0.95) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes dialogFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .dialog-content {
-  padding: 24px !important;
-  border-radius: 20px !important;
+  padding: clamp(22px, 3.5vh, 32px) clamp(22px, 3.5vw, 36px) !important;
+  border-radius: 28px !important;
   box-sizing: border-box !important;
+  position: relative !important;
+  overflow: hidden !important;
 }
 
 html[data-theme="light"] .dialog-content {
-  background: #ffffff !important;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.97) 0%, rgba(248, 250, 252, 0.94) 100%) !important;
+  backdrop-filter: blur(40px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(190%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 24px 64px -12px rgba(15, 23, 42, 0.16), 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
   color: #0f172a !important;
-  border: 1.5px solid rgba(226, 232, 240, 0.9) !important;
 }
 
 html[data-theme="dark"] .dialog-content {
-  background: #0f172a !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: linear-gradient(145deg, rgba(18, 24, 38, 0.95) 0%, rgba(10, 14, 24, 0.97) 100%) !important;
+  backdrop-filter: blur(40px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(190%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
+  color: #f8fafc !important;
 }
 
+/* DIALOG HEADER & BRANDED ICON BADGE */
 .dialog-header {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
   margin-bottom: 16px !important;
+  gap: 14px !important;
 }
 
 .dialog-title-group {
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 14px !important;
 }
 
-.dialog-title-group h3 {
-  margin: 0 !important;
-  font-size: 1.25rem !important;
-  font-weight: 750 !important;
+.dialog-icon-badge {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+html[data-theme="light"] .dialog-icon-badge {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.06) 0%, rgba(15, 23, 42, 0.02) 100%) !important;
+  border: 1.5px solid rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+
+html[data-theme="dark"] .dialog-icon-badge {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
 .dialog-icon {
-  color: var(--primary) !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.dialog-title-group h3 {
+  margin: 0 0 2px 0 !important;
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.015em !important;
+  line-height: 1.2 !important;
+}
+
+.dialog-kicker {
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: #94a3b8 !important;
+  display: block !important;
 }
 
 .dialog-close-btn {
-  background: transparent !important;
-  border: none !important;
-  color: inherit !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 999px !important;
+  display: grid !important;
+  place-items: center !important;
   cursor: pointer !important;
-  padding: 4px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  border-radius: 6px !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  padding: 0 !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+  color: #64748b !important;
 }
 
-/* Social Share Grid for Room Invites */
+html[data-theme="light"] .dialog-close-btn:hover {
+  background: rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+  transform: rotate(90deg) scale(1.06) !important;
+}
+
+html[data-theme="dark"] .dialog-close-btn {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .dialog-close-btn:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+  transform: rotate(90deg) scale(1.06) !important;
+}
+
+.dialog-desc {
+  font-size: 0.88rem !important;
+  line-height: 1.55 !important;
+  color: #64748b !important;
+  margin: 0 0 18px 0 !important;
+}
+
+html[data-theme="dark"] .dialog-desc {
+  color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   MODAL 1: INVITE A FRIEND (PREMIUM SOCIAL TILES & SLEEK COPY PILL)
+   ========================================================================== */
 .invite-social-grid {
   display: grid !important;
   grid-template-columns: repeat(6, 1fr) !important;
-  gap: 8px !important;
-  margin: 16px 0 14px !important;
+  gap: 10px !important;
+  margin: 16px 0 16px !important;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 520px) {
   .invite-social-grid {
     grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
   }
 }
 
 .social-share-btn {
-  display: inline-flex !important;
+  display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  padding: 10px 4px !important;
-  border-radius: 12px !important;
-  font-size: 0.74rem !important;
+  gap: 8px !important;
+  padding: 12px 6px 10px !important;
+  border-radius: 18px !important;
+  font-size: 0.72rem !important;
   font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
   text-decoration: none !important;
-  transition: all 0.2s ease !important;
-  border: 1px solid var(--border-subtle) !important;
-  background: var(--surface-soft, rgba(0, 0, 0, 0.03)) !important;
-  color: inherit !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   box-sizing: border-box !important;
 }
 
 html[data-theme="light"] .social-share-btn {
-  background: #f8fafc !important;
-  border-color: rgba(226, 232, 240, 0.9) !important;
+  background: #ffffff !important;
+  border: 1.5px solid rgba(226, 232, 240, 0.95) !important;
   color: #334155 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02) !important;
 }
 
 html[data-theme="dark"] .social-share-btn {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
   color: #e2e8f0 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+.social-share-btn:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12) !important;
+  border-color: rgba(148, 163, 184, 0.8) !important;
+}
+
+.social-icon-wrapper {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 999px !important;
+  display: grid !important;
+  place-items: center !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.social-share-btn:hover .social-icon-wrapper {
+  transform: scale(1.12) !important;
+}
+
+.social-whatsapp .social-icon-wrapper {
+  background: rgba(37, 211, 102, 0.12) !important;
+  color: #16a34a !important;
+}
+
+.social-telegram .social-icon-wrapper {
+  background: rgba(0, 136, 204, 0.12) !important;
+  color: #0284c7 !important;
+}
+
+.social-sms .social-icon-wrapper {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #059669 !important;
+}
+
+.social-facebook .social-icon-wrapper {
+  background: rgba(24, 119, 242, 0.12) !important;
+  color: #2563eb !important;
+}
+
+.social-twitter .social-icon-wrapper {
+  background: rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .social-twitter .social-icon-wrapper {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.social-email .social-icon-wrapper {
+  background: rgba(234, 67, 53, 0.12) !important;
+  color: #dc2626 !important;
 }
 
 .social-share-btn i {
   width: 18px !important;
   height: 18px !important;
-  transition: transform 0.2s ease !important;
 }
 
-.social-share-btn:hover {
-  transform: translateY(-2px) !important;
-}
-
-.social-share-btn:hover i {
-  transform: scale(1.15) !important;
-}
-
-/* Brand Colors on Hover */
-.social-whatsapp:hover {
-  background: rgba(37, 211, 102, 0.14) !important;
-  border-color: #25d366 !important;
-  color: #25d366 !important;
-}
-
-.social-telegram:hover {
-  background: rgba(0, 136, 204, 0.14) !important;
-  border-color: #0088cc !important;
-  color: #0088cc !important;
-}
-
-.social-sms:hover {
-  background: rgba(16, 185, 129, 0.14) !important;
-  border-color: #10b981 !important;
-  color: #10b981 !important;
-}
-
-.social-facebook:hover {
-  background: rgba(24, 119, 242, 0.14) !important;
-  border-color: #1877f2 !important;
-  color: #1877f2 !important;
-}
-
-.social-twitter:hover {
-  background: rgba(29, 155, 240, 0.14) !important;
-  border-color: #1d9bf0 !important;
-  color: #1d9bf0 !important;
-}
-
-.social-email:hover {
-  background: rgba(234, 67, 53, 0.14) !important;
-  border-color: #ea4335 !important;
-  color: #ea4335 !important;
-}
-
-/* Single Integrated Entity: Input field + copy button fused in one continuous enclosure */
+/* UNIFIED LINK COPY BAR */
 .unified-copy-entity {
   display: flex !important;
   align-items: center !important;
   width: 100% !important;
   box-sizing: border-box !important;
-  padding: 4px 4px 4px 12px !important;
-  border-radius: 12px !important;
-  border: 1.5px solid var(--border-subtle) !important;
-  margin: 10px 0 16px !important;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+  padding: 4px 5px 4px 16px !important;
+  border-radius: 999px !important;
+  margin: 14px 0 16px !important;
+  transition: all 0.25s ease !important;
 }
 
 html[data-theme="light"] .unified-copy-entity {
-  background: #f8fafc !important;
-  border-color: rgba(203, 213, 225, 0.9) !important;
+  background: rgba(241, 245, 249, 0.85) !important;
+  border: 1.5px solid rgba(203, 213, 225, 0.9) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03) inset !important;
 }
 
 html[data-theme="dark"] .unified-copy-entity {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(15, 23, 42, 0.65) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) inset !important;
 }
 
-.unified-copy-entity:focus-within {
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 0 3px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.2) !important;
+html[data-theme="light"] .unified-copy-entity:focus-within {
+  border-color: #0f172a !important;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08) !important;
+}
+
+html[data-theme="dark"] .unified-copy-entity:focus-within {
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15) !important;
 }
 
 .unified-copy-icon {
   display: inline-flex !important;
   align-items: center !important;
-  color: var(--primary) !important;
-  margin-right: 6px !important;
+  color: #64748b !important;
+  margin-right: 8px !important;
   flex: 0 0 auto !important;
 }
 
@@ -17597,8 +17750,10 @@ html[data-theme="dark"] .unified-copy-entity {
   outline: none !important;
   background: transparent !important;
   color: inherit !important;
-  font-size: 0.84rem !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-size: 0.82rem !important;
   padding: 8px 6px !important;
+  letter-spacing: -0.01em !important;
   box-shadow: none !important;
 }
 
@@ -17607,29 +17762,89 @@ html[data-theme="dark"] .unified-copy-entity {
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px !important;
-  padding: 8px 16px !important;
-  border-radius: 9px !important;
-  background: var(--primary) !important;
-  color: #ffffff !important;
-  border: none !important;
+  padding: 9px 20px !important;
+  border-radius: 999px !important;
   font-size: 0.82rem !important;
   font-weight: 700 !important;
   cursor: pointer !important;
-  transition: all 0.2s ease !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border: none !important;
 }
 
-.unified-copy-btn:hover {
-  filter: brightness(1.1) !important;
+html[data-theme="light"] .unified-copy-btn {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18) !important;
+}
+
+html[data-theme="light"] .unified-copy-btn:hover {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
   transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.24) !important;
+}
+
+html[data-theme="dark"] .unified-copy-btn {
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2) !important;
+}
+
+html[data-theme="dark"] .unified-copy-btn:hover {
+  background: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 22px rgba(255, 255, 255, 0.3) !important;
 }
 
 .unified-copy-btn:active {
-  transform: translateY(0) !important;
+  transform: scale(0.97) !important;
 }
 
 .unified-copy-btn i {
   width: 14px !important;
   height: 14px !important;
+}
+
+/* INVITE SANCTUARY PERKS */
+.invite-meta-notes {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  margin-top: 14px !important;
+}
+
+@media (max-width: 480px) {
+  .invite-meta-notes {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.invite-note {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 14px !important;
+  border-radius: 14px !important;
+  font-size: 0.78rem !important;
+  font-weight: 650 !important;
+  letter-spacing: 0.01em !important;
+}
+
+html[data-theme="light"] .invite-note {
+  background: rgba(16, 185, 129, 0.07) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  color: #059669 !important;
+}
+
+html[data-theme="dark"] .invite-note {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 1px solid rgba(52, 211, 153, 0.25) !important;
+  color: #34d399 !important;
+}
+
+.invite-note i {
+  width: 15px !important;
+  height: 15px !important;
+  flex-shrink: 0 !important;
 }
 
 /* Backward compatibility for legacy invite-link-box */
@@ -17653,33 +17868,345 @@ html[data-theme="dark"] .invite-link-box input {
   background: rgba(255, 255, 255, 0.08) !important;
 }
 
-.invite-meta-notes {
+/* ==========================================================================
+   MODAL 2: WRITE A REFLECTION NOTE (JOURNAL CANVASES & PILL ACTIONS)
+   ========================================================================== */
+.reflection-journal-field {
   display: flex !important;
   flex-direction: column !important;
-  gap: 6px !important;
-  font-size: 0.82rem !important;
-  opacity: 0.8 !important;
+  gap: 8px !important;
+  width: 100% !important;
 }
 
-.invite-note {
+.reflection-label-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 2px !important;
+}
+
+.reflection-label-row span {
+  font-size: 0.74rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .reflection-label-row span {
+  color: #94a3b8 !important;
+}
+
+.reflection-counter-tag {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 6px !important;
-  color: #10b981 !important;
+  gap: 4px !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  color: #94a3b8 !important;
 }
 
+.reflection-counter-tag i {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+#reflection-note-text {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border-radius: 18px !important;
+  padding: 16px 18px !important;
+  font-family: 'Cinzel', 'Playfair Display', Georgia, serif !important;
+  font-size: 1rem !important;
+  line-height: 1.65 !important;
+  resize: vertical !important;
+  min-height: 120px !important;
+  outline: none !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html[data-theme="light"] #reflection-note-text {
+  background: rgba(248, 250, 252, 0.9) !important;
+  border: 1.5px solid rgba(226, 232, 240, 0.95) !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03) inset !important;
+}
+
+html[data-theme="light"] #reflection-note-text:focus {
+  background: #ffffff !important;
+  border-color: #0f172a !important;
+  box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.08), 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+}
+
+html[data-theme="dark"] #reflection-note-text {
+  background: rgba(15, 23, 42, 0.75) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) inset !important;
+}
+
+html[data-theme="dark"] #reflection-note-text:focus {
+  background: rgba(20, 28, 48, 0.9) !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12), 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* UNIFIED DIALOG ACTION BUTTONS */
+.dialog-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-top: 18px !important;
+}
+
+.sanctuary-dialog .btn-secondary,
+#btn-copy-reflection,
+#btn-cancel-create-room {
+  border-radius: 999px !important;
+  padding: 10px 20px !important;
+  font-size: 0.86rem !important;
+  font-weight: 650 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  user-select: none !important;
+}
+
+html[data-theme="light"] .sanctuary-dialog .btn-secondary,
+html[data-theme="light"] #btn-copy-reflection,
+html[data-theme="light"] #btn-cancel-create-room {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1.5px solid rgba(203, 213, 225, 0.9) !important;
+  color: #334155 !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04) !important;
+}
+
+html[data-theme="light"] .sanctuary-dialog .btn-secondary:hover,
+html[data-theme="light"] #btn-copy-reflection:hover,
+html[data-theme="light"] #btn-cancel-create-room:hover {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 0.9) !important;
+  color: #0f172a !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+}
+
+html[data-theme="dark"] .sanctuary-dialog .btn-secondary,
+html[data-theme="dark"] #btn-copy-reflection,
+html[data-theme="dark"] #btn-cancel-create-room {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.16) !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .sanctuary-dialog .btn-secondary:hover,
+html[data-theme="dark"] #btn-copy-reflection:hover,
+html[data-theme="dark"] #btn-cancel-create-room:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+.sanctuary-dialog .btn-primary,
+#btn-save-reflection {
+  border-radius: 999px !important;
+  padding: 10px 24px !important;
+  font-size: 0.86rem !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.01em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border: none !important;
+  user-select: none !important;
+}
+
+html[data-theme="light"] .sanctuary-dialog .btn-primary,
+html[data-theme="light"] #btn-save-reflection {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.18), 0 2px 6px rgba(15, 23, 42, 0.08) !important;
+}
+
+html[data-theme="light"] .sanctuary-dialog .btn-primary:hover,
+html[data-theme="light"] #btn-save-reflection:hover {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25) !important;
+}
+
+html[data-theme="dark"] .sanctuary-dialog .btn-primary,
+html[data-theme="dark"] #btn-save-reflection {
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2) !important;
+}
+
+html[data-theme="dark"] .sanctuary-dialog .btn-primary:hover,
+html[data-theme="dark"] #btn-save-reflection:hover {
+  background: #ffffff !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.35) !important;
+}
+
+.sanctuary-dialog .btn-primary:active,
+.sanctuary-dialog .btn-secondary:active {
+  transform: scale(0.98) !important;
+}
+
+/* PAST REFLECTIONS TIMELINE */
+.reflection-past-entries {
+  margin-top: 24px !important;
+  padding-top: 18px !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+html[data-theme="dark"] .reflection-past-entries {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.reflection-past-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 12px !important;
+}
+
+.reflection-past-header h4 {
+  margin: 0 !important;
+  font-size: 0.74rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .reflection-past-header h4 {
+  color: #94a3b8 !important;
+}
+
+.past-count-badge {
+  font-size: 0.68rem !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  padding: 3px 10px !important;
+  border-radius: 999px !important;
+}
+
+html[data-theme="light"] .past-count-badge {
+  background: rgba(15, 23, 42, 0.05) !important;
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .past-count-badge {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #94a3b8 !important;
+}
+
+.empty-hint {
+  padding: 18px 20px !important;
+  border-radius: 16px !important;
+  text-align: center !important;
+  font-size: 0.86rem !important;
+  font-style: italic !important;
+  margin: 0 !important;
+}
+
+html[data-theme="light"] .empty-hint {
+  background: rgba(241, 245, 249, 0.6) !important;
+  border: 1.5px dashed rgba(203, 213, 225, 0.8) !important;
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .empty-hint {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1.5px dashed rgba(255, 255, 255, 0.1) !important;
+  color: #64748b !important;
+}
+
+.reflection-entry-card {
+  border-radius: 16px !important;
+  padding: 14px 18px !important;
+  margin-bottom: 10px !important;
+  transition: all 0.2s ease !important;
+}
+
+html[data-theme="light"] .reflection-entry-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.95) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .reflection-entry-card {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+  color: #f8fafc !important;
+}
+
+.reflection-card-meta {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 0.75rem !important;
+  margin-bottom: 6px !important;
+}
+
+.reflection-meta-date {
+  color: #64748b !important;
+  font-weight: 600 !important;
+}
+
+html[data-theme="dark"] .reflection-meta-date {
+  color: #94a3b8 !important;
+}
+
+.reflection-meta-badge {
+  font-size: 0.68rem !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  padding: 2px 8px !important;
+  border-radius: 999px !important;
+  background: rgba(15, 23, 42, 0.05) !important;
+  color: #475569 !important;
+}
+
+html[data-theme="dark"] .reflection-meta-badge {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e2e8f0 !important;
+}
+
+.reflection-card-body {
+  margin: 0 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.55 !important;
+}
+
+/* ==========================================================================
+   MODAL 3: CREATE VIRTUAL SANCTUARY ROOM
+   ========================================================================== */
 .create-room-form {
   display: flex !important;
   flex-direction: column !important;
-  gap: 14px !important;
+  gap: 16px !important;
   max-height: 75vh !important;
   overflow-y: auto !important;
+  padding-right: 4px !important;
 }
 
 .form-row {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
+  gap: 14px !important;
 }
 
 @media (max-width: 600px) {
@@ -17692,40 +18219,79 @@ html[data-theme="dark"] .invite-link-box input {
   display: flex !important;
   flex-direction: column !important;
   gap: 6px !important;
-  font-size: 0.84rem !important;
-  font-weight: 650 !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
 }
 
 .form-label input,
 .form-label select,
 .form-label textarea {
-  padding: 8px 12px !important;
-  border-radius: 10px !important;
-  border: 1px solid var(--border-subtle) !important;
-  background: rgba(0, 0, 0, 0.03) !important;
-  color: inherit !important;
-  font-size: 0.86rem !important;
+  padding: 10px 14px !important;
+  border-radius: 14px !important;
+  font-size: 0.88rem !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+
+html[data-theme="light"] .form-label input,
+html[data-theme="light"] .form-label select,
+html[data-theme="light"] .form-label textarea {
+  background: rgba(248, 250, 252, 0.9) !important;
+  border: 1.5px solid rgba(226, 232, 240, 0.95) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .form-label input:focus,
+html[data-theme="light"] .form-label select:focus,
+html[data-theme="light"] .form-label textarea:focus {
+  background: #ffffff !important;
+  border-color: #0f172a !important;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08) !important;
 }
 
 html[data-theme="dark"] .form-label input,
 html[data-theme="dark"] .form-label select,
 html[data-theme="dark"] .form-label textarea {
-  background: rgba(255, 255, 255, 0.07) !important;
-  border-color: rgba(255, 255, 255, 0.14) !important;
+  background: rgba(15, 23, 42, 0.7) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .form-label input:focus,
+html[data-theme="dark"] .form-label select:focus,
+html[data-theme="dark"] .form-label textarea:focus {
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12) !important;
 }
 
 .form-section-title {
-  font-size: 0.9rem !important;
-  font-weight: 750 !important;
-  margin-top: 6px !important;
-  border-bottom: 1px solid var(--border-subtle) !important;
-  padding-bottom: 4px !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  padding-bottom: 8px !important;
+  margin-top: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+html[data-theme="light"] .form-section-title {
+  color: #0f172a !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="dark"] .form-section-title {
+  color: #ffffff !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .ambient-mixer-grid {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
-  gap: 10px 18px !important;
+  gap: 12px 18px !important;
 }
 
 @media (max-width: 500px) {
@@ -17737,16 +18303,1853 @@ html[data-theme="dark"] .form-label textarea {
 .ambient-mix-field {
   display: flex !important;
   flex-direction: column !important;
-  gap: 4px !important;
+  gap: 6px !important;
   font-size: 0.8rem !important;
-  font-weight: 600 !important;
+  font-weight: 650 !important;
 }
 
-.dialog-actions {
+/* ==========================================================================
+   SANCTUARY IMMERSION & 5 DESIGN TEMPLATES (100VH STRICT ZERO-SCROLL)
+   ========================================================================== */
+
+/* 1. STRICT 100VH VIEWPORT ENFORCEMENT */
+body.in-meditation-room,
+body.in-meditation-room .meditation-room-view,
+body.in-meditation-room.is-fullscreen-sanctuary,
+body.in-meditation-room.is-fullscreen-sanctuary .meditation-room-view,
+body.in-meditation-room.is-fullscreen-sanctuary .meditation-room-main {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+.meditation-room-main {
+  flex: 1 1 auto !important;
   display: flex !important;
-  justify-content: flex-end !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* 2. TOPBAR ROOM HEADER BADGE & UNIFIED PILL ACTION BUTTONS */
+.sanctuary-room-header-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  color: inherit !important;
+  text-decoration: none !important;
+  user-select: none !important;
+}
+
+.sanctuary-room-header-icon {
+  display: grid !important;
+  place-items: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 99px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  color: var(--room-color, #0f172a) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+  transition: all 0.2s ease !important;
+}
+
+.sanctuary-room-header-icon i,
+.sanctuary-room-header-icon svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+html[data-theme="dark"] .sanctuary-room-header-icon {
+  background: rgba(15, 23, 42, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+}
+
+.sanctuary-room-header-text {
+  display: flex !important;
+  flex-direction: column !important;
+  text-align: left !important;
+  line-height: 1.2 !important;
+}
+
+.sanctuary-room-header-title {
+  font-size: 0.96rem !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+  color: #0f172a !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+html[data-theme="dark"] .sanctuary-room-header-title {
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6) !important;
+}
+
+.sanctuary-room-header-owner {
+  font-size: 0.72rem !important;
+  font-weight: 650 !important;
+  letter-spacing: 0.04em !important;
+  color: #475569 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6) !important;
+}
+
+html[data-theme="dark"] .sanctuary-room-header-owner {
+  color: rgba(255, 255, 255, 0.75) !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* UNIFIED TOP ACTION BUTTONS (Invite, Full Screen, Exit - 100% Identical Styling) */
+.sanctuary-top-action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  height: 38px !important;
+  padding: 0 18px !important;
+  border-radius: 999px !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  user-select: none !important;
+  white-space: nowrap !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+.sanctuary-top-action-btn i,
+.sanctuary-top-action-btn svg {
+  width: 15px !important;
+  height: 15px !important;
+  flex-shrink: 0 !important;
+}
+
+html[data-theme="light"] .sanctuary-top-action-btn,
+body:not([data-theme="dark"]) .sanctuary-top-action-btn {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(203, 213, 225, 0.95) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+html[data-theme="light"] .sanctuary-top-action-btn:hover,
+body:not([data-theme="dark"]) .sanctuary-top-action-btn:hover {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 1) !important;
+  color: #0f172a !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12) !important;
+}
+
+html[data-theme="dark"] .sanctuary-top-action-btn {
+  background: rgba(15, 23, 42, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme="dark"] .sanctuary-top-action-btn:hover {
+  background: rgba(30, 41, 59, 0.92) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.55) !important;
+}
+
+.sanctuary-exit-pill {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 99px !important;
+}
+
+html[data-theme="light"] .sanctuary-exit-pill {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(203, 213, 225, 0.9) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .sanctuary-exit-pill {
+  background: rgba(15, 23, 42, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* 3. AMBIENT CORNER & MARGIN TYPOGRAPHY */
+.sanctuary-margin-text {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.25em !important;
+  text-transform: uppercase !important;
+  opacity: 0.45 !important;
+  pointer-events: none !important;
+  z-index: 5 !important;
+  user-select: none !important;
+}
+
+.sanctuary-margin-text.margin-left {
+  left: clamp(14px, 2.2vw, 32px) !important;
+  text-align: left !important;
+}
+
+.sanctuary-margin-text.margin-right {
+  right: clamp(14px, 2.2vw, 32px) !important;
+  text-align: right !important;
+}
+
+.sanctuary-corner-tag {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .sanctuary-margin-text,
+  .sanctuary-corner-tag {
+    display: none !important;
+  }
+}
+
+/* 4. SERIF TYPOGRAPHY & COMMON TEMPLATE HEADINGS */
+.serif-font {
+  font-family: 'Cinzel', 'Playfair Display', 'Cormorant Garamond', 'Georgia', serif !important;
+}
+
+.template-header-block {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin-bottom: clamp(8px, 1.8vh, 18px) !important;
+}
+
+.template-main-title {
+  font-size: clamp(2rem, 4.5vh, 3.4rem) !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  margin: 0 !important;
+  line-height: 1.15 !important;
+  color: var(--room-title-color, inherit) !important;
+}
+
+html[data-theme="light"] .template-main-title,
+body:not([data-theme="dark"]) .template-main-title {
+  color: #0f172a !important;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.85) !important;
+}
+
+html[data-theme="dark"] .template-main-title {
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6) !important;
+}
+
+.template-subtitle-badge {
+  font-size: clamp(0.78rem, 1.4vh, 0.95rem) !important;
+  font-weight: 650 !important;
+  letter-spacing: 0.06em !important;
+  padding: 4px 16px !important;
+  border-radius: 99px !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+html[data-theme="light"] .template-subtitle-badge,
+body:not([data-theme="dark"]) .template-subtitle-badge {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  color: #1e293b !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+}
+
+html[data-theme="dark"] .template-subtitle-badge {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #f1f5f9 !important;
+}
+
+/* 5. DYNAMIC TEMPLATE STAGE CONTAINER (SINGLE VIEWPORT, ZERO SCROLL) */
+.sanctuary-template-stage {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 960px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  padding: clamp(68px, 9vh, 88px) clamp(16px, 2.5vw, 36px) clamp(24px, 4vh, 44px) !important;
+  box-sizing: border-box !important;
+}
+
+.template-stage-view {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  position: relative !important;
+  animation: templateFadeIn 0.5s ease-out !important;
+}
+
+.template-stage-view[hidden] {
+  display: none !important;
+}
+
+@keyframes templateFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* MARGINAL & CORNER TYPOGRAPHY (Floating around stage matching images 2, 3, 4, 5) */
+.template-corner-text {
+  position: absolute !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  font-size: clamp(0.65rem, 1.1vh, 0.74rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  opacity: 0.7 !important;
+  pointer-events: none !important;
+  z-index: 10 !important;
+  user-select: none !important;
+  line-height: 1.35 !important;
+}
+
+html[data-theme="light"] .template-corner-text,
+body:not([data-theme="dark"]) .template-corner-text {
+  color: #1e293b !important;
+  opacity: 0.92 !important;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.95) !important;
+}
+
+html[data-theme="dark"] .template-corner-text {
+  color: #f1f5f9 !important;
+  opacity: 0.7 !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+}
+
+.template-corner-text.corner-top-left {
+  top: clamp(68px, 9vh, 88px) !important;
+  left: clamp(16px, 3vw, 44px) !important;
+  text-align: left !important;
+}
+
+.template-corner-text.corner-top-right {
+  top: clamp(68px, 9vh, 88px) !important;
+  right: clamp(16px, 3vw, 44px) !important;
+  text-align: right !important;
+}
+
+.template-corner-text.corner-bottom-left,
+.template-corner-text.corner-bottom-right {
+  display: none !important;
+}
+
+/* Wood Sign & Rock Tag Carvings (Images 3 & 4) */
+.nature-tree-sign {
+  position: absolute !important;
+  left: clamp(16px, 3vw, 48px) !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 16px 12px !important;
+  background: rgba(36, 26, 18, 0.78) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1.5px solid rgba(160, 110, 60, 0.45) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+  font-size: 0.72rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #faebd7 !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+.nature-tree-sign .sign-heart {
+  color: #f87171 !important;
+  font-size: 0.95rem !important;
+  margin-top: 3px !important;
+}
+
+.rock-tag-marker {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 15px 13px !important;
+  background: rgba(25, 30, 36, 0.72) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+  font-size: 0.72rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: #f1f5f9 !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+.rock-tag-marker.rock-marker-left {
+  left: clamp(16px, 3vw, 48px) !important;
+  right: auto !important;
+}
+
+.rock-tag-marker.rock-marker-right {
+  right: clamp(16px, 3vw, 48px) !important;
+  left: auto !important;
+}
+
+.rock-tag-marker .rock-heart {
+  color: #f87171 !important;
+  font-size: 0.95rem !important;
+  margin-top: 3px !important;
+}
+
+.nature-bottom-center-tag {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .template-corner-text,
+  .nature-tree-sign,
+  .rock-tag-marker,
+  .nature-bottom-center-tag {
+    display: none !important;
+  }
+}
+
+/* ========================================================
+   TEMPLATE 1: "BE STILL" CIRCULAR TIMER (Image 1)
+   ======================================================== */
+.template-timer-view {
+  color: #2c3527 !important;
+}
+
+html[data-theme="dark"] .template-timer-view {
+  color: #e2e8f0 !important;
+}
+
+.timer-stage-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(8px, 1.8vh, 18px) !important;
+  max-width: 620px !important;
+  width: 100% !important;
+  margin: auto !important;
+}
+
+.timer-ring-wrapper {
+  position: relative !important;
+  width: clamp(190px, 27vh, 270px) !important;
+  height: clamp(190px, 27vh, 270px) !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: 0 auto !important;
+}
+
+.timer-dial-svg {
+  width: 100% !important;
+  height: 100% !important;
+  transform: rotate(-90deg) !important;
+}
+
+.timer-track {
+  fill: none !important;
+  stroke: rgba(200, 185, 165, 0.35) !important;
+  stroke-width: 8 !important;
+}
+
+html[data-theme="dark"] .timer-track {
+  stroke: rgba(255, 255, 255, 0.12) !important;
+}
+
+.timer-progress {
+  fill: none !important;
+  stroke: #4e613e !important;
+  stroke-width: 8 !important;
+  stroke-linecap: round !important;
+  stroke-dasharray: 691.15 !important;
+  stroke-dashoffset: 0 !important;
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.timer-dial-inner {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+}
+
+.timer-countdown-digits {
+  font-size: clamp(2.4rem, 5.5vh, 3.8rem) !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1 !important;
+  color: inherit !important;
+}
+
+.timer-countdown-label {
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  opacity: 0.7 !important;
+}
+
+.template-scripture-quote {
+  max-width: 620px !important;
+  padding: 0 16px !important;
+  margin-top: 4px !important;
+}
+
+.template-quote-text {
+  font-size: clamp(0.95rem, 2vh, 1.25rem) !important;
+  font-style: italic !important;
+  line-height: 1.5 !important;
+  margin: 0 0 6px !important;
+}
+
+html[data-theme="light"] .template-quote-text,
+body:not([data-theme="dark"]) .template-quote-text {
+  color: #0f172a !important;
+  font-weight: 550 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.75) !important;
+}
+
+html[data-theme="dark"] .template-quote-text {
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+}
+
+.template-quote-ref {
+  display: block !important;
+  font-size: 0.74rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  opacity: 0.75 !important;
+}
+
+html[data-theme="light"] .template-quote-ref,
+body:not([data-theme="dark"]) .template-quote-ref {
+  color: #334155 !important;
+  opacity: 0.9 !important;
+}
+
+html[data-theme="dark"] .template-quote-ref {
+  color: #e2e8f0 !important;
+}
+
+.timer-actions-trio {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(20px, 4vw, 44px) !important;
+  margin-top: clamp(8px, 1.8vh, 18px) !important;
+}
+
+.timer-btn-col {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+
+.timer-circle-btn {
+  width: clamp(48px, 6.4vh, 56px) !important;
+  height: clamp(48px, 6.4vh, 56px) !important;
+  border-radius: 999px !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 1.5px solid rgba(200, 185, 165, 0.75) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: #3b4736 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html[data-theme="dark"] .timer-circle-btn {
+  background: rgba(25, 30, 24, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #e2e8f0 !important;
+}
+
+.timer-circle-btn:hover {
+  transform: translateY(-2px) scale(1.04) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
+}
+
+.timer-circle-btn.timer-primary-btn {
+  width: clamp(62px, 8.2vh, 72px) !important;
+  height: clamp(62px, 8.2vh, 72px) !important;
+  background: #4e613e !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(78, 97, 62, 0.45) !important;
+}
+
+.timer-circle-btn.timer-primary-btn:hover {
+  background: #3f5032 !important;
+  box-shadow: 0 10px 30px rgba(78, 97, 62, 0.55) !important;
+}
+
+.timer-btn-caption {
+  font-size: 0.74rem !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.04em !important;
+  opacity: 0.85 !important;
+}
+
+/* ========================================================
+   TEMPLATE 2: "BREATH PRAYER" CONCENTRIC RIPPLE (Image 2)
+   ======================================================== */
+.template-ripple-view {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .template-ripple-view {
+  color: #ffffff !important;
+}
+
+.ripple-stage-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(6px, 1.4vh, 14px) !important;
+  max-width: 640px !important;
+  width: 100% !important;
+  margin: auto !important;
+}
+
+.ripple-rings-stage {
+  position: relative !important;
+  width: clamp(200px, 28vh, 290px) !important;
+  height: clamp(200px, 28vh, 290px) !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: clamp(4px, 1vh, 12px) auto !important;
+}
+
+.concentric-wave {
+  position: absolute !important;
+  border-radius: 999px !important;
+  border: 1.5px solid rgba(42, 143, 137, 0.45) !important;
+  opacity: 0.25 !important;
+  animation: rippleWavePulse 6s ease-in-out infinite !important;
+}
+
+html[data-theme="dark"] .concentric-wave {
+  border-color: rgba(130, 205, 190, 0.4) !important;
+}
+
+.concentric-wave.wave-1 { width: 58% !important; height: 58% !important; }
+.wave-2 { width: 74% !important; height: 74% !important; animation-delay: 1.5s !important; }
+.wave-3 { width: 90% !important; height: 90% !important; animation-delay: 3s !important; }
+.wave-4 { width: 106% !important; height: 106% !important; animation-delay: 4.5s !important; }
+
+@keyframes rippleWavePulse {
+  0% { transform: scale(0.92); opacity: 0.15; }
+  50% { transform: scale(1.05); opacity: 0.38; }
+  100% { transform: scale(0.92); opacity: 0.15; }
+}
+
+.ripple-center-orb {
+  width: clamp(110px, 15vh, 150px) !important;
+  height: clamp(110px, 15vh, 150px) !important;
+  border-radius: 42% 58% 65% 35% / 45% 40% 60% 55% !important;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.98) 0%, rgba(167, 243, 208, 0.85) 45%, rgba(45, 212, 191, 0.7) 75%, rgba(13, 148, 136, 0.5) 100%) !important;
+  box-shadow: 0 0 50px rgba(45, 212, 191, 0.5), inset 0 0 25px rgba(255, 255, 255, 0.8) !important;
+  animation: organicSlowPulse 10s ease-in-out infinite alternate !important;
+  z-index: 2 !important;
+  pointer-events: none !important;
+}
+
+html[data-theme="dark"] .ripple-center-orb {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(94, 234, 212, 0.85) 45%, rgba(20, 184, 166, 0.75) 75%, rgba(15, 118, 110, 0.6) 100%) !important;
+  box-shadow: 0 0 65px rgba(45, 212, 191, 0.6), inset 0 0 25px rgba(255, 255, 255, 0.6) !important;
+}
+
+@keyframes organicSlowPulse {
+  0% {
+    border-radius: 42% 58% 65% 35% / 45% 40% 60% 55%;
+    transform: scale(0.92) rotate(0deg);
+  }
+  33% {
+    border-radius: 58% 42% 40% 60% / 55% 65% 35% 45%;
+    transform: scale(1.02) rotate(3deg);
+  }
+  66% {
+    border-radius: 45% 55% 60% 40% / 60% 45% 55% 40%;
+    transform: scale(1.06) rotate(-2deg);
+  }
+  100% {
+    border-radius: 52% 48% 45% 55% / 40% 55% 45% 60%;
+    transform: scale(0.96) rotate(1deg);
+  }
+}
+
+/* ========================================================
+   TEMPLATE 3: "GUIDED PRAYER JOURNEY" MILESTONES (Image 3)
+   ======================================================== */
+.template-journey-view {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .template-journey-view {
+  color: #ffffff !important;
+}
+
+.journey-stage-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(8px, 1.6vh, 16px) !important;
+  max-width: 640px !important;
+  width: 100% !important;
+  margin: auto !important;
+}
+
+.journey-track-wrapper {
+  width: min(90%, 480px) !important;
+  margin: clamp(4px, 1vh, 14px) auto !important;
+  position: relative !important;
+}
+
+.journey-track-line {
+  position: absolute !important;
+  top: 16px !important;
+  left: 18px !important;
+  right: 18px !important;
+  height: 2px !important;
+  background: rgba(15, 23, 42, 0.2) !important;
+  z-index: 1 !important;
+}
+
+html[data-theme="dark"] .journey-track-line {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.journey-track-fill {
+  height: 100% !important;
+  width: 35% !important;
+  background: #b86b5c !important;
+  transition: width 0.6s ease !important;
+}
+
+.journey-milestones-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.journey-node {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 5px !important;
+  cursor: pointer !important;
+}
+
+.journey-node .node-circle {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 99px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.8) !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 0.75rem !important;
+  color: #0f172a !important;
+  transition: all 0.3s ease !important;
+}
+
+html[data-theme="dark"] .journey-node .node-circle {
+  background: rgba(20, 15, 12, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+}
+
+.journey-node.completed .node-circle {
+  background: #b86b5c !important;
+  border-color: #b86b5c !important;
+  color: #ffffff !important;
+}
+
+.journey-node.active .node-circle {
+  border-color: #f87171 !important;
+  box-shadow: 0 0 16px rgba(248, 113, 113, 0.6) !important;
+}
+
+.node-pulse {
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 99px !important;
+  background: #b86b5c !important;
+}
+
+html[data-theme="dark"] .node-pulse {
+  background: #ffffff !important;
+}
+
+.node-label {
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  opacity: 0.9 !important;
+}
+
+html[data-theme="dark"] .node-label {
+  color: #ffffff !important;
+  opacity: 0.75 !important;
+}
+
+.journey-node.active .node-label {
+  opacity: 1 !important;
+  font-weight: 850 !important;
+  color: #b91c1c !important;
+}
+
+html[data-theme="dark"] .journey-node.active .node-label {
+  color: #fca5a5 !important;
+}
+
+.journey-contemplation-card {
+  max-width: 600px !important;
+  padding: clamp(12px, 1.8vh, 18px) clamp(16px, 2.5vw, 26px) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(14px) !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .journey-contemplation-card {
+  background: rgba(20, 12, 10, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+  color: #ffffff !important;
+}
+
+.journey-question-prompt {
+  font-size: clamp(1.15rem, 2.5vh, 1.65rem) !important;
+  font-weight: 500 !important;
+  margin: 0 0 6px !important;
+  line-height: 1.25 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .journey-question-prompt {
+  color: #ffffff !important;
+}
+
+.journey-card-divider {
+  width: 40px !important;
+  height: 2px !important;
+  background: #b86b5c !important;
+  margin: 8px auto 10px !important;
+}
+
+/* ========================================================
+   TEMPLATE 4: "WALK WITH GOD" GUIDED NATURE (Image 4)
+   ======================================================== */
+.template-nature-view {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .template-nature-view {
+  color: #ffffff !important;
+}
+
+.nature-stage-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(6px, 1.4vh, 14px) !important;
+  max-width: 640px !important;
+  width: 100% !important;
+  margin: auto !important;
+}
+
+.template-kicker-badge {
+  font-size: 0.72rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  opacity: 0.85 !important;
+}
+
+.nature-leaf-divider {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: min(85%, 260px) !important;
+  margin: 0 auto !important;
+}
+
+.nature-leaf-divider .leaf-line {
+  flex: 1 !important;
+  height: 1px !important;
+  background: rgba(15, 23, 42, 0.2) !important;
+}
+
+html[data-theme="dark"] .nature-leaf-divider .leaf-line {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.nature-leaf-badge {
+  color: #16a34a !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+html[data-theme="dark"] .nature-leaf-badge {
+  color: #86efac !important;
+}
+
+.nature-scripture-card {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+  max-width: 600px !important;
+  padding: clamp(10px, 1.5vh, 16px) clamp(16px, 2.5vw, 26px) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(14px) !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .nature-scripture-card {
+  background: rgba(10, 24, 15, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+  color: #ffffff !important;
+}
+
+.nature-controls-mid-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 12px !important;
+}
+
+.nature-soundscape-dropdown-wrap {
+  position: relative !important;
+}
+
+.nature-soundscape-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 6px 14px !important;
+  border-radius: 99px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+  font-size: 0.78rem !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.2s ease !important;
+}
+
+.nature-soundscape-btn:hover {
+  background: #ffffff !important;
+}
+
+html[data-theme="dark"] .nature-soundscape-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .nature-soundscape-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.soundscape-meta {
+  display: flex !important;
+  flex-direction: column !important;
+  text-align: left !important;
+  line-height: 1.2 !important;
+}
+
+.soundscape-meta strong {
+  font-size: 0.76rem !important;
+}
+
+.soundscape-meta small {
+  font-size: 0.65rem !important;
+  opacity: 0.8 !important;
+}
+
+.nature-soundscape-menu {
+  position: absolute !important;
+  bottom: calc(100% + 10px) !important;
+  left: 0 !important;
+  width: 224px !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(32px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+  border: 1.5px solid rgba(226, 232, 240, 0.95) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 48px -8px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
+  padding: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  z-index: 50 !important;
+  animation: dialogZoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html[data-theme="dark"] .nature-soundscape-menu {
+  background: rgba(18, 26, 20, 0.94) !important;
+  backdrop-filter: blur(32px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7) !important;
+}
+
+.nature-soundscape-menu[hidden] {
+  display: none !important;
+}
+
+.nature-soundscape-opt {
+  display: flex !important;
+  align-items: center !important;
   gap: 10px !important;
+  padding: 9px 12px !important;
+  border-radius: 12px !important;
+  font-size: 0.8rem !important;
+  font-weight: 650 !important;
+  background: transparent !important;
+  border: none !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.nature-soundscape-opt:hover,
+.nature-soundscape-opt.active {
+  background: rgba(22, 163, 74, 0.12) !important;
+  color: #15803d !important;
+  transform: translateX(2px) !important;
+}
+
+html[data-theme="dark"] .nature-soundscape-opt {
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .nature-soundscape-opt:hover,
+html[data-theme="dark"] .nature-soundscape-opt.active {
+  background: rgba(134, 239, 172, 0.18) !important;
+  color: #86efac !important;
+  transform: translateX(2px) !important;
+}
+
+.nature-reflection-row {
+  display: flex !important;
+  justify-content: center !important;
+  margin-top: 4px !important;
+}
+
+.nature-reflection-pill-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 22px !important;
+  border-radius: 99px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(12px) !important;
+  transition: all 0.2s ease !important;
+}
+
+.nature-reflection-pill-btn:hover {
+  background: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+html[data-theme="dark"] .nature-reflection-pill-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .nature-reflection-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* ========================================================
+   TEMPLATE 5: "JOY COMES IN THE MORNING" SUNBURST (Image 5)
+   ======================================================== */
+.template-sunburst-view {
+  color: #2c221e !important;
+}
+
+html[data-theme="dark"] .template-sunburst-view {
+  color: #ffffff !important;
+}
+
+.sunburst-stage-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(6px, 1.3vh, 12px) !important;
+  max-width: 640px !important;
+  width: 100% !important;
+  margin: auto !important;
+}
+
+.sunburst-sun-crest-stage {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-end !important;
+  margin: clamp(4px, 1vh, 10px) 0 !important;
+}
+
+.sunburst-sun-semi {
+  width: clamp(140px, 20vh, 190px) !important;
+  height: clamp(70px, 10vh, 95px) !important;
+  background: linear-gradient(180deg, #fb923c 0%, #f97316 100%) !important;
+  border-top-left-radius: 999px !important;
+  border-top-right-radius: 999px !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  position: relative !important;
+  box-shadow: 0 -8px 24px rgba(249, 115, 22, 0.4) !important;
+}
+
+.sunburst-crest-play-btn {
+  width: clamp(52px, 7.5vh, 64px) !important;
+  height: clamp(52px, 7.5vh, 64px) !important;
+  border-radius: 999px !important;
+  border: none !important;
+  background: #ffffff !important;
+  color: #ea580c !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  transform: translateY(50%) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+  transition: transform 0.2s ease !important;
+}
+
+.sunburst-crest-play-btn:hover {
+  transform: translateY(50%) scale(1.06) !important;
+}
+
+.sunburst-scrubber-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: min(88%, 460px) !important;
+  margin-top: clamp(28px, 4.5vh, 38px) !important;
+}
+
+.sunburst-calligraphy-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px !important;
+  margin: clamp(4px, 0.8vh, 8px) 0 !important;
+}
+
+.sunburst-kicker-tags {
+  font-size: 0.7rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  color: #475569 !important;
+  opacity: 0.9 !important;
+}
+
+html[data-theme="dark"] .sunburst-kicker-tags {
+  color: #ffffff !important;
+  opacity: 0.75 !important;
+}
+
+.sunburst-calligraphy-text {
+  font-family: 'Brush Script MT', 'Dancing Script', 'Caveat', cursive, serif !important;
+  font-size: clamp(2.2rem, 4.8vh, 3.2rem) !important;
+  color: #c2410c !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+  transform: rotate(-3deg) !important;
+  margin: 0 !important;
+  line-height: 1.1 !important;
+}
+
+html[data-theme="dark"] .sunburst-calligraphy-text {
+  color: #fb923c !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.sunburst-sub-tag {
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: #475569 !important;
+  opacity: 0.9 !important;
+}
+
+html[data-theme="dark"] .sunburst-sub-tag {
+  color: #ffffff !important;
+  opacity: 0.75 !important;
+}
+
+.sunburst-bottom-controls-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: min(88%, 460px) !important;
+  margin-top: clamp(4px, 1vh, 10px) !important;
+}
+
+.volume-num-tag {
+  font-size: 0.74rem !important;
+  font-weight: 750 !important;
+  opacity: 0.8 !important;
+}
+
+.sunburst-praise-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 7px 18px !important;
+  border-radius: 999px !important;
+  background: #f97316 !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 0.8rem !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35) !important;
+  transition: all 0.2s ease !important;
+}
+
+.sunburst-praise-btn:hover {
+  background: #ea580c !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ========================================================
+   SHARED INTEGRATED PLAYER TIMELINE & CONTROLS
+   ======================================================== */
+.template-integrated-player {
+  width: min(90%, 540px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: clamp(8px, 1.4vh, 14px) !important;
+  margin-top: clamp(6px, 1.2vh, 14px) !important;
+}
+
+.integrated-timeline-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.timeline-time-label {
+  font-size: 0.74rem !important;
+  font-weight: 750 !important;
+  font-variant-numeric: tabular-nums !important;
+  opacity: 0.85 !important;
+  min-width: 32px !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .timeline-time-label {
+  color: #ffffff !important;
+}
+
+.integrated-timeline-track {
+  flex: 1 1 auto !important;
+  height: 5px !important;
+  background: rgba(15, 23, 42, 0.16) !important;
+  border-radius: 99px !important;
+  position: relative !important;
+  cursor: pointer !important;
+  overflow: hidden !important;
+}
+
+html[data-theme="dark"] .integrated-timeline-track {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
+html[data-theme="light"] .template-timer-view .integrated-timeline-track,
+html[data-theme="light"] .template-sunburst-view .integrated-timeline-track {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
+
+.integrated-timeline-fill {
+  height: 100% !important;
+  width: 0% !important;
+  background: #0f172a !important;
+  border-radius: 99px !important;
+  transition: width 0.15s linear !important;
+}
+
+html[data-theme="dark"] .integrated-timeline-fill {
+  background: #ffffff !important;
+}
+
+.sunburst-timeline-fill {
+  background: #f97316 !important;
+}
+
+.integrated-controls-trio-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+}
+
+.integrated-volume-block {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .integrated-volume-block {
+  color: #ffffff !important;
+}
+
+.integrated-volume-block i {
+  width: 16px !important;
+  height: 16px !important;
+  opacity: 0.8 !important;
+}
+
+.mini-volume-range {
+  width: clamp(60px, 8vw, 84px) !important;
+  height: 4px !important;
+  cursor: pointer !important;
+  accent-color: #0f172a !important;
+}
+
+html[data-theme="dark"] .mini-volume-range {
+  accent-color: #ffffff !important;
+}
+
+.integrated-circle-play-btn {
+  width: clamp(52px, 7.5vh, 62px) !important;
+  height: clamp(52px, 7.5vh, 62px) !important;
+  border-radius: 999px !important;
+  border: none !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  background: #2a8f89 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(42, 143, 137, 0.45) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.integrated-circle-play-btn:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+}
+
+.journey-primary-btn {
+  background: #b86b5c !important;
+  box-shadow: 0 6px 20px rgba(184, 107, 92, 0.45) !important;
+}
+
+.nature-primary-btn {
+  background: #2d5a3f !important;
+  box-shadow: 0 6px 20px rgba(45, 90, 63, 0.45) !important;
+}
+
+.journey-center-controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.journey-skip-btn {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 99px !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  position: relative !important;
+  transition: all 0.2s ease !important;
+}
+
+.journey-skip-btn:hover {
+  background: #ffffff !important;
+}
+
+html[data-theme="dark"] .journey-skip-btn {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .journey-skip-btn:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.journey-skip-btn .skip-num {
+  position: absolute !important;
+  font-size: 0.55rem !important;
+  font-weight: 850 !important;
+  bottom: 6px !important;
+}
+
+.integrated-pill-action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 7px 16px !important;
+  border-radius: 99px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.2s ease !important;
+}
+
+.integrated-pill-action-btn:hover {
+  background: #ffffff !important;
+}
+
+html[data-theme="dark"] .integrated-pill-action-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .integrated-pill-action-btn:hover {
+  background: rgba(255, 255, 255, 0.32) !important;
+}
+
+/* HIDDEN LEGACY COMPATIBILITY VAULT */
+#legacy-compatibility-vault,
+.legacy-compatibility-vault {
+  display: none !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+}
+
+
+/* 6. SCRIPTURE CAROUSEL & AUTO-PLAY CONTROLS */
+.room-scripture-carousel-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
   margin-top: 10px !important;
+}
+
+.scripture-carousel-nav-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 6px 14px !important;
+  border-radius: 99px !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  border: 1px solid var(--border-subtle) !important;
+  background: var(--surface-soft, rgba(255, 255, 255, 0.12)) !important;
+  color: inherit !important;
+  transition: all 0.2s ease !important;
+}
+
+.scripture-carousel-nav-btn:hover {
+  background: var(--room-primary, #4a5d3f) !important;
+  color: #ffffff !important;
+  border-color: var(--room-primary, #4a5d3f) !important;
+}
+
+.scripture-carousel-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.scripture-counter-pill {
+  font-size: 0.76rem !important;
+  font-weight: 800 !important;
+  padding: 3px 10px !important;
+  border-radius: 99px !important;
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="dark"] .scripture-counter-pill {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.scripture-autoplay-indicator {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  font-size: 0.72rem !important;
+  font-weight: 750 !important;
+  color: var(--room-primary, #4a5d3f) !important;
+}
+
+/* 7. BOTTOM PLAYER SCRUBBER & EXTRA CONTROLS */
+.bottom-player-scrubber {
+  flex: 1 1 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 10px !important;
+}
+
+.scrubber-time {
+  font-size: 0.72rem !important;
+  font-weight: 750 !important;
+  font-variant-numeric: tabular-nums !important;
+  opacity: 0.75 !important;
+}
+
+.scrubber-progress-track {
+  flex: 1 1 auto !important;
+  height: 4px !important;
+  background: rgba(148, 163, 184, 0.35) !important;
+  border-radius: 99px !important;
+  position: relative !important;
+  cursor: pointer !important;
+  overflow: hidden !important;
+}
+
+.scrubber-progress-fill {
+  height: 100% !important;
+  width: 0% !important;
+  background: var(--room-primary, #4a5d3f) !important;
+  border-radius: 99px !important;
+  transition: width 0.25s linear !important;
+}
+
+.bottom-player-controls {
+  position: relative !important;
+}
+
+.btn-skip-label {
+  position: absolute !important;
+  bottom: 2px !important;
+  font-size: 0.55rem !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+/* 8. AMBIENCE SELECTOR PILL & DROPDOWN */
+.bottom-ambience-selector {
+  position: relative !important;
+}
+
+.ambience-pill-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 14px !important;
+  border-radius: 99px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  border: 1px solid var(--border-subtle) !important;
+  background: transparent !important;
+  color: inherit !important;
+  transition: all 0.2s ease !important;
+}
+
+.ambience-dropdown-menu {
+  position: absolute !important;
+  bottom: calc(100% + 10px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 230px !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(32px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+  border: 1.5px solid rgba(226, 232, 240, 0.95) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 48px -8px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
+  padding: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  z-index: 100 !important;
+  animation: dialogZoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html[data-theme="dark"] .ambience-dropdown-menu {
+  background: rgba(15, 23, 42, 0.94) !important;
+  backdrop-filter: blur(32px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7) !important;
+}
+
+.ambience-dropdown-menu[hidden] {
+  display: none !important;
+}
+
+.ambience-option-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 9px 12px !important;
+  border-radius: 12px !important;
+  font-size: 0.82rem !important;
+  font-weight: 650 !important;
+  border: none !important;
+  background: transparent !important;
+  color: inherit !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.ambience-option-btn:hover,
+.ambience-option-btn.active {
+  background: hsla(var(--room-hue, 100), 80%, 55%, 0.15) !important;
+  color: var(--room-primary, #4a5d3f) !important;
+  transform: translateX(2px) !important;
+}
+
+/* 9. REFLECTION NOTE ACTION PILL */
+.reflection-pill-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 7px 18px !important;
+  border-radius: 99px !important;
+  font-size: 0.82rem !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  border: 1px solid var(--border-subtle) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html[data-theme="dark"] .reflection-pill-btn {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+}
+
+.reflection-pill-btn:hover {
+  background: var(--room-primary, #4a5d3f) !important;
+  color: #ffffff !important;
+  border-color: var(--room-primary, #4a5d3f) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 10. CREATE SANCTUARY ROOM TEMPLATE GRID */
+.template-selection-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+  gap: 10px !important;
+  margin-bottom: 14px !important;
+}
+
+.template-choice-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 10px 8px !important;
+  border-radius: 14px !important;
+  border: 1.5px solid var(--border-subtle) !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+}
+
+html[data-theme="dark"] .template-choice-card {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.template-choice-card input {
+  position: absolute !important;
+  opacity: 0 !important;
+}
+
+.template-choice-card:hover,
+.template-choice-card.active {
+  border-color: var(--primary) !important;
+  background: hsla(var(--primary-h), 80%, 55%, 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+.template-card-preview {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 99px !important;
+  border: 1px dashed var(--primary) !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 0.68rem !important;
+  font-weight: 750 !important;
+  margin-bottom: 6px !important;
+  color: var(--primary) !important;
+}
+
+.template-title {
+  font-size: 0.8rem !important;
+  font-weight: 750 !important;
+  margin-bottom: 2px !important;
+}
+
+.template-desc {
+  font-size: 0.68rem !important;
+  opacity: 0.75 !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+}
+
+/* COLOR PALETTE SWATCHES */
+.color-palette-swatches {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.swatch-btn {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 99px !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+  cursor: pointer !important;
+  transition: transform 0.2s ease !important;
+}
+
+.swatch-btn.active {
+  transform: scale(1.22) !important;
+  outline: 2px solid var(--primary) !important;
+}
+
+#new-room-custom-color {
+  width: 32px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--border-subtle) !important;
+  cursor: pointer !important;
+}
+
+/* MODE CHOICE PILLS */
+.mode-choice-pills {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.mode-pill {
+  flex: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  border: 1.5px solid var(--border-subtle) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.mode-pill input {
+  position: absolute !important;
+  opacity: 0 !important;
+}
+
+.mode-pill.active {
+  border-color: var(--primary) !important;
+  background: hsla(var(--primary-h), 80%, 55%, 0.12) !important;
+  color: var(--primary) !important;
 }
 
 /* Standard directory header: Churches, Meditation, Events, Store, Live,

@@ -4,19 +4,29 @@
     // 1. Favorite & Featured
     {
       id: "room-peace",
-      title: "Sanctuary of Peace & Stillness",
+      title: "Be Still & Abide in Peace",
       subtitle: "Calm your soul and release all anxiety into His hands.",
       category: "featured",
       categoryLabel: "⭐ Favorite Room",
       icon: "heart",
       cover: "https://images.unsplash.com/photo-1548625361-195fe578ae14?auto=format&fit=crop&w=800&q=80",
       theme: "chapel",
+      template: "timer", // Template 1: Be Still (Circular Countdown Timer)
+      purpose: "prayer",
+      timeMode: "timed",
+      durationMinutes: 20,
       toneFreq: 432,
+      themeColor: "#4a5d3f",
+      themeHue: 100,
+      mode: "light",
+      allowUserNavigation: true,
+      autoPlayInterval: 300,
       selectedAudio: "bible",
       ambience: { rain: 20, stream: 25, fire: 0, breeze: 10 },
       commentsEnabled: false,
       ownerName: "My Way",
       verses: [
+        { topic: "Be Still", text: "“The Lord is in His holy temple; let all the earth keep silence before Him.”", ref: "— Habakkuk 2:20" },
         { topic: "Perfect Peace", text: "“Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid.”", ref: "— John 14:27" },
         { topic: "Quiet Waters", text: "“The Lord is my shepherd, I lack nothing. He makes me lie down in green pastures, he leads me beside quiet waters, he refreshes my soul.”", ref: "— Psalm 23:1-3" },
         { topic: "Steadfast Mind", text: "“You will keep in perfect peace those whose minds are steadfast, because they trust in you.”", ref: "— Isaiah 26:3" }
@@ -31,19 +41,31 @@
     },
     {
       id: "room-healing",
-      title: "Health & Divine Healing Room",
-      subtitle: "Meditation and promises for physical and spiritual restoration.",
+      title: "Jesus, Give Me Peace",
+      subtitle: "Breath prayer and promises for physical and spiritual restoration.",
       category: "featured",
       categoryLabel: "⭐ Favorite Room",
       icon: "sparkles",
       cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
       theme: "stream",
+      template: "ripple", // Template 2: Breath Prayer (Concentric Ripples)
+      purpose: "prayer",
+      timeMode: "timed",
+      durationMinutes: 7,
+      inhaleWord: "Jesus",
+      exhaleWord: "Give Me Peace",
       toneFreq: 528,
+      themeColor: "#2a8f89",
+      themeHue: 175,
+      mode: "light",
+      allowUserNavigation: true,
+      autoPlayInterval: 180,
       selectedAudio: "instrumental",
       ambience: { rain: 0, stream: 40, fire: 0, breeze: 15 },
       commentsEnabled: false,
       ownerName: "My Way",
       verses: [
+        { topic: "Give Me Peace", text: "“Peace I leave with you; My peace I give you.”", ref: "— John 14:27" },
         { topic: "Restoration", text: "“For I will restore health to you, and your wounds I will heal, declares the Lord.”", ref: "— Jeremiah 30:17" },
         { topic: "By His Stripes", text: "“He was pierced for our transgressions, crushed for our iniquities; the punishment that brought us peace was on him, and by his wounds we are healed.”", ref: "— Isaiah 53:5" },
         { topic: "Whole-Body Health", text: "“He himself bore our sins in his body on the cross, so that we might die to sins and live for righteousness; by his wounds you have been healed.”", ref: "— 1 Peter 2:24" }
@@ -58,20 +80,36 @@
     },
     {
       id: "room-secret-place",
-      title: "The Secret Place Soaking Sanctuary",
-      subtitle: "Abiding in the shadow of the Almighty with deep prayer.",
+      title: "Teach Me to Pray (Guided Journey)",
+      subtitle: "Abiding in the shadow of the Almighty through step-by-step prayer.",
       category: "featured",
       categoryLabel: "⭐ Favorite Room",
       icon: "shield",
       cover: "https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=800&q=80",
       theme: "chapel",
+      template: "journey", // Template 3: Guided Prayer Journey (Milestones)
+      purpose: "prayer",
+      timeMode: "timed",
+      durationMinutes: 16,
+      journeySteps: [
+        { name: "Praise", prompt: "What attribute of God fills your heart with gratitude today?", verse: "“Enter his gates with thanksgiving and his courts with praise.”", ref: "— Psalm 100:4" },
+        { name: "Surrender", prompt: "What are you ready to place in God’s hands?", verse: "“Your will be done.”", ref: "— Matthew 6:10" },
+        { name: "Ask", prompt: "Speak your honest petitions and prayers before His throne of grace.", verse: "“Ask and it will be given to you; seek and you will find.”", ref: "— Matthew 7:7" },
+        { name: "Listen", prompt: "Be still in quiet rest and listen to what the Holy Spirit whispers.", verse: "“My sheep listen to my voice; I know them, and they follow me.”", ref: "— John 10:27" }
+      ],
       toneFreq: 396,
+      themeColor: "#b86b5c",
+      themeHue: 15,
+      mode: "light",
+      allowUserNavigation: true,
+      autoPlayInterval: 240,
       selectedAudio: "worship",
       ambience: { rain: 0, stream: 0, fire: 30, breeze: 10 },
       commentsEnabled: false,
       ownerName: "My Way",
       verses: [
         { topic: "The Secret Place", text: "“Whoever dwells in the shelter of the Most High will rest in the shadow of the Almighty. I will say of the Lord, ‘He is my refuge and my fortress, my God, in whom I trust.’”", ref: "— Psalm 91:1-2" },
+        { topic: "Surrender", text: "“Your will be done.”", ref: "— Matthew 6:10" },
         { topic: "Abiding in Christ", text: "“Remain in me, as I also remain in you. No branch can bear fruit by itself; it must remain in the vine. Neither can you bear fruit unless you remain in me.”", ref: "— John 15:4" }
       ],
       audioTracks: {
@@ -112,19 +150,29 @@
     // 2. Books of the Bible
     {
       id: "room-psalms",
-      title: "The Book of Psalms Room",
-      subtitle: "150 Sacred Songs of Solace, Deliverance, Praise & Refuge.",
+      title: "Walk With God (Psalms of Peace)",
+      subtitle: "150 Sacred Songs of Solace, Deliverance, Praise & Nature.",
       category: "bible-books",
       categoryLabel: "📖 Bible Book",
       icon: "book-open",
       cover: "https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=700&q=80",
       theme: "mountains",
+      template: "nature", // Template 4: Walk With God (Guided Nature & Audio Teaching)
+      purpose: "teaching",
+      timeMode: "teaching",
+      durationMinutes: 12,
       toneFreq: 432,
-      selectedAudio: "bible",
+      themeColor: "#5b7052",
+      themeHue: 110,
+      mode: "light",
+      allowUserNavigation: true,
+      autoPlayInterval: 300,
+      selectedAudio: "sermon",
       ambience: { rain: 0, stream: 30, fire: 0, breeze: 20 },
       commentsEnabled: false,
       ownerName: "My Way",
       verses: [
+        { topic: "Quiet Waters", text: "“He leads me beside quiet waters.”", ref: "— Psalm 23:2" },
         { topic: "The Lord is My Strength", text: "“The Lord is my light and my salvation—whom shall I fear? The Lord is the stronghold of my life—of whom shall I be afraid?”", ref: "— Psalm 27:1" },
         { topic: "Praise & Majesty", text: "“I will exalt you, my God the King; I will praise your name for ever and ever. Every day I will praise you and extol your name for ever and ever.”", ref: "— Psalm 145:1-2" }
       ],
@@ -296,19 +344,30 @@
     },
     {
       id: "room-victory",
-      title: "Spiritual Victory & Strength Room",
-      subtitle: "Putting on the full armor of God and standing firm in triumph.",
+      title: "Joy Comes in the Morning",
+      subtitle: "Radiant joy, morning light, and rejoicing in His everlasting strength.",
       category: "themes",
       categoryLabel: "🕊️ Biblical Theme",
-      icon: "zap",
+      icon: "sun",
       cover: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=700&q=80",
       theme: "mountains",
+      template: "sunburst", // Template 5: Joy & Praise (Sunburst Art)
+      purpose: "motivational",
+      timeMode: "timed",
+      durationMinutes: 9,
       toneFreq: 528,
+      themeColor: "#d97706",
+      themeHue: 38,
+      mode: "light",
+      allowUserNavigation: true,
+      autoPlayInterval: 180,
       selectedAudio: "worship",
       ambience: { rain: 0, stream: 0, fire: 0, breeze: 40 },
       commentsEnabled: false,
       ownerName: "My Way",
       verses: [
+        { topic: "Joy of the Lord", text: "“The joy of the Lord is your strength.”", ref: "— Nehemiah 8:10" },
+        { topic: "Joy in the Morning", text: "“Weeping may stay for the night, but rejoicing comes in the morning.”", ref: "— Psalm 30:5" },
         { topic: "Armor of God", text: "“Finally, be strong in the Lord and in his mighty power. Put on the full armor of God, so that you can take your stand against the devil’s schemes.”", ref: "— Ephesians 6:10-11" },
         { topic: "Spirit of Power", text: "“For the Spirit God gave us does not make us timid, but gives us power, love and self-discipline.”", ref: "— 2 Timothy 1:7" }
       ],
@@ -407,6 +466,50 @@
         freq: room.toneFreq || 432
       };
     }
+    if (!room.template) {
+      if (room.id === "room-peace") room.template = "timer";
+      else if (room.id === "room-healing") room.template = "ripple";
+      else if (room.id === "room-secret-place") room.template = "journey";
+      else if (room.id === "room-psalms") room.template = "nature";
+      else if (room.id === "room-victory") room.template = "sunburst";
+      else room.template = "timer";
+    }
+    if (!room.timeMode) {
+      room.timeMode = room.template === "nature" ? "teaching" : "timed";
+    }
+    if (!room.durationMinutes) {
+      room.durationMinutes = room.id === "room-healing" ? 7 : (room.id === "room-secret-place" ? 16 : (room.id === "room-psalms" ? 12 : (room.id === "room-victory" ? 9 : 20)));
+    }
+    if (typeof room.allowUserNavigation === "undefined") {
+      room.allowUserNavigation = true;
+    }
+    if (typeof room.autoPlayInterval === "undefined") {
+      room.autoPlayInterval = 300;
+    }
+    if (!room.mode) {
+      room.mode = "light";
+    }
+    if (!room.themeColor) {
+      const colorMap = {
+        "room-peace": "#4a5d3f",
+        "room-healing": "#2a8f89",
+        "room-secret-place": "#b86b5c",
+        "room-psalms": "#5b7052",
+        "room-victory": "#d97706"
+      };
+      room.themeColor = colorMap[room.id] || "#4a5d3f";
+      room.themeHue = ({"room-peace":100,"room-healing":175,"room-secret-place":15,"room-psalms":110,"room-victory":38})[room.id] || 100;
+    }
+    if (!room.journeySteps || !room.journeySteps.length) {
+      room.journeySteps = [
+        { name: "Praise", prompt: "What attribute of God fills your heart with gratitude today?", verse: "“Enter his gates with thanksgiving and his courts with praise.”", ref: "— Psalm 100:4" },
+        { name: "Surrender", prompt: "What are you ready to place in God’s hands?", verse: "“Your will be done.”", ref: "— Matthew 6:10" },
+        { name: "Ask", prompt: "Speak your honest petitions and prayers before His throne of grace.", verse: "“Ask and it will be given to you; seek and you will find.”", ref: "— Matthew 7:7" },
+        { name: "Listen", prompt: "Be still in quiet rest and listen to what the Holy Spirit whispers.", verse: "“My sheep listen to my voice; I know them, and they follow me.”", ref: "— John 10:27" }
+      ];
+    }
+    if (!room.inhaleWord) room.inhaleWord = "Jesus";
+    if (!room.exhaleWord) room.exhaleWord = "Give Me Peace";
     return room;
   }
 
@@ -443,6 +546,17 @@
   let roomChannel = null;
   let unreadChatCount = 0;
   const myUserId = "user_" + Math.random().toString(36).slice(2, 9);
+
+  // New Sanctuary Multi-Mode Timer & Template States
+  let sessionTotalSeconds = 20 * 60;
+  let sessionRemainingSeconds = 20 * 60;
+  let sessionElapsedSeconds = 0;
+  let timerTicker = null;
+  let intervalBellEnabled = true;
+  let lastBellMinute = -1;
+  let breathingInterval = null;
+  let scriptureAutoPlayTimer = null;
+  let currentJourneyStepIndex = 1;
 
   function initAudioEngine() {
     if (audioContext) return;
@@ -501,6 +615,45 @@
       try { osc2?.stop(); osc2?.disconnect(); } catch (e) {}
       osc1 = null; osc2 = null;
     }, 650);
+  }
+
+  function playIntervalBell(freq = 528) {
+    initAudioEngine();
+    if (!audioContext) return;
+    if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+
+    try {
+      const now = audioContext.currentTime;
+      const bellGain = audioContext.createGain();
+      bellGain.connect(audioContext.destination);
+
+      // Tibetan singing bowl harmonic frequencies
+      const oscPrimary = audioContext.createOscillator();
+      const oscOvertone = audioContext.createOscillator();
+
+      oscPrimary.type = "sine";
+      oscPrimary.frequency.setValueAtTime(freq, now);
+
+      oscOvertone.type = "sine";
+      oscOvertone.frequency.setValueAtTime(freq * 2.76, now);
+
+      const bellVol = (Number(document.getElementById("bottom-volume-slider")?.value || 85) / 100) * 0.28;
+
+      bellGain.gain.setValueAtTime(0.0001, now);
+      bellGain.gain.exponentialRampToValueAtTime(bellVol, now + 0.05);
+      bellGain.gain.exponentialRampToValueAtTime(0.00001, now + 3.2);
+
+      oscPrimary.connect(bellGain);
+      oscOvertone.connect(bellGain);
+
+      oscPrimary.start(now);
+      oscOvertone.start(now);
+
+      oscPrimary.stop(now + 3.3);
+      oscOvertone.stop(now + 3.3);
+    } catch (e) {
+      console.warn("Could not play interval bell", e);
+    }
   }
 
   function renderLobby() {
@@ -565,6 +718,377 @@
     }
   }
 
+  function applyRoomMode(mode = "light") {
+    document.documentElement.setAttribute("data-theme", mode);
+    const themeIcon = document.getElementById("theme-toggle-icon");
+    if (themeIcon) {
+      themeIcon.setAttribute("data-lucide", mode === "dark" ? "moon" : "sun");
+      window.lucide?.createIcons();
+    }
+  }
+
+  function formatTimeDigits(totalSec) {
+    if (totalSec === Infinity || isNaN(totalSec)) return "∞";
+    const m = Math.floor(Math.max(0, totalSec) / 60);
+    const s = Math.floor(Math.max(0, totalSec) % 60);
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  }
+
+  function initTimerController(room) {
+    stopTimerTicker();
+    const mode = room.timeMode || "timed";
+    const minutes = Number(room.durationMinutes) || 20;
+
+    if (mode === "loop") {
+      sessionTotalSeconds = Infinity;
+      sessionRemainingSeconds = 0;
+      sessionElapsedSeconds = 0;
+    } else {
+      sessionTotalSeconds = minutes * 60;
+      sessionRemainingSeconds = sessionTotalSeconds;
+      sessionElapsedSeconds = 0;
+    }
+    lastBellMinute = -1;
+
+    updateTimerDisplay();
+  }
+
+  function updateTimerDisplay() {
+    const isLoop = activeRoom?.timeMode === "loop";
+    const digitsEl = document.getElementById("timer-countdown-digits");
+    const labelEl = document.getElementById("timer-countdown-label");
+    const ring = document.getElementById("timer-progress-ring");
+    const currentTimeEl = document.getElementById("player-time-current");
+    const totalTimeEl = document.getElementById("player-time-total");
+    const fillBar = document.getElementById("player-scrubber-fill");
+
+    if (isLoop) {
+      if (digitsEl) digitsEl.textContent = formatTimeDigits(sessionElapsedSeconds);
+      if (labelEl) labelEl.textContent = "CONTINUOUS MEDITATION";
+      if (currentTimeEl) currentTimeEl.textContent = formatTimeDigits(sessionElapsedSeconds);
+      if (totalTimeEl) totalTimeEl.textContent = "∞ Loop";
+      if (ring) ring.style.strokeDashoffset = "0";
+      if (fillBar) fillBar.style.width = "100%";
+    } else {
+      if (digitsEl) digitsEl.textContent = formatTimeDigits(sessionRemainingSeconds);
+      if (labelEl) labelEl.textContent = "TIME REMAINING";
+      if (currentTimeEl) currentTimeEl.textContent = formatTimeDigits(sessionElapsedSeconds);
+      if (totalTimeEl) totalTimeEl.textContent = formatTimeDigits(sessionTotalSeconds);
+
+      const progress = sessionTotalSeconds > 0 ? (sessionRemainingSeconds / sessionTotalSeconds) : 0;
+      const circumference = 691.15; // 2 * PI * 110
+      const offset = circumference * (1 - progress);
+      if (ring) {
+        ring.style.strokeDasharray = `${circumference}`;
+        ring.style.strokeDashoffset = `${offset}`;
+      }
+
+      if (fillBar) {
+        const pct = sessionTotalSeconds > 0 ? (sessionElapsedSeconds / sessionTotalSeconds) * 100 : 0;
+        fillBar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+      }
+    }
+
+    const timeCurrentFormatted = formatTimeDigits(sessionElapsedSeconds);
+    const timeTotalFormatted = isLoop ? "∞ Loop" : formatTimeDigits(sessionTotalSeconds);
+    const clampedPct = isLoop ? 100 : (sessionTotalSeconds > 0 ? Math.min(100, Math.max(0, (sessionElapsedSeconds / sessionTotalSeconds) * 100)) : 0);
+
+    // Template 2 (Ripple)
+    const rippleCurrent = document.getElementById("ripple-time-current");
+    const rippleTotal = document.getElementById("ripple-time-total");
+    const rippleFill = document.getElementById("ripple-scrubber-fill");
+    if (rippleCurrent) rippleCurrent.textContent = timeCurrentFormatted;
+    if (rippleTotal) rippleTotal.textContent = timeTotalFormatted;
+    if (rippleFill) rippleFill.style.width = clampedPct + "%";
+
+    // Template 3 (Journey)
+    const journeyCurrent = document.getElementById("journey-time-current");
+    const journeyTotal = document.getElementById("journey-time-total");
+    const journeyFill = document.getElementById("journey-scrubber-fill");
+    if (journeyCurrent) journeyCurrent.textContent = timeCurrentFormatted;
+    if (journeyTotal) journeyTotal.textContent = timeTotalFormatted;
+    if (journeyFill) journeyFill.style.width = clampedPct + "%";
+
+    // Template 4 (Nature)
+    const natureCurrent = document.getElementById("nature-time-current");
+    const natureTotal = document.getElementById("nature-time-total");
+    const natureFill = document.getElementById("nature-scrubber-fill");
+    if (natureCurrent) natureCurrent.textContent = timeCurrentFormatted;
+    if (natureTotal) natureTotal.textContent = timeTotalFormatted;
+    if (natureFill) natureFill.style.width = clampedPct + "%";
+
+    // Template 5 (Sunburst)
+    const sunburstCurrent = document.getElementById("sunburst-time-current");
+    const sunburstTotal = document.getElementById("sunburst-time-total");
+    const sunburstFill = document.getElementById("sunburst-scrubber-fill");
+    if (sunburstCurrent) sunburstCurrent.textContent = timeCurrentFormatted;
+    if (sunburstTotal) sunburstTotal.textContent = timeTotalFormatted;
+    if (sunburstFill) sunburstFill.style.width = clampedPct + "%";
+
+    const primaryLabel = document.getElementById("timer-primary-label");
+    const primaryIcon = document.getElementById("timer-primary-icon");
+    if (primaryLabel) primaryLabel.textContent = isPlaying ? "Pause" : "Resume";
+    if (primaryIcon) primaryIcon.setAttribute("data-lucide", isPlaying ? "pause" : "play");
+    window.lucide?.createIcons();
+  }
+
+  function startTimerTicker() {
+    stopTimerTicker();
+    timerTicker = setInterval(() => {
+      if (!isPlaying || !activeRoom) return;
+
+      const isLoop = activeRoom.timeMode === "loop";
+      if (isLoop) {
+        sessionElapsedSeconds++;
+      } else {
+        sessionElapsedSeconds++;
+        sessionRemainingSeconds = Math.max(0, sessionRemainingSeconds - 1);
+
+        // Interval Bell Chime every 5 minutes if enabled
+        const elapsedMin = Math.floor(sessionElapsedSeconds / 60);
+        if (intervalBellEnabled && elapsedMin > 0 && elapsedMin % 5 === 0 && elapsedMin !== lastBellMinute) {
+          lastBellMinute = elapsedMin;
+          playIntervalBell(528);
+        }
+
+        // Session completed
+        if (sessionRemainingSeconds <= 0) {
+          stopTimerTicker();
+          isPlaying = false;
+          stopAudioHarmonics();
+          updatePlayState();
+          playIntervalBell(528);
+          showToast("Meditation session complete. Well done!");
+        }
+      }
+
+      updateTimerDisplay();
+    }, 1000);
+  }
+
+  function stopTimerTicker() {
+    if (timerTicker) {
+      clearInterval(timerTicker);
+      timerTicker = null;
+    }
+  }
+
+  function startBreathingGuide(inhaleWord = "Jesus", exhaleWord = "Give Me Peace") {
+    if (breathingInterval) {
+      clearInterval(breathingInterval);
+      breathingInterval = null;
+    }
+    let isInhale = true;
+    const cueEl = document.getElementById("ripple-cue-text");
+    const wordEl = document.getElementById("ripple-focus-word");
+    const orbGuide = document.getElementById("sacred-breath-guide");
+
+    function updateCycle() {
+      if (isInhale) {
+        if (cueEl) cueEl.textContent = "BREATHE IN:";
+        if (wordEl) wordEl.textContent = inhaleWord;
+        if (orbGuide) orbGuide.textContent = "Inhale " + inhaleWord + "...";
+      } else {
+        if (cueEl) cueEl.textContent = "EXHALE:";
+        if (wordEl) wordEl.textContent = exhaleWord;
+        if (orbGuide) orbGuide.textContent = "Exhale: " + exhaleWord;
+      }
+      isInhale = !isInhale;
+    }
+
+    updateCycle();
+    breathingInterval = setInterval(updateCycle, 4000);
+  }
+
+  function setJourneyStep(stepIndex) {
+    if (!activeRoom || !activeRoom.journeySteps || !activeRoom.journeySteps.length) return;
+    const steps = activeRoom.journeySteps;
+    currentJourneyStepIndex = Math.max(0, Math.min(steps.length - 1, stepIndex));
+    const currentStep = steps[currentJourneyStepIndex];
+
+    const nodes = document.querySelectorAll(".journey-node");
+    nodes.forEach((node, idx) => {
+      node.classList.toggle("completed", idx < currentJourneyStepIndex);
+      node.classList.toggle("active", idx === currentJourneyStepIndex);
+      const circle = node.querySelector(".node-circle");
+      if (circle) {
+        if (idx < currentJourneyStepIndex) {
+          circle.innerHTML = '<i data-lucide="check"></i>';
+        } else if (idx === currentJourneyStepIndex) {
+          circle.innerHTML = '<span class="node-pulse"></span>';
+        } else {
+          circle.innerHTML = '';
+        }
+      }
+    });
+
+    const trackFill = document.getElementById("journey-track-fill");
+    if (trackFill) {
+      const pct = steps.length > 1 ? (currentJourneyStepIndex / (steps.length - 1)) * 100 : 0;
+      trackFill.style.width = pct + "%";
+    }
+
+    const promptEl = document.getElementById("journey-question-prompt");
+    const quoteEl = document.getElementById("journey-quote-text");
+    const refEl = document.getElementById("journey-quote-ref");
+
+    if (promptEl && currentStep) promptEl.textContent = currentStep.prompt;
+    if (quoteEl && currentStep) quoteEl.textContent = currentStep.verse;
+    if (refEl && currentStep) refEl.textContent = currentStep.ref;
+
+    window.lucide?.createIcons();
+  }
+
+  function applyRoomTemplate(room) {
+    const template = room.template || "timer";
+    const stageViews = {
+      timer: document.getElementById("stage-template-timer"),
+      ripple: document.getElementById("stage-template-ripple"),
+      journey: document.getElementById("stage-template-journey"),
+      nature: document.getElementById("stage-template-nature"),
+      sunburst: document.getElementById("stage-template-sunburst")
+    };
+
+    Object.entries(stageViews).forEach(([key, el]) => {
+      if (!el) return;
+      if (key === template) {
+        el.hidden = false;
+        el.style.display = "flex";
+      } else {
+        el.hidden = true;
+        el.style.display = "none";
+      }
+    });
+
+    const purposeLabel = ({
+      prayer: "Contemplative Prayer",
+      scriptural: "Scriptural Contemplation",
+      motivational: "Motivational & Encouraging",
+      teaching: "Audio Teaching & Sermon",
+      worship: "Christian Worship",
+      nature: "Nature Reflection"
+    })[room.purpose] || "Sanctuary";
+
+    const durationLabel = room.timeMode === "loop" ? "Endless Loop" : (room.durationMinutes ? `${room.durationMinutes} min` : "20 min");
+
+    if (template === "timer") {
+      const titleEl = document.getElementById("timer-title-display");
+      const subEl = document.getElementById("timer-subtitle-display");
+      if (titleEl) titleEl.textContent = room.title;
+      if (subEl) subEl.textContent = `${purposeLabel} • ${durationLabel}`;
+    } else if (template === "ripple") {
+      const titleEl = document.getElementById("ripple-title-display");
+      const subEl = document.getElementById("ripple-subtitle-display");
+      if (titleEl) titleEl.textContent = room.title;
+      if (subEl) subEl.textContent = `Breath Prayer • ${durationLabel}`;
+      startBreathingGuide(room.inhaleWord || "Jesus", room.exhaleWord || "Give Me Peace");
+    } else if (template === "journey") {
+      const titleEl = document.getElementById("journey-title-display");
+      const subEl = document.getElementById("journey-subtitle-display");
+      if (titleEl) titleEl.textContent = room.title;
+      if (subEl) subEl.textContent = `Guided Prayer Journey • ${durationLabel}`;
+      setJourneyStep(currentJourneyStepIndex);
+    } else if (template === "nature") {
+      const titleEl = document.getElementById("nature-title-display");
+      const subEl = document.getElementById("nature-subtitle-display");
+      if (titleEl) titleEl.textContent = room.title;
+      if (subEl) subEl.textContent = `Guided Nature Meditation • ${durationLabel}`;
+    } else if (template === "sunburst") {
+      const titleEl = document.getElementById("sunburst-title-display");
+      const subEl = document.getElementById("sunburst-subtitle-display");
+      if (titleEl) titleEl.textContent = room.title;
+      if (subEl) subEl.textContent = `Joy Meditation • ${durationLabel}`;
+    }
+
+    const backdrop = document.getElementById("meditation-backdrop");
+    if (backdrop) {
+      backdrop.className = "meditation-backdrop bg-template-" + template;
+    }
+
+    const firstVerse = room.verses?.[0] || { text: "The Lord is in His holy temple; let all the earth keep silence before Him.", ref: "— HABAKKUK 2:20" };
+    const timerQuote = document.getElementById("timer-quote-text");
+    const timerRef = document.getElementById("timer-quote-ref");
+    if (timerQuote) timerQuote.textContent = firstVerse.text;
+    if (timerRef) timerRef.textContent = firstVerse.ref;
+
+    const rippleQuote = document.getElementById("ripple-quote-text");
+    const rippleRef = document.getElementById("ripple-quote-ref");
+    if (rippleQuote) rippleQuote.textContent = firstVerse.text;
+    if (rippleRef) rippleRef.textContent = firstVerse.ref;
+
+    const natureQuote = document.getElementById("nature-quote-text");
+    const natureRef = document.getElementById("nature-quote-ref");
+    if (natureQuote) natureQuote.textContent = firstVerse.text;
+    if (natureRef) natureRef.textContent = firstVerse.ref;
+
+    const sunburstQuote = document.getElementById("sunburst-quote-text");
+    const sunburstRef = document.getElementById("sunburst-quote-ref");
+    if (sunburstQuote) sunburstQuote.textContent = firstVerse.text;
+    if (sunburstRef) sunburstRef.textContent = firstVerse.ref;
+
+    const reflectionBtnText = document.getElementById("reflection-btn-text");
+    if (reflectionBtnText) {
+      reflectionBtnText.textContent = template === "sunburst" ? "Record a Praise / Reflection" : "Write a Reflection Note";
+    }
+  }
+
+  function initScriptureCarousel(room) {
+    if (scriptureAutoPlayTimer) {
+      clearInterval(scriptureAutoPlayTimer);
+      scriptureAutoPlayTimer = null;
+    }
+
+    updateScriptureCarouselNav();
+
+    const intervalSec = Number(room.autoPlayInterval) || 0;
+    const autoBadge = document.getElementById("scripture-autoplay-indicator");
+    const autoText = document.getElementById("scripture-autoplay-text");
+
+    if (intervalSec > 0 && room.verses && room.verses.length > 1) {
+      if (autoBadge) autoBadge.hidden = false;
+      if (autoText) autoText.textContent = intervalSec >= 60 ? `Auto (${intervalSec / 60}m)` : `Auto (${intervalSec}s)`;
+      
+      scriptureAutoPlayTimer = setInterval(() => {
+        if (isPlaying && activeRoom && activeRoom.verses && activeRoom.verses.length > 1) {
+          nextVerse();
+        }
+      }, intervalSec * 1000);
+    } else {
+      if (autoBadge) autoBadge.hidden = true;
+    }
+  }
+
+  function updateScriptureCarouselNav() {
+    if (!activeRoom) return;
+    const total = activeRoom.verses?.length || 1;
+    const counterEl = document.getElementById("scripture-counter-pill");
+    if (counterEl) {
+      counterEl.textContent = `${activeVerseIndex + 1} / ${total}`;
+    }
+
+    const canNav = activeRoom.allowUserNavigation !== false || isCurrentHost();
+    const prevBtn = document.getElementById("scripture-prev-btn");
+    const nextBtn = document.getElementById("room-next-verse-btn");
+
+    if (prevBtn) {
+      prevBtn.disabled = !canNav;
+      prevBtn.style.opacity = canNav ? "1" : "0.5";
+      prevBtn.style.pointerEvents = canNav ? "auto" : "none";
+    }
+    if (nextBtn) {
+      nextBtn.disabled = !canNav;
+      nextBtn.style.opacity = canNav ? "1" : "0.5";
+      nextBtn.style.pointerEvents = canNav ? "auto" : "none";
+    }
+  }
+
+  function prevScripture() {
+    if (!activeRoom) return;
+    const len = activeRoom.verses?.length || 1;
+    activeVerseIndex = (activeVerseIndex - 1 + len) % len;
+    renderActiveMediaContent();
+  }
+
   function isCurrentHost() {
     if (!activeRoom) return false;
     const localOwner = localStorage.getItem("mwe.meditation.owner." + activeRoom.id);
@@ -615,6 +1139,12 @@
     // Update Room Badge & Creator Attribution
     const titleEl = document.getElementById("room-badge-title");
     if (titleEl) titleEl.textContent = room.title;
+
+    const ownerEl = document.getElementById("room-badge-owner");
+    if (ownerEl) {
+      const owner = room.ownerName || room.creator || "My Way";
+      ownerEl.textContent = "By " + owner;
+    }
     
     const iconEl = document.getElementById("room-badge-icon");
     if (iconEl) iconEl.innerHTML = '<i data-lucide="' + (room.icon || "sparkles") + '"></i>';
@@ -634,6 +1164,15 @@
     setAtmosphereTheme(room.theme || "chapel");
     const themeInfo = ({"room-peace":{"color":"#3b82f6","hue":220},"room-healing":{"color":"#10b981","hue":160},"room-secret-place":{"color":"#8b5cf6","hue":265},"room-bedtime":{"color":"#6366f1","hue":240},"room-psalms":{"color":"#f59e0b","hue":38},"room-proverbs":{"color":"#d97706","hue":32},"room-gospels":{"color":"#ec4899","hue":330},"room-epistles":{"color":"#06b6d4","hue":190},"room-faith":{"color":"#0ea5e9","hue":200},"room-love":{"color":"#f43f5e","hue":350},"room-salvation":{"color":"#14b8a6","hue":175},"room-victory":{"color":"#f97316","hue":25}})[room.id] || { color: "#3b82f6", hue: 220 };
     applyThemeColors(themeInfo.color, themeInfo.hue);
+
+    if (room.themeColor) {
+      applyThemeColors(room.themeColor, (typeof room.themeHue !== "undefined") ? room.themeHue : themeInfo.hue);
+    }
+    const platformMode = document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || localStorage.getItem("mwe.theme") || (room.mode || "light");
+    applyRoomMode(platformMode);
+    applyRoomTemplate(room);
+    initTimerController(room);
+    initScriptureCarousel(room);
 
     // Update Atmosphere Badge in Top Navigation
     const atmoMap = {
@@ -668,6 +1207,7 @@
     if (autoStartAudio) {
       isPlaying = true;
       startAudioHarmonics(room.toneFreq || 432);
+      startTimerTicker();
       const unlockAudio = () => {
         if (audioContext && audioContext.state === "suspended") {
           audioContext.resume().then(() => {
@@ -682,6 +1222,7 @@
     } else {
       isPlaying = false;
       stopAudioHarmonics();
+      stopTimerTicker();
     }
     updatePlayState();
 
@@ -706,6 +1247,9 @@
   function exitToLobby() {
     isPlaying = false;
     stopAudioHarmonics();
+    stopTimerTicker();
+    if (breathingInterval) { clearInterval(breathingInterval); breathingInterval = null; }
+    if (scriptureAutoPlayTimer) { clearInterval(scriptureAutoPlayTimer); scriptureAutoPlayTimer = null; }
 
     if (isFullscreen) toggleFullscreen(false);
     if (roomChannel) {
@@ -741,13 +1285,36 @@
 
   function renderRoomScripture() {
     if (!activeRoom || !activeRoom.verses || !activeRoom.verses.length) return;
-    const v = activeRoom.verses[activeVerseIndex];
+    const v = activeRoom.verses[activeVerseIndex % activeRoom.verses.length];
     const topicEl = document.getElementById("room-scripture-topic");
     const textEl = document.getElementById("room-scripture-text");
     const refEl = document.getElementById("room-scripture-ref");
-    if (topicEl) topicEl.textContent = v.topic;
+    if (topicEl) topicEl.textContent = v.topic || "SACRED SCRIPTURE";
     if (textEl) textEl.textContent = v.text;
     if (refEl) refEl.textContent = v.ref;
+
+    // Sync active template quotes
+    const timerQuote = document.getElementById("timer-quote-text");
+    const timerRef = document.getElementById("timer-quote-ref");
+    if (timerQuote) timerQuote.textContent = v.text;
+    if (timerRef) timerRef.textContent = v.ref;
+
+    const rippleQuote = document.getElementById("ripple-quote-text");
+    const rippleRef = document.getElementById("ripple-quote-ref");
+    if (rippleQuote) rippleQuote.textContent = v.text;
+    if (rippleRef) rippleRef.textContent = v.ref;
+
+    const natureQuote = document.getElementById("nature-quote-text");
+    const natureRef = document.getElementById("nature-quote-ref");
+    if (natureQuote) natureQuote.textContent = v.text;
+    if (natureRef) natureRef.textContent = v.ref;
+
+    const sunburstQuote = document.getElementById("sunburst-quote-text");
+    const sunburstRef = document.getElementById("sunburst-quote-ref");
+    if (sunburstQuote) sunburstQuote.textContent = v.text;
+    if (sunburstRef) sunburstRef.textContent = v.ref;
+
+    updateScriptureCarouselNav();
   }
 
   function renderActiveMediaContent() {
@@ -895,10 +1462,13 @@
       if (activeAudioType === "silence") activeAudioType = activeRoom?.selectedAudio || "bible";
       selectInRoomAudio(activeAudioType);
       startAudioHarmonics(activeRoom?.toneFreq || 432);
+      startTimerTicker();
     } else {
       stopAudioHarmonics();
+      stopTimerTicker();
     }
     updatePlayState();
+    updateTimerDisplay();
   }
 
   function updatePlayState() {
@@ -906,6 +1476,12 @@
     const indicator = document.getElementById("audio-pulse-indicator");
     if (playIcon) playIcon.setAttribute("data-lucide", isPlaying ? "pause" : "play");
     if (indicator) indicator.classList.toggle("active", isPlaying);
+
+    const primaryLabel = document.getElementById("timer-primary-label");
+    const primaryIcon = document.getElementById("timer-primary-icon");
+    if (primaryLabel) primaryLabel.textContent = isPlaying ? "Pause" : "Resume";
+    if (primaryIcon) primaryIcon.setAttribute("data-lucide", isPlaying ? "pause" : "play");
+
     window.lucide?.createIcons();
   }
 
@@ -1242,6 +1818,326 @@
     setTimeout(() => toast.classList.remove("visible"), 3200);
   }
 
+  function setupAmbienceDropdown() {
+    const btn = document.getElementById("btn-ambience-dropdown");
+    const menu = document.getElementById("ambience-dropdown-menu");
+    if (!btn || !menu) return;
+
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const isHidden = menu.hidden;
+      menu.hidden = !isHidden;
+      btn.setAttribute("aria-expanded", String(isHidden));
+    });
+
+    menu.addEventListener("click", e => {
+      const opt = e.target.closest(".ambience-option-btn");
+      if (!opt) return;
+      const type = opt.dataset.ambience;
+      menu.querySelectorAll(".ambience-option-btn").forEach(b => b.classList.toggle("active", b === opt));
+      menu.hidden = true;
+      btn.setAttribute("aria-expanded", "false");
+
+      const labelPreview = document.getElementById("ambience-label-preview");
+      const iconPreview = document.getElementById("ambience-icon-preview");
+      const iconMap = {
+        forest: "trees",
+        stream: "waves",
+        rain: "cloud-rain",
+        fire: "flame",
+        breeze: "wind"
+      };
+      if (labelPreview) labelPreview.textContent = opt.textContent.trim();
+      if (iconPreview) iconPreview.setAttribute("data-lucide", iconMap[type] || "trees");
+
+      if (activeRoom) {
+        if (!activeRoom.ambience) activeRoom.ambience = { rain: 0, stream: 0, fire: 0, breeze: 0 };
+        if (type === "rain") { activeRoom.ambience.rain = 40; activeRoom.ambience.stream = 0; }
+        else if (type === "stream") { activeRoom.ambience.stream = 40; activeRoom.ambience.rain = 0; }
+        else if (type === "fire") { activeRoom.ambience.fire = 35; activeRoom.ambience.stream = 0; }
+        else if (type === "breeze") { activeRoom.ambience.breeze = 35; activeRoom.ambience.rain = 0; }
+        else { activeRoom.ambience.breeze = 20; activeRoom.ambience.stream = 20; }
+      }
+
+      showToast("Ambience soundscape set to " + opt.textContent.trim());
+      window.lucide?.createIcons();
+    });
+
+    document.addEventListener("click", () => {
+      if (!menu.hidden) {
+        menu.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+  function setupReflectionModal() {
+    const modal = document.getElementById("modal-reflection-note");
+    const openBtn = document.getElementById("btn-open-reflection");
+    const closeBtn = document.getElementById("btn-close-reflection");
+    const saveBtn = document.getElementById("btn-save-reflection");
+    const copyBtn = document.getElementById("btn-copy-reflection");
+    const noteText = document.getElementById("reflection-note-text");
+    const listEl = document.getElementById("reflection-entries-list");
+    const modalTitle = document.getElementById("reflection-modal-title");
+
+    function renderReflectionList() {
+      if (!activeRoom || !listEl) return;
+      const key = "mwe.meditation.reflections." + activeRoom.id;
+      let notes = [];
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) notes = JSON.parse(raw);
+      } catch (e) {}
+
+      if (!notes.length) {
+        listEl.innerHTML = '<p class="empty-hint">No reflection notes written yet for this sanctuary session.</p>';
+        return;
+      }
+
+      listEl.innerHTML = notes.map(n => 
+        '<div class="reflection-entry-card">' +
+          '<div class="reflection-card-meta">' +
+            '<span class="reflection-meta-date">' + escape(n.date || "Today") + '</span>' +
+            '<span class="reflection-meta-badge">' + escape(n.template || "Sanctuary") + '</span>' +
+          '</div>' +
+          '<p class="reflection-card-body serif-font">' + escape(n.text) + '</p>' +
+        '</div>'
+      ).join("");
+    }
+
+    const openBtns = [
+      document.getElementById("btn-open-reflection"),
+      document.getElementById("btn-ripple-reflection"),
+      document.getElementById("btn-journey-reflection"),
+      document.getElementById("btn-nature-reflection"),
+      document.getElementById("btn-sunburst-reflection")
+    ];
+
+    openBtns.forEach(btn => {
+      if (!btn) return;
+      btn.addEventListener("click", () => {
+        if (!activeRoom) return;
+        const isJoy = activeRoom.template === "sunburst";
+        if (modalTitle) modalTitle.textContent = isJoy ? "Record a Praise / Reflection" : "Write a Reflection Note";
+        if (noteText) noteText.placeholder = isJoy ? "What praise or grateful prayer fills your heart?" : "What scripture, prayer, or revelation is speaking to you right now?";
+        renderReflectionList();
+        modal?.showModal?.();
+        window.lucide?.createIcons();
+      });
+    });
+
+    if (closeBtn) closeBtn.addEventListener("click", () => modal?.close?.());
+
+    if (saveBtn) {
+      saveBtn.addEventListener("click", () => {
+        if (!activeRoom || !noteText || !noteText.value.trim()) return;
+        const key = "mwe.meditation.reflections." + activeRoom.id;
+        let notes = [];
+        try {
+          const raw = localStorage.getItem(key);
+          if (raw) notes = JSON.parse(raw);
+        } catch (e) {}
+
+        notes.unshift({
+          text: noteText.value.trim(),
+          date: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + ", " + new Date().toLocaleDateString(),
+          template: activeRoom.template || "timer"
+        });
+
+        localStorage.setItem(key, JSON.stringify(notes));
+        noteText.value = "";
+        renderReflectionList();
+        showToast("Reflection note saved to your sanctuary log!");
+      });
+    }
+
+    if (copyBtn) {
+      copyBtn.addEventListener("click", () => {
+        if (!noteText || !noteText.value.trim()) {
+          showToast("Please write a note to copy.");
+          return;
+        }
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(noteText.value).then(() => {
+            showToast("Reflection copied to clipboard!");
+          }).catch(() => {});
+        }
+      });
+    }
+  }
+
+  function setupScrubberControls() {
+    const replay15 = document.getElementById("bottom-replay-15-btn");
+    const forward15 = document.getElementById("bottom-forward-15-btn");
+    const journeyReplay15 = document.getElementById("btn-journey-replay-15");
+    const journeyForward15 = document.getElementById("btn-journey-forward-15");
+
+    function skipTime(delta) {
+      if (!activeRoom) return;
+      if (activeRoom.timeMode === "loop") {
+        sessionElapsedSeconds = Math.max(0, sessionElapsedSeconds + delta);
+      } else {
+        sessionElapsedSeconds = Math.max(0, Math.min(sessionTotalSeconds, sessionElapsedSeconds + delta));
+        sessionRemainingSeconds = Math.max(0, sessionTotalSeconds - sessionElapsedSeconds);
+      }
+      updateTimerDisplay();
+    }
+
+    if (replay15) replay15.addEventListener("click", () => skipTime(-15));
+    if (forward15) forward15.addEventListener("click", () => skipTime(15));
+    if (journeyReplay15) journeyReplay15.addEventListener("click", () => skipTime(-15));
+    if (journeyForward15) journeyForward15.addEventListener("click", () => skipTime(15));
+
+    // Scrubbers across all templates
+    const allScrubbers = [
+      document.getElementById("player-scrubber-track"),
+      document.getElementById("ripple-scrubber-track"),
+      document.getElementById("journey-scrubber-track"),
+      document.getElementById("nature-scrubber-track"),
+      document.getElementById("sunburst-scrubber-track")
+    ];
+
+    allScrubbers.forEach(track => {
+      if (!track) return;
+      track.addEventListener("click", e => {
+        if (!activeRoom || activeRoom.timeMode === "loop" || !sessionTotalSeconds) return;
+        const rect = track.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const fraction = Math.max(0, Math.min(1, clickX / rect.width));
+        sessionElapsedSeconds = Math.floor(fraction * sessionTotalSeconds);
+        sessionRemainingSeconds = Math.max(0, sessionTotalSeconds - sessionElapsedSeconds);
+        updateTimerDisplay();
+      });
+    });
+
+    // Volume Sliders across all templates
+    const allVolumeSliders = [
+      document.getElementById("bottom-volume-slider"),
+      document.getElementById("ripple-volume-slider"),
+      document.getElementById("journey-volume-slider"),
+      document.getElementById("nature-volume-slider"),
+      document.getElementById("sunburst-volume-slider")
+    ];
+
+    allVolumeSliders.forEach(slider => {
+      if (!slider) return;
+      slider.addEventListener("input", e => {
+        const val = Number(e.target.value);
+        allVolumeSliders.forEach(s => { if (s && s !== e.target) s.value = val; });
+        const sunburstNum = document.getElementById("sunburst-vol-num");
+        if (sunburstNum) sunburstNum.textContent = val + "%";
+
+        if (synthGain && audioContext) {
+          const gainVal = (val / 100) * 0.12;
+          synthGain.gain.setValueAtTime(gainVal, audioContext.currentTime);
+        }
+      });
+    });
+
+    // Play Buttons across all templates
+    const allPlayButtons = [
+      document.getElementById("bottom-play-btn"),
+      document.getElementById("btn-timer-primary-toggle"),
+      document.getElementById("btn-ripple-play"),
+      document.getElementById("btn-journey-play"),
+      document.getElementById("btn-nature-play"),
+      document.getElementById("btn-sunburst-play")
+    ];
+
+    allPlayButtons.forEach(btn => {
+      if (!btn) return;
+      btn.addEventListener("click", () => togglePlay());
+    });
+
+    // Template 1 Interval Bell & End Session
+    const intervalBellBtn = document.getElementById("btn-interval-bell");
+    if (intervalBellBtn) {
+      intervalBellBtn.addEventListener("click", () => {
+        intervalBellEnabled = !intervalBellEnabled;
+        const icon = document.getElementById("bell-icon");
+        const caption = document.getElementById("bell-text");
+        if (intervalBellEnabled) {
+          if (icon) icon.setAttribute("data-lucide", "bell");
+          if (caption) caption.textContent = "Interval Bell";
+          playIntervalBell(528);
+          showToast("Interval chime enabled (every 5 minutes)");
+        } else {
+          if (icon) icon.setAttribute("data-lucide", "bell-off");
+          if (caption) caption.textContent = "Chime Off";
+          showToast("Interval chime disabled");
+        }
+        window.lucide?.createIcons();
+      });
+    }
+
+    const endSessionBtn = document.getElementById("btn-timer-end-session");
+    if (endSessionBtn) {
+      endSessionBtn.addEventListener("click", () => {
+        stopTimerTicker();
+        stopAudioHarmonics();
+        isPlaying = false;
+        updatePlayState();
+        exitToLobby();
+      });
+    }
+
+    // Template 4 Nature Soundscape Dropdown
+    const natureAmbBtn = document.getElementById("btn-nature-ambience");
+    const natureAmbMenu = document.getElementById("nature-soundscape-menu");
+    if (natureAmbBtn && natureAmbMenu) {
+      natureAmbBtn.addEventListener("click", e => {
+        e.stopPropagation();
+        natureAmbMenu.hidden = !natureAmbMenu.hidden;
+        natureAmbBtn.setAttribute("aria-expanded", String(!natureAmbMenu.hidden));
+      });
+
+      natureAmbMenu.addEventListener("click", e => {
+        const opt = e.target.closest(".nature-soundscape-opt");
+        if (!opt) return;
+        natureAmbMenu.querySelectorAll(".nature-soundscape-opt").forEach(b => b.classList.toggle("active", b === opt));
+        natureAmbMenu.hidden = true;
+        natureAmbBtn.setAttribute("aria-expanded", "false");
+
+        const nameEl = document.getElementById("nature-amb-name");
+        const subEl = document.getElementById("nature-amb-sub");
+        const ambType = opt.dataset.ambience;
+        const optLabels = {
+          forest: { name: "Forest Sounds ▾", sub: "Footsteps in Nature" },
+          stream: { name: "Quiet Waters ▾", sub: "Living Stream Reflection" },
+          rain: { name: "Soft Rain ▾", sub: "Gentle Refreshing Rain" },
+          breeze: { name: "Gentle Breeze ▾", sub: "Mountain Wind & Leaves" }
+        };
+        const chosen = optLabels[ambType] || { name: opt.textContent.trim() + " ▾", sub: "Nature Soundscape" };
+        if (nameEl) nameEl.textContent = chosen.name;
+        if (subEl) subEl.textContent = chosen.sub;
+
+        if (activeRoom) {
+          if (!activeRoom.ambience) activeRoom.ambience = { rain: 0, stream: 0, fire: 0, breeze: 0 };
+          if (ambType === "rain") { activeRoom.ambience.rain = 40; activeRoom.ambience.stream = 0; }
+          else if (ambType === "stream") { activeRoom.ambience.stream = 40; activeRoom.ambience.rain = 0; }
+          else if (ambType === "breeze") { activeRoom.ambience.breeze = 35; activeRoom.ambience.stream = 0; }
+          else { activeRoom.ambience.breeze = 20; activeRoom.ambience.stream = 20; }
+        }
+        showToast("Nature soundscape: " + chosen.name.replace(" ▾", ""));
+      });
+
+      document.addEventListener("click", () => {
+        if (!natureAmbMenu.hidden) {
+          natureAmbMenu.hidden = true;
+          natureAmbBtn.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+
+    // Journey Step Nodes Interactive Selection
+    document.querySelectorAll(".journey-node").forEach((node, idx) => {
+      node.addEventListener("click", () => {
+        setJourneyStep(idx);
+      });
+    });
+  }
+
   // --- INITIALIZATION ---
   document.addEventListener("DOMContentLoaded", () => {
     renderLobby();
@@ -1315,8 +2211,64 @@
 
     // Core In-Room Controls
     document.getElementById("room-next-verse-btn")?.addEventListener("click", nextVerse);
+    document.getElementById("scripture-prev-btn")?.addEventListener("click", prevScripture);
     document.getElementById("room-fullscreen-btn")?.addEventListener("click", () => toggleFullscreen());
     document.getElementById("bottom-play-btn")?.addEventListener("click", togglePlay);
+
+    // Theme Mode Toggle (Bright / Light vs. Dark Sanctuary)
+    document.getElementById("room-theme-toggle-btn")?.addEventListener("click", () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      if (activeRoom) activeRoom.mode = nextTheme;
+      applyRoomMode(nextTheme);
+      showToast("Switched to " + (nextTheme === "dark" ? "Dark Sanctuary" : "Bright / Light") + " mode");
+    });
+
+    // Template In-Room Actions
+    const bellBtn = document.getElementById("btn-interval-bell");
+    if (bellBtn) {
+      bellBtn.addEventListener("click", () => {
+        intervalBellEnabled = !intervalBellEnabled;
+        const bellText = document.getElementById("bell-text");
+        if (bellText) bellText.textContent = intervalBellEnabled ? "Interval Bell" : "Bell Muted";
+        bellBtn.classList.toggle("is-active", intervalBellEnabled);
+        if (intervalBellEnabled) {
+          playIntervalBell(528);
+          showToast("Interval bell chime active (every 5 min)");
+        } else {
+          showToast("Interval bell chime muted");
+        }
+      });
+    }
+
+    document.getElementById("btn-timer-primary-toggle")?.addEventListener("click", () => {
+      if (sessionRemainingSeconds <= 0 && activeRoom?.timeMode !== "loop") {
+        initTimerController(activeRoom);
+      }
+      togglePlay();
+    });
+
+    document.getElementById("btn-timer-end-session")?.addEventListener("click", () => {
+      playIntervalBell(432);
+      exitToLobby();
+      showToast("Sanctuary session ended.");
+    });
+
+    // Journey Step Node Clicks
+    document.addEventListener("click", e => {
+      const node = e.target.closest(".journey-node");
+      if (node && activeRoom?.template === "journey") {
+        const step = Number(node.dataset.step);
+        if (!isNaN(step)) {
+          setJourneyStep(step);
+        }
+      }
+    });
+
+    // Interactive Modules Setup
+    setupAmbienceDropdown();
+    setupReflectionModal();
+    setupScrubberControls();
 
     // Invite Friend Modal Triggers
     document.getElementById("room-invite-btn")?.addEventListener("click", openInviteFriendModal);
@@ -1358,7 +2310,7 @@
       input.value = "";
     });
 
-    // Create Virtual Sanctuary Room Dialog
+    // Create Virtual Sanctuary Room Dialog Interactive UI
     const createModal = document.getElementById("modal-create-room");
     document.getElementById("btn-open-create-room")?.addEventListener("click", () => {
       createModal?.showModal?.();
@@ -1366,6 +2318,48 @@
     });
     document.getElementById("btn-close-create-room")?.addEventListener("click", () => createModal?.close?.());
     document.getElementById("btn-cancel-create-room")?.addEventListener("click", () => createModal?.close?.());
+
+    // Template selection choices
+    document.querySelectorAll(".template-choice-card").forEach(card => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll(".template-choice-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        const radio = card.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+      });
+    });
+
+    // Palette swatches
+    let selectedThemeColor = "#4a5d3f";
+    let selectedThemeHue = 100;
+    document.querySelectorAll(".swatch-btn").forEach(swatch => {
+      swatch.addEventListener("click", () => {
+        document.querySelectorAll(".swatch-btn").forEach(s => s.classList.remove("active"));
+        swatch.classList.add("active");
+        selectedThemeColor = swatch.dataset.color || "#4a5d3f";
+        selectedThemeHue = Number(swatch.dataset.hue) || 100;
+      });
+    });
+    document.getElementById("new-room-custom-color")?.addEventListener("input", e => {
+      selectedThemeColor = e.target.value;
+      document.querySelectorAll(".swatch-btn").forEach(s => s.classList.remove("active"));
+    });
+
+    // Appearance mode pills
+    document.querySelectorAll(".mode-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        document.querySelectorAll(".mode-pill").forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+        const radio = pill.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+      });
+    });
+
+    // Time controller dropdown
+    document.getElementById("new-room-time-mode")?.addEventListener("change", e => {
+      const wrapper = document.getElementById("timed-minutes-wrapper");
+      if (wrapper) wrapper.hidden = (e.target.value === "loop");
+    });
 
     document.getElementById("form-create-sanctuary")?.addEventListener("submit", e => {
       e.preventDefault();
@@ -1382,6 +2376,45 @@
       const ref = document.getElementById("new-scripture-ref")?.value.trim() || "— Scripture";
       const text = document.getElementById("new-scripture-text")?.value.trim() || "Peace I leave with you.";
       const comments = !!document.getElementById("new-room-comments")?.checked;
+
+      const template = document.querySelector('input[name="new-room-template"]:checked')?.value || "timer";
+      const purpose = document.getElementById("new-room-purpose")?.value || "prayer";
+      const mode = document.querySelector('input[name="new-room-mode"]:checked')?.value || "light";
+      const timeMode = document.getElementById("new-room-time-mode")?.value || "timed";
+      let durationMinutes = 20;
+      const durationVal = document.getElementById("new-room-duration-minutes")?.value;
+      if (durationVal === "custom") {
+        const customPrompt = prompt("Enter session length in minutes:", "25");
+        durationMinutes = Math.max(1, parseInt(customPrompt, 10) || 20);
+      } else {
+        durationMinutes = parseInt(durationVal, 10) || 20;
+      }
+      const autoPlayInterval = parseInt(document.getElementById("new-scripture-autoplay-interval")?.value, 10) || 0;
+      const allowUserNavigation = document.getElementById("new-allow-user-nav") ? !!document.getElementById("new-allow-user-nav").checked : true;
+
+      // Parse scriptures series
+      const seriesText = document.getElementById("new-scriptures-series")?.value.trim();
+      const allVerses = [{ topic, text, ref }];
+      if (seriesText) {
+        const parts = seriesText.split(/\n\s*---\s*\n/);
+        parts.forEach(part => {
+          const trimmed = part.trim();
+          if (trimmed) {
+            const lastDash = trimmed.lastIndexOf("—");
+            let vText = trimmed;
+            let vRef = "— Scripture";
+            if (lastDash !== -1) {
+              vText = trimmed.slice(0, lastDash).trim();
+              vRef = trimmed.slice(lastDash).trim();
+            }
+            allVerses.push({
+              topic,
+              text: vText,
+              ref: vRef
+            });
+          }
+        });
+      }
 
       if (!title || !subtitle || !text) return;
 
@@ -1406,6 +2439,15 @@
         icon: "sparkles",
         cover: coverByTheme[theme] || coverByTheme.chapel,
         theme,
+        template,
+        purpose,
+        mode,
+        timeMode,
+        durationMinutes,
+        themeColor: selectedThemeColor,
+        themeHue: selectedThemeHue,
+        autoPlayInterval,
+        allowUserNavigation,
         toneFreq: 432,
         selectedAudio: audio,
         ambience: { rain, stream, fire, breeze },
@@ -1413,7 +2455,7 @@
         ownerName: creatorName,
         ownerKey,
         isLocalHost: true,
-        verses: [{ topic, text, ref }],
+        verses: allVerses,
         audioTracks: {
           bible: { title: "Audio Bible: " + title, cat: "Dramatized Scripture", freq: 432 },
           instrumental: { title: "Soaking Sanctuary Pads", cat: "Instrumental (432Hz)", freq: 432 },
