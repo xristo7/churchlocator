@@ -6,7 +6,7 @@ import vm from "node:vm";
 
 const projectRoot = path.resolve(".");
 
-test("Task 7.1: 'Plan a Visit' triggers scrollIntoView, pulse highlight, and universal fallback", async () => {
+test("Task 7.1: 'Plan a Visit' opens above the page backdrop and retains its universal fallback", async () => {
   const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
   const churchProfileHtml = await fs.readFile(path.join(projectRoot, "public", "church-profile.html"), "utf8");
   const stylesCss = await fs.readFile(path.join(projectRoot, "public", "styles.css"), "utf8");
@@ -18,6 +18,7 @@ test("Task 7.1: 'Plan a Visit' triggers scrollIntoView, pulse highlight, and uni
 
   // MWE.toggleVisitPanel logic in app.js
   assert.match(appJs, /MWE\.toggleVisitPanel\s*=\s*function/, "MWE.toggleVisitPanel should be defined");
+  assert.match(appJs, /panel\.parentElement\s*!==\s*document\.body[\s\S]*?document\.body\.appendChild\(panel\)/, "toggleVisitPanel must move the panel into the page-level overlay layer");
   assert.match(appJs, /panel\.scrollIntoView\(\s*\{\s*behavior:\s*"smooth"/, "toggleVisitPanel must scroll smoothly to #register");
   assert.match(appJs, /panel\.classList\.add\("panel-highlight-pulse"\)/, "toggleVisitPanel must add panel-highlight-pulse");
   assert.match(appJs, /MWE\.openPlanVisitModal/, "toggleVisitPanel must fallback to openPlanVisitModal when #register not found");

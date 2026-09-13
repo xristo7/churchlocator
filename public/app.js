@@ -3394,6 +3394,13 @@ MWE.switchProfileTab = function(tabId) {
 MWE.toggleVisitPanel = function(open = true, targetChurchId = "") {
   const panel = document.getElementById("register");
   if (panel) {
+    // The profile sidebar creates its own stacking context. Move the visit card
+    // to the body before opening so the page-level backdrop cannot cover it.
+    if (open && document.body && panel.parentElement !== document.body) {
+      document.body.appendChild(panel);
+    }
+    panel.setAttribute?.("role", "dialog");
+    panel.setAttribute?.("aria-modal", open ? "true" : "false");
     if (document.body && document.body.classList) {
       document.body.classList.toggle("visit-panel-open", Boolean(open));
     }
