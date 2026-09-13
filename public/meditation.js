@@ -1002,7 +1002,15 @@
 
     const backdrop = document.getElementById("meditation-backdrop");
     if (backdrop) {
-      backdrop.className = "meditation-backdrop bg-template-" + template;
+      // The template controls layout; the creator's atmosphere controls imagery.
+      // Keeping these concerns separate prevents every room of a template from
+      // being forced onto the same generic background.
+      const allowedAtmospheres = new Set(["chapel", "mountains", "stars", "stream", "deepdark"]);
+      const atmosphere = allowedAtmospheres.has(room.theme) ? room.theme : "chapel";
+      const isCreatorRoom = String(room.id || "").startsWith("room-custom-");
+      backdrop.className = isCreatorRoom
+        ? "meditation-backdrop bg-" + atmosphere
+        : "meditation-backdrop bg-room-" + template;
     }
 
     const firstVerse = room.verses?.[0] || { text: "The Lord is in His holy temple; let all the earth keep silence before Him.", ref: "— HABAKKUK 2:20" };

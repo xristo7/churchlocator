@@ -22644,6 +22644,55 @@ html[data-theme="dark"] .meditation-room-view {
   padding: clamp(74px, 9vh, 96px) clamp(28px, 6vw, 84px) clamp(28px, 5vh, 54px) !important;
 }
 
+/* Reliable, project-owned sanctuary imagery.
+   Platform rooms receive a curated method image; creator rooms keep the
+   atmosphere chosen in the room editor. */
+.meditation-backdrop.bg-room-timer,
+.meditation-backdrop.bg-chapel {
+  background-image: url('./assets/meditation-chapel.png') !important;
+  background-position: center !important;
+}
+
+.meditation-backdrop.bg-room-ripple,
+.meditation-backdrop.bg-stream {
+  background-image: url('./assets/meditation-lake.png') !important;
+  background-position: center !important;
+}
+
+.meditation-backdrop.bg-room-journey,
+.meditation-backdrop.bg-mountains {
+  background-image: url('./assets/meditation-journey.png') !important;
+  background-position: center !important;
+}
+
+.meditation-backdrop.bg-room-nature {
+  background-image: url('./assets/meditation-forest.png') !important;
+  background-position: center !important;
+}
+
+.meditation-backdrop.bg-room-sunburst {
+  background-image: url('./assets/meditation-sunrise.png') !important;
+  background-position: center !important;
+}
+
+.meditation-backdrop.bg-stars,
+.meditation-backdrop.bg-deepdark {
+  background-image: url('./assets/meditation-stars.png') !important;
+  background-position: center !important;
+}
+
+/* Text remains part of the scene; only interactive controls receive surfaces. */
+.journey-contemplation-card,
+.nature-scripture-card,
+.template-scripture-quote,
+.sunburst-calligraphy-container {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
 .template-stage-view {
   color: var(--sanctuary-ink) !important;
   isolation: isolate !important;
@@ -22841,9 +22890,9 @@ html[data-theme="dark"] .journey-node.active .node-label { color: var(--sanctuar
 html[data-theme="dark"] .journey-contemplation-card {
   width: min(100%, 720px) !important;
   padding: clamp(24px, 4vh, 42px) clamp(22px, 5vw, 56px) !important;
-  background: linear-gradient(135deg, var(--sanctuary-wash-strong), var(--sanctuary-wash)) !important;
-  border: 1px solid var(--sanctuary-line) !important;
-  border-radius: 4px 28px 4px 28px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
   color: var(--sanctuary-ink) !important;
 }
@@ -22875,10 +22924,11 @@ html[data-theme="dark"] .nature-scripture-card {
   grid-area: player !important;
   align-self: center !important;
   padding: clamp(24px, 4vw, 38px) !important;
-  border: 1px solid var(--sanctuary-line) !important;
-  border-radius: 28px 6px 28px 6px !important;
-  background: linear-gradient(145deg, var(--sanctuary-wash-strong), var(--sanctuary-wash)) !important;
-  backdrop-filter: blur(18px) saturate(110%) !important;
+  border: 0 !important;
+  border-top: 1px solid var(--sanctuary-line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
 }
 .nature-controls-mid-row { display: grid !important; grid-template-columns: 1fr auto !important; gap: 18px !important; }
 .nature-soundscape-dropdown-wrap { grid-column: 1 / -1 !important; width: 100% !important; }
@@ -22951,8 +23001,8 @@ body:not([data-theme="dark"]) .meditation-backdrop {
 html[data-theme="light"] .meditation-overlay,
 body:not([data-theme="dark"]) .meditation-overlay {
   background:
-    linear-gradient(90deg, rgba(247,249,248,.86) 0%, rgba(247,249,248,.54) 38%, rgba(247,249,248,.18) 66%, rgba(247,249,248,.42) 100%),
-    linear-gradient(180deg, rgba(247,249,248,.2), rgba(247,249,248,.34)) !important;
+    linear-gradient(90deg, rgba(247,249,248,.7) 0%, rgba(247,249,248,.34) 38%, rgba(247,249,248,.08) 66%, rgba(247,249,248,.2) 100%),
+    linear-gradient(180deg, rgba(247,249,248,.08), rgba(247,249,248,.2)) !important;
 }
 
 html[data-theme="dark"] .meditation-overlay,
