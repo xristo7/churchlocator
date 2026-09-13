@@ -304,6 +304,44 @@ const MWE = (() => {
         ["Evangelism Team", "Active"]
       ],
       livestream: { enabled: true, paid: true, url: "https://christembassyedmonton.org/", status: "Premium livestream active" },
+      gallery: [
+        {
+          src: "https://images.unsplash.com/photo-1510590337019-5ef8d3d32116?auto=format&fit=crop&w=1200&q=80",
+          title: "Dynamic Praise & Worship",
+          caption: "Congregational worship and ministering to the Lord during our Sunday celebration.",
+          tag: "Worship"
+        },
+        {
+          src: "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1200&q=80",
+          title: "Sanctuary Auditorium",
+          caption: "Our main auditorium welcoming everyone into fellowship and renewal.",
+          tag: "Sanctuary"
+        },
+        {
+          src: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1200&q=80",
+          title: "Youth Network Fellowship",
+          caption: "Young adults coming together for scripture, discipleship, and mentorship.",
+          tag: "Youth"
+        },
+        {
+          src: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80",
+          title: "Corporate Prayer Night",
+          caption: "Fervent corporate prayer for families, Edmonton communities, and the nations.",
+          tag: "Prayer"
+        },
+        {
+          src: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1200&q=80",
+          title: "Children's Church",
+          caption: "Joyful learning and Bible stories tailored for children of all ages.",
+          tag: "Kids"
+        },
+        {
+          src: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80",
+          title: "Community Outreach & Evangelism",
+          caption: "Active street evangelism and food hampers shared across Edmonton.",
+          tag: "Outreach"
+        }
+      ],
       verified: true
     },
     {
@@ -342,6 +380,38 @@ const MWE = (() => {
         ["Groups", "Weekly"]
       ],
       livestream: { enabled: true, paid: true, url: "https://bac.online.church/", status: "Premium livestream active" },
+      gallery: [
+        {
+          src: "https://images.unsplash.com/photo-1510590337019-5ef8d3d32116?auto=format&fit=crop&w=1200&q=80",
+          title: "Weekend Worship Experience",
+          caption: "Vibrant worship leading into Christ-centered biblical teaching.",
+          tag: "Worship"
+        },
+        {
+          src: "https://images.unsplash.com/photo-1490122417551-6ee9691429d0?auto=format&fit=crop&w=1200&q=80",
+          title: "West Campus Sanctuary",
+          caption: "Modern sanctuary designed for multi-generational fellowship.",
+          tag: "Sanctuary"
+        },
+        {
+          src: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1200&q=80",
+          title: "Beulah Youth & Groups",
+          caption: "Midweek student ministries encouraging faith formation and life-giving friendships.",
+          tag: "Youth"
+        },
+        {
+          src: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1200&q=80",
+          title: "Beulah Kids Ministry",
+          caption: "Safe, engaging, and joyful environments for children every weekend.",
+          tag: "Kids"
+        },
+        {
+          src: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80",
+          title: "Prayer & Care Support",
+          caption: "Dedicated prayer teams and support networks for individuals and families in need.",
+          tag: "Care"
+        }
+      ],
       verified: true
     },
     {
@@ -2366,6 +2436,7 @@ function renderProfile(church) {
   
   MWE.renderRelatedChurches(church.id);
   MWE.renderChurchProfileEvents(church.id);
+  MWE.renderChurchGallery(church);
 }
 
 MWE.renderChurchProfileEvents = function(churchId) {
@@ -2431,6 +2502,212 @@ MWE.renderRelatedChurches = function(currentChurchId) {
   `).join("");
 
   createIcons();
+};
+
+/* Church Photo Slide Gallery & Lightbox Methods */
+MWE.activeChurchGallery = [];
+MWE.currentLightboxIndex = 0;
+
+MWE.getDefaultGalleryImages = function(church) {
+  const name = church?.name || "Church";
+  const mainPhoto = church?.photo || church?.coverImage || "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1200&q=80";
+  return [
+    {
+      src: "https://images.unsplash.com/photo-1510590337019-5ef8d3d32116?auto=format&fit=crop&w=1200&q=80",
+      title: "Sunday Worship & Praise",
+      caption: `Dynamic praise and worship celebration in the main sanctuary at ${name}.`,
+      tag: "Worship"
+    },
+    {
+      src: mainPhoto,
+      title: "Sanctuary & Gathering Space",
+      caption: `A warm, welcoming auditorium designed for fellowship and encountering God.`,
+      tag: "Sanctuary"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1200&q=80",
+      title: "Youth & Young Adults",
+      caption: `Building life-giving relationships rooted in scripture, discipleship, and community.`,
+      tag: "Youth"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80",
+      title: "Corporate Prayer Night",
+      caption: `United in fervent prayer and spiritual renewal for families and our city.`,
+      tag: "Prayer"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1200&q=80",
+      title: "Children's Ministry",
+      caption: `Nurturing the next generation with joyful Bible lessons, crafts, and games.`,
+      tag: "Kids"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80",
+      title: "Community Outreach & Care",
+      caption: `Sharing the compassion and love of Christ through practical food drives and care.`,
+      tag: "Outreach"
+    }
+  ];
+};
+
+MWE.renderChurchGallery = function(church) {
+  const track = document.getElementById("church-gallery-track");
+  if (!track) return;
+  const images = (church && church.gallery && Array.isArray(church.gallery) && church.gallery.length > 0)
+    ? church.gallery
+    : MWE.getDefaultGalleryImages(church);
+  MWE.activeChurchGallery = images;
+  
+  track.innerHTML = images.map((img, idx) => `
+    <div class="church-gallery-card" onclick="MWE.openGalleryLightbox(${idx})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();MWE.openGalleryLightbox(${idx});}" tabindex="0" role="button" aria-label="${MWE.escapeHtml(img.title || 'Church Photo')}">
+      <div class="church-gallery-thumb-wrap">
+        <img src="${img.src}" alt="${MWE.escapeHtml(img.title || 'Church Photo')}" class="church-gallery-thumb" loading="lazy" />
+        <div class="church-gallery-overlay">
+          <span class="gallery-zoom-badge"><i data-lucide="maximize-2"></i></span>
+          <div class="gallery-overlay-text">
+            <span class="gallery-overlay-tag">${MWE.escapeHtml(img.tag || 'Fellowship')}</span>
+            <h4 class="gallery-overlay-title">${MWE.escapeHtml(img.title || '')}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+  
+  if (typeof createIcons === "function") {
+    createIcons();
+  } else if (window.lucide) {
+    lucide.createIcons();
+  }
+};
+
+MWE.scrollChurchGallery = function(direction) {
+  const track = document.getElementById("church-gallery-track");
+  if (!track) return;
+  const scrollAmount = Math.max(260, Math.floor(track.clientWidth * 0.75));
+  track.scrollBy({ left: scrollAmount * direction, behavior: "smooth" });
+};
+
+MWE.ensureGalleryLightbox = function() {
+  let modal = document.getElementById("church-gallery-lightbox");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.className = "church-lightbox-overlay";
+    modal.id = "church-gallery-lightbox";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-label", "Photo Lightbox");
+    modal.style.display = "none";
+    modal.innerHTML = `
+      <div class="church-lightbox-backdrop" onclick="MWE.closeGalleryLightbox()"></div>
+      <div class="church-lightbox-content">
+        <div class="church-lightbox-topbar">
+          <div class="church-lightbox-meta">
+            <span class="church-lightbox-counter" id="lightbox-counter">Photo 1 of 6</span>
+            <span class="church-lightbox-church-name" data-church-name>${MWE.escapeHtml(MWE.currentProfileChurch?.name || "Church Gallery")}</span>
+          </div>
+          <button type="button" class="church-lightbox-close-btn" aria-label="Close photo lightbox" onclick="MWE.closeGalleryLightbox()">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="church-lightbox-stage" onclick="if(event.target===this)MWE.closeGalleryLightbox()">
+          <button type="button" class="church-lightbox-nav-btn lightbox-popup-prev" id="lightbox-prev-btn" aria-label="Previous photo" onclick="event.stopPropagation(); MWE.stepGalleryLightbox(-1)">
+            <i data-lucide="chevron-left"></i>
+          </button>
+          <div class="church-lightbox-figure-wrap" onclick="event.stopPropagation()">
+            <img id="lightbox-active-img" src="" alt="Church photo" class="church-lightbox-img" />
+            <div class="church-lightbox-caption-bar" id="lightbox-caption-bar">
+              <h4 id="lightbox-caption-title" class="church-lightbox-caption-title"></h4>
+              <p id="lightbox-caption-desc" class="church-lightbox-caption-desc"></p>
+            </div>
+          </div>
+          <button type="button" class="church-lightbox-nav-btn lightbox-popup-next" id="lightbox-next-btn" aria-label="Next photo" onclick="event.stopPropagation(); MWE.stepGalleryLightbox(1)">
+            <i data-lucide="chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    if (typeof createIcons === "function") {
+      createIcons();
+    } else if (window.lucide) {
+      lucide.createIcons();
+    }
+  }
+  return modal;
+};
+
+MWE.openGalleryLightbox = function(index) {
+  const modal = MWE.ensureGalleryLightbox();
+  if (!MWE.activeChurchGallery || MWE.activeChurchGallery.length === 0) {
+    MWE.activeChurchGallery = MWE.getDefaultGalleryImages(MWE.currentProfileChurch);
+  }
+  MWE.currentLightboxIndex = typeof index === "number" ? index : 0;
+  modal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+  MWE.updateLightboxContent();
+  window.removeEventListener("keydown", MWE.handleLightboxKeydown);
+  window.addEventListener("keydown", MWE.handleLightboxKeydown);
+  if (typeof createIcons === "function") {
+    createIcons();
+  } else if (window.lucide) {
+    lucide.createIcons();
+  }
+};
+
+MWE.closeGalleryLightbox = function() {
+  const modal = document.getElementById("church-gallery-lightbox");
+  if (modal) {
+    modal.style.display = "none";
+  }
+  document.body.style.overflow = "";
+  window.removeEventListener("keydown", MWE.handleLightboxKeydown);
+};
+
+MWE.stepGalleryLightbox = function(direction) {
+  if (!MWE.activeChurchGallery || MWE.activeChurchGallery.length === 0) return;
+  const total = MWE.activeChurchGallery.length;
+  MWE.currentLightboxIndex = (MWE.currentLightboxIndex + direction + total) % total;
+  MWE.updateLightboxContent();
+};
+
+MWE.updateLightboxContent = function() {
+  if (!MWE.activeChurchGallery || MWE.activeChurchGallery.length === 0) return;
+  const idx = MWE.currentLightboxIndex;
+  const item = MWE.activeChurchGallery[idx];
+  const total = MWE.activeChurchGallery.length;
+  
+  const imgEl = document.getElementById("lightbox-active-img");
+  const counterEl = document.getElementById("lightbox-counter");
+  const titleEl = document.getElementById("lightbox-caption-title");
+  const descEl = document.getElementById("lightbox-caption-desc");
+  
+  if (counterEl) counterEl.textContent = `Photo ${idx + 1} of ${total}`;
+  if (titleEl) titleEl.textContent = item.title || "";
+  if (descEl) descEl.textContent = item.caption || "";
+  
+  if (imgEl) {
+    imgEl.style.opacity = "0.35";
+    imgEl.src = item.src;
+    imgEl.alt = item.title || "Church photo";
+    imgEl.onload = () => { imgEl.style.opacity = "1"; };
+    setTimeout(() => { imgEl.style.opacity = "1"; }, 120);
+  }
+};
+
+MWE.handleLightboxKeydown = function(e) {
+  const modal = document.getElementById("church-gallery-lightbox");
+  if (!modal || modal.style.display === "none") return;
+  if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    MWE.stepGalleryLightbox(-1);
+  } else if (e.key === "ArrowRight") {
+    e.preventDefault();
+    MWE.stepGalleryLightbox(1);
+  } else if (e.key === "Escape") {
+    e.preventDefault();
+    MWE.closeGalleryLightbox();
+  }
 };
 
 MWE.selectedCategoryState = null;
