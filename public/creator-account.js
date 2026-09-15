@@ -9,6 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!hasMatchingSession && localStorage.getItem("mwe.userLoggedIn") === "true") {
     localStorage.removeItem("mwe.session.church.v1");
   }
+  window.MWEAuth?.session().then(result => {
+    document.body.classList.toggle("is-authenticated", !!result.ok && !!result.user?.isCreator);
+  });
   let signingIn = false;
   document.getElementById("creator-account-mode").addEventListener("click", event => {
     signingIn = !signingIn;

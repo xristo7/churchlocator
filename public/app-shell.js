@@ -240,7 +240,8 @@
     accountButton.setAttribute("aria-expanded", String(willOpen));
   });
 
-  document.getElementById("member-sign-out")?.addEventListener("click", () => {
+  document.getElementById("member-sign-out")?.addEventListener("click", async () => {
+    if (window.MWEAuth) { const result = await window.MWEAuth.logout(); if (!result.ok) { window.alert("Could not sign out securely. Please try again."); return; } }
     localStorage.removeItem("mwe.userLoggedIn");
     localStorage.removeItem("mwe.username");
     localStorage.removeItem("mwe.userEmail");
@@ -344,7 +345,9 @@
     }
     if (message.type !== "faithlink:navigate") return;
     if (message.leaveShell && message.href) {
-      window.location.href = message.href;
+      const destination = new URL(message.href, window.location.href);
+      if (destination.origin !== window.location.origin || !["http:", "https:"].includes(destination.protocol)) return;
+      window.location.href = destination.href;
       return;
     }
     if (!views[message.view]) return;

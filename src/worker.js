@@ -1,3 +1,5 @@
+import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityHeaders } from "./security.js";
+
 const apiHeaders = {
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, authorization",
@@ -9,7 +11,8 @@ const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status,
   headers: {
     "content-type": "application/json; charset=utf-8",
-    ...apiHeaders
+    ...apiHeaders,
+    ...securityHeaders
   }
 });
 
@@ -50,40 +53,15 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
-async function readJson(request) {
-  const declaredLength = Number(request.headers.get("content-length") || 0);
-  if (declaredLength > 64 * 1024) {
-    throw new ApiError(413, "request body too large");
-  }
-
-  try {
-    return await request.json();
-  } catch {
-    throw new ApiError(400, "invalid JSON body");
-  }
-}
-
-class ApiError extends Error {
-  constructor(status, message) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-  }
-}
-
 function registrationCode() {
   return `REG-${crypto.randomUUID().replaceAll("-", "").slice(0, 12).toUpperCase()}`;
 }
 
 // --- Authentication -------------------------------------------------------
 
-const SESSION_COOKIE = "mwe_session";
-const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+const SESSION_COOKIE = "mwe_session_v2";
+const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours; old bypass-era cookies are never accepted
 const PBKDF2_ITERATIONS = 100000;
-
-function authBypassEnabled(env) {
-  return String(env?.AUTH_BYPASS || "").toLowerCase() === "true";
-}
 
 function toBase64(bytes) {
   let binary = "";
@@ -176,6 +154,11 @@ function jsonWithCookie(body, status, cookieValue) {
   return res;
 }
 
+async function digestToken(token) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
+  return "v2:" + toBase64(new Uint8Array(digest));
+}
+
 function publicUser(row) {
   return {
     id: row.id,
@@ -192,7 +175,7 @@ async function createSession(env, userId) {
   await env.DB.prepare(`
     insert into sessions (token, user_id, created_at, expires_at)
     values (?, ?, ?, ?)
-  `).bind(token, userId, now.toISOString(), expires.toISOString()).run();
+  `).bind(await digestToken(token), userId, now.toISOString(), expires.toISOString()).run();
   return token;
 }
 
@@ -200,18 +183,18 @@ async function getSessionUser(request, env) {
   if (!env.DB) return null;
   const cookies = parseCookies(request);
   const token = cookies[SESSION_COOKIE];
-  if (!token) return null;
+  if (!token || !/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
 
   const row = await env.DB.prepare(`
     select u.id, u.name, u.email, u.is_creator, s.expires_at
     from sessions s
     join users u on u.id = s.user_id
     where s.token = ?
-  `).bind(token).first();
+  `).bind(await digestToken(token)).first();
 
   if (!row) return null;
-  if (new Date(row.expires_at).getTime() < Date.now()) {
-    await env.DB.prepare("delete from sessions where token = ?").bind(token).run();
+  if (!Number.isFinite(Date.parse(row.expires_at)) || Date.parse(row.expires_at) <= Date.now() || row.id.startsWith("temporary:")) {
+    await env.DB.prepare("delete from sessions where token = ?").bind(await digestToken(token)).run();
     return null;
   }
 
@@ -225,9 +208,9 @@ async function registerUser(request, env, { forceCreator = false } = {}) {
   const email = normalizeEmail(payload?.email);
   const password = String(payload?.password || "");
 
-  if (!name) return json({ ok: false, error: "Enter your full name." }, 400);
+  if (!name || name.length > 200) return json({ ok: false, error: "Enter your full name." }, 400);
   if (!isValidEmail(email)) return json({ ok: false, error: "Enter a valid email address." }, 400);
-  if (password.length < 8) return json({ ok: false, error: "Password must be at least 8 characters." }, 400);
+  if (password.length < 15 || password.length > 128) return json({ ok: false, error: "Password must be between 15 and 128 characters." }, 400);
 
   const existing = await env.DB.prepare("select id from users where email = ?").bind(email).first();
   if (existing) {
@@ -266,39 +249,6 @@ async function handleAuthLogin(request, env) {
   const email = normalizeEmail(payload?.email);
   const password = String(payload?.password || "");
 
-  if (authBypassEnabled(env)) {
-    const temporaryEmail = isValidEmail(email)
-      ? email
-      : `temporary-${crypto.randomUUID().slice(0, 12)}@access.local`;
-    let row = await env.DB.prepare(`
-      select id, name, email, password_hash, password_salt, is_creator
-      from users where email = ?
-    `).bind(temporaryEmail).first();
-
-    if (!row) {
-      const createdAt = new Date().toISOString();
-      row = {
-        id: `temporary:${temporaryEmail}`,
-        name: "Temporary Access",
-        email: temporaryEmail,
-        password_hash: "authentication-disabled",
-        password_salt: "authentication-disabled",
-        is_creator: 1
-      };
-      await env.DB.prepare(`
-        insert into users (id, email, password_hash, password_salt, name, is_creator, created_at, last_login_at)
-        values (?, ?, ?, ?, ?, ?, ?, ?)
-      `).bind(row.id, row.email, row.password_hash, row.password_salt, row.name, 1, createdAt, createdAt).run();
-    }
-
-    const token = await createSession(env, row.id);
-    return jsonWithCookie(
-      { ok: true, user: publicUser(row), authenticationBypassed: true },
-      200,
-      sessionCookieHeader(request, token, SESSION_TTL_SECONDS)
-    );
-  }
-
   if (!isValidEmail(email) || !password) {
     return json({ ok: false, error: "Invalid email or password." }, 401);
   }
@@ -308,8 +258,12 @@ async function handleAuthLogin(request, env) {
     from users where email = ?
   `).bind(email).first();
 
-  if (!row) return json({ ok: false, error: "Invalid email or password." }, 401);
+  if (!row) {
+    await hashPassword(password, "AAAAAAAAAAAAAAAAAAAAAA==");
+    return json({ ok: false, error: "Invalid email or password." }, 401);
+  }
 
+  if (row.password_hash === "authentication-disabled" || row.id.startsWith("temporary:")) return unauthorized();
   const computedHash = await hashPassword(password, row.password_salt);
   if (!constantTimeEqual(computedHash, row.password_hash)) {
     return json({ ok: false, error: "Invalid email or password." }, 401);
@@ -331,7 +285,7 @@ async function handleAuthLogout(request, env) {
   if (env.DB) {
     const cookies = parseCookies(request);
     const token = cookies[SESSION_COOKIE];
-    if (token) await env.DB.prepare("delete from sessions where token = ?").bind(token).run();
+    if (token) await env.DB.prepare("delete from sessions where token = ?").bind(await digestToken(token)).run();
   }
   return jsonWithCookie({ ok: true }, 200, clearSessionCookieHeader(request));
 }
@@ -362,7 +316,7 @@ async function handleStatus(env) {
     },
     security: {
       adminAuthorizationConfigured: Boolean(env.ADMIN_API_TOKEN),
-      authenticationBypassed: authBypassEnabled(env)
+      authenticationBypassed: false
     },
     applications: [
       { name: "Public Website", route: "/", authentication: "none" },
@@ -594,6 +548,7 @@ async function handleChurchApplication(request, env) {
 }
 
 async function handleLivestreamActivation(request, env) {
+  if (!isAuthorized(request, env)) return unauthorized();
   if (!env.DB) return storageUnavailable();
   const payload = await readJson(request);
   if (!payload?.churchId || !payload?.livestreamUrl) {
@@ -834,25 +789,24 @@ async function handleEventRegister(request, env) {
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
   const regCode = registrationCode();
-  const qty = Number(payload.ticketQuantity || 1);
-  const price = Number(payload.ticketPriceCents || 0);
-  const amountPaid = qty * price;
-
-  if (env.DB) {
-    await env.DB.batch([
-      env.DB.prepare(`
-        insert into event_registrations
-          (id, event_id, full_name, email, ticket_quantity, amount_paid_cents, registration_code, created_at)
-        values (?, ?, ?, ?, ?, ?, ?, ?)
-      `).bind(id, payload.eventId, payload.fullName, payload.email, qty, amountPaid, regCode, createdAt),
-      env.DB.prepare(`
-        update events
-        set tickets_sold = tickets_sold + ?
-        where id = ?
-      `).bind(qty, payload.eventId)
-    ]);
-  }
-
+  const qty = Number(payload.ticketQuantity ?? 1);
+  if (!Number.isSafeInteger(qty) || qty < 1 || qty > 20) return json({ ok: false, error: "ticketQuantity must be a whole number from 1 to 20" }, 400);
+  if (!isValidEmail(normalizeEmail(payload.email))) return json({ ok: false, error: "valid email required" }, 400);
+  const event = await env.DB.prepare("select id, ticket_price_cents, total_tickets, tickets_sold from events where id = ?").bind(payload.eventId).first();
+  if (!event) return json({ ok: false, error: "event not found" }, 404);
+  // Payment must be verified by a trusted provider webhook. Never accept a client claim of payment.
+  if (event.ticket_price_cents > 0) return json({ ok: false, error: "Paid registration requires a verified payment provider." }, 409);
+  const amountPaid = 0;
+  // Single guarded insert + trigger is atomic, including competing requests.
+  const result = await env.DB.prepare(`
+    insert into event_registrations
+      (id, event_id, full_name, email, ticket_quantity, amount_paid_cents, registration_code, created_at)
+    select ?, id, ?, ?, ?, 0, ?, ? from events
+    where id = ? and ticket_price_cents = 0
+      and (total_tickets is null or total_tickets = 0 or coalesce(tickets_sold, 0) + ? <= total_tickets)
+  `).bind(id, payload.fullName, normalizeEmail(payload.email), qty, regCode, createdAt, payload.eventId, qty).run();
+  // D1 includes writes performed by reservation triggers in the changes count.
+  if (!(result.meta?.changes > 0)) return json({ ok: false, error: "Registration unavailable or event full." }, 409);
   return json({ ok: true, id, registrationCode: regCode, amountPaidCents: amountPaid, status: "registered" }, 201);
 }
 
@@ -862,6 +816,7 @@ function serviceBookingRef() {
 
 async function handleServiceBooking(request, env) {
   if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
+  if (!env.DB) return storageUnavailable();
   const payload = await readJson(request);
 
   const serviceId = String(payload?.serviceId || "").trim();
@@ -939,12 +894,7 @@ async function handleServiceBooking(request, env) {
 async function handleGetServiceBookings(request, env) {
   if (!env.DB) return storageUnavailable();
   const user = await getSessionUser(request, env);
-  const url = new URL(request.url);
-  const email = normalizeEmail(url.searchParams.get("email") || user?.email);
-
-  if (!email && !user) {
-    return json({ ok: false, error: "Authentication required to view service bookings." }, 401);
-  }
+  if (!user) return unauthorized();
 
   const { results } = await env.DB.prepare(`
     select id, booking_ref, service_id, service_title, service_type,
@@ -952,9 +902,9 @@ async function handleGetServiceBookings(request, env) {
            requested_date, requested_time, customer_name, customer_email,
            status, created_at
     from service_bookings
-    where customer_email = ? or user_id = ?
+    where user_id = ?
     order by created_at desc
-  `).bind(email, user?.id || "").all();
+  `).bind(user.id).all();
 
   return json({ ok: true, bookings: results || [] });
 }
@@ -966,8 +916,14 @@ async function handleApi(request, env) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, "");
 
+    validateMutationOrigin(request);
+    await enforceRateLimit(request, env, path);
     if (request.method === "OPTIONS") return json({ ok: true });
     if (path === "/api/status" && request.method === "GET") return await handleStatus(env);
+    if (path === "/api/location" && request.method === "GET") {
+      // Return only the requesting visitor's coarse edge location; never forward IPs.
+      return json({ city: String(request.cf?.city || "Edmonton"), countryCode: String(request.cf?.country || "CA") });
+    }
     if (path === "/api/churches") return await handlePublicChurches(request, env);
     if (path === "/api/admin/churches") return await handleAdminChurches(request, env);
     if (path === "/api/events") return await handleEvents(request, env);
@@ -997,10 +953,12 @@ async function handleApi(request, env) {
       requestId,
       method: request.method,
       path: new URL(request.url).pathname,
-      error: error instanceof Error ? error.message : String(error)
+      errorType: error instanceof Error ? error.name : "UnknownError"
     }));
 
-    return json({ ok: false, error: message, requestId }, status);
+    const response = json({ ok: false, error: message, requestId }, status);
+    if (status === 429) response.headers.set("retry-after", "60");
+    return response;
   }
 }
 
@@ -1013,6 +971,7 @@ export default {
 
     const assetRes = await env.ASSETS.fetch(assetRequest(request));
     const newHeaders = new Headers(assetRes.headers);
+    for (const [key, value] of Object.entries(securityHeaders)) newHeaders.set(key, value);
     newHeaders.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
     newHeaders.set("Pragma", "no-cache");
     newHeaders.set("Expires", "0");

@@ -17,7 +17,7 @@
       if (["https:", "http:"].includes(url.protocol)) window.open(url.href, "_blank", "noopener,noreferrer");
       return;
     }
-    if (resource.attachmentData) { const exactFile = document.createElement("a"); exactFile.href = resource.attachmentData; exactFile.download = resource.attachment || resource.title; exactFile.click(); return; }
+    if (resource.attachmentData) { const safe = data().safeAttachmentData(resource.attachmentData); if (!safe) { window.MWE?.toast("Unsupported attachment."); return; } const exactFile = document.createElement("a"); exactFile.href = safe; exactFile.download = resource.attachment || resource.title; exactFile.click(); return; }
     const extension = "txt";
     const content = pagesFor(resource).map((page, index) => `${resource.title}\nPage ${index + 1}\n\n${page}`).join("\n\n---\n\n");
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });

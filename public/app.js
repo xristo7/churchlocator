@@ -667,6 +667,31 @@ const MWE = (() => {
     }[char]));
   }
 
+  // A JavaScript string nested inside an HTML attribute needs both encodings.
+  function escapeJsAttribute(value) {
+    const encoded = JSON.stringify(String(value ?? "")).slice(1, -1)
+      .replace(/'/g, "\\u0027").replace(/</g, "\\u003c")
+      .replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+    return escapeHtml(encoded);
+  }
+
+  function safeEmbedUrl(value) {
+    try {
+      const url = new URL(value);
+      if (url.protocol !== "https:" || url.username || url.password) return "about:blank";
+      if (!["www.youtube.com", "youtube.com", "www.youtube-nocookie.com", "youtube-nocookie.com", "player.vimeo.com"].includes(url.hostname)) return "about:blank";
+      return url.href;
+    } catch { return "about:blank"; }
+  }
+
+  function safeLinkUrl(value) {
+    try {
+      const url = new URL(String(value || "#"), location.href);
+      if (!["https:", "http:", "mailto:", "tel:"].includes(url.protocol) || url.username || url.password) return "#";
+      return escapeHtml(url.href);
+    } catch { return "#"; }
+  }
+
   function slugify(text) {
     return String(text || "church")
       .toLowerCase()
@@ -1217,31 +1242,15 @@ const MWE = (() => {
     localStorage.setItem(registrationsStorageKey, JSON.stringify(regs));
   }
 
-  function registerForEvent(reg) {
-    const regs = loadRegistrations();
-    const id = "REG-" + Math.floor(100000 + Math.random() * 900000);
-    const newReg = {
-      id,
-      eventId: reg.eventId,
-      fullName: reg.fullName,
-      email: reg.email,
-      ticketQuantity: reg.ticketQuantity,
-      amountPaidCents: reg.amountPaidCents,
-      registrationCode: id,
-      createdAt: new Date().toISOString()
-    };
-    regs.push(newReg);
-    saveRegistrations(regs);
-
-    // Increment tickets_sold
-    const evts = getEvents();
-    const evtIdx = evts.findIndex(evt => evt.id === reg.eventId);
-    if (evtIdx >= 0) {
-      evts[evtIdx].ticketsSold = (evts[evtIdx].ticketsSold || 0) + Number(reg.ticketQuantity);
-      saveEvents(evts);
-    }
-
-    return newReg;
+  async function registerForEvent(reg) {
+    const response = await fetch("/api/event-register", {
+      method: "POST", credentials: "same-origin",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ eventId: reg.eventId, fullName: reg.fullName, email: reg.email, ticketQuantity: reg.ticketQuantity })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.error || "Registration was not received.");
+    return { ...reg, ...result };
   }
 
   function getRegistrationsForEvent(eventId) {
@@ -1328,7 +1337,7 @@ const MWE = (() => {
           </div>
           
           <div class="cpc-modal-footer">
-            <button onclick="MWE.shareDirections('${escapeHtml(church.name.replace(/'/g, "\\'"))}', '${escapeHtml(church.location.replace(/'/g, "\\'"))}')" class="cpc-modal-btn-share">
+            <button onclick="MWE.shareDirections('${MWE.escapeJsAttribute(church.name)}', '${MWE.escapeJsAttribute(church.location)}')" class="cpc-modal-btn-share">
               <i data-lucide="share-2"></i> Share Directions
             </button>
             <a href="${mapDirectionsUrl}" target="_blank" rel="noopener noreferrer" class="cpc-modal-btn-gmaps" title="Open directions in ${providerName}">
@@ -1411,6 +1420,9 @@ const MWE = (() => {
     impactStats,
     stories,
     escapeHtml,
+    escapeJsAttribute,
+    safeEmbedUrl,
+    safeLinkUrl,
     titleCase,
     slugify,
     getChurches,
@@ -1811,8 +1823,11 @@ function initPrivateAppAuth() {
     } catch {}
     if (!creatorIdentityMatches) localStorage.removeItem(key);
   }
-  if (localStorage.getItem(key) === "authenticated" && creatorIdentityMatches) {
-    document.body.classList.add("is-authenticated");
+  localStorage.removeItem(key);
+  if (app === "church" && window.MWEAuth) {
+    window.MWEAuth.session().then(result => {
+      document.body.classList.toggle("is-authenticated", !!result.ok && !!result.user?.isCreator);
+    });
   }
 
   function updateUserDisplay() {
@@ -1842,6 +1857,7 @@ function initPrivateAppAuth() {
   }
 
   function signIn(target = "overview", account = {}) {
+    if (app === "owner") { showToast("Owner access requires server-configured administrator authorization."); return; }
     localStorage.setItem(key, "authenticated");
     localStorage.setItem("mwe.userLoggedIn", "true");
     document.body.classList.add("is-authenticated");
@@ -1868,15 +1884,18 @@ function initPrivateAppAuth() {
     });
   });
 
-  document.querySelector("[data-login-form]")?.addEventListener("submit", event => {
+  document.querySelector("[data-login-form]")?.addEventListener("submit", async event => {
     event.preventDefault();
-    signIn();
-  });
-
-  document.querySelector("[data-login-form]")?.addEventListener("keydown", event => {
-    if (event.key !== "Enter") return;
-    event.preventDefault();
-    if (event.currentTarget.reportValidity()) signIn();
+    const form = event.currentTarget;
+    if (app === "owner") { showToast("Owner access requires server-configured administrator authorization."); return; }
+    if (!form.reportValidity() || !window.MWEAuth) return;
+    const email = form.querySelector("input[type='text'],input[type='email']")?.value || "";
+    const password = form.querySelector("input[type='password']")?.value || "";
+    let result = await window.MWEAuth.login(email, password);
+    if (result.ok && !result.user.isCreator) result = await window.MWEAuth.creatorUpgrade();
+    if (!result.ok) { showToast(result.error || "Sign-in failed."); return; }
+    form.reset();
+    signIn("overview", result.user);
   });
 
   // Launch Goal selection cards
@@ -1991,7 +2010,7 @@ function initPrivateAppAuth() {
   });
 
   // Handle dynamic register form submission
-  document.querySelector("[data-register-form]")?.addEventListener("submit", event => {
+  document.querySelector("[data-register-form]")?.addEventListener("submit", async event => {
     event.preventDefault();
     const nameInput = event.target.querySelector("#reg-name");
     const cityInput = event.target.querySelector("#reg-city");
@@ -2009,6 +2028,10 @@ function initPrivateAppAuth() {
       return;
     }
     
+    if (app === "owner" || !window.MWEAuth) return;
+    const result = await window.MWEAuth.creatorRegister(registrantNameInput?.value || nameInput?.value || "Creator", emailInput?.value || "", passInput?.value || "");
+    if (!result.ok) { showToast(result.error || "Registration failed."); return; }
+
     if (nameInput && cityInput) {
       const newId = nameInput.value.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       
@@ -2033,7 +2056,7 @@ function initPrivateAppAuth() {
         email: emailInput ? emailInput.value : "info@" + newId + ".org",
         website: "https://" + newId + ".org",
         location: "10120 100 St NW, " + cityInput.value,
-        verified: true,
+        verified: false,
         photo: "assets/church-audience.jpg",
         logo: "",
         pastor: registrantNameInput && registrantNameInput.value ? registrantNameInput.value : "Pastor John Doe",
@@ -2050,7 +2073,7 @@ function initPrivateAppAuth() {
       
       const portalSelect = document.querySelector("[data-portal-select]");
       if (portalSelect) {
-        portalSelect.innerHTML = list.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+        portalSelect.innerHTML = list.map(c => `<option value="${MWE.escapeHtml(c.id)}">${MWE.escapeHtml(c.name)}</option>`).join("");
         portalSelect.value = newId;
         portalSelect.dispatchEvent(new Event("change"));
       }
@@ -2183,11 +2206,11 @@ function churchCard(church) {
   const bgPhoto = church.photo || church.coverImage || "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=800&q=80";
 
   return `
-    <article class="church-card-immersive" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=' + encodeURIComponent('${church.id}'); }" style="background-image: url('${MWE.escapeHtml(bgPhoto)}'); cursor: pointer;">
+    <article class="church-card-immersive" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=' + encodeURIComponent('${MWE.escapeJsAttribute(church.id)}'); }" style="background-image: url('${MWE.escapeHtml(bgPhoto)}'); cursor: pointer;">
       <div class="church-card-immersive-overlay">
         <div class="church-card-top-bar">
           <span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>
-          <button type="button" class="immersive-fav-btn" aria-label="Save church" onclick="MWE.toggleFavorite(event, '${church.id}')">
+          <button type="button" class="immersive-fav-btn" aria-label="Save church" onclick="MWE.toggleFavorite(event, '${MWE.escapeJsAttribute(church.id)}')">
             <i data-lucide="heart" style="width: 18px; height: 18px; fill: rgba(239, 68, 68, 0.2);"></i>
           </button>
         </div>
@@ -2201,10 +2224,10 @@ function churchCard(church) {
             <span><i data-lucide="clock"></i> ${MWE.escapeHtml(church.sunday || 'Sunday 10:00 AM')}</span>
           </div>
           <div class="church-card-action-row">
-            <a href="church-profile.html?id=${church.id}" class="immersive-pill-btn">
+            <a href="church-profile.html?id=${encodeURIComponent(church.id)}" class="immersive-pill-btn">
               Explore <i data-lucide="arrow-right"></i>
             </a>
-            <button type="button" class="immersive-map-btn" onclick="event.preventDefault(); event.stopPropagation(); MWE.showMapModal('${church.id}')" title="View Location on Map">
+            <button type="button" class="immersive-map-btn" onclick="event.preventDefault(); event.stopPropagation(); MWE.showMapModal('${MWE.escapeJsAttribute(church.id)}')" title="View Location on Map">
               <i data-lucide="map-pin"></i> Location
             </button>
           </div>
@@ -2476,7 +2499,7 @@ MWE.renderRelatedChurches = function(currentChurchId) {
   }
 
   container.innerHTML = otherChurches.map(c => `
-    <article class="church-card-split" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=' + encodeURIComponent('${c.id}'); }" style="cursor: pointer;">
+    <article class="church-card-split" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=' + encodeURIComponent('${MWE.escapeJsAttribute(c.id)}'); }" style="cursor: pointer;">
       <div class="church-card-split-media" style="background-image: url('${MWE.escapeHtml(c.coverImage || c.photo || "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=600&q=80")}'); cursor: pointer;">
         <span class="immersive-badge" style="position: absolute; top: 14px; left: 14px;"><i data-lucide="badge-check"></i> Verified</span>
       </div>
@@ -2490,10 +2513,10 @@ MWE.renderRelatedChurches = function(currentChurchId) {
           <a href="church-profile.html?id=${encodeURIComponent(c.id)}" class="split-dark-pill-btn">
             Explore <i data-lucide="arrow-right"></i>
           </a>
-          <button type="button" class="split-map-btn" onclick="MWE.showMapModal('${c.id}')" title="View Location on Map">
+          <button type="button" class="split-map-btn" onclick="MWE.showMapModal('${MWE.escapeJsAttribute(c.id)}')" title="View Location on Map">
             <i data-lucide="map-pin"></i> Location
           </button>
-          <button type="button" class="split-fav-btn" aria-label="Favorite" onclick="MWE.toggleFavorite(event, '${c.id}')">
+          <button type="button" class="split-fav-btn" aria-label="Favorite" onclick="MWE.toggleFavorite(event, '${MWE.escapeJsAttribute(c.id)}')">
             <i data-lucide="heart" style="width: 18px; height: 18px;"></i>
           </button>
         </div>
@@ -2562,7 +2585,7 @@ MWE.renderChurchGallery = function(church) {
   track.innerHTML = images.map((img, idx) => `
     <div class="church-gallery-card" onclick="MWE.openGalleryLightbox(${idx})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();MWE.openGalleryLightbox(${idx});}" tabindex="0" role="button" aria-label="${MWE.escapeHtml(img.title || 'Church Photo')}">
       <div class="church-gallery-thumb-wrap">
-        <img src="${img.src}" alt="${MWE.escapeHtml(img.title || 'Church Photo')}" class="church-gallery-thumb" loading="lazy" />
+        <img src="${MWE.escapeHtml(img.src)}" alt="${MWE.escapeHtml(img.title || 'Church Photo')}" class="church-gallery-thumb" loading="lazy" />
         <div class="church-gallery-overlay">
           <span class="gallery-zoom-badge"><i data-lucide="maximize-2"></i></span>
           <div class="gallery-overlay-text">
@@ -2967,7 +2990,7 @@ MWE.playTestimonyVideo = function(name, url) {
   const modal = document.getElementById("global-video-modal-view");
   const iframe = document.getElementById("global-video-iframe");
   if (modal && iframe) {
-    iframe.src = `${url}?autoplay=1`;
+    iframe.src = MWE.safeEmbedUrl(`${url}?autoplay=1`);
     modal.classList.add("open");
   }
   const heroIframe = document.getElementById("hero-promo-iframe");
@@ -3492,7 +3515,7 @@ function initLivestreamPage() {
     const lockOverlay = document.getElementById("video-lock-overlay");
     if (lockOverlay) lockOverlay.style.display = "none";
 
-    iframe.src = embedUrl;
+    iframe.src = MWE.safeEmbedUrl(embedUrl);
     if (videoLockTimeout) {
       clearTimeout(videoLockTimeout);
       videoLockTimeout = null;
@@ -3644,7 +3667,7 @@ function initChurchPortal() {
   function refreshSelect(selectedId = churches[0]?.id) {
     if (!select) return;
     const list = MWE.getChurches();
-    select.innerHTML = list.map(church => `<option value="${church.id}">${MWE.escapeHtml(church.name)}</option>`).join("");
+    select.innerHTML = list.map(church => `<option value="${MWE.escapeHtml(church.id)}">${MWE.escapeHtml(church.name)}</option>`).join("");
     if (selectedId) select.value = selectedId;
   }
 
@@ -3659,8 +3682,8 @@ function initChurchPortal() {
           <p>${MWE.escapeHtml(church.tagline)}</p>
           <div class="tag-row">${church.ministries.slice(0, 5).map(item => `<span class="tag">${MWE.escapeHtml(item)}</span>`).join("")}</div>
           <div class="card-actions">
-            <a class="button primary small" href="church-profile.html?id=${church.id}">Public profile</a>
-            <a class="button ghost small" href="livestream.html?id=${church.id}">Livestream</a>
+            <a class="button primary small" href="church-profile.html?id=${encodeURIComponent(church.id)}">Public profile</a>
+            <a class="button ghost small" href="livestream.html?id=${encodeURIComponent(church.id)}">Livestream</a>
           </div>
         </div>
       </div>
@@ -3759,12 +3782,12 @@ function initChurchPortal() {
           <td>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
               ${!isStage1Done ? `
-                <button type="button" class="button primary small" onclick="MWE.confirmRideStage1('${r.id}')"><i data-lucide="phone-check"></i> Confirm Phone/Text</button>
+                <button type="button" class="button primary small" onclick="MWE.confirmRideStage1('${MWE.escapeJsAttribute(r.id)}')"><i data-lucide="phone-check"></i> Confirm Phone/Text</button>
               ` : ''}
               ${!isStage2Done ? `
-                <button type="button" class="button outline small" onclick="MWE.assignDriver('${r.id}')"><i data-lucide="car"></i> Confirm Schedule & Driver</button>
+                <button type="button" class="button outline small" onclick="MWE.assignDriver('${MWE.escapeJsAttribute(r.id)}')"><i data-lucide="car"></i> Confirm Schedule & Driver</button>
               ` : `
-                <button type="button" class="button ghost small" onclick="MWE.openRideConfirmationModal('${r.id}')"><i data-lucide="eye"></i> View 2-Stage Pass</button>
+                <button type="button" class="button ghost small" onclick="MWE.openRideConfirmationModal('${MWE.escapeJsAttribute(r.id)}')"><i data-lucide="eye"></i> View 2-Stage Pass</button>
               `}
             </div>
           </td>
@@ -3930,15 +3953,15 @@ function initAdminPage() {
       <tr>
         <td><strong>${MWE.escapeHtml(church.name)}</strong><br><span class="meta">${MWE.escapeHtml(church.city)} / ${MWE.escapeHtml(church.area)}</span></td>
         <td>${MWE.escapeHtml(church.pastor)}<br><span class="meta">${MWE.escapeHtml(church.pastorTitle)}</span></td>
-        <td><a href="tel:${church.phone}">${MWE.escapeHtml(church.phoneLabel || church.phone)}</a><br><a href="${church.emailHref}">${MWE.escapeHtml(church.email)}</a></td>
+        <td><a href="${MWE.safeLinkUrl(`tel:${church.phone}`)}">${MWE.escapeHtml(church.phoneLabel || church.phone)}</a><br><a href="${MWE.safeLinkUrl(church.emailHref)}">${MWE.escapeHtml(church.email)}</a></td>
         <td><span class="status ${church.verified ? "" : "pending"}"><i data-lucide="${church.verified ? "badge-check" : "clock"}"></i>${church.verified ? "Verified" : "Pending"}</span></td>
         <td><span class="status ${church.livestream.enabled ? "premium" : "offline"}"><i data-lucide="${church.livestream.enabled ? "radio" : "lock"}"></i>${church.livestream.enabled ? (church.livestream.paid ? "Premium" : "Enabled") : "Off"}</span></td>
         <td>
           <div class="row-actions">
-            <button class="button small ghost" data-action="edit" data-id="${church.id}">Edit</button>
-            <button class="button small ghost" data-action="verify" data-id="${church.id}">${church.verified ? "Unverify" : "Verify"}</button>
-            <a class="button small ghost" href="church-profile.html?id=${church.id}">View</a>
-            <button class="button small danger" data-action="remove" data-id="${church.id}">Remove</button>
+            <button class="button small ghost" data-action="edit" data-id="${MWE.escapeHtml(church.id)}">Edit</button>
+            <button class="button small ghost" data-action="verify" data-id="${MWE.escapeHtml(church.id)}">${church.verified ? "Unverify" : "Verify"}</button>
+            <a class="button small ghost" href="church-profile.html?id=${encodeURIComponent(church.id)}">View</a>
+            <button class="button small danger" data-action="remove" data-id="${MWE.escapeHtml(church.id)}">Remove</button>
           </div>
         </td>
       </tr>
@@ -4003,24 +4026,9 @@ async function detectUserCity() {
     if (cached) return JSON.parse(cached);
   } catch {}
 
-  // Attempt 1: ipapi.co
+  // Use the platform's coarse Cloudflare location without third-party IP lookups.
   try {
-    const res = await fetch("https://ipapi.co/json/");
-    if (res.ok) {
-      const data = await res.json();
-      if (data.city) {
-        const result = { city: data.city, countryCode: data.country_code || "CA" };
-        sessionStorage.setItem(cacheKey, JSON.stringify(result));
-        return result;
-      }
-    }
-  } catch (e) {
-    console.warn("ipapi.co failed, trying fallback...", e);
-  }
-
-  // Attempt 2: ip-api.com
-  try {
-    const res = await fetch("https://ip-api.com/json/");
+    const res = await fetch("/api/location", { credentials: "same-origin" });
     if (res.ok) {
       const data = await res.json();
       if (data.city) {
@@ -4029,10 +4037,7 @@ async function detectUserCity() {
         return result;
       }
     }
-  } catch (e) {
-    console.warn("ip-api.com failed...", e);
-  }
-
+  } catch {}
   // Fallback default city (Edmonton, as it's the primary seeded city)
   return { city: "Edmonton", countryCode: "CA" };
 }
@@ -4911,32 +4916,7 @@ MWE.handleNavDropdownAuthSubmit = async function(event) {
 };
 
 MWE.handleGoogleAuthFast = async function() {
-  // Demo one-click account. Real Google OAuth requires a Google Cloud OAuth
-  // client to be configured separately; this signs the visitor into a real,
-  // server-persisted demo account rather than only faking it client-side.
-  const defaultGoogleName = "Google Seeker";
-  const defaultGoogleEmail = "seeker@gmail.com";
-  const demoPassword = "google-demo-account";
-
-  if (!window.MWEAuth) return;
-
-  let result = await window.MWEAuth.login(defaultGoogleEmail, demoPassword);
-  if (!result.ok) {
-    result = await window.MWEAuth.register(defaultGoogleName, defaultGoogleEmail, demoPassword);
-  }
-  if (!result.ok) {
-    if (typeof showToast === "function") showToast(result.error || "Could not sign in with Google right now.");
-    return;
-  }
-
-  const popover = document.getElementById("nav-signin-popover");
-  if (popover) popover.hidden = true;
-  document.getElementById("nav-signin-dropdown-container")?.classList.remove("is-open");
-
-  if (typeof showToast === "function") {
-    showToast("Signed in with Google as " + (result.user?.name || defaultGoogleName));
-  }
-  updateHomepageAuthUI();
+  showToast("Google sign-in is not configured. Please sign in with your email and password.");
 };
 
 document.addEventListener("click", function(event) {
@@ -4951,8 +4931,10 @@ document.addEventListener("click", function(event) {
   }
 });
 
-MWE.logoutMember = function() {
-  if (window.MWEAuth) window.MWEAuth.logout().catch(() => {});
+MWE.logoutMember = async function() {
+  if (!window.MWEAuth) { showToast("Could not sign out securely. Please reload and try again."); return; }
+  const result = await window.MWEAuth.logout();
+  if (!result.ok) { showToast(result.error || "Could not sign out securely. Please try again."); return; }
   localStorage.removeItem("mwe.userLoggedIn");
   localStorage.removeItem("mwe.username");
   localStorage.removeItem("mwe.userEmail");
@@ -4964,17 +4946,15 @@ MWE.logoutMember = function() {
   updateHomepageAuthUI();
 };
 
-MWE.handleHomepageQuickLogin = function(event) {
+MWE.handleHomepageQuickLogin = async function(event) {
   event.preventDefault();
   const form = event.currentTarget;
-  const emailInput = form.querySelector("input[name='email']");
-  const email = (emailInput?.value || "").trim() || "Member";
-  const username = email.split("@")[0] || "Member";
-  localStorage.setItem("mwe.userLoggedIn", "true");
-  localStorage.setItem("mwe.username", username);
-  localStorage.setItem("mwe.userEmail", email.toLowerCase());
-  if (typeof showToast === "function") showToast(`Welcome back, ${username}!`);
-  updateHomepageAuthUI();
+  if (!form.reportValidity() || !window.MWEAuth) return;
+  const email = form.querySelector("input[name='email']")?.value || "";
+  const password = form.querySelector("input[name='password']")?.value || "";
+  const result = await window.MWEAuth.login(email, password);
+  showToast(result.ok ? "Welcome back!" : result.error || "Sign-in failed.");
+  if (result.ok) { form.reset(); updateHomepageAuthUI(); }
 };
 
 function initCustomDropdowns() {
@@ -6033,7 +6013,7 @@ MWE.openEventModal = function(id) {
   let actionButton = "";
   if (!isPast) {
     actionButton = `
-      <button class="button primary block large" onclick="MWE.openRegModal('${evt.id}')" style="margin-top: 24px; width: 100%;">
+      <button class="button primary block large" onclick="MWE.openRegModal('${MWE.escapeJsAttribute(evt.id)}')" style="margin-top: 24px; width: 100%;">
         <i data-lucide="ticket"></i> Register / Get Tickets
       </button>
     `;
@@ -6048,11 +6028,11 @@ MWE.openEventModal = function(id) {
   let locationInfo = "";
   if (evt.eventType === "streamed") {
     locationInfo = `
-      <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="video" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Streamed Event</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">Broadcast online via <a href="${evt.livestreamUrl || '#'}" target="_blank">${evt.livestreamUrl || 'livestream channel'}</a></p></div></div>
+      <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="video" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Streamed Event</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">Broadcast online via <a href="${MWE.safeLinkUrl(evt.livestreamUrl)}" target="_blank">${MWE.escapeHtml(evt.livestreamUrl || 'livestream channel')}</a></p></div></div>
     `;
   } else {
     locationInfo = `
-      <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="map-pin" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Venue / Location</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">${MWE.escapeHtml(evt.venueName || "Venue")}, ${MWE.escapeHtml(evt.city || (church ? church.city : ""))}<br><small><a href="${evt.directionsUrl || '#'}" target="_blank">Get Directions</a></small></p></div></div>
+      <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="map-pin" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Venue / Location</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">${MWE.escapeHtml(evt.venueName || "Venue")}, ${MWE.escapeHtml(evt.city || (church ? church.city : ""))}<br><small><a href="${MWE.safeLinkUrl(evt.directionsUrl)}" target="_blank">Get Directions</a></small></p></div></div>
     `;
   }
 
@@ -6062,7 +6042,7 @@ MWE.openEventModal = function(id) {
       <div class="event-meta-info-list" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
         <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="calendar" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Date & Time</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">${formattedDate}</p></div></div>
         ${locationInfo}
-        <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="church" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Hosted By</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);"><a href="church-profile.html?id=${evt.churchId}">${MWE.escapeHtml(organizerName)}</a></p></div></div>
+        <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="church" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Hosted By</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);"><a href="church-profile.html?id=${encodeURIComponent(evt.churchId)}">${MWE.escapeHtml(organizerName)}</a></p></div></div>
         <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="banknote" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Admission Price</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">${price}</p></div></div>
       </div>
       <div class="event-description-box" style="border-top: 1px solid var(--line); padding-top: 16px;">
@@ -6133,7 +6113,7 @@ MWE.updateCheckoutPrice = function() {
   }
 };
 
-MWE.handleRegistrationSubmit = function(e) {
+MWE.handleRegistrationSubmit = async function(e) {
   e.preventDefault();
   const eventId = document.getElementById("reg-event-id").value;
   const fullName = document.getElementById("reg-full-name").value;
@@ -6145,13 +6125,14 @@ MWE.handleRegistrationSubmit = function(e) {
   const evt = MWE.getEvent(eventId);
   if (!evt) return;
 
-  const reg = MWE.registerForEvent({
+  let reg;
+  try { reg = await MWE.registerForEvent({
     eventId,
     fullName,
     email,
     ticketQuantity,
     ticketPriceCents: evt.ticketPriceCents || 0
-  });
+  }); } catch (error) { showToast(error.message || "Registration was not received."); return; }
 
   // Render receipt ticket with QR Code!
   const formContainer = document.getElementById("reg-form-container");
@@ -6177,8 +6158,7 @@ MWE.handleRegistrationSubmit = function(e) {
         </div>
 
         <div style="text-align: center;">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${reg.registrationCode}" alt="Ticket QR Code" style="width: 140px; height: 140px; border: 1px solid var(--line); padding: 4px; border-radius: 6px; margin-bottom: 6px; display:inline-block;" />
-          <div style="font-size:0.7rem; color:var(--muted)">Scan code to verify entry</div>
+                    <div style="font-size:0.7rem; color:var(--muted)">Scan code to verify entry</div>
         </div>
       </div>
 
@@ -6329,9 +6309,9 @@ MWE.renderPortalEvents = function(churchId) {
         <td style="padding:12px;">${formattedDate}</td>
         <td style="padding:12px;">${price}<br><small style="color:var(--muted)">${sold}${limit} sold</small></td>
         <td style="padding:12px; text-align:right;">
-          <button class="button ghost small" style="margin-right:4px;" onclick="MWE.viewEventRegistrants('${evt.id}')" title="View Attendees"><i data-lucide="users" style="width:14px;height:14px;display:inline-block;"></i></button>
-          <button class="button ghost small" style="margin-right:4px;" onclick="MWE.editPortalEvent('${evt.id}')" title="Edit Event"><i data-lucide="edit-3" style="width:14px;height:14px;display:inline-block;"></i></button>
-          <button class="button ghost small danger" onclick="MWE.deletePortalEvent('${evt.id}')" title="Delete Event">&times;</button>
+          <button class="button ghost small" style="margin-right:4px;" onclick="MWE.viewEventRegistrants('${MWE.escapeJsAttribute(evt.id)}')" title="View Attendees"><i data-lucide="users" style="width:14px;height:14px;display:inline-block;"></i></button>
+          <button class="button ghost small" style="margin-right:4px;" onclick="MWE.editPortalEvent('${MWE.escapeJsAttribute(evt.id)}')" title="Edit Event"><i data-lucide="edit-3" style="width:14px;height:14px;display:inline-block;"></i></button>
+          <button class="button ghost small danger" onclick="MWE.deletePortalEvent('${MWE.escapeJsAttribute(evt.id)}')" title="Delete Event">&times;</button>
         </td>
       </tr>
     `;
@@ -6500,7 +6480,7 @@ MWE.updatePageCheckoutPrice = function() {
   }
 };
 
-MWE.handlePageRegistrationSubmit = function(e) {
+MWE.handlePageRegistrationSubmit = async function(e) {
   e.preventDefault();
   const urlParams = new URLSearchParams(window.location.search);
   const eventId = urlParams.get("id");
@@ -6517,13 +6497,14 @@ MWE.handlePageRegistrationSubmit = function(e) {
 
   if (!firstName || !lastName || !email) return;
 
-  const reg = MWE.registerForEvent({
+  let reg;
+  try { reg = await MWE.registerForEvent({
     eventId,
     fullName,
     email,
     ticketQuantity,
     ticketPriceCents: evt.ticketPriceCents || 0
-  });
+  }); } catch (error) { showToast(error.message || "Registration was not received."); return; }
 
   const formContainer = document.getElementById("page-reg-form-container");
   const receiptContainer = document.getElementById("page-reg-receipt-container");
@@ -6547,8 +6528,7 @@ MWE.handlePageRegistrationSubmit = function(e) {
         </div>
 
         <div style="text-align: center;">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${reg.registrationCode}" alt="Ticket QR Code" style="width: 140px; height: 140px; border: 1px solid var(--line); padding: 4px; border-radius: 6px; margin-bottom: 6px; display:inline-block;" />
-          <div style="font-size:0.7rem; color:var(--muted)">Scan code to verify entry</div>
+                    <div style="font-size:0.7rem; color:var(--muted)">Scan code to verify entry</div>
         </div>
       </div>
     </div>
@@ -6626,7 +6606,7 @@ MWE.renderItineraryDrawer = function() {
 
   container.innerHTML = items.map(item => `
     <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/50 relative">
-      <button onclick="MWE.toggleSessionStar(event, '${MWE.escapeHtml(item.title)}')" class="absolute top-3 right-3 text-clay-500 hover:text-rose-500 transition-colors">
+      <button onclick="MWE.toggleSessionStar(event, '${MWE.escapeJsAttribute(item.title)}')" class="absolute top-3 right-3 text-clay-500 hover:text-rose-500 transition-colors">
         <i class="fa-solid fa-star"></i>
       </button>
       <span class="inline-block px-2 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-wide bg-brand-50 text-brand-600 mb-2">
@@ -6646,12 +6626,12 @@ MWE.showSpeakerDetail = function(idx) {
   if (!sp) return;
   const modalBody = `
     <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-      <img src="${sp.image}" alt="${sp.name}" class="w-32 h-32 rounded-2xl object-cover border-4 border-brand-500/20 shadow-md shrink-0" />
+      <img src="${MWE.escapeHtml(sp.image)}" alt="${MWE.escapeHtml(sp.name)}" class="w-32 h-32 rounded-2xl object-cover border-4 border-brand-500/20 shadow-md shrink-0" />
       <div>
-        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">${sp.specialty} Spotlight</span>
-        <h3 class="text-2xl font-bold text-slate-900 mt-1">${sp.name}</h3>
-        <p class="text-sm font-semibold text-clay-500 mb-4">${sp.role}</p>
-        <p class="text-sm text-slate-600 leading-relaxed">${sp.bio}</p>
+        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">${MWE.escapeHtml(sp.specialty)} Spotlight</span>
+        <h3 class="text-2xl font-bold text-slate-900 mt-1">${MWE.escapeHtml(sp.name)}</h3>
+        <p class="text-sm font-semibold text-clay-500 mb-4">${MWE.escapeHtml(sp.role)}</p>
+        <p class="text-sm text-slate-600 leading-relaxed">${MWE.escapeHtml(sp.bio)}</p>
       </div>
     </div>
   `;
@@ -6722,13 +6702,13 @@ MWE.renderScheduleTracks = function() {
     const isActive = MWE.currentScheduleTrack === tr.id;
     if (isActive) {
       return `
-        <button onclick="MWE.switchScheduleTrack('${tr.id}')" class="px-4 py-2 rounded-full text-xs font-extrabold bg-brand-500 text-white shadow-sm transition-all">
+        <button onclick="MWE.switchScheduleTrack('${MWE.escapeJsAttribute(tr.id)}')" class="px-4 py-2 rounded-full text-xs font-extrabold bg-brand-500 text-white shadow-sm transition-all">
           ${tr.label}
         </button>
       `;
     } else {
       return `
-        <button onclick="MWE.switchScheduleTrack('${tr.id}')" class="px-4 py-2 rounded-full text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all">
+        <button onclick="MWE.switchScheduleTrack('${MWE.escapeJsAttribute(tr.id)}')" class="px-4 py-2 rounded-full text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all">
           ${tr.label}
         </button>
       `;
@@ -6787,7 +6767,7 @@ MWE.renderSchedule = function() {
               <p class="text-slate-500 text-sm mt-3 leading-relaxed">${item.desc}</p>
             </div>
             
-            <button onclick="MWE.toggleSessionStar(event, '${MWE.escapeHtml(item.title)}')" class="p-2.5 rounded-full border border-slate-200 hover:border-brand-200 bg-white hover:bg-brand-50/30 text-slate-400 hover:text-brand-500 transition-colors shrink-0">
+            <button onclick="MWE.toggleSessionStar(event, '${MWE.escapeJsAttribute(item.title)}')" class="p-2.5 rounded-full border border-slate-200 hover:border-brand-200 bg-white hover:bg-brand-50/30 text-slate-400 hover:text-brand-500 transition-colors shrink-0">
               <i class="${isStarred ? 'fa-solid text-clay-500' : 'fa-regular'} fa-star"></i>
             </button>
           </div>
@@ -6834,7 +6814,7 @@ function initEventProfilePage() {
   const church = MWE.getChurches().find(c => c.id === evt.churchId);
   const organizerName = church ? church.name : "Christian Fellowship";
   const orgLead = document.getElementById("event-profile-organizer-lead");
-  if (orgLead) orgLead.innerHTML = `Hosted by <a href="church-profile.html?id=${evt.churchId || ''}" class="text-clay-500 dark:text-gold-500 hover:underline">${MWE.escapeHtml(organizerName)}</a>`;
+  if (orgLead) orgLead.innerHTML = `Hosted by <a href="church-profile.html?id=${encodeURIComponent(evt.churchId || '')}" class="text-clay-500 dark:text-gold-500 hover:underline">${MWE.escapeHtml(organizerName)}</a>`;
 
   // Populate dynamic badge details
   const dateObj = new Date(evt.startsAt);
@@ -7007,7 +6987,7 @@ function initEventProfilePage() {
       return `
       <div class="spk-card" onclick="MWE.showSpeakerDetail(${idx})">
         <div class="spk-photo-wrap">
-          <img src="${sp.image}" alt="${MWE.escapeHtml(sp.name)}" class="spk-photo" />
+          <img src="${MWE.escapeHtml(sp.image)}" alt="${MWE.escapeHtml(sp.name)}" class="spk-photo" />
         </div>
         <div class="spk-info">
           <h4 class="spk-name">${MWE.escapeHtml(sp.name)}</h4>
@@ -7126,7 +7106,7 @@ MWE.openLivePlayer = function(churchId) {
   const lockOverlay = document.getElementById("video-lock-overlay");
   if (lockOverlay) lockOverlay.style.display = "none";
 
-  iframe.src = embedUrl;
+  iframe.src = MWE.safeEmbedUrl(embedUrl);
   if (videoLockTimeout) {
     clearTimeout(videoLockTimeout);
     videoLockTimeout = null;
@@ -7368,17 +7348,17 @@ MWE.renderStageQueue = function() {
   }
 
   queueList.innerHTML = MWE.stageState.queue.map(guest => `
-    <div class="stage-queue-card" id="queue-card-${guest.id}">
-      <img src="${guest.avatar}" alt="${MWE.escapeHtml(guest.name)}" class="queue-card-avatar" />
+    <div class="stage-queue-card" id="queue-card-${MWE.escapeHtml(guest.id)}">
+      <img src="${MWE.escapeHtml(guest.avatar)}" alt="${MWE.escapeHtml(guest.name)}" class="queue-card-avatar" />
       <div class="queue-card-info">
         <strong>${MWE.escapeHtml(guest.name)}</strong>
         <span>${MWE.escapeHtml(guest.topic)}</span>
       </div>
       <div class="queue-card-actions">
-        <button type="button" class="btn-bring-stage" onclick="MWE.bringGuestToStage('${guest.id}')">
+        <button type="button" class="btn-bring-stage" onclick="MWE.bringGuestToStage('${MWE.escapeJsAttribute(guest.id)}')">
           <i data-lucide="video"></i> <span>Bring to Stage</span>
         </button>
-        <button type="button" class="btn-dismiss-request" onclick="MWE.dismissStageRequest('${guest.id}')" title="Dismiss">
+        <button type="button" class="btn-dismiss-request" onclick="MWE.dismissStageRequest('${MWE.escapeJsAttribute(guest.id)}')" title="Dismiss">
           <i data-lucide="x"></i>
         </button>
       </div>
@@ -7497,7 +7477,7 @@ function initStreamsPage() {
     const isLive = c.livestream?.enabled === true || c.livestream?.enabled === "true";
 
     return `
-      <a href="livestream.html?id=${c.id}" class="livestream-card-16-9 ${isLive ? 'is-live' : ''}" style="background-image: url('${MWE.escapeHtml(photo)}');">
+      <a href="livestream.html?id=${encodeURIComponent(c.id)}" class="livestream-card-16-9 ${isLive ? 'is-live' : ''}" style="background-image: url('${MWE.escapeHtml(photo)}');">
         <div class="livestream-card-overlay"></div>
         
         <div class="livestream-card-top">
@@ -7611,7 +7591,7 @@ MWE.openRideModal = function(preferredService = "Sunday 10:00 AM Service", targe
       <form onsubmit="MWE.handleRideSubmit(event)" class="mt-4">
         <label class="form-field mb-2"><span>Select Local Church *</span>
           <select name="churchId" class="field" required>
-            ${churches.map(c => `<option value="${c.id}" ${c.id === selectedChurchId ? 'selected' : ''}>${MWE.escapeHtml(c.name)} (${MWE.escapeHtml(c.city)})</option>`).join("")}
+            ${churches.map(c => `<option value="${MWE.escapeHtml(c.id)}" ${c.id === selectedChurchId ? 'selected' : ''}>${MWE.escapeHtml(c.name)} (${MWE.escapeHtml(c.city)})</option>`).join("")}
           </select>
         </label>
         <div class="compact-grid">
@@ -7851,7 +7831,7 @@ MWE.openRideConfirmationModal = function(rideId) {
               Our local church transportation dispatcher has received your request and will call or text <strong>${MWE.escapeHtml(r.phone)}</strong> to confirm driver availability for <strong>${MWE.escapeHtml(r.preferredService)}</strong>.
             </p>
             <div style="margin-top: 10px; display: flex; gap: 8px;">
-              <button type="button" class="button primary small" onclick="MWE.confirmRideStage1('${r.id}')">
+              <button type="button" class="button primary small" onclick="MWE.confirmRideStage1('${MWE.escapeJsAttribute(r.id)}')">
                 <i data-lucide="phone-forwarded"></i> Confirm Phone / Text Received
               </button>
             </div>
@@ -7892,7 +7872,7 @@ MWE.openRideConfirmationModal = function(rideId) {
               Availability is verified! The transportation team is locking in the vehicle route and driver assignment.
             </p>
             <div style="margin-top: 10px; display: flex; gap: 8px;">
-              <button type="button" class="button primary small" onclick="MWE.confirmRideSchedule('${r.id}')">
+              <button type="button" class="button primary small" onclick="MWE.confirmRideSchedule('${MWE.escapeJsAttribute(r.id)}')">
                 <i data-lucide="calendar-check"></i> Finalize Schedule Confirmation
               </button>
             </div>
@@ -7949,12 +7929,12 @@ MWE.openPlanVisitModal = function(targetChurchId = "") {
         <form id="global-plan-visit-form" onsubmit="MWE.handleGlobalVisitSubmit(event)" class="mt-4">
           <label class="form-field mb-2"><span>Select Church *</span>
             <select name="churchId" class="field" required onchange="MWE.onVisitChurchChange(this.value)">
-              ${churches.map(c => `<option value="${c.id}" ${c.id === selectedChurchId ? 'selected' : ''}>${MWE.escapeHtml(c.name)} (${MWE.escapeHtml(c.city)})</option>`).join("")}
+              ${churches.map(c => `<option value="${MWE.escapeHtml(c.id)}" ${c.id === selectedChurchId ? 'selected' : ''}>${MWE.escapeHtml(c.name)} (${MWE.escapeHtml(c.city)})</option>`).join("")}
             </select>
           </label>
           <label class="form-field mb-2"><span>Preferred Gathering Time *</span>
             <select name="gathering" id="modal-gathering-select" class="field" required>
-              ${(church.schedule || [["Sunday Service", church.sunday || "10:00 AM"]]).map(([label, time]) => `<option value="${label} (${time})">${label} - ${time}</option>`).join("")}
+              ${(church.schedule || [["Sunday Service", church.sunday || "10:00 AM"]]).map(([label, time]) => `<option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>`).join("")}
             </select>
           </label>
           <div class="compact-grid">
@@ -7992,7 +7972,7 @@ MWE.onVisitChurchChange = function(churchId) {
   const select = document.getElementById("modal-gathering-select");
   if (select && church) {
     const schedules = church.schedule || [["Sunday Service", church.sunday || "10:00 AM"]];
-    select.innerHTML = schedules.map(([label, time]) => `<option value="${label} (${time})">${label} - ${time}</option>`).join("");
+    select.innerHTML = schedules.map(([label, time]) => `<option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>`).join("");
   }
 };
 
@@ -8038,7 +8018,7 @@ MWE.handleGlobalVisitSubmit = function(e) {
         </div>
         <div style="display:flex; gap:10px; justify-content:center;">
           <button type="button" class="button primary" onclick="document.getElementById('plan-visit-modal-backdrop').remove()">Done</button>
-          <a href="church-profile.html?id=${church.id}" class="button outline">View Church Profile</a>
+          <a href="church-profile.html?id=${encodeURIComponent(church.id)}" class="button outline">View Church Profile</a>
         </div>
       </div>
     `;
@@ -8075,7 +8055,7 @@ MWE.openPrayerModal = function(targetChurchId = "") {
       <form onsubmit="MWE.handlePrayerSubmit(event)" class="mt-4">
         <label class="form-field mb-2"><span>Select Local Church Prayer Team *</span>
           <select name="churchId" class="field" required>
-            ${churches.map(c => `<option value="${c.id}" ${c.id === selectedChurchId ? 'selected' : ''}>${MWE.escapeHtml(c.name)} (${MWE.escapeHtml(c.city)})</option>`).join("")}
+            ${churches.map(c => `<option value="${MWE.escapeHtml(c.id)}" ${c.id === selectedChurchId ? 'selected' : ''}>${MWE.escapeHtml(c.name)} (${MWE.escapeHtml(c.city)})</option>`).join("")}
           </select>
         </label>
         <label class="form-field"><span>Your Prayer Need / Request *</span><textarea required name="requestText" rows="4" placeholder="Describe your prayer need..."></textarea></label>
@@ -8160,7 +8140,7 @@ MWE.openSalvationModal = function(targetChurchId = "") {
       <form onsubmit="MWE.handleSalvationSubmit(event)" class="mt-4">
         <label class="form-field mb-2"><span>Select Local Church for Discipleship & Bible Delivery *</span>
           <select name="churchId" class="field" required>
-            ${churches.map(c => `<option value="${c.id}" ${c.id === selectedChurchId ? 'selected' : ''}>${MWE.escapeHtml(c.name)} (${MWE.escapeHtml(c.city)})</option>`).join("")}
+            ${churches.map(c => `<option value="${MWE.escapeHtml(c.id)}" ${c.id === selectedChurchId ? 'selected' : ''}>${MWE.escapeHtml(c.name)} (${MWE.escapeHtml(c.city)})</option>`).join("")}
           </select>
         </label>
         <div class="compact-grid">
@@ -8360,7 +8340,7 @@ MWE.onCustomAmountInput = function(input) {
     p.classList.toggle("active", pillAmt === val);
   });
 
-  const displayVal = input.value || 50;
+  const displayVal = Number.isFinite(val) && val > 0 ? val : 50;
   const submitBtn = input.closest("form") ? input.closest("form").querySelector("button[type='submit']") : null;
   if (submitBtn) {
     submitBtn.innerHTML = `<i data-lucide="heart" style="width: 20px; height: 20px;"></i> Complete $${displayVal} Contribution`;
@@ -8378,41 +8358,7 @@ MWE.setPayMethod = function(elem) {
 
 MWE.handleDonationSubmit = function(e) {
   e.preventDefault();
-  const form = e.target;
-  const data = Object.fromEntries(new FormData(form));
-  const customInput = document.getElementById("custom-donate-amount") || document.getElementById("donate-custom-amount");
-  const activePill = form.querySelector(".amount-pill.active, .master-amount-pill.active");
-  
-  let amount = 50;
-  if (customInput && customInput.value) {
-    amount = customInput.value;
-  } else if (activePill) {
-    amount = activePill.textContent.replace("$", "").trim();
-  }
-  
-  const donorName = data.donorName || "Generous Partner";
-  const regCode = "REC-DON-" + Math.floor(100000 + Math.random() * 900000);
-
-  const backdrop = document.createElement("div");
-  backdrop.className = "alert-modal-backdrop open";
-  backdrop.innerHTML = `
-    <div class="dash-panel dash-panel-pad text-center" style="max-width: 500px; width: 90%; margin: 20px auto; border-radius: 24px; padding: 36px;">
-      <div class="success-check-circle mx-auto" style="width: 60px; height: 60px; border-radius: 50%; background: rgba(176, 129, 26, 0.12); color: #b0811a; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px;"><i data-lucide="check-circle-2" style="width: 32px; height: 32px;"></i></div>
-      <h3 style="font-size: 1.5rem; font-weight: 900; color: #0f172a; margin-bottom: 8px;">Thank You, ${MWE.escapeHtml(donorName)}!</h3>
-      <p style="font-size: 0.95rem; color: #475569; margin-bottom: 20px;">Your contribution of <strong style="color: #b0811a;">$${amount}.00 USD</strong> has been received and allocated to the <strong>My Way of Evangelism Platform Fund</strong>.</p>
-      
-      <div style="background: #f8fafc; border: 1.5px dashed rgba(176, 129, 26, 0.4); border-radius: 16px; padding: 16px; margin-bottom: 20px;">
-        <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #64748b; display: block; margin-bottom: 4px;">Confirmation Receipt</span>
-        <strong style="font-size: 1.3rem; font-weight: 900; color: #0f172a; letter-spacing: 0.04em;">${regCode}</strong>
-      </div>
-      <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.5;">An official tax deductible receipt has been logged. Thank you for empowering local evangelism technology and bi-monthly orphanage relief.</p>
-      <div style="margin-top: 24px;">
-        <button type="button" class="button primary lg" style="width: 100%; height: 48px; border-radius: 14px; background: #b0811a; border-color: #b0811a; font-weight: 800;" onclick="this.closest('.alert-modal-backdrop').remove()">Close & Return</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(backdrop);
-  createIcons();
+  showToast("Donations are unavailable until a verified payment provider is configured.");
 };
 
 MWE.downloadCalendarICS = function(title, timeStr, location) {
@@ -8552,7 +8498,7 @@ MWE.openCalendarModal = function(title, timeStr = "Sunday 10:00 AM", location = 
         </a>
 
         <!-- Apple Calendar / iOS iCal -->
-        <button type="button" style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--border, #e2e8f0); background: var(--surface, #ffffff); text-align: left; color: var(--text-primary, #0f172a); font-weight: 750; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease;" onclick="MWE.downloadCalendarICS('${MWE.escapeHtml(title).replace(/'/g, "\\'")}', '${MWE.escapeHtml(timeStr).replace(/'/g, "\\'")}', '${MWE.escapeHtml(finalLocation).replace(/'/g, "\\'")}'); document.getElementById('calendar-modal-backdrop').remove();">
+        <button type="button" style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--border, #e2e8f0); background: var(--surface, #ffffff); text-align: left; color: var(--text-primary, #0f172a); font-weight: 750; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease;" onclick="MWE.downloadCalendarICS('${MWE.escapeJsAttribute(title)}', '${MWE.escapeJsAttribute(timeStr)}', '${MWE.escapeJsAttribute(finalLocation)}'); document.getElementById('calendar-modal-backdrop').remove();">
           <span style="width: 32px; height: 32px; border-radius: 8px; background: #000000; color: #fff; display: grid; place-items: center; font-size: 16px;"><i class="fa-brands fa-apple"></i></span>
           <div style="flex: 1;">
             <div>Apple Calendar (iPhone, iPad, Mac)</div>
@@ -8572,7 +8518,7 @@ MWE.openCalendarModal = function(title, timeStr = "Sunday 10:00 AM", location = 
         </a>
 
         <!-- Standard ICS File Download -->
-        <button type="button" style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--border, #e2e8f0); background: var(--surface, #ffffff); text-align: left; color: var(--text-primary, #0f172a); font-weight: 750; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease;" onclick="MWE.downloadCalendarICS('${MWE.escapeHtml(title).replace(/'/g, "\\'")}', '${MWE.escapeHtml(timeStr).replace(/'/g, "\\'")}', '${MWE.escapeHtml(finalLocation).replace(/'/g, "\\'")}'); document.getElementById('calendar-modal-backdrop').remove();">
+        <button type="button" style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--border, #e2e8f0); background: var(--surface, #ffffff); text-align: left; color: var(--text-primary, #0f172a); font-weight: 750; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease;" onclick="MWE.downloadCalendarICS('${MWE.escapeJsAttribute(title)}', '${MWE.escapeJsAttribute(timeStr)}', '${MWE.escapeJsAttribute(finalLocation)}'); document.getElementById('calendar-modal-backdrop').remove();">
           <span style="width: 32px; height: 32px; border-radius: 8px; background: var(--primary-surface, rgba(236,72,153,0.12)); color: var(--primary, #db2777); display: grid; place-items: center; font-size: 15px;"><i data-lucide="file-down"></i></span>
           <div style="flex: 1;">
             <div>Download .ICS Calendar File</div>
@@ -9118,7 +9064,7 @@ MWE.openChurchVideoModal = function() {
   const titleEl = modal.querySelector("[data-church-name-video]");
   if (titleEl) titleEl.textContent = `${churchName} — Welcome Video`;
 
-  iframe.src = embedUrl;
+  iframe.src = MWE.safeEmbedUrl(embedUrl);
   modal.classList.add("open");
   document.body.style.overflow = "hidden";
   createIcons();
@@ -9139,7 +9085,7 @@ MWE.playChurchMainMedia = function() {
       const embedUrl = mediaUrl.includes("autoplay=1") ? mediaUrl : `${mediaUrl}${mediaUrl.includes("?") ? "&" : "?"}autoplay=1&enablejsapi=1`;
       const titleEl = modal.querySelector("[data-church-name-video]");
       if (titleEl) titleEl.textContent = `${churchName} — Welcome Video`;
-      iframe.src = embedUrl;
+      iframe.src = MWE.safeEmbedUrl(embedUrl);
       modal.classList.add("open");
       document.body.style.overflow = "hidden";
       if (window.lucide) window.lucide.createIcons();
@@ -9350,10 +9296,15 @@ MWE.switchHostAuthTab = function(tab) {
   }
 };
 
-MWE.handleHostSignup = function(e) {
+MWE.handleHostSignup = async function(e) {
   e.preventDefault();
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
+
+  if (!form.reportValidity() || !window.MWEAuth) return;
+  const authResult = await window.MWEAuth.creatorRegister(data.name, data.email, data.password);
+  if (!authResult.ok) { showToast(authResult.error || "Registration failed."); return; }
+  form.reset();
 
   const hostAccount = {
     id: "host-" + Date.now(),
@@ -9383,11 +9334,16 @@ MWE.handleHostSignup = function(e) {
   }
 };
 
-MWE.handleHostSignin = function(e) {
+MWE.handleHostSignin = async function(e) {
   e.preventDefault();
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
   const email = (data.email || "").trim().toLowerCase();
+
+  if (!form.reportValidity() || !window.MWEAuth) return;
+  const authResult = await window.MWEAuth.login(email, data.password);
+  if (!authResult.ok) { showToast(authResult.error || "Sign-in failed."); return; }
+  form.reset();
 
   let existing = MWE.getEventHost();
   if (!existing || existing.email !== email) {
@@ -9811,16 +9767,16 @@ MWE.openHostDashboard = function() {
 
               <!-- Action Buttons -->
               <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                <button type="button" class="button primary small" onclick="MWE.openEventAttendeeRoster('${evt.id}')" title="View Attendee List & Check-in">
+                <button type="button" class="button primary small" onclick="MWE.openEventAttendeeRoster('${MWE.escapeJsAttribute(evt.id)}')" title="View Attendee List & Check-in">
                   <i data-lucide="users"></i> Attendees (${regCount})
                 </button>
-                <button type="button" class="button ghost small" onclick="MWE.openHostEventStudio('${evt.id}')" title="Edit Workshop">
+                <button type="button" class="button ghost small" onclick="MWE.openHostEventStudio('${MWE.escapeJsAttribute(evt.id)}')" title="Edit Workshop">
                   <i data-lucide="edit-3"></i> Edit
                 </button>
                 <a href="event-profile.html?id=${evt.id}" class="button outline small" target="_blank" title="View Public Page">
                   <i data-lucide="external-link"></i> Public
                 </a>
-                <button type="button" class="button ghost small" onclick="MWE.deleteHostEvent('${evt.id}')" title="Delete Workshop" style="color:#ef4444;">
+                <button type="button" class="button ghost small" onclick="MWE.deleteHostEvent('${MWE.escapeJsAttribute(evt.id)}')" title="Delete Workshop" style="color:#ef4444;">
                   <i data-lucide="trash-2"></i>
                 </button>
               </div>
@@ -9879,10 +9835,10 @@ MWE.openEventAttendeeRoster = function(eventId) {
           <i data-lucide="user-check"></i> Checked-In: <strong>${checkedInCount} / ${eventRegs.length}</strong>
         </div>
         <div style="display:flex; gap:8px;">
-          <button type="button" class="button ghost small" onclick="MWE.exportEventAttendeesCSV('${evt.id}')">
+          <button type="button" class="button ghost small" onclick="MWE.exportEventAttendeesCSV('${MWE.escapeJsAttribute(evt.id)}')">
             <i data-lucide="download"></i> Export Roster CSV
           </button>
-          <button type="button" class="button primary small" onclick="MWE.promptEventAnnouncement('${evt.id}')">
+          <button type="button" class="button primary small" onclick="MWE.promptEventAnnouncement('${MWE.escapeJsAttribute(evt.id)}')">
             <i data-lucide="send"></i> Post Announcement
           </button>
         </div>
@@ -9914,7 +9870,7 @@ MWE.openEventAttendeeRoster = function(eventId) {
                 <td style="padding:10px 14px;">${reg.ticketQuantity || 1}</td>
                 <td style="padding:10px 14px;"><code style="font-size:0.75rem; background:#f1f5f9; padding:2px 6px; border-radius:6px;">${MWE.escapeHtml(reg.registrationCode || reg.id)}</code></td>
                 <td style="padding:10px 14px; text-align:right;">
-                  <button type="button" class="button small ${reg.checkedIn ? 'primary' : 'ghost'}" onclick="MWE.toggleAttendeeCheckIn('${reg.id}', '${evt.id}')" style="padding:4px 10px; font-size:0.75rem;">
+                  <button type="button" class="button small ${reg.checkedIn ? 'primary' : 'ghost'}" onclick="MWE.toggleAttendeeCheckIn('${MWE.escapeJsAttribute(reg.id)}', '${MWE.escapeJsAttribute(evt.id)}')" style="padding:4px 10px; font-size:0.75rem;">
                     <i data-lucide="${reg.checkedIn ? 'check' : 'circle'}"></i> ${reg.checkedIn ? 'Checked In' : 'Check In'}
                   </button>
                 </td>

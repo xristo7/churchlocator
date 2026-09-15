@@ -222,9 +222,17 @@
     return new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 2 }).format(Number(value) || 0);
   }
 
+  function safeAttachmentData(value) {
+    const source = String(value || "");
+    // Never navigate downloads to javascript:, HTML, SVG or arbitrary URLs.
+    const allowed = /^data:(?:application\/(?:pdf|msword|vnd\.openxmlformats-officedocument\.wordprocessingml\.document|epub\+zip|octet-stream)|text\/plain);base64,[A-Za-z0-9+/]*={0,2}$/i;
+    return source.length <= 16 * 1024 * 1024 && allowed.test(source) ? source : "";
+  }
+
   const api = {
     keys,
     escapeHtml,
+    safeAttachmentData,
     money,
     getChannels: () => read(keys.channels, channelSeeds),
     saveChannels: channels => write(keys.channels, channels),
@@ -243,39 +251,13 @@
     getItemById: id => api.getProducts().find(item => item.id === id),
     getServiceBookings: () => read(keys.serviceBookings, []),
     async bookService(payload) {
-      let remoteData = null;
-      try {
-        const response = await fetch("/api/services/book", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (response.ok) {
-          remoteData = await response.json();
-        }
-      } catch {
-        // Fall back to local state
-      }
-
-      const localBookings = read(keys.serviceBookings, []);
-      const localRecord = remoteData?.booking || {
-        id: `bk_${Date.now()}`,
-        bookingRef: `SRV-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
-        serviceId: payload.serviceId,
-        serviceTitle: payload.serviceTitle,
-        serviceType: payload.serviceType,
-        providerName: payload.providerName,
-        packageTier: payload.packageTier,
-        requestedDate: payload.requestedDate,
-        requestedTime: payload.requestedTime,
-        customerName: payload.customerName,
-        customerEmail: payload.customerEmail,
-        createdAt: new Date().toISOString()
-      };
-      localBookings.unshift(localRecord);
-      write(keys.serviceBookings, localBookings);
-
-      return remoteData || { ok: true, id: localRecord.id, bookingRef: localRecord.bookingRef, status: "inquiry_received", booking: localRecord };
+      const response = await fetch("/api/services/book", {
+        method: "POST", credentials: "same-origin",
+        headers: { "content-type": "application/json" }, body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.error || "Booking not received by the server.");
+      return result;
     },
     upsertProduct(product) {
       const products = api.getProducts();

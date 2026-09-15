@@ -1155,7 +1155,7 @@
     }
     
     const iconEl = document.getElementById("room-badge-icon");
-    if (iconEl) iconEl.innerHTML = '<i data-lucide="' + (room.icon || "sparkles") + '"></i>';
+    if (iconEl) iconEl.innerHTML = '<i data-lucide="' + escape(room.icon || "sparkles") + '"></i>';
 
     const creatorTag = document.getElementById("room-creator-tag");
     if (creatorTag) {

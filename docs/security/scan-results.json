@@ -1,0 +1,1842 @@
+{
+  "date": "2026-09-15T07:33:09.889Z",
+  "scope": "Repository static inventory and public npm lockfile advisory lookup. Pattern matches require manual review; not proof of exploitability or absence of vulnerabilities.",
+  "files": 107,
+  "applicationFiles": 105,
+  "sourceLines": 78393,
+  "dependencyPackages": 93,
+  "advisories": {},
+  "historicalObjects": 1267,
+  "historicalSecretMatches": [],
+  "inventory": [
+    {
+      "path": ".github/workflows/deploy.yml",
+      "lines": 48,
+      "sha256": "77c295aea78470487f64b88c177540acee8fd3a5c1157224f4156858762a89d9",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "README.md",
+      "lines": 135,
+      "sha256": "576dd2c0d8fef625868984a25d71afb1ade89d7d422277d3056cc0f1dd47ec52",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "database/schema.sql",
+      "lines": 283,
+      "sha256": "a33cb1a5f008104cf7ffe6ddd74009223cdb301a88bd02cc42c1fdd7179105ce",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "database/seed.sql",
+      "lines": 37,
+      "sha256": "797ff005ff54631125e7baa3f3863b8a56499536faab8fb4d5c1578000d12c52",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "design-qa.md",
+      "lines": 177,
+      "sha256": "1f78554a7ab55b311c01850a531084171e313b87118ff819ab7231315df07495",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "docs/admin-workspaces.md",
+      "lines": 55,
+      "sha256": "df1ead12c1fc7fa6aba020adebfca74d99805d8a18eedb16f56879607f224856",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "docs/application-architecture.md",
+      "lines": 82,
+      "sha256": "f0191c5f2a1fa50b7da9d90f09550e41645a5739d6005cccf58f83a3f2bc9797",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "docs/backend-roadmap.md",
+      "lines": 41,
+      "sha256": "03229724c2d5bcca1d6eb4c35ab10982034c652cd5c127d267c6ad9ed0bcf561",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "docs/platform-functionality-audit.md",
+      "lines": 44,
+      "sha256": "303aaca608dc090dd691525cb0b4c2401394b2c1dba894db8428510d61a1fcc1",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "docs/security/security-audit.md",
+      "lines": 120,
+      "sha256": "0e993a8474c9b6e8b47246fefe9476e7ae22a5175a65521dae27404a4a2c4735",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [
+          25,
+          25,
+          55
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "docs/security/vendor-provenance.json",
+      "lines": 15,
+      "sha256": "6bd1f42ad32ca4437d14f932c684ec0f5a53bfd8a5b7d88ec524ee9b9be9e346",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "functions/api/admin/churches.js",
+      "lines": 6,
+      "sha256": "192345228b29c6137056b7c36e4a13763b0f6783a60c64212b8433c29ecd8124",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "functions/api/church-application.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "functions/api/churches.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "functions/api/livestream-activation.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "functions/api/prayer.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "functions/api/status.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "functions/api/visitor.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "migrations/0001_initial.sql",
+      "lines": 283,
+      "sha256": "a33cb1a5f008104cf7ffe6ddd74009223cdb301a88bd02cc42c1fdd7179105ce",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "migrations/0002_auth.sql",
+      "lines": 21,
+      "sha256": "29e7a0744cfe61c570438fe987c6cacc78c8ce81ca7c241422d1c588e3d619cf",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "migrations/0003_service_bookings.sql",
+      "lines": 29,
+      "sha256": "02e2121e54985402b0ab3b14f6c0922744c16b66b9953e844aadd16b84c5611e",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "migrations/0004_security.sql",
+      "lines": 22,
+      "sha256": "b09d0a0b585453bc470ff239795121c63084167f84b96c4206a6b3b357ca7fe2",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "package.json",
+      "lines": 35,
+      "sha256": "b670bbf9af5a01b910566b3bc4e49d262df64f09878ee5ab9ee11257dd7f8c30",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "lines": 4,
+      "sha256": "c2ddff808a86a4de2ed1fd1359ca72c5362ad5cdc1d7e07a9c7945523c139b83",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/admin-model.js",
+      "lines": 182,
+      "sha256": "dd2679f1829203c6af41e0be4b0c05c3811acf534f0847fba0691328d8a0c704",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/admin-workspace.css",
+      "lines": 260,
+      "sha256": "5878036aa0263708812335db918afb6b0818dc62bd18350653e3fd2864f143c3",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/admin-workspace.js",
+      "lines": 280,
+      "sha256": "6f435b9610ae6076fdfa3d4c1851654f3396a976c6aa97fd79aef2c5abe06631",
+      "matches": {
+        "htmlSink": [
+          28,
+          45,
+          65,
+          78,
+          97,
+          110,
+          114,
+          135,
+          138,
+          139,
+          140,
+          144,
+          185
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/admin.html",
+      "lines": 4,
+      "sha256": "5ec60771ad825074ee99e7ebf233a2a4fb76159b33513953368f8b4c32adc6cb",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/app-shell.js",
+      "lines": 365,
+      "sha256": "fcd1a43e2daea05b1cc702e230eeb3bae9635e7abe011a8c21a4088ca318aa43",
+      "matches": {
+        "htmlSink": [
+          305
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          104,
+          157,
+          158,
+          161,
+          175,
+          211,
+          245,
+          246,
+          247,
+          271,
+          303,
+          315
+        ],
+        "crossWindowMessage": [
+          313,
+          334,
+          335,
+          337,
+          339
+        ],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/app.html",
+      "lines": 101,
+      "sha256": "0065be4d8c5d0eac0591c02b1f9515373fa8ae6d6471df1cc3a1e99b5e353dc5",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/app.js",
+      "lines": 9954,
+      "sha256": "1df885257493ffefded3ee0fe50cc2a1ae8c0b97e4b7967fc7d07996059be487",
+      "matches": {
+        "htmlSink": [
+          38,
+          88,
+          1294,
+          1537,
+          2003,
+          2006,
+          2076,
+          2250,
+          2278,
+          2292,
+          2449,
+          2472,
+          2485,
+          2497,
+          2501,
+          2585,
+          2624,
+          2875,
+          3041,
+          3088,
+          3092,
+          3102,
+          3541,
+          3590,
+          3615,
+          3670,
+          3676,
+          3749,
+          3763,
+          3809,
+          3813,
+          3834,
+          3838,
+          3952,
+          4229,
+          4287,
+          4292,
+          4296,
+          4468,
+          4487,
+          4496,
+          4574,
+          4602,
+          4617,
+          4663,
+          4694,
+          4735,
+          4737,
+          4801,
+          4811,
+          4866,
+          4873,
+          5004,
+          5068,
+          5300,
+          5359,
+          5364,
+          5467,
+          5480,
+          5490,
+          5511,
+          5530,
+          5772,
+          5782,
+          5888,
+          5908,
+          5911,
+          6039,
+          6142,
+          6288,
+          6298,
+          6367,
+          6375,
+          6513,
+          6592,
+          6597,
+          6603,
+          6607,
+          6670,
+          6701,
+          6730,
+          6790,
+          6817,
+          6904,
+          6941,
+          6962,
+          6985,
+          7012,
+          7123,
+          7175,
+          7230,
+          7250,
+          7253,
+          7304,
+          7312,
+          7346,
+          7350,
+          7431,
+          7451,
+          7474,
+          7582,
+          7775,
+          7915,
+          7975,
+          8006,
+          8046,
+          8131,
+          8235,
+          8329,
+          8346,
+          8468,
+          8594,
+          8661,
+          8754,
+          8862,
+          8865,
+          8866,
+          9169,
+          9186,
+          9194,
+          9196,
+          9211,
+          9401,
+          9703,
+          9819
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          16,
+          22,
+          31,
+          55,
+          762,
+          773,
+          779,
+          817,
+          1197,
+          1200,
+          1206,
+          1235,
+          1242,
+          1457,
+          1819,
+          1821,
+          1822,
+          1824,
+          1826,
+          1834,
+          1834,
+          1850,
+          1852,
+          1853,
+          1861,
+          1862,
+          2081,
+          2083,
+          2150,
+          3345,
+          3351,
+          3360,
+          3760,
+          3805,
+          3830,
+          4025,
+          4036,
+          4148,
+          4173,
+          4198,
+          4614,
+          4660,
+          4717,
+          4718,
+          4938,
+          4939,
+          4940,
+          4941,
+          4942,
+          5289,
+          5293,
+          6551,
+          6557,
+          6563,
+          6574,
+          6590,
+          7227,
+          7287,
+          7299,
+          7645,
+          7667,
+          7677,
+          7686,
+          7701,
+          7718,
+          7750,
+          7761,
+          7988,
+          8002,
+          8098,
+          8111,
+          8182,
+          8197,
+          8210,
+          8223,
+          8286,
+          8300,
+          9124,
+          9125,
+          9134,
+          9135,
+          9149,
+          9150,
+          9696,
+          9815,
+          9895,
+          9902,
+          9909
+        ],
+        "crossWindowMessage": [
+          48,
+          70,
+          257,
+          1712,
+          1716,
+          5340,
+          6204,
+          6215,
+          6226
+        ],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/auth-client.js",
+      "lines": 104,
+      "sha256": "42ecb291e7dc4dd187cd5a4ee357bbba521446832bff627d8490070c4924452c",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [
+          4,
+          33,
+          34,
+          35,
+          36,
+          37,
+          39,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/broadcast.html",
+      "lines": 6,
+      "sha256": "6219fc704846fabf1da9258a8f2e5c5e671535d1230d83db75cc80eab09b6b1d",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/cart.html",
+      "lines": 35,
+      "sha256": "21662df5ae0c9c6b37c160764f6eb1714d6b1197ecba1adb417729e601118281",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/cart.js",
+      "lines": 55,
+      "sha256": "e13dc2c1f6dd03baf92a555183131afebbf94e3eeaa7d461422de6a6102d76ad",
+      "matches": {
+        "htmlSink": [
+          19
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          14,
+          47,
+          48
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/channel-content.html",
+      "lines": 4,
+      "sha256": "dee9511343dc5203f8b6360cc5e8bffd1f452d90f2d5937a9a40c89645576f79",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/channel-content.js",
+      "lines": 21,
+      "sha256": "1a0fd49210bdf9fc40a515fdd4860a9b6bdb68aa09ffe0210f27e6e45023ebf0",
+      "matches": {
+        "htmlSink": [
+          14,
+          16,
+          17,
+          17
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/channel-detail.html",
+      "lines": 6,
+      "sha256": "9565340f3fe04496b3dc3b4e4d97c9550e02f4be1f4bef7f54aa54367b3d8cd3",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/channel-detail.js",
+      "lines": 24,
+      "sha256": "a875294a10e2ff7d853f128f8fd9752d1a48291dc57a374617b0f9854b87f860",
+      "matches": {
+        "htmlSink": [
+          8,
+          14
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/channels.html",
+      "lines": 75,
+      "sha256": "2eab0601c508b1808dcd0869dcb010d4226d335bd85a58dc2f84921b171734e1",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/channels.js",
+      "lines": 88,
+      "sha256": "a0e9037eeee36dffc226bc4d408503b3fd22a33bf719295f040b52b52e35906a",
+      "matches": {
+        "htmlSink": [
+          21,
+          26
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/checkout.html",
+      "lines": 34,
+      "sha256": "10b2c0ca95ca6a95eddbd77fa42de8b3698f9b474d59e8218733008dd434268e",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/checkout.js",
+      "lines": 80,
+      "sha256": "873e4729d26b855aad18b8354e7e1a8b7ff42ab032ec434485f59c019a4fe206",
+      "matches": {
+        "htmlSink": [
+          28
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          18,
+          66,
+          67
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/church-portal.html",
+      "lines": 913,
+      "sha256": "d4798f469a3fe6b0acf8e6e37f674dbeef221d9d0e6fcb4e37619d69207ec9e7",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/church-profile.html",
+      "lines": 3365,
+      "sha256": "6c5a0da6b4cf1565c6b71132caadda50df3a7e6fa36297a96cd2954da12bca94",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/churches.html",
+      "lines": 202,
+      "sha256": "469135dfa78ccffda6fced8defc12da9b7309add8eb0ab6571fd3ba809ff5237",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/creator-account.js",
+      "lines": 76,
+      "sha256": "0ea006bd0b536f3e53d0d89e3f5d2b1e4c19c9199e5c2fd6bcb3525fce36863a",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [
+          5,
+          7,
+          9,
+          10,
+          60,
+          69,
+          70
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/creator-data.js",
+      "lines": 33,
+      "sha256": "04d1e773469fd4285575ff7ba05a30ea40bc473dba3dcc5bcdc384e2f1e9c1c9",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [
+          6,
+          11,
+          12,
+          13,
+          17,
+          21
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/creator-model.js",
+      "lines": 95,
+      "sha256": "9017a0fc6df91872ce1cbc934b5a9ee1ac3a34ac8276386a8288ce752d685f90",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [
+          67,
+          84
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/creator-public.css",
+      "lines": 206,
+      "sha256": "2c829147e925ccb507baad457131f5defb688cbf3e52e4e0d1e781e9814cc2df",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/creator-public.js",
+      "lines": 130,
+      "sha256": "812eaa9d0ad4f4ac1be7611d40c756f0afea4e26370758aa8ad82c9eaa578393",
+      "matches": {
+        "htmlSink": [
+          24,
+          32,
+          57,
+          60,
+          64,
+          79,
+          112
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/creator-workspace.html",
+      "lines": 69,
+      "sha256": "8935aa97a494fff77d26bb66c7fb5fddd75b54c776e541995e25e062d0e4d6d8",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/donate.html",
+      "lines": 373,
+      "sha256": "f07a9b1f31235057b6ba282462e825c3b356c3e105e7b5a91e498591036abc43",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/event-profile.html",
+      "lines": 720,
+      "sha256": "fed08f6154a76cb2527bfa4a3d6e2ec9515c2e1b88c601244c5ec8484fedb96d",
+      "matches": {
+        "htmlSink": [
+          633
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/events.html",
+      "lines": 300,
+      "sha256": "96b5777e8768595121c71e74f0fd1e317d27b380e0860eb3fe1e6c4bfc0776f3",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/foundation.html",
+      "lines": 247,
+      "sha256": "6f45e2ba3407098dde8145dd733e4b9aba4a5d1b7ceba5ecfb4f0fdb0b33f45f",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/index.html",
+      "lines": 759,
+      "sha256": "6dd2f73f65eef05d582f80cfa70e185ff1bfb0f20d40980ba93d38d7989ce504",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/livestream.html",
+      "lines": 618,
+      "sha256": "755785735648549db9159a407b194251bb3631a1fe140dc8c61bc353ead81e8d",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [
+          383,
+          407,
+          408,
+          409,
+          411,
+          433,
+          434,
+          435,
+          436,
+          437,
+          439,
+          441,
+          464,
+          465,
+          466,
+          495,
+          496,
+          497,
+          498,
+          511,
+          512,
+          542,
+          543,
+          544,
+          545,
+          551,
+          552,
+          553,
+          554
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/meditation.html",
+      "lines": 1003,
+      "sha256": "fa6a7ad07c51b41074a29e93e1b615ff46504cfe274af3ff3074b3be38ff315c",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/meditation.js",
+      "lines": 2505,
+      "sha256": "bb02cc3545859b818eea0d15042dcdbbb425902d6346959b34a260be2e26bb0c",
+      "matches": {
+        "htmlSink": [
+          688,
+          689,
+          690,
+          693,
+          916,
+          918,
+          920,
+          1158,
+          1211,
+          1580,
+          1582,
+          1723,
+          1728,
+          1753,
+          1902,
+          1906
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          517,
+          525,
+          1102,
+          1107,
+          1109,
+          1179,
+          1179,
+          1701,
+          1712,
+          1897,
+          1946,
+          1956,
+          2478,
+          2479
+        ],
+        "crossWindowMessage": [
+          1265,
+          1512,
+          1516,
+          1539,
+          1553,
+          1693,
+          1817
+        ],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/member-home.html",
+      "lines": 173,
+      "sha256": "3825254b33fb19ad55b26e82e2fae90d160dc93b3c49060f6f5d939f73ba7c36",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/member-home.js",
+      "lines": 136,
+      "sha256": "212afefe00287862bfeef8148c43d9c5e109f436638e4b58e02eca5f3ef650a2",
+      "matches": {
+        "htmlSink": [
+          13,
+          34,
+          70,
+          100
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [
+          131,
+          132
+        ],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/messages.html",
+      "lines": 3,
+      "sha256": "1fd9df1ff9604b0af52c3bb773bdf1d8c1fcec086185a996ea01ed8c78633b24",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/messages.js",
+      "lines": 42,
+      "sha256": "d0f63577ee3dadb243a6888db525a070a18d3e04d000d19d278ca3458fc520d8",
+      "matches": {
+        "htmlSink": [
+          15,
+          20,
+          26,
+          27,
+          32
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/owner-dashboard.html",
+      "lines": 65,
+      "sha256": "ac07ebbab6a8091fdcc759da381e436e0e05b07560bc27f5585d4227de7598f2",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/platform-modules.js",
+      "lines": 312,
+      "sha256": "447936c70a8908d4cb13c06993b80792c1599190464c2f6a4b04d9792cc97106",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [
+          188,
+          195,
+          203,
+          208,
+          305,
+          307
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/privacy.html",
+      "lines": 156,
+      "sha256": "74cb8922a4f2fe10e7362b68f71e815eda057ae7825a84996aa97b17819d793c",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/product-detail.html",
+      "lines": 103,
+      "sha256": "4a179e3539050db04fe6f9999ac97527095b6b6bfda5782a803318205f276705",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/product-detail.js",
+      "lines": 906,
+      "sha256": "63b1fb58ccad49f7ea6757708142f997375f1a2d9cd1ecbbd10e27494085af0b",
+      "matches": {
+        "htmlSink": [
+          26,
+          59,
+          110,
+          605,
+          787,
+          806,
+          845,
+          882
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/resource-detail.html",
+      "lines": 22,
+      "sha256": "ed7cb822f13b058f7836d91fc6af872529ca4c8fd3eb053244d63afc376fdb22",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/resource-detail.js",
+      "lines": 53,
+      "sha256": "d5cffc95409d1bcc756c4789ee8ff9b0062b13080847b0c70fca3b9cc1f1399d",
+      "matches": {
+        "htmlSink": [
+          29,
+          42,
+          42,
+          47,
+          48,
+          49
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          12,
+          12
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/resource-reader.html",
+      "lines": 2,
+      "sha256": "d6dedf440e18d569bc58b916f3df52a29496634dfded23de1d90e28de8a52038",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/resource-reader.js",
+      "lines": 15,
+      "sha256": "c885708bf01cfd5a325ed085a3b5a981767760cb1eb5b799c748c1aee0fbcec2",
+      "matches": {
+        "htmlSink": [
+          9,
+          13
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/resources.html",
+      "lines": 52,
+      "sha256": "dbb9f5b1ab32fe1edcbe0cdb7ef90365de6e939869864c8e9c5e97b6f0b533c8",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/resources.js",
+      "lines": 108,
+      "sha256": "d097b4dc4894f7a6188afaf536bcb80ce2043f63d245a7c86b570971342b9ad2",
+      "matches": {
+        "htmlSink": [
+          36,
+          40,
+          60
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          4,
+          68,
+          93,
+          95
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/responsive.css",
+      "lines": 174,
+      "sha256": "280eb38aa29d1f759973f60a636a911bd22b48e50b6d438da6986b97a7cf33d0",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/seller-dashboard.html",
+      "lines": 88,
+      "sha256": "9d79fff5e3b155bcfd766361edf2299ebcbd3c4e74fb6c837042c29246e4a882",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/seller-dashboard.js",
+      "lines": 86,
+      "sha256": "bdba56e4adc2f12c66fea5d02615ec870c28caddd150d087bf885c3267b23e7e",
+      "matches": {
+        "htmlSink": [
+          17,
+          18
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          10
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/store.html",
+      "lines": 59,
+      "sha256": "e7de25fe4cc8617e494cdeb7535fcc1b87e0148dcdb4c89c88ec4a71290aa07b",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/store.js",
+      "lines": 134,
+      "sha256": "f4efd2e0966c90c7bac31235223de34d13d18c83678bed36fc1b522d2e977147",
+      "matches": {
+        "htmlSink": [
+          33,
+          37,
+          82,
+          105
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/storefront.html",
+      "lines": 6,
+      "sha256": "cd050c0adb33234f8c2e6f1c543f5984f7ec2e6d9a499344940ffc0840a68766",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/styles.css",
+      "lines": 25211,
+      "sha256": "53004c25f9f1a2d2d48eb5f2ae2feb3ce38fa04a9ed87783cd8302fc4abb9306",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/vendor/lucide.js",
+      "lines": 21189,
+      "sha256": "1cb20bfb97df20bf7e87d85dc73c77eb2dc67fe62da12881180fe71b046fbfab",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "public/vendor/tailwindcss.js",
+      "lines": 84,
+      "sha256": "176e894661aa9cdc9a5cba6c720044cbbf7b8bd80d1c9a142a7c24b1b6c50d15",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "scripts/audit-functional.mjs",
+      "lines": 174,
+      "sha256": "b87063fd4a507f1e85755a11ac10bccd65dcff0c4bc3c3fbae93bf328d4f6bea",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [
+          156,
+          157,
+          159,
+          168,
+          168
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "scripts/audit-preview.mjs",
+      "lines": 22,
+      "sha256": "1a88496b55499f2962dffcdec8215b7f0d5f7818aabd6592bddc8744aa506391",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "src/security.js",
+      "lines": 91,
+      "sha256": "2b93550b48288dde2b25a4d581b218ab252d4a7273f510e1b2c92ca1f52ce9e6",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "src/worker.js",
+      "lines": 988,
+      "sha256": "df2e03c77d59826baf3b5a67f529d80f0fcdbfd5312058e3cc07cdd3d865c6a3",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/admin-workspace.test.mjs",
+      "lines": 252,
+      "sha256": "661d398563db03b337239470d0080b3758c47ccb7a44e6d5883379a88cd018d9",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [
+          9,
+          16,
+          205,
+          224,
+          225
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/auth.test.mjs",
+      "lines": 236,
+      "sha256": "70f737119030aecf284bad5592541363df830458524773272a444290d29fa2d4",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/church-profile-gallery.test.mjs",
+      "lines": 82,
+      "sha256": "3225407e70dfbc81af9c86156de14df707304b9cdc6b98261eb38728c8712def",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/church-profile-hero-tabs.test.mjs",
+      "lines": 90,
+      "sha256": "b99688d7c8cc03414f8347fc5d1b77357afd5e4da3c609a952bd58468b2d19d3",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/events-platform-verification.test.mjs",
+      "lines": 283,
+      "sha256": "2253079cf186774c37467cacbf3ce60bf8ef2cff89a33b456bb7b5a4c6da2798",
+      "matches": {
+        "htmlSink": [
+          58,
+          178,
+          179,
+          230,
+          231,
+          264,
+          265,
+          266
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          45,
+          110,
+          110,
+          127,
+          127,
+          258,
+          270
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/forms-ride-verification.test.mjs",
+      "lines": 228,
+      "sha256": "e1091f19b7911e5caff9714a253244ff67879aef1f52ce8bcdadd281ec2e53e9",
+      "matches": {
+        "htmlSink": [
+          67,
+          196,
+          197,
+          198,
+          199,
+          211,
+          224,
+          225,
+          226
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          54,
+          130,
+          130,
+          140,
+          140,
+          190,
+          203,
+          215
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/homepage-ui-refinements.test.mjs",
+      "lines": 165,
+      "sha256": "00e2bff353e028749e117494a66d2d2c3d8887c7a8553aa86582131ab89832c8",
+      "matches": {
+        "htmlSink": [
+          85
+        ],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/interactive-map-verification.test.mjs",
+      "lines": 215,
+      "sha256": "c386021817583571b5e6ca2e0a78b6af4505d78b3e9f53ac551cd5ab7d542686",
+      "matches": {
+        "htmlSink": [
+          51,
+          136,
+          136,
+          140,
+          146,
+          150,
+          155,
+          156,
+          173
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          86,
+          98,
+          188,
+          196
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/livestream-hosting-verification.test.mjs",
+      "lines": 79,
+      "sha256": "9c3404816af20fa283b8517d803c3d629160f6c797004396e174edd0c9c58284",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/meditation-verification.test.mjs",
+      "lines": 238,
+      "sha256": "cb1278483ee90559b6f00302702b9f9625d6e7dc4814df46f1626840418c309a",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/member-shell.test.mjs",
+      "lines": 452,
+      "sha256": "f0c65abad6cb1d431b03c1441e25182e1e2c56804633ad1d6c02d3d990e0bc3a",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [
+          243,
+          338
+        ],
+        "crossWindowMessage": [
+          179,
+          191,
+          192
+        ],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/product-and-service-templates.test.mjs",
+      "lines": 200,
+      "sha256": "4ebbcbccca2d78b266daaec6263c4c2cb14b31887709f4cf28ffdd877261f986",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/security.test.mjs",
+      "lines": 158,
+      "sha256": "93c048b45de5c25d2b537ed2a1cea99644aa649f1015123328f3990fe1daaafc",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [
+          133,
+          149
+        ],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tests/worker-unit.test.mjs",
+      "lines": 97,
+      "sha256": "2165e25b038d199ec6771f30c583501622bcd6859163331c796753a203710abb",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tools/security-audit.mjs",
+      "lines": 67,
+      "sha256": "e535bdad61b966480b7cab9ce709cacfb021401e8c6292965ba8850a1809274b",
+      "matches": {
+        "htmlSink": [
+          18,
+          18,
+          18
+        ],
+        "dynamicCode": [],
+        "browserStorage": [
+          20,
+          20
+        ],
+        "crossWindowMessage": [
+          21
+        ],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tools/security-live.mjs",
+      "lines": 42,
+      "sha256": "5a4c353155b694802a27c1ec3b113ef10edf51fd9d82505a8fba942eaec89152",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tools/security-preview.mjs",
+      "lines": 60,
+      "sha256": "104d436d39e83a533f8a3864b0f87de150d85169c1b27316e65256a25eca0c94",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "tools/static-server.mjs",
+      "lines": 172,
+      "sha256": "07f38df5a45d19652b2dbe78566b9ebdaa8133200a2f4b4dd7e0dd2dfe8af7d7",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    },
+    {
+      "path": "wrangler.jsonc",
+      "lines": 58,
+      "sha256": "9e3133221e5ff217a4a61060a96f5d3b8fda88bf85e291774736a60fe301369a",
+      "matches": {
+        "htmlSink": [],
+        "dynamicCode": [],
+        "browserStorage": [],
+        "crossWindowMessage": [],
+        "secretPattern": []
+      }
+    }
+  ]
+}

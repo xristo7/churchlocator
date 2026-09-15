@@ -87,13 +87,13 @@ function baseEnv() {
 
 function extractSessionCookie(response) {
   const header = response.headers.get("set-cookie") || "";
-  const match = header.match(/mwe_session=([^;]*)/);
+  const match = header.match(/mwe_session_v2=([^;]*)/);
   return match ? match[1] : null;
 }
 
 function postJson(path, body, cookie) {
   const headers = { "content-type": "application/json" };
-  if (cookie) headers.cookie = `mwe_session=${cookie}`;
+  if (cookie) headers.cookie = `mwe_session_v2=${cookie}`;
   return new Request(`https://example.test${path}`, {
     method: "POST",
     headers,
@@ -103,14 +103,14 @@ function postJson(path, body, cookie) {
 
 function getWithCookie(path, cookie) {
   const headers = {};
-  if (cookie) headers.cookie = `mwe_session=${cookie}`;
+  if (cookie) headers.cookie = `mwe_session_v2=${cookie}`;
   return new Request(`https://example.test${path}`, { headers });
 }
 
 test("register creates a real account, hashes the password, and issues a session", async () => {
   const env = baseEnv();
   const response = await worker.fetch(
-    postJson("/api/auth/register", { name: "Ada Lovelace", email: "Ada@Example.com ", password: "correct-horse" }),
+    postJson("/api/auth/register", { name: "Ada Lovelace", email: "Ada@Example.com ", password: "correct-horse-battery" }),
     env
   );
   const body = await response.json();
@@ -123,7 +123,7 @@ test("register creates a real account, hashes the password, and issues a session
   const stored = env.DB._debug.usersByEmail.get("ada@example.com");
   assert.ok(stored, "user should be persisted");
   const row = env.DB._debug.usersById.get(stored);
-  assert.notEqual(row.password_hash, "correct-horse");
+  assert.notEqual(row.password_hash, "correct-horse-battery");
   assert.ok(row.password_salt);
 
   const cookie = extractSessionCookie(response);
@@ -132,48 +132,41 @@ test("register creates a real account, hashes the password, and issues a session
 
 test("register rejects a duplicate email, a weak password, and a malformed email", async () => {
   const env = baseEnv();
-  await worker.fetch(postJson("/api/auth/register", { name: "Ada", email: "dup@example.com", password: "correct-horse" }), env);
+  await worker.fetch(postJson("/api/auth/register", { name: "Ada", email: "dup@example.com", password: "correct-horse-battery" }), env);
 
-  const dup = await worker.fetch(postJson("/api/auth/register", { name: "Someone Else", email: "dup@example.com", password: "correct-horse" }), env);
+  const dup = await worker.fetch(postJson("/api/auth/register", { name: "Someone Else", email: "dup@example.com", password: "correct-horse-battery" }), env);
   assert.equal(dup.status, 409);
 
   const weakPassword = await worker.fetch(postJson("/api/auth/register", { name: "Bob", email: "bob@example.com", password: "short" }), env);
   assert.equal(weakPassword.status, 400);
 
-  const badEmail = await worker.fetch(postJson("/api/auth/register", { name: "Bob", email: "not-an-email", password: "correct-horse" }), env);
+  const badEmail = await worker.fetch(postJson("/api/auth/register", { name: "Bob", email: "not-an-email", password: "correct-horse-battery" }), env);
   assert.equal(badEmail.status, 400);
 });
 
 test("login rejects wrong passwords and unknown emails without leaking which", async () => {
   const env = baseEnv();
-  await worker.fetch(postJson("/api/auth/register", { name: "Ada", email: "ada@example.com", password: "correct-horse" }), env);
+  await worker.fetch(postJson("/api/auth/register", { name: "Ada", email: "ada@example.com", password: "correct-horse-battery" }), env);
 
   const wrongPassword = await worker.fetch(postJson("/api/auth/login", { email: "ada@example.com", password: "wrong-password" }), env);
   assert.equal(wrongPassword.status, 401);
 
-  const unknownEmail = await worker.fetch(postJson("/api/auth/login", { email: "nobody@example.com", password: "correct-horse" }), env);
+  const unknownEmail = await worker.fetch(postJson("/api/auth/login", { email: "nobody@example.com", password: "correct-horse-battery" }), env);
   assert.equal(unknownEmail.status, 401);
   assert.equal((await wrongPassword.json()).error, (await unknownEmail.json()).error);
 });
 
-test("temporary auth bypass accepts arbitrary credentials and issues a creator session", async () => {
-  const bypassEnv = { ...baseEnv(), AUTH_BYPASS: "true" };
-  const response = await worker.fetch(
-    postJson("/api/auth/login", { email: "anyone@example.com", password: "anything" }),
-    bypassEnv
-  );
-  assert.equal(response.status, 200);
-  const payload = await response.json();
-  assert.equal(payload.ok, true);
-  assert.equal(payload.authenticationBypassed, true);
-  assert.equal(payload.user.isCreator, true);
-  assert.match(response.headers.get("set-cookie") || "", /mwe_session=/);
+test("stale auth bypass settings never accept arbitrary credentials", async () => {
+  const env = { ...baseEnv(), AUTH_BYPASS: "true" };
+  const response = await worker.fetch(postJson("/api/auth/login", { email: "anyone@example.com", password: "anything" }), env);
+  assert.equal(response.status, 401);
+  assert.equal(response.headers.get("set-cookie"), null);
 });
 
 test("a valid session cookie round-trips through /api/auth/session and clears on logout", async () => {
   const env = baseEnv();
   const registerResponse = await worker.fetch(
-    postJson("/api/auth/register", { name: "Ada", email: "ada@example.com", password: "correct-horse" }),
+    postJson("/api/auth/register", { name: "Ada", email: "ada@example.com", password: "correct-horse-battery" }),
     env
   );
   const cookie = extractSessionCookie(registerResponse);
@@ -192,7 +185,7 @@ test("a valid session cookie round-trips through /api/auth/session and clears on
 test("creator registration marks the account as a creator immediately", async () => {
   const env = baseEnv();
   const response = await worker.fetch(
-    postJson("/api/creator/register", { name: "Cee Creator", email: "creator@example.com", password: "correct-horse" }),
+    postJson("/api/creator/register", { name: "Cee Creator", email: "creator@example.com", password: "correct-horse-battery" }),
     env
   );
   const body = await response.json();
@@ -206,7 +199,7 @@ test("creator upgrade requires a valid session and flips an existing member acco
   assert.equal(noSession.status, 401);
 
   const registerResponse = await worker.fetch(
-    postJson("/api/auth/register", { name: "Member Mary", email: "mary@example.com", password: "correct-horse" }),
+    postJson("/api/auth/register", { name: "Member Mary", email: "mary@example.com", password: "correct-horse-battery" }),
     env
   );
   const cookie = extractSessionCookie(registerResponse);
@@ -215,4 +208,28 @@ test("creator upgrade requires a valid session and flips an existing member acco
   const upgradeBody = await upgrade.json();
   assert.equal(upgrade.status, 200);
   assert.equal(upgradeBody.user.isCreator, true);
+});
+
+test("session cookies are hardened and stored only as hashes", async () => {
+  const env = baseEnv();
+  const response = await worker.fetch(postJson("/api/auth/register", { name: "Member", email: "member@example.com", password: "correct-horse-battery" }), env);
+  const cookie = extractSessionCookie(response);
+  assert.match(response.headers.get("set-cookie"), /HttpOnly/);
+  assert.match(response.headers.get("set-cookie"), /Secure/);
+  assert.match(response.headers.get("set-cookie"), /SameSite=Lax/);
+  assert.match(response.headers.get("set-cookie"), /Max-Age=86400/);
+  assert.equal(env.DB._debug.sessions.has(cookie), false);
+  assert.match([...env.DB._debug.sessions.keys()][0], /^v2:/);
+  const oldCookie = new Request("https://example.test/api/auth/session", { headers: { cookie: "mwe_session=" + cookie } });
+  assert.equal((await (await worker.fetch(oldCookie, env)).json()).user, null);
+});
+
+test("expired or malformed session expiries never authenticate", async () => {
+  for (const expiry of ["invalid", "2000-01-01T00:00:00Z"]) {
+    const env = baseEnv();
+    const response = await worker.fetch(postJson("/api/auth/register", { name: "Member", email: "member@example.com", password: "correct-horse-battery" }), env);
+    const cookie = extractSessionCookie(response);
+    [...env.DB._debug.sessions.values()][0].expires_at = expiry;
+    assert.equal((await (await worker.fetch(getWithCookie("/api/auth/session", cookie), env)).json()).user, null);
+  }
 });

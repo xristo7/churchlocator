@@ -247,7 +247,7 @@ test("security headers allow only same-origin pages inside the member shell", as
   const headers = await readProjectFile("public/_headers");
 
   assert.match(headers, /X-Frame-Options:\s*SAMEORIGIN/);
-  assert.match(headers, /Content-Security-Policy:\s*frame-ancestors 'self'/);
+  assert.match(headers, /Content-Security-Policy:[^\n]*frame-ancestors 'self'/);
   assert.doesNotMatch(headers, /X-Frame-Options:\s*DENY/);
 });
 

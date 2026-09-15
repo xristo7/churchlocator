@@ -5,21 +5,6 @@
  * already reads, so existing UI code needs no further changes.
  */
 (function (root) {
-  // Temporary launch-mode bypass. Keep this switch centralized so normal
-  // backend authentication can be restored without rewriting login screens.
-  const TEMPORARY_AUTH_BYPASS = true;
-
-  function temporaryUser(email) {
-    const normalizedEmail = String(email || "temporary@access.local").trim().toLowerCase();
-    const safeEmail = normalizedEmail.includes("@") ? normalizedEmail : "temporary@access.local";
-    return {
-      id: "temporary:" + safeEmail,
-      name: safeEmail.split("@")[0] || "Temporary Access",
-      email: safeEmail,
-      isCreator: true
-    };
-  }
-
   async function callApi(path, body) {
     let response;
     try {
@@ -44,7 +29,9 @@
   }
 
   function applySession(user) {
-    if (!user) return;
+    if (!user) { clearSession(); return; }
+    if ((localStorage.getItem("mwe.userEmail") || "").toLowerCase() !== (user.email || "").toLowerCase()) clearSession();
+    if (!user.isCreator) localStorage.removeItem("mwe.creator.account.v1");
     localStorage.setItem("mwe.userLoggedIn", "true");
     localStorage.setItem("mwe.username", user.name || (user.email ? user.email.split("@")[0] : "Member"));
     localStorage.setItem("mwe.userEmail", (user.email || "").toLowerCase());
@@ -57,6 +44,7 @@
   }
 
   function clearSession() {
+    ["mwe.creator.account.v1", "mwe.session.owner.v1", "mwe.session.church.v1", "mwe.eventHost.v1"].forEach(key => localStorage.removeItem(key));
     localStorage.removeItem("mwe.userLoggedIn");
     localStorage.removeItem("mwe.username");
     localStorage.removeItem("mwe.userEmail");
@@ -71,11 +59,6 @@
   }
 
   async function login(email, password) {
-    if (TEMPORARY_AUTH_BYPASS) {
-      const user = temporaryUser(email);
-      applySession(user);
-      return { ok: true, user, authenticationBypassed: true };
-    }
     const result = await callApi("/api/auth/login", { email, password });
     if (result.ok) applySession(result.user);
     return result;
@@ -83,22 +66,18 @@
 
   async function logout() {
     const result = await callApi("/api/auth/logout", {});
-    clearSession();
+    if (result.ok) clearSession();
     return result;
   }
 
   async function session() {
-    if (TEMPORARY_AUTH_BYPASS && localStorage.getItem("mwe.userLoggedIn") === "true") {
-      return {
-        ok: true,
-        user: temporaryUser(localStorage.getItem("mwe.userEmail")),
-        authenticationBypassed: true
-      };
-    }
     try {
       const response = await fetch("/api/auth/session", { credentials: "same-origin" });
-      return await response.json();
+      const result = await response.json();
+      if (response.ok) applySession(result.user); else clearSession();
+      return result;
     } catch {
+      clearSession();
       return { ok: false, user: null };
     }
   }
@@ -114,6 +93,11 @@
     if (result.ok) applySession(result.user);
     return result;
   }
+
+  document.addEventListener("DOMContentLoaded", () => { session().then(result => {
+    if (!result.ok || !result.user) clearSession();
+    if (typeof root.updateHomepageAuthUI === "function") root.updateHomepageAuthUI();
+  }); });
 
   root.MWEAuth = { register, login, logout, session, creatorRegister, creatorUpgrade, applySession, clearSession };
 })(window);

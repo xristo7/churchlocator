@@ -1,0 +1,396 @@
+{
+  "date": "2026-09-15T07:28:49.624Z",
+  "environment": "https://my-way-of-evangelism-preview.doxalight-inc.workers.dev",
+  "checks": [
+    {
+      "name": "preview environment",
+      "actual": "preview",
+      "expected": "preview"
+    },
+    {
+      "name": "auth bypass disabled",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "anonymous bookings rejected even with email query",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "anonymous admin request rejected",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "cross-origin write rejected",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "real account registration",
+      "actual": 201,
+      "expected": 201
+    },
+    {
+      "name": "hardened cookie",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "second account registration",
+      "actual": 201,
+      "expected": 201
+    },
+    {
+      "name": "wrong password rejected",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "authenticated service inquiry",
+      "actual": 201,
+      "expected": 201
+    },
+    {
+      "name": "other account cannot read inquiry, even when listed as contact email",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "trusted user ID owns inquiry",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "concurrent capacity protection",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "full event denied",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "forged paid admission rejected",
+      "actual": 409,
+      "expected": 409
+    },
+    {
+      "name": "logout succeeds",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "logged-out cookie cannot replay",
+      "actual": null,
+      "expected": null
+    },
+    {
+      "name": "page returns without redirect loop: admin.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: admin.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: app.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: app.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: broadcast.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: broadcast.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: cart.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: cart.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: channel-content.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: channel-content.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: channel-detail.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: channel-detail.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: channels.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: channels.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: checkout.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: checkout.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: church-portal.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: church-portal.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: church-profile.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: church-profile.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: churches.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: churches.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: creator-workspace.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: creator-workspace.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: donate.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: donate.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: event-profile.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: event-profile.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: events.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: events.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: foundation.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: foundation.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: index.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: index.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: livestream.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: livestream.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: meditation.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: meditation.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: member-home.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: member-home.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: messages.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: messages.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: owner-dashboard.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: owner-dashboard.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: privacy.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: privacy.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: product-detail.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: product-detail.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: resource-detail.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: resource-detail.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: resource-reader.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: resource-reader.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: resources.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: resources.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: seller-dashboard.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: seller-dashboard.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: store.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: store.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page returns without redirect loop: storefront.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page security policy: storefront.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "root returns without redirect loop",
+      "actual": 200,
+      "expected": 200
+    }
+  ]
+}

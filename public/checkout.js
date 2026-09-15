@@ -46,7 +46,7 @@
         payment.dispatchEvent(new Event("change", { bubbles: true }));
       }
       const message = document.getElementById("checkout-form-error");
-      message.textContent = `${usePayPal ? "PayPal" : button.classList.contains("google") ? "Google Pay" : "Shop Pay"} selected. Complete your contact and delivery details to continue in this local preview.`;
+      message.textContent = "Payments are unavailable until a verified payment provider is configured.";
       document.querySelector('#checkout-form input[name="email"]')?.focus();
     }));
     document.querySelectorAll('input[name="shipping"],input[name="deliveryType"]').forEach(input => input.addEventListener("change", () => {
@@ -70,19 +70,9 @@
     document.getElementById("mobile-order-toggle").addEventListener("click", () => document.getElementById("checkout-order-content").classList.toggle("open"));
     document.getElementById("checkout-form").addEventListener("submit", event => {
       event.preventDefault();
-      const form = event.currentTarget;
-      const error = document.getElementById("checkout-form-error");
-      if (!form.checkValidity()) { form.reportValidity(); error.textContent = "Please complete the required checkout information."; return; }
-      const fields = Object.fromEntries(new FormData(form));
-      if (fields.payment === "card" && !/^\d[\d ]{14,18}\d$/.test(fields.cardNumber || "")) { error.textContent = "Enter a valid test card number."; form.elements.cardNumber.focus(); return; }
-      const order = { id: `FL-${Date.now().toString().slice(-7)}`, createdAt: new Date().toISOString(), email: fields.email, items: cartRows(), totals: currentTotals, status: "Paid", fulfillment: "Unfulfilled" };
-      const orders = JSON.parse(localStorage.getItem(ordersKey) || "[]"); orders.unshift(order); localStorage.setItem(ordersKey, JSON.stringify(orders));
-      data().saveCart([]); localStorage.removeItem(discountKey);
-      document.getElementById("success-order-number").textContent = `#${order.id}`;
-      document.getElementById("success-email").textContent = order.email;
-      document.getElementById("checkout-success").hidden = false;
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      window.lucide?.createIcons();
+      document.getElementById("checkout-form-error").textContent = "Payments are unavailable until a verified payment provider is configured.";
+      return;
+
     });
     render(); window.lucide?.createIcons();
   });

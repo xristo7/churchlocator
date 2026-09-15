@@ -12,21 +12,36 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
+
+      - name: Check dependency advisories and credential patterns
+        run: npm run security:scan
+
+      - name: Build reviewed native tools
+        run: npm rebuild esbuild workerd
 
       - name: Run tests
         run: npm test
 
+      - name: Test database security constraints
+        run: python3 tests/security-sql.test.py
+
       - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: deploy
+          packageManager: npm
+          wranglerVersion: "4.131.1"
+          command: |
+            d1 migrations apply my-way-of-evangelism --remote
+            deploy --keep-vars --var AUTH_BYPASS:false

@@ -1,0 +1,524 @@
+{
+  "date": "2026-09-15T07:32:59.763Z",
+  "environment": "https://my-way-of-evangelism.doxalight-inc.workers.dev",
+  "readOnly": true,
+  "version": "143b3095-8ba6-4d2d-bc57-d854b7e71128",
+  "migration": "0004_security.sql",
+  "checks": [
+    {
+      "name": "production environment",
+      "actual": "production",
+      "expected": "production"
+    },
+    {
+      "name": "authentication bypass disabled",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "anonymous booking read denied",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "anonymous administrator read denied",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "no anonymous session",
+      "actual": null,
+      "expected": null
+    },
+    {
+      "name": "page returns without redirect loop: admin.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: admin.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: admin.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: app.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: app.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: app.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: broadcast.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: broadcast.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: broadcast.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: cart.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: cart.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: cart.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: channel-content.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: channel-content.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: channel-content.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: channel-detail.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: channel-detail.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: channel-detail.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: channels.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: channels.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: channels.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: checkout.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: checkout.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: checkout.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: church-portal.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: church-portal.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: church-portal.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: church-profile.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: church-profile.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: church-profile.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: churches.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: churches.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: churches.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: creator-workspace.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: creator-workspace.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: creator-workspace.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: donate.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: donate.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: donate.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: event-profile.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: event-profile.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: event-profile.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: events.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: events.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: events.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: foundation.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: foundation.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: foundation.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: index.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: index.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: index.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: livestream.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: livestream.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: livestream.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: meditation.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: meditation.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: meditation.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: member-home.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: member-home.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: member-home.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: messages.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: messages.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: messages.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: owner-dashboard.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: owner-dashboard.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: owner-dashboard.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: privacy.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: privacy.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: privacy.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: product-detail.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: product-detail.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: product-detail.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: resource-detail.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: resource-detail.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: resource-detail.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: resource-reader.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: resource-reader.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: resource-reader.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: resources.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: resources.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: resources.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: seller-dashboard.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: seller-dashboard.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: seller-dashboard.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: store.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: store.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: store.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "page returns without redirect loop: storefront.html",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "page has CSP: storefront.html",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "page has HSTS: storefront.html",
+      "actual": "max-age=31536000",
+      "expected": "max-age=31536000"
+    },
+    {
+      "name": "root returns without redirect loop",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "no card number/CVV inputs",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "browser registrations require server",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "no third-party IP lookup",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "vendor available: vendor/lucide.js",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "vendor digest: vendor/lucide.js",
+      "actual": "1cb20bfb97df20bf7e87d85dc73c77eb2dc67fe62da12881180fe71b046fbfab",
+      "expected": "1cb20bfb97df20bf7e87d85dc73c77eb2dc67fe62da12881180fe71b046fbfab"
+    },
+    {
+      "name": "vendor available: vendor/tailwindcss.js",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "vendor digest: vendor/tailwindcss.js",
+      "actual": "176e894661aa9cdc9a5cba6c720044cbbf7b8bd80d1c9a142a7c24b1b6c50d15",
+      "expected": "176e894661aa9cdc9a5cba6c720044cbbf7b8bd80d1c9a142a7c24b1b6c50d15"
+    }
+  ]
+}
