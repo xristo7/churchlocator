@@ -25,6 +25,9 @@ test('Spotlight derives its visual identity from the theme system', async () => 
   for (const token of ['--primary-h', '--primary-s', '--primary-l', '--primary-gradient', '--primary-glow', '--gold-rgb', '--gold-glow', '--background', '--surface', '--border']) {
     assert.match(styles, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
+  assert.match(styles, /--spotlight-canvas:\s*var\(--surface-canvas\)/);
+  assert.match(styles, /--spotlight-panel:\s*var\(--surface\)/);
+  assert.match(styles, /\.spotlight-card\s*\{[^}]*color:\s*#fff/s);
   assert.doesNotMatch(styles, /#[0-9a-f]{6}\s*!important/i);
 });
 
