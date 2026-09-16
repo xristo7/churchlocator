@@ -28,6 +28,44 @@
   .admin-workspace .aw-breadcrumb { min-width: 0; flex-wrap: wrap; }
 }
 
+/* Keep the hero controls compact on touch screens. The shared mobile rule
+   gives every button a 44px minimum height, which unintentionally stretches
+   the five-pixel carousel indicators into oversized pills. */
+@media (max-width: 768px) {
+  body.hero-only-page .hero-indicator-dot {
+    min-height: 5px !important;
+    height: 5px !important;
+    width: 24px !important;
+    padding: 0 !important;
+  }
+
+  body.hero-only-page .hero-indicator-dot.active {
+    width: 44px !important;
+  }
+
+  /* The language control should read as a lightweight header action, not a
+     floating card competing with the menu button. */
+  body.hero-only-page .topbar-inner .lang-selector-btn,
+  body.hero-only-page .topbar-inner .mobile-menu-toggle {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: hsl(var(--primary-h), 50%, 15%) !important;
+  }
+
+  html[data-theme="light"] body.hero-only-page .topbar-inner .lang-selector-btn,
+  html:not([data-theme="dark"]) body.hero-only-page .topbar-inner .lang-selector-btn {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="dark"] body.hero-only-page .topbar-inner .lang-selector-btn,
+  html[data-theme="dark"] body.hero-only-page .topbar-inner .mobile-menu-toggle {
+    color: #fff !important;
+  }
+}
+
 @media (max-width: 700px) {
   .member-app-shell .member-shell-header { height: 64px !important; min-height: 64px !important; padding: 0 12px !important; gap: 8px !important; justify-content: flex-start !important; overflow: visible; }
   .member-app-shell .profile-app-brand { min-width: 0; gap: 8px !important; font-size: 1rem !important; }

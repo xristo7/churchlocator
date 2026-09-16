@@ -5404,22 +5404,16 @@ function initTranslations() {
 
   // Handle moving the language selector dynamically between header (on mobile) and menu actions (on desktop)
   const handleResponsiveLangSelector = () => {
-    const isMobile = window.innerWidth <= 768;
     document.querySelectorAll(".topbar-inner").forEach(topbarInner => {
       const langSelector = topbarInner.querySelector(".lang-selector-container") || topbarInner.querySelector(".topbar-menu-group .lang-selector-container");
       const navActions = topbarInner.querySelector(".nav-actions");
-      const toggleBtn = topbarInner.querySelector(".mobile-menu-toggle");
       
       if (!langSelector) return;
       
-      if (isMobile) {
-        if (toggleBtn && langSelector.nextSibling !== toggleBtn) {
-          topbarInner.insertBefore(langSelector, toggleBtn);
-        }
-      } else {
-        if (navActions && langSelector.parentNode !== navActions) {
-          navActions.insertBefore(langSelector, navActions.firstChild);
-        }
+      // Keep the mobile header focused on brand + menu. Language remains
+      // available inside the drawer instead of floating beside the hamburger.
+      if (navActions && langSelector.parentNode !== navActions) {
+        navActions.insertBefore(langSelector, navActions.firstChild);
       }
     });
   };
