@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>My Way of Evangelism | Find a Church Family Near You</title>
+  <link rel="stylesheet" href="styles.css?v=20260901g" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<body class="hero-only-page" data-page="home">
+  <!-- Topbar Header -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
+      </a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="churches.html">Churches</a>
+          <a href="events.html">Events</a>
+          <a href="channels.html">Channels</a>
+          <a href="livestream.html" class="live-nav-link"><span class="live-dot-pulse"></span> Watch Live</a>
+        </nav>
+        <div class="nav-actions" id="homepage-nav-auth">
+          <!-- 1. Reinstated Language Selector -->
+          <div class="lang-selector-container">
+            <button class="lang-selector-btn" type="button" aria-label="Select Language">
+              <span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg></span>
+              <span class="lang-text">EN</span>
+              <i data-lucide="chevron-down" class="lang-chevron"></i>
+            </button>
+            <div class="lang-selector-panel">
+              <div class="lang-option" data-lang="en"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg></span> English</div>
+              <div class="lang-option" data-lang="fr"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="6.67" height="15" fill="#002654"/><rect x="6.67" width="6.66" height="15" fill="#ffffff"/><rect x="13.33" width="6.67" height="15" fill="#ce1126"/></svg></span> Français</div>
+              <div class="lang-option" data-lang="es"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#aa151b"/><rect y="3.75" width="20" height="7.5" fill="#f1bf00"/><circle cx="6" cy="7.5" r="2" fill="#aa151b"/></svg></span> Español</div>
+            </div>
+          </div>
+
+          <!-- 2. Auth Slot: Sign In Button with Dropdown (Theme control is inserted dynamically between Language and Sign In) -->
+          <div id="nav-auth-slot" style="display: inline-flex; align-items: center; gap: 8px;">
+            <div class="signin-dropdown-container" id="nav-signin-dropdown-container">
+              <button type="button" class="button ghost small nav-signin-btn" id="nav-signin-trigger" aria-haspopup="dialog" aria-expanded="false" onclick="MWE.toggleNavSigninDropdown(event)">
+                <i data-lucide="user"></i> <span>Sign In</span> <i data-lucide="chevron-down" class="nav-chevron-icon"></i>
+              </button>
+              <div class="signin-dropdown-popover" id="nav-signin-popover" hidden role="dialog" aria-label="Sign In and Register">
+                <div class="signin-dropdown-header">
+                  <strong><i data-lucide="shield-check"></i> Account Access</strong>
+                </div>
+
+                <!-- Switch buttons like light/dark mode switch -->
+                <div class="auth-mode-toggle-group">
+                  <button type="button" class="auth-mode-toggle-btn active" id="tab-btn-signin" data-auth-tab="signin" onclick="MWE.switchAuthDropdownTab('signin')">
+                    <i data-lucide="log-in"></i> Sign In
+                  </button>
+                  <button type="button" class="auth-mode-toggle-btn" id="tab-btn-register" data-auth-tab="register" onclick="MWE.switchAuthDropdownTab('register')">
+                    <i data-lucide="user-plus"></i> Register
+                  </button>
+                </div>
+
+                <!-- Google One-Click Fast Auth -->
+                <button type="button" class="google-auth-fast-btn" onclick="MWE.handleGoogleAuthFast()">
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                  <span id="google-auth-fast-label">Continue with Google</span>
+                </button>
+
+                <div class="auth-divider"><span>or with credentials</span></div>
+
+                <!-- Auth Credentials Form -->
+                <form id="nav-dropdown-auth-form" onsubmit="MWE.handleNavDropdownAuthSubmit(event)">
+                  <div class="form-group mb-2" id="nav-auth-name-group" style="display: none;">
+                    <label for="nav-auth-name">Full Name</label>
+                    <input type="text" id="nav-auth-name" name="name" class="field small-field" placeholder="e.g. John Doe" />
+                  </div>
+                  <div class="form-group mb-2">
+                    <label for="nav-auth-email" id="nav-auth-email-label">Username or Email</label>
+                    <input type="text" id="nav-auth-email" name="email" class="field small-field" placeholder="you@example.com" required />
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="nav-auth-password">Password</label>
+                    <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required />
+                  </div>
+                  <button type="submit" class="button primary small" id="nav-auth-submit-btn" style="width: 100%;">
+                    <i data-lucide="log-in"></i> <span>Sign In</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero-fullscreen">
+      <div class="video-background" aria-hidden="true">
+        <!-- Static background image currently displayed; video is hidden ready for upcoming MP4 file upload -->
+        <img id="hero-bg-image" class="hero-bg-image" src="assets/church-audience.jpg" alt="Church Fellowship" />
+        <video id="hero-bg-video" style="display: none;" autoplay muted loop playsinline preload="none" poster="assets/church-audience.jpg" disablepictureinpicture disableremoteplayback>
+          <source src="https://videos.pexels.com/video-files/6646636/6646636-hd_1280_720_25fps.mp4" type="video/mp4" />
+        </video>
+        <iframe id="hero-video-iframe" 
+                style="display: none;"
+                src="" 
+                frameborder="0" 
+                tabindex="-1"
+                aria-hidden="true"></iframe>
+      </div>
+      <div class="hero-glow-overlay"></div>
+      <div class="container hero-container">
+        
+        <!-- Left Side Content -->
+        <div class="hero-left">
+          <div class="hero-dynamic-content" id="hero-dynamic-content" data-hero-dynamic>
+            <h1 class="hero-dynamic-title" data-hero-title data-t="hero_title">Find a Church Family Near You.</h1>
+            <p class="lead hero-dynamic-desc" data-hero-desc data-t="hero_subtitle">We bridge the path from search to local church community—helping seekers find verified fellowships, request free Sunday rides, receive prayer, accept Jesus Christ, and support bi-monthly orphanage outreach.</p>
+
+            <!-- Primary Hero CTA Buttons (Dual persona: Seeker vs Creator) -->
+            <div class="hero-cta-row" data-hero-cta-row>
+              <a href="churches.html" class="button primary lg" data-hero-btn-primary>
+                <i data-lucide="search"></i> <span data-hero-btn1-text data-t="find_church_family">Find a Church Family</span>
+              </a>
+              <a href="church-portal.html" class="button secondary lg" data-hero-btn-secondary>
+                <i data-lucide="plus-circle"></i> <span data-hero-btn2-text>Register a Church</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Carousel Slide Indicator Pills / Dots -->
+          <div class="hero-slide-indicators" id="hero-slide-indicators" aria-label="Hero carousel navigation">
+            <button type="button" class="hero-indicator-dot active" data-slide-index="0" aria-label="Slide 1: Churches" title="Churches"></button>
+            <button type="button" class="hero-indicator-dot" data-slide-index="1" aria-label="Slide 2: Events" title="Events"></button>
+            <button type="button" class="hero-indicator-dot" data-slide-index="2" aria-label="Slide 3: Channels" title="Channels"></button>
+            <button type="button" class="hero-indicator-dot" data-slide-index="3" aria-label="Slide 4: Meditation" title="Meditation"></button>
+            <button type="button" class="hero-indicator-dot" data-slide-index="4" aria-label="Slide 5: Store" title="Store"></button>
+          </div>
+
+          <!-- Synchronized Dynamic Entities Slider Overlay -->
+          <div class="slider-wrapper mt-6" id="hero-slider-wrapper">
+            <span class="slider-label" id="hero-slider-label"><i data-lucide="compass"></i> <span data-t="verified_near" data-hero-slider-label-text>Verified churches near you</span></span>
+            <div class="slider-container-box" id="hero-slider-container-box">
+              <div class="slider-track" data-hero-slider>
+                <div class="slider-loading">Checking your location...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side Floating Search Card -->
+        <div class="hero-right">
+          <div class="search-card">
+            <div class="search-card-header">
+              <h2 data-t="search_title">Search Fellowships & Streams</h2>
+              <p data-t="search_desc">Find trusted local churches by city, worship style, or ministry focus.</p>
+            </div>
+            
+            <form data-hero-search-form action="churches.html" method="GET">
+              <div class="form-group">
+                <label for="hero-city-input" data-t="city_location">City / Location</label>
+                <div class="location-combined-group">
+                  <div class="input-with-icon city-section">
+                    <i data-lucide="map-pin" class="input-icon"></i>
+                    <input type="text" id="hero-city-input" name="city" list="cities-list" class="field" placeholder="e.g. Edmonton, Calgary, Vancouver" autocomplete="off" />
+                    <datalist id="cities-list"></datalist>
+                  </div>
+                  <div class="country-section">
+                    <select id="hero-country-select" name="country" class="field country-dropdown">
+                      <option value="CA">🇨🇦 CA</option>
+                      <option value="US">🇺🇸 US</option>
+                      <option value="GB">🇬🇧 UK</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="hero-ministry-select" data-t="interested_in">Interested in</label>
+                <select id="hero-ministry-select" name="ministry" class="field">
+                  <option value="" data-t-option="all_interests">All Ministries & Features</option>
+                  <option value="kids" data-t-option="kids">Kids & Children</option>
+                  <option value="youth" data-t-option="youth">Youth & Students</option>
+                  <option value="prayer" data-t-option="prayer">Prayer Groups</option>
+                  <option value="worship" data-t-option="worship">Worship Team</option>
+                  <option value="transportation" data-t-option="transportation">Free Sunday Transportation</option>
+                </select>
+              </div>
+
+              <div class="form-group toggle-group">
+                <label class="toggle-label-wrapper">
+                  <span class="toggle-label-text" data-t="only_livestream">Only show livestreaming churches</span>
+                  <div class="toggle-switch">
+                    <input type="checkbox" id="hero-stream-toggle" name="stream" value="true" />
+                    <span class="toggle-slider"></span>
+                  </div>
+                </label>
+              </div>
+
+              <button type="submit" class="button search-submit-button">
+                <i data-lucide="search"></i> <span data-t="find_button">Find a Church Family</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 1. Virtual Sanctuary Streams (Active & Scheduled Livestreams) -->
+    <section class="section border-t" id="home-livestreams">
+      <div class="container">
+        <div class="section-head section-head-grid-2-1">
+          <div class="section-head-col-main">
+            <p class="kicker"><i data-lucide="radio"></i> Live Now & Upcoming</p>
+            <h2>Active and Scheduled Livestreams</h2>
+            <p class="lead">Virtual sanctuary streams: Join Sunday communion, acoustic worship, and mid-week Bible teaching from verified churches and channels.</p>
+          </div>
+          <div class="section-head-col-aside">
+            <a href="livestream.html" class="button ghost">Watch All Livestreams <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+        <div class="cards-grid" data-home-streams-grid>
+          <div class="stream-card-v2">
+            <div class="stream-card-thumb">
+              <img src="https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1500&q=85" alt="Christ Embassy Edmonton" />
+              <span class="live-pill"><span class="pulse-dot"></span> LIVE</span>
+              <span class="viewer-count"><i data-lucide="eye"></i> 1,420 watching</span>
+            </div>
+            <div class="stream-card-body">
+              <strong>Christ Embassy Edmonton</strong>
+              <span>Pentecostal • Edmonton</span>
+              <a href="livestream.html?id=christ-embassy-edmonton" class="stream-join-btn"><i data-lucide="radio"></i> Watch Stream</a>
+            </div>
+          </div>
+          <div class="stream-card-v2">
+            <div class="stream-card-thumb">
+              <img src="https://images.unsplash.com/photo-1519491050282-cf00c82424b4?auto=format&fit=crop&w=1500&q=85" alt="Beulah Alliance Church" />
+              <span class="upcoming-pill">Sunday 10:00 AM</span>
+              <span class="viewer-count"><i data-lucide="eye"></i> Scheduled</span>
+            </div>
+            <div class="stream-card-body">
+              <strong>Beulah Alliance Church</strong>
+              <span>Alliance • Edmonton</span>
+              <a href="livestream.html?id=beulah-alliance-west" class="stream-join-btn"><i data-lucide="radio"></i> Watch Stream</a>
+            </div>
+          </div>
+          <div class="stream-card-v2">
+            <div class="stream-card-thumb">
+              <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1500&q=85" alt="Celebration Church" />
+              <span class="upcoming-pill">Sunday 10:00 AM</span>
+              <span class="viewer-count"><i data-lucide="eye"></i> Scheduled</span>
+            </div>
+            <div class="stream-card-body">
+              <strong>Celebration Church</strong>
+              <span>Non-Denominational • Edmonton</span>
+              <a href="livestream.html?id=celebration-church-edmonton" class="stream-join-btn"><i data-lucide="radio"></i> Watch Stream</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Find a Local Church Family Near You -->
+    <section class="section bg-soft border-y" id="home-churches">
+      <div class="container">
+        <div class="section-head flex-between">
+          <div>
+            <p class="kicker"><i data-lucide="church"></i> Verified Congregations</p>
+            <h2>Find a Local Church Family</h2>
+            <p class="lead">Connect with verified Christ-centered churches, check service times, request rides, and join vibrant ministries near you.</p>
+          </div>
+          <a href="churches.html" class="button ghost">Explore Directory <i data-lucide="arrow-right"></i></a>
+        </div>
+        <div class="cards-grid" data-home-church-grid>
+          <article class="church-card-immersive" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=christ-embassy-edmonton'; }" style="background-image: url('https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&amp;fit=crop&amp;w=1500&amp;q=85'); cursor: pointer;">
+            <div class="church-card-immersive-overlay">
+              <div class="church-card-top-bar">
+                <span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>
+                <button type="button" class="immersive-fav-btn" aria-label="Save church" onclick="MWE.toggleFavorite(event, 'christ-embassy-edmonton')">
+                  <i data-lucide="heart" style="width: 18px; height: 18px; fill: rgba(239, 68, 68, 0.2);"></i>
+                </button>
+              </div>
+              <div class="church-card-bottom-info">
+                <h3 class="immersive-card-title">Christ Embassy Edmonton</h3>
+                <p class="immersive-card-subtitle">Pentecostal • Edmonton</p>
+                <div class="immersive-card-meta">
+                  <span><i data-lucide="map-pin"></i> South Edmonton</span>
+                  <span>•</span>
+                  <span><i data-lucide="clock"></i> Sunday 10:00 AM</span>
+                </div>
+                <div class="church-card-action-row">
+                  <a href="church-profile.html?id=christ-embassy-edmonton" class="immersive-pill-btn">
+                    Explore <i data-lucide="arrow-right"></i>
+                  </a>
+                  <button type="button" class="immersive-map-btn" onclick="event.preventDefault(); event.stopPropagation(); MWE.showMapModal('christ-embassy-edmonton')" title="View Location on Map">
+                    <i data-lucide="map-pin"></i> Location
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+          <article class="church-card-immersive" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=beulah-alliance-west'; }" style="background-image: url('https://images.unsplash.com/photo-1519491050282-cf00c82424b4?auto=format&amp;fit=crop&amp;w=1500&amp;q=85'); cursor: pointer;">
+            <div class="church-card-immersive-overlay">
+              <div class="church-card-top-bar">
+                <span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>
+                <button type="button" class="immersive-fav-btn" aria-label="Save church" onclick="MWE.toggleFavorite(event, 'beulah-alliance-west')">
+                  <i data-lucide="heart" style="width: 18px; height: 18px; fill: rgba(239, 68, 68, 0.2);"></i>
+                </button>
+              </div>
+              <div class="church-card-bottom-info">
+                <h3 class="immersive-card-title">Beulah Alliance Church</h3>
+                <p class="immersive-card-subtitle">Alliance • Edmonton</p>
+                <div class="immersive-card-meta">
+                  <span><i data-lucide="map-pin"></i> West Edmonton</span>
+                  <span>•</span>
+                  <span><i data-lucide="clock"></i> Saturday 6:30 PM | Sunday 9:00 AM & 11:00 AM</span>
+                </div>
+                <div class="church-card-action-row">
+                  <a href="church-profile.html?id=beulah-alliance-west" class="immersive-pill-btn">
+                    Explore <i data-lucide="arrow-right"></i>
+                  </a>
+                  <button type="button" class="immersive-map-btn" onclick="event.preventDefault(); event.stopPropagation(); MWE.showMapModal('beulah-alliance-west')" title="View Location on Map">
+                    <i data-lucide="map-pin"></i> Location
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+          <article class="church-card-immersive" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=celebration-church-edmonton'; }" style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&amp;fit=crop&amp;w=1500&amp;q=85'); cursor: pointer;">
+            <div class="church-card-immersive-overlay">
+              <div class="church-card-top-bar">
+                <span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>
+                <button type="button" class="immersive-fav-btn" aria-label="Save church" onclick="MWE.toggleFavorite(event, 'celebration-church-edmonton')">
+                  <i data-lucide="heart" style="width: 18px; height: 18px; fill: rgba(239, 68, 68, 0.2);"></i>
+                </button>
+              </div>
+              <div class="church-card-bottom-info">
+                <h3 class="immersive-card-title">Celebration Church</h3>
+                <p class="immersive-card-subtitle">Non-Denominational • Edmonton</p>
+                <div class="immersive-card-meta">
+                  <span><i data-lucide="map-pin"></i> South Central</span>
+                  <span>•</span>
+                  <span><i data-lucide="clock"></i> Sunday 9:30 AM & 11:30 AM</span>
+                </div>
+                <div class="church-card-action-row">
+                  <a href="church-profile.html?id=celebration-church-edmonton" class="immersive-pill-btn">
+                    Explore <i data-lucide="arrow-right"></i>
+                  </a>
+                  <button type="button" class="immersive-map-btn" onclick="event.preventDefault(); event.stopPropagation(); MWE.showMapModal('celebration-church-edmonton')" title="View Location on Map">
+                    <i data-lucide="map-pin"></i> Location
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Meditation Sanctuary Showcase -->
+    <section class="section" id="home-meditation">
+      <div class="container">
+        <div class="member-meditation-showcase">
+          <div class="med-showcase-copy">
+            <span class="med-showcase-tag"><i data-lucide="sparkles"></i> Spiritual Wellness</span>
+            <h2>Enter the Meditation Sanctuary</h2>
+            <p>Quiet your soul with peace-filled Christian worship, spoken Audio Bibles, soaking instrumental strings, and pastoral preachings.</p>
+            <div class="med-showcase-features">
+              <span><i data-lucide="check"></i> 4 Audio Channels</span>
+              <span><i data-lucide="check"></i> Prayer & Sleep Timers</span>
+              <span><i data-lucide="check"></i> Ambient Sound Mixer</span>
+            </div>
+            <a href="meditation.html" class="button primary lg">
+              <i data-lucide="sparkles"></i> Open Meditation Room
+            </a>
+          </div>
+          <div class="med-showcase-visual">
+            <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=700&q=80" alt="Meditation Sanctuary" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Inspiring Channels & Podcasts -->
+    <section class="section bg-soft border-y" id="home-channels">
+      <div class="container">
+        <div class="section-head section-head-grid-2-1">
+          <div class="section-head-col-main">
+            <p class="kicker"><i data-lucide="podcast"></i> Verified Creators</p>
+            <h2>Inspiring Channels & Podcasts</h2>
+            <p class="lead">Deep-dive video devotionals, youth revival networks, Christian leadership discussions, and verse-by-verse Bible podcasts.</p>
+          </div>
+          <div class="section-head-col-aside">
+            <a href="channels.html" class="button ghost">Explore All Channels <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+        <div class="cards-grid" data-home-channels-grid>
+          <article class="channel-profile-card">
+            <a class="channel-profile-cover" href="channel-detail.html?id=gospel-truth-net" aria-label="Open Gospel Truth Network">
+              <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=900&q=82" alt="Gospel Truth Network cover" />
+              <span class="channel-format"><i data-lucide="tv"></i>Livestream</span>
+              <span class="channel-live"><i data-lucide="radio"></i> Live</span>
+              <img class="channel-profile-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80" alt="Pastor Marcus Vance" />
+            </a>
+            <div class="channel-profile-body">
+              <div class="channel-profile-identity">
+                <div>
+                  <h3><a href="channel-detail.html?id=gospel-truth-net">Gospel Truth Network</a><i data-lucide="badge-check" aria-label="Verified"></i></h3>
+                  <span>Pastor Marcus Vance · Evangelism</span>
+                </div>
+                <span class="channel-online"><i></i>Live now</span>
+              </div>
+              <p>24/7 global apostolic broadcasts, expository preaching, and prayer vigils for revival in North America.</p>
+              <div class="channel-platform-stats">
+                <span><strong>24.5K</strong><small>Followers</small></span>
+                <span><strong>142</strong><small>Posts</small></span>
+                <span><strong>4.9</strong><small>Rating</small></span>
+              </div>
+              <a class="channel-contact-button" href="messages.html?compose=channel&id=gospel-truth-net"><i data-lucide="message-circle"></i> Connect with Pastor</a>
+            </div>
+          </article>
+          <article class="channel-profile-card">
+            <a class="channel-profile-cover" href="channel-detail.html?id=revive-youth-podcast" aria-label="Open Revive Youth Ministry">
+              <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=82" alt="Revive Youth Ministry cover" />
+              <span class="channel-format"><i data-lucide="mic-2"></i>Podcast</span>
+              <img class="channel-profile-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80" alt="Minister Caleb Rowe" />
+            </a>
+            <div class="channel-profile-body">
+              <div class="channel-profile-identity">
+                <div>
+                  <h3><a href="channel-detail.html?id=revive-youth-podcast">Revive Youth Ministry</a><i data-lucide="badge-check" aria-label="Verified"></i></h3>
+                  <span>Minister Caleb Rowe · Youth Revival</span>
+                </div>
+                <span class="channel-online"><i></i>Active</span>
+              </div>
+              <p>Discussions tackling campus faith, spiritual identity, mental health, and kingdom leadership for generation Z.</p>
+              <div class="channel-platform-stats">
+                <span><strong>18.2K</strong><small>Followers</small></span>
+                <span><strong>86</strong><small>Episodes</small></span>
+                <span><strong>4.9</strong><small>Rating</small></span>
+              </div>
+              <a class="channel-contact-button" href="messages.html?compose=channel&id=revive-youth-podcast"><i data-lucide="message-circle"></i> Connect with Minister</a>
+            </div>
+          </article>
+          <article class="channel-profile-card">
+            <a class="channel-profile-cover" href="channel-detail.html?id=scripture-lab" aria-label="Open Scripture Study Lab">
+              <img src="https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=900&q=82" alt="Scripture Study Lab cover" />
+              <span class="channel-format"><i data-lucide="play-square"></i>Video</span>
+              <img class="channel-profile-avatar" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80" alt="Dr. Peter Cole" />
+            </a>
+            <div class="channel-profile-body">
+              <div class="channel-profile-identity">
+                <div>
+                  <h3><a href="channel-detail.html?id=scripture-lab">Scripture Study Lab</a><i data-lucide="badge-check" aria-label="Verified"></i></h3>
+                  <span>Dr. Peter Cole · Bible Study</span>
+                </div>
+                <span class="channel-online"><i></i>Active</span>
+              </div>
+              <p>Expository verse-by-verse historical context studies, original Greek and Hebrew word insights, and devotionals.</p>
+              <div class="channel-platform-stats">
+                <span><strong>15.1K</strong><small>Followers</small></span>
+                <span><strong>64</strong><small>Posts</small></span>
+                <span><strong>4.9</strong><small>Rating</small></span>
+              </div>
+              <a class="channel-contact-button" href="messages.html?compose=channel&id=scripture-lab"><i data-lucide="message-circle"></i> Connect with Dr.</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Featured Ministry Essentials / Store Products -->
+    <section class="section" id="home-store">
+      <div class="container">
+        <div class="section-head section-head-grid-2-1">
+          <div class="section-head-col-main">
+            <p class="kicker"><i data-lucide="shopping-bag"></i> Kingdom Marketplace</p>
+            <h2>Featured Ministry Essentials</h2>
+            <p class="lead">Explore faith-building study Bibles, structured prayer journals, communion kits, and inspired apparel from verified creators.</p>
+          </div>
+          <div class="section-head-col-aside">
+            <a href="store.html" class="button ghost">Visit Store <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+        <div class="cards-grid" data-home-store-grid>
+          <article class="store-product-card product-card">
+            <a class="product-image-wrap" href="product-detail.html?id=study-bible" aria-label="View FaithLink Study Bible">
+              <img class="product-image" src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=82" alt="FaithLink Study Bible" />
+              <span class="product-badge">Store · Books</span>
+            </a>
+            <div class="product-card-body">
+              <span class="product-seller">Sold by River City Church</span>
+              <h3><a href="product-detail.html?id=study-bible">FaithLink Study Bible</a></h3>
+              <span class="product-rating"><i data-lucide="star"></i>4.8 · In stock</span>
+              <div class="product-price-row">
+                <div><span class="product-price">$48.00 CAD</span></div>
+                <a class="button ghost sm" href="product-detail.html?id=study-bible">Details</a>
+              </div>
+            </div>
+          </article>
+          <article class="store-product-card product-card">
+            <a class="product-image-wrap" href="product-detail.html?id=prayer-journal" aria-label="View 90-Day Prayer Journal">
+              <img class="product-image" src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=82" alt="90-Day Prayer Journal" />
+              <span class="product-badge">Store · Journals</span>
+            </a>
+            <div class="product-card-body">
+              <span class="product-seller">Sold by Daily Word with Amara</span>
+              <h3><a href="product-detail.html?id=prayer-journal">90-Day Prayer Journal</a></h3>
+              <span class="product-rating"><i data-lucide="star"></i>4.9 · In stock</span>
+              <div class="product-price-row">
+                <div><span class="product-price">$22.00 CAD</span></div>
+                <a class="button ghost sm" href="product-detail.html?id=prayer-journal">Details</a>
+              </div>
+            </div>
+          </article>
+          <article class="store-product-card product-card">
+            <a class="product-image-wrap" href="product-detail.html?id=worship-hoodie" aria-label="View Worship Is My Response Hoodie">
+              <img class="product-image" src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&q=82" alt="Worship Is My Response Hoodie" />
+              <span class="product-badge">Store · Apparel</span>
+            </a>
+            <div class="product-card-body">
+              <span class="product-seller">Sold by The Worship Room</span>
+              <h3><a href="product-detail.html?id=worship-hoodie">Worship Is My Response Hoodie</a></h3>
+              <span class="product-rating"><i data-lucide="star"></i>4.8 · In stock</span>
+              <div class="product-price-row">
+                <div><span class="product-price">$54.00 CAD</span></div>
+                <a class="button ghost sm" href="product-detail.html?id=worship-hoodie">Details</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Side-by-Side Banners: Humanitarian Relief & Study Guides -->
+    <section class="section bg-soft border-y" id="home-banners">
+      <div class="container">
+        <div class="home-banners-side-by-side">
+          <div class="home-impact-banner-card">
+            <div>
+              <span class="section-kicker" style="color: var(--primary);"><i data-lucide="heart"></i> Love in Action</span>
+              <h3>Bi-Monthly Humanitarian Relief</h3>
+              <p>Every contribution supports partner orphanages, food drives, and emergency aid with verified video proof.</p>
+            </div>
+            <a href="donate.html" class="button primary"><i data-lucide="heart"></i> Support Outreach</a>
+          </div>
+          <div class="home-impact-banner-card">
+            <div>
+              <span class="section-kicker" style="color: var(--primary);"><i data-lucide="book-open"></i> Discipleship Tools</span>
+              <h3>Study Guides & E-Books</h3>
+              <p>Deepen your spiritual walk with guided prayer devotionals, scripture chapter outlines, and discipleship reading plans.</p>
+            </div>
+            <a href="resources.html" class="button secondary"><i data-lucide="book-open"></i> Browse Study Library</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Community Gatherings & Events Showcase -->
+    <section class="section" id="home-events">
+      <div class="container">
+        <div class="section-head section-head-grid-2-1">
+          <div class="section-head-col-main">
+            <p class="kicker"><i data-lucide="calendar"></i> Community Gatherings</p>
+            <h2>Upcoming Events & Conferences</h2>
+            <p class="lead">Experience fellowship, regional youth summits, prayer vigils, and church leadership workshops.</p>
+          </div>
+          <div class="section-head-col-aside">
+            <a href="events.html" class="button ghost">View All Events <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+        <div class="cards-grid" data-home-events-grid>
+          <a href="event-profile.html?id=calgary-awakening-2026" class="event-card-modern">
+            <div class="event-card-banner-wrap">
+              <img class="event-card-banner-img" src="https://images.unsplash.com/photo-1510531704581-5b2870972060?auto=format&fit=crop&w=800&q=80" alt="Calgary Awakening Conference 2026" loading="lazy" />
+            </div>
+            <div class="event-card-bottom-row">
+              <div class="event-date-col">
+                <span class="event-date-month">AUG</span>
+                <span class="event-date-num">15</span>
+                <span class="event-price-tag-sub">FREE</span>
+              </div>
+              <div class="event-date-divider"></div>
+              <div class="event-details-col">
+                <span class="event-location-pill"><i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> Calgary</span>
+                <h4 class="event-card-title-new">Calgary Awakening Conference 2026</h4>
+                <p class="event-card-desc">Join us for 3 days of worship, teaching, and break-out sessions focused on renewal and outreach.</p>
+              </div>
+            </div>
+          </a>
+          <a href="event-profile.html?id=edmonton-worship-summit" class="event-card-modern">
+            <div class="event-card-banner-wrap">
+              <img class="event-card-banner-img" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80" alt="Edmonton Worship Summit" loading="lazy" />
+            </div>
+            <div class="event-card-bottom-row">
+              <div class="event-date-col">
+                <span class="event-date-month">SEP</span>
+                <span class="event-date-num">20</span>
+                <span class="event-price-tag-sub">FREE</span>
+              </div>
+              <div class="event-date-divider"></div>
+              <div class="event-details-col">
+                <span class="event-location-pill"><i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> Edmonton</span>
+                <h4 class="event-card-title-new">Edmonton Worship Summit</h4>
+                <p class="event-card-desc">An evening of united praise, intercessory prayer, and spiritual renewal for all ages.</p>
+              </div>
+            </div>
+          </a>
+          <a href="event-profile.html?id=vancouver-youth-rally" class="event-card-modern">
+            <div class="event-card-banner-wrap">
+              <img class="event-card-banner-img" src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=800&q=80" alt="Vancouver Youth Rally" loading="lazy" />
+            </div>
+            <div class="event-card-bottom-row">
+              <div class="event-date-col">
+                <span class="event-date-month">OCT</span>
+                <span class="event-date-num">10</span>
+                <span class="event-price-tag-sub">FREE</span>
+              </div>
+              <div class="event-date-divider"></div>
+              <div class="event-details-col">
+                <span class="event-location-pill"><i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> Vancouver</span>
+                <h4 class="event-card-title-new">Vancouver Youth Rally</h4>
+                <p class="event-card-desc">Empowering the next generation to stand firm in faith, truth, and community love.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. About Us Platform Section -->
+    <section class="section bg-soft border-y" id="home-about">
+      <div class="container">
+        <div class="section-head section-head-grid-2-1">
+          <div class="section-head-col-main">
+            <p class="kicker"><i data-lucide="info"></i> About Our Platform</p>
+            <h2>About My Way of Evangelism</h2>
+            <p class="lead">A trusted, Christ-centered digital bridge connecting spiritual seekers with verified bible-believing churches, ministry channels, prayer fellowship, and community outreach.</p>
+          </div>
+          <div class="section-head-col-aside">
+            <a href="churches.html" class="button ghost">Explore Fellowships <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+        <div class="readable-grid three mt-6">
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="church"></i></div>
+              <h3>Verified Congregations</h3>
+            </div>
+            <p class="text-sm text-muted">Discover sound churches in your area with verified pastoral leadership, service times, free Sunday transportation, and youth programs.</p>
+          </div>
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="radio"></i></div>
+              <h3>Free Channels & Livestreams</h3>
+            </div>
+            <p class="text-sm text-muted">Watch inspirational gospel teachings and worship without paywalls. Viewers can chat freely and participate on interactive stage formats.</p>
+          </div>
+          <div class="content-callout">
+            <div class="category-head">
+              <div class="category-icon"><i data-lucide="sparkles"></i></div>
+              <h3>Meditation & Prayer Sanctuaries</h3>
+            </div>
+            <p class="text-sm text-muted">Step into distraction-free spiritual sanctuaries featuring atmospheric worship piano, Scripture readings, prayers, and friend invites.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. Dedicated Faith Hub Callout Card -->
+    <section class="section" id="home-auth-section">
+      <div class="container">
+        <div class="faith-hub-cta-card">
+          <div class="faith-hub-cta-inner" id="home-auth-status-container">
+            <span class="eyebrow"><i data-lucide="sparkles"></i> Your Personal Faith Journey</span>
+            <h2>Sign In to Your Faith Hub</h2>
+            <p class="lead">Sign in to save favorite churches, reserve event passes, access private meditation prayer rooms, submit prayer requests, and connect directly with pastors across our network.</p>
+            <div class="faith-hub-btn-group" id="home-auth-actions-row">
+              <button type="button" class="button primary lg" onclick="MWE.toggleNavSigninDropdown(event)">
+                <i data-lucide="log-in"></i> <span>Sign In to Account</span>
+              </button>
+              <button type="button" class="button secondary lg" onclick="MWE.switchAuthDropdownTab('register'); MWE.toggleNavSigninDropdown(event);">
+                <i data-lucide="user-plus"></i> <span>Register Free Account</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Platform Footer -->
+  <footer class="platform-footer">
+    <div class="container">
+      <div class="footer-main">
+        <div class="footer-brand-block">
+          <a class="footer-brand" href="index.html">
+            <span class="footer-brand-mark"><i data-lucide="church"></i></span>
+            <span>My Way of Evangelism</span>
+          </a>
+          <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, transportation, prayer, salvation, and humanitarian care.</p>
+          <div class="footer-cta-row">
+            <a class="footer-button primary" href="churches.html"><i data-lucide="search"></i> Find a Church</a>
+            <a class="footer-button" href="church-portal.html"><i data-lucide="log-in"></i> Church Portal</a>
+          </div>
+        </div>
+        <nav class="footer-column" aria-label="Explore">
+          <h2>Explore</h2>
+          <ul class="footer-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="churches.html">Find a Church</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="livestream.html">Livestreams</a></li>
+            <li><a href="foundation.html">Foundation</a></li>
+            <li><a href="donate.html">Donate</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-column" aria-label="Policies">
+          <h2>Legal & Safety</h2>
+          <ul class="footer-links">
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="privacy.html">Terms & Conditions</a></li>
+            <li><a href="privacy.html">Child Safeguarding</a></li>
+            <li><a href="church-portal.html">Register Your Church</a></li>
+          </ul>
+        </nav>
+        <div class="footer-column">
+          <h2>Connect</h2>
+          <div class="footer-contact-card">
+            <div class="footer-contact-row"><i data-lucide="map-pin"></i><span>Serving churches & humanitarian causes across North America and beyond.</span></div>
+            <div class="footer-contact-row"><i data-lucide="shield-check"></i><span>Verified outreach, transparent giving, and child protection.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 My Way of Evangelism. All rights reserved.</span>
+        <span class="footer-status">Platform Online</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" data-toast>Done</div>
+</body>
+</html>

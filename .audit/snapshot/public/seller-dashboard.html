@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Store Manager | My Way</title>
+  <link rel="stylesheet" href="styles.css?v=20260901g" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-modules.js?v=20260825"></script>
+  <script defer src="seller-dashboard.js?v=20260825"></script>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<body class="module-page" data-page="store-manager">
+  <header class="topbar"></header>
+  <main>
+    <section class="module-hero">
+      <div class="module-shell module-hero-inner">
+        <div>
+          <span class="module-kicker"><i data-lucide="layout-dashboard"></i> Seller Dashboard</span>
+          <h1>Manage your FaithLink store.</h1>
+          <p>Churches and channel owners can publish products, manage inventory, control visibility, and monitor orders from one workspace.</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a class="module-secondary-action" href="store.html"><i data-lucide="shopping-bag"></i> View Store</a>
+          <button class="module-primary-action" id="add-product-button" type="button"><i data-lucide="plus"></i> Add Product</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="module-shell module-content">
+      <div class="seller-dashboard-grid">
+        <article class="seller-kpi"><span><i data-lucide="badge-dollar-sign"></i> Gross sales</span><strong id="seller-sales">$0</strong></article>
+        <article class="seller-kpi"><span><i data-lucide="package"></i> Active products</span><strong id="seller-active-products">0</strong></article>
+        <article class="seller-kpi"><span><i data-lucide="shopping-cart"></i> Orders this month</span><strong id="seller-order-count">38</strong></article>
+        <article class="seller-kpi"><span><i data-lucide="triangle-alert"></i> Low inventory</span><strong id="seller-low-stock">0</strong></article>
+      </div>
+
+      <section class="seller-panel" style="margin-bottom:22px">
+        <div class="seller-panel-head">
+          <div><span class="module-kicker" style="margin-bottom:4px">Catalog</span><h2>Products and inventory</h2></div>
+          <label class="module-search" style="width:min(100%,280px)"><i data-lucide="search"></i><input id="seller-product-search" type="search" placeholder="Search products..." /></label>
+        </div>
+        <div class="seller-table-wrap">
+          <table class="seller-table">
+            <thead><tr><th>Product</th><th>Seller</th><th>Status</th><th>Price</th><th>Inventory</th><th>Actions</th></tr></thead>
+            <tbody id="seller-products-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="seller-panel">
+        <div class="seller-panel-head"><div><span class="module-kicker" style="margin-bottom:4px">Orders</span><h2>Recent customer orders</h2></div><span class="status-pill">Payments secured</span></div>
+        <div class="seller-table-wrap">
+          <table class="seller-table">
+            <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Fulfillment</th></tr></thead>
+            <tbody id="seller-orders-body">
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="module-modal" id="product-editor-modal" role="dialog" aria-modal="true" aria-labelledby="product-editor-title">
+    <div class="module-modal-card">
+      <button class="module-modal-close" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+      <h2 id="product-editor-title">Add product</h2>
+      <p>Products saved here appear in the Store when their status is Active.</p>
+      <form class="module-form" id="product-editor-form">
+        <input type="hidden" name="id" />
+        <label class="wide">Product title<input name="title" required /></label>
+        <label>Seller name<input name="seller" required placeholder="Church or channel name" /></label>
+        <label>Seller type<select name="sellerType"><option>Church</option><option>Channel</option></select></label>
+        <label>Category<input name="category" required placeholder="Books, Apparel, Music..." /></label>
+        <label>Status<select name="status"><option>Active</option><option>Draft</option></select></label>
+        <label>Price (CAD)<input name="price" type="number" min="0" step="0.01" required /></label>
+        <label>Inventory<input name="inventory" type="number" min="0" step="1" required /></label>
+        <label class="wide">Image URL<input name="image" type="url" required /></label>
+        <label class="wide">Description<textarea name="description" required></textarea></label>
+        <button class="module-primary-action" type="submit"><i data-lucide="save"></i> Save Product</button>
+      </form>
+    </div>
+  </div>
+  <footer class="platform-footer"></footer>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+</body>
+</html>

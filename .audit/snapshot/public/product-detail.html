@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product | My Way Store</title>
+  <link rel="stylesheet" href="styles.css?v=20260901g" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-modules.js?v=20260825"></script>
+  <script defer src="product-detail.js?v=20260825"></script>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<body class="module-page" data-page="product-detail">
+  <header class="topbar"></header>
+  <main class="module-shell product-detail-page">
+    <a class="product-back-link" href="store.html"><i data-lucide="arrow-left"></i> Back to Store</a>
+    <section class="product-detail-shell" id="product-detail"></section>
+  </main>
+  <div class="cart-drawer-backdrop" id="cart-drawer-backdrop" hidden></div>
+  <aside class="store-cart-drawer" id="store-cart-drawer" aria-label="Shopping cart" aria-hidden="true">
+    <div class="store-cart-head"><h3><i data-lucide="shopping-cart"></i> Your Cart</h3><button class="drawer-close" id="cart-close" type="button" aria-label="Close cart"><i data-lucide="x"></i></button></div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-summary"><div class="cart-total"><span>Total</span><strong id="cart-total">$0.00</strong></div><a class="module-primary-action" href="cart.html"><i data-lucide="shopping-bag"></i> View cart</a></div>
+  </aside>
+  <div class="service-modal-backdrop" id="service-modal-backdrop" hidden></div>
+  <dialog class="service-booking-modal" id="service-booking-modal" aria-labelledby="service-modal-title" hidden>
+    <div class="service-modal-header">
+      <div>
+        <span class="service-modal-kicker"><i data-lucide="calendar-check"></i> Booking & Consultation</span>
+        <h2 id="service-modal-title">Book Service</h2>
+      </div>
+      <button type="button" class="service-modal-close" id="service-modal-close" aria-label="Close booking form">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <form class="service-booking-form" id="service-booking-form">
+      <input type="hidden" name="serviceId" id="booking-service-id" />
+      <input type="hidden" name="serviceTitle" id="booking-service-title" />
+      <input type="hidden" name="serviceType" id="booking-service-type" />
+      <input type="hidden" name="providerName" id="booking-provider-name" />
+      <input type="hidden" name="providerType" id="booking-provider-type" />
+      <input type="hidden" name="packageTier" id="booking-package-tier" />
+      <input type="hidden" name="estimatedAmount" id="booking-estimated-amount" />
+
+      <div class="service-modal-summary" id="booking-service-summary"></div>
+
+      <div class="service-form-grid">
+        <div class="form-group">
+          <label for="booking-name"><i data-lucide="user"></i> Full Name *</label>
+          <input type="text" id="booking-name" name="customerName" placeholder="Your full name" required autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="booking-email"><i data-lucide="mail"></i> Email Address *</label>
+          <input type="email" id="booking-email" name="customerEmail" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+      </div>
+
+      <div class="service-form-grid">
+        <div class="form-group">
+          <label for="booking-phone"><i data-lucide="phone"></i> Phone / WhatsApp</label>
+          <input type="tel" id="booking-phone" name="customerPhone" placeholder="+1 (555) 000-0000" autocomplete="tel" />
+        </div>
+        <div class="form-group">
+          <label for="booking-date"><i data-lucide="calendar"></i> Preferred Date *</label>
+          <input type="date" id="booking-date" name="requestedDate" required />
+        </div>
+      </div>
+
+      <div class="service-form-grid">
+        <div class="form-group">
+          <label for="booking-time"><i data-lucide="clock"></i> Preferred Time / Slot</label>
+          <input type="text" id="booking-time" name="requestedTime" placeholder="e.g. 10:00 AM or Morning session" />
+        </div>
+        <div class="form-group">
+          <label for="booking-location"><i data-lucide="map-pin"></i> Venue / Event Location</label>
+          <input type="text" id="booking-location" name="eventLocation" placeholder="City, Church or Venue address" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="booking-notes"><i data-lucide="message-square"></i> Special Requirements / Details</label>
+        <textarea id="booking-notes" name="notes" rows="3" placeholder="Describe your event, setlist preferences, schedule, or questions..."></textarea>
+      </div>
+
+      <div class="service-modal-footer">
+        <button type="button" class="button ghost" id="service-modal-cancel">Cancel</button>
+        <button type="submit" class="button primary service-submit-btn" id="service-submit-btn">
+          <i data-lucide="send"></i> Submit Booking Request
+        </button>
+      </div>
+    </form>
+    <div class="service-booking-confirmation" id="service-booking-confirmation" hidden>
+      <div class="confirmation-icon"><i data-lucide="check-circle-2"></i></div>
+      <h3>Booking Request Sent!</h3>
+      <p class="confirmation-ref">Reference: <strong id="confirmation-ref-code">SRV-000000</strong></p>
+      <p class="confirmation-msg">The church or ministry team has received your request and will reach out to you via email or phone to confirm schedule details.</p>
+      <button type="button" class="button primary" id="confirmation-done-btn">Done</button>
+    </div>
+  </dialog>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+</body>
+</html>

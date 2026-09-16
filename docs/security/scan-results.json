@@ -1,12 +1,12 @@
 {
-  "date": "2026-09-15T07:33:09.889Z",
+  "date": "2026-09-15T08:40:31.657Z",
   "scope": "Repository static inventory and public npm lockfile advisory lookup. Pattern matches require manual review; not proof of exploitability or absence of vulnerabilities.",
   "files": 107,
   "applicationFiles": 105,
   "sourceLines": 78393,
   "dependencyPackages": 93,
   "advisories": {},
-  "historicalObjects": 1267,
+  "historicalObjects": 1347,
   "historicalSecretMatches": [],
   "inventory": [
     {
@@ -120,7 +120,7 @@
     {
       "path": "docs/security/security-audit.md",
       "lines": 120,
-      "sha256": "0e993a8474c9b6e8b47246fefe9476e7ae22a5175a65521dae27404a4a2c4735",
+      "sha256": "b8b08717c8a001ad8ca174c6eb58498bc77b6f20ab4163e21f9b432bd57f7b09",
       "matches": {
         "htmlSink": [],
         "dynamicCode": [],

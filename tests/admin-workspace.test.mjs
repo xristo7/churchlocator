@@ -34,6 +34,14 @@ test("owner and creator share six modules, with products nested under stores", a
   assert.equal(MWEAdmin.modules.products.auxiliary, true);
 });
 
+test("church classifications use the corrected Super Admin defaults", async () => {
+  const { MWEAdmin } = await setup();
+  const fields = MWEAdmin.modules.churches.groups().flatMap(group => group.fields);
+  const denominations = fields.find(field => field.key === "denomination");
+  assert.equal(denominations.type, "select");
+  assert.deepEqual(Array.from(denominations.options), ["Christ Embassy", "New Generation", "Pentecostal", "Full Gospel", "Charismatic", "Baptist", "Catholic", "Anglican", "Presbyterian", "Protestant"]);
+});
+
 test("search and verification filters are applied together", async () => {
   const { MWEAdmin } = await setup();
   const rows = MWEAdmin.filterRows("churches", { query: "Edmonton", status: "Verified" });
@@ -129,7 +137,7 @@ test("tenant creation forces pending verification and does not grant owner acces
 test("all six creation adapters save to their shared collections and survive reload", async () => {
   const env = await setup(true);
   const { modules } = env.MWEAdmin;
-  modules.churches.save({ id: "my-church" }, { name: "My Church", city: "London", country: "UK", location: "Test address", ministries: "", streamEnabled: false, streamPaid: false, streamUrl: "", verified: true });
+  modules.churches.save({ id: "my-church" }, { name: "My Church", city: "London", country: "UK", denomination: "Baptist", location: "Test address", ministries: "", streamEnabled: false, streamPaid: false, streamUrl: "", verified: true });
   modules.channels.save({ id: "my-channel" }, { name: "My channel", handle: "@my-channel", live: "false" });
   modules.meditation.save({ id: "my-room" }, { title: "My room", category: "featured", theme: "chapel", toneFreq: 432, scriptures: "Peace | Test scripture | Reference" });
   modules.events.save({ id: "my-event" }, { title: "My event", churchId: "", startsAt: "2027-01-01T10:00", endsAt: "2027-01-01T11:00" });

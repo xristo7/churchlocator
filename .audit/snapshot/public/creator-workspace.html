@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Create & manage | My Way</title>
+  <link rel="stylesheet" href="styles.css?v=20260906" />
+  <link rel="stylesheet" href="admin-workspace.css?v=20260906" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-modules.js?v=20260831"></script>
+  <script defer src="meditation.js?v=20260904"></script>
+  <script defer src="admin-model.js?v=20260904"></script>
+  <script defer src="creator-data.js?v=20260904"></script>
+  <script defer src="creator-model.js?v=20260904"></script>
+  <script defer src="creator-account.js?v=20260905"></script>
+  <script defer src="admin-workspace.js?v=20260907drawer1"></script>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<body class="private-app admin-workspace" data-page="creator" data-admin-workspace data-creator-workspace>
+  <a class="aw-skip" href="#aw-main">Skip to workspace</a>
+  <section class="login-screen">
+    <div class="login-card">
+      <div class="aw-brand"><span class="aw-brand-mark"><i data-lucide="church"></i></span><strong>My Way <small>CREATOR WORKSPACE</small></strong></div>
+      <p class="aw-eyebrow">ONE CONNECTED WORKSPACE</p>
+      <h1>Your account.<br>Your next beginning.</h1>
+      <p>Create your account first. Then choose a church, meditation room, channel, event, store or resource. No church or organization is required.</p>
+      <form data-creator-account-form>
+        <p class="member-auth-error" data-creator-account-error hidden></p>
+        <label class="form-field"><span>Your name</span><input name="name" required autocomplete="name" placeholder="Your full name" /></label>
+        <label class="form-field"><span>Email</span><input name="email" type="email" required autocomplete="username" placeholder="you@example.com" /></label>
+        <label class="form-field"><span>Password</span><input name="password" type="password" minlength="8" required autocomplete="new-password" placeholder="At least 8 characters" /></label>
+        <button class="aw-button aw-primary" type="submit">Create account & continue <i data-lucide="arrow-right"></i></button>
+      </form>
+      <p class="aw-login-note"><i data-lucide="info"></i> Your account and password are securely stored on the server. Content you create in this workspace (churches, channels, stores, events) still lives in this browser only.</p>
+      <button type="button" class="aw-button" id="creator-account-mode">Already have an account? Sign in</button>
+      <a href="index.html">Back to public site</a>
+    </div>
+  </section>
+  <div class="aw-shell private-content">
+    <aside class="aw-sidebar" id="aw-sidebar" aria-label="Admin navigation">
+      <a class="aw-brand" href="creator-workspace.html"><span class="aw-brand-mark"><i data-lucide="church"></i></span><strong>My Way <small>CREATOR WORKSPACE</small></strong></a>
+      <div class="aw-workspace-name"><span class="aw-workspace-icon">M</span><div><strong>My Way platform</strong><small>Your creations</small></div><i data-lucide="shield-check"></i></div>
+      <nav id="aw-nav" aria-label="Modules"></nav>
+      <div class="aw-sidebar-bottom"><div class="aw-environment"><span></span> Local data workspace</div><a href="index.html"><i data-lucide="arrow-up-right"></i> Open public site</a><button type="button" data-logout><i data-lucide="log-out"></i> Sign out</button></div>
+    </aside>
+    <div class="aw-page">
+      <header class="aw-topbar">
+        <div class="aw-breadcrumb"><button class="aw-icon-button aw-menu-toggle" type="button" id="aw-menu" aria-label="Toggle navigation" aria-expanded="false" aria-controls="aw-sidebar"><i data-lucide="menu"></i></button><span>Workspace</span><span>/</span><strong id="aw-breadcrumb">Overview</strong></div>
+        <div class="aw-top-actions"><span class="aw-top-divider"></span><span class="aw-avatar">PA</span><div><strong>Creator account</strong><small>Personal workspace</small></div></div>
+      </header>
+      <main id="aw-main" tabindex="-1">
+        <div class="aw-page-heading"><div><p class="aw-eyebrow" id="aw-eyebrow">YOUR PLATFORM, AT A GLANCE</p><h1 id="aw-title">Overview</h1><p id="aw-subtitle">A clear view of your community and the content that connects it.</p></div><div id="aw-heading-actions"></div></div>
+        <div id="aw-content"></div>
+      </main>
+      <footer class="aw-footer"><span>My Way · Creator workspace</span><span>Churches. Community. Connection.</span></footer>
+    </div>
+  </div>
+  <dialog id="aw-editor" aria-labelledby="aw-editor-title">
+    <form id="aw-editor-form">
+      <header class="aw-editor-header"><div><p class="aw-eyebrow" id="aw-editor-module"></p><h2 id="aw-editor-title">Edit record</h2></div><button type="button" class="aw-icon-button" data-editor-close aria-label="Close editor"><i data-lucide="x"></i></button></header>
+      <div class="aw-editor-body"><p class="aw-editor-help">Update the details below. Changes use the same local data as the member modules.</p><div id="aw-editor-fields"></div><p id="aw-editor-error" role="alert" hidden></p></div>
+      <footer class="aw-editor-footer"><button type="button" class="aw-button" data-editor-close>Cancel</button><button type="submit" class="aw-button aw-primary" id="aw-save">Save changes</button></footer>
+    </form>
+  </dialog>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -3,7 +3,7 @@
   "name": "my-way-of-evangelism",
   "account_id": "17e900e2ac8567adf3e60c83fc64589e",
   "main": "./src/worker.js",
-  "compatibility_date": "2026-08-19",
+  "compatibility_date": "2026-09-16",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./public",
@@ -21,7 +21,11 @@
   "vars": {
     "APP_NAME": "My Way of Evangelism",
     "ENVIRONMENT": "production",
-    "AUTH_BYPASS": "false"
+    "PUBLIC_ORIGIN": "https://my-way-of-evangelism.doxalight-inc.workers.dev",
+    "GOOGLE_CLIENT_ID": "744058453576-vj113o8em1fpm7dhoqorbv2cm2viag67.apps.googleusercontent.com"
+  },
+  "secrets": {
+    "required": ["GOOGLE_CLIENT_SECRET"]
   },
   "ratelimits": [
     { "name": "AUTH_RATE_LIMITER", "namespace_id": "2026091501", "simple": { "limit": 10, "period": 60 } },
@@ -50,7 +54,11 @@
       "vars": {
         "APP_NAME": "My Way of Evangelism",
         "ENVIRONMENT": "preview",
-        "AUTH_BYPASS": "false"
+        "PUBLIC_ORIGIN": "https://my-way-of-evangelism-preview.doxalight-inc.workers.dev",
+        "GOOGLE_CLIENT_ID": "744058453576-vj113o8em1fpm7dhoqorbv2cm2viag67.apps.googleusercontent.com"
+      },
+      "secrets": {
+        "required": ["GOOGLE_CLIENT_SECRET"]
       }
     }
   }

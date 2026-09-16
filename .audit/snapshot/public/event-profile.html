@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Details | My Way of Evangelism</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Global site styles (for topbar header and footers) -->
+  <link rel="stylesheet" href="styles.css?v=20260901g" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: ['selector', '[data-theme="dark"]'] }</script>
+  <script>
+    tailwind.config = {
+      darkMode: ['selector', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Twemoji Country Flags', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: 'hsla(var(--primary-h), 80%, 96%, 1)',
+              100: 'hsla(var(--primary-h), 75%, 90%, 1)',
+              200: 'hsla(var(--primary-h), 70%, 80%, 1)',
+              300: 'hsla(var(--primary-h), 65%, 70%, 1)',
+              400: 'hsla(var(--primary-h), 65%, 60%, 1)',
+              500: 'var(--primary)',
+              600: 'var(--primary-hover)',
+              700: 'hsla(var(--primary-h), 65%, 35%, 1)',
+              800: 'hsla(var(--primary-h), 65%, 25%, 1)',
+              900: 'hsla(var(--primary-h), 65%, 15%, 1)',
+            },
+            clay: {
+              50: 'hsla(var(--primary-h), 80%, 96%, 1)',
+              100: 'hsla(var(--primary-h), 75%, 90%, 1)',
+              200: 'hsla(var(--primary-h), 70%, 80%, 1)',
+              500: 'var(--primary)',
+              600: 'var(--primary-hover)',
+              700: 'var(--primary)',
+            },
+            gold: {
+              500: 'var(--gold)',
+              600: 'var(--gold)',
+              700: 'var(--gold)',
+            }
+          },
+          animation: {
+            'blob': 'blob 7s infinite',
+            'shimmer': 'shimmer 2.5s infinite linear',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            blob: {
+              '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
+              '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+              '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="vendor/lucide.js"></script>
+
+  <!-- Local styles integration -->
+  <style>
+    /* Center and constrain container width to match the rest of the site (1080px) */
+    .container {
+      width: min(100% - 44px, 1080px) !important;
+      max-width: 1080px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+    
+    /* Premium Glassmorphism and effects */
+
+    html[data-theme="dark"] .glassmorphism {
+      background: rgba(19, 29, 49, 0.85) !important;
+    }
+    html[data-theme="dark"] .ticket-tier-card,
+    html[data-theme="dark"] .speaker-card,
+    html[data-theme="dark"] .countdown-box {
+      background: var(--surface-card) !important;
+      border-color: var(--border) !important;
+      color: var(--text-primary) !important;
+    }
+
+    .glassmorphism {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .text-gradient {
+      background: linear-gradient(135deg, #1798e5 0%, #3378ec 45%, #7356eb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gradient-border {
+      position: relative;
+    }
+    .gradient-border::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.5px;
+      background: linear-gradient(135deg, #1798e5, #3378ec 45%, #7356eb);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Organizer lead gold link color overrides inside the cover image overlay */
+    #event-profile-organizer-lead {
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
+    #event-profile-organizer-lead a {
+      color: #a9c5ff !important;
+      font-weight: 700 !important;
+    }
+    #event-profile-organizer-lead a {
+      color: var(--primary) !important;
+      font-weight: 700 !important;
+    }
+    #event-profile-organizer-lead a:hover {
+      color: #ffffff !important;
+      text-decoration: underline !important;
+    }
+    body[data-page="event-profile"] {
+      background: var(--background) !important;
+      color: var(--text-primary) !important;
+    }
+    .sticky.top-\[70px\] {
+      background: var(--background-secondary) !important;
+      border-bottom: 1px solid var(--border-subtle) !important;
+    }
+    #local-nav-menu button {
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+    #local-nav-menu button:hover {
+      color: var(--primary);
+    }
+    #local-nav-menu button.active,
+    #local-nav-menu button.border-brand-500 {
+      color: var(--primary) !important;
+      border-bottom: 2px solid var(--primary) !important;
+    }
+    .tab-panel {
+      background: var(--background) !important;
+    }
+    #event-expect-grid > div {
+      background: var(--surface) !important;
+      border-color: var(--border-subtle) !important;
+      color: var(--text-primary) !important;
+    }
+    #event-expect-grid h3 {
+      color: var(--text-primary) !important;
+    }
+    #event-expect-grid p {
+      color: var(--text-secondary) !important;
+    }
+    #countdown-grid > div {
+      background: var(--surface-soft) !important;
+      border-color: var(--border-subtle) !important;
+    }
+    #countdown-grid span.block {
+      color: var(--text-primary) !important;
+    }
+    #cd-secs {
+      color: var(--primary) !important;
+    }
+    .gradient-border {
+      background: var(--surface-card) !important;
+      border-color: var(--border-subtle) !important;
+    }
+    .gradient-border::before {
+      background: var(--primary-gradient) !important;
+    }
+    .text-gradient {
+      background: var(--primary-gradient) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+    .text-brand-600 {
+      color: var(--primary) !important;
+    }
+    .bg-brand-500, .bg-clay-500 {
+      background-color: var(--primary) !important;
+    }
+    .bg-brand-500\/10, .bg-clay-500\/10 {
+      background-color: var(--primary-surface) !important;
+    }
+    .text-brand-500, .text-clay-500 {
+      color: var(--primary) !important;
+    }
+  </style>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<body class="bg-slate-50 text-slate-800 transition-colors duration-300 font-sans" data-page="event-profile">
+
+  <!-- Platform Top Navigation Bar -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
+      </a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="churches.html">Churches</a>
+          <a href="events.html" class="active">Events</a>
+          <a href="livestream.html">Livestreams</a>
+          <a href="donate.html" class="highlight-link">Donation</a>
+        </nav>
+        <div class="nav-actions">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Interactive Hero Section -->
+  <section class="relative flex flex-col items-center justify-center pt-[80px] pb-16 overflow-hidden px-4">
+    <!-- Transparent Blurred Background Image (Featured Cover Image Copy in Cover State) -->
+    <div class="absolute inset-0 pointer-events-none opacity-[0.25] filter blur-lg scale-105 z-0">
+      <img id="event-profile-hero-blur-bg" src="" alt="" class="w-full h-full object-cover" />
+    </div>
+    <!-- Animated Backdrop Blobs -->
+    <div class="absolute -top-24 -left-20 w-72 md:w-96 h-72 md:h-96 rounded-full bg-brand-400/20 mix-blend-multiply filter blur-2xl animate-blob"></div>
+    <div class="absolute top-1/2 -right-20 w-80 md:w-96 h-80 md:h-96 rounded-full bg-amber-400/20 mix-blend-multiply filter blur-2xl animate-blob animation-delay-2000"></div>
+    <div class="absolute -bottom-10 left-1/3 w-72 md:w-96 h-72 md:h-96 rounded-full bg-clay-200/15 mix-blend-multiply filter blur-2xl animate-blob animation-delay-4000"></div>
+
+    <!-- Mesh Grid overlay -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-25"></div>
+
+    <!-- Tucked Overlapping Hero Grid Layout (Margin reduced to push closer to topbar) -->
+    <div class="container relative z-10 flex flex-col lg:flex-row items-center justify-center gap-0 max-w-[1080px] mx-auto w-full mt-4">
+      <!-- Left side: Large Event Cover Thumbnail -->
+      <div class="w-full lg:w-[65%] z-20 flex-shrink-0 relative group">
+        <!-- Blurred background cover copy -->
+        <div class="absolute -inset-3 rounded-[32px] overflow-hidden pointer-events-none opacity-50 filter blur-xl -z-10 transition-opacity duration-300 group-hover:opacity-75">
+          <img id="event-profile-cover-img-blur" src="" alt="" class="w-full h-full object-cover" />
+        </div>
+        <div class="w-full rounded-3xl overflow-hidden shadow-2xl relative border border-slate-200/60 aspect-[4/3] min-h-[300px] lg:min-h-[420px]">
+          <img id="event-profile-cover-img" src="" alt="Event Cover" class="w-full h-full object-cover" />
+          <!-- Darker gradient overlay at the bottom for high-contrast text rendering -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+          
+          <!-- Absolute Overlay Header Info at the bottom area -->
+          <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-30 text-left lg:max-w-[72%]">
+            
+            <h1 id="event-profile-title" class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight text-white mb-2 filter drop-shadow-md">
+              Worship Gathering & Fellowship
+            </h1>
+            <p id="event-profile-organizer-lead" class="text-xs sm:text-sm font-semibold text-slate-200"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: Countdown Card tucked behind the cover -->
+      <div class="w-full lg:w-[48%] lg:-ml-14 z-10 mt-6 lg:mt-0 flex items-center">
+        <div class="w-full rounded-3xl gradient-border glassmorphism p-6 sm:p-7 lg:pl-24 shadow-2xl relative border border-slate-200/60">
+          <!-- Glass shine overlay -->
+          <div class="absolute inset-0 bg-gradient-to-tr from-white/0 to-white/10 rounded-3xl pointer-events-none"></div>
+
+          <div class="flex items-center justify-between mb-6">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+              <i class="fa-solid fa-hourglass-half text-brand-500 animate-spin" style="animation-duration: 3s"></i> COUNTDOWN TO START
+            </span>
+            <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-[11px] font-bold">
+              Live Ticking
+            </span>
+          </div>
+
+          <!-- Countdown Grid -->
+          <div class="grid grid-cols-4 gap-3 text-center mb-6" id="countdown-grid">
+            <div class="p-3 bg-slate-100 rounded-2xl border border-slate-200/50">
+              <span class="block text-2xl sm:text-3xl font-black text-slate-900" id="cd-days">--</span>
+              <span class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Days</span>
+            </div>
+            <div class="p-3 bg-slate-100 rounded-2xl border border-slate-200/50">
+              <span class="block text-2xl sm:text-3xl font-black text-slate-900" id="cd-hours">--</span>
+              <span class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Hrs</span>
+            </div>
+            <div class="p-3 bg-slate-100 rounded-2xl border border-slate-200/50">
+              <span class="block text-2xl sm:text-3xl font-black text-slate-900" id="cd-mins">--</span>
+              <span class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Mins</span>
+            </div>
+            <div class="p-3 bg-slate-100 rounded-2xl border border-slate-200/50">
+              <span class="block text-2xl sm:text-3xl font-black text-brand-500" id="cd-secs">--</span>
+              <span class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Secs</span>
+            </div>
+          </div>
+
+          <!-- Highlights list container populated dynamically -->
+          <div id="event-highlights-list" class="space-y-3.5 mb-6 border-b border-slate-200/60 pb-5">
+            <!-- Injected dynamically by app.js -->
+          </div>
+
+          <!-- Bottom Row: CTAs & Stats Summary -->
+          <div class="flex flex-col sm:flex-row items-center gap-3 justify-between">
+            <button onclick="openRegistrationModal()" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-clay-500 hover:bg-clay-600 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-ticket-simple"></i> Register Now
+            </button>
+            
+            <div class="flex gap-5 text-center sm:text-right">
+              <div>
+                <span class="block text-sm font-extrabold text-slate-900" id="stat-sessions">--</span>
+                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Sessions</span>
+              </div>
+              <div>
+                <span class="block text-sm font-extrabold text-slate-900" id="stat-speakers">--</span>
+                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Speakers</span>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sticky Local In-Page Menu Bar -->
+  <div class="sticky top-[70px] z-40 bg-slate-50/95 backdrop-blur-sm border-b border-slate-200/80 py-3 mb-0">
+    <div class="container">
+      <nav class="flex flex-wrap items-center justify-center gap-4 sm:gap-10" id="local-nav-menu">
+        <button data-target="about" class="px-2 py-2 text-xs sm:text-sm font-extrabold text-brand-600 border-b-2 border-brand-500 transition-all">About</button>
+        <button data-target="speakers" class="px-2 py-2 text-xs sm:text-sm font-extrabold text-slate-500 hover:text-brand-600 transition-all">Host & Speakers</button>
+        <button data-target="schedule" class="px-2 py-2 text-xs sm:text-sm font-extrabold text-slate-500 hover:text-brand-600 transition-all">Agenda</button>
+        <button data-target="faq" class="px-2 py-2 text-xs sm:text-sm font-extrabold text-slate-500 hover:text-brand-600 transition-all">FAQ</button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Event Detail Tab Sections Container -->
+  <div id="event-tabs-container" class="relative">
+    
+    <!-- About / What To Expect Section -->
+    <section id="about" class="tab-panel py-16 bg-slate-100/50 relative">
+    <div class="container">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold uppercase tracking-widest text-brand-600">WHAT TO EXPECT</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold mt-2 tracking-tight">The ultimate ecosystem for fellowship</h2>
+        <p class="text-slate-600 mt-4 leading-relaxed">
+          Designed from the ground up to nurture local fellowship, explore biblical teachings, and support dynamic church connection pathways.
+        </p>
+      </div>
+
+      <div id="event-expect-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Injected dynamically by app.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Speakers / Host Showcase Section -->
+  <section id="speakers" class="tab-panel hidden py-16 bg-white relative overflow-hidden">
+    <div class="container">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-widest text-brand-600">ORGANIZATION & LEADERS</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold mt-2 tracking-tight">Keynote Speakers & Hosts</h2>
+        </div>
+      </div>
+
+      <!-- Speakers Grid -->
+      <div id="speakers-grid" class="speakers-layout-grid min-h-[250px]">
+        <!-- Rendered dynamically -->
+      </div>
+      
+      <div id="no-speakers-msg" class="hidden text-center py-12 text-slate-500 font-medium">
+        <i class="fa-solid fa-user-slash text-3xl mb-3 block text-slate-300"></i> No hosts or speakers matching filters.
+      </div>
+    </div>
+  </section>
+
+
+
+
+  <!-- Agenda / Schedule Section -->
+  <section id="schedule" class="tab-panel hidden py-16 bg-slate-100/30 relative">
+    <div class="container">
+
+      <!-- Day and Track Selector Bar -->
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 p-4 rounded-2xl bg-white border border-slate-200/80 mb-10 shadow-sm">
+        <!-- Day Selectors (Left side) -->
+        <div class="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-none" id="schedule-days-container">
+          <!-- Dynamically generated Day tabs -->
+        </div>
+
+        <!-- Track Filters (Right side) -->
+        <div class="flex flex-wrap gap-2 items-center justify-end w-full md:w-auto" id="schedule-tracks-container">
+          <!-- Tracks generated dynamically -->
+        </div>
+      </div>
+
+      <!-- Timeline List -->
+      <div id="schedule-timeline" class="space-y-6 relative before:absolute before:inset-y-1 before:left-[22px] sm:before:left-[150px] before:w-[2px] before:bg-slate-200">
+        <!-- Timeline items rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FAQ & Inquiries Section -->
+  <section id="faq" class="tab-panel hidden py-16 bg-slate-100/50 relative">
+    <div class="container">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Column: FAQ Accordion (7 Columns) -->
+        <div class="lg:col-span-7">
+          <div class="mb-8">
+            <span class="text-xs font-bold uppercase tracking-widest text-brand-600">COMMON INQUIRIES</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold mt-1 tracking-tight text-slate-900">Frequently Asked Questions</h2>
+          </div>
+
+          <!-- FAQ Accordion -->
+          <div id="event-faq-accordion" class="space-y-4">
+            <!-- Injected dynamically by app.js -->
+          </div>
+        </div>
+
+        <!-- Right Column: Contact Message Form (5 Columns) -->
+        <div class="lg:col-span-5">
+          <div class="p-6 sm:p-8 rounded-3xl border border-slate-200 bg-white shadow-lg w-full">
+            <h3 class="font-bold text-lg text-slate-900 mb-1">Have a Specific Inquiry?</h3>
+            <p class="text-xs text-slate-400 mb-6">Send our local church staff an instant message.</p>
+            <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-4">
+              <div class="grid grid-cols-1 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Full Name</label>
+                  <input type="text" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all text-slate-800">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Email Address</label>
+                  <input type="email" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all text-slate-800">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Your Message</label>
+                <textarea required rows="4" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all resize-none text-slate-800" placeholder="How can our church coordinators help you?"></textarea>
+              </div>
+              <button type="submit" class="w-full py-3 rounded-xl bg-clay-500 hover:bg-clay-600 text-white font-bold text-xs hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-1.5">
+                Send Message <i class="fa-solid fa-paper-plane text-[10px]"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+  </div> <!-- Close #event-tabs-container -->
+
+  <!-- Speaker Detail Modal Popup -->
+  <div id="speaker-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+      <div onclick="closeSpeakerModal()" class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm" aria-hidden="true"></div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+      <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative border border-slate-200">
+        <button onclick="closeSpeakerModal()" class="absolute top-5 right-5 z-10 w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors flex items-center justify-center">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+
+        <div class="p-6 sm:p-10" id="speaker-modal-body">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticket Registration Drawer / Modal (Fully Functional) -->
+  <div id="registration-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen p-4 text-center">
+      <div onclick="closeRegistrationModal()" class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm" aria-hidden="true"></div>
+
+      <div class="inline-block bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all max-w-md w-full relative border border-slate-200">
+        <button onclick="closeRegistrationModal()" class="absolute top-5 right-5 z-10 w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors flex items-center justify-center">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+
+        <div class="p-6 sm:p-8" id="event-register-panel">
+          <div class="text-center mb-6">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600"><i class="fa-solid fa-ticket-simple"></i> Admission Checkout</span>
+            <h3 class="text-xl font-bold text-slate-900 mt-1">Book Your Pass</h3>
+          </div>
+
+          <div id="page-reg-form-container">
+            <form id="page-event-registration-form" onsubmit="MWE.handlePageRegistrationSubmit(event)">
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label for="page-reg-first-name" class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">First Name</label>
+                  <input required id="page-reg-first-name" placeholder="First name" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition-all text-slate-800" />
+                </div>
+                <div>
+                  <label for="page-reg-last-name" class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Last Name</label>
+                  <input required id="page-reg-last-name" placeholder="Last name" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition-all text-slate-800" />
+                </div>
+              </div>
+              <div class="mb-4">
+                <label for="page-reg-email" class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Email Address</label>
+                <input required id="page-reg-email" type="email" placeholder="name@example.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition-all text-slate-800" />
+              </div>
+              <div class="mb-5">
+                <label for="page-reg-quantity" class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Quantity</label>
+                <select id="page-reg-quantity" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition-all text-slate-800 cursor-pointer font-medium" onchange="MWE.updatePageCheckoutPrice()">
+                  <option value="1">1 Ticket</option>
+                  <option value="2">2 Tickets</option>
+                  <option value="3">3 Tickets</option>
+                  <option value="4">4 Tickets</option>
+                  <option value="5">5 Tickets</option>
+                </select>
+              </div>
+
+              <!-- Price Box -->
+              <div class="flex justify-between items-center p-4 bg-slate-100 rounded-2xl border border-slate-200/50 mb-6 text-sm font-semibold" id="page-checkout-price-box" style="display: none;">
+                <span class="text-slate-500">Checkout Price:</span>
+                <strong id="page-checkout-total-price" class="text-base text-brand-600">$0.00</strong>
+              </div>
+
+              <button class="w-full py-3.5 rounded-xl bg-clay-500 hover:bg-clay-600 text-white font-bold text-sm shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all" type="submit">
+                Confirm Reservation
+              </button>
+            </form>
+          </div>
+
+          <!-- Checkout receipt receipt QR Code overlay -->
+          <div id="page-reg-receipt-container" style="display: none;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bookmarked Sessions Schedule Drawer -->
+  <div id="itinerary-drawer" class="fixed right-0 top-0 bottom-0 z-50 w-full max-w-sm bg-white border-l border-slate-200 shadow-2xl transform translate-x-full transition-transform duration-300 overflow-y-auto">
+    <div class="p-6">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-4 mb-6">
+        <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+          <i class="fa-regular fa-calendar-check text-brand-500"></i> My Schedule
+        </h3>
+        <button onclick="toggleMyScheduleDrawer()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="itinerary-items-list" class="space-y-4">
+        <!-- Bookmark items render here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform Footer -->
+  <footer class="mini-footer">
+    <div class="container">
+      <div class="mini-footer-inner">
+        <a class="mini-footer-brand" href="/">
+          <span class="mini-footer-mark"><i data-lucide="calendar-days"></i></span>
+          <span>My Way of Evangelism</span>
+        </a>
+        <div class="mini-footer-meta">
+          <span>&copy; 2026</span>
+          <span>Event discovery and registration</span>
+        </div>
+        <nav class="mini-footer-links" aria-label="Quick links">
+          <a href="/events">All Events</a>
+          <a href="/churches">Directory</a>
+          <a class="primary" href="/church-portal">Church Portal</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" data-toast>Done</div>
+
+  <!-- Import core platform application script -->
+  <script src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+
+  <!-- In-page state managers scripts -->
+  <script>
+    // Modal control
+    function openRegistrationModal() {
+      document.getElementById('registration-modal').classList.remove('hidden');
+    }
+    function closeRegistrationModal() {
+      document.getElementById('registration-modal').classList.add('hidden');
+    }
+
+    // Speaker Detail Modal control
+    function openSpeakerModal(bodyContent) {
+      document.getElementById('speaker-modal-body').innerHTML = bodyContent;
+      document.getElementById('speaker-modal').classList.remove('hidden');
+    }
+    function closeSpeakerModal() {
+      document.getElementById('speaker-modal').classList.add('hidden');
+    }
+
+    // FAQ Accordion toggles
+    function toggleFaq(button) {
+      const answer = button.nextElementSibling;
+      const icon = button.querySelector('.fa-chevron-down');
+      
+      const isHidden = answer.classList.contains('hidden');
+      
+      // Close all first for clean accordion behavior
+      document.querySelectorAll('.faq-answer').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.fa-chevron-down').forEach(el => el.classList.remove('rotate-180'));
+      
+      if (isHidden) {
+        answer.classList.remove('hidden');
+        if (icon) icon.classList.add('rotate-180');
+      }
+    }
+
+
+    // Bookmarked Schedule Itinerary Drawer toggle
+    function toggleMyScheduleDrawer() {
+      const drawer = document.getElementById('itinerary-drawer');
+      drawer.classList.toggle('translate-x-full');
+    }
+
+    // Mock contact messaging form submit
+    function handleContactSubmit(e) {
+      e.preventDefault();
+      const toast = document.querySelector('[data-toast]');
+      if (toast) {
+        toast.textContent = "Message sent successfully! Our church coordinators will reach out shortly.";
+        toast.classList.add('open');
+        setTimeout(() => toast.classList.remove('open'), 4000);
+      }
+      e.target.reset();
+    }
+
+    // In-page Tab Panels Switcher
+    document.addEventListener("DOMContentLoaded", () => {
+      const tabButtons = document.querySelectorAll("#local-nav-menu button");
+      const tabPanels = document.querySelectorAll(".tab-panel");
+      
+      tabButtons.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          const targetId = btn.getAttribute("data-target");
+          
+          // Hide all tab panels
+          tabPanels.forEach(panel => panel.classList.add("hidden"));
+          
+          // Show active panel
+          const activePanel = document.getElementById(targetId);
+          if (activePanel) {
+            activePanel.classList.remove("hidden");
+          }
+          
+          // Toggle tab button classes
+          tabButtons.forEach(b => {
+            const isCurrent = b.getAttribute("data-target") === targetId;
+            if (isCurrent) {
+              b.className = "px-2 py-2 text-xs sm:text-sm font-extrabold text-brand-600 border-b-2 border-brand-500 transition-all";
+            } else {
+              b.className = "px-2 py-2 text-xs sm:text-sm font-extrabold text-slate-500 hover:text-brand-600 transition-all";
+            }
+          });
+          
+          // Smooth scroll to tabs container top
+          const tabMenu = document.getElementById("local-nav-menu");
+          if (tabMenu) {
+            const rect = tabMenu.getBoundingClientRect();
+            window.scrollTo({
+              top: rect.top + window.scrollY - 70,
+              behavior: "smooth"
+            });
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

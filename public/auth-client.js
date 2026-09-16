@@ -28,8 +28,9 @@
     return data;
   }
 
-  function applySession(user) {
+  async function applySession(user) {
     if (!user) { clearSession(); return; }
+    if (root.MWEPlatform) { await root.MWEPlatform.refresh(user); return; }
     if ((localStorage.getItem("mwe.userEmail") || "").toLowerCase() !== (user.email || "").toLowerCase()) clearSession();
     if (!user.isCreator) localStorage.removeItem("mwe.creator.account.v1");
     localStorage.setItem("mwe.userLoggedIn", "true");
@@ -44,6 +45,7 @@
   }
 
   function clearSession() {
+    root.MWEPlatform?.clear();
     ["mwe.creator.account.v1", "mwe.session.owner.v1", "mwe.session.church.v1", "mwe.eventHost.v1"].forEach(key => localStorage.removeItem(key));
     localStorage.removeItem("mwe.userLoggedIn");
     localStorage.removeItem("mwe.username");
@@ -54,13 +56,14 @@
 
   async function register(name, email, password) {
     const result = await callApi("/api/auth/register", { name, email, password });
-    if (result.ok) applySession(result.user);
+    if (result.ok) await applySession(result.user);
     return result;
   }
 
   async function login(email, password) {
-    const result = await callApi("/api/auth/login", { email, password });
-    if (result.ok) applySession(result.user);
+    let result = await callApi("/api/auth/login", { email, password });
+    if (result.mfaRequired) result = await confirmMfa(result.challenge);
+    if (result.ok) await applySession(result.user);
     return result;
   }
 
@@ -74,7 +77,7 @@
     try {
       const response = await fetch("/api/auth/session", { credentials: "same-origin" });
       const result = await response.json();
-      if (response.ok) applySession(result.user); else clearSession();
+      if (response.ok) await applySession(result.user); else clearSession();
       return result;
     } catch {
       clearSession();
@@ -84,17 +87,28 @@
 
   async function creatorRegister(name, email, password) {
     const result = await callApi("/api/creator/register", { name, email, password });
-    if (result.ok) applySession(result.user);
+    if (result.ok) await applySession(result.user);
     return result;
   }
 
   async function creatorUpgrade() {
     const result = await callApi("/api/creator/upgrade", {});
-    if (result.ok) applySession(result.user);
+    if (result.ok) await applySession(result.user);
     return result;
   }
 
-  document.addEventListener("DOMContentLoaded", () => { session().then(result => {
+  async function confirmMfa(challenge) {
+    return new Promise(resolve => {
+      const dialog=document.createElement('dialog');
+      dialog.style.cssText='width:min(90vw,400px);padding:24px;border-radius:20px;background:var(--surface,#fff);color:var(--text,#111)';
+      dialog.innerHTML='<form><h2>Authenticator code</h2><p>Enter the six-digit code from your authenticator.</p><input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required aria-label="Authenticator code" style="width:100%;padding:12px"><p role="alert"></p><button type="submit">Verify</button> <button type="button" data-cancel>Cancel</button></form>';
+      const close=()=>{dialog.close();dialog.remove();resolve({ok:false,error:'Sign-in cancelled.'});};
+      dialog.querySelector('[data-cancel]').onclick=close;dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
+      dialog.querySelector('form').onsubmit=async event=>{event.preventDefault();const button=dialog.querySelector('[type=submit]');button.disabled=true;const result=await callApi('/api/auth/mfa/confirm',{challenge,code:dialog.querySelector('input').value});button.disabled=false;if(result.ok){dialog.close();dialog.remove();resolve(result);}else dialog.querySelector('[role=alert]').textContent=result.error;};
+      document.body.append(dialog);dialog.showModal();dialog.querySelector('input').focus();
+    });
+  }
+  document.addEventListener("DOMContentLoaded", async () => { await root.MWEPlatform?.ready; session().then(result => {
     if (!result.ok || !result.user) clearSession();
     if (typeof root.updateHomepageAuthUI === "function") root.updateHomepageAuthUI();
   }); });

@@ -2,6 +2,15 @@
 (function (root) {
   "use strict";
   const field = (key, label, type = "text", required = false, options, hint) => ({ key, label, type, required, options, hint });
+  const optionDefaults = {
+    denominations: ["Christ Embassy", "New Generation", "Pentecostal", "Full Gospel", "Charismatic", "Baptist", "Catholic", "Anglican", "Presbyterian", "Protestant"],
+    languages: ["English", "French", "Spanish", "Portuguese", "Swahili", "Arabic"],
+    worship_styles: ["Contemporary", "Traditional", "Blended", "Charismatic"],
+    product_categories: ["Books", "Journals", "Apparel", "Church Supplies", "Study Tools", "Kids", "Music", "Gifts"],
+    channel_topics: ["Bible Teaching", "Worship", "Family", "Leadership", "Youth", "Bible Study"],
+    resource_topics: ["Bible Study", "Prayer", "Discipleship", "Worship", "Devotional", "Leadership"]
+  };
+  const platformOptions = key => root.MWEPlatform?.options?.(key) || optionDefaults[key];
   const yesNo = [["false", "No"], ["true", "Yes"]];
   const group = (title, fields) => ({ title, fields });
   const modules = {
@@ -13,9 +22,9 @@
       status: r => r.verified ? "Verified" : "Pending", statuses: ["Verified", "Pending"],
       preview: r => "church-profile.html?id=" + encodeURIComponent(r.id),
       groups: () => [
-        group("01 · Church profile", [field("name", "Church name", "text", true), field("denomination", "Denomination"), field("pastor", "Lead pastor", "text", true), field("pastorTitle", "Leadership title"), field("about", "About the church", "textarea", true), field("pastorBio", "Pastor biography", "textarea")]),
+        group("01 · Church profile", [field("name", "Church name", "text", true), field("denomination", "Denomination", "select", true, platformOptions("denominations")), field("pastor", "Lead pastor", "text", true), field("pastorTitle", "Leadership title"), field("about", "About the church", "textarea", true), field("pastorBio", "Pastor biography", "textarea")]),
         group("02 · Location & contact", [field("country", "Country", "text", true), field("city", "City", "text", true), field("area", "Area / neighbourhood"), field("postal", "Postal code"), field("location", "Street address", "text", true), field("email", "Contact email", "email", true), field("phone", "Contact phone", "tel"), field("website", "Website", "url")]),
-        group("03 · Services & media", [field("sunday", "Sunday service", "text", true), field("midweek", "Midweek service"), field("language", "Language"), field("worship", "Worship style"), field("ministries", "Ministries", "text", false, null, "Separate ministries with commas."), field("photo", "Cover image URL", "url"), field("logo", "Logo URL", "url"), field("pastorPhoto", "Pastor image URL", "url"), field("tagline", "Short introduction")]),
+        group("03 · Services & media", [field("sunday", "Sunday service", "text", true), field("midweek", "Midweek service"), field("language", "Language", "select", false, platformOptions("languages")), field("worship", "Worship style", "select", false, platformOptions("worship_styles")), field("ministries", "Ministries", "text", false, null, "Separate ministries with commas."), field("photo", "Cover image URL", "url"), field("logo", "Logo URL", "url"), field("pastorPhoto", "Pastor image URL", "url"), field("tagline", "Short introduction")]),
         group("04 · Verification & livestream", [field("verified", "Profile verified", "select", false, yesNo), field("streamEnabled", "Livestream enabled", "select", false, yesNo), field("streamPaid", "Premium stream", "select", false, yesNo), field("streamUrl", "Livestream URL", "url")])
       ],
       flatten: r => ({ ...r, ministries: (r.ministries || []).join(", "), website: r.website === "#" ? "" : r.website, streamEnabled: !!r.livestream?.enabled, streamPaid: !!r.livestream?.paid, streamUrl: r.livestream?.url === "#" ? "" : r.livestream?.url }),
@@ -86,11 +95,11 @@
       detail: r => root.FaithLinkModules.money(r.price) + " · " + r.inventory + " in stock", category: r => r.category,
       status: r => r.status || "Draft", statuses: ["Active", "Draft", "Archived"], preview: r => "product-detail.html?id=" + encodeURIComponent(r.id),
       groups: () => [
-        group("01 · Product & seller", [field("title", "Product title", "text", true), field("seller", "Seller name", "text", true), field("sellerType", "Seller type", "select", true, ["Church", "Channel"]), field("category", "Category", "select", true, ["Books", "Journals", "Apparel", "Church Supplies", "Study Tools", "Kids", "Music", "Gifts"]), field("description", "Description", "textarea", true)]),
+        group("01 · Product & seller", [field("title", "Product title", "text", true), field("seller", "Seller name", "text", true), field("sellerType", "Seller type", "select", true, ["Church", "Channel"]), field("category", "Category", "select", true, platformOptions("product_categories")), field("description", "Description", "textarea", true)]),
         group("02 · Pricing & inventory", [field("price", "Price (CAD)", "number", true), field("compareAt", "Compare-at price (CAD)", "number"), field("inventory", "Stock quantity", "number", true)]),
         group("03 · Visibility & media", [field("status", "Store visibility", "select", true, ["Draft", "Active", "Archived"]), field("featured", "Featured product", "select", false, yesNo), field("image", "Product image URL", "url", true)])
       ],
-      defaults: () => ({ status: "Draft", sellerType: "Church", category: "Books", price: 0, compareAt: 0, inventory: 0, featured: false }),
+      defaults: () => ({ status: "Draft", sellerType: "Church", category: platformOptions("product_categories")[0] || "", price: 0, compareAt: 0, inventory: 0, featured: false }),
       save: (r, v) => root.FaithLinkModules.upsertProduct({ ...r, ...v })
     },
     channels: {
@@ -101,11 +110,11 @@
       status: r => r.verified ? "Verified" : "Pending", statuses: ["Verified", "Pending"],
       preview: r => "channel-detail.html?id=" + encodeURIComponent(r.id),
       groups: () => [
-        group("01 · Channel & creator", [field("name", "Channel name", "text", true), field("owner", "Creator / owner", "text", true), field("handle", "Channel handle", "text", true), field("topic", "Topic", "select", true, ["Bible Teaching", "Worship", "Family", "Leadership", "Youth", "Bible Study"]), field("description", "Description", "textarea", true)]),
+        group("01 · Channel & creator", [field("name", "Channel name", "text", true), field("owner", "Creator / owner", "text", true), field("handle", "Channel handle", "text", true), field("topic", "Topic", "select", true, platformOptions("channel_topics")), field("description", "Description", "textarea", true)]),
         group("02 · Format & media", [field("format", "Primary format", "select", true, ["Podcast", "Video", "Livestream"]), field("cover", "Cover image URL", "url", true), field("avatar", "Avatar URL", "url")]),
         group("03 · Verification", [field("verified", "Creator verified", "select", false, yesNo), field("live", "Currently live", "select", false, yesNo)])
       ],
-      defaults: () => ({ topic: "Bible Teaching", format: "Podcast", verified: false, live: false }),
+      defaults: () => ({ topic: platformOptions("channel_topics")[0] || "", format: "Podcast", verified: false, live: false }),
       save(r, v) {
         if (!/^@[a-zA-Z0-9_.-]+$/.test(v.handle)) throw new Error("Use a handle starting with @, followed by letters, numbers, dots, underscores or hyphens.");
         if (root.FaithLinkModules.getChannels().some(c => c.id !== r.id && c.handle.toLowerCase() === v.handle.toLowerCase())) throw new Error("That channel handle is already in use.");
@@ -121,11 +130,11 @@
       detail: r => [r.type, r.format, r.duration].filter(Boolean).join(" · "), category: r => r.topic,
       status: r => r.access, statuses: ["Free", "Paid"], preview: r => "resource-detail.html?id=" + encodeURIComponent(r.id),
       groups: () => [
-        group("01 · Resource & creator", [field("title", "Resource title", "text", true), field("creator", "Creator", "text", true), field("topic", "Topic", "select", true, ["Bible Study", "Prayer", "Discipleship", "Worship", "Devotional", "Leadership"]), field("description", "Description", "textarea", true)]),
+        group("01 · Resource & creator", [field("title", "Resource title", "text", true), field("creator", "Creator", "text", true), field("topic", "Topic", "select", true, platformOptions("resource_topics")), field("description", "Description", "textarea", true)]),
         group("02 · Format & media", [field("type", "Content type", "select", true, ["Text", "Audio", "Video"]), field("format", "File format", "select", true, ["PDF", "EPUB", "MP3", "MP4"]), field("duration", "Length / duration", "text", true), field("image", "Cover image URL", "url", true)]),
         group("03 · Access & pricing", [field("access", "Access", "select", true, ["Free", "Paid"]), field("price", "Price (CAD)", "number", true)])
       ],
-      defaults: () => ({ type: "Text", format: "PDF", topic: "Bible Study", access: "Free", price: 0 }),
+      defaults: () => ({ type: "Text", format: "PDF", topic: platformOptions("resource_topics")[0] || "", access: "Free", price: 0 }),
       save(r, v) {
         if (v.access === "Paid" && v.price <= 0) throw new Error("Paid resources need a price above zero.");
         if (!({ Text: ["PDF", "EPUB"], Audio: ["MP3"], Video: ["MP4"] }[v.type] || []).includes(v.format)) throw new Error("Choose a file format that matches the content type.");

@@ -1,4 +1,7 @@
 import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityHeaders } from "./security.js";
+import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
+import { handlePlatformApi } from './trusted-platform.js';
+import { handleSpotlightApi } from './spotlight.js';
 
 const apiHeaders = {
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -60,7 +63,9 @@ function registrationCode() {
 // --- Authentication -------------------------------------------------------
 
 const SESSION_COOKIE = "mwe_session_v2";
+const GOOGLE_OAUTH_STATE_COOKIE = "mwe_google_oauth_state";
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours; old bypass-era cookies are never accepted
+const GOOGLE_OAUTH_STATE_TTL_SECONDS = 10 * 60;
 const PBKDF2_ITERATIONS = 100000;
 
 function toBase64(bytes) {
@@ -93,10 +98,10 @@ async function hashPassword(password, saltBase64) {
   return toBase64(new Uint8Array(bits));
 }
 
-async function hashNewPassword(password) {
+async function hashNewPassword(password,env) {
   const saltBytes = crypto.getRandomValues(new Uint8Array(16));
   const salt = toBase64(saltBytes);
-  const hash = await hashPassword(password, salt);
+  const hash = await environmentPassword(password, salt,env);
   return { salt, hash };
 }
 
@@ -148,6 +153,23 @@ function clearSessionCookieHeader(request) {
   return attrs.join("; ");
 }
 
+function oauthStateCookieHeader(request, value, maxAgeSeconds) {
+  const attrs = [`${GOOGLE_OAUTH_STATE_COOKIE}=${encodeURIComponent(value)}`, "Path=/api/auth/google", "HttpOnly", "SameSite=Lax", `Max-Age=${maxAgeSeconds}`];
+  if (isSecureRequest(request)) attrs.push("Secure");
+  return attrs.join("; ");
+}
+
+function safeReturnPath(value) {
+  const path = String(value || "/");
+  return path.startsWith("/") && !path.startsWith("//") ? path : "/";
+}
+
+function redirectWithCookies(location, cookies = []) {
+  const headers = new Headers({ location, ...securityHeaders, "cache-control": "no-store" });
+  for (const cookie of cookies) headers.append("set-cookie", cookie);
+  return new Response(null, { status: 302, headers });
+}
+
 function jsonWithCookie(body, status, cookieValue) {
   const res = json(body, status);
   res.headers.append("set-cookie", cookieValue);
@@ -164,18 +186,20 @@ function publicUser(row) {
     id: row.id,
     name: row.name,
     email: row.email,
-    isCreator: Boolean(row.is_creator)
+    isCreator: Boolean(row.is_creator),
+    emailVerified: Boolean(row.email_verified_at),
+    mfaEnabled: Boolean(row.totp_secret_encrypted)
   };
 }
 
-async function createSession(env, userId) {
+async function createSession(env, userId, mfaVerified = false) {
   const token = randomToken();
   const now = new Date();
   const expires = new Date(now.getTime() + SESSION_TTL_SECONDS * 1000);
   await env.DB.prepare(`
-    insert into sessions (token, user_id, created_at, expires_at)
-    values (?, ?, ?, ?)
-  `).bind(await digestToken(token), userId, now.toISOString(), expires.toISOString()).run();
+    insert into sessions (token, user_id, created_at, expires_at, mfa_verified_at)
+    values (?, ?, ?, ?, ?)
+  `).bind(await digestToken(token), userId, now.toISOString(), expires.toISOString(), mfaVerified ? now.toISOString() : null).run();
   return token;
 }
 
@@ -186,7 +210,8 @@ async function getSessionUser(request, env) {
   if (!token || !/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
 
   const row = await env.DB.prepare(`
-    select u.id, u.name, u.email, u.is_creator, s.expires_at
+    select u.id, u.name, u.email, u.is_creator, s.expires_at, s.created_at as session_created_at,
+      s.mfa_verified_at, u.email_verified_at, u.totp_secret_encrypted, u.totp_pending_encrypted, u.totp_last_step
     from sessions s
     join users u on u.id = s.user_id
     where s.token = ?
@@ -218,7 +243,7 @@ async function registerUser(request, env, { forceCreator = false } = {}) {
   }
 
   const id = `local:${email}`;
-  const { salt, hash } = await hashNewPassword(password);
+  const { salt, hash } = await hashNewPassword(password,env);
   const createdAt = new Date().toISOString();
   const isCreator = forceCreator || Boolean(payload?.isCreator);
 
@@ -253,21 +278,30 @@ async function handleAuthLogin(request, env) {
     return json({ ok: false, error: "Invalid email or password." }, 401);
   }
 
+  await throttleAccount(env, email);
+
   const row = await env.DB.prepare(`
-    select id, name, email, password_hash, password_salt, is_creator
+    select id, name, email, password_hash, password_salt, is_creator, email_verified_at, totp_secret_encrypted
     from users where email = ?
   `).bind(email).first();
 
   if (!row) {
-    await hashPassword(password, "AAAAAAAAAAAAAAAAAAAAAA==");
+    await environmentPassword(password, "AAAAAAAAAAAAAAAAAAAAAA==",env);
     return json({ ok: false, error: "Invalid email or password." }, 401);
   }
 
   if (row.password_hash === "authentication-disabled" || row.id.startsWith("temporary:")) return unauthorized();
-  const computedHash = await hashPassword(password, row.password_salt);
+  const modern = row.password_hash.startsWith(PASSWORD_PREFIX);
+  const versioned = row.password_hash.startsWith('pbkdf2-sha256$100000$');
+  const computedHash = modern ? await modernPassword(password, row.password_salt) : (versioned?'pbkdf2-sha256$100000$':'')+await hashPassword(password, row.password_salt);
   if (!constantTimeEqual(computedHash, row.password_hash)) {
     return json({ ok: false, error: "Invalid email or password." }, 401);
   }
+  if (!modern && !versioned) {
+    const upgraded = await hashNewPassword(password,env);
+    await env.DB.prepare('update users set password_hash=?,password_salt=? where id=? and password_hash=?').bind(upgraded.hash, upgraded.salt, row.id, row.password_hash).run();
+  }
+  if (row.totp_secret_encrypted) return json({ok:true,mfaRequired:true,challenge:await mfaChallenge(env,row.id)},202);
 
   await env.DB.prepare("update users set last_login_at = ? where id = ?")
     .bind(new Date().toISOString(), row.id)
@@ -294,6 +328,123 @@ async function handleAuthSession(request, env) {
   const user = await getSessionUser(request, env);
   if (!user) return json({ ok: true, user: null });
   return json({ ok: true, user: publicUser(user) });
+}
+
+async function handleGoogleAuthStart(request, env) {
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
+    return json({ ok: false, error: "Google sign-in is not configured." }, 503);
+  }
+
+  const requestUrl = new URL(request.url);
+  const state = randomToken();
+  const returnPath = safeReturnPath(requestUrl.searchParams.get("next"));
+  const stateCookie = `${state}.${toBase64(new TextEncoder().encode(returnPath)).replace(/[+/=]/g, char => ({ "+": "-", "/": "_", "=": "" }[char]))}`;
+  const redirectUri = `${requestUrl.origin}/api/auth/google/callback`;
+  const authorizationUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  authorizationUrl.search = new URLSearchParams({
+    client_id: env.GOOGLE_CLIENT_ID,
+    redirect_uri: redirectUri,
+    response_type: "code",
+    scope: "openid email profile",
+    state,
+    prompt: "select_account"
+  }).toString();
+
+  return redirectWithCookies(authorizationUrl.toString(), [
+    oauthStateCookieHeader(request, stateCookie, GOOGLE_OAUTH_STATE_TTL_SECONDS)
+  ]);
+}
+
+function parseGoogleOauthState(request) {
+  const raw = parseCookies(request)[GOOGLE_OAUTH_STATE_COOKIE] || "";
+  const separator = raw.indexOf(".");
+  if (separator < 1) return null;
+  const state = raw.slice(0, separator);
+  const encodedPath = raw.slice(separator + 1).replace(/-/g, "+").replace(/_/g, "/");
+  try {
+    const returnPath = new TextDecoder().decode(fromBase64(encodedPath.padEnd(Math.ceil(encodedPath.length / 4) * 4, "=")));
+    return { state, returnPath: safeReturnPath(returnPath) };
+  } catch {
+    return null;
+  }
+}
+
+async function handleGoogleAuthCallback(request, env) {
+  if (!env.DB) return storageUnavailable();
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
+    return json({ ok: false, error: "Google sign-in is not configured." }, 503);
+  }
+
+  const requestUrl = new URL(request.url);
+  const savedState = parseGoogleOauthState(request);
+  const receivedState = requestUrl.searchParams.get("state") || "";
+  const clearStateCookie = oauthStateCookieHeader(request, "", 0);
+  if (!savedState || !receivedState || !constantTimeEqual(savedState.state, receivedState)) {
+    return redirectWithCookies("/?auth_error=google_state", [clearStateCookie]);
+  }
+  if (requestUrl.searchParams.get("error")) {
+    return redirectWithCookies(`${savedState.returnPath}${savedState.returnPath.includes("?") ? "&" : "?"}auth_error=google_denied`, [clearStateCookie]);
+  }
+
+  const code = requestUrl.searchParams.get("code");
+  if (!code) return redirectWithCookies("/?auth_error=google_code", [clearStateCookie]);
+
+  const redirectUri = `${requestUrl.origin}/api/auth/google/callback`;
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      code,
+      client_id: env.GOOGLE_CLIENT_ID,
+      client_secret: env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: redirectUri,
+      grant_type: "authorization_code"
+    })
+  });
+  if (!tokenResponse.ok) return redirectWithCookies("/?auth_error=google_token", [clearStateCookie]);
+  const tokenPayload = await tokenResponse.json();
+  if (!tokenPayload?.access_token) return redirectWithCookies("/?auth_error=google_token", [clearStateCookie]);
+
+  const profileResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+    headers: { authorization: `Bearer ${tokenPayload.access_token}` }
+  });
+  if (!profileResponse.ok) return redirectWithCookies("/?auth_error=google_profile", [clearStateCookie]);
+  const profile = await profileResponse.json();
+  const email = normalizeEmail(profile?.email);
+  if (!profile?.sub || !profile?.email_verified || !isValidEmail(email)) {
+    return redirectWithCookies("/?auth_error=google_unverified", [clearStateCookie]);
+  }
+
+  let user = await env.DB.prepare(`
+    select id, name, email, password_hash, password_salt, is_creator, email_verified_at, totp_secret_encrypted
+    from users where email = ?
+  `).bind(email).first();
+  const now = new Date().toISOString();
+  if (!user) {
+    user = {
+      id: `google:${profile.sub}`,
+      name: String(profile.name || email.split("@")[0]).slice(0, 200),
+      email,
+      is_creator: 0,
+      email_verified_at: now,
+      totp_secret_encrypted: null
+    };
+    await env.DB.prepare(`
+      insert into users (id, email, password_hash, password_salt, name, is_creator, created_at, last_login_at, email_verified_at)
+      values (?, ?, 'authentication-disabled', '', ?, 0, ?, ?, ?)
+    `).bind(user.id, email, user.name, now, now, now).run();
+  } else {
+    await env.DB.prepare("update users set last_login_at = ?, email_verified_at = coalesce(email_verified_at, ?) where id = ?")
+      .bind(now, now, user.id)
+      .run();
+    user.email_verified_at ||= now;
+  }
+
+  const token = await createSession(env, user.id);
+  return redirectWithCookies(savedState.returnPath, [
+    clearStateCookie,
+    sessionCookieHeader(request, token, SESSION_TTL_SECONDS)
+  ]);
 }
 
 async function handleCreatorUpgrade(request, env) {
@@ -631,8 +782,11 @@ function assetRequest(request) {
     ["/admin", "/owner-dashboard.html"],
     ["/app", "/app.html"],
     ["/member", "/app.html"],
+    ["/spotlight", "/spotlight.html"],
     ["/livestream", "/livestream.html"],
     ["/live", "/livestream.html"],
+    ["/broadcast", "/broadcast.html"],
+    ["/watch", "/broadcast.html"],
     ["/church-profile", "/church-profile.html"],
     ["/church", "/church-profile.html"],
     ["/churches", "/churches.html"],
@@ -919,7 +1073,16 @@ async function handleApi(request, env) {
     validateMutationOrigin(request);
     await enforceRateLimit(request, env, path);
     if (request.method === "OPTIONS") return json({ ok: true });
+    const context = {json,getSessionUser,createSession,sessionCookieHeader,jsonWithCookie,isAuthorized,publicUser,clearSessionCookieHeader,parseCookies,digestToken};
+    const identityResponse = await handleIdentityApi(request, env, context);
+    if (identityResponse) return identityResponse;
+    const platformResponse = await handlePlatformApi(request, env, context);
+    if (platformResponse) return platformResponse;
+    const spotlightResponse = await handleSpotlightApi(request, env, context);
+    if (spotlightResponse) return spotlightResponse;
     if (path === "/api/status" && request.method === "GET") return await handleStatus(env);
+    if (path === "/api/auth/google/start" && request.method === "GET") return await handleGoogleAuthStart(request, env);
+    if (path === "/api/auth/google/callback" && request.method === "GET") return await handleGoogleAuthCallback(request, env);
     if (path === "/api/location" && request.method === "GET") {
       // Return only the requesting visitor's coarse edge location; never forward IPs.
       return json({ city: String(request.cf?.city || "Edmonton"), countryCode: String(request.cf?.country || "CA") });

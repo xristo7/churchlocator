@@ -23,16 +23,23 @@ function createMockDb() {
         return {
           async run() {
             if (normalized.startsWith("insert into users")) {
-              const [id, email, password_hash, password_salt, name, is_creator, created_at, last_login_at] = args;
-              const row = { id, email, password_hash, password_salt, name, is_creator, created_at, last_login_at };
+              const googleAccount = normalized.includes("'authentication-disabled'");
+              const [id, email, password_hash, password_salt, name, is_creator, created_at, last_login_at] = googleAccount
+                ? [args[0], args[1], "authentication-disabled", "", args[2], 0, args[3], args[4]]
+                : args;
+              const row = { id, email, password_hash, password_salt, name, is_creator, created_at, last_login_at, email_verified_at: googleAccount ? args[5] : null };
               usersById.set(id, row);
               usersByEmail.set(email, id);
               return { success: true };
             }
             if (normalized.startsWith("update users set last_login_at")) {
               const [lastLoginAt, id] = args;
-              const row = usersById.get(id);
-              if (row) row.last_login_at = lastLoginAt;
+              const googleVerificationUpdate = normalized.includes("email_verified_at");
+              const row = usersById.get(googleVerificationUpdate ? args[2] : id);
+              if (row) {
+                row.last_login_at = lastLoginAt;
+                if (googleVerificationUpdate) row.email_verified_at ||= args[1];
+              }
               return { success: true };
             }
             if (normalized.startsWith("update users set is_creator")) {
@@ -232,4 +239,64 @@ test("expired or malformed session expiries never authenticate", async () => {
     [...env.DB._debug.sessions.values()][0].expires_at = expiry;
     assert.equal((await (await worker.fetch(getWithCookie("/api/auth/session", cookie), env)).json()).user, null);
   }
+});
+
+test("Google sign-in starts an authorization-code flow with a protected return path", async () => {
+  const env = { ...baseEnv(), GOOGLE_CLIENT_ID: "client.apps.googleusercontent.com", GOOGLE_CLIENT_SECRET: "secret" };
+  const response = await worker.fetch(new Request("https://example.test/api/auth/google/start?next=%2Fmember"), env);
+
+  assert.equal(response.status, 302);
+  const location = new URL(response.headers.get("location"));
+  assert.equal(location.origin, "https://accounts.google.com");
+  assert.equal(location.searchParams.get("response_type"), "code");
+  assert.equal(location.searchParams.get("redirect_uri"), "https://example.test/api/auth/google/callback");
+  assert.match(response.headers.get("set-cookie"), /mwe_google_oauth_state=/);
+  assert.match(response.headers.get("set-cookie"), /HttpOnly/);
+  assert.match(response.headers.get("set-cookie"), /SameSite=Lax/);
+});
+
+test("Google callback creates a verified account and issues an app session", async () => {
+  const env = { ...baseEnv(), GOOGLE_CLIENT_ID: "client.apps.googleusercontent.com", GOOGLE_CLIENT_SECRET: "secret" };
+  const start = await worker.fetch(new Request("https://example.test/api/auth/google/start?next=%2Fmember"), env);
+  const authorizationUrl = new URL(start.headers.get("location"));
+  const state = authorizationUrl.searchParams.get("state");
+  const stateCookie = start.headers.get("set-cookie").split(";")[0];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init = {}) => {
+    if (String(url) === "https://oauth2.googleapis.com/token") {
+      assert.match(String(init.body), /grant_type=authorization_code/);
+      return Response.json({ access_token: "google-access-token" });
+    }
+    if (String(url) === "https://openidconnect.googleapis.com/v1/userinfo") {
+      assert.equal(init.headers.authorization, "Bearer google-access-token");
+      return Response.json({ sub: "google-user-123", name: "Grace Hopper", email: "Grace@Example.com", email_verified: true });
+    }
+    throw new Error(`Unexpected fetch: ${url}`);
+  };
+
+  try {
+    const callback = new Request(`https://example.test/api/auth/google/callback?code=auth-code&state=${encodeURIComponent(state)}`, {
+      headers: { cookie: stateCookie }
+    });
+    const response = await worker.fetch(callback, env);
+    assert.equal(response.status, 302);
+    assert.equal(response.headers.get("location"), "/member");
+    assert.ok(extractSessionCookie(response));
+    const id = env.DB._debug.usersByEmail.get("grace@example.com");
+    assert.equal(id, "google:google-user-123");
+    assert.equal(env.DB._debug.usersById.get(id).password_hash, "authentication-disabled");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("Google callback rejects a mismatched OAuth state before contacting Google", async () => {
+  const env = { ...baseEnv(), GOOGLE_CLIENT_ID: "client.apps.googleusercontent.com", GOOGLE_CLIENT_SECRET: "secret" };
+  const request = new Request("https://example.test/api/auth/google/callback?code=auth-code&state=attacker", {
+    headers: { cookie: "mwe_google_oauth_state=expected.Lw" }
+  });
+  const response = await worker.fetch(request, env);
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("location"), "/?auth_error=google_state");
+  assert.match(response.headers.get("set-cookie"), /Max-Age=0/);
 });

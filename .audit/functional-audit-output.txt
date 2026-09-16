@@ -1,0 +1,243 @@
+{
+  "files": 110,
+  "syntaxFailures": [],
+  "inlineSyntaxFailures": [],
+  "missingReferences": [],
+  "probes": [
+    {
+      "name": "real migration chain and foreign keys",
+      "ok": true,
+      "tables": [
+        "churches",
+        "church_profiles",
+        "service_schedules",
+        "ministries",
+        "events",
+        "visitor_connections",
+        "prayer_requests",
+        "church_applications",
+        "livestream_activations",
+        "donations",
+        "volunteer_applications",
+        "event_registrations",
+        "ride_requests",
+        "ride_followups",
+        "salvation_decisions",
+        "foundation_projects",
+        "foundation_applications",
+        "church_staff_roles",
+        "users",
+        "sessions",
+        "service_bookings"
+      ]
+    },
+    {
+      "name": "v2 registration, hashed session, login, creator upgrade, logout",
+      "ok": true,
+      "registrationStatus": 201,
+      "upgradeStatus": 200,
+      "hashedSession": true,
+      "cookieAttributes": [
+        " Path=/",
+        " HttpOnly",
+        " SameSite=Lax",
+        " Max-Age=86400",
+        " Secure"
+      ]
+    },
+    {
+      "name": "anonymous protected asset delivery",
+      "protectedAtWorkerBoundary": false,
+      "results": [
+        {
+          "route": "/app",
+          "status": 200
+        },
+        {
+          "route": "/app.html",
+          "status": 200
+        },
+        {
+          "route": "/member",
+          "status": 200
+        },
+        {
+          "route": "/owner-dashboard",
+          "status": 200
+        },
+        {
+          "route": "/owner-dashboard.html",
+          "status": 200
+        },
+        {
+          "route": "/admin",
+          "status": 200
+        },
+        {
+          "route": "/admin.html",
+          "status": 200
+        },
+        {
+          "route": "/church-portal",
+          "status": 200
+        },
+        {
+          "route": "/creator-workspace.html",
+          "status": 200
+        },
+        {
+          "route": "/seller-dashboard.html",
+          "status": 200
+        },
+        {
+          "route": "/messages.html",
+          "status": 200
+        },
+        {
+          "route": "/resource-reader.html",
+          "status": 200
+        }
+      ],
+      "limitation": "ASSETS stand-in; verifies Worker authorization branch, not external Cloudflare Access configuration"
+    },
+    {
+      "name": "administrator session is not accepted by church save without bearer",
+      "status": 401
+    },
+    {
+      "name": "anonymous church accepts unverified payment claims",
+      "status": 201,
+      "record": {
+        "is_verified": 0,
+        "livestream_paid": 1,
+        "email": "not-an-email"
+      }
+    },
+    {
+      "name": "church creation partial persistence after profile failure",
+      "status": 500,
+      "orphanExists": true,
+      "profileExists": false
+    },
+    {
+      "name": "admin church fields round-trip",
+      "status": 200,
+      "record": {
+        "cover_image_url": "",
+        "postal_code": null,
+        "denomination": null,
+        "language": null,
+        "worship_style": null,
+        "livestream_enabled": 0,
+        "livestream_paid": 0,
+        "livestream_url": "",
+        "is_verified": 1
+      }
+    },
+    {
+      "name": "free event capacity and paid rejection",
+      "ok": true,
+      "statuses": [
+        201,
+        409,
+        409
+      ],
+      "ticketsSold": 2
+    },
+    {
+      "name": "duplicate event request consumes capacity again",
+      "statuses": [
+        201,
+        201
+      ],
+      "ticketsSold": 2
+    },
+    {
+      "name": "ordinary event save resets sold count and permits overselling",
+      "saveStatus": 200,
+      "afterSave": 0,
+      "newRegistrationStatus": 201,
+      "actualTickets": 4,
+      "capacity": 2
+    },
+    {
+      "name": "registration updates and deletes desynchronize counter",
+      "afterUpdate": 2,
+      "actualQuantity": 101,
+      "afterDelete": 2
+    },
+    {
+      "name": "ended event registration accepted",
+      "status": 201
+    },
+    {
+      "name": "event mutation accepts invalid dates and negative financial fields",
+      "status": 200,
+      "record": {
+        "starts_at": "not-a-date",
+        "ticket_price_cents": -5.5,
+        "total_tickets": -1,
+        "tickets_sold": -20,
+        "currency": "INVALID"
+      }
+    },
+    {
+      "name": "service booking for fictitious service and invalid date",
+      "status": 201,
+      "stored": [
+        {
+          "service_id": "does-not-exist",
+          "requested_date": "not-a-date",
+          "estimated_amount": "-999999",
+          "user_id": null
+        }
+      ]
+    },
+    {
+      "name": "health with failed database",
+      "status": 200
+    },
+    {
+      "name": "twelve-character single-factor password accepted",
+      "status": 400
+    },
+    {
+      "name": "security rejection and failure handling",
+      "crossOrigin": 403,
+      "rateLimited": 429,
+      "missingLimiter": 503,
+      "missingDB": 503
+    },
+    {
+      "name": "booking frontend reports success on backend rejection",
+      "ok": true,
+      "rejected": true,
+      "message": "Booking not received by the server."
+    },
+    {
+      "name": "deleted sample products reappear",
+      "deletedId": "study-bible",
+      "reappeared": true
+    },
+    {
+      "name": "cart accepts fractional and excessive quantities",
+      "fractional": 1.5,
+      "excessive": 1000000000
+    },
+    {
+      "name": "messages remain visible after account switch and do not reach another browser",
+      "visibleAfterSwitch": true,
+      "deliveredToOtherBrowser": false
+    },
+    {
+      "name": "browser collections have no cross-device source of truth",
+      "savedLocally": true,
+      "visibleInOtherBrowser": false
+    },
+    {
+      "name": "content policy blocks declared external scripts",
+      "scriptPolicy": " script-src 'self' 'unsafe-inline'",
+      "externalScriptCount": 2
+    }
+  ]
+}

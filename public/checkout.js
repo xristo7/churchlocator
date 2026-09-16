@@ -36,7 +36,8 @@
     document.getElementById("mobile-order-total").textContent = data().money(currentTotals.total);
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
     if (!cartRows().length) { location.href = "cart.html"; return; }
     document.querySelectorAll(".accelerated-checkout .accelerated").forEach(button => button.addEventListener("click", () => {
       const usePayPal = button.classList.contains("paypal");

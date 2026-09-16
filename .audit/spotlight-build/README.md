@@ -1,0 +1,1 @@
+This folder contains the built output assets for the worker "my-way-of-evangelism" generated at 2026-09-16T14:40:51.040Z.

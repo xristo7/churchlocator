@@ -47,7 +47,8 @@
     document.getElementById("product-editor-modal")?.classList.remove("is-open");
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
     document.getElementById("seller-product-search")?.addEventListener("input", render);
     document.getElementById("add-product-button")?.addEventListener("click", () => openEditor());
     document.querySelector("#product-editor-modal .module-modal-close")?.addEventListener("click", closeEditor);

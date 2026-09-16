@@ -1,0 +1,1102 @@
+{
+  "timestamp": "2026-09-15T07:28:44.601Z",
+  "runtime": "v24.19.0",
+  "inventory": [
+    {
+      "file": ".github/workflows/deploy.yml",
+      "lines": 39,
+      "sha256": "a2678b62d21f4bf4f65fcf922186ec01ca54a1092df490fc705a8aade4e2dc55"
+    },
+    {
+      "file": "database/schema.sql",
+      "lines": 283,
+      "sha256": "a33cb1a5f008104cf7ffe6ddd74009223cdb301a88bd02cc42c1fdd7179105ce"
+    },
+    {
+      "file": "database/seed.sql",
+      "lines": 37,
+      "sha256": "797ff005ff54631125e7baa3f3863b8a56499536faab8fb4d5c1578000d12c52"
+    },
+    {
+      "file": "design-qa.md",
+      "lines": 177,
+      "sha256": "1f78554a7ab55b311c01850a531084171e313b87118ff819ab7231315df07495"
+    },
+    {
+      "file": "docs/admin-workspaces.md",
+      "lines": 55,
+      "sha256": "df1ead12c1fc7fa6aba020adebfca74d99805d8a18eedb16f56879607f224856"
+    },
+    {
+      "file": "docs/application-architecture.md",
+      "lines": 82,
+      "sha256": "f0191c5f2a1fa50b7da9d90f09550e41645a5739d6005cccf58f83a3f2bc9797"
+    },
+    {
+      "file": "docs/backend-roadmap.md",
+      "lines": 41,
+      "sha256": "03229724c2d5bcca1d6eb4c35ab10982034c652cd5c127d267c6ad9ed0bcf561"
+    },
+    {
+      "file": "docs/platform-functionality-audit.md",
+      "lines": 44,
+      "sha256": "303aaca608dc090dd691525cb0b4c2401394b2c1dba894db8428510d61a1fcc1"
+    },
+    {
+      "file": "docs/security/preview-verification.json",
+      "lines": 397,
+      "sha256": "eca9f5cb0fc3fd7df357bdb6d25af6493f30adac6ad764c09112ed7ef5f61374"
+    },
+    {
+      "file": "docs/security/scan-results.json",
+      "lines": 1812,
+      "sha256": "0e90a78111ba772225f178bbde7dfec7495f7efd7a6cb4aef5122d14d0172332"
+    },
+    {
+      "file": "docs/security/security-audit.md",
+      "lines": 118,
+      "sha256": "36d294f1dca2f135457835275417ae2b48fe2432d82171f70cdffe1f47c907fd"
+    },
+    {
+      "file": "docs/security/vendor-provenance.json",
+      "lines": 15,
+      "sha256": "6bd1f42ad32ca4437d14f932c684ec0f5a53bfd8a5b7d88ec524ee9b9be9e346"
+    },
+    {
+      "file": "functions/api/admin/churches.js",
+      "lines": 6,
+      "sha256": "192345228b29c6137056b7c36e4a13763b0f6783a60c64212b8433c29ecd8124"
+    },
+    {
+      "file": "functions/api/church-application.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d"
+    },
+    {
+      "file": "functions/api/churches.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d"
+    },
+    {
+      "file": "functions/api/livestream-activation.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d"
+    },
+    {
+      "file": "functions/api/prayer.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d"
+    },
+    {
+      "file": "functions/api/status.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d"
+    },
+    {
+      "file": "functions/api/visitor.js",
+      "lines": 6,
+      "sha256": "f4ab5a7dcec6b8beed2bdc12410372c63103237a4efb7122bf7fe38a0f360d4d"
+    },
+    {
+      "file": "migrations/0001_initial.sql",
+      "lines": 283,
+      "sha256": "a33cb1a5f008104cf7ffe6ddd74009223cdb301a88bd02cc42c1fdd7179105ce"
+    },
+    {
+      "file": "migrations/0002_auth.sql",
+      "lines": 21,
+      "sha256": "29e7a0744cfe61c570438fe987c6cacc78c8ce81ca7c241422d1c588e3d619cf"
+    },
+    {
+      "file": "migrations/0003_service_bookings.sql",
+      "lines": 29,
+      "sha256": "02e2121e54985402b0ab3b14f6c0922744c16b66b9953e844aadd16b84c5611e"
+    },
+    {
+      "file": "migrations/0004_security.sql",
+      "lines": 22,
+      "sha256": "b09d0a0b585453bc470ff239795121c63084167f84b96c4206a6b3b357ca7fe2"
+    },
+    {
+      "file": "package-lock.json",
+      "lines": 1596,
+      "sha256": "474bd239da249d107e7ff55a987e22447a8fe49df698ba0909382ed97809ee3c"
+    },
+    {
+      "file": "package.json",
+      "lines": 35,
+      "sha256": "b670bbf9af5a01b910566b3bc4e49d262df64f09878ee5ab9ee11257dd7f8c30"
+    },
+    {
+      "file": "pnpm-lock.yaml",
+      "lines": 896,
+      "sha256": "65c24212e21c7cc9e4bede9e321363834fc0a78d184f34a451d725bcda0de103"
+    },
+    {
+      "file": "pnpm-workspace.yaml",
+      "lines": 4,
+      "sha256": "c2ddff808a86a4de2ed1fd1359ca72c5362ad5cdc1d7e07a9c7945523c139b83"
+    },
+    {
+      "file": "public/admin-model.js",
+      "lines": 182,
+      "sha256": "dd2679f1829203c6af41e0be4b0c05c3811acf534f0847fba0691328d8a0c704"
+    },
+    {
+      "file": "public/admin-workspace.css",
+      "lines": 260,
+      "sha256": "5878036aa0263708812335db918afb6b0818dc62bd18350653e3fd2864f143c3"
+    },
+    {
+      "file": "public/admin-workspace.js",
+      "lines": 280,
+      "sha256": "6f435b9610ae6076fdfa3d4c1851654f3396a976c6aa97fd79aef2c5abe06631"
+    },
+    {
+      "file": "public/admin.html",
+      "lines": 4,
+      "sha256": "5ec60771ad825074ee99e7ebf233a2a4fb76159b33513953368f8b4c32adc6cb"
+    },
+    {
+      "file": "public/app-shell.js",
+      "lines": 365,
+      "sha256": "fcd1a43e2daea05b1cc702e230eeb3bae9635e7abe011a8c21a4088ca318aa43"
+    },
+    {
+      "file": "public/app.html",
+      "lines": 101,
+      "sha256": "0065be4d8c5d0eac0591c02b1f9515373fa8ae6d6471df1cc3a1e99b5e353dc5"
+    },
+    {
+      "file": "public/app.js",
+      "lines": 9952,
+      "sha256": "edb5c07f12075dcef1c6250dbccd9c2d06d6fb2f607f4eb9c7be16c75432d3fa"
+    },
+    {
+      "file": "public/auth-client.js",
+      "lines": 101,
+      "sha256": "2fa6bb679e613e97edfb1b1516bd6810636a5ff97e2967ba5c89edbde7d75c47"
+    },
+    {
+      "file": "public/broadcast.html",
+      "lines": 6,
+      "sha256": "6219fc704846fabf1da9258a8f2e5c5e671535d1230d83db75cc80eab09b6b1d"
+    },
+    {
+      "file": "public/cart.html",
+      "lines": 35,
+      "sha256": "21662df5ae0c9c6b37c160764f6eb1714d6b1197ecba1adb417729e601118281"
+    },
+    {
+      "file": "public/cart.js",
+      "lines": 55,
+      "sha256": "e13dc2c1f6dd03baf92a555183131afebbf94e3eeaa7d461422de6a6102d76ad"
+    },
+    {
+      "file": "public/channel-content.html",
+      "lines": 4,
+      "sha256": "dee9511343dc5203f8b6360cc5e8bffd1f452d90f2d5937a9a40c89645576f79"
+    },
+    {
+      "file": "public/channel-content.js",
+      "lines": 21,
+      "sha256": "1a0fd49210bdf9fc40a515fdd4860a9b6bdb68aa09ffe0210f27e6e45023ebf0"
+    },
+    {
+      "file": "public/channel-detail.html",
+      "lines": 6,
+      "sha256": "9565340f3fe04496b3dc3b4e4d97c9550e02f4be1f4bef7f54aa54367b3d8cd3"
+    },
+    {
+      "file": "public/channel-detail.js",
+      "lines": 24,
+      "sha256": "a875294a10e2ff7d853f128f8fd9752d1a48291dc57a374617b0f9854b87f860"
+    },
+    {
+      "file": "public/channels.html",
+      "lines": 75,
+      "sha256": "2eab0601c508b1808dcd0869dcb010d4226d335bd85a58dc2f84921b171734e1"
+    },
+    {
+      "file": "public/channels.js",
+      "lines": 88,
+      "sha256": "a0e9037eeee36dffc226bc4d408503b3fd22a33bf719295f040b52b52e35906a"
+    },
+    {
+      "file": "public/checkout.html",
+      "lines": 34,
+      "sha256": "10b2c0ca95ca6a95eddbd77fa42de8b3698f9b474d59e8218733008dd434268e"
+    },
+    {
+      "file": "public/checkout.js",
+      "lines": 80,
+      "sha256": "873e4729d26b855aad18b8354e7e1a8b7ff42ab032ec434485f59c019a4fe206"
+    },
+    {
+      "file": "public/church-portal.html",
+      "lines": 913,
+      "sha256": "d4798f469a3fe6b0acf8e6e37f674dbeef221d9d0e6fcb4e37619d69207ec9e7"
+    },
+    {
+      "file": "public/church-profile.html",
+      "lines": 3365,
+      "sha256": "6c5a0da6b4cf1565c6b71132caadda50df3a7e6fa36297a96cd2954da12bca94"
+    },
+    {
+      "file": "public/churches.html",
+      "lines": 202,
+      "sha256": "469135dfa78ccffda6fced8defc12da9b7309add8eb0ab6571fd3ba809ff5237"
+    },
+    {
+      "file": "public/creator-account.js",
+      "lines": 76,
+      "sha256": "0ea006bd0b536f3e53d0d89e3f5d2b1e4c19c9199e5c2fd6bcb3525fce36863a"
+    },
+    {
+      "file": "public/creator-data.js",
+      "lines": 33,
+      "sha256": "04d1e773469fd4285575ff7ba05a30ea40bc473dba3dcc5bcdc384e2f1e9c1c9"
+    },
+    {
+      "file": "public/creator-model.js",
+      "lines": 95,
+      "sha256": "9017a0fc6df91872ce1cbc934b5a9ee1ac3a34ac8276386a8288ce752d685f90"
+    },
+    {
+      "file": "public/creator-public.css",
+      "lines": 206,
+      "sha256": "2c829147e925ccb507baad457131f5defb688cbf3e52e4e0d1e781e9814cc2df"
+    },
+    {
+      "file": "public/creator-public.js",
+      "lines": 130,
+      "sha256": "812eaa9d0ad4f4ac1be7611d40c756f0afea4e26370758aa8ad82c9eaa578393"
+    },
+    {
+      "file": "public/creator-workspace.html",
+      "lines": 69,
+      "sha256": "8935aa97a494fff77d26bb66c7fb5fddd75b54c776e541995e25e062d0e4d6d8"
+    },
+    {
+      "file": "public/donate.html",
+      "lines": 373,
+      "sha256": "f07a9b1f31235057b6ba282462e825c3b356c3e105e7b5a91e498591036abc43"
+    },
+    {
+      "file": "public/event-profile.html",
+      "lines": 720,
+      "sha256": "fed08f6154a76cb2527bfa4a3d6e2ec9515c2e1b88c601244c5ec8484fedb96d"
+    },
+    {
+      "file": "public/events.html",
+      "lines": 300,
+      "sha256": "96b5777e8768595121c71e74f0fd1e317d27b380e0860eb3fe1e6c4bfc0776f3"
+    },
+    {
+      "file": "public/foundation.html",
+      "lines": 247,
+      "sha256": "6f45e2ba3407098dde8145dd733e4b9aba4a5d1b7ceba5ecfb4f0fdb0b33f45f"
+    },
+    {
+      "file": "public/index.html",
+      "lines": 759,
+      "sha256": "6dd2f73f65eef05d582f80cfa70e185ff1bfb0f20d40980ba93d38d7989ce504"
+    },
+    {
+      "file": "public/livestream.html",
+      "lines": 618,
+      "sha256": "755785735648549db9159a407b194251bb3631a1fe140dc8c61bc353ead81e8d"
+    },
+    {
+      "file": "public/meditation.html",
+      "lines": 1003,
+      "sha256": "fa6a7ad07c51b41074a29e93e1b615ff46504cfe274af3ff3074b3be38ff315c"
+    },
+    {
+      "file": "public/meditation.js",
+      "lines": 2505,
+      "sha256": "bb02cc3545859b818eea0d15042dcdbbb425902d6346959b34a260be2e26bb0c"
+    },
+    {
+      "file": "public/member-home.html",
+      "lines": 173,
+      "sha256": "3825254b33fb19ad55b26e82e2fae90d160dc93b3c49060f6f5d939f73ba7c36"
+    },
+    {
+      "file": "public/member-home.js",
+      "lines": 136,
+      "sha256": "212afefe00287862bfeef8148c43d9c5e109f436638e4b58e02eca5f3ef650a2"
+    },
+    {
+      "file": "public/messages.html",
+      "lines": 3,
+      "sha256": "1fd9df1ff9604b0af52c3bb773bdf1d8c1fcec086185a996ea01ed8c78633b24"
+    },
+    {
+      "file": "public/messages.js",
+      "lines": 42,
+      "sha256": "d0f63577ee3dadb243a6888db525a070a18d3e04d000d19d278ca3458fc520d8"
+    },
+    {
+      "file": "public/owner-dashboard.html",
+      "lines": 65,
+      "sha256": "ac07ebbab6a8091fdcc759da381e436e0e05b07560bc27f5585d4227de7598f2"
+    },
+    {
+      "file": "public/platform-modules.js",
+      "lines": 312,
+      "sha256": "447936c70a8908d4cb13c06993b80792c1599190464c2f6a4b04d9792cc97106"
+    },
+    {
+      "file": "public/privacy.html",
+      "lines": 156,
+      "sha256": "74cb8922a4f2fe10e7362b68f71e815eda057ae7825a84996aa97b17819d793c"
+    },
+    {
+      "file": "public/product-detail.html",
+      "lines": 103,
+      "sha256": "4a179e3539050db04fe6f9999ac97527095b6b6bfda5782a803318205f276705"
+    },
+    {
+      "file": "public/product-detail.js",
+      "lines": 906,
+      "sha256": "63b1fb58ccad49f7ea6757708142f997375f1a2d9cd1ecbbd10e27494085af0b"
+    },
+    {
+      "file": "public/resource-detail.html",
+      "lines": 22,
+      "sha256": "ed7cb822f13b058f7836d91fc6af872529ca4c8fd3eb053244d63afc376fdb22"
+    },
+    {
+      "file": "public/resource-detail.js",
+      "lines": 53,
+      "sha256": "d5cffc95409d1bcc756c4789ee8ff9b0062b13080847b0c70fca3b9cc1f1399d"
+    },
+    {
+      "file": "public/resource-reader.html",
+      "lines": 2,
+      "sha256": "d6dedf440e18d569bc58b916f3df52a29496634dfded23de1d90e28de8a52038"
+    },
+    {
+      "file": "public/resource-reader.js",
+      "lines": 15,
+      "sha256": "c885708bf01cfd5a325ed085a3b5a981767760cb1eb5b799c748c1aee0fbcec2"
+    },
+    {
+      "file": "public/resources.html",
+      "lines": 52,
+      "sha256": "dbb9f5b1ab32fe1edcbe0cdb7ef90365de6e939869864c8e9c5e97b6f0b533c8"
+    },
+    {
+      "file": "public/resources.js",
+      "lines": 108,
+      "sha256": "d097b4dc4894f7a6188afaf536bcb80ce2043f63d245a7c86b570971342b9ad2"
+    },
+    {
+      "file": "public/responsive.css",
+      "lines": 174,
+      "sha256": "280eb38aa29d1f759973f60a636a911bd22b48e50b6d438da6986b97a7cf33d0"
+    },
+    {
+      "file": "public/seller-dashboard.html",
+      "lines": 88,
+      "sha256": "9d79fff5e3b155bcfd766361edf2299ebcbd3c4e74fb6c837042c29246e4a882"
+    },
+    {
+      "file": "public/seller-dashboard.js",
+      "lines": 86,
+      "sha256": "bdba56e4adc2f12c66fea5d02615ec870c28caddd150d087bf885c3267b23e7e"
+    },
+    {
+      "file": "public/store.html",
+      "lines": 59,
+      "sha256": "e7de25fe4cc8617e494cdeb7535fcc1b87e0148dcdb4c89c88ec4a71290aa07b"
+    },
+    {
+      "file": "public/store.js",
+      "lines": 134,
+      "sha256": "f4efd2e0966c90c7bac31235223de34d13d18c83678bed36fc1b522d2e977147"
+    },
+    {
+      "file": "public/storefront.html",
+      "lines": 6,
+      "sha256": "cd050c0adb33234f8c2e6f1c543f5984f7ec2e6d9a499344940ffc0840a68766"
+    },
+    {
+      "file": "public/styles.css",
+      "lines": 25211,
+      "sha256": "53004c25f9f1a2d2d48eb5f2ae2feb3ce38fa04a9ed87783cd8302fc4abb9306"
+    },
+    {
+      "file": "public/vendor/lucide.js",
+      "lines": 21189,
+      "sha256": "1cb20bfb97df20bf7e87d85dc73c77eb2dc67fe62da12881180fe71b046fbfab"
+    },
+    {
+      "file": "public/vendor/tailwindcss.js",
+      "lines": 84,
+      "sha256": "176e894661aa9cdc9a5cba6c720044cbbf7b8bd80d1c9a142a7c24b1b6c50d15"
+    },
+    {
+      "file": "README.md",
+      "lines": 135,
+      "sha256": "576dd2c0d8fef625868984a25d71afb1ade89d7d422277d3056cc0f1dd47ec52"
+    },
+    {
+      "file": "scripts/audit-functional.mjs",
+      "lines": 174,
+      "sha256": "b87063fd4a507f1e85755a11ac10bccd65dcff0c4bc3c3fbae93bf328d4f6bea"
+    },
+    {
+      "file": "scripts/audit-preview.mjs",
+      "lines": 22,
+      "sha256": "1a88496b55499f2962dffcdec8215b7f0d5f7818aabd6592bddc8744aa506391"
+    },
+    {
+      "file": "src/security.js",
+      "lines": 91,
+      "sha256": "2b93550b48288dde2b25a4d581b218ab252d4a7273f510e1b2c92ca1f52ce9e6"
+    },
+    {
+      "file": "src/worker.js",
+      "lines": 988,
+      "sha256": "df2e03c77d59826baf3b5a67f529d80f0fcdbfd5312058e3cc07cdd3d865c6a3"
+    },
+    {
+      "file": "tests/admin-workspace.test.mjs",
+      "lines": 252,
+      "sha256": "661d398563db03b337239470d0080b3758c47ccb7a44e6d5883379a88cd018d9"
+    },
+    {
+      "file": "tests/auth.test.mjs",
+      "lines": 236,
+      "sha256": "70f737119030aecf284bad5592541363df830458524773272a444290d29fa2d4"
+    },
+    {
+      "file": "tests/church-profile-gallery.test.mjs",
+      "lines": 82,
+      "sha256": "3225407e70dfbc81af9c86156de14df707304b9cdc6b98261eb38728c8712def"
+    },
+    {
+      "file": "tests/church-profile-hero-tabs.test.mjs",
+      "lines": 90,
+      "sha256": "b99688d7c8cc03414f8347fc5d1b77357afd5e4da3c609a952bd58468b2d19d3"
+    },
+    {
+      "file": "tests/events-platform-verification.test.mjs",
+      "lines": 283,
+      "sha256": "2253079cf186774c37467cacbf3ce60bf8ef2cff89a33b456bb7b5a4c6da2798"
+    },
+    {
+      "file": "tests/forms-ride-verification.test.mjs",
+      "lines": 228,
+      "sha256": "e1091f19b7911e5caff9714a253244ff67879aef1f52ce8bcdadd281ec2e53e9"
+    },
+    {
+      "file": "tests/homepage-ui-refinements.test.mjs",
+      "lines": 165,
+      "sha256": "00e2bff353e028749e117494a66d2d2c3d8887c7a8553aa86582131ab89832c8"
+    },
+    {
+      "file": "tests/interactive-map-verification.test.mjs",
+      "lines": 215,
+      "sha256": "c386021817583571b5e6ca2e0a78b6af4505d78b3e9f53ac551cd5ab7d542686"
+    },
+    {
+      "file": "tests/livestream-hosting-verification.test.mjs",
+      "lines": 79,
+      "sha256": "9c3404816af20fa283b8517d803c3d629160f6c797004396e174edd0c9c58284"
+    },
+    {
+      "file": "tests/meditation-verification.test.mjs",
+      "lines": 238,
+      "sha256": "cb1278483ee90559b6f00302702b9f9625d6e7dc4814df46f1626840418c309a"
+    },
+    {
+      "file": "tests/member-shell.test.mjs",
+      "lines": 452,
+      "sha256": "f0c65abad6cb1d431b03c1441e25182e1e2c56804633ad1d6c02d3d990e0bc3a"
+    },
+    {
+      "file": "tests/product-and-service-templates.test.mjs",
+      "lines": 200,
+      "sha256": "4ebbcbccca2d78b266daaec6263c4c2cb14b31887709f4cf28ffdd877261f986"
+    },
+    {
+      "file": "tests/security.test.mjs",
+      "lines": 143,
+      "sha256": "611c82a5b430c46034be33c9402fe58dabefde389ade051da7160d8c28e352ac"
+    },
+    {
+      "file": "tests/worker-unit.test.mjs",
+      "lines": 97,
+      "sha256": "2165e25b038d199ec6771f30c583501622bcd6859163331c796753a203710abb"
+    },
+    {
+      "file": "tools/security-audit.mjs",
+      "lines": 67,
+      "sha256": "e535bdad61b966480b7cab9ce709cacfb021401e8c6292965ba8850a1809274b"
+    },
+    {
+      "file": "tools/security-preview.mjs",
+      "lines": 60,
+      "sha256": "104d436d39e83a533f8a3864b0f87de150d85169c1b27316e65256a25eca0c94"
+    },
+    {
+      "file": "tools/static-server.mjs",
+      "lines": 172,
+      "sha256": "07f38df5a45d19652b2dbe78566b9ebdaa8133200a2f4b4dd7e0dd2dfe8af7d7"
+    },
+    {
+      "file": "wrangler.jsonc",
+      "lines": 58,
+      "sha256": "9e3133221e5ff217a4a61060a96f5d3b8fda88bf85e291774736a60fe301369a"
+    }
+  ],
+  "syntax": [
+    {
+      "file": "functions/api/admin/churches.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "functions/api/church-application.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "functions/api/churches.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "functions/api/livestream-activation.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "functions/api/prayer.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "functions/api/status.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "functions/api/visitor.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/admin-model.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/admin-workspace.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/app-shell.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/app.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/auth-client.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/cart.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/channel-content.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/channel-detail.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/channels.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/checkout.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/creator-account.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/creator-data.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/creator-model.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/creator-public.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/meditation.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/member-home.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/messages.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/platform-modules.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/product-detail.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/resource-detail.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/resource-reader.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/resources.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/seller-dashboard.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/store.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/vendor/lucide.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "public/vendor/tailwindcss.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "scripts/audit-functional.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "scripts/audit-preview.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "src/security.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "src/worker.js",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/admin-workspace.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/auth.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/church-profile-gallery.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/church-profile-hero-tabs.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/events-platform-verification.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/forms-ride-verification.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/homepage-ui-refinements.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/interactive-map-verification.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/livestream-hosting-verification.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/meditation-verification.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/member-shell.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/product-and-service-templates.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/security.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tests/worker-unit.test.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tools/security-audit.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tools/security-preview.mjs",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "file": "tools/static-server.mjs",
+      "ok": true,
+      "error": ""
+    }
+  ],
+  "inlineSyntax": [
+    {
+      "file": "public/admin.html",
+      "ok": true
+    },
+    {
+      "file": "public/church-profile.html",
+      "ok": true
+    },
+    {
+      "file": "public/event-profile.html",
+      "ok": true
+    },
+    {
+      "file": "public/event-profile.html",
+      "ok": true
+    },
+    {
+      "file": "public/event-profile.html",
+      "ok": true
+    },
+    {
+      "file": "public/livestream.html",
+      "ok": true
+    }
+  ],
+  "missingReferences": [],
+  "externalScripts": [
+    {
+      "file": "public/event-profile.html",
+      "url": "https://cdn.tailwindcss.com"
+    },
+    {
+      "file": "public/event-profile.html",
+      "url": "https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"
+    }
+  ],
+  "probes": [
+    {
+      "name": "real migration chain and foreign keys",
+      "ok": true,
+      "tables": [
+        "churches",
+        "church_profiles",
+        "service_schedules",
+        "ministries",
+        "events",
+        "visitor_connections",
+        "prayer_requests",
+        "church_applications",
+        "livestream_activations",
+        "donations",
+        "volunteer_applications",
+        "event_registrations",
+        "ride_requests",
+        "ride_followups",
+        "salvation_decisions",
+        "foundation_projects",
+        "foundation_applications",
+        "church_staff_roles",
+        "users",
+        "sessions",
+        "service_bookings"
+      ]
+    },
+    {
+      "name": "v2 registration, hashed session, login, creator upgrade, logout",
+      "ok": true,
+      "registrationStatus": 201,
+      "upgradeStatus": 200,
+      "hashedSession": true,
+      "cookieAttributes": [
+        " Path=/",
+        " HttpOnly",
+        " SameSite=Lax",
+        " Max-Age=86400",
+        " Secure"
+      ]
+    },
+    {
+      "name": "anonymous protected asset delivery",
+      "protectedAtWorkerBoundary": false,
+      "results": [
+        {
+          "route": "/app",
+          "status": 200
+        },
+        {
+          "route": "/app.html",
+          "status": 200
+        },
+        {
+          "route": "/member",
+          "status": 200
+        },
+        {
+          "route": "/owner-dashboard",
+          "status": 200
+        },
+        {
+          "route": "/owner-dashboard.html",
+          "status": 200
+        },
+        {
+          "route": "/admin",
+          "status": 200
+        },
+        {
+          "route": "/admin.html",
+          "status": 200
+        },
+        {
+          "route": "/church-portal",
+          "status": 200
+        },
+        {
+          "route": "/creator-workspace.html",
+          "status": 200
+        },
+        {
+          "route": "/seller-dashboard.html",
+          "status": 200
+        },
+        {
+          "route": "/messages.html",
+          "status": 200
+        },
+        {
+          "route": "/resource-reader.html",
+          "status": 200
+        }
+      ],
+      "limitation": "ASSETS stand-in; verifies Worker authorization branch, not external Cloudflare Access configuration"
+    },
+    {
+      "name": "administrator session is not accepted by church save without bearer",
+      "status": 401
+    },
+    {
+      "name": "anonymous church accepts unverified payment claims",
+      "status": 201,
+      "record": {
+        "is_verified": 0,
+        "livestream_paid": 1,
+        "email": "not-an-email"
+      }
+    },
+    {
+      "name": "church creation partial persistence after profile failure",
+      "status": 500,
+      "orphanExists": true,
+      "profileExists": false
+    },
+    {
+      "name": "admin church fields round-trip",
+      "status": 200,
+      "record": {
+        "cover_image_url": "",
+        "postal_code": null,
+        "denomination": null,
+        "language": null,
+        "worship_style": null,
+        "livestream_enabled": 0,
+        "livestream_paid": 0,
+        "livestream_url": "",
+        "is_verified": 1
+      }
+    },
+    {
+      "name": "free event capacity and paid rejection",
+      "ok": true,
+      "statuses": [
+        201,
+        409,
+        409
+      ],
+      "ticketsSold": 2
+    },
+    {
+      "name": "duplicate event request consumes capacity again",
+      "statuses": [
+        201,
+        201
+      ],
+      "ticketsSold": 2
+    },
+    {
+      "name": "ordinary event save resets sold count and permits overselling",
+      "saveStatus": 200,
+      "afterSave": 0,
+      "newRegistrationStatus": 201,
+      "actualTickets": 4,
+      "capacity": 2
+    },
+    {
+      "name": "registration updates and deletes desynchronize counter",
+      "afterUpdate": 2,
+      "actualQuantity": 101,
+      "afterDelete": 2
+    },
+    {
+      "name": "ended event registration accepted",
+      "status": 201
+    },
+    {
+      "name": "event mutation accepts invalid dates and negative financial fields",
+      "status": 200,
+      "record": {
+        "starts_at": "not-a-date",
+        "ticket_price_cents": -5.5,
+        "total_tickets": -1,
+        "tickets_sold": -20,
+        "currency": "INVALID"
+      }
+    },
+    {
+      "name": "service booking for fictitious service and invalid date",
+      "status": 201,
+      "stored": [
+        {
+          "service_id": "does-not-exist",
+          "requested_date": "not-a-date",
+          "estimated_amount": "-999999",
+          "user_id": null
+        }
+      ]
+    },
+    {
+      "name": "health with failed database",
+      "status": 200
+    },
+    {
+      "name": "twelve-character single-factor password accepted",
+      "status": 400
+    },
+    {
+      "name": "security rejection and failure handling",
+      "crossOrigin": 403,
+      "rateLimited": 429,
+      "missingLimiter": 503,
+      "missingDB": 503
+    },
+    {
+      "name": "booking frontend reports success on backend rejection",
+      "ok": true,
+      "rejected": true,
+      "message": "Booking not received by the server."
+    },
+    {
+      "name": "deleted sample products reappear",
+      "deletedId": "study-bible",
+      "reappeared": true
+    },
+    {
+      "name": "cart accepts fractional and excessive quantities",
+      "fractional": 1.5,
+      "excessive": 1000000000
+    },
+    {
+      "name": "messages remain visible after account switch and do not reach another browser",
+      "visibleAfterSwitch": true,
+      "deliveredToOtherBrowser": false
+    },
+    {
+      "name": "browser collections have no cross-device source of truth",
+      "savedLocally": true,
+      "visibleInOtherBrowser": false
+    },
+    {
+      "name": "content policy blocks declared external scripts",
+      "scriptPolicy": " script-src 'self' 'unsafe-inline'",
+      "externalScriptCount": 2
+    }
+  ]
+}

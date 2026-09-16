@@ -1,0 +1,10 @@
+{
+  "scope": "Read-only local event profile through actual Worker security headers, with no DB credentials",
+  "url": "http://127.0.0.1:4189/event-profile.html?id=audit",
+  "observed": "Sign-in prompt appeared; event profile shell was delivered anonymously",
+  "consoleErrors": [
+    { "timestamp": "2026-09-15T07:27:25.703Z", "message": "ReferenceError: tailwind is not defined", "location": "event-profile.html:18:11" },
+    { "timestamp": "2026-09-15T07:27:25.703Z", "message": "ReferenceError: tailwind is not defined", "location": "event-profile.html:20:5" }
+  ],
+  "limitation": "Does not verify production Cloudflare Access or any authenticated end-to-end workflow"
+}

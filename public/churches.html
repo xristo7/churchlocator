@@ -9,7 +9,7 @@
   <title>My Way of Evangelism | Find a Church Family</title>
     <link rel="stylesheet" href="styles.css?v=20260905module19" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260916taxonomy1"></script><script defer src="app.js?v=20260916taxonomy1"></script><script defer src="auth-client.js?v=20260915security1"></script>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body data-page="public">
   <header class="topbar">
@@ -111,27 +111,8 @@
               </button>
               <div class="filter-dropdown-panel">
                 <span class="dropdown-panel-title">Filter by Denomination</span>
-                <div class="dropdown-options-list">
-                  <label class="custom-checkbox-row">
-                    <input type="checkbox" value="Alliance" onchange="MWE.onChurchPillChange()" />
-                    <span class="checkbox-box"><i data-lucide="check"></i></span>
-                    <span class="checkbox-label">Alliance</span>
-                  </label>
-                  <label class="custom-checkbox-row">
-                    <input type="checkbox" value="Pentecostal" onchange="MWE.onChurchPillChange()" />
-                    <span class="checkbox-box"><i data-lucide="check"></i></span>
-                    <span class="checkbox-label">Pentecostal</span>
-                  </label>
-                  <label class="custom-checkbox-row">
-                    <input type="checkbox" value="Baptist" onchange="MWE.onChurchPillChange()" />
-                    <span class="checkbox-box"><i data-lucide="check"></i></span>
-                    <span class="checkbox-label">Baptist</span>
-                  </label>
-                  <label class="custom-checkbox-row">
-                    <input type="checkbox" value="Non-Denominational" onchange="MWE.onChurchPillChange()" />
-                    <span class="checkbox-box"><i data-lucide="check"></i></span>
-                    <span class="checkbox-label">Non-Denominational</span>
-                  </label>
+                <div class="dropdown-options-list" id="church-denomination-options-list">
+                  <!-- Super Admin-managed options are populated from the platform catalog. -->
                 </div>
               </div>
             </div>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout | My Way Store</title>
+  <link rel="stylesheet" href="styles.css?v=20260901g" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-modules.js?v=20260825"></script>
+  <script defer src="checkout.js?v=20260905"></script>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<body class="checkout-page" data-page="checkout">
+  <header class="checkout-header"><a href="store.html" class="checkout-brand"><span><i data-lucide="sparkles"></i></span>My Way</a><a href="cart.html" class="checkout-cart-link"><i data-lucide="shopping-bag"></i><span id="checkout-header-count">0</span></a></header>
+  <main class="checkout-layout">
+    <section class="checkout-form-column">
+      <nav class="checkout-breadcrumbs" aria-label="Checkout progress"><a href="cart.html">Cart</a><i data-lucide="chevron-right"></i><strong>Information</strong><i data-lucide="chevron-right"></i><span>Shipping</span><i data-lucide="chevron-right"></i><span>Payment</span></nav>
+      <div class="accelerated-checkout"><p>Express checkout</p><div><button type="button" class="accelerated shop"><strong>Shop</strong><span>Pay</span></button><button type="button" class="accelerated paypal">PayPal</button><button type="button" class="accelerated google"><strong>G</strong> Pay</button></div></div>
+      <div class="checkout-divider"><span>OR</span></div>
+      <form id="checkout-form" novalidate>
+        <section class="checkout-section"><div class="checkout-section-head"><h1>Contact</h1><span>Already have an account? <a href="app.html?view=checkout" target="_top">Log in</a></span></div><label class="checkout-field wide"><span>Email</span><input name="email" type="email" autocomplete="email" required /></label><label class="checkout-check"><input name="marketing" type="checkbox" /> Email me with news and offers</label></section>
+        <section class="checkout-section"><h2>Delivery</h2><div class="delivery-tabs"><label><input type="radio" name="deliveryType" value="ship" checked /><span><i data-lucide="truck"></i>Ship</span></label><label><input type="radio" name="deliveryType" value="pickup" /><span><i data-lucide="store"></i>Pick up</span></label></div><div class="checkout-fields" id="shipping-fields"><label class="checkout-field wide"><span>Country/Region</span><select name="country" required><option value="Canada">Canada</option><option value="United States">United States</option><option value="United Kingdom">United Kingdom</option></select></label><label class="checkout-field"><span>First name</span><input name="firstName" autocomplete="given-name" required /></label><label class="checkout-field"><span>Last name</span><input name="lastName" autocomplete="family-name" required /></label><label class="checkout-field wide"><span>Address</span><input name="address" autocomplete="street-address" required /></label><label class="checkout-field wide"><span>Apartment, suite, etc. (optional)</span><input name="apartment" /></label><label class="checkout-field"><span>City</span><input name="city" autocomplete="address-level2" required /></label><label class="checkout-field"><span>Province</span><select name="province" required><option value="">Province</option><option>Alberta</option><option>British Columbia</option><option>Ontario</option><option>Quebec</option></select></label><label class="checkout-field"><span>Postal code</span><input name="postalCode" autocomplete="postal-code" required /></label><label class="checkout-field wide"><span>Phone (optional)</span><input name="phone" type="tel" autocomplete="tel" /></label></div></section>
+        <section class="checkout-section"><h2>Shipping method</h2><label class="shipping-option"><input type="radio" name="shipping" value="standard" checked /><span><strong>Standard shipping</strong><small>3–7 business days</small></span><b>$8.00</b></label><label class="shipping-option"><input type="radio" name="shipping" value="express" /><span><strong>Express shipping</strong><small>1–2 business days</small></span><b>$18.00</b></label></section>
+        <section class="checkout-section"><h2>Payment</h2><p class="checkout-help">Payments are unavailable until a verified payment provider is configured. Do not enter card details.</p><div class="payment-card"><label class="payment-choice"><input type="radio" name="payment" value="unavailable" checked disabled /><strong>Payments unavailable</strong></label><div class="checkout-fields payment-fields"></div></div></section>
+        <p class="checkout-form-error" id="checkout-form-error" role="alert"></p><button class="checkout-pay-button" type="submit" disabled><i data-lucide="lock"></i> Pay now <span id="checkout-pay-total"></span></button>
+      </form>
+      <footer class="checkout-policy-links"><a href="privacy.html">Refund policy</a><a href="privacy.html">Shipping policy</a><a href="privacy.html">Privacy policy</a><a href="privacy.html">Terms of service</a></footer>
+    </section>
+    <aside class="checkout-summary-column"><div class="checkout-summary-inner"><button class="mobile-order-toggle" id="mobile-order-toggle" type="button"><span><i data-lucide="shopping-cart"></i> Show order summary</span><strong id="mobile-order-total">$0.00</strong></button><div id="checkout-order-content"><div class="checkout-order-items" id="checkout-order-items"></div><div class="discount-row"><input id="checkout-discount" type="text" placeholder="Discount code or gift card" /><button id="checkout-apply-discount" type="button">Apply</button></div><p class="discount-message" id="checkout-discount-message"></p><dl class="checkout-totals"><div><dt>Subtotal</dt><dd id="checkout-subtotal">$0.00</dd></div><div><dt>Shipping</dt><dd id="checkout-shipping">$8.00</dd></div><div><dt>Estimated taxes</dt><dd id="checkout-tax">$0.00</dd></div><div id="checkout-discount-row" hidden><dt>Discount</dt><dd id="checkout-discount-total">−$0.00</dd></div><div class="summary-total"><dt>Total <small>CAD</small></dt><dd id="checkout-total">$0.00</dd></div></dl></div></div></aside>
+  </main>
+  <div class="checkout-success" id="checkout-success" hidden><div><span class="success-check"><i data-lucide="check"></i></span><p>Order <strong id="success-order-number"></strong></p><h1>Thank you for your purchase!</h1><p>A confirmation has been prepared for <strong id="success-email"></strong>. Your order details are saved in this local preview.</p><a href="store.html">Continue shopping</a></div></div>
+</body>
+</html>

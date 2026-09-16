@@ -21540,6 +21540,14 @@ html[data-theme="dark"] .host-controls-panel {
   scroll-margin-top: 100px;
 }
 
+/* Spotlight temporarily owns the whole mobile viewport while keeping desktop shell context. */
+@media (max-width: 760px) {
+  .member-app-shell.member-shell-fullscreen .member-shell-header,
+  .member-app-shell.member-shell-fullscreen .member-shell-rail,
+  .member-app-shell.member-shell-fullscreen .member-nav-backdrop { display: none !important; }
+  .member-app-shell.member-shell-fullscreen .member-shell-main { inset: 0 !important; }
+}
+
 /* A fixed visit dialog must keep its centering translation while it pulses. */
 @keyframes visitPanelPulseCentered {
   0% {

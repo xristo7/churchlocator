@@ -280,3 +280,13 @@ create index if not exists idx_foundation_applications_queue
 create unique index if not exists idx_church_staff_membership
   on church_staff_roles(church_id, user_email);
 
+-- Super Admin-managed labels used by public filters and creator forms.
+-- Production defaults are inserted by migration 0007_platform_taxonomies.sql.
+create table if not exists platform_taxonomies (
+  key text primary key,
+  items_json text not null check(json_valid(items_json) and json_type(items_json) = 'array'),
+  revision integer not null default 1,
+  updated_by text,
+  updated_at text not null
+);
+

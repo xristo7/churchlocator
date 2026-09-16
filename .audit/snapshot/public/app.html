@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>My Way Member App</title>
+  <link rel="stylesheet" href="styles.css?v=20260905module17" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="app-shell.js?v=20260907headerfix1"></script>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<body class="member-app-shell" data-page="app-shell">
+  <header class="profile-app-header member-shell-header" id="member-shell-header">
+    <a class="profile-app-brand" href="index.html" aria-label="My Way home">
+      <span class="profile-app-brand-mark"><i data-lucide="sparkles"></i></span>
+      <strong>My Way</strong>
+    </a>
+
+    <div class="profile-app-church member-section-context" id="member-section-context" aria-label="Current section">
+      <i data-lucide="church" id="member-section-icon"></i>
+      <strong id="member-section-title">Churches</strong>
+    </div>
+
+    <form class="profile-app-search site-search" id="member-shell-search" role="search">
+      <i data-lucide="search"></i>
+      <input type="search" name="q" placeholder="Search churches, channels, events..." aria-label="Search My Way" />
+    </form>
+
+    <div class="member-shell-actions">
+      <div class="lang-selector-container member-lang-selector" id="member-lang-selector">
+        <button class="lang-selector-btn" id="member-lang-button" type="button" aria-expanded="false"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg></span><span class="lang-text">EN</span><i data-lucide="chevron-down" class="lang-chevron"></i></button>
+        <div class="lang-selector-panel"><button type="button" data-member-lang="en"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg></span> English</button><button type="button" data-member-lang="fr"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="6.67" height="15" fill="#002654"/><rect x="6.67" width="6.66" height="15" fill="#ffffff"/><rect x="13.33" width="6.67" height="15" fill="#ce1126"/></svg></span> Français</button><button type="button" data-member-lang="es"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#aa151b"/><rect y="3.75" width="20" height="7.5" fill="#f1bf00"/><circle cx="6" cy="7.5" r="2" fill="#aa151b"/></svg></span> Español</button></div>
+      </div>
+      <a class="member-header-giving" href="app.html?view=giving" data-shell-view="giving"><i data-lucide="heart-handshake"></i><span>Give</span></a>
+      <div class="member-shell-account-wrap">
+        <button class="profile-app-account" id="member-account-button" type="button" aria-expanded="false" aria-controls="member-account-menu">
+          <span class="member-notification-icon" aria-hidden="true"><i data-lucide="bell"></i></span>
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=80&h=80&q=80" alt="Sarah Johnson" />
+        </button>
+        <div class="member-account-menu" id="member-account-menu" hidden>
+          <strong>Sarah Johnson</strong>
+          <span>My Way member</span>
+          <a href="app.html?view=messages" data-shell-view="messages"><i data-lucide="messages-square"></i><span>Messages</span><b id="member-message-count">1</b></a>
+          <button type="button" id="member-sign-out"><i data-lucide="log-out"></i> Sign out</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="profile-mobile-menu" id="member-mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false">
+      <i data-lucide="menu"></i>
+    </button>
+  </header>
+
+  <aside class="profile-left-rail member-shell-rail" id="member-shell-rail" aria-label="Main navigation">
+    <nav class="profile-rail-nav">
+      <a href="app.html?view=home" data-shell-view="home"><i data-lucide="layout-grid"></i><span>Home</span></a>
+      <a href="app.html?view=meditation" data-shell-view="meditation"><i data-lucide="sparkles"></i><span>Meditation</span></a>
+      <a href="app.html?view=directory" data-shell-view="directory"><i data-lucide="church"></i><span>Churches</span></a>
+      <a href="app.html?view=channels" data-shell-view="channels"><i data-lucide="podcast"></i><span>Channels</span></a>
+      <a href="app.html?view=events" data-shell-view="events"><i data-lucide="calendar-days"></i><span>Events</span></a>
+      <a href="app.html?view=livestream" data-shell-view="livestream"><i data-lucide="radio"></i><span>Live</span></a>
+      <a href="app.html?view=store" data-shell-view="store"><i data-lucide="shopping-bag"></i><span>Store</span></a>
+      <a href="app.html?view=resources" data-shell-view="resources"><i data-lucide="book-open"></i><span>Resources</span></a>
+    </nav>
+
+    <div class="profile-rail-bottom">
+      <div class="member-mobile-actions" id="member-mobile-actions" aria-label="Account actions"></div>
+      <div class="profile-invite-card">
+        <strong><i data-lucide="sparkles"></i> Invite a friend</strong>
+        <p>Help others find their church home.</p>
+        <button type="button" id="member-send-invite">Send Invite <i data-lucide="arrow-right"></i></button>
+      </div>
+      <nav class="profile-rail-nav profile-rail-utility">
+        <a href="app.html?view=portal" data-shell-view="portal"><i data-lucide="rocket"></i><span>Creator Hub</span></a>
+        <a href="mailto:support@mywayofevangelism.org"><i data-lucide="circle-help"></i><span>Help & Support</span></a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="member-shell-main" id="member-shell-main">
+    <div class="member-shell-loading" id="member-shell-loading" role="status" aria-live="polite">
+      <span></span>
+      <p>Loading your My Way view…</p>
+    </div>
+    <iframe
+      class="member-shell-frame"
+      id="member-shell-frame"
+      title="My Way content"
+      src="about:blank"
+      allow="autoplay; encrypted-media; clipboard-write"
+      allowfullscreen
+    ></iframe>
+  </main>
+
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+</body>
+</html>

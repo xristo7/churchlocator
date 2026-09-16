@@ -52,7 +52,8 @@
     if (open) window.setTimeout(() => modal.querySelector("input")?.focus(), 50);
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
     ["channel-search", "channel-topic", "channel-format", "channel-status"].forEach(id => {
       document.getElementById(id)?.addEventListener(id === "channel-search" ? "input" : "change", render);
     });

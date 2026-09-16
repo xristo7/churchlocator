@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#080d1a" />
+  <title>Spotlight | My Way</title>
+  <link rel="stylesheet" href="styles.css?v=20260916spotlight1" />
+  <link rel="stylesheet" href="spotlight.css?v=20260916spotlight1" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="app.js?v=20260916spotlight1"></script>
+  <script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="spotlight.js?v=20260916spotlight1"></script>
+</head>
+<body class="spotlight-page" data-page="spotlight">
+  <a class="sr-only spotlight-skip" href="#spotlight-feed">Skip to Spotlight content</a>
+  <main class="spotlight-experience" aria-label="Spotlight">
+    <header class="spotlight-local-header">
+      <a class="spotlight-wordmark" href="app.html?view=home" data-spotlight-back>
+        <span class="spotlight-mark"><i data-lucide="sparkles"></i></span>
+        <span><strong>MY WAY</strong><small>SPOTLIGHT</small></span>
+      </a>
+      <div class="spotlight-tabs" role="tablist" aria-label="Spotlight feed">
+        <button type="button" role="tab" aria-selected="true" data-feed-tab="featured">Featured</button>
+        <button type="button" role="tab" aria-selected="false" data-feed-tab="following">Following</button>
+      </div>
+      <div class="spotlight-header-actions">
+        <button type="button" class="spotlight-circle-button" data-sound-toggle aria-label="Turn sound on"><i data-lucide="volume-x"></i></button>
+        <button type="button" class="spotlight-circle-button" data-feed-info aria-label="About Spotlight"><i data-lucide="info"></i></button>
+      </div>
+    </header>
+
+    <section class="spotlight-layout">
+      <div class="spotlight-stage-shell">
+        <div class="spotlight-feed" id="spotlight-feed" tabindex="0" aria-label="Swipe or use arrow keys to explore Spotlight"></div>
+        <nav class="spotlight-desktop-pager" aria-label="Spotlight navigation">
+          <button type="button" data-feed-previous aria-label="Previous Spotlight item"><i data-lucide="chevron-up"></i></button>
+          <button type="button" data-feed-next aria-label="Next Spotlight item"><i data-lucide="chevron-down"></i></button>
+        </nav>
+      </div>
+
+      <aside class="spotlight-inspector" id="spotlight-inspector" aria-label="Spotlight details">
+        <header class="spotlight-inspector-tabs">
+          <button type="button" class="active" data-inspector-tab="comments">Comments</button>
+          <button type="button" data-inspector-tab="details">Details</button>
+          <button type="button" class="spotlight-inspector-close" data-inspector-close aria-label="Close panel"><i data-lucide="x"></i></button>
+        </header>
+        <div class="spotlight-inspector-body" id="spotlight-inspector-body"></div>
+        <form class="spotlight-comment-form" id="spotlight-comment-form">
+          <span class="spotlight-comment-avatar" aria-hidden="true"><i data-lucide="user"></i></span>
+          <label class="sr-only" for="spotlight-comment-input">Share a comment</label>
+          <input id="spotlight-comment-input" name="comment" maxlength="600" placeholder="Share a comment…" autocomplete="off" />
+          <button type="submit" aria-label="Post comment"><i data-lucide="arrow-up"></i></button>
+        </form>
+      </aside>
+    </section>
+  </main>
+
+  <dialog class="spotlight-about" id="spotlight-about">
+    <button type="button" data-about-close aria-label="Close"><i data-lucide="x"></i></button>
+    <span class="spotlight-eyebrow">CURATED WITH CARE</span>
+    <h2>Short stories. Real change.</h2>
+    <p>Discover featured testimonies, ministries, creators, events and evangelism stories making an impact around the world.</p>
+    <ul><li>Swipe vertically or use the arrow keys.</li><li>Long videos play an approved preview first.</li><li>Sponsored features are always clearly labelled.</li></ul>
+  </dialog>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+</body>
+</html>

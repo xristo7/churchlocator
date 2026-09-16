@@ -1,4 +1,5 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
   const form = document.querySelector("[data-creator-account-form]");
   if (!form) return;
   const account = window.MWECreator.account();

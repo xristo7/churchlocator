@@ -858,7 +858,8 @@
     });
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
     // Wire cart drawer removal (required by member-shell test)
     document.getElementById("cart-items")?.addEventListener("click", event => {
       const remove = event.target.closest("[data-remove-cart]");

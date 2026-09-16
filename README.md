@@ -87,7 +87,7 @@ http://127.0.0.1:4173/
 http://127.0.0.1:4173/app.html?view=directory
 http://127.0.0.1:4173/church-portal
 http://127.0.0.1:4173/owner-dashboard
-http://127.0.0.1:4173/livestream.html?id=christ-embassy-edmonton
+http://127.0.0.1:4173/broadcast.html?type=church&id=christ-embassy-edmonton
 ```
 
 The PowerShell static preview does not execute Worker API routes. Use `npm run dev` or deploy to Cloudflare to test `/api/*` routes such as `/api/status`.

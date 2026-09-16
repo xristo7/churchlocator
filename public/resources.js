@@ -55,7 +55,8 @@
     window.lucide?.createIcons();
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
     const topicSelect = document.getElementById("resource-topic");
     [...new Set(data().getResources().map(resource => resource.topic))].sort().forEach(topic => topicSelect.insertAdjacentHTML("beforeend", `<option>${data().escapeHtml(topic)}</option>`));
     ["resource-search", "resource-type", "resource-format", "resource-access", "resource-topic", "resource-sort"].forEach(id => document.getElementById(id)?.addEventListener(id === "resource-search" ? "input" : "change", render));

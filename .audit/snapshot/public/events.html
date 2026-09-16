@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Christian Events Finder | My Way of Evangelism</title>
+    <link rel="stylesheet" href="styles.css?v=20260905module19" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<body data-page="events">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
+      </a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="churches.html">Churches</a>
+          <a href="events.html" class="active">Events</a>
+          <a href="livestream.html">Livestreams</a>
+          <a href="donate.html" class="highlight-link">Donation</a>
+        </nav>
+        <div class="nav-actions">
+          <button type="button" class="topbar-host-btn" onclick="MWE.openHostEventStudio()">
+            <i data-lucide="plus-circle"></i> Host Event
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="module-hero module-directory-hero" id="find-events">
+      <div class="module-shell module-hero-inner">
+        <div class="section-head flex-between" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+          <div>
+            <p class="kicker"><i data-lucide="calendar"></i> Church Events & Outreaches</p>
+            <h2>Search Upcoming Gatherings</h2>
+            <p class="lead">Discover in-person gatherings, conferences, outreach efforts, and streamed virtual services.</p>
+          </div>
+          <div class="hero-actions host-hero-actions" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <button type="button" class="btn-host-event" onclick="MWE.openHostEventStudio()">
+              <i data-lucide="calendar-plus"></i> Host a Workshop / Event
+            </button>
+            <div id="host-auth-status"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="module-shell module-content">
+        <!-- Modern Green Pill-Style Search & Filter Bar -->
+        <div class="site-search-bar">
+          <label class="pill-search-input-wrapper module-search site-search">
+            <i data-lucide="search" class="search-hero-icon"></i>
+            <input class="search-hero-input" id="event-city-input" placeholder="Search events by title, keyword, city, or church..." />
+          </label>
+
+          <div class="filter-pills-row module-filter-group">
+            <!-- Category Pill -->
+            <div class="custom-pill-filter module-filter-control" id="event-cat-pill" data-filter-group="category">
+              <button type="button" class="filter-pill-btn module-filter-trigger" onclick="MWE.toggleFilterPillDropdown(this, event)">
+                <span class="pill-title">Category</span>
+                <span class="pill-badge" style="display: none;">0</span>
+                <i data-lucide="chevron-down" class="pill-arrow"></i>
+              </button>
+              <div class="filter-dropdown-panel">
+                <span class="dropdown-panel-title">Filter by Category</span>
+                <div class="dropdown-options-list">
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="in-person" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">In-Person Gatherings</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="streamed" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Livestreams & Online</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="sunday-services" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Sunday Services</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="workshops" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Workshops & Masterclasses</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="conferences" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Conferences & Revival</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="youth-events" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Youth & Student Rallies</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="prayer-programs" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Prayer & Fasting</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admission Pill -->
+            <div class="custom-pill-filter module-filter-control" id="event-price-pill" data-filter-group="admission">
+              <button type="button" class="filter-pill-btn module-filter-trigger" onclick="MWE.toggleFilterPillDropdown(this, event)">
+                <span class="pill-title">Admission</span>
+                <span class="pill-badge" style="display: none;">0</span>
+                <i data-lucide="chevron-down" class="pill-arrow"></i>
+              </button>
+              <div class="filter-dropdown-panel">
+                <span class="dropdown-panel-title">Filter by Admission</span>
+                <div class="dropdown-options-list">
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="free" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Free Admission</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="checkbox" value="paid" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Ticketed / Paid</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Date Range Pill -->
+            <div class="custom-pill-filter module-filter-control" id="event-time-pill" data-filter-group="timerange">
+              <button type="button" class="filter-pill-btn module-filter-trigger" onclick="MWE.toggleFilterPillDropdown(this, event)">
+                <span class="pill-title">Date Range</span>
+                <span class="pill-badge" style="display: none;">0</span>
+                <i data-lucide="chevron-down" class="pill-arrow"></i>
+              </button>
+              <div class="filter-dropdown-panel">
+                <span class="dropdown-panel-title">Filter by Date Range</span>
+                <div class="dropdown-options-list">
+                  <label class="custom-checkbox-row">
+                    <input type="radio" name="event-time-radio" value="upcoming" checked onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Upcoming Events</span>
+                  </label>
+                  <label class="custom-checkbox-row">
+                    <input type="radio" name="event-time-radio" value="past" onchange="MWE.onEventPillChange()" />
+                    <span class="checkbox-box"><i data-lucide="check"></i></span>
+                    <span class="checkbox-label">Past Events</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reset Button -->
+            <button type="button" class="filter-pill-reset-btn module-filter-trigger module-filter-overflow-only" onclick="MWE.resetEventPillFilters()">
+              <i data-lucide="rotate-ccw"></i> Reset
+            </button>
+          </div>
+        </div>
+
+        <div id="featured-events-wrapper" style="margin-bottom: 32px;">
+          <div class="cards-grid events-grid" id="featured-events-grid"></div>
+        </div>
+
+        <!-- Main Events Listing -->
+        <div>
+          <div class="cards-grid events-grid" id="events-list-grid">
+            <!-- Injected dynamically -->
+          </div>
+          <div class="events-empty-state" id="events-empty-state" style="display: none; text-align: center; padding: 60px 20px; border: 1px dashed var(--line); border-radius: 16px; color: var(--muted); margin-top: 20px;">
+            <i data-lucide="calendar-x" class="empty-icon" style="width: 48px; height: 48px; margin-bottom: 12px; display: inline-block;"></i>
+            <h4>No events found</h4>
+            <p>Try adjusting your search filters or check back later for new event registrations.</p>
+          </div>
+        </div>
+    </section>
+  </main>
+
+  <footer class="platform-footer">
+    <div class="container">
+      <div class="footer-main">
+        <div class="footer-brand-block">
+          <a class="footer-brand" href="/">
+            <span class="footer-brand-mark"><i data-lucide="church"></i></span>
+            <span>My Way of Evangelism</span>
+          </a>
+          <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, services, events, and livestreams near them.</p>
+          <div class="footer-cta-row">
+            <a class="footer-button primary" href="/churches"><i data-lucide="search"></i> Find a Church</a>
+            <a class="footer-button" href="/church-portal"><i data-lucide="log-in"></i> Church Portal</a>
+          </div>
+        </div>
+        <nav class="footer-column" aria-label="Explore">
+          <h2>Explore</h2>
+          <ul class="footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/churches">Church Directory</a></li>
+            <li><a href="/events">Events</a></li>
+            <li><a href="/livestream">Livestreams</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-column" aria-label="Churches">
+          <h2>For Churches</h2>
+          <ul class="footer-links">
+            <li><a href="/church-portal">Register or Sign In</a></li>
+            <li><a href="/owner-dashboard">Owner Dashboard</a></li>
+            <li><a href="/church-portal#events-tab">Manage Events</a></li>
+            <li><a href="/church-portal#livestream">Livestream Setup</a></li>
+          </ul>
+        </nav>
+        <div class="footer-column">
+          <h2>Connect</h2>
+          <div class="footer-contact-card">
+            <div class="footer-contact-row"><i data-lucide="map-pin"></i><span>Serving churches and communities across North America.</span></div>
+            <div class="footer-contact-row"><i data-lucide="shield-check"></i><span>Verified profiles, ministry details, and public church discovery.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 My Way of Evangelism. All rights reserved.</span>
+        <span class="footer-status">Platform online</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Event Detail Modal -->
+  <div class="modal" id="event-detail-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-event-title">Event Details</h3>
+        <button class="close-btn" onclick="MWE.closeEventModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-event-body">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticket Registration Modal -->
+  <div class="modal" id="ticket-reg-modal">
+    <div class="modal-dialog modal-narrow">
+      <div class="modal-header">
+        <h3 id="reg-modal-title">Get Tickets / Register</h3>
+        <button class="close-btn" onclick="MWE.closeRegModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="reg-form-container">
+          <form id="event-registration-form" onsubmit="MWE.handleRegistrationSubmit(event)">
+            <input type="hidden" id="reg-event-id" />
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="reg-full-name">Full Name</label>
+              <input type="text" id="reg-full-name" class="field" required placeholder="Enter your full name" />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="reg-email">Email Address</label>
+              <input type="email" id="reg-email" class="field" required placeholder="name@example.com" />
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label for="reg-quantity">Ticket Quantity</label>
+              <select id="reg-quantity" class="field" onchange="MWE.updateCheckoutPrice()">
+                <option value="1">1 Ticket</option>
+                <option value="2">2 Tickets</option>
+                <option value="3">3 Tickets</option>
+                <option value="4">4 Tickets</option>
+                <option value="5">5 Tickets</option>
+              </select>
+            </div>
+            <div class="price-summary-box" id="checkout-price-box" style="display: none; justify-content: space-between; padding: 12px; background: var(--soft); border-radius: 8px; margin-bottom: 16px; font-weight: 600;">
+              <span>Total Price:</span>
+              <strong id="checkout-total-price">$0.00</strong>
+            </div>
+            <button type="submit" class="button primary block" id="reg-submit-btn" style="width: 100%;">
+              Confirm Registration
+            </button>
+          </form>
+        </div>
+
+        <div id="reg-receipt-container" style="display: none;">
+          <!-- Receipt and Ticket with QR code -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" data-toast>Done</div>
+</body>
+</html>

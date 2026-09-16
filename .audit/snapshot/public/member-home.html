@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Member Home | My Way</title>
+  <link rel="stylesheet" href="styles.css?v=20260901g" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-modules.js?v=20260831"></script>
+  <script defer src="member-home.js?v=20260901"></script>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<body class="module-page member-home-body" data-page="member-home">
+  <main class="module-shell member-home-shell">
+    
+    <!-- Member Welcome Hero Banner -->
+    <section class="member-hero-banner">
+      <div class="member-hero-content">
+        <div class="member-hero-greeting">
+          <span class="member-hero-badge"><i data-lucide="sparkles"></i> Spiritual Hub</span>
+          <h1>Welcome to Your Fellowship, <span class="member-name-highlight">Sarah</span></h1>
+          <p>Explore today's Scripture devotion, active church livestreams, study resources, and Christian creator channels.</p>
+        </div>
+
+        <div class="member-verse-pill">
+          <i data-lucide="sun"></i>
+          <div>
+            <strong>Verse of the Day</strong>
+            <span>“Be still, and know that I am God; I will be exalted among the nations.” — Psalm 46:10</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Launchpad Action Grid -->
+      <div class="member-quick-launchpad">
+        <a href="meditation.html" class="launch-card launch-meditation" data-navigate-view="meditation">
+          <div class="launch-icon"><i data-lucide="sparkles"></i></div>
+          <div class="launch-text">
+            <strong>Meditation Sanctuary</strong>
+            <span>Worship, Audio Bible & Soaking</span>
+          </div>
+          <i data-lucide="arrow-right" class="launch-arrow"></i>
+        </a>
+
+        <a href="churches.html" class="launch-card launch-churches" data-navigate-view="directory">
+          <div class="launch-icon"><i data-lucide="church"></i></div>
+          <div class="launch-text">
+            <strong>Find Churches</strong>
+            <span>150+ Verified Fellowships</span>
+          </div>
+          <i data-lucide="arrow-right" class="launch-arrow"></i>
+        </a>
+
+        <a href="livestream.html" class="launch-card launch-live" data-navigate-view="livestream">
+          <div class="launch-icon"><i data-lucide="radio"></i></div>
+          <div class="launch-text">
+            <strong>Live Broadcasts</strong>
+            <span>Join Active Sunday Worship</span>
+          </div>
+          <i data-lucide="arrow-right" class="launch-arrow"></i>
+        </a>
+
+        <a href="channels.html" class="launch-card launch-channels" data-navigate-view="channels">
+          <div class="launch-icon"><i data-lucide="podcast"></i></div>
+          <div class="launch-text">
+            <strong>Creator Channels</strong>
+            <span>Daily Word, Podcasts & Sermons</span>
+          </div>
+          <i data-lucide="arrow-right" class="launch-arrow"></i>
+        </a>
+
+        <a href="store.html" class="launch-card launch-store" data-navigate-view="store">
+          <div class="launch-icon"><i data-lucide="shopping-bag"></i></div>
+          <div class="launch-text">
+            <strong>My Way Store</strong>
+            <span>Bibles, Communion & Apparel</span>
+          </div>
+          <i data-lucide="arrow-right" class="launch-arrow"></i>
+        </a>
+      </div>
+    </section>
+
+    <!-- Section 1: Active Livestreams & Fellowship Highlights -->
+    <section class="member-section">
+      <div class="member-section-head">
+        <div>
+          <span class="section-kicker"><i data-lucide="radio"></i> Live Now & Upcoming</span>
+          <h2>Virtual Sanctuary Streams</h2>
+        </div>
+        <a href="livestream.html" class="member-see-all" data-navigate-view="livestream">View all streams <i data-lucide="arrow-right"></i></a>
+      </div>
+
+      <div class="member-streams-grid" id="member-streams-grid"></div>
+    </section>
+
+    <!-- Section 2: Meditation Room Showcase Card -->
+    <section class="member-section">
+      <div class="member-meditation-showcase">
+        <div class="med-showcase-copy">
+          <span class="med-showcase-tag"><i data-lucide="sparkles"></i> Spiritual Wellness</span>
+          <h2>Enter the Meditation Sanctuary</h2>
+          <p>Quiet your soul with peace-filled Christian worship, spoken Audio Bibles, soaking instrumental strings, and pastoral preachings.</p>
+          <div class="med-showcase-features">
+            <span><i data-lucide="check"></i> 4 Audio Channels</span>
+            <span><i data-lucide="check"></i> Prayer & Sleep Timers</span>
+            <span><i data-lucide="check"></i> Ambient Sound Mixer</span>
+          </div>
+          <a href="meditation.html" class="button primary lg" data-navigate-view="meditation">
+            <i data-lucide="sparkles"></i> Open Meditation Room
+          </a>
+        </div>
+        <div class="med-showcase-visual">
+          <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=700&q=80" alt="Meditation Sanctuary" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Featured Christian Channels -->
+    <section class="member-section">
+      <div class="member-section-head">
+        <div>
+          <span class="section-kicker"><i data-lucide="podcast"></i> Verified Creators</span>
+          <h2>Inspiring Channels & Podcasts</h2>
+        </div>
+        <a href="channels.html" class="member-see-all" data-navigate-view="channels">Explore all channels <i data-lucide="arrow-right"></i></a>
+      </div>
+
+      <div class="channels-grid" id="member-channels-grid"></div>
+    </section>
+
+    <!-- Section 4: Study Library & Resources -->
+    <section class="member-section">
+      <div class="member-section-head">
+        <div>
+          <span class="section-kicker"><i data-lucide="book-open"></i> Discipleship Tools</span>
+          <h2>Study Guides & E-Books</h2>
+        </div>
+        <a href="resources.html" class="member-see-all" data-navigate-view="resources">Browse library <i data-lucide="arrow-right"></i></a>
+      </div>
+
+      <div class="resources-grid" id="member-resources-grid"></div>
+    </section>
+
+    <!-- Section 5: My Way Store Highlights -->
+    <section class="member-section">
+      <div class="member-section-head">
+        <div>
+          <span class="section-kicker"><i data-lucide="shopping-bag"></i> Kingdom Marketplace</span>
+          <h2>Featured Ministry Essentials</h2>
+        </div>
+        <a href="store.html" class="member-see-all" data-navigate-view="store">Visit Store <i data-lucide="arrow-right"></i></a>
+      </div>
+
+      <div class="store-products-grid" id="member-store-grid"></div>
+    </section>
+
+    <!-- Section 6: Humanitarian Outreach Impact -->
+    <section class="member-section">
+      <div class="member-impact-box">
+        <div>
+          <span class="section-kicker" style="color: var(--primary);"><i data-lucide="heart"></i> Love in Action</span>
+          <h2>Bi-Monthly Humanitarian Relief</h2>
+          <p>Every contribution supports partner orphanages, food drives, and emergency aid with verified video proof.</p>
+        </div>
+        <a href="donate.html" class="button primary" data-navigate-view="giving"><i data-lucide="heart"></i> Support Outreach</a>
+      </div>
+    </section>
+
+  </main>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+</body>
+</html>

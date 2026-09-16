@@ -1,7 +1,8 @@
 (function initializeChannelDetail() {
   const data = () => window.FaithLinkModules;
   const channelId = new URLSearchParams(location.search).get("id");
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
     const channel = data().getChannels().find(item => item.id === channelId);
     const root = document.getElementById("channel-detail");
     if (!channel) {

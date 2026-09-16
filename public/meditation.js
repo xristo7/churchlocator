@@ -1,4 +1,4 @@
-(function initMeditationSanctuary() {
+(async function initMeditationSanctuary() {
 
   const roomSeeds = [
     // 1. Favorite & Featured
@@ -525,6 +525,7 @@
     saveRooms: rooms => localStorage.setItem(roomsKey, JSON.stringify(rooms))
   };
   if (typeof document === "undefined" || !document.body || document.body.hasAttribute("data-admin-workspace")) return;
+  await window.MWEPlatform?.ready;
   const roomsCatalog = getRooms();
   const escape = value => String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
 
@@ -1098,16 +1099,7 @@
   }
 
   function isCurrentHost() {
-    if (!activeRoom) return false;
-    const localOwner = localStorage.getItem("mwe.meditation.owner." + activeRoom.id);
-    if (localOwner && activeRoom.ownerKey && localOwner === activeRoom.ownerKey) return true;
-    if (activeRoom.isLocalHost === true) return true;
-    const creatorAccount = window.MWECreator?.account?.();
-    if (creatorAccount && activeRoom.createdBy && activeRoom.createdBy === creatorAccount.id) return true;
-    if (sessionStorage.getItem("mwe.meditation.host." + activeRoom.id) === "true") return true;
-    // Default seed rooms: platform owner or local test user can act as room creator
-    if (!activeRoom.createdBy && localStorage.getItem("mwe.userLoggedIn") === "true") return true;
-    return false;
+    return !!activeRoom && !!window.MWEPlatform?.canManage('meditation',activeRoom.id);
   }
 
   function setAtmosphereTheme(theme) {
@@ -1938,7 +1930,7 @@
     if (closeBtn) closeBtn.addEventListener("click", () => modal?.close?.());
 
     if (saveBtn) {
-      saveBtn.addEventListener("click", () => {
+      saveBtn.addEventListener("click", async () => {
         if (!activeRoom || !noteText || !noteText.value.trim()) return;
         const key = "mwe.meditation.reflections." + activeRoom.id;
         let notes = [];
@@ -1953,7 +1945,7 @@
           template: activeRoom.template || "timer"
         });
 
-        localStorage.setItem(key, JSON.stringify(notes));
+        try { await window.MWEPrivate.create("reflection", {...notes[0], entityId:activeRoom.id}); } catch(error) { showToast(error.message); return; }
         noteText.value = "";
         renderReflectionList();
         showToast("Reflection note saved to your sanctuary log!");

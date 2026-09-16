@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Livestream | My Way of Evangelism</title>
+    <link rel="stylesheet" href="styles.css?v=20260905module19" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-modules.js?v=20260831"></script>
+  <link rel="stylesheet" href="creator-public.css?v=20260907livestreamplayer1" />
+  <script defer src="creator-data.js?v=20260904"></script>
+  <script defer src="creator-public.js?v=20260907livestreamplayer1"></script>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<body class="live-page" data-page="livestream">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i data-lucide="church"></i></span>
+        <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
+      </a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="topbar-menu-group">
+        <nav class="nav-links">
+          <a href="churches.html">Churches</a>
+          <a href="events.html">Events</a>
+          <a href="livestream.html" class="active">Livestreams</a>
+          <a href="donate.html" class="highlight-link">Donation</a>
+        </nav>
+        <div class="nav-actions">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Multi-View Shell -->
+  <main style="min-height: 100vh; padding-bottom: 60px;">
+    
+    <!-- Section 1: Streams Landing Hub (Directory Mode) -->
+    <section id="streams-landing-view" style="display: none;">
+      <div class="module-hero module-directory-hero">
+        <div class="module-shell module-hero-inner">
+        <div class="section-head">
+          <div>
+            <p class="kicker"><i data-lucide="radio"></i> Broadcast Center</p>
+            <h2>Evangelism Live Channels</h2>
+            <p>Tune in to live Sunday services, Bible study broadcasts, and worship events streaming now.</p>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <div class="module-shell module-content">
+        <div class="site-search-bar">
+          <label class="module-search site-search"><i data-lucide="search"></i><input id="livestream-search" type="search" placeholder="Search churches or broadcasts..." /></label>
+          <select class="module-select" id="livestream-status" aria-label="Broadcast status"><option value="all">All broadcasts</option><option value="live">Live now</option><option value="scheduled">Scheduled</option></select>
+          <select class="module-select" id="livestream-type" aria-label="Broadcast type"><option value="all">All services</option><option value="worship">Worship</option><option value="teaching">Teaching</option><option value="prayer">Prayer</option></select>
+        </div>
+
+        <!-- Active Streams Grid -->
+        <div class="streams-hub-grid" id="active-streams-list">
+          <!-- Injected dynamically -->
+        </div>
+
+        <div class="events-empty-state" id="streams-empty-state" style="display: none; margin-top: 40px;">
+          <i data-lucide="video-off" class="empty-icon" style="width: 48px; height: 48px; margin-bottom: 12px; display: inline-block;"></i>
+          <h4>No active broadcasts found</h4>
+          <p>There are no churches currently streaming live. Check back during service times!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Dedicated Media Player View -->
+    <section id="streams-player-view" style="display: none; padding-top: 70px;">
+      <div class="container" style="padding-bottom: 60px;">
+        <div class="player-layout-grid">
+          <!-- Left Column: Premium Video wrapper and details -->
+          <div>
+            <div class="modern-video-wrapper" style="position: relative;">
+              <iframe id="main-player-iframe" src="" style="width: 100%; height: 100%; border: none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+              
+              <!-- Split-Screen Interactive Stage Guest Window -->
+              <div id="stage-guest-container" class="stage-guest-container" style="display: none;">
+                <div class="stage-guest-header">
+                  <span class="stage-guest-badge"><i data-lucide="mic"></i> <strong id="stage-guest-name">Guest Speaker</strong> (On Stage)</span>
+                  <div class="stage-guest-actions">
+                    <button type="button" class="stage-btn-mute" id="btn-mute-guest" onclick="MWE.toggleGuestMute()" title="Mute Guest"><i data-lucide="mic"></i></button>
+                    <button type="button" class="stage-btn-remove" id="btn-remove-guest" onclick="MWE.removeGuestFromStage()" title="Return to Audience"><i data-lucide="user-minus"></i></button>
+                  </div>
+                </div>
+                <div class="stage-guest-feed">
+                  <img id="stage-guest-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" alt="Guest Speaker on Stage" />
+                  <div class="stage-audio-waves">
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                  <span class="stage-topic-pill" id="stage-topic-pill">Interactive Discussion</span>
+                </div>
+              </div>
+
+              <!-- Video Overlay Badge Layers -->
+              <div class="player-overlay-badge player-overlay-left">
+                <span class="badge live">
+                  <span style="width:6px; height:6px; background:#fff; border-radius:50%; display:inline-block; vertical-align:middle; margin-right:3px;"></span> LIVE
+                </span>
+                <span class="free-broadcast-pill"><i data-lucide="shield-check"></i> Free Broadcast</span>
+              </div>
+              <div class="player-overlay-badge player-overlay-right">
+                <span class="viewer-count-overlay">
+                  <i data-lucide="users"></i> <strong id="player-viewer-count">142</strong> watching
+                </span>
+              </div>
+            </div>
+
+            <!-- Natively rendered stream info (not in cards) - 2 Column Layout -->
+            <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap;">
+              <!-- Left Column: Title, Link, and Description -->
+              <div style="flex: 1; min-width: 280px;">
+                <h2 id="player-stream-title" style="margin: 0 0 8px 0; font-size: 1.6rem; font-weight: 800; color: var(--ink);">Sunday Worship Broadcast</h2>
+                <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                  <a id="player-church-link" href="church-profile.html" style="color: var(--clay); font-weight: 700; text-decoration: none; font-size: 1.05rem; display: inline-flex; align-items: center; gap: 6px;">
+                    <i data-lucide="church"></i> <span id="player-church-name">Church Name</span>
+                  </a>
+                  <span class="free-broadcast-pill"><i data-lucide="unlock"></i> 100% Free · No Checkout</span>
+                </div>
+                <p id="player-stream-desc" style="color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin: 0;">Worship, Word, prayer, and visitor connection</p>
+              </div>
+
+              <!-- Right Column: Interactive Stage & Action Buttons -->
+              <div class="stream-action-buttons" style="display: flex; gap: 10px; flex-shrink: 0; align-items: center; margin-top: 8px; flex-wrap: wrap;">
+                <button type="button" id="btn-request-stage" class="button primary" onclick="MWE.toggleStageRequest()">
+                  <i data-lucide="hand"></i> <span>Request Stage</span>
+                </button>
+                <button type="button" id="btn-toggle-host-panel" class="button ghost" onclick="MWE.toggleHostPanel()" title="Toggle Host & Moderator Controls">
+                  <i data-lucide="sliders"></i> <span>Host Controls</span>
+                </button>
+                <a id="visit-church-btn" class="button ghost">
+                  <i data-lucide="church"></i> Visit Church
+                </a>
+                <button id="share-stream-btn" onclick="shareStreamLink()" class="button ghost">
+                  <i data-lucide="share-2"></i> Share Stream
+                </button>
+              </div>
+            </div>
+
+            <!-- Host Stage Controls & Queue Drawer Panel -->
+            <div id="host-controls-panel" class="host-controls-panel" style="display: none; margin-top: 16px;">
+              <div class="host-panel-header">
+                <div class="host-panel-title">
+                  <i data-lucide="radio"></i>
+                  <strong>Interactive Fellowship & Stage Hosting</strong>
+                </div>
+                <div class="host-session-mode">
+                  <label for="host-session-format"><strong>Format:</strong></label>
+                  <select id="host-session-format" onchange="MWE.changeSessionFormat(this.value)">
+                    <option value="bible-study" selected>📖 Interactive Bible Study</option>
+                    <option value="qa">❓ Audience Q&A & Prayer</option>
+                    <option value="sermon">🎙️ Sermon / Main Service</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="host-queue-container">
+                <div class="host-queue-title">
+                  <span><i data-lucide="users"></i> Audience Stage Requests (<span id="stage-queue-count">2</span>)</span>
+                  <small>Invite guest on screen for live discussion or Q&A</small>
+                </div>
+                <div class="host-queue-list" id="host-queue-list">
+                  <!-- Injected dynamically by MWE.renderStageQueue -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Interactive Tab Aside panel -->
+          <aside class="stream-chat-panel live-sidebar-tabs">
+            <!-- Tab selector header -->
+            <div class="stream-chat-header live-tab-list" role="tablist" style="display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border); background: var(--surface-soft);">
+              <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);"><i class="fa-solid fa-comments text-emerald-600 mr-2"></i>Group Chat</span>
+            </div>
+
+            <!-- Chat Tab -->
+            <section class="live-tab-panel chat-panel active" id="live-chat-panel" role="tabpanel" data-live-tab-panel="chat" style="display: flex; flex-direction: column; height: 100%; min-height: 350px;">
+              <div id="player-chat-box" style="flex-grow: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; font-size: 0.85rem; scroll-behavior: smooth;">
+                <!-- Message list scrolls -->
+              </div>
+              
+              <!-- Typing status indicator -->
+              <div id="chat-typing-indicator" class="chat-typing-indicator hidden">
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-text">Martin is typing</span>
+              </div>
+              
+              <div class="stream-chat-form-container">
+                <form class="stream-chat-form-inner" data-live-chat-form>
+                  <input id="player-chat-input" name="message" required placeholder="Write your message..." class="stream-chat-input-field" />
+                  <button class="stream-chat-send-btn" type="submit"><i data-lucide="send" style="width: 15px; height: 15px;"></i></button>
+                </form>
+              </div>
+            </section>
+          </aside>
+        </div>
+
+        <!-- Floating Lights Toggle FAB -->
+        <button class="floating-lights-btn" id="lights-toggle-btn" onclick="MWE.toggleLights()">
+          <i data-lucide="moon"></i> Turn Off Lights
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="mini-footer">
+    <div class="container">
+      <div class="mini-footer-inner">
+        <a class="mini-footer-brand" href="/">
+          <span class="mini-footer-mark"><i data-lucide="radio"></i></span>
+          <span>My Way of Evangelism</span>
+        </a>
+        <div class="mini-footer-meta">
+          <span>&copy; 2026</span>
+          <span>Livestream experience</span>
+        </div>
+        <nav class="mini-footer-links" aria-label="Quick links">
+          <a href="/churches">Directory</a>
+          <a href="/events">Events</a>
+          <a class="primary" href="/church-portal">Church Portal</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" data-toast>Done</div>
+
+  <!-- Login / Register Modal Popup (Custom centered box with max-width: 320px) -->
+  <div id="login-modal" class="modal-overlay">
+    <div id="login-modal-card" class="modal-card">
+      <!-- Close Button -->
+      <button onclick="closeLoginModal()" style="position: absolute; top: 16px; right: 16px; border: none; background: none; font-size: 1.1rem; color: var(--text-muted); cursor: pointer;">&times;</button>
+      
+      <!-- Modal Tabs -->
+      <div style="display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px;">
+        <button type="button" id="modal-tab-login" class="modal-tab active" onclick="switchModalTab('login')">Sign In</button>
+        <button type="button" id="modal-tab-register" class="modal-tab" onclick="switchModalTab('register')">Register</button>
+      </div>
+
+      <!-- Tab 1: Login Form Panel -->
+      <div id="login-form-panel">
+        <div class="text-center" style="text-align: center; margin-bottom: 16px;">
+          <h3 style="font-size: 1.15rem; font-weight: 900; margin: 0 0 4px 0; font-family: inherit;">Welcome Back</h3>
+          <p style="font-size: 0.72rem; margin: 0; font-family: inherit;">Sign in to watch livestreams</p>
+        </div>
+        
+        <form id="chat-login-form" onsubmit="handleChatLogin(event)" style="display: flex; flex-direction: column; gap: 12px;">
+          <div>
+            <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Email</label>
+            <input type="email" id="login-email" required placeholder="Enter email address" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
+          </div>
+          <div>
+            <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Password</label>
+            <input type="password" required value="password123" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
+          </div>
+          <button type="submit" style="width: 100%; padding: 10px; border-radius: 10px; background: var(--gradient-brand); border: none; color: #ffffff; font-weight: 700; font-size: 0.78rem; cursor: pointer; margin-top: 6px; box-shadow: 0 8px 22px rgba(51, 120, 236, 0.2);">Sign In</button>
+        </form>
+      </div>
+
+      <!-- Tab 2: Register Form Panel -->
+      <div id="register-form-panel" style="display: none;">
+        <div class="text-center" style="text-align: center; margin-bottom: 16px;">
+          <h3 style="font-size: 1.15rem; font-weight: 900; margin: 0 0 4px 0; font-family: inherit;">Create Account</h3>
+          <p style="font-size: 0.72rem; margin: 0; font-family: inherit;">Register to participate in live chats</p>
+        </div>
+        
+        <form id="chat-register-form" onsubmit="handleChatRegister(event)" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Profile Photo Upload -->
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 4px;">
+            <input type="file" id="register-avatar-file" accept="image/*" onchange="previewRegisterAvatar(event)" style="display: none;" />
+            <label for="register-avatar-file" style="cursor: pointer; position: relative; display: block;">
+              <div style="width: 60px; height: 60px; border-radius: 50%; border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--surface-soft); transition: border-color 0.2s;">
+                <img id="register-avatar-preview" style="display: none; width: 100%; height: 100%; object-fit: cover;" />
+                <i class="fa-solid fa-camera" id="register-avatar-icon" style="font-size: 1.1rem; color: var(--text-muted);"></i>
+              </div>
+            </label>
+            <span style="font-size: 9px; margin-top: 4px; font-weight: 600;">Tap to upload avatar</span>
+          </div>
+
+          <div style="display: flex; gap: 8px;">
+            <div style="flex: 1;">
+              <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">First Name</label>
+              <input type="text" id="register-firstname" required placeholder="First name" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Last Name</label>
+              <input type="text" id="register-lastname" required placeholder="Last name" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
+            </div>
+          </div>
+          <div>
+            <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Email</label>
+            <input type="email" id="register-email" required placeholder="Enter email address" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
+          </div>
+          <div>
+            <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Password</label>
+            <input type="password" required placeholder="Create password" value="password123" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
+          </div>
+          <button type="submit" style="width: 100%; padding: 10px; border-radius: 10px; background: var(--gradient-brand); border: none; color: #ffffff; font-weight: 700; font-size: 0.78rem; cursor: pointer; margin-top: 6px; box-shadow: 0 8px 22px rgba(51, 120, 236, 0.2);">Sign Up & Join</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab Toggling (Login vs Register)
+    function switchModalTab(tab) {
+      const loginTab = document.getElementById('modal-tab-login');
+      const registerTab = document.getElementById('modal-tab-register');
+      const loginPanel = document.getElementById('login-form-panel');
+      const registerPanel = document.getElementById('register-form-panel');
+
+      if (tab === 'login') {
+        loginTab.classList.add('active');
+        registerTab.classList.remove('active');
+        loginPanel.style.display = 'block';
+        registerPanel.style.display = 'none';
+      } else {
+        registerTab.classList.add('active');
+        loginTab.classList.remove('active');
+        loginPanel.style.display = 'none';
+        registerPanel.style.display = 'block';
+      }
+    }
+
+    // Avatar preview file reader
+    let uploadedAvatarBase64 = "";
+    function previewRegisterAvatar(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        uploadedAvatarBase64 = event.target.result;
+        const preview = document.getElementById('register-avatar-preview');
+        const icon = document.getElementById('register-avatar-icon');
+        if (preview && icon) {
+          preview.src = uploadedAvatarBase64;
+          preview.style.display = 'block';
+          icon.style.display = 'none';
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Login Modal Handlers
+    function openLoginModal(e) {
+      if (e) e.preventDefault();
+      document.getElementById('login-modal').style.display = 'flex';
+    }
+    function closeLoginModal() {
+      document.getElementById('login-modal').style.display = 'none';
+    }
+
+    // Close on backdrop click
+    document.getElementById('login-modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('login-modal')) {
+        closeLoginModal();
+      }
+    });
+
+    // Unlock stream common logic
+    function unlockStream() {
+      const lockOverlay = document.getElementById('video-lock-overlay');
+      if (lockOverlay) lockOverlay.classList.add('hidden');
+      
+      const iframe = document.getElementById('main-player-iframe');
+      if (iframe) {
+        const originalSrc = iframe.dataset.originalSrc;
+        if (originalSrc) {
+          iframe.src = originalSrc;
+        } else if (iframe.src === "" || iframe.src === "about:blank") {
+          const churchId = localStorage.getItem("mwe.currentChurchId") || "1";
+          const churches = typeof MWE !== "undefined" && typeof MWE.getChurches === "function" ? MWE.getChurches() : [];
+          const church = churches.find(c => String(c.id) === String(churchId)) || { livestream: { url: "https://www.youtube.com/embed/jiSyB8QZzk8?autoplay=1" } };
+          let embedUrl = church.livestream?.url || "https://www.youtube.com/embed/jiSyB8QZzk8?autoplay=1";
+          if (!embedUrl.includes("embed")) {
+            embedUrl = "https://www.youtube.com/embed/jiSyB8QZzk8?autoplay=1";
+          }
+          iframe.src = embedUrl;
+        }
+      }
+    }
+
+    function handleChatLogin(e) {
+      e.preventDefault();
+      const emailInput = document.getElementById('login-email');
+      if (!emailInput || !emailInput.value.trim()) return;
+      
+      const email = emailInput.value.trim();
+      
+      // Derive a user-friendly name display from email
+      const namePrefix = email.split('@')[0];
+      const username = namePrefix.charAt(0).toUpperCase() + namePrefix.slice(1);
+      
+      // Save state
+      localStorage.setItem("mwe.userLoggedIn", "true");
+      localStorage.setItem("mwe.username", username);
+      localStorage.setItem("mwe.email", email);
+      // Remove any previously uploaded avatar to respect default avatars unless they register
+      localStorage.removeItem("mwe.userAvatar");
+      
+      closeLoginModal();
+      checkLoginState();
+      unlockStream();
+      
+      showToastNotification("Signed in successfully as " + email);
+    }
+
+    function handleChatRegister(e) {
+      e.preventDefault();
+      const firstnameInput = document.getElementById('register-firstname');
+      const lastnameInput = document.getElementById('register-lastname');
+      const emailInput = document.getElementById('register-email');
+      if (!firstnameInput || !firstnameInput.value.trim() || !lastnameInput || !lastnameInput.value.trim()) return;
+      
+      const firstname = firstnameInput.value.trim();
+      const lastname = lastnameInput.value.trim();
+      const email = emailInput ? emailInput.value.trim() : "";
+      const username = `${firstname} ${lastname}`;
+      
+      // Save state
+      localStorage.setItem("mwe.userLoggedIn", "true");
+      localStorage.setItem("mwe.username", username);
+      localStorage.setItem("mwe.firstname", firstname);
+      localStorage.setItem("mwe.lastname", lastname);
+      localStorage.setItem("mwe.email", email);
+      if (uploadedAvatarBase64) {
+        localStorage.setItem("mwe.userAvatar", uploadedAvatarBase64);
+      } else {
+        localStorage.removeItem("mwe.userAvatar");
+      }
+      
+      closeLoginModal();
+      checkLoginState();
+      unlockStream();
+      
+      showToastNotification("Registered and signed in as " + username);
+    }
+
+    function showToastNotification(msg) {
+      const toast = document.querySelector('[data-toast]');
+      if (toast) {
+        toast.textContent = msg;
+        toast.classList.add('open');
+        setTimeout(() => toast.classList.remove('open'), 4000);
+      }
+    }
+
+    // Profile Modal Handlers
+    function openProfileModal(e) {
+      if (e) e.preventDefault();
+      
+      const username = localStorage.getItem("mwe.username") || "User";
+      const email = localStorage.getItem("mwe.email") || "user@example.com";
+      const customAvatar = localStorage.getItem("mwe.userAvatar");
+      
+      const nameText = document.getElementById('profile-overview-name');
+      const emailText = document.getElementById('profile-overview-email');
+      const avatarImg = document.getElementById('profile-overview-avatar');
+      const avatarIcon = document.getElementById('profile-overview-icon');
+      
+      if (nameText) nameText.textContent = username;
+      if (emailText) emailText.textContent = email;
+      
+      if (customAvatar) {
+        if (avatarImg) {
+          avatarImg.src = customAvatar;
+          avatarImg.style.display = 'block';
+        }
+        if (avatarIcon) avatarIcon.style.display = 'none';
+      } else {
+        if (avatarImg) avatarImg.style.display = 'none';
+        if (avatarIcon) avatarIcon.style.display = 'block';
+      }
+      
+      document.getElementById('profile-modal').style.display = 'flex';
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profile-modal').style.display = 'none';
+    }
+
+    function handleLogout() {
+      localStorage.removeItem("mwe.userLoggedIn");
+      localStorage.removeItem("mwe.username");
+      localStorage.removeItem("mwe.email");
+      localStorage.removeItem("mwe.userAvatar");
+      
+      closeProfileModal();
+      checkLoginState();
+      
+      // Immediately lock stream video (show overlay on top)
+      const lockOverlay = document.getElementById('video-lock-overlay');
+      if (lockOverlay) lockOverlay.classList.remove('hidden');
+      
+      showToastNotification("Logged out successfully");
+    }
+
+    function checkLoginState() {
+      const isLoggedIn = localStorage.getItem("mwe.userLoggedIn") === "true";
+      const customAvatar = localStorage.getItem("mwe.userAvatar");
+      
+      const loginBtn = document.getElementById('header-login-btn');
+      const badge = document.getElementById('header-user-badge');
+      const avatarImg = document.getElementById('header-user-avatar');
+      const avatarIcon = document.getElementById('header-user-icon');
+      
+      if (isLoggedIn) {
+        if (loginBtn) loginBtn.classList.add('hidden');
+        if (badge) badge.classList.remove('hidden');
+        
+        if (customAvatar) {
+          if (avatarImg) {
+            avatarImg.src = customAvatar;
+            avatarImg.classList.remove('hidden');
+          }
+          if (avatarIcon) avatarIcon.classList.add('hidden');
+        } else {
+          if (avatarImg) avatarImg.classList.add('hidden');
+          if (avatarIcon) avatarIcon.classList.remove('hidden');
+        }
+      } else {
+        if (loginBtn) loginBtn.classList.remove('hidden');
+        if (badge) badge.classList.add('hidden');
+      }
+    }
+
+    // Developer Simulator Helpers
+    function simulateLoginState(loggedIn) {
+      if (loggedIn) {
+        localStorage.setItem("mwe.userLoggedIn", "true");
+        localStorage.setItem("mwe.username", "Ama (Simulated)");
+        localStorage.setItem("mwe.email", "ama.simulated@gmail.com");
+        localStorage.setItem("mwe.userAvatar", "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80");
+        
+        checkLoginState();
+        unlockStream();
+        showToastNotification("Simulated: Logged In");
+      } else {
+        localStorage.removeItem("mwe.userLoggedIn");
+        localStorage.removeItem("mwe.username");
+        localStorage.removeItem("mwe.email");
+        localStorage.removeItem("mwe.userAvatar");
+        
+        checkLoginState();
+        
+        // Immediately lock stream video (show overlay on top)
+        const lockOverlay = document.getElementById('video-lock-overlay');
+        if (lockOverlay) lockOverlay.classList.remove('hidden');
+        
+        showToastNotification("Simulated: Logged Out");
+      }
+    }
+
+    function shareStreamLink() {
+      const shareUrl = window.location.href;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showToastNotification("Livestream link copied to clipboard!");
+      }).catch(err => {
+        const input = document.createElement('input');
+        input.value = shareUrl;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        showToastNotification("Livestream link copied to clipboard!");
+      });
+    }
+
+    // Call on DOM content load
+    document.addEventListener("DOMContentLoaded", () => {
+      checkLoginState();
+      
+      // Close profile modal on backdrop click
+      document.getElementById('profile-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('profile-modal')) {
+          closeProfileModal();
+        }
+      });
+    });
+  </script>
+
+  <!-- Profile Overview Modal Popup (Custom centered box with max-width: 320px) -->
+  <div id="profile-modal" class="modal-overlay">
+    <div id="profile-modal-card" class="modal-card" style="text-align: center;">
+      <!-- Close Button -->
+      <button onclick="closeProfileModal()" style="position: absolute; top: 16px; right: 16px; border: none; background: none; font-size: 1.1rem; color: var(--text-muted); cursor: pointer;">&times;</button>
+      
+      <!-- Profile Header -->
+      <div style="margin-bottom: 20px;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--border); display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: var(--surface-soft); margin-bottom: 12px; margin-left: auto; margin-right: auto;">
+          <img id="profile-overview-avatar" style="display: none; width: 100%; height: 100%; object-fit: cover;" />
+          <i class="fa-solid fa-user text-emerald-600" id="profile-overview-icon" style="font-size: 2.2rem; display: block; margin-top: 10px;"></i>
+        </div>
+        <h3 id="profile-overview-name" style="font-size: 1.2rem; font-weight: 800; margin: 0 0 4px 0; font-family: inherit;">Username</h3>
+        <p id="profile-overview-email" style="font-size: 0.8rem; margin: 0; word-break: break-all; font-family: inherit;">user@example.com</p>
+      </div>
+      
+      <hr />
+      
+      <!-- Action Buttons -->
+      <button onclick="handleLogout()" style="width: 100%; padding: 10px; border-radius: 10px; background: #ef4444; border: none; color: #ffffff; font-weight: 700; font-size: 0.8rem; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2); transition: all 0.2s; margin-top: 20px;">Log Out</button>
+    </div>
+  </div>
+</body>
+</html>

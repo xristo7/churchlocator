@@ -116,7 +116,8 @@
     }).join("");
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
     renderStreams();
     renderChannels();
     renderResources();

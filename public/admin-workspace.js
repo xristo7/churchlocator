@@ -1,6 +1,7 @@
 (function () {
   "use strict";
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
     if (!document.body.hasAttribute("data-admin-workspace")) return;
     const { modules, filterRows, valuesFromEntries } = window.MWEAdmin;
     const creator = document.body.hasAttribute("data-creator-workspace");
@@ -27,7 +28,8 @@
       const entry = (key, label, symbol, number) => '<a class="aw-nav-link" href="#' + key + '"' + (state.view === key ? ' aria-current="page"' : "") + '>' + icon(symbol) + '<span>' + label + '</span>' + (number === undefined ? "" : '<small>' + number + '</small>') + '</a>';
       $("aw-nav").innerHTML = entry("overview", "Overview", "layout-dashboard") + '<p class="aw-nav-label">MANAGE PLATFORM</p>' +
         mainModules().map(([key, mod]) => entry(key, mod.label, mod.icon, count(key))).join("") +
-        (creator ? "" : '<p class="aw-nav-label">OPERATIONS</p>' + entry("locations", "Location coverage", "map-pin") + entry("review", "Needs attention", "list-checks", pending().length));
+        entry("spotlight", "Spotlight", "play-square", window.MWESpotlightWorkspace?.count() || 0) +
+        (creator ? "" : '<p class="aw-nav-label">PLATFORM CONTROL</p>' + entry("platform-options", "Platform options", "list-tree") + '<p class="aw-nav-label">OPERATIONS</p>' + entry("locations", "Location coverage", "map-pin") + entry("review", "Needs attention", "list-checks", pending().length));
     }
     function pending() {
       return ["churches", "channels"].flatMap(key => modules[key].get().filter(r => !r.verified).map(r => ({ key, record: r, reason: key === "churches" ? "Church verification" : "Creator verification" })));
@@ -60,7 +62,7 @@
       const steps = '<div class="aw-steps">' + [
         ["Find the right module", "Open a collection, then search or filter its records."],
         ["Review the essentials", "Check ownership, content, location and access details."],
-        ["Save, then preview", "Review the result in the member experience. Local changes stay on this device."]
+        ["Save, then preview", "Review the result in the member experience. Approved publications appear across the platform."]
       ].map(([title, detail], i) => '<div class="aw-step"><span>' + (i + 1) + '</span><div><strong>' + title + '</strong><p>' + detail + '</p></div></div>').join("") + '</div>';
       $("aw-content").innerHTML = metricsHtml + panel("Your platform modules", "A dedicated space for every part of the community.", cards, '<span class="aw-badge">6 connected modules</span>') +
         '<div class="aw-bottom-grid">' + panel("Needs attention", "Profiles waiting for a verification decision.", queue, link("#review", "View queue " + icon("arrow-right"))) + panel("One consistent workflow", "Less searching. More focused administration.", steps) + '</div>';
@@ -113,11 +115,28 @@
       const rows = pending();
       $("aw-content").innerHTML = panel("Verification queue", rows.length + " profiles to review · verify only after checking ownership and contact details.", rows.length ? rows.map(({ key, record, reason }) => '<div class="aw-queue-row"><span class="aw-record-icon">' + icon(modules[key].icon) + '</span><div><strong>' + esc(modules[key].title(record)) + '</strong><small>' + reason + ' · ' + esc(modules[key].owner(record) || "Owner missing") + '</small></div>' + badge("Pending") + '<button type="button" class="aw-button" data-edit-module="' + key + '" data-edit-id="' + esc(record.id) + '">Review</button></div>').join("") : '<div class="aw-empty"><h3>All profiles reviewed</h3><p>No pending church or channel verification.</p></div>');
     }
+    const taxonomyMeta = [
+      ["denominations", "Denominations", "Used by church profiles and the public church filter."],
+      ["languages", "Languages", "Primary languages available on church profiles."],
+      ["worship_styles", "Worship styles", "Standard worship-style labels for church profiles."],
+      ["store_categories", "Store categories", "Categories used to organize creator storefronts."],
+      ["product_categories", "Product categories", "Categories used to organize marketplace products."],
+      ["channel_topics", "Channel topics", "Topics creators can assign to channels."],
+      ["resource_topics", "Resource topics", "Topics used to organize learning resources."]
+    ];
+    function platformOptions() {
+      const cards = taxonomyMeta.map(([key, title, description]) => {
+        const taxonomy = window.MWEPlatform.taxonomies[key];
+        const rows = (taxonomy?.items || []).map(item => '<div class="aw-taxonomy-row"><input name="item" value="' + esc(item) + '" aria-label="' + esc(title) + ' option" maxlength="80" required /><button class="aw-icon-button" type="button" data-taxonomy-remove aria-label="Remove ' + esc(item) + '">' + icon("trash-2") + '</button></div>').join("");
+        return '<form class="aw-panel aw-taxonomy-card" data-taxonomy-form="' + key + '"><div class="aw-panel-heading"><div><h2>' + title + '</h2><p>' + description + '</p></div><span class="aw-badge">' + (taxonomy?.items.length || 0) + ' options</span></div><div class="aw-taxonomy-list">' + rows + '</div><div class="aw-taxonomy-actions"><button class="aw-button" type="button" data-taxonomy-add>' + icon("plus") + ' Add option</button><button class="aw-button aw-primary" type="submit">Save ' + title.toLowerCase() + '</button></div></form>';
+      }).join("");
+      $("aw-content").innerHTML = '<div class="aw-notice"><strong>One source of truth</strong><p>Changes apply to public filters and new content forms. Existing records keep their saved value until edited.</p></div><div class="aw-taxonomy-grid">' + cards + '</div>';
+    }
     function render() {
       try {
         nav();
         const mod = modules[state.view];
-        const labels = { overview: ["Overview", "A clear view of your community and the content that connects it."], locations: ["Location coverage", "Keep the church directory accurate, connected and easy to discover."], review: ["Needs attention", "A focused queue for church and creator verification."] };
+        const labels = { overview: ["Overview", "A clear view of your community and the content that connects it."], spotlight: ["Spotlight", creator ? "Submit channel content and track every moderation decision." : "Curate, review, schedule and publish the stories shown in Spotlight."], "platform-options": ["Platform options", "Manage the standard choices used across public filters and content forms."], locations: ["Location coverage", "Keep the church directory accurate, connected and easy to discover."], review: ["Needs attention", "A focused queue for church and creator verification."] };
         $("aw-title").textContent = mod?.label || labels[state.view][0];
         if (creator && state.view === "overview") $("aw-title").textContent = "Your creator workspace";
         $("aw-breadcrumb").textContent = $("aw-title").textContent;
@@ -133,12 +152,13 @@
           document.querySelector(".aw-nav-label").textContent = "YOUR MODULES";
         }
         $("aw-heading-actions").innerHTML = mod ? button("new", icon("plus") + " Add " + mod.singular, true) : link(state.view === "overview" ? "#churches" : "#overview", state.view === "overview" ? "Manage churches " + icon("arrow-right") : "Back to overview", "aw-button");
+        if (state.view === "spotlight") $("aw-heading-actions").innerHTML = link("app.html?view=spotlight", "Open Spotlight " + icon("arrow-up-right"), "aw-button");
         document.title = $("aw-title").textContent + " · Admin | My Way";
         if (creator) document.title = $("aw-title").textContent + " | My Way";
         if (creator && state.view === "overview") $("aw-heading-actions").innerHTML = link("app.html?view=home", "Open member app " + icon("arrow-up-right"), "aw-button");
         if (state.view === "store") $("aw-heading-actions").insertAdjacentHTML("afterbegin", link("#products", "Manage products", "aw-button") + " ");
         if (state.view === "products") $("aw-heading-actions").insertAdjacentHTML("afterbegin", link("#store", "Store profiles", "aw-button") + " ");
-        if (mod) list(); else if (state.view === "overview") overview(); else if (state.view === "locations") coverage(); else review();
+        if (mod) list(); else if (state.view === "overview") overview(); else if (state.view === "spotlight") window.MWESpotlightWorkspace?.render({ target: $("aw-content"), creator }); else if (state.view === "platform-options") platformOptions(); else if (state.view === "locations") coverage(); else review();
         drawIcons();
       } catch (error) {
         $("aw-content").innerHTML = '<section class="aw-panel aw-empty"><h3>We couldn’t load the workspace</h3><p>Your existing records have not been reset. Check browser storage availability and reload.</p>' + button("retry", "Try again") + '</section>';
@@ -148,8 +168,8 @@
     function navigate() {
       const requested = location.hash.slice(1) || "overview";
       const aliases = { directory: "churches", editor: "churches", moderation: "review", analytics: "overview" };
-      state.view = modules[requested] || ["overview", "locations", "review"].includes(requested) ? requested : aliases[requested] || "overview";
-      if (creator && ["locations", "review"].includes(state.view)) state.view = "overview";
+      state.view = modules[requested] || ["overview", "spotlight", "platform-options", "locations", "review"].includes(requested) ? requested : aliases[requested] || "overview";
+      if (creator && ["platform-options", "locations", "review"].includes(state.view)) state.view = "overview";
       Object.assign(state, { query: "", status: "", category: "", sort: "name", page: 1 });
       document.body.classList.remove("aw-nav-open");
       $("aw-menu").setAttribute("aria-expanded", "false");
@@ -176,6 +196,7 @@
       if (id && !record) { notice("This record is no longer available."); return; }
       editing = { key, record: record ? JSON.parse(JSON.stringify(record)) : null };
       const data = record ? (mod.flatten ? mod.flatten(record) : record) : mod.defaults();
+      data.publicationState = creator && record?.publicationState === "published" ? "pending" : record?.publicationState || "draft";
       if (creator && !record) {
         const profile = window.MWECreator.account();
         Object.assign(data, { ownerName: profile?.name || "", owner: profile?.name || "", creator: profile?.name || "", email: profile?.email || "" });
@@ -213,14 +234,8 @@
         const record = { ...current, id: current?.id || editing.key + "-" + crypto.randomUUID(), updatedAt: new Date().toISOString() };
         busy = true;
         $("aw-save").disabled = true;
-        const saved = mod.save(record, values);
-        let message = "Saved in this browser. Live platform unchanged.";
-        if (editing.key === "churches" && !creator) {
-          $("aw-save").textContent = "Checking sync…";
-          const synced = await Promise.race([window.MWE.syncAdminChurch(saved), new Promise(resolve => setTimeout(() => resolve(false), 5000))]);
-          if (synced) message = "Church saved and synchronized with the API.";
-          else message = "Church saved locally. Server sync not confirmed.";
-        }
+        const saved = await mod.save(record, values);
+        const message = saved.publicationState === 'published' ? 'Saved and published.' : 'Saved to the server. Publication: ' + saved.publicationState + '.';
         dirty = false;
         busy = false;
         closeEditor();
@@ -253,6 +268,37 @@
       if (action === "prev" || action === "next") { state.page += action === "next" ? 1 : -1; results(); }
       if (action === "clear") { Object.assign(state, { query: "", status: "", category: "", page: 1 }); list(); }
       if (action === "retry") render();
+      const removeOption = event.target.closest("[data-taxonomy-remove]");
+      if (removeOption) {
+        const list = removeOption.closest(".aw-taxonomy-list");
+        if (list.children.length <= 1) return notice("Keep at least one option in each group.");
+        removeOption.closest(".aw-taxonomy-row").remove();
+      }
+      const addOption = event.target.closest("[data-taxonomy-add]");
+      if (addOption) {
+        const list = addOption.closest("form").querySelector(".aw-taxonomy-list");
+        list.insertAdjacentHTML("beforeend", '<div class="aw-taxonomy-row"><input name="item" maxlength="80" required aria-label="New platform option" placeholder="New option" /><button class="aw-icon-button" type="button" data-taxonomy-remove aria-label="Remove option">' + icon("trash-2") + '</button></div>');
+        list.lastElementChild.querySelector("input").focus();
+        drawIcons();
+      }
+    });
+    $("aw-content").addEventListener("submit", async event => {
+      const form = event.target.closest("[data-taxonomy-form]");
+      if (!form) return;
+      event.preventDefault();
+      const button = form.querySelector('[type="submit"]');
+      button.disabled = true;
+      try {
+        const items = [...form.querySelectorAll('[name="item"]')].map(input => input.value.trim());
+        await window.MWEPlatform.saveTaxonomy(form.dataset.taxonomyForm, items);
+        platformOptions();
+        drawIcons();
+        notice("Platform options saved.");
+      } catch (error) {
+        notice(error.message || "Unable to save platform options.");
+      } finally {
+        if (button.isConnected) button.disabled = false;
+      }
     });
     const navBackdrop = document.createElement("button");
     navBackdrop.type = "button";

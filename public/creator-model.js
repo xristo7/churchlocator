@@ -10,7 +10,7 @@
   modules.products.save = (r, v) => {
     const store = root.MWECreator.getStores().find(s => s.id === v.storeId);
     if (v.storeId && !store) throw new Error("Choose an existing store.");
-    if (document.body.hasAttribute("data-creator-workspace") && (!store || store.createdBy !== root.MWECreator.account()?.id)) throw new Error("Create and select your own store before adding products.");
+    if (document.body.hasAttribute("data-creator-workspace") && (!store || (root.MWEPlatform ? !store.canManage : store.createdBy !== root.MWECreator.account()?.id))) throw new Error("Create and select your own store before adding products.");
     return productSave(r, { ...v, seller: store?.name || v.seller });
   };
   modules.store = {
@@ -20,10 +20,10 @@
     detail: r => r.description, category: r => r.category, status: r => r.live ? "Live" : "Offline", statuses: ["Live", "Offline"],
     preview: r => "storefront.html?id=" + encodeURIComponent(r.id),
     groups: () => [
-      { title: "01 · Store profile", fields: [f("name", "Store name", "text", true), f("ownerName", "Store owner", "text", true), f("category", "Category", "select", true, ["Books & resources", "Apparel", "Music", "Gifts", "Church supplies", "General"]), f("description", "About your store", "textarea", true), f("image", "Cover image URL", "url"), f("email", "Contact email", "email", true)] },
+      { title: "01 · Store profile", fields: [f("name", "Store name", "text", true), f("ownerName", "Store owner", "text", true), f("category", "Category", "select", true, root.MWEPlatform?.options?.("store_categories") || ["Books & Resources", "Apparel", "Music", "Gifts", "Church Supplies", "General"]), f("description", "About your store", "textarea", true), f("image", "Cover image URL", "url"), f("email", "Contact email", "email", true)] },
       { title: "02 · Live shopping", fields: [f("liveUrl", "Broadcast URL", "url", false, null, "Add the HTTPS link to your external broadcast. My Way does not capture your camera or host video."), f("live", "Broadcast status", "select", true, booleanOptions)] }
     ],
-    defaults: () => ({ category: "General", live: "false" }),
+    defaults: () => ({ category: root.MWEPlatform?.options?.("store_categories")?.[0] || "General", live: "false" }),
     save(r, v) {
       const saved = { ...r, ...v, live: v.live === true || v.live === "true" };
       if (saved.live && !root.MWECreator.safeLiveUrl(saved.liveUrl)) throw new Error("Add a valid HTTPS broadcast URL before going live.");
@@ -83,7 +83,7 @@
       const current = root.MWECreator.account();
       if (!current || localStorage.getItem("mwe.userLoggedIn") !== "true") throw new Error("Sign in to your account first.");
       const existing = getAll().find(record => record.id === r.id);
-      if (existing && existing.createdBy !== current.id) throw new Error("You can only edit your own records.");
+      if (existing && (root.MWEPlatform ? !existing.canManage : existing.createdBy !== current.id)) throw new Error("You can only edit your own records.");
       const record = { ...r, createdBy: current.id, ownerName: r.ownerName || current.name, createdAt: r.createdAt || new Date().toISOString() };
       if (key === "churches" || key === "channels") values.verified = existing?.verified || false;
       if (key === "churches") values.streamPaid = existing?.livestream?.paid || false;

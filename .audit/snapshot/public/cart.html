@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Cart | My Way Store</title>
+  <link rel="stylesheet" href="styles.css?v=20260901g" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-modules.js?v=20260825"></script>
+  <script defer src="cart.js?v=20260825"></script>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<body class="module-page commerce-page" data-page="cart">
+  <header class="topbar"></header>
+  <main class="module-shell commerce-shell">
+    <div class="commerce-page-head"><div><span class="module-kicker"><i data-lucide="shopping-bag"></i> My Way Store</span><h1>Your cart</h1></div><a href="store.html"><i data-lucide="arrow-left"></i> Continue shopping</a></div>
+    <div class="cart-page-layout">
+      <section class="cart-page-card" aria-labelledby="cart-items-title">
+        <div class="cart-page-title"><h2 id="cart-items-title">Shopping cart</h2><span id="cart-page-count">0 items</span></div>
+        <div id="cart-page-items"></div>
+      </section>
+      <aside class="cart-order-summary">
+        <h2>Order summary</h2>
+        <div class="discount-row"><input id="cart-discount" type="text" placeholder="Discount code" aria-label="Discount code" /><button id="apply-discount" type="button">Apply</button></div>
+        <p class="discount-message" id="discount-message" aria-live="polite"></p>
+        <dl><div><dt>Subtotal</dt><dd id="cart-subtotal">$0.00</dd></div><div><dt>Estimated shipping</dt><dd>Calculated at checkout</dd></div><div><dt>Estimated tax</dt><dd>Calculated at checkout</dd></div><div class="summary-total"><dt>Estimated total</dt><dd id="cart-estimated-total">$0.00 CAD</dd></div></dl>
+        <a class="checkout-primary" id="proceed-checkout" href="checkout.html"><i data-lucide="lock"></i> Check out</a>
+        <div class="checkout-trust"><span><i data-lucide="shield-check"></i> Secure checkout</span><span><i data-lucide="rotate-ccw"></i> 30-day returns</span></div>
+      </aside>
+    </div>
+  </main>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+</body>
+</html>

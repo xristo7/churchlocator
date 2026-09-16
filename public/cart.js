@@ -26,7 +26,8 @@
     window.lucide?.createIcons();
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
     document.addEventListener("click", event => {
       const remove = event.target.closest("[data-cart-remove]");
       const increase = event.target.closest("[data-cart-increase]");

@@ -1,0 +1,130 @@
+:root {
+  --spotlight-canvas: var(--surface-canvas);
+  --spotlight-panel: var(--surface);
+  --spotlight-panel-soft: var(--surface-soft);
+  --spotlight-line: var(--border);
+  --spotlight-copy: var(--text-primary);
+  --spotlight-copy-muted: var(--text-muted);
+  --spotlight-shadow: var(--shadow);
+}
+html, body.spotlight-page { height: 100%; }
+body.spotlight-page { margin: 0; overflow: hidden; background: var(--background); color: var(--text-primary); }
+.spotlight-skip:focus { position: fixed !important; z-index: 999; width: auto !important; height: auto !important; margin: 12px !important; padding: 10px 14px !important; clip: auto !important; color: white; background: var(--primary); border-radius: 10px; }
+.spotlight-experience { min-height: 100%; height: 100%; padding: 18px; background: radial-gradient(circle at 75% 0%, hsla(var(--primary-h), var(--primary-s), var(--primary-l), .20), transparent 36%), var(--background); }
+.spotlight-local-header { height: 58px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 18px; width: min(1040px, 100%); margin: 0 auto 14px; }
+.spotlight-wordmark { display: inline-flex; align-items: center; gap: 10px; width: fit-content; color: var(--text-primary); text-decoration: none; }
+.spotlight-mark { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; color: white; background: var(--primary-gradient); box-shadow: var(--primary-glow); }
+.spotlight-wordmark strong,.spotlight-wordmark small { display: block; line-height: 1; }
+.spotlight-wordmark strong { font: 850 .9rem/1 Inter, sans-serif; letter-spacing: .08em; }
+.spotlight-wordmark small { margin-top: 4px; color: var(--primary); font: 800 .66rem/1 Inter, sans-serif; letter-spacing: .17em; }
+.spotlight-tabs { display: flex; align-items: center; gap: 5px; padding: 4px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); box-shadow: var(--shadow-card); }
+.spotlight-tabs button { min-height: 36px; padding: 0 17px; border: 0; border-radius: 999px; color: var(--text-muted); background: transparent; font: 750 .78rem/1 Inter, sans-serif; cursor: pointer; }
+.spotlight-tabs button[aria-selected="true"] { color: white; background: var(--primary-gradient); box-shadow: var(--primary-glow); }
+.spotlight-header-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.spotlight-circle-button { display: grid; width: 40px; height: 40px; min-height: 40px; place-items: center; border: 1px solid var(--border); border-radius: 50%; color: var(--text-secondary); background: var(--surface); cursor: pointer; }
+.spotlight-circle-button:hover,.spotlight-circle-button:focus-visible { color: var(--primary); border-color: var(--primary-border); box-shadow: 0 0 0 3px var(--primary-soft); }
+.spotlight-layout { display: grid; grid-template-columns: minmax(360px, 480px) minmax(300px, 390px); justify-content: center; gap: 16px; height: calc(100% - 72px); }
+.spotlight-stage-shell,.spotlight-inspector { min-height: 0; border: 1px solid var(--spotlight-line); border-radius: 24px; background: var(--spotlight-canvas); box-shadow: var(--spotlight-shadow); }
+.spotlight-stage-shell { position: relative; overflow: hidden; }
+.spotlight-feed { height: 100%; overflow-y: auto; overscroll-behavior-y: contain; scroll-snap-type: y mandatory; scrollbar-width: none; background: var(--spotlight-canvas); }
+.spotlight-feed::-webkit-scrollbar { display: none; }
+.spotlight-card { position: relative; min-height: 100%; height: 100%; scroll-snap-align: start; scroll-snap-stop: always; overflow: hidden; color: #fff; background: var(--spotlight-canvas); isolation: isolate; }
+.spotlight-card-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; transform: scale(1.01); }
+.spotlight-card.is-active .spotlight-card-media[data-animated="true"] { animation: spotlight-drift 14s ease-in-out infinite alternate; }
+@keyframes spotlight-drift { from { transform: scale(1.01); } to { transform: scale(1.075) translateY(-.75%); } }
+.spotlight-card::after { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, rgba(2,6,23,.22) 0%, transparent 30%, transparent 52%, rgba(2,6,23,.28) 66%, rgba(2,6,23,.92) 100%); pointer-events: none; }
+.spotlight-feature-card::after { background: linear-gradient(180deg, rgba(2,6,23,.10), rgba(2,6,23,.12) 38%, rgba(2,6,23,.90) 88%); }
+.spotlight-card-top { position: absolute; z-index: 2; top: 18px; left: 18px; right: 18px; display: flex; justify-content: space-between; align-items: center; }
+.spotlight-editorial-label { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 11px; border: 1px solid rgba(var(--gold-rgb), .4); border-radius: 999px; color: #fff7dc; background: rgba(var(--gold-rgb), .84); box-shadow: var(--gold-glow); font: 800 .68rem/1 Inter,sans-serif; letter-spacing: .03em; }
+.spotlight-sponsored { color: white; background: rgba(2,6,23,.68); border-color: rgba(255,255,255,.28); box-shadow: none; }
+.spotlight-card-top button { display: grid; width: 40px; height: 40px; min-height: 40px; place-items: center; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; color: white; background: rgba(2,6,23,.36); backdrop-filter: blur(14px); cursor: pointer; }
+.spotlight-copy { position: absolute; z-index: 2; left: 20px; right: 76px; bottom: 23px; }
+.spotlight-identity { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.spotlight-avatar { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; overflow: hidden; border: 2px solid rgba(255,255,255,.88); border-radius: 50%; background: var(--primary-gradient); }
+.spotlight-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.spotlight-identity strong { display: inline-flex; align-items: center; gap: 5px; color: #fff; font-size: .83rem; }
+.spotlight-identity span { display: block; margin-top: 2px; color: var(--spotlight-copy-muted); font-size: .69rem; }
+.spotlight-identity strong svg { width: 15px; height: 15px; color: hsl(var(--primary-h), 100%, 73%); fill: var(--primary); }
+.spotlight-follow { min-height: 32px; margin-left: auto; padding: 0 13px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; color: white; background: var(--primary-gradient); font: 800 .69rem/1 Inter,sans-serif; cursor: pointer; }
+.spotlight-follow.is-active { color: white; background: rgba(2,6,23,.45); box-shadow: none; }
+.spotlight-copy h2 { margin: 0 0 6px; color: white; font: 820 clamp(1.25rem,2.5vw,1.65rem)/1.12 Manrope,Inter,sans-serif; letter-spacing: -.025em; }
+.spotlight-copy p { display: -webkit-box; max-width: 39ch; margin: 0; overflow: hidden; color: rgba(255,255,255,.82); font-size: .78rem; line-height: 1.5; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.spotlight-preview-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+.spotlight-primary-cta { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; gap: 7px; padding: 0 15px; border: 0; border-radius: 999px; color: white; background: var(--primary-gradient); box-shadow: var(--primary-glow); font: 800 .72rem/1 Inter,sans-serif; text-decoration: none; cursor: pointer; }
+.spotlight-preview-meta { color: rgba(255,255,255,.7); font: 700 .66rem/1 Inter,sans-serif; }
+.spotlight-progress { height: 3px; margin-top: 14px; overflow: hidden; border-radius: 3px; background: rgba(255,255,255,.22); }
+.spotlight-progress span { display: block; width: var(--progress, 42%); height: 100%; border-radius: inherit; background: var(--primary-gradient); }
+.spotlight-actions { position: absolute; z-index: 3; right: 12px; bottom: 26px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.spotlight-action { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 48px; border: 0; color: white; background: transparent; font: 750 .62rem/1 Inter,sans-serif; cursor: pointer; text-shadow: 0 1px 5px rgba(0,0,0,.7); }
+.spotlight-action svg { width: 24px; height: 24px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.55)); }
+.spotlight-action.is-active svg { color: hsl(var(--primary-h), 100%, 72%); fill: var(--primary); }
+.spotlight-feature-card .spotlight-copy { right: 20px; }
+.spotlight-feature-card .spotlight-copy h2 { font-size: clamp(1.55rem,3vw,2rem); }
+.spotlight-feature-card .spotlight-actions { display: none; }
+.spotlight-feature-card .spotlight-primary-cta { width: 100%; margin-top: 10px; border-radius: 14px; }
+.spotlight-member-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: rgba(255,255,255,.72); font-size: .68rem; font-weight: 700; }
+.spotlight-member-faces { display: flex; }
+.spotlight-member-faces span { width: 24px; height: 24px; margin-left: -6px; border: 2px solid rgba(2,6,23,.8); border-radius: 50%; background: var(--primary-gradient); }
+.spotlight-member-faces span:first-child { margin-left: 0; }
+.spotlight-desktop-pager { position: absolute; z-index: 6; top: 50%; right: -58px; display: grid; gap: 8px; transform: translateY(-50%); }
+.spotlight-desktop-pager button { display: grid; width: 42px; height: 42px; min-height: 42px; place-items: center; border: 1px solid var(--border); border-radius: 50%; color: var(--text-secondary); background: var(--surface); box-shadow: var(--shadow-card); cursor: pointer; }
+.spotlight-desktop-pager button:hover { color: var(--primary); border-color: var(--primary-border); }
+.spotlight-inspector { display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; color: var(--spotlight-copy); background: var(--spotlight-panel); }
+.spotlight-inspector-tabs { display: flex; align-items: center; min-height: 58px; padding: 0 18px; gap: 20px; border-bottom: 1px solid var(--spotlight-line); }
+.spotlight-inspector-tabs > button { position: relative; align-self: stretch; border: 0; color: var(--spotlight-copy-muted); background: transparent; font: 750 .76rem/1 Inter,sans-serif; cursor: pointer; }
+.spotlight-inspector-tabs > button.active { color: var(--spotlight-copy); }
+.spotlight-inspector-tabs > button.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--primary-gradient); }
+.spotlight-inspector-close { display: none; margin-left: auto; }
+.spotlight-inspector-body { min-height: 0; overflow-y: auto; padding: 4px 20px 20px; }
+.spotlight-comment { display: grid; grid-template-columns: 36px minmax(0,1fr); gap: 11px; padding: 17px 0; border-bottom: 1px solid var(--spotlight-line); }
+.spotlight-comment-avatar { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 50%; color: white; background: var(--primary-gradient); }
+.spotlight-comment strong { font-size: .73rem; }
+.spotlight-comment p { margin: 5px 0 7px; color: var(--spotlight-copy-muted); font-size: .73rem; line-height: 1.45; }
+.spotlight-comment small { color: var(--spotlight-copy-muted); font-size: .62rem; }
+.spotlight-comment-empty { display: grid; min-height: 100%; place-content: center; justify-items: center; padding: 40px 10px; text-align: center; color: var(--spotlight-copy-muted); }
+.spotlight-comment-empty svg { width: 30px; height: 30px; margin-bottom: 10px; color: var(--primary); }
+.spotlight-detail-card { margin-top: 16px; padding: 18px; border: 1px solid var(--spotlight-line); border-radius: 16px; background: var(--spotlight-panel-soft); }
+.spotlight-detail-card h3 { margin: 0 0 8px; color: var(--spotlight-copy); font: 800 1rem/1.2 Manrope,sans-serif; }
+.spotlight-detail-card p { color: var(--spotlight-copy-muted); font-size: .76rem; line-height: 1.55; }
+.spotlight-detail-list { display: grid; gap: 10px; margin-top: 16px; }
+.spotlight-detail-list span { display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid var(--spotlight-line); color: var(--spotlight-copy-muted); font-size: .68rem; }
+.spotlight-detail-list strong { color: var(--spotlight-copy); }
+.spotlight-comment-form { display: grid; grid-template-columns: 36px minmax(0,1fr) 36px; align-items: center; gap: 9px; padding: 14px 16px; border-top: 1px solid var(--spotlight-line); }
+.spotlight-comment-form input { width: 100%; min-width: 0; height: 40px; padding: 0 13px; border: 1px solid var(--spotlight-line); border-radius: 999px; outline: 0; color: var(--spotlight-copy); background: var(--spotlight-panel-soft); font: .72rem Inter,sans-serif; }
+.spotlight-comment-form input::placeholder { color: var(--spotlight-copy-muted); }
+.spotlight-comment-form input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.spotlight-comment-form button { display: grid; width: 36px; height: 36px; min-height: 36px; place-items: center; border: 0; border-radius: 50%; color: white; background: var(--primary-gradient); cursor: pointer; }
+.spotlight-empty,.spotlight-loading { display: grid; height: 100%; place-content: center; justify-items: center; padding: 30px; text-align: center; color: var(--spotlight-copy-muted); }
+.spotlight-empty svg,.spotlight-loading svg { width: 38px; height: 38px; margin-bottom: 12px; color: var(--primary); }
+.spotlight-about { width: min(480px,calc(100% - 28px)); padding: 30px; border: 1px solid var(--border); border-radius: 22px; color: var(--text-primary); background: var(--surface); box-shadow: var(--shadow); }
+.spotlight-about::backdrop { background: rgba(2,6,23,.68); backdrop-filter: blur(8px); }
+.spotlight-about > button { position: absolute; top: 15px; right: 15px; display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid var(--border); border-radius: 50%; color: var(--text-secondary); background: var(--surface-soft); }
+.spotlight-about h2 { margin: 8px 0; font: 820 1.7rem/1.15 Manrope,sans-serif; }
+.spotlight-about p,.spotlight-about li { color: var(--text-secondary); line-height: 1.6; }
+.spotlight-eyebrow { color: var(--primary); font-size: .67rem; font-weight: 850; letter-spacing: .15em; }
+@media (max-width: 1100px) { .spotlight-layout { grid-template-columns: minmax(350px,450px) minmax(280px,340px); } .spotlight-desktop-pager { display: none; } }
+@media (max-width: 760px) {
+  :root { --spotlight-shadow: none; }
+  body.spotlight-page { background: var(--spotlight-canvas); }
+  .spotlight-experience { padding: 0; background: var(--spotlight-canvas); }
+  .spotlight-local-header { position: fixed; z-index: 20; top: max(10px,env(safe-area-inset-top)); left: 10px; right: 10px; width: auto; height: 44px; margin: 0; grid-template-columns: auto 1fr auto; color: white; pointer-events: none; }
+  .spotlight-wordmark,.spotlight-tabs,.spotlight-header-actions { pointer-events: auto; }
+  .spotlight-wordmark span:last-child { display: none; }
+  .spotlight-mark,.spotlight-circle-button { width: 38px; height: 38px; min-height: 38px; color: white; border-color: rgba(255,255,255,.19); background: rgba(2,6,23,.34); box-shadow: none; backdrop-filter: blur(14px); }
+  .spotlight-tabs { justify-self: center; padding: 2px; border-color: rgba(255,255,255,.14); background: rgba(2,6,23,.30); backdrop-filter: blur(14px); box-shadow: none; }
+  .spotlight-tabs button { min-height: 34px; padding: 0 13px; color: rgba(255,255,255,.7); }
+  .spotlight-header-actions [data-feed-info] { display: none; }
+  .spotlight-layout { display: block; height: 100%; }
+  .spotlight-stage-shell { height: 100%; border: 0; border-radius: 0; }
+  .spotlight-card { min-height: 100dvh; height: 100dvh; }
+  .spotlight-card-top { top: max(69px,calc(env(safe-area-inset-top) + 58px)); }
+  .spotlight-copy { left: 16px; right: 72px; bottom: max(24px,calc(env(safe-area-inset-bottom) + 14px)); }
+  .spotlight-actions { right: 7px; bottom: max(26px,calc(env(safe-area-inset-bottom) + 16px)); }
+  .spotlight-inspector { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; height: min(70dvh,620px); border: 0; border-radius: 24px 24px 0 0; transform: translateY(105%); transition: transform .24s ease; box-shadow: 0 -24px 65px rgba(0,0,0,.5); }
+  body.spotlight-panel-open::before { content: ""; position: fixed; z-index: 35; inset: 0; background: rgba(2,6,23,.58); }
+  body.spotlight-panel-open .spotlight-inspector { transform: translateY(0); }
+  .spotlight-inspector-close { display: grid !important; width: 36px; height: 36px; min-height: 36px; place-items: center; }
+  .spotlight-feature-card .spotlight-copy { right: 16px; }
+  .spotlight-primary-cta { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { .spotlight-card-media,.spotlight-card.is-active .spotlight-card-media[data-animated="true"] { animation: none !important; transition: none !important; } .spotlight-feed { scroll-behavior: auto; } }

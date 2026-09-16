@@ -1425,6 +1425,7 @@ const MWE = (() => {
     safeLinkUrl,
     titleCase,
     slugify,
+    normalizeChurch,
     getChurches,
     getChurch,
     upsertChurch,
@@ -1857,7 +1858,7 @@ function initPrivateAppAuth() {
   }
 
   function signIn(target = "overview", account = {}) {
-    if (app === "owner") { showToast("Owner access requires server-configured administrator authorization."); return; }
+    if (app === "owner" && window.MWEPlatform?.role !== 'owner') { showToast("Owner access requires a verified owner account and MFA."); return; }
     localStorage.setItem(key, "authenticated");
     localStorage.setItem("mwe.userLoggedIn", "true");
     document.body.classList.add("is-authenticated");
@@ -1887,12 +1888,11 @@ function initPrivateAppAuth() {
   document.querySelector("[data-login-form]")?.addEventListener("submit", async event => {
     event.preventDefault();
     const form = event.currentTarget;
-    if (app === "owner") { showToast("Owner access requires server-configured administrator authorization."); return; }
     if (!form.reportValidity() || !window.MWEAuth) return;
     const email = form.querySelector("input[type='text'],input[type='email']")?.value || "";
     const password = form.querySelector("input[type='password']")?.value || "";
     let result = await window.MWEAuth.login(email, password);
-    if (result.ok && !result.user.isCreator) result = await window.MWEAuth.creatorUpgrade();
+    if (result.ok && app !== 'owner' && !result.user.isCreator) result = await window.MWEAuth.creatorUpgrade();
     if (!result.ok) { showToast(result.error || "Sign-in failed."); return; }
     form.reset();
     signIn("overview", result.user);
@@ -2257,6 +2257,19 @@ function initPublicSite() {
     if (window.lucide) window.lucide.createIcons();
   }
 
+  const denominationOptionsContainer = document.getElementById("church-denomination-options-list");
+  if (denominationOptionsContainer) {
+    const denominations = window.MWEPlatform?.options?.("denominations") || ["Christ Embassy", "New Generation", "Pentecostal", "Full Gospel", "Charismatic", "Baptist", "Catholic", "Anglican", "Presbyterian", "Protestant"];
+    denominationOptionsContainer.innerHTML = denominations.map(item => `
+      <label class="custom-checkbox-row">
+        <input type="checkbox" value="${MWE.escapeHtml(item)}" onchange="MWE.onChurchPillChange()" />
+        <span class="checkbox-box"><i data-lucide="check"></i></span>
+        <span class="checkbox-label">${MWE.escapeHtml(item)}</span>
+      </label>
+    `).join("");
+    if (window.lucide) window.lucide.createIcons();
+  }
+
   function render() {
     if (!grid) return;
     const q = (search?.value || "").toLowerCase().trim();
@@ -2270,7 +2283,7 @@ function initPublicSite() {
       
       const countryMatch = selectedCountries.length === 0 || selectedCountries.some(c => (church.country || "").toLowerCase().includes(c));
       const cityMatch = selectedCities.length === 0 || selectedCities.includes(church.city.toLowerCase());
-      const denomMatch = selectedDenoms.length === 0 || selectedDenoms.some(d => (church.denomination || "").toLowerCase().includes(d));
+      const denomMatch = selectedDenoms.length === 0 || selectedDenoms.includes((church.denomination || "").toLowerCase());
 
       return (!q || haystack.includes(q)) && countryMatch && cityMatch && denomMatch;
     });
@@ -3469,15 +3482,15 @@ function initLivestreamPage() {
   const landing = document.getElementById("streams-landing-view");
   const player = document.getElementById("streams-player-view");
 
-  if (!id) {
-    if (landing) landing.style.display = "block";
-    if (player) player.style.display = "none";
-    initStreamsPage();
+  if (id) {
+    window.location.replace(`broadcast.html?type=church&id=${encodeURIComponent(id)}`);
     return;
   }
 
-  if (landing) landing.style.display = "none";
-  if (player) player.style.display = "block";
+  if (landing) landing.style.display = "block";
+  if (player) player.style.display = "none";
+  initStreamsPage();
+  return;
 
   const church = MWE.getChurch(id);
   if (!church) {
@@ -3683,7 +3696,7 @@ function initChurchPortal() {
           <div class="tag-row">${church.ministries.slice(0, 5).map(item => `<span class="tag">${MWE.escapeHtml(item)}</span>`).join("")}</div>
           <div class="card-actions">
             <a class="button primary small" href="church-profile.html?id=${encodeURIComponent(church.id)}">Public profile</a>
-            <a class="button ghost small" href="livestream.html?id=${encodeURIComponent(church.id)}">Livestream</a>
+            <a class="button ghost small" href="broadcast.html?type=church&id=${encodeURIComponent(church.id)}">Livestream</a>
           </div>
         </div>
       </div>
@@ -4584,7 +4597,7 @@ function renderHomepageSections() {
             <div class="stream-card-body">
               <strong>${MWE.escapeHtml(c.name)}</strong>
               <span>${MWE.escapeHtml(c.denomination || 'Christian Church')} • ${MWE.escapeHtml(c.city)}</span>
-              <a href="livestream.html?id=${encodeURIComponent(c.id)}" class="stream-join-btn"><i data-lucide="radio"></i> Watch Stream</a>
+              <a href="broadcast.html?type=church&id=${encodeURIComponent(c.id)}" class="stream-join-btn"><i data-lucide="radio"></i> Watch Stream</a>
             </div>
           </div>
         `;
@@ -4916,7 +4929,8 @@ MWE.handleNavDropdownAuthSubmit = async function(event) {
 };
 
 MWE.handleGoogleAuthFast = async function() {
-  showToast("Google sign-in is not configured. Please sign in with your email and password.");
+  const next = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  window.location.assign(`/api/auth/google/start?next=${encodeURIComponent(next)}`);
 };
 
 document.addEventListener("click", function(event) {
@@ -7058,6 +7072,10 @@ let chatTypingTimeout = null;
 let videoLockTimeout = null;
 
 MWE.openLivePlayer = function(churchId) {
+  if (churchId) {
+    window.location.href = `broadcast.html?type=church&id=${encodeURIComponent(churchId)}`;
+    return;
+  }
   const shellRoute = { view: "livestream", id: churchId || "", q: "" };
   if (!MWE.isMemberShellEmbed() && !MWE.isMemberAuthenticated()) {
     MWE.openMemberLogin(MWE.buildMemberShellUrl(shellRoute));
@@ -7477,7 +7495,7 @@ function initStreamsPage() {
     const isLive = c.livestream?.enabled === true || c.livestream?.enabled === "true";
 
     return `
-      <a href="livestream.html?id=${encodeURIComponent(c.id)}" class="livestream-card-16-9 ${isLive ? 'is-live' : ''}" style="background-image: url('${MWE.escapeHtml(photo)}');">
+      <a href="broadcast.html?type=church&id=${encodeURIComponent(c.id)}" class="livestream-card-16-9 ${isLive ? 'is-live' : ''}" style="background-image: url('${MWE.escapeHtml(photo)}');">
         <div class="livestream-card-overlay"></div>
         
         <div class="livestream-card-top">
@@ -7635,7 +7653,7 @@ MWE.openRideModal = function(preferredService = "Sunday 10:00 AM Service", targe
   createIcons();
 };
 
-MWE.handleRideSubmit = function(e) {
+MWE.handleRideSubmit = async function(e) {
   e.preventDefault();
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
@@ -7664,7 +7682,7 @@ MWE.handleRideSubmit = function(e) {
     createdAt: new Date().toISOString()
   };
   rides.push(newRide);
-  localStorage.setItem("mwe.ride_requests", JSON.stringify(rides));
+  try { await window.MWEPrivate.write("ride", rides); } catch (error) { showToast(error.message); return; }
   
   const backdrop = document.getElementById("ride-modal-backdrop");
   if (backdrop) backdrop.remove();
@@ -7673,7 +7691,7 @@ MWE.handleRideSubmit = function(e) {
   MWE.openRideConfirmationModal(newRide.id);
 };
 
-MWE.confirmRideStage1 = function(id) {
+MWE.confirmRideStage1 = async function(id) {
   let rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
   let updatedRide = null;
   rides = rides.map(r => {
@@ -7683,7 +7701,7 @@ MWE.confirmRideStage1 = function(id) {
     }
     return r;
   });
-  localStorage.setItem("mwe.ride_requests", JSON.stringify(rides));
+  try { await window.MWEPrivate.write("ride", rides); } catch (error) { showToast(error.message); return; }
   showToast("Stage 1 Confirmed: Availability check completed via phone/text!");
 
   const modalContainer = document.getElementById("ride-confirmation-modal");
@@ -7697,7 +7715,7 @@ MWE.confirmRideStage1 = function(id) {
   }
 };
 
-MWE.confirmRideSchedule = function(id, driverName = "Deacon Mark (Church Van #1)", timeWindow = "Sunday 9:15 AM - 9:30 AM") {
+MWE.confirmRideSchedule = async function(id, driverName = "Deacon Mark (Church Van #1)", timeWindow = "Sunday 9:15 AM - 9:30 AM") {
   let rides = JSON.parse(localStorage.getItem("mwe.ride_requests") || "[]");
   let updatedRide = null;
   rides = rides.map(r => {
@@ -7715,7 +7733,7 @@ MWE.confirmRideSchedule = function(id, driverName = "Deacon Mark (Church Van #1)
     }
     return r;
   });
-  localStorage.setItem("mwe.ride_requests", JSON.stringify(rides));
+  try { await window.MWEPrivate.write("ride", rides); } catch (error) { showToast(error.message); return; }
   showToast(`Stage 2 Complete: Ride schedule confirmed with ${driverName}!`);
 
   const modalContainer = document.getElementById("ride-confirmation-modal");
@@ -7976,14 +7994,14 @@ MWE.onVisitChurchChange = function(churchId) {
   }
 };
 
-MWE.handleGlobalVisitSubmit = function(e) {
+MWE.handleGlobalVisitSubmit = async function(e) {
   e.preventDefault();
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
   const interests = Array.from(form.querySelectorAll("input[name='interests']:checked")).map(cb => cb.value);
   const churches = MWE.getChurches();
   const church = churches.find(c => c.id === data.churchId) || churches[0];
-  const passCode = "PASS-" + Math.random().toString(36).substring(2, 9).toUpperCase();
+  const passCode = "REQUEST-" + crypto.randomUUID().slice(0,8).toUpperCase();
 
   const visitRequests = JSON.parse(localStorage.getItem("mwe.visit_requests") || "[]");
   visitRequests.push({
@@ -7999,7 +8017,7 @@ MWE.handleGlobalVisitSubmit = function(e) {
     passCode,
     createdAt: new Date().toISOString()
   });
-  localStorage.setItem("mwe.visit_requests", JSON.stringify(visitRequests));
+  try { await window.MWEPrivate.write("visit", visitRequests); } catch (error) { showToast(error.message); return; }
 
   const container = document.getElementById("modal-visit-form-container");
   if (container) {
@@ -8008,7 +8026,7 @@ MWE.handleGlobalVisitSubmit = function(e) {
         <div style="width:60px; height:60px; border-radius:50%; background:#10b981; color:#fff; display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto; font-size:1.6rem;">
           <i data-lucide="check"></i>
         </div>
-        <h3 style="font-size:1.3rem; font-weight:800; color:#0f172a; margin:0 0 6px 0;">Visit Pass Confirmed!</h3>
+        <h3 style="font-size:1.3rem; font-weight:800; color:#0f172a; margin:0 0 6px 0;">Visit request received!</h3>
         <p style="font-size:0.88rem; color:#64748b; max-width:420px; margin:0 auto 16px auto;">
           We're thrilled to welcome you to <strong>${MWE.escapeHtml(church.name)}</strong> for <strong>${MWE.escapeHtml(data.gathering)}</strong>.
         </p>
@@ -8088,7 +8106,7 @@ MWE.openPrayerModal = function(targetChurchId = "") {
   createIcons();
 };
 
-MWE.handlePrayerSubmit = function(e) {
+MWE.handlePrayerSubmit = async function(e) {
   e.preventDefault();
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
@@ -8108,7 +8126,7 @@ MWE.handlePrayerSubmit = function(e) {
     status: "new",
     createdAt: new Date().toISOString()
   });
-  localStorage.setItem("mwe.prayer_requests", JSON.stringify(prayers));
+  try { await window.MWEPrivate.write("prayer", prayers); } catch (error) { showToast(error.message); return; }
 
   const backdrop = document.getElementById("prayer-modal-backdrop");
   if (backdrop) backdrop.remove();
@@ -8172,7 +8190,7 @@ MWE.openSalvationModal = function(targetChurchId = "") {
   createIcons();
 };
 
-MWE.handleSalvationSubmit = function(e) {
+MWE.handleSalvationSubmit = async function(e) {
   e.preventDefault();
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
@@ -8194,7 +8212,7 @@ MWE.handleSalvationSubmit = function(e) {
     assignedTo: "Unassigned",
     createdAt: new Date().toISOString()
   });
-  localStorage.setItem("mwe.salvation_decisions", JSON.stringify(salvations));
+  try { await window.MWEPrivate.write("salvation", salvations); } catch (error) { showToast(error.message); return; }
 
   const backdrop = document.getElementById("salvation-modal-backdrop");
   if (backdrop) backdrop.remove();
@@ -8202,31 +8220,6 @@ MWE.handleSalvationSubmit = function(e) {
   showToast(`Praise God! Your decision has been routed to ${targetChurch.name} for follow-up.`);
 };
 
-MWE.handleSalvationSubmit = function(e) {
-  e.preventDefault();
-  const form = e.target;
-  const data = Object.fromEntries(new FormData(form));
-
-  const salvations = JSON.parse(localStorage.getItem("mwe.salvation_decisions") || "[]");
-  salvations.push({
-    id: "salv-" + Date.now(),
-    fullName: data.fullName,
-    phone: data.phone,
-    email: data.email,
-    cityCountry: data.cityCountry,
-    needBible: Boolean(data.needBible),
-    needPrayer: Boolean(data.needPrayer),
-    wantJoinChurch: Boolean(data.wantJoinChurch),
-    needTransportation: Boolean(data.needTransportation),
-    createdAt: new Date().toISOString()
-  });
-  localStorage.setItem("mwe.salvation_decisions", JSON.stringify(salvations));
-
-  const backdrop = document.getElementById("salvation-modal-backdrop");
-  if (backdrop) backdrop.remove();
-
-  showToast("Praise God for your decision! An evangelism leader will contact you with your free Bible.");
-};
 
 MWE.openFoundationAppModal = function() {
   const backdrop = document.createElement("div");
@@ -8278,7 +8271,7 @@ MWE.openFoundationAppModal = function() {
   createIcons();
 };
 
-MWE.handleFoundationAppSubmit = function(e) {
+MWE.handleFoundationAppSubmit = async function(e) {
   e.preventDefault();
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
@@ -8297,12 +8290,12 @@ MWE.handleFoundationAppSubmit = function(e) {
     status: "pending",
     createdAt: new Date().toISOString()
   });
-  localStorage.setItem("mwe.foundation_apps", JSON.stringify(apps));
+  try { await window.MWEPrivate.write("foundation", apps); } catch (error) { showToast(error.message); return; }
 
   const backdrop = document.getElementById("foundation-modal-backdrop");
   if (backdrop) backdrop.remove();
 
-  showToast("Application submitted successfully! Our super-admin team will review your organization details.");
+  showToast("Application saved privately to your account.");
 };
 
 MWE.openYouthModal = function() {
@@ -8713,7 +8706,8 @@ function initLivestreamDirectoryFilters() {
   new MutationObserver(apply).observe(list, { childList: true });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
   const memberExperienceState = MWE.initMemberExperience();
   if (memberExperienceState === "redirecting" || memberExperienceState === "locked") return;
 
@@ -9949,5 +9943,3 @@ MWE.promptEventAnnouncement = function(eventId) {
     if (typeof showToast === "function") showToast("Announcement broadcasted to all registered attendees!");
   }
 };
-
-

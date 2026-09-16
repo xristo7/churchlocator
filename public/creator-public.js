@@ -1,7 +1,7 @@
 (function () {
   const esc = value => window.MWE.escapeHtml(value);
   const safe = value => window.MWECreator.safeLiveUrl(value);
-  const broadcastLink = (type, id) => "broadcast.html?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id);
+  const broadcastLink = (type, id) => "broadcast.html?type=" + encodeURIComponent(type || "church") + "&id=" + encodeURIComponent(id);
   function image(url, alt) { return safe(url) ? '<img src="' + esc(url) + '" alt="' + esc(alt) + '" loading="lazy">' : ""; }
   function thumbnail(stream) {
     const liveUrl = safe(stream.url);
@@ -60,7 +60,8 @@
       target.innerHTML = '<a href="store.html">← All stores</a><h1>' + esc(store.name) + '</h1><p>' + esc(store.description) + '</p><div class="creator-store-actions">' + (store.live && safe(store.liveUrl) ? '<a class="button primary" href="' + broadcastLink("store", store.id) + '">Watch live shopping</a>' : "") + '</div><h2>Products</h2>' + (products.length ? '<div class="creator-store-cards">' + products.map(p => '<a class="creator-store-card" href="product-detail.html?id=' + encodeURIComponent(p.id) + '">' + image(p.image, p.title) + '<div><h3>' + esc(p.title) + '</h3><p>' + esc(window.FaithLinkModules.money(p.price)) + '</p></div></a>').join("") + '</div>' : '<p>No published products yet.</p>');
       return;
     }
-    const stream = window.MWECreator.broadcasts().find(s => s.id === id && s.type === params.get("type"));
+    const requestedType = params.get("type");
+    const stream = window.MWECreator.broadcasts().find(s => s.id === id && (!requestedType || s.type === requestedType));
     if (!stream) { target.innerHTML = '<h1>This broadcast is offline</h1><p>The creator may have ended their broadcast.</p><a href="livestream.html">Explore live broadcasts</a>'; return; }
     document.title = stream.name + " · Live | My Way";
     const url = new URL(safe(stream.url));
@@ -73,13 +74,19 @@
       if (vimeoId) embed = "https://player.vimeo.com/video/" + vimeoId;
     }
     const description = stream.description || ("Live " + stream.type + " broadcast");
+    const profile = stream.type === "church"
+      ? { url: "church-profile.html?id=" + encodeURIComponent(stream.id), icon: "church", label: "Visit church" }
+      : stream.type === "store"
+        ? { url: "storefront.html?id=" + encodeURIComponent(stream.id), icon: "shopping-bag", label: "Shop this store" }
+        : { url: "channel-detail.html?id=" + encodeURIComponent(stream.id), icon: "radio", label: "Visit channel" };
+    const profileAction = '<a class="button primary" href="' + profile.url + '"><i data-lucide="' + profile.icon + '"></i> ' + profile.label + '</a>';
     const player = embed
       ? '<iframe class="creator-live-player" title="' + esc(stream.name) + ' broadcast" src="' + esc(embed) + '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>'
-      : '<div class="broadcast-player-fallback" style="background-image:url(&quot;' + esc(thumbnail(stream)) + '&quot;)"><span aria-hidden="true"></span><a target="_blank" rel="noopener noreferrer" href="' + esc(url.href) + '"><i data-lucide="play"></i><b>Play livestream</b></a></div>';
+      : '<div class="broadcast-player-fallback" style="background-image:url(&quot;' + esc(thumbnail(stream)) + '&quot;)"><span aria-hidden="true"></span><a href="' + profile.url + '"><i data-lucide="' + profile.icon + '"></i><b>' + profile.label + '</b></a></div>';
     target.innerHTML = '<a class="broadcast-back-link" href="livestream.html"><i data-lucide="arrow-left"></i> All live broadcasts</a>' +
-      '<div class="broadcast-watch-layout"><section class="broadcast-main-column">' + player +
+      '<div class="broadcast-watch-layout"><section class="broadcast-main-column"><div class="broadcast-player-shell">' + player + '<button class="broadcast-share-overlay" type="button" id="broadcast-share" aria-label="Share this livestream"><i data-lucide="share-2"></i><span>Share</span></button></div>' +
       '<div class="broadcast-details"><div><span class="broadcast-live-label"><i data-lucide="radio"></i> Live now</span><h1>' + esc(stream.name) + '</h1><p>' + esc(description) + '</p></div>' +
-      '<div class="creator-store-actions"><a class="button primary" target="_blank" rel="noopener noreferrer" href="' + esc(url.href) + '"><i data-lucide="external-link"></i> Open provider</a>' + (stream.type === "store" ? '<a class="button ghost" href="storefront.html?id=' + encodeURIComponent(stream.id) + '">Shop this store</a>' : "") + '</div></div></section>' +
+      (embed ? '<div class="creator-store-actions">' + profileAction + '</div>' : '') + '</div></section>' +
       '<aside class="broadcast-chat" aria-label="Livestream chat"><header><div><span class="broadcast-live-dot"></span><strong>Live chat</strong></div><small>Community conversation</small></header>' +
       '<div class="broadcast-chat-messages" id="broadcast-chat-messages" aria-live="polite"><article><b>Host</b><p>Welcome to the livestream. Tell us where you are joining from.</p></article><article><b>Sarah</b><p>Glad to worship with everyone today!</p></article><article><b>Daniel</b><p>Watching with my family. Blessings to all.</p></article></div>' +
       '<form class="broadcast-chat-form" id="broadcast-chat-form"><label class="sr-only" for="broadcast-chat-input">Chat message</label><input id="broadcast-chat-input" maxlength="300" required placeholder="Write a message…"><button type="submit" aria-label="Send message"><i data-lucide="send"></i></button></form></aside></div>';
@@ -99,9 +106,21 @@
       input.value = "";
       article.scrollIntoView({ block: "nearest" });
     });
+    target.querySelector("#broadcast-share")?.addEventListener("click", async () => {
+      try {
+        if (navigator.share) await navigator.share({ title: document.title, url: location.href });
+        else {
+          await navigator.clipboard.writeText(location.href);
+          window.MWE.showToast?.("Livestream link copied");
+        }
+      } catch (error) {
+        if (error?.name !== "AbortError") window.MWE.showToast?.("Unable to share this livestream");
+      }
+    });
     window.lucide?.createIcons();
   }
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+  await window.MWEPlatform?.ready;
     liveDirectory();
     publicPage();
     if (document.body.dataset.page === "store") {
