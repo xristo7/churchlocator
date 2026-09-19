@@ -1,1 +1,419 @@
-!function(t){"use strict";const e="faithlink.store.cart.v1",r="faithlink.store.orders.v1";let a=[],n=[],o=[],s=Object.create(null),i="USD",c=null,u=!1;function l(){return t.MWEPlatform}function d(){return t.FaithLinkModules}function m(t){const e=String(t||"").toLowerCase();return"published"===e||"active"===e?"Active":"draft"===e||"pending"===e?"Draft":"archived"===e?"Archived":t||"Draft"}function p(t){const e=String(t||"").toLowerCase();return"active"===e||"published"===e?"published":"archived"===e?"archived":"pending"===e?"pending":"draft"}function y(t){if(!t||"object"!=typeof t)return null;const e=null!=t.priceCents?Number(t.priceCents)/100:null!=t.price?Number(t.price):0,r=null!=t.compareAtCents?Number(t.compareAtCents)/100:null!=t.compareAt?Number(t.compareAt):0,a=null!=t.stockQty?Number(t.stockQty):null!=t.inventory?Number(t.inventory):0,n=t.kind||t.itemType||"product",o=t.currency||i;return t.currency&&(i=t.currency),{id:t.id,sellerId:t.sellerId||"",seller:t.sellerName||t.seller||"Seller",sellerName:t.sellerName||t.seller||"Seller",sellerType:t.sellerType||"",category:t.category||"",featured:Boolean(t.featured),rating:Number(t.rating||0),title:t.title||"Untitled",slug:t.slug||"",description:t.description||"",image:t.imageUrl||t.image||"",imageUrl:t.imageUrl||t.image||"",currency:o,price:e,priceCents:null!=t.priceCents?Number(t.priceCents):Math.round(100*e),compareAt:r,compareAtCents:null!=t.compareAtCents?Number(t.compareAtCents):r?Math.round(100*r):null,inventory:a,stockQty:a,inventoryTracked:null==t.inventoryTracked||Boolean(t.inventoryTracked),status:m(t.status),apiStatus:String(t.status||"").toLowerCase()||p(t.status),kind:n,itemType:"service"===n?"service":"product",createdAt:t.createdAt,updatedAt:t.updatedAt}}async function f(t,e,r){const a=l();if(!a?.api){const t=new Error("Platform API unavailable.");throw t.status=503,t}try{return await a.api(t,e,r)}catch(t){throw t.status=t.status||0,t}}function g(){try{const t=JSON.parse(localStorage.getItem(e)||"[]");return Array.isArray(t)?t:[]}catch{return[]}}function h(t){const r=(Array.isArray(t)?t:[]).map(t=>({id:t.id,quantity:Number(t.quantity)||0})).filter(t=>t.quantity>0);return localStorage.setItem(e,JSON.stringify(r)),o=r,o}function b(){return d()?.getCart?(o=d().getCart().map(t=>({id:t.id,quantity:Number(t.quantity)||0})),o):h(g())}function v(t){const e=t?.items||[];return s=Object.create(null),o=e.map(t=>{const e=t.productId||t.id;return t.id&&e&&(s[e]=t.id),t.currency&&(i=t.currency),{id:e,quantity:Number(t.qty??t.quantity)||0}}).filter(t=>t.quantity>0),o}async function w({includeDrafts:t=!1}={}){try{const e=await f("store/products");if(e&&Array.isArray(e.products)){c=!0;const r=e.products.map(y).filter(Boolean);return n=r,a=r.filter(t=>"Active"===t.status),t?n:a}}catch(t){t.status&&404!==t.status&&console.warn("[MWEStore] GET /api/store/products",t.message),c=!1}const e=l();if(e?.installed&&!e.staging){const r=((t?e.records("products",!0):e.records("products"))||[]).map(t=>y({...t,sellerName:t.seller,imageUrl:t.image,priceCents:Math.round(100*Number(t.price||0)),compareAtCents:t.compareAt?Math.round(100*Number(t.compareAt)):null,stockQty:t.inventory,status:"Active"===t.status||"published"===t.publicationState||"published"===t.state?"published":"Archived"===t.status?"archived":"draft",kind:"service"===t.itemType?"service":"product"})).filter(Boolean);return n=r,a=r.filter(t=>"Active"===t.status),t?n:a}if(e?.staging||!e?.installed){const e=(d()?.getProducts?.()||[]).map(t=>y({...t,sellerName:t.seller,imageUrl:t.image,priceCents:Math.round(100*Number(t.price||0)),stockQty:t.inventory,status:"Active"===t.status?"published":"draft",kind:"service"===t.itemType?"service":"product"})).filter(Boolean);return n=e,a=e.filter(t=>"Active"===t.status),t?n:a}return n=[],a=[],a}async function N(){if(l()?.session)try{const t=await f("store/cart");if(t&&!1!==t.ok)return c=!0,v(t)}catch(t){404!==t.status&&401!==t.status&&console.warn("[MWEStore] GET /api/store/cart",t.message)}return b()}function A(){return a.slice()}function C(){return o.map(t=>({...t}))}async function S(t,e=1){const r=Math.max(1,Number(e)||1);if(l()?.session)try{const e=await f("store/cart/items",{productId:t,qty:r},"POST");if(e&&!1!==e.ok)return v(e),C()}catch(t){if(401===t.status);else if(404!==t.status)throw t}if(d()?.addToCart){for(let e=0;e<r;e++)d().addToCart(t);return b()}const a=g(),n=a.find(e=>e.id===t);return n?n.quantity+=r:a.push({id:t,quantity:r}),h(a)}async function E(){try{const t=await f("store/seller/products");if(Array.isArray(t?.products))return c=!0,n=t.products.map(y).filter(Boolean),a=n.filter(t=>"Active"===t.status),n}catch{}return w({includeDrafts:!0})}async function T(t={}){const a=C();if(!a.length)throw new Error("Your cart is empty.");const i=String(t.buyerName||t.name||"").trim(),c=String(t.buyerEmail||t.email||"").trim().toLowerCase(),u=String(t.notes||"").trim();try{const t=await f("store/checkout",{buyerName:i,buyerEmail:c,notes:u,payment:{mode:"manual_pending",note:"Order recorded as pending. No charge captured."}},"POST");if(t&&!1!==t.ok){o=[],s=Object.create(null);try{d()?.saveCart?.([])}catch{}try{localStorage.setItem(e,"[]")}catch{}const r=t.payment||{mode:"manual_pending",note:"Order recorded as pending. No charge captured."};return{ok:!0,sandbox:"live"!==r.mode,order:t.order,items:t.items||[],payment:r,message:r.note||"Order recorded as pending. No payment was captured."}}}catch(t){if(401===t.status)throw new Error("Sign in to complete checkout.");if(404!==t.status)throw t}const l=[...A(),...n],m=a.map(t=>{const e=l.find(e=>e.id===t.id);return e?{id:e.id,title:e.title,quantity:t.quantity,price:e.price,seller:e.seller}:null}).filter(Boolean),p=m.reduce((t,e)=>t+e.price*e.quantity,0),y={id:"SANDBOX-"+Date.now().toString(36).toUpperCase(),status:"pending",fulfillment:"Sandbox · awaiting /api/store/checkout",sandbox:!0,email:c,buyerName:i,items:m,totals:t.totals||{subtotal:p,total:p},createdAt:(new Date).toISOString(),note:"Local sandbox pending order. Not paid."};!function(t){try{const e=JSON.parse(localStorage.getItem(r)||"[]"),a=Array.isArray(e)?e:[];a.unshift(t),localStorage.setItem(r,JSON.stringify(a.slice(0,50)))}catch{}}(y),o=[];try{d()?.saveCart?.([])}catch{}try{localStorage.setItem(e,"[]")}catch{}return{ok:!0,sandbox:!0,order:y,items:m,payment:{mode:"sandbox_local",note:y.note},message:"Sandbox order saved locally as pending. No payment was captured."}}async function k(t={}){const e=Number(t.amount||0),r=null!=t.amountCents?Number(t.amountCents):Math.round(100*e);if(!Number.isFinite(r)||r<100)throw new Error("Enter a donation of at least $1.00.");try{const e=await f("store/donations",{amountCents:r,donorName:t.donorName||t.name,donorEmail:t.donorEmail||t.email,message:t.message||"",churchId:t.churchId||null,sellerId:t.sellerId||null},"POST");if(e&&!1!==e.ok)return{ok:!0,sandbox:!0,donation:e.donation,message:"Donation recorded. No live payment provider is configured yet — treat as pending/sandbox."}}catch(t){if(404===t.status){const t=new Error("Donations API is not available yet. No charge was made.");throw t.status=404,t.unavailable=!0,t}throw t}const a=new Error("Donations are unavailable. No charge was made.");throw a.unavailable=!0,a}const P=(async()=>{try{await(l()?.ready)}catch{}await w({includeDrafts:!1}),await N(),"store-manager"===t.document?.body?.getAttribute("data-page")&&await E(),u=!0,t.dispatchEvent(new Event("mwe-store-ready"))})();t.document?.addEventListener("DOMContentLoaded",()=>{if("donate"!==t.document.body?.getAttribute("data-page"))return;const e=t.document.querySelector("[data-donation-form]");e&&e.addEventListener("submit",async r=>{r.preventDefault(),r.stopImmediatePropagation();const a=new FormData(e),n=Number(t.document.getElementById("custom-donate-amount")?.value||0),o=t.document.getElementById("donate-api-status")||(()=>{const r=t.document.createElement("p");return r.id="donate-api-status",r.setAttribute("role","alert"),r.style.cssText="margin-top:12px;font-size:0.9rem;text-align:center;",e.appendChild(r),r})();o.textContent="Submitting…";try{await P;const e=await k({amount:n,donorName:a.get("donorName"),donorEmail:a.get("donorEmail")});o.style.color="var(--primary, #5b4bdb)",o.textContent=e.message,t.MWE?.showMemberToast?.(e.message)}catch(e){o.style.color="#b42318",o.textContent=e.unavailable?"Donations API is not available yet. No charge was made.":e.message||"Unable to record donation.",t.MWE?.showMemberToast?.(o.textContent)}},!0)}),t.MWEStore={version:"20260919storeapi2",ready:P,get readyResolved(){return u},get currency(){return i},escapeHtml:function(t){return d()?.escapeHtml?d().escapeHtml(t):String(t??"").replace(/[&<>'"]/g,t=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[t]))},money:function(t,e){const r=e||i||"USD";try{return new Intl.NumberFormat("en-US",{style:"currency",currency:r,maximumFractionDigits:2}).format(Number(t)||0)}catch{return`${r} ${(Number(t)||0).toFixed(2)}`}},listProducts:async function(t){return w(t)},refreshProducts:w,refreshCart:N,refreshSellerProducts:E,getProducts:A,getAllProducts:function(){return(n.length?n:a).slice()},getProduct:async function(t){const e=[...n,...a].find(e=>e.id===t);if(e)return e;try{const e=await f("store/products/"+encodeURIComponent(t));if(e?.product){const t=y(e.product);return t&&"Active"===t.status&&!a.some(e=>e.id===t.id)&&a.push(t),t}}catch(t){404!==t.status&&console.warn("[MWEStore] getProduct",t.message)}return A().find(e=>e.id===t)||null},getCart:C,addToCart:S,setCartQuantity:async function(t,e){const r=Math.max(0,Number(e)||0);if(l()?.session)try{let e=s[t];if(e||(await N(),e=s[t]),r<=0&&e){const t=await f("store/cart/items/"+encodeURIComponent(e),void 0,"DELETE");if(t&&!1!==t.ok)return v(t),C()}else if(r>0&&e){const t=await f("store/cart/items/"+encodeURIComponent(e),{qty:r},"PATCH");if(t&&!1!==t.ok)return v(t),C()}else if(r>0&&!e)return S(t,r)}catch(t){if(404!==t.status&&401!==t.status)throw t}return d()?.setCartQuantity?(d().setCartQuantity(t,r),b()):h(g().map(e=>e.id===t?{...e,quantity:r}:e).filter(t=>t.quantity>0))},upsertProduct:async function(t){const e={...t},r={kind:"service"===e.itemType||"service"===e.kind?"service":"digital"===e.kind?"digital":"product",title:e.title,slug:e.slug||String(e.title||"product").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,60),description:e.description||"",imageUrl:e.image||e.imageUrl||"",currency:e.currency||i||"USD",priceCents:null!=e.priceCents?Number(e.priceCents):Math.round(100*Number(e.price||0)),compareAtCents:null!=e.compareAtCents?Number(e.compareAtCents):e.compareAt?Math.round(100*Number(e.compareAt)):null,status:p(e.status),inventoryTracked:!1!==e.inventoryTracked,stockQty:null!=e.stockQty?Number(e.stockQty):Number(e.inventory||0)};try{let t;if(e.id)try{t=await f("store/seller/products/"+encodeURIComponent(e.id),r,"PUT")}catch(e){if(404!==e.status)throw e;t=await f("store/seller/products",r,"POST")}else t=await f("store/seller/products",r,"POST");if(t?.product||t?.ok)return c=!0,await E(),y(t.product||e)}catch(t){if(404===t.status&&l()?.installed&&!l()?.staging){if(!e.storeId){const t=l().records("store",!0)||[],r=t.find(t=>t.canManage)||t[0];r&&(e.storeId=r.id)}if(!e.storeId)throw new Error("Choose a store you manage before saving a product.");const t=await l().save("products",{...e,status:"Active"===e.status?"Active":"Draft",publicationState:"Active"===e.status?"pending":"draft"});return await w({includeDrafts:!0}),y({...t,sellerName:t.seller,imageUrl:t.image,priceCents:Math.round(100*Number(t.price||0)),stockQty:t.inventory,status:"Active"===t.status?"published":"draft"})}if(401===t.status||403===t.status)throw new Error("Sign in as a seller to manage products.");throw t}if(d()?.upsertProduct){const t=d().upsertProduct(e);return await w({includeDrafts:!0}),y({...t,sellerName:t.seller,imageUrl:t.image,priceCents:Math.round(100*Number(t.price||0)),stockQty:t.inventory,status:"Active"===t.status?"published":"draft"})}throw new Error("Unable to save product.")},removeProduct:async function(t){try{return await f("store/seller/products/"+encodeURIComponent(t),void 0,"DELETE"),void await E()}catch(e){if(404===e.status&&l()?.installed&&!l()?.staging){const e=(l().records("products",!0)||[]).find(e=>e.id===t);if(e)return await l().save("products",{...e,status:"Archived",publicationState:"archived"}),void await w({includeDrafts:!0})}if(404!==e.status)throw e}d()?.removeProduct?.(t),await w({includeDrafts:!0})},placeOrder:T,checkout:T,donate:k,endpoints:{products:{primary:"GET /api/store/products",fallback:"GET /api/catalog products"},product:{primary:"GET /api/store/products/:id"},sellers:{primary:"GET /api/store/sellers/:idOrSlug"},seller:{primary:"GET|POST|PUT /api/store/seller"},sellerProducts:{primary:"GET|POST /api/store/seller/products",putDelete:"PUT|DELETE /api/store/seller/products/:id"},inventory:{primary:"PATCH /api/store/seller/products/:id/inventory"},sellerOrders:{primary:"GET /api/store/seller/orders"},cart:{primary:"GET /api/store/cart (+ items POST|PATCH|DELETE)",note:"member session required",fallback:"local guest cart"},checkout:{primary:"POST /api/store/checkout → pending / manual_pending",fallback:"labeled sandbox local pending"},orders:{primary:"GET /api/store/orders"},donations:{primary:"POST /api/store/donations",fallback:"honest unavailable"}}}}(window);
+/* MWEStore — Worker/D1 store client for storefront (branch grok). */
+(function (root) {
+  'use strict';
+
+  const CART_KEY = 'faithlink.store.cart.v1';
+  const ORDERS_KEY = 'faithlink.store.orders.v1';
+
+  let published = [];
+  let allCached = [];
+  let cart = [];
+  let cartLineIds = Object.create(null);
+  let currency = 'USD';
+  let readyResolved = false;
+
+  function platform() { return root.MWEPlatform; }
+  function legacy() { return root.FaithLinkModules; }
+
+  function toUiStatus(status) {
+    const s = String(status || '').toLowerCase();
+    if (s === 'published' || s === 'active') return 'Active';
+    if (s === 'draft' || s === 'pending') return 'Draft';
+    if (s === 'archived') return 'Archived';
+    return status || 'Draft';
+  }
+
+  function toApiStatus(status) {
+    const s = String(status || '').toLowerCase();
+    if (s === 'active' || s === 'published') return 'published';
+    if (s === 'archived') return 'archived';
+    if (s === 'pending') return 'pending';
+    return 'draft';
+  }
+
+  function mapProduct(row) {
+    if (!row || typeof row !== 'object') return null;
+    const price = row.priceCents != null ? Number(row.priceCents) / 100 : Number(row.price || 0);
+    const compareAt = row.compareAtCents != null ? Number(row.compareAtCents) / 100 : Number(row.compareAt || 0);
+    const stock = row.stockQty != null ? Number(row.stockQty) : Number(row.inventory || 0);
+    const kind = row.kind || row.itemType || 'product';
+    if (row.currency) currency = row.currency;
+    return {
+      id: row.id,
+      sellerId: row.sellerId || '',
+      seller: row.sellerName || row.seller || 'Seller',
+      sellerName: row.sellerName || row.seller || 'Seller',
+      sellerType: row.sellerType || '',
+      category: row.category || '',
+      featured: Boolean(row.featured),
+      rating: Number(row.rating || 0),
+      title: row.title || 'Untitled',
+      slug: row.slug || '',
+      description: row.description || '',
+      image: row.imageUrl || row.image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=82',
+      imageUrl: row.imageUrl || row.image || '',
+      currency: row.currency || currency || 'USD',
+      price: price,
+      priceCents: row.priceCents != null ? Number(row.priceCents) : Math.round(price * 100),
+      compareAt: compareAt,
+      compareAtCents: row.compareAtCents != null ? Number(row.compareAtCents) : (compareAt ? Math.round(compareAt * 100) : null),
+      inventory: stock,
+      stockQty: stock,
+      inventoryTracked: row.inventoryTracked == null ? true : Boolean(row.inventoryTracked),
+      status: toUiStatus(row.status),
+      apiStatus: String(row.status || '').toLowerCase() || toApiStatus(row.status),
+      kind: kind,
+      itemType: kind === 'service' ? 'service' : 'product',
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt
+    };
+  }
+
+  async function apiFetch(path, body, method) {
+    const verb = method || (body ? 'POST' : 'GET');
+    // Prefer platform.api when present (session cookies + error shape), else raw fetch.
+    const p = platform();
+    if (p && typeof p.api === 'function') {
+      try {
+        return await p.api(path, body, verb);
+      } catch (err) {
+        // Fall through to raw fetch for GETs so catalog still loads if platform.api throws.
+        if (verb !== 'GET') throw err;
+      }
+    }
+    const response = await fetch('/api/' + path, {
+      method: verb,
+      credentials: 'same-origin',
+      cache: 'no-store',
+      headers: body ? { 'content-type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined
+    });
+    let data = null;
+    try { data = await response.json(); } catch (_) { data = null; }
+    if (!response.ok || (data && data.ok === false)) {
+      const error = new Error((data && data.error) || 'Store request failed');
+      error.status = response.status;
+      throw error;
+    }
+    return data || { ok: true };
+  }
+
+  function readLocalCart() {
+    try {
+      const value = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+      return Array.isArray(value) ? value : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function writeLocalCart(rows) {
+    const next = (Array.isArray(rows) ? rows : [])
+      .map(function (row) { return { id: row.id, quantity: Number(row.quantity) || 0 }; })
+      .filter(function (row) { return row.quantity > 0; });
+    localStorage.setItem(CART_KEY, JSON.stringify(next));
+    cart = next;
+    return cart;
+  }
+
+  function applyServerCart(payload) {
+    const items = (payload && payload.items) || [];
+    cartLineIds = Object.create(null);
+    cart = items.map(function (item) {
+      const productId = item.productId || item.id;
+      if (item.id && productId) cartLineIds[productId] = item.id;
+      if (item.currency) currency = item.currency;
+      return { id: productId, quantity: Number(item.qty != null ? item.qty : item.quantity) || 0 };
+    }).filter(function (row) { return row.quantity > 0; });
+    return cart;
+  }
+
+  async function refreshProducts(options) {
+    const includeDrafts = !!(options && options.includeDrafts);
+    try {
+      const data = await apiFetch('store/products');
+      const rows = Array.isArray(data && data.products) ? data.products.map(mapProduct).filter(Boolean) : [];
+      allCached = rows;
+      published = rows.filter(function (row) { return row.status === 'Active'; });
+      return includeDrafts ? allCached.slice() : published.slice();
+    } catch (err) {
+      if (err && err.status && err.status !== 404) {
+        console.warn('[MWEStore] GET /api/store/products', err.message || err);
+      }
+    }
+
+    const p = platform();
+    if (p && p.installed && !p.staging) {
+      const source = (includeDrafts ? p.records('products', true) : p.records('products')) || [];
+      const rows = source.map(function (row) {
+        return mapProduct({
+          id: row.id,
+          sellerName: row.seller,
+          sellerType: row.sellerType,
+          category: row.category,
+          title: row.title,
+          description: row.description,
+          imageUrl: row.image,
+          price: row.price,
+          compareAt: row.compareAt,
+          stockQty: row.inventory,
+          status: row.status === 'Active' || row.publicationState === 'published' || row.state === 'published' ? 'published' : (row.status === 'Archived' ? 'archived' : 'draft'),
+          kind: row.itemType === 'service' ? 'service' : 'product',
+          featured: row.featured,
+          rating: row.rating
+        });
+      }).filter(Boolean);
+      allCached = rows;
+      published = rows.filter(function (row) { return row.status === 'Active'; });
+      return includeDrafts ? allCached.slice() : published.slice();
+    }
+
+    allCached = [];
+    published = [];
+    return [];
+  }
+
+  async function refreshCart() {
+    if (platform() && platform().session) {
+      try {
+        const data = await apiFetch('store/cart');
+        if (data && data.ok !== false) return applyServerCart(data);
+      } catch (err) {
+        if (!err || (err.status !== 404 && err.status !== 401)) {
+          console.warn('[MWEStore] GET /api/store/cart', err && err.message);
+        }
+      }
+    }
+    cart = readLocalCart();
+    return cart.slice();
+  }
+
+  async function getProduct(id) {
+    if (!id) return null;
+    const hit = published.concat(allCached).find(function (row) { return row.id === id; });
+    if (hit) return hit;
+    try {
+      const data = await apiFetch('store/products/' + encodeURIComponent(id));
+      if (data && data.product) {
+        const mapped = mapProduct(data.product);
+        if (mapped && mapped.status === 'Active' && !published.some(function (row) { return row.id === mapped.id; })) {
+          published.push(mapped);
+        }
+        return mapped;
+      }
+    } catch (err) {
+      if (!err || err.status !== 404) console.warn('[MWEStore] getProduct', err && err.message);
+    }
+    return published.find(function (row) { return row.id === id; }) || null;
+  }
+
+  async function addToCart(id, qty) {
+    const quantity = Math.max(1, Number(qty) || 1);
+    if (platform() && platform().session) {
+      try {
+        const data = await apiFetch('store/cart/items', { productId: id, qty: quantity }, 'POST');
+        if (data && data.ok !== false) {
+          applyServerCart(data);
+          return cart.slice();
+        }
+      } catch (err) {
+        if (err && err.status && err.status !== 401 && err.status !== 404) throw err;
+      }
+    }
+    const rows = readLocalCart();
+    const existing = rows.find(function (row) { return row.id === id; });
+    if (existing) existing.quantity += quantity;
+    else rows.push({ id: id, quantity: quantity });
+    return writeLocalCart(rows).slice();
+  }
+
+  async function setCartQuantity(id, qty) {
+    const quantity = Math.max(0, Number(qty) || 0);
+    if (platform() && platform().session) {
+      try {
+        let lineId = cartLineIds[id];
+        if (!lineId) {
+          await refreshCart();
+          lineId = cartLineIds[id];
+        }
+        if (quantity <= 0 && lineId) {
+          const data = await apiFetch('store/cart/items/' + encodeURIComponent(lineId), undefined, 'DELETE');
+          if (data && data.ok !== false) {
+            applyServerCart(data);
+            return cart.slice();
+          }
+        } else if (quantity > 0 && lineId) {
+          const data = await apiFetch('store/cart/items/' + encodeURIComponent(lineId), { qty: quantity }, 'PATCH');
+          if (data && data.ok !== false) {
+            applyServerCart(data);
+            return cart.slice();
+          }
+        } else if (quantity > 0 && !lineId) {
+          return addToCart(id, quantity);
+        }
+      } catch (err) {
+        if (err && err.status && err.status !== 401 && err.status !== 404) throw err;
+      }
+    }
+    return writeLocalCart(
+      readLocalCart()
+        .map(function (row) { return row.id === id ? { id: row.id, quantity: quantity } : row; })
+        .filter(function (row) { return row.quantity > 0; })
+    ).slice();
+  }
+
+  async function placeOrder(input) {
+    input = input || {};
+    const lines = cart.slice();
+    if (!lines.length) throw new Error('Your cart is empty.');
+    const buyerName = String(input.buyerName || input.name || '').trim();
+    const buyerEmail = String(input.buyerEmail || input.email || '').trim().toLowerCase();
+    const notes = String(input.notes || '').trim();
+    try {
+      const data = await apiFetch('store/checkout', {
+        buyerName: buyerName,
+        buyerEmail: buyerEmail,
+        notes: notes,
+        payment: { mode: 'manual_pending', note: 'Order recorded as pending. No charge captured.' }
+      }, 'POST');
+      if (data && data.ok !== false) {
+        cart = [];
+        cartLineIds = Object.create(null);
+        try { localStorage.setItem(CART_KEY, '[]'); } catch (_) {}
+        const payment = data.payment || { mode: 'manual_pending', note: 'Order recorded as pending. No charge captured.' };
+        return {
+          ok: true,
+          sandbox: payment.mode !== 'live',
+          order: data.order,
+          items: data.items || [],
+          payment: payment,
+          message: payment.note || 'Order recorded as pending. No payment was captured.'
+        };
+      }
+    } catch (err) {
+      if (err && err.status === 401) throw new Error('Sign in to complete checkout.');
+      if (err && err.status !== 404) throw err;
+    }
+    const catalog = published.concat(allCached);
+    const items = lines.map(function (line) {
+      const product = catalog.find(function (row) { return row.id === line.id; });
+      return product ? {
+        id: product.id,
+        title: product.title,
+        quantity: line.quantity,
+        price: product.price,
+        seller: product.seller
+      } : null;
+    }).filter(Boolean);
+    const subtotal = items.reduce(function (sum, item) { return sum + item.price * item.quantity; }, 0);
+    const order = {
+      id: 'SANDBOX-' + Date.now().toString(36).toUpperCase(),
+      status: 'pending',
+      fulfillment: 'Sandbox · awaiting /api/store/checkout',
+      sandbox: true,
+      email: buyerEmail,
+      buyerName: buyerName,
+      items: items,
+      totals: input.totals || { subtotal: subtotal, total: subtotal },
+      createdAt: new Date().toISOString(),
+      note: 'Local sandbox pending order. Not paid.'
+    };
+    try {
+      const prior = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+      const list = Array.isArray(prior) ? prior : [];
+      list.unshift(order);
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(list.slice(0, 50)));
+    } catch (_) {}
+    cart = [];
+    try { localStorage.setItem(CART_KEY, '[]'); } catch (_) {}
+    return {
+      ok: true,
+      sandbox: true,
+      order: order,
+      items: items,
+      payment: { mode: 'sandbox_local', note: order.note },
+      message: 'Sandbox order saved locally as pending. No payment was captured.'
+    };
+  }
+
+  async function donate(input) {
+    input = input || {};
+    const amount = Number(input.amount || 0);
+    const amountCents = input.amountCents != null ? Number(input.amountCents) : Math.round(amount * 100);
+    if (!Number.isFinite(amountCents) || amountCents < 100) throw new Error('Enter a donation of at least $1.00.');
+    try {
+      const data = await apiFetch('store/donations', {
+        amountCents: amountCents,
+        donorName: input.donorName || input.name,
+        donorEmail: input.donorEmail || input.email,
+        message: input.message || '',
+        churchId: input.churchId || null,
+        sellerId: input.sellerId || null
+      }, 'POST');
+      if (data && data.ok !== false) {
+        return {
+          ok: true,
+          sandbox: true,
+          donation: data.donation,
+          message: 'Donation recorded. No live payment provider is configured yet — treat as pending/sandbox.'
+        };
+      }
+    } catch (err) {
+      if (err && err.status === 404) {
+        const missing = new Error('Donations API is not available yet. No charge was made.');
+        missing.status = 404;
+        missing.unavailable = true;
+        throw missing;
+      }
+      throw err;
+    }
+    const unavailable = new Error('Donations are unavailable. No charge was made.');
+    unavailable.unavailable = true;
+    throw unavailable;
+  }
+
+  const ready = (async function () {
+    try { await (platform() && platform().ready); } catch (_) {}
+    await refreshProducts({ includeDrafts: false });
+    await refreshCart();
+    readyResolved = true;
+    try { root.dispatchEvent(new Event('mwe-store-ready')); } catch (_) {}
+    return true;
+  })();
+
+  root.MWEStore = {
+    version: '20260919p0catalog1',
+    ready: ready,
+    get readyResolved() { return readyResolved; },
+    get currency() { return currency; },
+    escapeHtml: function (value) {
+      if (legacy() && legacy().escapeHtml) return legacy().escapeHtml(value);
+      return String(value ?? '').replace(/[&<>"']/g, function (ch) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+      });
+    },
+    money: function (value, code) {
+      const cur = code || currency || 'USD';
+      try {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, maximumFractionDigits: 2 }).format(Number(value) || 0);
+      } catch (_) {
+        return cur + ' ' + (Number(value) || 0).toFixed(2);
+      }
+    },
+    listProducts: refreshProducts,
+    refreshProducts: refreshProducts,
+    refreshCart: refreshCart,
+    getProducts: function () { return published.slice(); },
+    getAllProducts: function () { return (allCached.length ? allCached : published).slice(); },
+    getProduct: getProduct,
+    getItemById: function (id) {
+      return published.concat(allCached).find(function (row) { return row && row.id === id; }) || null;
+    },
+    getCart: function () { return cart.map(function (row) { return Object.assign({}, row); }); },
+    addToCart: addToCart,
+    setCartQuantity: setCartQuantity,
+    placeOrder: placeOrder,
+    checkout: placeOrder,
+    donate: donate
+  };
+})(window);
