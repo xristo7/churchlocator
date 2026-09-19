@@ -1,5 +1,5 @@
 (function initializeCartPage() {
-  const data = () => window.FaithLinkModules;
+  const data = () => window.MWEStore;
   const discountKey = "faithlink.store.discount.v1";
 
   function rows() {
@@ -27,20 +27,20 @@
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
-  await window.MWEPlatform?.ready;
+  await window.MWEStore?.ready;
     document.addEventListener("click", event => {
       const remove = event.target.closest("[data-cart-remove]");
       const increase = event.target.closest("[data-cart-increase]");
       const decrease = event.target.closest("[data-cart-decrease]");
-      if (remove) data().setCartQuantity(remove.dataset.cartRemove, 0);
-      if (increase) { const item = data().getCart().find(row => row.id === increase.dataset.cartIncrease); data().setCartQuantity(item.id, item.quantity + 1); }
-      if (decrease) { const item = data().getCart().find(row => row.id === decrease.dataset.cartDecrease); data().setCartQuantity(item.id, item.quantity - 1); }
-      if (remove || increase || decrease) render();
+      const run = (promise) => Promise.resolve(promise).then(() => render()).catch(err => window.MWE?.showMemberToast?.(err.message || "Could not update cart"));
+      if (remove) run(data().setCartQuantity(remove.dataset.cartRemove, 0));
+      if (increase) { const item = data().getCart().find(row => row.id === increase.dataset.cartIncrease); if (item) run(data().setCartQuantity(item.id, item.quantity + 1)); }
+      if (decrease) { const item = data().getCart().find(row => row.id === decrease.dataset.cartDecrease); if (item) run(data().setCartQuantity(item.id, item.quantity - 1)); }
     });
     document.addEventListener("change", event => {
       if (!event.target.matches("[data-cart-quantity]")) return;
-      data().setCartQuantity(event.target.dataset.cartQuantity, event.target.value);
-      render();
+      Promise.resolve(data().setCartQuantity(event.target.dataset.cartQuantity, event.target.value)).then(() => render())
+        .catch(err => window.MWE?.showMemberToast?.(err.message || "Could not update cart"));
     });
     document.getElementById("apply-discount").addEventListener("click", () => {
       const code = document.getElementById("cart-discount").value.trim().toUpperCase();
