@@ -413,13 +413,27 @@ test("Creator Hub keeps SPA registration and opens the user workspace separately
   assert.match(worker, /\["\/portal",\s*"\/church-portal\.html"\]/);
   assert.match(worker, /\["\/creator-hub",\s*"\/church-portal\.html"\]/);
 
-  // Original 3-step creator registration remains inside the SPA shell.
+  // Original 3-step creator registration remains available for unauthenticated visitors.
   assert.match(portalHtml, /Create Creator Account/);
   assert.match(portalHtml, /data-register-form/);
   assert.match(portalHtml, /data-step="1"/);
   assert.match(portalHtml, /data-step="2"/);
   assert.match(portalHtml, /data-step="3"/);
   assert.match(portalHtml, /name="launchGoal"/);
+
+  // Frictionless member-to-creator upgrade flow for logged-in members
+  assert.match(portalHtml, /id="upgrade-tab-content"/);
+  assert.match(portalHtml, /data-upgrade-creator-form/);
+  assert.match(portalHtml, /creator-upgrade-profile-badge/);
+  assert.match(portalHtml, /id="btn-creator-upgrade"/);
+  assert.match(app, /setupCreatorUpgradeView/);
+  assert.match(app, /data-upgrade-creator-form/);
+  assert.match(app, /window\.MWEAuth\.creatorUpgrade\(\)/);
+
+  const creatorAccountJs = await readProjectFile("public/creator-account.js");
+  assert.match(creatorAccountJs, /creatorUpgrade/);
+  assert.match(creatorAccountJs, /creator-upgrade-profile-badge/);
+
   const creator = await readProjectFile("public/creator-workspace.html");
   assert.match(creator, /data-creator-account-form/);
   assert.match(app, /window\.open\(`creator-workspace\.html#\$\{module\}`/);

@@ -1891,7 +1891,15 @@ function initPrivateAppAuth() {
   localStorage.removeItem(key);
   if (app === "church" && window.MWEAuth) {
     window.MWEAuth.session().then(result => {
-      document.body.classList.toggle("is-authenticated", !!result.ok && !!result.user?.isCreator);
+      const user = result?.ok ? result.user : null;
+      if (user?.isCreator) {
+        document.body.classList.add("is-authenticated");
+        return;
+      }
+      document.body.classList.remove("is-authenticated");
+      if (user) {
+        setupCreatorUpgradeView(user);
+      }
     });
   }
 
@@ -2155,6 +2163,170 @@ function initPrivateAppAuth() {
       email: emailInput?.value || ""
     });
   });
+
+  function setupCreatorUpgradeView(user) {
+    if (!user) return;
+    const portalTitle = document.getElementById("portal-active-title");
+    const portalTabs = document.querySelector(".portal-tabs");
+    const loginTab = document.getElementById("login-tab-content");
+    const registerTab = document.getElementById("register-tab-content");
+    const upgradeTab = document.getElementById("upgrade-tab-content");
+
+    if (!upgradeTab) return;
+
+    if (portalTitle) portalTitle.textContent = "Upgrade to Creator";
+    if (portalTabs) portalTabs.style.display = "none";
+    if (loginTab) { loginTab.style.display = "none"; loginTab.classList.remove("active"); }
+    if (registerTab) { registerTab.style.display = "none"; registerTab.classList.remove("active"); }
+
+    upgradeTab.style.display = "block";
+    upgradeTab.classList.add("active");
+
+    const displayName = user.name || (user.email ? user.email.split("@")[0] : "Member");
+    const userNameEl = document.getElementById("upgrade-user-name");
+    const userEmailEl = document.getElementById("upgrade-user-email");
+    const userAvatarEl = document.getElementById("upgrade-user-avatar");
+    const orgNameInput = document.getElementById("upgrade-org-name");
+
+    if (userNameEl) userNameEl.textContent = displayName;
+    if (userEmailEl) userEmailEl.textContent = user.email || "";
+    if (userAvatarEl) {
+      const initials = displayName.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase() || "MW";
+      userAvatarEl.textContent = initials;
+    }
+    if (orgNameInput && !orgNameInput.value) {
+      orgNameInput.placeholder = `e.g. ${displayName}'s Ministry`;
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  // Handle member to creator upgrade form
+  const upgradeForm = document.querySelector("[data-upgrade-creator-form]");
+  if (upgradeForm) {
+    upgradeForm.querySelectorAll(".launch-goal-card").forEach(card => {
+      card.addEventListener("click", () => {
+        upgradeForm.querySelectorAll(".launch-goal-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        const radio = card.querySelector("input[type='radio']");
+        if (radio) radio.checked = true;
+
+        const orgLabel = document.getElementById("upgrade-org-label");
+        const orgInput = document.getElementById("upgrade-org-name");
+        const goal = radio?.value;
+        const currentName = document.getElementById("upgrade-user-name")?.textContent || "Ministry";
+        if (orgLabel && orgInput) {
+          if (goal === "channel") {
+            orgLabel.textContent = "Channel / Podcast Name";
+            orgInput.placeholder = `e.g. ${currentName} Broadcast / Media`;
+          } else if (goal === "event") {
+            orgLabel.textContent = "Event Organizer / Ministry Name";
+            orgInput.placeholder = `e.g. ${currentName} Events`;
+          } else if (goal === "store") {
+            orgLabel.textContent = "Store / Brand Name";
+            orgInput.placeholder = `e.g. ${currentName} Store`;
+          } else if (goal === "resource") {
+            orgLabel.textContent = "Author / Ministry Publisher Name";
+            orgInput.placeholder = `e.g. ${currentName} Publications`;
+          } else {
+            orgLabel.textContent = "Ministry / Organization Name";
+            orgInput.placeholder = `e.g. ${currentName} Fellowship`;
+          }
+        }
+      });
+    });
+
+    upgradeForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      const submitBtn = document.getElementById("btn-creator-upgrade");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i data-lucide="loader-2" class="spin"></i> Upgrading account...`;
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      try {
+        if (!window.MWEAuth) throw new Error("Authentication services unavailable.");
+        const result = await window.MWEAuth.creatorUpgrade();
+        if (!result.ok) {
+          showToast(result.error || "Upgrade failed.");
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i data-lucide="sparkles"></i> Upgrade to Creator &amp; Enter`;
+            if (window.lucide) window.lucide.createIcons();
+          }
+          return;
+        }
+
+        const goalRadio = upgradeForm.querySelector("input[name='upgradeLaunchGoal']:checked");
+        const launchGoal = goalRadio?.value || "overview";
+        const orgNameInput = document.getElementById("upgrade-org-name");
+        const roleSelect = document.getElementById("upgrade-role");
+        const cityInput = document.getElementById("upgrade-city");
+
+        const user = result.user || {};
+        const orgName = orgNameInput?.value.trim() || `${user.name || "My"} Ministry`;
+        const city = cityInput?.value.trim() || "Edmonton";
+        const role = roleSelect?.value || "Ministry Leader";
+        const newId = orgName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+        localStorage.setItem("mwe.orgName", orgName);
+        if (user.name) localStorage.setItem("mwe.username", user.name);
+        if (user.email) localStorage.setItem("mwe.userEmail", user.email);
+
+        const newChurch = {
+          id: newId,
+          name: orgName,
+          city: city,
+          country: "CA",
+          area: "Downtown",
+          denomination: "Christian Ministry",
+          language: "English",
+          worship: "Contemporary",
+          tagline: "A vibrant faith community sharing God's love.",
+          sunday: "10:00 AM",
+          midweek: "Wednesday 7:00 PM",
+          phone: "780-555-0199",
+          email: user.email || `info@${newId}.org`,
+          website: `https://${newId}.org`,
+          location: `10120 100 St NW, ${city}`,
+          verified: false,
+          photo: "assets/church-audience.jpg",
+          logo: "",
+          pastor: user.name || "Pastor",
+          pastorTitle: role,
+          pastorPhoto: user.avatarUrl || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300",
+          pastorBio: "Welcome to our ministry fellowship! We would love to connect with you.",
+          about: "We are committed to sharing God's love and reaching communities globally.",
+          ministries: ["worship", "community", "prayer", "youth"],
+          livestream: { enabled: false, status: "Offline", player: "", paid: false }
+        };
+
+        const list = MWE.getChurches();
+        list.push(newChurch);
+
+        const portalSelect = document.querySelector("[data-portal-select]");
+        if (portalSelect) {
+          portalSelect.innerHTML = list.map(c => `<option value="${MWE.escapeHtml(c.id)}">${MWE.escapeHtml(c.name)}</option>`).join("");
+          portalSelect.value = newId;
+          portalSelect.dispatchEvent(new Event("change"));
+        }
+
+        showToast("Account upgraded to Creator successfully!");
+        signIn(launchGoal, {
+          name: user.name || orgName,
+          email: user.email || ""
+        });
+      } catch (err) {
+        showToast(err.message || "Something went wrong.");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<i data-lucide="sparkles"></i> Upgrade to Creator &amp; Enter`;
+          if (window.lucide) window.lucide.createIcons();
+        }
+      }
+    });
+  }
 
   // Setup Launchpad Quick Actions and Tabs
   function switchCreatorWorkspace(target) {

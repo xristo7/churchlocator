@@ -10,8 +10,63 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!hasMatchingSession && localStorage.getItem("mwe.userLoggedIn") === "true") {
     localStorage.removeItem("mwe.session.church.v1");
   }
+  const esc = str => String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
   window.MWEAuth?.session().then(result => {
-    document.body.classList.toggle("is-authenticated", !!result.ok && !!result.user?.isCreator);
+    if (result.ok && result.user?.isCreator) {
+      document.body.classList.add("is-authenticated");
+      return;
+    }
+    if (result.ok && result.user && !result.user.isCreator) {
+      const user = result.user;
+      const modeBtn = document.getElementById("creator-account-mode");
+      if (modeBtn) modeBtn.style.display = "none";
+      const displayName = user.name || (user.email ? user.email.split("@")[0] : "Member");
+      const initials = displayName.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase() || "MW";
+
+      form.innerHTML = `
+        <div class="creator-upgrade-profile-badge" style="margin-bottom: 16px;">
+          <div class="creator-upgrade-avatar">${initials}</div>
+          <div class="creator-upgrade-details">
+            <div class="creator-upgrade-greeting">Logged in as <strong>${esc(displayName)}</strong></div>
+            <div class="creator-upgrade-email">${esc(user.email || "")}</div>
+          </div>
+          <span class="creator-upgrade-status-pill"><i data-lucide="badge-check"></i> Member</span>
+        </div>
+        <p style="font-size:0.92rem;color:var(--text-secondary,#64748b);line-height:1.5;margin-bottom:18px;">
+          Your account is currently a Member account. Click below to upgrade to Creator and unlock this workspace without creating new credentials.
+        </p>
+        <button class="aw-button aw-primary" type="submit" id="aw-upgrade-submit" style="width:100%;">
+          <i data-lucide="sparkles"></i> Upgrade to Creator &amp; Continue
+        </button>
+      `;
+      if (window.lucide) window.lucide.createIcons();
+
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById("aw-upgrade-submit");
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = `<i data-lucide="loader-2" class="spin"></i> Upgrading...`;
+          if (window.lucide) window.lucide.createIcons();
+        }
+        const up = await window.MWEAuth.creatorUpgrade();
+        if (up.ok) {
+          window.MWECreator.setAccount(up.user.name || displayName, up.user.email || user.email);
+          localStorage.setItem("mwe.userEmail", (up.user.email || user.email).trim().toLowerCase());
+          document.body.classList.add("is-authenticated");
+          window.dispatchEvent(new HashChangeEvent("hashchange"));
+          window.showToast("Welcome to Creator Workspace!");
+        } else {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="sparkles"></i> Upgrade to Creator &amp; Continue`;
+            if (window.lucide) window.lucide.createIcons();
+          }
+          window.showToast(up.error || "Upgrade failed.");
+        }
+      };
+    }
   });
   let signingIn = false;
   document.getElementById("creator-account-mode").addEventListener("click", event => {

@@ -650,6 +650,82 @@ body.portal-modal-open { overflow:hidden; }
   color: var(--primary);
 }
 
+/* Member to Creator Upgrade Badge & Components */
+.creator-upgrade-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.creator-upgrade-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gradient-brand, var(--primary));
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 1.05rem;
+  flex: 0 0 44px;
+  box-shadow: 0 4px 12px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.25);
+}
+.creator-upgrade-details {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.creator-upgrade-greeting {
+  font-size: 0.92rem;
+  color: var(--ink);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.creator-upgrade-greeting strong {
+  color: var(--primary);
+  font-weight: 800;
+}
+.creator-upgrade-email {
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.creator-upgrade-status-pill {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(43, 94, 167, 0.1);
+  color: var(--primary);
+  border: 1px solid rgba(43, 94, 167, 0.25);
+}
+.creator-upgrade-status-pill svg {
+  width: 13px;
+  height: 13px;
+}
+html[data-theme="dark"] .creator-upgrade-profile-badge {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-subtle);
+}
+html[data-theme="dark"] .creator-upgrade-status-pill {
+  background: rgba(43, 94, 167, 0.22);
+  border-color: rgba(43, 94, 167, 0.4);
+  color: #93c5fd;
+}
+
 /* Authenticated Launchpad Grid & Panels */
 .launchpad-grid {
   display: grid;

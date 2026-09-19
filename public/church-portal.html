@@ -58,6 +58,93 @@
           <button class="tab-btn" data-tab="login" type="button">Sign In</button>
         </div>
         
+        <!-- Member Upgrade Form (Visible when user is already logged in as a member) -->
+        <div class="tab-content" id="upgrade-tab-content" style="display: none;">
+          <div class="creator-upgrade-profile-badge">
+            <div class="creator-upgrade-avatar" id="upgrade-user-avatar">MW</div>
+            <div class="creator-upgrade-details">
+              <div class="creator-upgrade-greeting">Logged in as <strong id="upgrade-user-name">Member</strong></div>
+              <div class="creator-upgrade-email" id="upgrade-user-email">member@example.com</div>
+            </div>
+            <span class="creator-upgrade-status-pill"><i data-lucide="badge-check"></i> Member</span>
+          </div>
+
+          <form data-upgrade-creator-form>
+            <p style="font-size: 0.88rem; color: var(--muted); margin-top: 14px; margin-bottom: 12px; font-weight: 700;">
+              What type of creator would you like to become?
+            </p>
+
+            <div class="launch-goal-grid">
+              <label class="launch-goal-card active">
+                <input type="radio" name="upgradeLaunchGoal" value="church" checked />
+                <i data-lucide="church"></i>
+                <strong>Church Profile</strong>
+                <span>Location &amp; Services</span>
+              </label>
+              <label class="launch-goal-card">
+                <input type="radio" name="upgradeLaunchGoal" value="channel" />
+                <i data-lucide="podcast"></i>
+                <strong>Channel / Media</strong>
+                <span>Podcasts &amp; Videos</span>
+              </label>
+              <label class="launch-goal-card">
+                <input type="radio" name="upgradeLaunchGoal" value="event" />
+                <i data-lucide="calendar"></i>
+                <strong>Events &amp; Tickets</strong>
+                <span>Outreach &amp; Rallies</span>
+              </label>
+              <label class="launch-goal-card">
+                <input type="radio" name="upgradeLaunchGoal" value="store" />
+                <i data-lucide="shopping-bag"></i>
+                <strong>Store &amp; Merch</strong>
+                <span>Products &amp; Books</span>
+              </label>
+              <label class="launch-goal-card">
+                <input type="radio" name="upgradeLaunchGoal" value="resource" />
+                <i data-lucide="book-open"></i>
+                <strong>Study Resources</strong>
+                <span>Guides &amp; E-books</span>
+              </label>
+              <label class="launch-goal-card">
+                <input type="radio" name="upgradeLaunchGoal" value="all" />
+                <i data-lucide="sparkles"></i>
+                <strong>All-in-One</strong>
+                <span>Full Creator Hub</span>
+              </label>
+            </div>
+
+            <div style="margin-top: 14px; display: grid; gap: 12px;">
+              <label class="form-field">
+                <span id="upgrade-org-label">Ministry / Channel / Organization Name</span>
+                <input type="text" id="upgrade-org-name" placeholder="e.g. Grace Fellowship / Life Channel" />
+              </label>
+
+              <div class="compact-grid" style="grid-template-columns: 1.2fr 1fr; gap: 10px;">
+                <label class="form-field">
+                  <span>Role / Calling</span>
+                  <select id="upgrade-role" class="field" style="width: 100%;">
+                    <option value="Senior Pastor">Senior Pastor</option>
+                    <option value="Pastor">Pastor</option>
+                    <option value="Channel Creator">Channel Creator</option>
+                    <option value="Event Organizer">Event Organizer</option>
+                    <option value="Author / Merchant">Author / Merchant</option>
+                    <option value="Ministry Leader">Ministry Leader</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </label>
+                <label class="form-field">
+                  <span>City / Location</span>
+                  <input type="text" id="upgrade-city" placeholder="e.g. Edmonton" />
+                </label>
+              </div>
+            </div>
+
+            <button class="button primary" type="submit" id="btn-creator-upgrade" style="margin-top: 18px; width: 100%; min-height: 48px; font-size: 1rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+              <i data-lucide="sparkles"></i> Upgrade to Creator &amp; Enter
+            </button>
+          </form>
+        </div>
+
         <!-- Sign In Form -->
         <div class="tab-content" id="login-tab-content">
           <form data-login-form>
