@@ -1,1 +1,1 @@
-@/tmp/REAL_store.js
+{{file:/tmp/REAL_store.js}}
