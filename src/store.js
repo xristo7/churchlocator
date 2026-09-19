@@ -1,1 +1,1 @@
-FILE_CONTENT_FROM_/tmp/store_blob.js
+@/tmp/REAL_store.js

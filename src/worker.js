@@ -1,1 +1,1 @@
-FILE_CONTENT_FROM_/tmp/worker from invoke
+@/tmp/REAL_worker.js
