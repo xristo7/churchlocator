@@ -1,1 +1,1 @@
-@/tmp/REAL_worker.js
+PLACEHOLDER_WILL_REPLACE
