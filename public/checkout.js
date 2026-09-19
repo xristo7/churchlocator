@@ -1,7 +1,6 @@
 (function initializeCheckout() {
-  const data = () => window.FaithLinkModules;
+  const data = () => window.MWEStore;
   const discountKey = "faithlink.store.discount.v1";
-  const ordersKey = "faithlink.store.orders.v1";
   let currentTotals = { subtotal: 0, shipping: 8, tax: 0, discount: 0, total: 0 };
 
   function cartRows() {
@@ -36,18 +35,41 @@
     document.getElementById("mobile-order-total").textContent = data().money(currentTotals.total);
   }
 
+  function showSuccess(result) {
+    const order = result.order || {};
+    const orderId = order.orderRef || order.id || "SANDBOX";
+    document.getElementById("checkout-form")?.closest(".checkout-form-column")?.setAttribute("hidden", "");
+    document.querySelector(".checkout-summary-column")?.setAttribute("hidden", "");
+    const panel = document.getElementById("checkout-success");
+    if (!panel) return;
+    panel.hidden = false;
+    document.getElementById("success-order-number").textContent = orderId;
+    document.getElementById("success-email").textContent = order.buyerEmail || order.email || "";
+    const note = panel.querySelector("[data-sandbox-note]") || document.createElement("p");
+    note.setAttribute("data-sandbox-note", "");
+    note.innerHTML = result.sandbox
+      ? `<strong>Sandbox / pending:</strong> ${data().escapeHtml(result.message || "No payment was captured. A payment provider has not been configured yet.")}`
+      : data().escapeHtml(result.message || "");
+    if (!note.parentElement) panel.querySelector("div")?.appendChild(note);
+  }
+
   document.addEventListener("DOMContentLoaded", async () => {
-  await window.MWEPlatform?.ready;
+    await window.MWEStore?.ready;
     if (!cartRows().length) { location.href = "cart.html"; return; }
+
+    const payButton = document.querySelector(".checkout-pay-button");
+    if (payButton) {
+      payButton.disabled = false;
+      payButton.innerHTML = `<i data-lucide="lock"></i> Place sandbox order <span id="checkout-pay-total"></span>`;
+    }
+    const help = document.querySelector(".checkout-help");
+    if (help) {
+      help.textContent = "Sandbox checkout is enabled until a payment provider is chosen. Orders are recorded as pending — no real charge is captured.";
+    }
+
     document.querySelectorAll(".accelerated-checkout .accelerated").forEach(button => button.addEventListener("click", () => {
-      const usePayPal = button.classList.contains("paypal");
-      const payment = document.querySelector(`input[name="payment"][value="${usePayPal ? "paypal" : "card"}"]`);
-      if (payment) {
-        payment.checked = true;
-        payment.dispatchEvent(new Event("change", { bubbles: true }));
-      }
       const message = document.getElementById("checkout-form-error");
-      message.textContent = "Payments are unavailable until a verified payment provider is configured.";
+      message.textContent = "Express wallets need a payment provider. Use Place sandbox order below for a pending demo order.";
       document.querySelector('#checkout-form input[name="email"]')?.focus();
     }));
     document.querySelectorAll('input[name="shipping"],input[name="deliveryType"]').forEach(input => input.addEventListener("change", () => {
@@ -55,11 +77,6 @@
       document.getElementById("shipping-fields").classList.toggle("checkout-fields-disabled", pickup);
       document.getElementById("shipping-fields").querySelectorAll("[required]").forEach(field => field.required = !pickup);
       render();
-    }));
-    document.querySelectorAll('input[name="payment"]').forEach(input => input.addEventListener("change", () => {
-      const useCard = document.querySelector('input[name="payment"]:checked')?.value === "card";
-      document.querySelector(".payment-fields").classList.toggle("checkout-fields-disabled", !useCard);
-      document.querySelectorAll(".payment-fields input").forEach(field => field.required = useCard);
     }));
     document.getElementById("checkout-apply-discount").addEventListener("click", () => {
       const code = document.getElementById("checkout-discount").value.trim().toUpperCase();
@@ -69,11 +86,32 @@
       render();
     });
     document.getElementById("mobile-order-toggle").addEventListener("click", () => document.getElementById("checkout-order-content").classList.toggle("open"));
-    document.getElementById("checkout-form").addEventListener("submit", event => {
+    document.getElementById("checkout-form").addEventListener("submit", async event => {
       event.preventDefault();
-      document.getElementById("checkout-form-error").textContent = "Payments are unavailable until a verified payment provider is configured.";
-      return;
-
+      const form = event.currentTarget;
+      const errorEl = document.getElementById("checkout-form-error");
+      errorEl.textContent = "";
+      if (!form.reportValidity()) return;
+      const fd = new FormData(form);
+      const buyerName = `${fd.get("firstName") || ""} ${fd.get("lastName") || ""}`.trim() || String(fd.get("email") || "");
+      payButton && (payButton.disabled = true);
+      try {
+        const result = await data().placeOrder({
+          mode: "sandbox",
+          buyerName,
+          buyerEmail: String(fd.get("email") || "").trim(),
+          email: String(fd.get("email") || "").trim(),
+          notes: `delivery=${fd.get("deliveryType") || "ship"}; shipping=${fd.get("shipping") || "standard"}`,
+          shipping: fd.get("shipping"),
+          deliveryType: fd.get("deliveryType"),
+          totals: { ...currentTotals }
+        });
+        showSuccess(result);
+        window.MWE?.showMemberToast?.(result.message || "Sandbox order recorded");
+      } catch (error) {
+        errorEl.textContent = error.message || "Checkout failed.";
+        if (payButton) payButton.disabled = false;
+      }
     });
     render(); window.lucide?.createIcons();
   });
