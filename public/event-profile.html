@@ -13,11 +13,10 @@
   <!-- Global site styles (for topbar header and footers) -->
   <link rel="stylesheet" href="styles.css?v=20260901g" />
   
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config = { darkMode: ['selector', '[data-theme="dark"]'] }</script>
+  <!-- Tailwind CSS Local Engine -->
   <script>
-    tailwind.config = {
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
       darkMode: ['selector', '[data-theme="dark"]'],
       theme: {
         extend: {
@@ -50,27 +49,12 @@
               600: 'var(--gold)',
               700: 'var(--gold)',
             }
-          },
-          animation: {
-            'blob': 'blob 7s infinite',
-            'shimmer': 'shimmer 2.5s infinite linear',
-            'float': 'float 6s ease-in-out infinite',
-          },
-          keyframes: {
-            blob: {
-              '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
-              '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-              '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-            },
-            float: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-10px)' },
-            }
           }
         }
       }
-    }
+    };
   </script>
+  <script src="vendor/tailwindcss.js"></script>
 
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -89,6 +73,53 @@
       max-width: 1080px !important;
       margin-left: auto !important;
       margin-right: auto !important;
+    }
+
+    /* Resilient cover image constraints (prevents raw image blowout) */
+    .event-hero-section {
+      position: relative !important;
+      overflow: hidden !important;
+      width: 100% !important;
+    }
+    .event-hero-blur-wrapper {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      pointer-events: none !important;
+      overflow: hidden !important;
+      z-index: 0 !important;
+    }
+    #event-profile-hero-blur-bg {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      pointer-events: none !important;
+      opacity: 0.22 !important;
+      filter: blur(24px) !important;
+      transform: scale(1.05) !important;
+    }
+    .event-cover-wrapper {
+      position: relative !important;
+      width: 100% !important;
+      aspect-ratio: 16 / 10 !important;
+      min-height: 280px !important;
+      max-height: 460px !important;
+      border-radius: 24px !important;
+      overflow: hidden !important;
+    }
+    #event-profile-cover-img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block !important;
+    }
+    #event-profile-cover-img-blur {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
     }
     
     /* Premium Glassmorphism and effects */
@@ -186,6 +217,15 @@
     .tab-panel {
       background: var(--background) !important;
     }
+    body[data-page="event-profile"] .tab-panel.hidden {
+      display: none !important;
+    }
+    body[data-page="event-profile"] .tab-panel:not(.hidden) {
+      display: block !important;
+    }
+    body[data-page="event-profile"] .tab-panel.active {
+      display: block !important;
+    }
     #event-expect-grid > div {
       background: var(--surface) !important;
       border-color: var(--border-subtle) !important;
@@ -263,9 +303,9 @@
   </header>
 
   <!-- Interactive Hero Section -->
-  <section class="relative flex flex-col items-center justify-center pt-8 pb-14 overflow-hidden px-4">
+  <section class="event-hero-section relative flex flex-col items-center justify-center pt-8 pb-14 overflow-hidden px-4">
     <!-- Transparent Blurred Background Image -->
-    <div class="absolute inset-0 pointer-events-none opacity-[0.22] filter blur-xl scale-105 z-0">
+    <div class="event-hero-blur-wrapper absolute inset-0 pointer-events-none opacity-[0.22] filter blur-xl scale-105 z-0">
       <img id="event-profile-hero-blur-bg" src="" alt="" class="w-full h-full object-cover" />
     </div>
     <!-- Animated Backdrop Blobs -->
@@ -283,7 +323,7 @@
         <div class="absolute -inset-2 rounded-[28px] overflow-hidden pointer-events-none opacity-40 filter blur-lg -z-10 transition-opacity duration-300 group-hover:opacity-70">
           <img id="event-profile-cover-img-blur" src="" alt="" class="w-full h-full object-cover" />
         </div>
-        <div class="w-full rounded-3xl overflow-hidden shadow-xl relative border border-slate-200/60 aspect-[16/10] min-h-[300px] lg:min-h-[400px]">
+        <div class="event-cover-wrapper w-full rounded-3xl overflow-hidden shadow-xl relative border border-slate-200/60 aspect-[16/10] min-h-[300px] lg:min-h-[400px]">
           <img id="event-profile-cover-img" src="" alt="Event Cover" class="w-full h-full object-cover" />
           <!-- High-contrast gradient overlay at bottom -->
           <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent"></div>
@@ -384,7 +424,7 @@
   <div id="event-tabs-container" class="relative">
     
     <!-- About / What To Expect Section -->
-    <section id="about" class="tab-panel py-14 bg-slate-100/50 relative">
+    <section id="about" class="tab-panel active py-14 bg-slate-100/50 relative">
       <div class="container">
         <!-- Event Overview & Host Church Information -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14 items-stretch">
@@ -742,12 +782,16 @@
           const targetId = btn.getAttribute("data-target");
           
           // Hide all tab panels
-          tabPanels.forEach(panel => panel.classList.add("hidden"));
+          tabPanels.forEach(panel => {
+            panel.classList.add("hidden");
+            panel.classList.remove("active");
+          });
           
           // Show active panel
           const activePanel = document.getElementById(targetId);
           if (activePanel) {
             activePanel.classList.remove("hidden");
+            activePanel.classList.add("active");
           }
           
           // Toggle tab button classes

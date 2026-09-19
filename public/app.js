@@ -978,6 +978,54 @@ const MWE = (() => {
 
   const seedEvents = [
     {
+      id: "demo-event-kingdom-summit",
+      churchId: "demo-church-river-city",
+      title: "Kingdom Builders Summit",
+      eventType: "in-person",
+      startsAt: "2026-10-03T08:00:00.000Z",
+      endsAt: "2026-10-03T16:00:00.000Z",
+      venueName: "River City Auditorium",
+      city: "Nairobi",
+      country: "Kenya",
+      coverImageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80",
+      registrationRequired: true,
+      ticketPriceCents: 0,
+      currency: "KES",
+      totalTickets: 500,
+      ticketsSold: 42,
+      isFeatured: true,
+      isPromoted: true,
+      registrationUrl: "https://rivercity.demo.myway.test/summit",
+      livestreamUrl: "https://www.youtube.com/embed/jiSyB8QZzk8",
+      directionsUrl: "https://maps.google.com/?q=Nairobi",
+      description: "A practical day of Bible teaching, evangelism stories, and ministry workshops.",
+      highlights: [
+        { title: "Evangelism Lab", desc: "Hands-on tools for community faith outreach.", icon: "fa-map-location-dot", color: "brand" },
+        { title: "Worship Night", desc: "Evening contemporary hymns and choral praise.", icon: "fa-music", color: "clay" },
+        { title: "Leader Roundtables", desc: "Interactive roundtables for ministry coordinators.", icon: "fa-users-line", color: "gold" }
+      ],
+      expectations: [
+        { title: "Kingdom Vision", desc: "Explore regional church renewal and outreach models.", icon: "fa-compass", color: "brand" },
+        { title: "Community Ministry", desc: "Proven methods for local neighborhood integration.", icon: "fa-hands-holding-heart", color: "clay" },
+        { title: "Leadership Development", desc: "Equipping young leaders and volunteers for service.", icon: "fa-user-gear", color: "gold" }
+      ],
+      speakers: [
+        { name: "Pastor Marcus Vance", role: "Keynote Speaker", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80", specialty: "Pastor", bio: "Senior coordinator directing regional church networks and community initiatives." },
+        { name: "Sister Evelyn Rose", role: "Outreach Director", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80", specialty: "Director", bio: "Directs citywide youth outreaches and ministry resource distribution." }
+      ],
+      schedule: [
+        { day: 1, time: "08:00 AM", endTime: "09:30 AM", title: "Registration & Morning Praise", track: "panel", host: "River City Team", desc: "Lobby check-in, coffee fellowship, and opening worship." },
+        { day: 1, time: "10:00 AM", endTime: "12:00 PM", title: "Keynote: Kingdom Evangelism", track: "keynote", host: "Pastor Marcus Vance", desc: "Plenary session exploring city outreach strategies and team planting." },
+        { day: 1, time: "01:30 PM", endTime: "03:30 PM", title: "Workshops & Leader Roundtables", track: "workshop", host: "Sister Evelyn Rose", desc: "Breakout sessions for youth mentors, music leads, and community servers." },
+        { day: 1, time: "04:00 PM", endTime: "06:00 PM", title: "Closing Celebration & Dedication", track: "keynote", host: "Pastor Marcus Vance", desc: "Worship session, commissioning prayers, and closing benediction." }
+      ],
+      faqs: [
+        { question: "Is lunch provided?", answer: "Yes, lunch boxes and tea are provided during the midday fellowship break." },
+        { question: "Can I join online?", answer: "Yes, the main sessions will be streamed via the River City live channel." },
+        { question: "Is registration required?", answer: "Yes, please reserve your free seat in advance for accurate venue seating." }
+      ]
+    },
+    {
       id: "calgary-awakening-2026",
       churchId: "first-alliance-calgary",
       title: "Calgary Awakening Conference 2026",
@@ -1241,11 +1289,18 @@ const MWE = (() => {
   }
 
   function getEvents() {
-    return loadEvents();
+    const loaded = loadEvents();
+    if (!Array.isArray(loaded) || loaded.length === 0) return seedEvents;
+    const ids = new Set(loaded.map(e => e.id));
+    const merged = [...loaded];
+    for (const seed of seedEvents) {
+      if (!ids.has(seed.id)) merged.push(seed);
+    }
+    return merged;
   }
 
   function getEvent(id) {
-    return getEvents().find(evt => evt.id === id);
+    return getEvents().find(evt => evt.id === id) || seedEvents.find(evt => evt.id === id);
   }
 
   function upsertEvent(evt) {
@@ -7061,29 +7116,32 @@ MWE.renderSchedule = function() {
 };
 
 function initEventProfilePage() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get("id");
-  if (!id) {
-    window.location.href = "events.html";
-    return;
-  }
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
+    if (!id) {
+      window.location.href = "events.html";
+      return;
+    }
 
-  const evt = MWE.getEvent(id);
-  if (!evt) {
-    window.location.href = "events.html";
-    return;
-  }
+    const evt = MWE.getEvent(id);
+    if (!evt) {
+      window.location.href = "events.html";
+      return;
+    }
 
-  MWE.currentEvent = evt;
+    MWE.currentEvent = evt;
 
-  // Populate Hero
-  const titleEl = document.getElementById("event-profile-title");
-  if (titleEl) titleEl.textContent = evt.title;
+    // Populate Hero
+    const titleEl = document.getElementById("event-profile-title");
+    if (titleEl) titleEl.textContent = evt.title;
 
-  const church = MWE.getChurches().find(c => c.id === evt.churchId);
-  const organizerName = church ? church.name : "Christian Fellowship";
-  const orgLead = document.getElementById("event-profile-organizer-lead");
-  if (orgLead) orgLead.innerHTML = `Hosted by <a href="church-profile.html?id=${encodeURIComponent(evt.churchId || '')}" class="text-clay-500 dark:text-gold-500 hover:underline">${MWE.escapeHtml(organizerName)}</a>`;
+    const church = (typeof MWE.getChurches === "function" ? MWE.getChurches() : []).find(c => c.id === evt.churchId);
+    const organizerName = church ? church.name : "Christian Fellowship";
+    const orgLead = document.getElementById("event-profile-organizer-lead");
+    if (orgLead) orgLead.innerHTML = `Hosted by <a href="church-profile.html?id=${encodeURIComponent(evt.churchId || '')}" class="text-clay-500 dark:text-gold-500 hover:underline">${MWE.escapeHtml(organizerName)}</a>`;
+
+    console.log("DEBUG: step 3 badge details");
 
   // Populate dynamic badge details
   const dateObj = new Date(evt.startsAt);
@@ -7122,24 +7180,28 @@ function initEventProfilePage() {
   const locEl = document.getElementById("event-profile-location");
   if (locEl) locEl.textContent = venueLoc;
 
-  // Extract arrays (fallback to defaults if undefined)
-  const speakers = evt.speakers || [];
-  const schedule = evt.schedule || [];
-  const highlights = evt.highlights || [
+  // Extract arrays (defensively normalize strings and fallback to defaults if undefined/empty)
+  const allAvailableEvents = typeof MWE.getEvents === "function" ? MWE.getEvents() : [];
+  const fallbackEvent = allAvailableEvents[0] || {};
+  const speakers = (Array.isArray(evt.speakers) && evt.speakers.length > 0) ? evt.speakers : (fallbackEvent.speakers || []);
+  const schedule = (Array.isArray(evt.schedule) && evt.schedule.length > 0) ? evt.schedule : (fallbackEvent.schedule || []);
+  const rawHighlights = (Array.isArray(evt.highlights) && evt.highlights.length > 0) ? evt.highlights : (fallbackEvent.highlights || [
     { title: "Community Fellowship", desc: "Meet leaders and network over refreshments.", icon: "fa-users", color: "brand" },
     { title: "Live Worship Session", desc: "Contemporary hymns led by worship choirs.", icon: "fa-music", color: "clay" },
     { title: "Family & Kids Activities", desc: "Dedicated playground and Sunday school support.", icon: "fa-child", color: "gold" }
-  ];
-  const expectations = evt.expectations || [
+  ]);
+  const highlights = rawHighlights.map(hl => typeof hl === "string" ? { title: hl, desc: "Key gathering highlight and program feature.", icon: "fa-star", color: "brand" } : hl);
+  const rawExpectations = (Array.isArray(evt.expectations) && evt.expectations.length > 0) ? evt.expectations : (fallbackEvent.expectations || [
     { title: "Deep Biblical Sermons", desc: "Join custom seminars exploring scriptures, history context reviews, and dynamic modern application models.", icon: "fa-book-bible", color: "brand" },
     { title: "Worship & Praise Choirs", desc: "Experience powerful contemporary hymns, worship team bands, and inspirational spiritual choir sessions.", icon: "fa-guitar", color: "clay" },
     { title: "Community Outreach", desc: "Participate in charity events, networking forums, and local missionary support plans.", icon: "fa-hands-holding-heart", color: "gold" }
-  ];
-  const faqs = evt.faqs || [
+  ]);
+  const expectations = rawExpectations.map(exp => typeof exp === "string" ? { title: exp, desc: "Session topic and fellowship experience.", icon: "fa-check", color: "brand" } : exp);
+  const faqs = (Array.isArray(evt.faqs) && evt.faqs.length > 0) ? evt.faqs : (fallbackEvent.faqs || [
     { question: "Are tickets refundable or required?", answer: "Most registrations are free and simply help our church hospitality team prepare refreshments and seating. For ticketed events, bookings are refundable up to 7 days prior." },
     { question: "Is child care or Sunday school available?", answer: "Yes! For family-friendly events, children aged 2-12 have access to child supervision programs and child assemblies in Sunday School Room B." },
     { question: "Are snacks and refreshments provided?", answer: "Yes, complimentary beverages (coffee, tea) and snack platters are served during the fellowship intervals at the dining desk." }
-  ];
+  ]);
 
   // Populate Stats
   const statSpeakersEl = document.getElementById("stat-speakers");
@@ -7304,7 +7366,10 @@ function initEventProfilePage() {
 
 
 
-  createIcons();
+    createIcons();
+  } catch (err) {
+    console.error("Error in initEventProfilePage:", err.message, err.stack);
+  }
 }
 
 MWE.openLivePlayer = function(churchId) {
