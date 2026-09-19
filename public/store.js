@@ -1,5 +1,7 @@
 (function initializeStoreModule() {
   const data = () => window.MWEStore;
+  const PLACEHOLDER = "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=82";
+  const productImage = (p) => p?.image || p?.imageUrl || PLACEHOLDER;
 
   function filteredProducts() {
     const query = document.getElementById("store-search")?.value.trim().toLowerCase() || "";
@@ -52,7 +54,7 @@
       return `
       <article class="product-card ${isService ? "service-card-item" : ""}">
         <a class="product-image-wrap" href="product-detail.html?id=${encodeURIComponent(product.id)}" aria-label="View ${data().escapeHtml(product.title)}">
-          <img class="product-image" src="${data().escapeHtml(product.image)}" alt="${data().escapeHtml(product.title)}" />
+          <img class="product-image" src="${data().escapeHtml(productImage(product))}" alt="${data().escapeHtml(product.title)}" />
           <span class="product-badge ${isService ? "service-badge-pill" : ""}">${isService ? `<i data-lucide="sparkles"></i> Service · ` : ""}${data().escapeHtml(product.sellerType)} · ${data().escapeHtml(product.category)}</span>
         </a>
         <button class="content-love-button content-love-overlay" type="button" data-love-type="product" data-love-id="${data().escapeHtml(product.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
@@ -95,7 +97,7 @@
     document.getElementById("cart-total").textContent = data().money(total);
     document.getElementById("cart-items").innerHTML = rows.length ? rows.map(item => `
       <div class="cart-item">
-        <img src="${data().escapeHtml(item.product.image)}" alt="" />
+        <img src="${data().escapeHtml(productImage(item.product))}" alt="" />
         <div><strong>${data().escapeHtml(item.product.title)}</strong><small>${item.quantity} × ${data().money(item.product.price)}</small></div>
         <button class="cart-remove" type="button" data-remove-cart="${data().escapeHtml(item.product.id)}" aria-label="Remove item"><i data-lucide="x"></i></button>
       </div>

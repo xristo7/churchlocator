@@ -50,8 +50,8 @@
       title: row.title || 'Untitled',
       slug: row.slug || '',
       description: row.description || '',
-      image: row.imageUrl || row.image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=82',
-      imageUrl: row.imageUrl || row.image || '',
+      image: (row.imageUrl || row.image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=82'),
+      imageUrl: (row.imageUrl || row.image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=82'),
       currency: row.currency || currency || 'USD',
       price: price,
       priceCents: row.priceCents != null ? Number(row.priceCents) : Math.round(price * 100),
@@ -291,8 +291,14 @@
         };
       }
     } catch (err) {
-      if (err && err.status === 401) throw new Error('Sign in to complete checkout.');
-      if (err && err.status !== 404) throw err;
+      // Guests: fall through to local sandbox pending order (no forced sign-in).
+      // Signed-in users: surface auth errors instead of silently faking success.
+      if (err && err.status === 401) {
+        if (platform() && platform().session) throw new Error('Sign in to complete checkout.');
+        console.warn('[MWEStore] checkout 401 as guest — using local sandbox');
+      } else if (err && err.status !== 404) {
+        throw err;
+      }
     }
     const catalog = published.concat(allCached);
     const items = lines.map(function (line) {
@@ -372,6 +378,20 @@
     throw unavailable;
   }
 
+
+  async function resolveCartRows() {
+    await refreshProducts({ includeDrafts: false });
+    await refreshCart();
+    const lines = cart.slice();
+    const rows = [];
+    for (const line of lines) {
+      let product = published.concat(allCached).find(function (row) { return row.id === line.id; });
+      if (!product) product = await getProduct(line.id);
+      if (product) rows.push({ id: line.id, quantity: line.quantity, product: product });
+    }
+    return rows;
+  }
+
   const ready = (async function () {
     try { await (platform() && platform().ready); } catch (_) {}
     await refreshProducts({ includeDrafts: false });
@@ -382,10 +402,9 @@
   })();
 
   root.MWEStore = {
-    version: '20260919p0catalog1',
+    version: '20260919p0qa1',
     ready: ready,
     get readyResolved() { return readyResolved; },
-    get currency() { return currency; },
     escapeHtml: function (value) {
       if (legacy() && legacy().escapeHtml) return legacy().escapeHtml(value);
       return String(value ?? '').replace(/[&<>"']/g, function (ch) {
@@ -410,6 +429,7 @@
       return published.concat(allCached).find(function (row) { return row && row.id === id; }) || null;
     },
     getCart: function () { return cart.map(function (row) { return Object.assign({}, row); }); },
+    resolveCartRows: resolveCartRows,
     addToCart: addToCart,
     setCartQuantity: setCartQuantity,
     placeOrder: placeOrder,
