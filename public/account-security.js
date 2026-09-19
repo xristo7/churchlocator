@@ -32,10 +32,12 @@
     const controls = $("security-controls");
     const authForms = $("security-auth-forms");
     const signinForm = $("security-signin");
+    const recoveryForm = $("security-recovery");
 
     if (controls) controls.hidden = !user;
     if (authForms) authForms.hidden = !!user;
     if (signinForm) signinForm.hidden = !!user;
+    if (recoveryForm) recoveryForm.hidden = !!user;
 
     if (!user) {
       window.lucide?.createIcons();
@@ -44,13 +46,13 @@
 
     const info = await api("auth/security");
     const verifiedBadge = info.emailVerified
-      ? '<span class="account-security-tag tag-success">Email verified</span>'
-      : '<span class="account-security-tag tag-warning">Email unverified</span>';
+      ? '<span class="account-security-tag tag-success"><i data-lucide="check"></i> Email verified</span>'
+      : '<span class="account-security-tag tag-warning"><i data-lucide="alert-circle"></i> Email unverified</span>';
     const mfaBadge = info.mfaEnabled
-      ? '<span class="account-security-tag tag-success">2FA active</span>'
-      : '<span class="account-security-tag tag-muted">2FA off</span>';
+      ? '<span class="account-security-tag tag-success"><i data-lucide="shield-check"></i> 2FA active</span>'
+      : '<span class="account-security-tag tag-muted"><i data-lucide="shield-off"></i> 2FA off</span>';
 
-    $("security-summary").innerHTML = "<strong>" + esc(user.email) + "</strong><br>" + verifiedBadge + mfaBadge;
+    $("security-summary").innerHTML = '<div class="account-security-user-email">' + esc(user.email) + '</div><div class="account-security-tags">' + verifiedBadge + mfaBadge + '</div>';
 
     $("security-verify").disabled = info.emailVerified || !info.emailConfigured;
     $("security-enroll").disabled = !info.emailVerified || info.mfaEnabled;

@@ -38,7 +38,7 @@
             <p>Your verification and security summary.</p>
           </div>
         </div>
-        <p class="account-security-status-text" id="security-summary"></p>
+        <div class="account-security-status-text" id="security-summary"></div>
         <button id="security-verify" type="button" class="account-profile-button account-profile-button-primary">
           <i data-lucide="mail-check"></i> Send verification email
         </button>
@@ -93,6 +93,7 @@
             <p>Quick access to your creator and administrative spaces.</p>
           </div>
         </div>
+        <p class="account-security-card-desc">Quick access to your creator and administrative management spaces.</p>
         <div class="account-profile-actions">
           <a class="account-profile-button account-profile-button-quiet" href="creator-workspace.html"><i data-lucide="briefcase"></i> Creator workspace</a>
           <a class="account-profile-button account-profile-button-quiet" href="owner-dashboard.html"><i data-lucide="layout-dashboard"></i> Owner dashboard</a>
@@ -117,7 +118,7 @@
     </section>
 
     <!-- Sign-in & recovery forms for unauthenticated visitors -->
-    <div id="security-auth-forms" class="account-profile-grid account-security-standalone-form">
+    <div id="security-auth-forms" class="account-profile-grid account-security-standalone-form" hidden>
       <form id="security-signin" class="account-profile-card account-profile-form">
         <div class="account-profile-card-title">
           <span><i data-lucide="log-in"></i></span>

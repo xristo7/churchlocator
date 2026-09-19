@@ -14357,6 +14357,15 @@ body.account-profile-page {
   border-radius: 24px;
   background: var(--surface, #fff);
   box-shadow: var(--shadow-card, 0 14px 40px rgba(15, 23, 42, .07));
+  padding: 28px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .account-profile-card {
+    padding: 20px 18px;
+    border-radius: 18px;
+  }
 }
 
 .account-profile-identity-card {
@@ -14413,6 +14422,8 @@ body.account-profile-page {
 .account-profile-button:disabled { opacity: .52; cursor: not-allowed; transform: none; box-shadow: none; }
 
 .account-profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.account-profile-grid[hidden],
+.account-security-standalone-form[hidden] { display: none !important; }
 .account-profile-form { padding: 28px; }
 
 .account-profile-card-title {
@@ -14483,28 +14494,55 @@ body.account-profile-page {
 .account-security-row > div { flex: 1 1 auto; min-width: 0; }
 .account-security-row .account-profile-button { flex: 0 0 auto; }
 
+.account-security-shell .account-profile-card {
+  display: flex;
+  flex-direction: column;
+}
+.account-security-shell .account-profile-card > .account-profile-button,
+.account-security-shell .account-profile-card > .account-profile-actions {
+  margin-top: auto;
+}
+
 .account-security-status-text {
   margin: 0 0 16px;
   color: var(--text-primary);
   font-size: 0.95rem;
   line-height: 1.6;
 }
+.account-security-user-email {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  word-break: break-all;
+  margin-bottom: 8px;
+}
+.account-security-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
 .account-security-card-desc {
-  margin: 0 0 16px !important;
+  margin: 0 0 18px !important;
   color: var(--text-secondary);
   font-size: 0.88rem;
   line-height: 1.55;
 }
 .account-security-tag {
-  display: inline-block;
-  margin-top: 6px;
-  margin-right: 6px;
-  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
   border-radius: 999px;
   font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+.account-security-tag svg {
+  width: 14px;
+  height: 14px;
 }
 .account-security-tag.tag-success {
   background: rgba(34, 197, 94, 0.14);
@@ -14524,10 +14562,17 @@ body.account-profile-page {
 html[data-theme="dark"] .account-security-tag.tag-success {
   background: rgba(34, 197, 94, 0.2);
   color: #86efac;
+  border-color: rgba(34, 197, 94, 0.35);
 }
 html[data-theme="dark"] .account-security-tag.tag-warning {
   background: rgba(245, 158, 11, 0.2);
   color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+html[data-theme="dark"] .account-security-tag.tag-muted {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
 }
 .account-security-enrollment-box {
   margin-top: 18px;
