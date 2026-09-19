@@ -240,3 +240,15 @@ html[data-theme="dark"] .livestream-showcase-card:hover .livestream-showcase-pla
 @media (hover: none) {
   .broadcast-share-overlay { opacity:1; transform:none; }
 }
+
+/* Suppress love heart reaction buttons on all livestream cards */
+.livestream-showcase-card .content-love-button,
+.livestream-showcase-card .content-love-overlay,
+.livestream-showcase-card [data-love-type],
+.livestream-showcase-card [data-love-type="livestream"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+

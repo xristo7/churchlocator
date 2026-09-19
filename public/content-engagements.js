@@ -4,7 +4,7 @@
   let timer = 0;
 
   const controls = () => [...document.querySelectorAll("[data-love-type][data-love-id]")]
-    .filter(button => allowed.has(button.dataset.loveType));
+    .filter(button => allowed.has(button.dataset.loveType) && !button.closest(".livestream-showcase-card, .livestream-card-16-9"));
 
   function paint(button, loved, count) {
     button.classList.toggle("is-loved", loved);
@@ -16,6 +16,7 @@
 
   async function hydrate() {
     timer = 0;
+    document.querySelectorAll(".livestream-showcase-card .content-love-button, .livestream-showcase-card .content-love-overlay, .livestream-showcase-card [data-love-type], .livestream-card-16-9 .content-love-button, .livestream-card-16-9 [data-love-type]").forEach(el => el.remove());
     const groups = {};
     controls().forEach(button => {
       const key = `${button.dataset.loveType}:${button.dataset.loveId}`;

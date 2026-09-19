@@ -33,6 +33,7 @@
         '<span class="livestream-showcase-badge"><span class="livestream-showcase-badge-dot"></span> LIVE</span>' +
         '<div class="livestream-showcase-copy"><h3>' + esc(stream.name) + '</h3><p><i data-lucide="map-pin"></i> ' + esc(stream.description || "Live broadcast") + '</p></div>' +
         '<span class="livestream-showcase-play"><i data-lucide="play"></i><b>Play</b></span>';
+      card.querySelectorAll?.(".content-love-button, .content-love-overlay, [data-love-type]")?.forEach(el => el.remove());
       target.append(card);
     });
     const empty = document.getElementById("streams-empty-state");

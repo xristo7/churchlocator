@@ -254,15 +254,18 @@
           <a href="donate.html" class="highlight-link">Donation</a>
         </nav>
         <div class="nav-actions">
+          <a href="events.html" class="topbar-host-btn" style="text-decoration:none;">
+            <i data-lucide="calendar"></i> All Events
+          </a>
         </div>
       </div>
     </div>
   </header>
 
   <!-- Interactive Hero Section -->
-  <section class="relative flex flex-col items-center justify-center pt-[80px] pb-16 overflow-hidden px-4">
-    <!-- Transparent Blurred Background Image (Featured Cover Image Copy in Cover State) -->
-    <div class="absolute inset-0 pointer-events-none opacity-[0.25] filter blur-lg scale-105 z-0">
+  <section class="relative flex flex-col items-center justify-center pt-8 pb-14 overflow-hidden px-4">
+    <!-- Transparent Blurred Background Image -->
+    <div class="absolute inset-0 pointer-events-none opacity-[0.22] filter blur-xl scale-105 z-0">
       <img id="event-profile-hero-blur-bg" src="" alt="" class="w-full h-full object-cover" />
     </div>
     <!-- Animated Backdrop Blobs -->
@@ -273,22 +276,23 @@
     <!-- Mesh Grid overlay -->
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-25"></div>
 
-    <!-- Tucked Overlapping Hero Grid Layout (Margin reduced to push closer to topbar) -->
-    <div class="container relative z-10 flex flex-col lg:flex-row items-center justify-center gap-0 max-w-[1080px] mx-auto w-full mt-4">
-      <!-- Left side: Large Event Cover Thumbnail -->
-      <div class="w-full lg:w-[65%] z-20 flex-shrink-0 relative group">
-        <!-- Blurred background cover copy -->
-        <div class="absolute -inset-3 rounded-[32px] overflow-hidden pointer-events-none opacity-50 filter blur-xl -z-10 transition-opacity duration-300 group-hover:opacity-75">
+    <!-- Balanced 2-Column Hero Grid Layout (Strictly 1080px max width) -->
+    <div class="container relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-[1080px] mx-auto w-full mt-2">
+      <!-- Left side: Large Event Cover Thumbnail (7 columns) -->
+      <div class="w-full lg:col-span-7 z-20 relative group">
+        <div class="absolute -inset-2 rounded-[28px] overflow-hidden pointer-events-none opacity-40 filter blur-lg -z-10 transition-opacity duration-300 group-hover:opacity-70">
           <img id="event-profile-cover-img-blur" src="" alt="" class="w-full h-full object-cover" />
         </div>
-        <div class="w-full rounded-3xl overflow-hidden shadow-2xl relative border border-slate-200/60 aspect-[4/3] min-h-[300px] lg:min-h-[420px]">
+        <div class="w-full rounded-3xl overflow-hidden shadow-xl relative border border-slate-200/60 aspect-[16/10] min-h-[300px] lg:min-h-[400px]">
           <img id="event-profile-cover-img" src="" alt="Event Cover" class="w-full h-full object-cover" />
-          <!-- Darker gradient overlay at the bottom for high-contrast text rendering -->
-          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+          <!-- High-contrast gradient overlay at bottom -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent"></div>
           
-          <!-- Absolute Overlay Header Info at the bottom area -->
-          <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-30 text-left lg:max-w-[72%]">
-            
+          <!-- Absolute Overlay Header Info at bottom -->
+          <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-30 text-left">
+            <span id="hero-badge-text" class="inline-block text-[11px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-white mb-2.5">
+              UPCOMING GATHERING
+            </span>
             <h1 id="event-profile-title" class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight text-white mb-2 filter drop-shadow-md">
               Worship Gathering & Fellowship
             </h1>
@@ -297,13 +301,13 @@
         </div>
       </div>
 
-      <!-- Right side: Countdown Card tucked behind the cover -->
-      <div class="w-full lg:w-[48%] lg:-ml-14 z-10 mt-6 lg:mt-0 flex items-center">
-        <div class="w-full rounded-3xl gradient-border glassmorphism p-6 sm:p-7 lg:pl-24 shadow-2xl relative border border-slate-200/60">
+      <!-- Right side: Countdown Card (5 columns) -->
+      <div class="w-full lg:col-span-5 z-10 flex items-center">
+        <div class="w-full rounded-3xl gradient-border glassmorphism p-6 sm:p-7 shadow-xl relative border border-slate-200/60">
           <!-- Glass shine overlay -->
           <div class="absolute inset-0 bg-gradient-to-tr from-white/0 to-white/10 rounded-3xl pointer-events-none"></div>
 
-          <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center justify-between mb-5">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
               <i class="fa-solid fa-hourglass-half text-brand-500 animate-spin" style="animation-duration: 3s"></i> COUNTDOWN TO START
             </span>
@@ -313,27 +317,27 @@
           </div>
 
           <!-- Countdown Grid -->
-          <div class="grid grid-cols-4 gap-3 text-center mb-6" id="countdown-grid">
+          <div class="grid grid-cols-4 gap-2.5 text-center mb-5" id="countdown-grid">
             <div class="p-3 bg-slate-100 rounded-2xl border border-slate-200/50">
-              <span class="block text-2xl sm:text-3xl font-black text-slate-900" id="cd-days">--</span>
-              <span class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Days</span>
+              <span class="block text-xl sm:text-2xl font-black text-slate-900" id="cd-days">--</span>
+              <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Days</span>
             </div>
             <div class="p-3 bg-slate-100 rounded-2xl border border-slate-200/50">
-              <span class="block text-2xl sm:text-3xl font-black text-slate-900" id="cd-hours">--</span>
-              <span class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Hrs</span>
+              <span class="block text-xl sm:text-2xl font-black text-slate-900" id="cd-hours">--</span>
+              <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Hrs</span>
             </div>
             <div class="p-3 bg-slate-100 rounded-2xl border border-slate-200/50">
-              <span class="block text-2xl sm:text-3xl font-black text-slate-900" id="cd-mins">--</span>
-              <span class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Mins</span>
+              <span class="block text-xl sm:text-2xl font-black text-slate-900" id="cd-mins">--</span>
+              <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Mins</span>
             </div>
             <div class="p-3 bg-slate-100 rounded-2xl border border-slate-200/50">
-              <span class="block text-2xl sm:text-3xl font-black text-brand-500" id="cd-secs">--</span>
-              <span class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">Secs</span>
+              <span class="block text-xl sm:text-2xl font-black text-brand-500" id="cd-secs">--</span>
+              <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Secs</span>
             </div>
           </div>
 
           <!-- Highlights list container populated dynamically -->
-          <div id="event-highlights-list" class="space-y-3.5 mb-6 border-b border-slate-200/60 pb-5">
+          <div id="event-highlights-list" class="space-y-3 mb-5 border-b border-slate-200/60 pb-4">
             <!-- Injected dynamically by app.js -->
           </div>
 
@@ -343,7 +347,7 @@
               <i class="fa-solid fa-ticket-simple"></i> Register Now
             </button>
             
-            <div class="flex gap-5 text-center sm:text-right">
+            <div class="flex gap-4 text-center sm:text-right">
               <div>
                 <span class="block text-sm font-extrabold text-slate-900" id="stat-sessions">--</span>
                 <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Sessions</span>
@@ -352,7 +356,10 @@
                 <span class="block text-sm font-extrabold text-slate-900" id="stat-speakers">--</span>
                 <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Speakers</span>
               </div>
-
+              <div>
+                <span class="block text-sm font-extrabold text-slate-900" id="stat-capacity">500+</span>
+                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Capacity</span>
+              </div>
             </div>
           </div>
 
@@ -377,21 +384,58 @@
   <div id="event-tabs-container" class="relative">
     
     <!-- About / What To Expect Section -->
-    <section id="about" class="tab-panel py-16 bg-slate-100/50 relative">
-    <div class="container">
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="text-xs font-bold uppercase tracking-widest text-brand-600">WHAT TO EXPECT</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold mt-2 tracking-tight">The ultimate ecosystem for fellowship</h2>
-        <p class="text-slate-600 mt-4 leading-relaxed">
-          Designed from the ground up to nurture local fellowship, explore biblical teachings, and support dynamic church connection pathways.
-        </p>
-      </div>
+    <section id="about" class="tab-panel py-14 bg-slate-100/50 relative">
+      <div class="container">
+        <!-- Event Overview & Host Church Information -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14 items-stretch">
+          <!-- Left: Event Overview Description -->
+          <div class="lg:col-span-7 p-7 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-sm flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-widest text-brand-600 mb-2 block">ABOUT THIS GATHERING</span>
+              <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Event Overview</h3>
+              <p id="event-profile-description" class="text-slate-600 text-sm sm:text-base leading-relaxed whitespace-pre-line"></p>
+            </div>
+            <div class="mt-6 pt-6 border-t border-slate-100 flex flex-wrap items-center gap-4">
+              <span class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
+                <i class="fa-solid fa-map-pin text-brand-500"></i>
+                <span id="event-profile-location"></span>
+              </span>
+              <div id="event-directions-row" style="display: none;">
+                <a id="event-directions-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:underline">
+                  <i class="fa-solid fa-diamond-turn-right"></i> Get Directions
+                </a>
+              </div>
+            </div>
+          </div>
 
-      <div id="event-expect-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Injected dynamically by app.js -->
+          <!-- Right: Host Church Card -->
+          <div class="lg:col-span-5 p-7 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-sm flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-widest text-clay-500 mb-2 block">ORGANIZED BY</span>
+              <h3 class="text-lg sm:text-xl font-bold text-slate-900 mb-3">Host Community</h3>
+              <p id="event-profile-church-about" class="text-slate-600 text-sm leading-relaxed mb-6"></p>
+            </div>
+            <div>
+              <a id="event-profile-church-link" href="#" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all">
+                <i class="fa-solid fa-church text-brand-500"></i> View Host Profile
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center max-w-3xl mx-auto mb-10">
+          <span class="text-xs font-bold uppercase tracking-widest text-brand-600">WHAT TO EXPECT</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold mt-2 tracking-tight">Gathering Highlights & Ministry Tracks</h2>
+          <p class="text-slate-600 mt-2 text-sm leading-relaxed">
+            Designed to nurture local fellowship, explore biblical teachings, and support dynamic community connections.
+          </p>
+        </div>
+
+        <div id="event-expect-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <!-- Injected dynamically by app.js -->
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
   <!-- Speakers / Host Showcase Section -->
   <section id="speakers" class="tab-panel hidden py-16 bg-white relative overflow-hidden">
@@ -616,7 +660,7 @@
   <div class="toast" data-toast>Done</div>
 
   <!-- Import core platform application script -->
-  <script defer src="platform-client.js?v=20260915trusted1"></script><script src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260916previewfallback1"></script><script defer src="app.js?v=20260919directory3"></script><script defer src="auth-client.js?v=20260915security1"></script>
 
   <!-- In-page state managers scripts -->
   <script>
