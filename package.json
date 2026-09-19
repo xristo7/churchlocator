@@ -6,7 +6,7 @@
   "description": "Cloudflare Worker static assets project for My Way of Evangelism church discovery and digital evangelism platform.",
   "scripts": {
     "build": "wrangler deploy --dry-run --env=\"\"",
-    "check": "node --check src/worker.js && node --check src/spotlight.js && node --check public/app.js && node --check public/app-shell.js && node --check public/spotlight.js && node --check public/spotlight-workspace.js && node --check public/platform-modules.js && node --check public/channels.js && node --check public/channel-detail.js && node --check public/channel-content.js && node --check public/messages.js && node --check public/store.js && node --check public/product-detail.js && node --check public/cart.js && node --check public/checkout.js && node --check public/seller-dashboard.js && node --check public/resources.js && node --check public/resource-detail.js && node --check public/resource-reader.js && pnpm run build",
+    "check": "node --check src/worker.js && node --check src/spotlight.js && node --check src/trusted-platform.js && node --check public/app.js && node --check public/app-shell.js && node --check public/account-profile.js && node --check public/spotlight.js && node --check public/spotlight-workspace.js && node --check public/platform-modules.js && node --check public/livestream-chat.js && node --check public/meditation.js && node --check public/channels.js && node --check public/channel-detail.js && node --check public/channel-content.js && node --check public/messages.js && node --check public/store.js && node --check public/product-detail.js && node --check public/cart.js && node --check public/checkout.js && node --check public/seller-dashboard.js && node --check public/resources.js && node --check public/resource-detail.js && node --check public/resource-reader.js && pnpm run build",
     "test": "node --test tests/*.test.mjs",
     "preview": "node tools/static-server.mjs --root public --port 4173",
     "dev": "wrangler dev --env preview",
@@ -16,6 +16,7 @@
     "db:seed:local": "wrangler d1 execute my-way-of-evangelism --local --file ./database/seed.sql",
     "db:migrate:preview": "wrangler d1 migrations apply my-way-of-evangelism-preview --remote --env preview",
     "db:seed:preview": "wrangler d1 execute my-way-of-evangelism-preview --remote --env preview --file ./database/seed.sql",
+    "db:seed:demo:preview": "wrangler d1 execute my-way-of-evangelism-preview --remote --env preview --file ./database/demo-preview-seed.sql",
     "db:migrate:production": "wrangler d1 migrations apply my-way-of-evangelism --remote --env=\"\"",
     "tail": "wrangler tail my-way-of-evangelism",
     "security:scan": "node tools/security-audit.mjs"

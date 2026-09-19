@@ -82,6 +82,9 @@ test('5. Distraction-Free Sidebar-Free Sanctuary with Creator Settings, Invite L
   assert.match(js, /function openInviteFriendModal\(/, 'Invite friend modal opener exists');
   assert.match(js, /function toggleLiveComments\(/, 'Host comment toggle function exists');
   assert.match(js, /function sendComment\(/, 'Send comment function exists');
+  assert.match(js, /meditation-chat\//, 'Room comments use the persisted server API');
+  assert.match(js, /setInterval\(\(\) => loadRoomChatMessages\(roomId\), 3000\)/, 'Room comments refresh for other participants');
+  assert.doesNotMatch(js, /mwe\.meditation\.chat\./, 'Room comments are not stored as a browser-only demo');
 });
 
 test('6. Single-Viewport Responsive Fit (100vh No Overflow & Docked Audio Player without Overlap)', () => {

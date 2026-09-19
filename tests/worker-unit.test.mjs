@@ -79,6 +79,18 @@ test("admin APIs fail closed when no secret is configured", async () => {
   assert.equal(response.status, 401);
 });
 
+test("public church catalog is read-only and cannot bypass the application workflow", async () => {
+  let queried = false;
+  const DB = { prepare() { queried = true; throw new Error("must not query"); } };
+  const response = await worker.fetch(new Request("https://example.test/api/churches", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ name: "Unreviewed church" })
+  }), { ASSETS: assets, DB, ENVIRONMENT: "test" });
+  assert.equal(response.status, 405);
+  assert.equal(queried, false);
+});
+
 test("API error boundary converts malformed JSON into a 400 response", async () => {
   const response = await worker.fetch(
     new Request("https://example.test/api/prayer", {

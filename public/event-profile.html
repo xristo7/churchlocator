@@ -469,16 +469,16 @@
               <div class="grid grid-cols-1 gap-4">
                 <div>
                   <label class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Full Name</label>
-                  <input type="text" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all text-slate-800">
+                  <input type="text" name="fullName" required maxlength="200" autocomplete="name" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all text-slate-800">
                 </div>
                 <div>
                   <label class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Email Address</label>
-                  <input type="email" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all text-slate-800">
+                  <input type="email" name="email" required maxlength="254" autocomplete="email" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all text-slate-800">
                 </div>
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Your Message</label>
-                <textarea required rows="4" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all resize-none text-slate-800" placeholder="How can our church coordinators help you?"></textarea>
+                <textarea name="message" required maxlength="3000" rows="4" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all resize-none text-slate-800" placeholder="How can our church coordinators help you?"></textarea>
               </div>
               <button type="submit" class="w-full py-3 rounded-xl bg-clay-500 hover:bg-clay-600 text-white font-bold text-xs hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-1.5">
                 Send Message <i class="fa-solid fa-paper-plane text-[10px]"></i>
@@ -661,16 +661,30 @@
       drawer.classList.toggle('translate-x-full');
     }
 
-    // Mock contact messaging form submit
-    function handleContactSubmit(e) {
+    // Deliver event inquiries to the organizer's real My Way inbox.
+    async function handleContactSubmit(e) {
       e.preventDefault();
       const toast = document.querySelector('[data-toast]');
-      if (toast) {
-        toast.textContent = "Message sent successfully! Our church coordinators will reach out shortly.";
-        toast.classList.add('open');
-        setTimeout(() => toast.classList.remove('open'), 4000);
+      if (!window.MWEPlatform?.session) {
+        window.MWE?.openMemberLogin?.(location.href);
+        if (toast) { toast.textContent = "Sign in to message this event organizer."; toast.classList.add('open'); setTimeout(() => toast.classList.remove('open'), 4000); }
+        return;
       }
-      e.target.reset();
+      const eventRecord = window.MWE?.currentEvent;
+      if (!eventRecord?.id) return;
+      const form = e.currentTarget;
+      const button = form.querySelector('button[type="submit"]');
+      const values = Object.fromEntries(new FormData(form));
+      button.disabled = true;
+      try {
+        await window.MWEPrivate.create('message', { entityId: eventRecord.id, subject: 'Event inquiry: ' + eventRecord.title, body: String(values.message || '').trim(), fullName: values.fullName, contactEmail: values.email, avatar: eventRecord.coverImageUrl || '' });
+        if (toast) { toast.textContent = "Message delivered to the event organizer."; toast.classList.add('open'); setTimeout(() => toast.classList.remove('open'), 4000); }
+        form.reset();
+      } catch (error) {
+        if (toast) { toast.textContent = error.message || "Your message could not be delivered."; toast.classList.add('open'); setTimeout(() => toast.classList.remove('open'), 4000); }
+      } finally {
+        button.disabled = false;
+      }
     }
 
     // In-page Tab Panels Switcher

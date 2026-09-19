@@ -48,6 +48,13 @@ test('Spotlight backend provides feed, creator, moderation, engagement and comme
   assert.match(migration, /create table spotlight_comments/);
 });
 
+test('Spotlight comments never substitute demo conversations when the API is unavailable', async () => {
+  const script = await read('public/spotlight.js');
+  assert.match(script, /api\('comments\/\'/);
+  assert.match(script, /Comments are unavailable\./);
+  assert.doesNotMatch(script, /fallbackComments|fallbackItems/);
+});
+
 test('creator and owner workspaces expose Spotlight submission and moderation', async () => {
   const [admin, workspace, owner, creator] = await Promise.all([
     read('public/admin-workspace.js'), read('public/spotlight-workspace.js'),

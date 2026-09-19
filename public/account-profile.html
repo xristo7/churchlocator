@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Profile &amp; Account | My Way</title>
+  <link rel="stylesheet" href="styles.css?v=20260918profile1" />
+  <link rel="stylesheet" href="responsive.css?v=20260918profile1" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="platform-client.js?v=20260918profile1"></script>
+  <script defer src="app.js?v=20260918profile1"></script>
+  <script defer src="auth-client.js?v=20260918profile1"></script>
+  <script defer src="account-profile.js?v=20260918profile1"></script>
+</head>
+<body class="account-profile-page member-shell-embed" data-page="account-profile">
+  <main class="account-profile-shell">
+    <header class="account-profile-heading">
+      <div>
+        <p class="account-profile-eyebrow"><i data-lucide="shield-check"></i> Your account</p>
+        <h1>Profile &amp; account</h1>
+        <p>Keep your personal details and sign-in information up to date.</p>
+      </div>
+      <span class="account-profile-member-badge"><i data-lucide="badge-check"></i> My Way member</span>
+    </header>
+
+    <p class="account-profile-notice" id="profile-notice" role="status" aria-live="polite" hidden></p>
+
+    <section class="account-profile-card account-profile-identity-card" aria-labelledby="profile-photo-title">
+      <div class="account-avatar-wrap">
+        <img id="profile-avatar-preview" alt="Your profile picture" hidden />
+        <span id="profile-avatar-fallback" aria-hidden="true">MW</span>
+      </div>
+      <div class="account-avatar-copy">
+        <h2 id="profile-photo-title">Profile picture</h2>
+        <p>Add a photo so your account feels recognizably yours.</p>
+        <div class="account-profile-actions">
+          <label class="account-profile-button account-profile-button-primary" for="profile-avatar-input"><i data-lucide="camera"></i> Choose photo</label>
+          <input id="profile-avatar-input" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+          <button class="account-profile-button account-profile-button-quiet" id="profile-avatar-remove" type="button"><i data-lucide="trash-2"></i> Remove</button>
+        </div>
+        <small>PNG, JPEG or WebP. Images are resized before saving.</small>
+      </div>
+    </section>
+
+    <div class="account-profile-grid">
+      <form class="account-profile-card account-profile-form" id="profile-details-form">
+        <div class="account-profile-card-title">
+          <span><i data-lucide="user-round"></i></span>
+          <div><h2>Personal details</h2><p>How you appear across My Way.</p></div>
+        </div>
+        <label>Full name<input name="name" type="text" autocomplete="name" maxlength="200" required /></label>
+        <label>Email address<input name="email" type="email" autocomplete="email" required /><small id="profile-email-help">Used for sign-in and account notifications.</small></label>
+        <label id="profile-current-password-wrap" hidden>Current password<input name="currentPassword" type="password" autocomplete="current-password" /><small>Only required when you change your email.</small></label>
+        <button class="account-profile-button account-profile-button-primary account-profile-submit" type="submit"><i data-lucide="save"></i> Save profile</button>
+      </form>
+
+      <form class="account-profile-card account-profile-form" id="profile-password-form">
+        <div class="account-profile-card-title">
+          <span><i data-lucide="key-round"></i></span>
+          <div><h2>Password</h2><p>Choose a strong, unique password.</p></div>
+        </div>
+        <div id="profile-password-fields">
+          <label>Current password<span class="account-password-field"><input name="currentPassword" type="password" autocomplete="current-password" required /><button type="button" data-password-toggle aria-label="Show current password"><i data-lucide="eye"></i></button></span></label>
+          <label>New password<span class="account-password-field"><input name="newPassword" type="password" minlength="15" maxlength="128" autocomplete="new-password" required /><button type="button" data-password-toggle aria-label="Show new password"><i data-lucide="eye"></i></button></span><small>Use at least 15 characters.</small></label>
+          <label>Confirm new password<span class="account-password-field"><input name="confirmPassword" type="password" minlength="15" maxlength="128" autocomplete="new-password" required /><button type="button" data-password-toggle aria-label="Show confirmed password"><i data-lucide="eye"></i></button></span></label>
+          <button class="account-profile-button account-profile-button-primary account-profile-submit" type="submit"><i data-lucide="lock-keyhole"></i> Update password</button>
+        </div>
+        <div class="account-google-password" id="profile-google-password" hidden>
+          <i data-lucide="badge-info"></i>
+          <p>This account signs in with Google. Manage its password from your Google Account.</p>
+        </div>
+      </form>
+    </div>
+
+    <section class="account-profile-card account-security-row">
+      <span class="account-security-icon"><i data-lucide="shield-check"></i></span>
+      <div><h2>Security &amp; privacy</h2><p>Manage email verification, authenticator security and active sessions.</p></div>
+      <a class="account-profile-button account-profile-button-quiet" href="account-security.html" target="_top">Security settings <i data-lucide="arrow-up-right"></i></a>
+    </section>
+  </main>
+</body>
+</html>

@@ -2,6 +2,7 @@ import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityH
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
 import { handlePlatformApi } from './trusted-platform.js';
 import { handleSpotlightApi } from './spotlight.js';
+import { handleContentEngagementApi } from './content-engagements.js';
 
 const apiHeaders = {
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -186,9 +187,11 @@ function publicUser(row) {
     id: row.id,
     name: row.name,
     email: row.email,
+    avatarUrl: row.avatar_url || "",
     isCreator: Boolean(row.is_creator),
     emailVerified: Boolean(row.email_verified_at),
-    mfaEnabled: Boolean(row.totp_secret_encrypted)
+    mfaEnabled: Boolean(row.totp_secret_encrypted),
+    hasPassword: Boolean(row.password_hash && row.password_hash !== "authentication-disabled")
   };
 }
 
@@ -210,7 +213,7 @@ async function getSessionUser(request, env) {
   if (!token || !/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
 
   const row = await env.DB.prepare(`
-    select u.id, u.name, u.email, u.is_creator, s.expires_at, s.created_at as session_created_at,
+    select u.id, u.name, u.email, u.avatar_url, u.password_hash, u.password_salt, u.is_creator, s.expires_at, s.created_at as session_created_at,
       s.mfa_verified_at, u.email_verified_at, u.totp_secret_encrypted, u.totp_pending_encrypted, u.totp_last_step
     from sessions s
     join users u on u.id = s.user_id
@@ -254,7 +257,7 @@ async function registerUser(request, env, { forceCreator = false } = {}) {
 
   const token = await createSession(env, id);
   return jsonWithCookie(
-    { ok: true, user: { id, name, email, isCreator } },
+    { ok: true, user: publicUser({ id, name, email, is_creator: Number(isCreator), password_hash: hash }) },
     201,
     sessionCookieHeader(request, token, SESSION_TTL_SECONDS)
   );
@@ -328,6 +331,80 @@ async function handleAuthSession(request, env) {
   const user = await getSessionUser(request, env);
   if (!user) return json({ ok: true, user: null });
   return json({ ok: true, user: publicUser(user) });
+}
+
+function validAvatarDataUrl(value) {
+  if (value === "") return true;
+  if (value.length > 700000) return false;
+  return /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value);
+}
+
+async function verifyUserPassword(user, password, env) {
+  if (!user?.password_hash || user.password_hash === "authentication-disabled") return false;
+  const modern = user.password_hash.startsWith(PASSWORD_PREFIX);
+  const versioned = user.password_hash.startsWith("pbkdf2-sha256$100000$");
+  const computed = modern
+    ? await modernPassword(password, user.password_salt)
+    : (versioned ? "pbkdf2-sha256$100000$" : "") + await hashPassword(password, user.password_salt);
+  return constantTimeEqual(computed, user.password_hash);
+}
+
+async function handleAuthProfileUpdate(request, env) {
+  if (!env.DB) return storageUnavailable();
+  const user = await getSessionUser(request, env);
+  if (!user) return unauthorized();
+  const payload = await readJson(request);
+  const name = String(payload?.name || "").trim();
+  const email = normalizeEmail(payload?.email);
+  const avatarUrl = String(payload?.avatarData || "");
+
+  if (!name || name.length > 200) return json({ ok: false, error: "Enter your full name." }, 400);
+  if (!isValidEmail(email)) return json({ ok: false, error: "Enter a valid email address." }, 400);
+  if (!validAvatarDataUrl(avatarUrl)) return json({ ok: false, error: "Choose a PNG, JPEG, or WebP profile picture under 5 MB." }, 400);
+
+  const emailChanged = email !== normalizeEmail(user.email);
+  if (emailChanged) {
+    if (user.password_hash === "authentication-disabled") {
+      return json({ ok: false, error: "Your email is managed by Google and cannot be changed here." }, 400);
+    }
+    const currentPassword = String(payload?.currentPassword || "");
+    if (!currentPassword || !(await verifyUserPassword(user, currentPassword, env))) {
+      return json({ ok: false, error: "Enter your current password to change your email." }, 401);
+    }
+    const existing = await env.DB.prepare("select id from users where email = ?").bind(email).first();
+    if (existing && existing.id !== user.id) return json({ ok: false, error: "That email is already in use." }, 409);
+  }
+
+  await env.DB.prepare("update users set name = ?, email = ?, avatar_url = ?, email_verified_at = case when email <> ? then null else email_verified_at end, updated_at = ? where id = ?")
+    .bind(name, email, avatarUrl || null, email, new Date().toISOString(), user.id)
+    .run();
+  return json({ ok: true, user: publicUser({ ...user, name, email, avatar_url: avatarUrl, email_verified_at: emailChanged ? null : user.email_verified_at }) });
+}
+
+async function handleAuthPasswordUpdate(request, env) {
+  if (!env.DB) return storageUnavailable();
+  const user = await getSessionUser(request, env);
+  if (!user) return unauthorized();
+  if (user.password_hash === "authentication-disabled") {
+    return json({ ok: false, error: "This account signs in with Google, so its password is managed there." }, 400);
+  }
+  const payload = await readJson(request);
+  const currentPassword = String(payload?.currentPassword || "");
+  const newPassword = String(payload?.newPassword || "");
+  if (!(await verifyUserPassword(user, currentPassword, env))) {
+    return json({ ok: false, error: "Your current password is incorrect." }, 401);
+  }
+  if (newPassword.length < 15 || newPassword.length > 128) {
+    return json({ ok: false, error: "Your new password must be between 15 and 128 characters." }, 400);
+  }
+  if (constantTimeEqual(currentPassword, newPassword)) {
+    return json({ ok: false, error: "Choose a new password that is different from your current password." }, 400);
+  }
+  const next = await hashNewPassword(newPassword, env);
+  await env.DB.prepare("update users set password_hash = ?, password_salt = ?, updated_at = ? where id = ?")
+    .bind(next.hash, next.salt, new Date().toISOString(), user.id)
+    .run();
+  return json({ ok: true, message: "Password updated." });
 }
 
 async function handleGoogleAuthStart(request, env) {
@@ -480,68 +557,21 @@ async function handleStatus(env) {
 
 async function handlePublicChurches(request, env) {
   if (!env.DB) return storageUnavailable();
+  if (request.method !== "GET") return json({ ok: false, error: "method not allowed; submit new churches through the church application" }, 405);
 
-  if (request.method === "GET") {
-    const { results } = await env.DB.prepare(`
-      select
-        c.id, c.name, c.city, c.country, c.postal_code, c.denomination,
-        c.language, c.website, c.phone, c.email, c.cover_image_url,
-        c.livestream_enabled, c.livestream_paid, c.livestream_url,
-        p.pastor_name, p.pastor_title, p.pastor_bio, p.about
-      from churches c
-      left join church_profiles p on p.church_id = c.id
-      where c.is_verified = 1
-      order by c.name
-    `).all();
+  const { results } = await env.DB.prepare(`
+    select
+      c.id, c.name, c.city, c.country, c.postal_code, c.denomination,
+      c.language, c.website, c.phone, c.email, c.cover_image_url,
+      c.livestream_enabled, c.livestream_paid, c.livestream_url,
+      p.pastor_name, p.pastor_title, p.pastor_bio, p.about
+    from churches c
+    left join church_profiles p on p.church_id = c.id
+    where c.is_verified = 1
+    order by c.name
+  `).all();
 
-    return json({ ok: true, churches: results });
-  }
-
-  if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
-
-  const payload = await readJson(request);
-  if (!payload?.name || !payload?.city || !payload?.pastor || !payload?.phone || !payload?.email) {
-    return json({ ok: false, error: "name, city, pastor, phone, and email are required" }, 400);
-  }
-
-  const id = payload.id || slugify(payload.name);
-  const createdAt = new Date().toISOString();
-
-  if (env.DB) {
-    await env.DB.prepare(`
-      insert into churches
-        (id, name, city, country, website, phone, email, cover_image_url, livestream_enabled, livestream_paid, livestream_url, is_verified, created_at)
-      values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(
-      id,
-      payload.name,
-      payload.city,
-      payload.country || "",
-      payload.website || "",
-      payload.phone,
-      payload.email,
-      payload.coverImageUrl || "",
-      Number(Boolean(payload.livestreamEnabled)),
-      Number(Boolean(payload.livestreamPaid)),
-      payload.livestreamUrl || "",
-      0,
-      createdAt
-    ).run();
-
-    await env.DB.prepare(`
-      insert into church_profiles
-        (church_id, about, pastor_name, pastor_title, pastor_bio)
-      values (?, ?, ?, ?, ?)
-    `).bind(
-      id,
-      payload.about || "",
-      payload.pastor,
-      payload.pastorTitle || "Lead Pastor",
-      payload.pastorBio || ""
-    ).run();
-  }
-
-  return json({ ok: true, id, status: "pending-verification", createdAt }, 201);
+  return json({ ok: true, churches: results });
 }
 
 async function handleAdminChurches(request, env) {
@@ -571,6 +601,9 @@ async function handleAdminChurches(request, env) {
     const payload = await readJson(request) || {};
     const id = payload.id || new URL(request.url).searchParams.get("id");
     if (!id) return json({ ok: false, error: "id is required" }, 400);
+
+    const existing = await env.DB.prepare("select id from churches where id = ?").bind(id).first();
+    if (!existing) return json({ ok: false, error: "church not found" }, 404);
 
     if (env.DB) {
       await env.DB.batch([
@@ -668,6 +701,7 @@ async function handleChurchApplication(request, env) {
   if (!payload?.churchName || !payload?.pastorName || !payload?.adminEmail) {
     return json({ ok: false, error: "churchName, pastorName, and adminEmail are required" }, 400);
   }
+  if (!isValidEmail(normalizeEmail(payload.adminEmail))) return json({ ok: false, error: "enter a valid administrator email" }, 400);
 
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
@@ -726,6 +760,9 @@ async function handleVisitor(request, env) {
   if (!payload?.fullName || !payload?.email || !payload?.churchId) {
     return json({ ok: false, error: "fullName, email, and churchId are required" }, 400);
   }
+  if (!isValidEmail(normalizeEmail(payload.email))) return json({ ok: false, error: "enter a valid email address" }, 400);
+  const church = await env.DB.prepare("select id from churches where id = ? and is_verified = 1").bind(payload.churchId).first();
+  if (!church) return json({ ok: false, error: "published church not found" }, 404);
 
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
@@ -755,7 +792,12 @@ async function handleVisitor(request, env) {
 async function handlePrayer(request, env) {
   if (!env.DB) return storageUnavailable();
   const payload = await readJson(request);
-  if (!payload?.request) return json({ ok: false, error: "request is required" }, 400);
+  const requestText = String(payload?.request || "").trim();
+  if (requestText.length < 3 || requestText.length > 5000) return json({ ok: false, error: "request must be between 3 and 5000 characters" }, 400);
+  if (payload.churchId) {
+    const church = await env.DB.prepare("select id from churches where id = ? and is_verified = 1").bind(payload.churchId).first();
+    if (!church) return json({ ok: false, error: "published church not found" }, 404);
+  }
 
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
@@ -764,7 +806,7 @@ async function handlePrayer(request, env) {
     await env.DB.prepare(`
       insert into prayer_requests (id, church_id, request_text, is_anonymous, status, created_at)
       values (?, ?, ?, ?, ?, ?)
-    `).bind(id, payload.churchId || null, payload.request, Number(Boolean(payload.isAnonymous)), "new", createdAt).run();
+    `).bind(id, payload.churchId || null, requestText, Number(Boolean(payload.isAnonymous)), "new", createdAt).run();
   }
 
   return json({ ok: true, id, status: "received", createdAt }, 201);
@@ -1080,6 +1122,8 @@ async function handleApi(request, env) {
     if (platformResponse) return platformResponse;
     const spotlightResponse = await handleSpotlightApi(request, env, context);
     if (spotlightResponse) return spotlightResponse;
+    const engagementResponse = await handleContentEngagementApi(request, env, context);
+    if (engagementResponse) return engagementResponse;
     if (path === "/api/status" && request.method === "GET") return await handleStatus(env);
     if (path === "/api/auth/google/start" && request.method === "GET") return await handleGoogleAuthStart(request, env);
     if (path === "/api/auth/google/callback" && request.method === "GET") return await handleGoogleAuthCallback(request, env);
@@ -1091,6 +1135,8 @@ async function handleApi(request, env) {
     if (path === "/api/admin/churches") return await handleAdminChurches(request, env);
     if (path === "/api/events") return await handleEvents(request, env);
     if (path === "/api/auth/session" && request.method === "GET") return await handleAuthSession(request, env);
+    if (path === "/api/auth/profile" && request.method === "PUT") return await handleAuthProfileUpdate(request, env);
+    if (path === "/api/auth/password" && request.method === "PUT") return await handleAuthPasswordUpdate(request, env);
     if (path === "/api/services/bookings" && request.method === "GET") return await handleGetServiceBookings(request, env);
 
     if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
@@ -1135,9 +1181,18 @@ export default {
     const assetRes = await env.ASSETS.fetch(assetRequest(request));
     const newHeaders = new Headers(assetRes.headers);
     for (const [key, value] of Object.entries(securityHeaders)) newHeaders.set(key, value);
-    newHeaders.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
-    newHeaders.set("Pragma", "no-cache");
-    newHeaders.set("Expires", "0");
+    const contentType = newHeaders.get("content-type") || "";
+    const isHtml = contentType.includes("text/html") || !/\.[a-z0-9]+$/i.test(url.pathname);
+    const isLongLivedAsset = /^\/(?:assets|vendor)\//.test(url.pathname) || /\.(?:avif|gif|ico|jpe?g|png|svg|webp|woff2?)$/i.test(url.pathname);
+    if (isHtml) {
+      newHeaders.set("Cache-Control", "no-cache, must-revalidate");
+    } else if (isLongLivedAsset) {
+      newHeaders.set("Cache-Control", "public, max-age=604800, stale-while-revalidate=2592000");
+    } else {
+      newHeaders.set("Cache-Control", "public, max-age=3600, stale-while-revalidate=86400");
+    }
+    newHeaders.delete("Pragma");
+    newHeaders.delete("Expires");
 
     return new Response(assetRes.body, {
       status: assetRes.status,

@@ -146,8 +146,16 @@ test("Product Detail Shell & Scripts: Sleek product view, 5 service templates, a
   // Package tiers & booking wiring
   assert.match(js, /service-tiers-grid/);
   assert.match(js, /service-tier-card/);
+  assert.match(js, /class="service-book-now-label">Book selected tier/);
+  assert.match(js, /class="service-book-now-price" id="selected-tier-price-display"/);
+  assert.doesNotMatch(js, /Inquire & Book Selected Tier \(/);
   assert.match(js, /openBookingModal/);
   assert.match(js, /bookService/);
+  assert.match(js, /service-booking-form"\)\?\.removeAttribute\("hidden"\)/);
+  assert.match(js, /service-booking-confirmation"\)\?\.setAttribute\("hidden", "true"\)/);
+  assert.match(js, /form\.setAttribute\("hidden", "true"\)/);
+  assert.match(js, /confirmBox\.removeAttribute\("hidden"\)/);
+  assert.match(js, /service-modal-title"\)\.textContent = "Request received"/);
 });
 
 test("Store Marketplace: Item type selector and service card badges", async () => {
@@ -168,6 +176,9 @@ test("Styling & Theme: Product layout, service templates, dark mode, and mobile 
 
   // Core layout classes
   assert.match(css, /\.product-sleek-layout/);
+  assert.match(css, /\.product-detail-shell\s*\{[^}]*display:\s*block/s);
+  assert.match(css, /\.product-sleek-layout\s*\{[^}]*grid-template-columns:\s*minmax\(420px, 1\.08fr\) minmax\(400px, 0\.92fr\)/s);
+  assert.match(css, /\.product-sleek-layout > \*,[\s\S]*min-width:\s*0/);
   assert.match(css, /\.product-main-card/);
   assert.match(css, /\.product-thumbnails-sleek/);
   assert.match(css, /\.service-detail-shell/);
@@ -179,6 +190,12 @@ test("Styling & Theme: Product layout, service templates, dark mode, and mobile 
   assert.match(css, /\.design-deliverables-grid/);
   assert.match(css, /\.service-tier-card/);
   assert.match(css, /\.service-booking-modal/);
+  assert.match(css, /\.service-book-now-price\s*\{[^}]*white-space:\s*nowrap/s);
+  assert.match(css, /\.service-book-now-price\s*\{[^}]*font-variant-numeric:\s*tabular-nums/s);
+  assert.match(css, /\.service-booking-form\[hidden\],[\s\S]*display:\s*none !important/);
+  assert.match(css, /body\.modal-open\s*\{[^}]*overflow:\s*hidden !important/);
+  assert.match(css, /\.service-modal-backdrop\s*\{[^}]*z-index:\s*20000/s);
+  assert.match(css, /\.service-booking-modal\s*\{[^}]*max-height:\s*min\(88dvh, 860px\)/s);
 
   // Dark mode
   assert.match(css, /html\[data-theme="dark"\]\s+\.product-main-card/);

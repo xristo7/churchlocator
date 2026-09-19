@@ -43,6 +43,7 @@
           <img class="resource-image" src="${data().escapeHtml(resource.image)}" alt="" />
           <span class="resource-cover-icon"><i data-lucide="${iconFor(resource.type)}"></i></span><span class="resource-type-label">${data().escapeHtml(resource.type === "Text" && resource.format === "Article" ? "Article" : resource.format)}</span>
         </a>
+        <button class="content-love-button content-love-overlay" type="button" data-love-type="resource" data-love-id="${data().escapeHtml(resource.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
         <div class="resource-card-body">
           <div class="resource-format-row"><span class="resource-format">${data().escapeHtml(resource.type)} · ${data().escapeHtml(resource.topic)}</span><span class="resource-access ${resource.access === "Paid" ? "paid" : ""}">${resource.access === "Free" ? "Free" : data().money(resource.price)}</span></div>
           <h3><a href="resource-detail.html?id=${encodeURIComponent(resource.id)}">${data().escapeHtml(resource.title)}</a></h3>

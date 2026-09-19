@@ -36,9 +36,9 @@ test("Task 7.2: 2-Stage Ride Request system lifecycle (Stage 1 Phone/Text & Stag
 
   // Verify function definitions in app.js
   assert.match(appJs, /MWE\.openRideModal\s*=\s*function/, "app.js must define MWE.openRideModal");
-  assert.match(appJs, /MWE\.handleRideSubmit\s*=\s*function/, "app.js must define MWE.handleRideSubmit");
-  assert.match(appJs, /MWE\.confirmRideStage1\s*=\s*function/, "app.js must define MWE.confirmRideStage1");
-  assert.match(appJs, /MWE\.confirmRideSchedule\s*=\s*function/, "app.js must define MWE.confirmRideSchedule");
+  assert.match(appJs, /MWE\.handleRideSubmit\s*=\s*(?:async\s+)?function/, "app.js must define MWE.handleRideSubmit");
+  assert.match(appJs, /MWE\.confirmRideStage1\s*=\s*(?:async\s+)?function/, "app.js must define MWE.confirmRideStage1");
+  assert.match(appJs, /MWE\.confirmRideSchedule\s*=\s*(?:async\s+)?function/, "app.js must define MWE.confirmRideSchedule");
   assert.match(appJs, /MWE\.openRideConfirmationModal\s*=\s*function/, "app.js must define MWE.openRideConfirmationModal");
 
   // Verify CSS for 2-stage stepper and cards
@@ -133,6 +133,13 @@ test("Task 7.2: 2-Stage Ride Request system lifecycle (Stage 1 Phone/Text & Stag
     addEventListener: () => {},
     removeEventListener: () => {}
   };
+  windowMock.MWEPlatform = { canManage: () => true };
+  windowMock.MWEPrivate = {
+    async write(kind, rows) {
+      localStorageMock.setItem(`mwe.${kind}_requests`, JSON.stringify(rows));
+      return rows;
+    }
+  };
 
   const context = {
     window: windowMock,
@@ -199,7 +206,7 @@ test("Task 7.2: 2-Stage Ride Request system lifecycle (Stage 1 Phone/Text & Stag
   assert.match(modalEl.innerHTML, /Call \/ Text Pending/, "Stage 1 should show pending before confirmation");
 
   // 4. Confirm Stage 1 (Call/Text availability)
-  mwe.confirmRideStage1(testRideId);
+  await mwe.confirmRideStage1(testRideId);
   const storedRidesAfterStage1 = JSON.parse(localStorageMock.getItem("mwe.ride_requests"));
   const rideAfter1 = storedRidesAfterStage1.find(r => r.id === testRideId);
   assert.equal(rideAfter1.stage, 2, "Ride stage should advance to 2");
@@ -211,7 +218,7 @@ test("Task 7.2: 2-Stage Ride Request system lifecycle (Stage 1 Phone/Text & Stag
   assert.match(modalElAfterStage1.innerHTML, /Availability Verified/, "Modal should display Availability Verified after stage 1");
 
   // 5. Confirm Stage 2 (Schedule and Driver Assignment)
-  mwe.confirmRideSchedule(testRideId, "Sister Mary (Van #2)", "Sunday 9:00 AM - 9:15 AM");
+  await mwe.confirmRideSchedule(testRideId, "Sister Mary (Van #2)", "Sunday 9:00 AM - 9:15 AM");
   const storedRidesAfterStage2 = JSON.parse(localStorageMock.getItem("mwe.ride_requests"));
   const rideAfter2 = storedRidesAfterStage2.find(r => r.id === testRideId);
   assert.equal(rideAfter2.stage2Confirmed, true, "Ride stage2Confirmed should be true");

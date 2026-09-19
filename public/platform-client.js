@@ -2,7 +2,7 @@
 (function (root) {
  'use strict';
  const disk=root.localStorage, memory=new Map();
- const preferences=/^(mwe\.(theme|language|lang)|faithlink\.theme)/i;
+ const preferences=/^(mwe\.(theme|language|lang)|mwe\.platform\.(theme|primary)|faithlink\.theme)/i;
  const catalogKeys={churches:'mwe.platform.churches.v1',events:'mwe.platform.events.v4',meditation:'mwe.meditation.rooms.v1',channels:'faithlink.channels.v1',products:'faithlink.store.products.v1',resources:'faithlink.resources.v1',store:'mwe.storefronts.v1'};
  const privateKeys={prayer:'mwe.prayer_requests',ride:'mwe.ride_requests',visit:'mwe.visit_requests',salvation:'mwe.salvation_decisions',foundation:'mwe.foundation_apps',message:'faithlink.messages.v1',settings:'faithlink.messages.settings.v1'};
  const taxonomyDefaults={
@@ -39,17 +39,18 @@
   legacyControls(section,exportButton,clearButton){const keys=Object.keys(disk).filter(key=>locked.has(key)||/^mwe\.meditation\.(reflections|chat)\./.test(key));section.hidden=!keys.length;exportButton.onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(Object.fromEntries(keys.map(key=>[key,disk.getItem(key)])),null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='my-way-legacy-records-private.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};clearButton.onclick=()=>{for(const key of keys)disk.removeItem(key);section.hidden=true;};},
   clear(){this.session=null;this.role=null;workspace=[];privateRecords=[];for(const key of [...memory.keys()])if(!Object.values(catalogKeys).includes(key))memory.delete(key);hydrate();root.document?.body?.classList.remove('is-authenticated');}
  };
- const personal=root.MWEPrivate={
+const personal=root.MWEPrivate={
   get:kind=>clone(privateRecords.filter(row=>row.kind===kind)),
+  async refresh(){if(!platform.session)throw new Error('Sign in to view private information.');privateRecords=(await api('private')).records;hydrate();return clone(privateRecords);},
   async create(kind,data){const response=await api('private/'+kind,data);privateRecords.unshift(response.record);hydrate();return response.record;},
   async write(kind,rows){if(!platform.session)throw new Error('Sign in to save private information.');for(const row of rows){const previous=privateRecords.find(r=>r.id===row.id&&r.kind===kind);if(!previous){const saved=await this.create(kind,{...row,visibility:['prayer','ride','visit','salvation'].includes(kind)&&row.churchId?'pastors':'private'});Object.assign(row,saved);}else if(previous.status!==row.status){await api('private/'+kind+'/'+encodeURIComponent(row.id),{status:row.status,revision:previous.revision,driver:row.driver,pickupWindow:row.pickupWindow},'PUT');}}privateRecords=(await api('private')).records;hydrate();return rows;}
  };
  function hydrate(){const managed=document.body?.hasAttribute('data-admin-workspace');const source=managed?workspace:publicRecords;for(const [kind,key]of Object.entries(catalogKeys))memory.set(key,JSON.stringify(source.filter(row=>row.kind===kind)));for(const [kind,key]of Object.entries(privateKeys))memory.set(key,JSON.stringify(kind==='settings'?(privateRecords.find(row=>row.kind===kind)||{}):privateRecords.filter(row=>row.kind===kind)));for(const row of privateRecords.filter(row=>row.kind==='reflection')){const key='mwe.meditation.reflections.'+row.entityId;const list=JSON.parse(memory.get(key)||'[]');if(!list.some(n=>n.id===row.id))list.push(row);memory.set(key,JSON.stringify(list));}if(platform.session){memory.set('mwe.userLoggedIn','true');memory.set('mwe.username',platform.session.name);memory.set('mwe.userEmail',platform.session.email);if(platform.session.isCreator)memory.set('mwe.creator.account.v1',JSON.stringify(platform.session));}else{memory.delete('mwe.userLoggedIn');memory.delete('mwe.creator.account.v1');}}
  function install(){
   const m=root.MWE,f=root.FaithLinkModules,c=root.MWECreator;
-  if(m){m.isMemberAuthenticated=()=>!!platform.session;if(m.normalizeChurch){m.getChurches=()=>platform.records('churches',document.body.hasAttribute('data-admin-workspace')).map(row=>({...m.normalizeChurch(row),...row}));}m.upsertChurch=row=>platform.staging?row:platform.save('churches',row);m.upsertEvent=row=>platform.staging?row:platform.save('events',row);}
+  if(m){m.isMemberAuthenticated=()=>!!platform.session;if(m.normalizeChurch){m.getChurches=()=>platform.records('churches',document.body.hasAttribute('data-admin-workspace')).map(row=>({...row,...m.normalizeChurch(row)}));}m.upsertChurch=row=>platform.staging?row:platform.save('churches',row);m.upsertEvent=row=>platform.staging?row:platform.save('events',row);}
   if(c){c.account=()=>platform.session;c.setAccount=()=>platform.session;}
-  if(f){f.upsertProduct=row=>platform.staging?row:platform.save('products',row);f.addChannel=row=>platform.save('channels',row);f.addResource=row=>platform.save('resources',row);f.getMessages=()=>personal.get('message').map(row=>({...row,read:row.status==='read',participantId:row.entityId}));f.sendMessage=row=>personal.create('message',{...row,entityId:row.entityId||row.participantId});f.getMessageSettings=()=>personal.get('settings')[0]||{forwardingEnabled:false};f.saveMessageSettings=row=>personal.create('settings',row);}
+  if(f){f.upsertProduct=row=>platform.staging?row:platform.save('products',row);f.addChannel=row=>platform.save('channels',row);f.addResource=row=>platform.save('resources',row);f.getMessages=()=>personal.get('message').map(row=>({...row,read:row.status==='read',participantId:row.entityId}));f.refreshMessages=()=>personal.refresh();f.sendMessage=row=>personal.create('message',{...row,entityId:row.entityId||row.participantId});f.getMessageSettings=()=>personal.get('settings')[0]||{forwardingEnabled:false};f.saveMessageSettings=row=>personal.create('settings',row);}
   for(const [kind,mod]of Object.entries(root.MWEAdmin?.modules||{})){
    const original=mod.save,groups=mod.groups;
    mod.get=()=>platform.records(kind,true);
@@ -62,5 +63,18 @@
   document.body.classList.toggle('is-authenticated',authenticated);
  }
  const dom=new Promise(resolve=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',resolve,{once:true}):resolve());
- platform.ready=(async()=>{try{const session=await api('auth/session');await dom;await platform.refresh(session.user);install();}catch(error){platform.error=error.message;await dom;platform.clear();if(['127.0.0.1','localhost'].includes(location.hostname)){platform.staging=true;platform.installed=true;return;}install();const notice=document.createElement('p');notice.setAttribute('role','alert');notice.textContent='Connected data is unavailable. Please reload to try again.';notice.style.cssText='padding:1rem;text-align:center';document.body.prepend(notice);}})();
+ platform.ready=(async()=>{
+  let authenticatedUser=null;
+  try{
+   const session=await api('auth/session');authenticatedUser=session.user||null;await dom;
+   if(authenticatedUser){platform.session=authenticatedUser;hydrate();}
+   await platform.refresh(authenticatedUser);install();
+  }catch(error){
+   platform.error=error.message;await dom;
+   if(authenticatedUser){platform.session=authenticatedUser;hydrate();install();return;}
+   platform.clear();
+   if(['127.0.0.1','localhost'].includes(location.hostname)){platform.staging=true;platform.installed=true;return;}
+   install();const notice=document.createElement('p');notice.setAttribute('role','alert');notice.textContent='Connected data is unavailable. Please reload to try again.';notice.style.cssText='padding:1rem;text-align:center';document.body.prepend(notice);
+  }
+ })();
 })(window);

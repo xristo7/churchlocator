@@ -30,7 +30,7 @@ test('tenant writes reject impersonation, foreign ownership, viewer edits and st
  await s.call('workspace/channels/'+record.id,'PUT',{name:'Updated',revision:1});
  await assert.rejects(s.call('workspace/channels/'+record.id,'PUT',{name:'Stale',revision:1}),{status:409});
  s.as('owner');await s.call('workspace/channels/'+record.id,'PUT',{revision:2,publicationState:'published'});
- const publicRecord=(await (await s.call('catalog')).json()).records[0]; assert.equal(publicRecord.name,'Updated');assert.equal(publicRecord.createdBy.startsWith('tenant:'),true);
+ const publicRecord=(await (await s.call('catalog')).json()).records[0]; assert.equal(publicRecord.name,'Updated');assert.equal(publicRecord.createdBy.startsWith('tenant:'),true);assert.equal(publicRecord.canMessage,true);
 });
 test('platform taxonomies are public, owner-managed and enforced for new classifications',async()=>{
  const s=setup();
@@ -52,11 +52,25 @@ test('private records encrypt text and enforce author, recipient and explicit pa
  s.as('bob');assert.equal((await (await s.call('private')).json()).records.length,0);
  s.as('owner');assert.equal((await (await s.call('private')).json()).records.length,0);
  await assert.rejects(s.call('private/prayer/'+record.id,'PUT',{status:'read',revision:1}),{status:404});
- s.as('alice');assert.equal((await (await s.call('private')).json()).records[0].text,'Confidential prayer');
+ s.as('alice');assert.equal((await (await s.call('private')).json()).records[0].requestText,'Confidential prayer');
  const {record:church}=await (await s.call('workspace/churches','POST',{name:'Church',city:'City',country:'Country'})).json();s.as('owner');await s.call('workspace/churches/'+church.id,'PUT',{revision:1,publicationState:'published'});s.as('alice');
  await s.call('private/prayer','POST',{churchId:church.id,visibility:'pastors',text:'Pastoral prayer'});
  s.db.prepare("insert into tenant_memberships values (?,'pastor','pastor')").run(church.tenantId);s.as('pastor');assert.equal((await (await s.call('private')).json()).records.length,1);
  s.as('viewer');assert.equal((await (await s.call('private')).json()).records.length,0);
+});
+test('church teams control ride dispatch while requesters cannot forge confirmation state',async()=>{
+ const s=setup();
+ const {record:church}=await (await s.call('workspace/churches','POST',{name:'Ride Church',city:'City',country:'Country'})).json();
+ s.as('owner');await s.call('workspace/churches/'+church.id,'PUT',{revision:1,publicationState:'published'});
+ s.as('bob');
+ const response=await s.call('private/ride','POST',{churchId:church.id,visibility:'pastors',fullName:'Rider',phone:'555-0100',email:'rider@example.test',pickupAddress:'Main Street',passengers:2,consent:true,stage:2,stage2Confirmed:true,driver:'Attacker'});
+ const {record}=await response.json();
+ assert.equal(record.stage,1);assert.equal(record.stage2Confirmed,false);assert.equal(record.driver,'Unassigned');
+ await assert.rejects(s.call('private/ride/'+record.id,'PUT',{status:'confirmed',revision:1,driver:'Self assigned'}),{status:403});
+ s.as('alice');
+ const received=(await (await s.call('private/ride')).json()).records;
+ assert.equal(received.length,1);assert.equal(received[0].direction,'received');
+ assert.equal((await s.call('private/ride/'+record.id,'PUT',{status:'confirmed',revision:1,driver:'Church Driver',pickupWindow:'09:00'})).status,200);
 });
 test('paid resource material never appears in public catalog and access requires a server entitlement',async()=>{
  const s=setup();s.as('owner'); const {record}=await (await s.call('workspace/resources','POST',{title:'Paid book',access:'Paid',price:12,pages:['Secret chapter'],sourceUrl:'https://material.example/book.pdf',publicationState:'published'})).json();
@@ -73,6 +87,46 @@ test('authenticated message replies reach the original sender and unrelated user
  const s=setup();const {record:channel}=await (await s.call('workspace/channels','POST',{name:'Alice channel'})).json();s.as('owner');await s.call('workspace/channels/'+channel.id,'PUT',{revision:1,publicationState:'published'});s.as('bob');
  const {record:message}=await (await s.call('private/message','POST',{entityId:channel.id,body:'Question'})).json();s.as('alice');const {record:reply}=await (await s.call('private/message','POST',{entityId:channel.id,replyTo:message.id,body:'Answer'})).json();
  assert.equal(reply.threadId,message.threadId);s.as('bob');assert.equal((await (await s.call('private/message')).json()).records.length,2);s.as('viewer');await assert.rejects(s.call('private/message','POST',{entityId:channel.id,replyTo:message.id,body:'Intrusion'}),{status:404});
+});
+test('livestream chat persists authenticated messages and exposes them to every viewer',async()=>{
+ const s=setup();
+ const {record:channel}=await (await s.call('workspace/channels','POST',{name:'Live channel',live:true,liveUrl:'https://www.youtube.com/watch?v=abcdefghijk'})).json();
+ s.as('owner');await s.call('workspace/channels/'+channel.id,'PUT',{revision:1,publicationState:'published'});
+ s.as('bob');
+ const posted=await s.call('livestream-chat/channel/'+channel.id,'POST',{body:'Joining from London'});
+ assert.equal(posted.status,201);
+ assert.equal((await posted.json()).message.name,'bob');
+ s.as('viewer');
+ const publicFeed=await (await s.call('livestream-chat/channel/'+channel.id)).json();
+ assert.equal(publicFeed.messages.length,1);
+ assert.equal(publicFeed.messages[0].body,'Joining from London');
+ assert.equal(publicFeed.messages[0].name,'bob');
+ assert.equal(publicFeed.messages[0].userId,undefined);
+ assert.equal(publicFeed.messages[0].email,undefined);
+ await assert.rejects(s.call('livestream-chat/channel/'+channel.id,'POST',{body:'x'.repeat(301)}),{status:400});
+});
+test('meditation room comments persist, respect host moderation, and remain publicly readable',async()=>{
+ const s=setup();
+ const {record:room}=await (await s.call('workspace/meditation','POST',{title:'Prayer room',toneFreq:432,commentsEnabled:false,verses:[{topic:'Peace',text:'Be still',ref:'Psalm 46:10'}]})).json();
+ s.as('owner');await s.call('workspace/meditation/'+room.id,'PUT',{revision:1,publicationState:'published'});
+ s.as('bob');
+ await assert.rejects(s.call('meditation-chat/'+room.id,'POST',{body:'Closed comment'}),{status:409});
+ s.as('alice');
+ const initial=await (await s.call('meditation-chat/'+room.id)).json();
+ assert.equal(initial.enabled,false);assert.equal(initial.canManage,true);
+ const enabled=await (await s.call('meditation-chat/'+room.id,'PUT',{enabled:true,revision:initial.revision})).json();
+ assert.equal(enabled.enabled,true);
+ s.as('bob');
+ const posted=await (await s.call('meditation-chat/'+room.id,'POST',{body:'A real reflection'})).json();
+ assert.equal(posted.message.isHost,false);
+ s.as('alice');
+ const hostPost=await (await s.call('meditation-chat/'+room.id,'POST',{body:'Welcome to the room'})).json();
+ assert.equal(hostPost.message.isHost,true);
+ s.as('viewer');
+ const publicFeed=await (await s.call('meditation-chat/'+room.id)).json();
+ assert.deepEqual(publicFeed.messages.map(message=>message.body),['A real reflection','Welcome to the room']);
+ assert.equal(publicFeed.messages[0].userId,undefined);assert.equal(publicFeed.canManage,false);
+ await assert.rejects(s.call('meditation-chat/'+room.id,'PUT',{enabled:false,revision:enabled.revision}),{status:403});
 });
 test('AES-GCM rejects altered ciphertext and cross-record substitution',async()=>{const {env}=setup();const encrypted=await seal(env,{text:'Private'},'record:alice');assert.deepEqual(await unseal(env,encrypted,'record:alice'),{text:'Private'});await assert.rejects(unseal(env,encrypted,'record:bob'));await assert.rejects(unseal(env,encrypted.slice(0,-4)+'AAAA','record:alice'));});
 test('authenticator follows RFC 6238 vectors and rejects replay',async()=>{const secret='GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';assert.equal(await totpCode(secret,1),'287082');assert.equal(await verifyTotp(secret,'287082',-1,59000),1);assert.equal(await verifyTotp(secret,'287082',1,59000),null);});

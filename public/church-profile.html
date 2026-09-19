@@ -13,13 +13,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   
-  <!-- Lucide & FontAwesome Icons -->
-  <script src="vendor/lucide.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Icons -->
+  <script defer src="vendor/lucide.js"></script>
   
   <!-- Tailwind CSS -->
-  <script src="vendor/tailwindcss.js"></script>
-  <script>tailwind.config = { darkMode: ['selector', '[data-theme="dark"]'] }</script>
+  <script>window.tailwind = window.tailwind || {}; window.tailwind.config = { darkMode: ['selector', '[data-theme="dark"]'] };</script>
+  <script defer src="vendor/tailwindcss.js"></script>
   
   <!-- Global site styles -->
   <link rel="stylesheet" href="styles.css?v=20260905module17" />
@@ -2772,7 +2771,7 @@
               <div class="leader-photo-wrap">
                 <img class="leader-photo" id="leader-profile-img" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80" alt="Pastor John" />
                 <button type="button" class="message-card" aria-label="Play the pastor's welcome message" onclick="MWE.playTestimonyVideo('Pastor Welcome Message', 'https://www.youtube.com/embed/jiSyB8QZzk8')">
-                  <div class="message-card-icon"><i class="fa-solid fa-play"></i></div>
+                  <div class="message-card-icon"><i data-lucide="play"></i></div>
                   <div class="message-card-info">
                     <h4>Listen to Welcome Message</h4>
                     <span>Play Video • 2 Mins</span>
@@ -2806,7 +2805,7 @@
                 <div class="glass-card testimony-card">
                   <img class="testimony-scene" src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=500&q=80" alt="Church community gathering" />
                   <div class="testimony-content">
-                    <div class="testimony-stars"><i data-lucide="quote"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <div class="testimony-stars"><i data-lucide="quote"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
                     <p class="testimony-text">"Connecting with this church family completely changed my perspective. I found deep, word-based teachings and a youth network that coordinates outreach projects across the area."</p>
                     <div class="testimony-user">
                       <div class="testimony-user-info"><h4>Sarah M.</h4><span>Attending since 2022</span></div>
@@ -2816,7 +2815,7 @@
                 <div class="glass-card testimony-card">
                   <img class="testimony-scene" src="https://images.unsplash.com/photo-1602030028438-4cf153cbae9e?auto=format&fit=crop&w=500&q=80" alt="Children learning together" />
                   <div class="testimony-content">
-                    <div class="testimony-stars"><i data-lucide="quote"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <div class="testimony-stars"><i data-lucide="quote"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
                     <p class="testimony-text">"The children's programs and family gatherings are incredible. My kids look forward to Sunday School, and the virtual direct stream helps us stay tuned."</p>
                     <div class="testimony-user">
                       <div class="testimony-user-info"><h4>Jason L.</h4><span>Attending since 2021</span></div>
@@ -3155,7 +3154,7 @@
 
               <!-- Success Overlay -->
               <div class="form-success-overlay" id="rsvp-success-panel">
-                <div class="success-check-circle"><i class="fa-solid fa-check"></i></div>
+                <div class="success-check-circle"><i data-lucide="check"></i></div>
                 <h3 class="text-lg font-extrabold text-slate-900">RSVP Registered!</h3>
                 <p class="text-xs text-slate-600 mt-2">Your visitor pass code has been generated. Share this pass with your friends or family.</p>
                 <input type="text" class="share-link-input mt-3" id="share-link-field" value="https://myway.evangelism/pass/CE82847" readonly onclick="this.select()" />
@@ -3261,7 +3260,7 @@
 
   <!-- Global Video Modal -->
   <div class="global-video-modal" id="global-video-modal-view">
-    <button class="global-video-modal-close" onclick="MWE.closeVideoModal()" aria-label="Close video player"><i class="fa-solid fa-xmark"></i></button>
+    <button class="global-video-modal-close" onclick="MWE.closeVideoModal()" aria-label="Close video player"><i data-lucide="x"></i></button>
     <div class="global-video-modal-content">
       <iframe id="global-video-iframe" class="global-video-modal-iframe" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
@@ -3269,7 +3268,7 @@
 
   <!-- Global Audio Modal -->
   <div class="global-audio-modal" id="global-audio-modal-view">
-    <button class="global-audio-modal-close" onclick="MWE.closeAudioModal()" aria-label="Close audio player"><i class="fa-solid fa-xmark"></i></button>
+    <button class="global-audio-modal-close" onclick="MWE.closeAudioModal()" aria-label="Close audio player"><i data-lucide="x"></i></button>
     <div class="global-audio-modal-content">
       <div class="audio-player-avatar-wrap">
         <img id="audio-pastor-img" src="" alt="Pastor" />
@@ -3284,9 +3283,9 @@
       
       <!-- Custom Glass Controls -->
       <div class="audio-controls-panel">
-        <button class="audio-control-btn btn-prev" disabled><i class="fa-solid fa-backward-step"></i></button>
-        <button class="audio-control-btn btn-play-pause" id="audio-play-pause-trigger" onclick="MWE.toggleAudioPlayback()"><i class="fa-solid fa-play"></i></button>
-        <button class="audio-control-btn btn-next" disabled><i class="fa-solid fa-forward-step"></i></button>
+        <button class="audio-control-btn btn-prev" disabled><i data-lucide="skip-back"></i></button>
+        <button class="audio-control-btn btn-play-pause" id="audio-play-pause-trigger" onclick="MWE.toggleAudioPlayback()"><i data-lucide="play"></i></button>
+        <button class="audio-control-btn btn-next" disabled><i data-lucide="skip-forward"></i></button>
       </div>
       
       <div class="audio-progress-bar-container">
@@ -3302,7 +3301,7 @@
   <!-- Custom Alert Modal replacement -->
   <div class="alert-modal-backdrop" id="custom-alert-backdrop">
     <div class="alert-modal">
-      <i class="fa-solid fa-circle-check alert-icon" id="alert-icon-graphic"></i>
+      <i data-lucide="circle-check" class="alert-icon" id="alert-icon-graphic"></i>
       <p class="alert-msg" id="custom-alert-message">Alert message details go here.</p>
       <button class="alert-modal-btn" onclick="MWE.closeCustomAlert()">Confirm</button>
     </div>

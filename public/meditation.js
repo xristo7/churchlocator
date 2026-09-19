@@ -547,6 +547,7 @@
   let roomChannel = null;
   let unreadChatCount = 0;
   const myUserId = "user_" + Math.random().toString(36).slice(2, 9);
+  const roomChat = { messages: [], seen: new Set(), revision: 0, canManage: false, loading: false, error: "", pollTimer: null };
 
   // New Sanctuary Multi-Mode Timer & Template States
   let sessionTotalSeconds = 20 * 60;
@@ -691,7 +692,7 @@
     themesGrid.innerHTML = roomsCatalog.filter(r => r.category === "themes").map(cardHtml).join("");
     if (communityGrid) {
       const custom = roomsCatalog.filter(r => r.category === "community" || (r.id && r.id.startsWith("room-custom-")));
-      communityGrid.innerHTML = custom.length ? custom.map(cardHtml).join("") : '<p class="empty-hint">No custom community rooms created yet. Tap "Create Sanctuary Room" to start one!</p>';
+      communityGrid.innerHTML = custom.length ? custom.map(cardHtml).join("") : '<p class="empty-hint">No custom community rooms created yet. Select "Create Room" to start one!</p>';
     }
 
     window.lucide?.createIcons();
@@ -1232,6 +1233,7 @@
     initVirtualRoomSession(room.id, currentSessionId);
     setupChatModerationUI();
     renderChatFeed();
+    startRoomChat(room.id);
 
     // Update browser URL without reload for direct sharing
     try {
@@ -1250,6 +1252,7 @@
     stopTimerTicker();
     if (breathingInterval) { clearInterval(breathingInterval); breathingInterval = null; }
     if (scriptureAutoPlayTimer) { clearInterval(scriptureAutoPlayTimer); scriptureAutoPlayTimer = null; }
+    stopRoomChat();
 
     if (isFullscreen) toggleFullscreen(false);
     if (roomChannel) {
@@ -1668,41 +1671,72 @@
     }
   }
 
-  function toggleLiveComments(enabled) {
-    if (!activeRoom) return;
-    activeRoom.commentsEnabled = enabled;
-    
-    // Save state in catalog
-    const idx = roomsCatalog.findIndex(r => r.id === activeRoom.id);
-    if (idx >= 0) {
-      roomsCatalog[idx].commentsEnabled = enabled;
-      window.MWEMeditation?.saveRooms?.(roomsCatalog);
-    }
-
-    setupChatModerationUI();
-
-    try {
-      roomChannel?.postMessage({ type: "chat_toggle", enabled });
-    } catch (e) {}
-
-    showToast(enabled ? "Live comments enabled for all participants" : "Live comments deactivated for room");
+  async function meditationChatRequest(roomId, body, method = body ? "POST" : "GET") {
+    if (!window.MWEPlatform?.api) throw new Error("Meditation chat is unavailable.");
+    return window.MWEPlatform.api("meditation-chat/" + encodeURIComponent(roomId), body, method);
   }
 
-  function getRoomChatMessages(roomId) {
+  function stopRoomChat() {
+    if (roomChat.pollTimer) window.clearInterval(roomChat.pollTimer);
+    roomChat.pollTimer = null;
+    roomChat.loading = false;
+  }
+
+  async function loadRoomChatMessages(roomId, initial = false) {
+    if (!activeRoom || activeRoom.id !== roomId || roomChat.loading || (!initial && document.hidden)) return;
+    roomChat.loading = true;
     try {
-      const raw = localStorage.getItem("mwe.meditation.chat." + roomId);
-      return raw ? JSON.parse(raw) : [];
-    } catch (e) {
-      return [];
+      const result = await meditationChatRequest(roomId);
+      if (!activeRoom || activeRoom.id !== roomId) return;
+      const previousCount = roomChat.messages.length;
+      roomChat.messages = result.messages || [];
+      roomChat.seen = new Set(roomChat.messages.map(message => message.id));
+      roomChat.revision = result.revision;
+      roomChat.canManage = result.canManage;
+      roomChat.error = "";
+      activeRoom.commentsEnabled = result.enabled;
+      setupChatModerationUI();
+      renderChatFeed();
+      const drawer = document.getElementById("meditation-chat-drawer");
+      if (!initial && drawer?.hidden && roomChat.messages.length > previousCount) {
+        unreadChatCount += roomChat.messages.length - previousCount;
+        updateUnreadBadge();
+      }
+    } catch (error) {
+      roomChat.error = error.message || "Meditation chat is unavailable.";
+      renderChatFeed();
+    } finally {
+      roomChat.loading = false;
     }
   }
 
-  function saveRoomChatMessage(roomId, message) {
+  function startRoomChat(roomId) {
+    stopRoomChat();
+    roomChat.messages = [];
+    roomChat.seen = new Set();
+    roomChat.revision = 0;
+    roomChat.canManage = false;
+    roomChat.error = "";
+    renderChatFeed();
+    loadRoomChatMessages(roomId, true);
+    roomChat.pollTimer = window.setInterval(() => loadRoomChatMessages(roomId), 3000);
+  }
+
+  async function toggleLiveComments(enabled) {
+    if (!activeRoom || !isCurrentHost()) return false;
     try {
-      const messages = getRoomChatMessages(roomId);
-      messages.push(message);
-      localStorage.setItem("mwe.meditation.chat." + roomId, JSON.stringify(messages));
-    } catch (e) {}
+      const result = await meditationChatRequest(activeRoom.id, { enabled, revision: roomChat.revision }, "PUT");
+      activeRoom.commentsEnabled = result.enabled;
+      roomChat.revision = result.revision;
+      setupChatModerationUI();
+      showToast(enabled ? "Live comments enabled for all participants" : "Live comments deactivated for room");
+      return true;
+    } catch (error) {
+      const toggle = document.getElementById("chat-enable-toggle");
+      if (toggle) toggle.checked = !!activeRoom.commentsEnabled;
+      showToast(error.message || "Comment settings could not be changed.");
+      return false;
+    }
   }
 
   function renderChatFeed() {
@@ -1710,9 +1744,10 @@
     const feed = document.getElementById("chat-messages-feed");
     if (!feed) return;
 
-    const messages = getRoomChatMessages(activeRoom.id);
+    const messages = roomChat.messages;
     if (!messages.length) {
-      feed.innerHTML = '<div class="chat-empty-state"><i data-lucide="sparkles"></i><p>No comments yet. When enabled by the room creator, participants can share reflections here.</p></div>';
+      const copy = roomChat.error || (roomChat.loading ? "Loading live comments…" : "No comments yet. When enabled by the room creator, participants can share reflections here.");
+      feed.innerHTML = '<div class="chat-empty-state"><i data-lucide="sparkles"></i><p>' + escape(copy) + '</p></div>';
       window.lucide?.createIcons();
       return;
     }
@@ -1723,9 +1758,9 @@
         '<div class="chat-message-meta">' +
           '<strong class="chat-sender-name">' + escape(m.sender) + '</strong>' +
           roleTag +
-          '<span class="chat-timestamp">' + escape(m.time || "Just now") + '</span>' +
+          '<span class="chat-timestamp">' + escape(m.createdAt ? new Date(m.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "Just now") + '</span>' +
         '</div>' +
-        '<p class="chat-message-text">' + escape(m.text) + '</p>' +
+        '<p class="chat-message-text">' + escape(m.body) + '</p>' +
       '</div>';
     }).join("");
 
@@ -1734,6 +1769,9 @@
   }
 
   function appendChatMessage(message) {
+    if (!message?.id || roomChat.seen.has(message.id)) return;
+    roomChat.seen.add(message.id);
+    roomChat.messages.push(message);
     const feed = document.getElementById("chat-messages-feed");
     if (!feed) return;
     const emptyState = feed.querySelector(".chat-empty-state");
@@ -1745,9 +1783,9 @@
     item.innerHTML = '<div class="chat-message-meta">' +
       '<strong class="chat-sender-name">' + escape(message.sender) + '</strong>' +
       roleTag +
-      '<span class="chat-timestamp">' + escape(message.time || "Just now") + '</span>' +
+      '<span class="chat-timestamp">' + escape(message.createdAt ? new Date(message.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "Just now") + '</span>' +
     '</div>' +
-    '<p class="chat-message-text">' + escape(message.text) + '</p>';
+    '<p class="chat-message-text">' + escape(message.body) + '</p>';
     feed.appendChild(item);
     feed.scrollTop = feed.scrollHeight;
   }
@@ -1783,31 +1821,27 @@
     window.lucide?.createIcons();
   }
 
-  function sendComment(text) {
-    if (!activeRoom || !text.trim()) return;
+  async function sendComment(text) {
+    if (!activeRoom || !text.trim()) return false;
+    if (!window.MWEPlatform?.session) {
+      window.MWE?.openMemberLogin?.(location.href);
+      showToast("Sign in to join this room’s conversation.");
+      return false;
+    }
     const host = isCurrentHost();
 
     // If host writes a comment while comments are disabled, automatically enable them
     if (host && !activeRoom.commentsEnabled) {
-      toggleLiveComments(true);
+      if (!await toggleLiveComments(true)) return false;
     }
-
-    const senderName = host ? (activeRoom.ownerName || "Host Creator") : (window.MWECreator?.account?.()?.name || "Fellow Meditator");
-    const message = {
-      id: "msg_" + Date.now(),
-      sender: senderName,
-      isHost: host,
-      text: text.trim(),
-      time: "Just now",
-      timestamp: Date.now()
-    };
-
-    saveRoomChatMessage(activeRoom.id, message);
-    appendChatMessage(message);
-
     try {
-      roomChannel?.postMessage({ type: "chat_message", message });
-    } catch (e) {}
+      const result = await meditationChatRequest(activeRoom.id, { body: text.trim() });
+      appendChatMessage(result.message);
+      return true;
+    } catch (error) {
+      showToast(error.message || "Your comment could not be sent.");
+      return false;
+    }
   }
 
   function showToast(message) {
@@ -2302,12 +2336,17 @@
     });
 
     // Chat Message Submit
-    document.getElementById("chat-input-form")?.addEventListener("submit", e => {
+    document.getElementById("chat-input-form")?.addEventListener("submit", async e => {
       e.preventDefault();
       const input = document.getElementById("chat-input");
       if (!input || !input.value.trim()) return;
-      sendComment(input.value);
-      input.value = "";
+      const button = document.getElementById("chat-send-btn");
+      input.disabled = true;
+      if (button) button.disabled = true;
+      const sent = await sendComment(input.value);
+      if (sent) input.value = "";
+      setupChatModerationUI();
+      input.focus();
     });
 
     // Create Virtual Sanctuary Room Dialog Interactive UI

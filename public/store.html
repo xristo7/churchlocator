@@ -4,36 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Way Store</title>
-    <link rel="stylesheet" href="styles.css?v=20260905module19" />
+    <link rel="stylesheet" href="styles.css?v=20260919engagements1" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260916livestreamfinal1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260919directory3"></script><script defer src="auth-client.js?v=20260915security1"></script>
   <script defer src="platform-modules.js?v=20260825"></script>
   <script defer src="store.js?v=20260825"></script>
+  <script defer src="content-engagements.js?v=20260919engagements1"></script>
   <link rel="stylesheet" href="creator-public.css?v=20260907livestreamplayer1" />
   <script defer src="creator-data.js?v=20260904"></script>
-  <script defer src="creator-public.js?v=20260916livestreamfinal1"></script>
+  <script defer src="creator-public.js?v=20260919directory1"></script>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body class="module-page" data-page="store">
   <header class="topbar"></header>
   <main>
     <section class="module-hero module-directory-hero">
       <div class="module-shell module-hero-inner">
-        <div>
+        <div class="module-hero-copy">
           <span class="module-kicker"><i data-lucide="shopping-bag"></i> Christian Marketplace</span>
-          <h1>Shop with churches and Christian creators.</h1>
-          <p>Discover books, journals, music, apparel, ministry tools, church supplies, and meaningful gifts sold by verified churches and channel owners.</p>
+          <h1>Shop Christian Community Stores</h1>
+          <p>Discover books, music, apparel, ministry tools, church supplies, and meaningful gifts from verified churches and Christian creators.</p>
         </div>
-        <a class="module-secondary-action" href="seller-dashboard.html"><i data-lucide="store"></i> Manage Your Store</a>
+        <button class="module-primary-action module-creator-action" type="button" data-creator-action data-creator-href="creator-workspace.html#store" disabled aria-disabled="true"><i data-lucide="plus"></i> Add a Product or Service</button>
       </div>
     </section>
 
     <section class="module-shell module-content">
       <div class="site-search-bar">
         <label class="module-search site-search"><i data-lucide="search"></i><input id="store-search" type="search" placeholder="Search products, services, or ministries..." /></label>
-        <select class="module-select" id="store-type" aria-label="Offering type"><option value="all">All offerings</option><option value="products">Physical Products</option><option value="services">Church & Channel Services</option></select>
-        <select class="module-select" id="store-category" aria-label="Product category"><option value="all">All categories</option></select>
-        <select class="module-select" id="store-seller" aria-label="Seller type"><option value="all">All sellers</option><option>Church</option><option>Channel</option></select>
-        <select class="module-select" id="store-sort" aria-label="Sort products"><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="rating">Highest rated</option></select>
+        <select class="module-select" id="store-type" data-filter-label="Type" aria-label="Offering type"><option value="all">All offerings</option><option value="products">Physical Products</option><option value="services">Church & Channel Services</option></select>
+        <select class="module-select" id="store-category" data-filter-label="Category" aria-label="Product category"><option value="all">All categories</option></select>
+        <select class="module-select" id="store-seller" data-filter-label="Seller" aria-label="Seller type"><option value="all">All sellers</option><option>Church</option><option>Channel</option></select>
+        <select class="module-select" id="store-sort" data-filter-label="Sort" aria-label="Sort products"><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="rating">Highest rated</option></select>
       </div>
 
       <div class="module-results-head">

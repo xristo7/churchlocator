@@ -102,6 +102,7 @@ test("Task 6.2: MWE.showMapModal displays the actual church photo in modal hero 
     },
     showToast: () => {},
     console,
+    URL,
     setTimeout: (fn) => fn(),
     clearTimeout: () => {},
     setInterval: () => {},
@@ -196,6 +197,7 @@ test("Task 6.3: Fallback and directions sharing integration", async () => {
     localStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} },
     showToast: () => {},
     console,
+    URL,
     setTimeout: (fn) => fn(),
     clearTimeout: () => {},
     Event: class {}

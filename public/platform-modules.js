@@ -174,10 +174,7 @@
     { id: "new-believer", title: "New Believer Foundations", creator: "Christ Embassy Edmonton", topic: "Discipleship", type: "Text", format: "EPUB", access: "Free", price: 0, duration: "52 pages", rating: 4.9, image: "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=800&q=82", description: "Essential teaching on prayer, scripture, fellowship, identity, and sharing faith." }
   ];
 
-  const messageSeeds = [
-    { id: "message-worship-room", threadId: "channel-worship-room", participantId: "worship-room", participant: "The Worship Room", participantType: "Channel", avatar: channelSeeds[1].avatar, subject: "Welcome to The Worship Room", body: "Thanks for connecting with us. Let us know how we can pray with you or help you find a worship resource.", direction: "received", createdAt: "2026-08-19T17:20:00.000Z", read: false },
-    { id: "message-river-city", threadId: "church-river-city", participantId: "river-city", participant: "River City Church", participantType: "Church", avatar: "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=160&q=82", subject: "Your Sunday visit", body: "We would be delighted to welcome you this Sunday. Reply if you have questions about parking, children’s ministry, or accessibility.", direction: "received", createdAt: "2026-08-18T14:05:00.000Z", read: true }
-  ];
+  const messageSeeds = [];
 
   function clone(value) {
     return JSON.parse(JSON.stringify(value));

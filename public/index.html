@@ -7,10 +7,10 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>My Way of Evangelism | Find a Church Family Near You</title>
-  <link rel="stylesheet" href="styles.css?v=20260901g" />
+    <link rel="stylesheet" href="styles.css?v=20260919header1" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260916previewfallback1"></script><script defer src="app.js?v=20260916hero-controls2"></script><script defer src="auth-client.js?v=20260915security1"></script>
-<link rel="stylesheet" href="responsive.css?v=20260916hero-controls1" /></head>
+  <script defer src="platform-client.js?v=20260918nav1"></script><script defer src="app.js?v=20260919drawer1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+<link rel="stylesheet" href="responsive.css?v=20260919drawer1" /></head>
 <body class="hero-only-page" data-page="home">
   <!-- Topbar Header -->
   <header class="topbar">
@@ -25,10 +25,15 @@
 
       <div class="topbar-menu-group">
         <nav class="nav-links">
-          <a href="churches.html">Churches</a>
-          <a href="events.html">Events</a>
-          <a href="channels.html">Channels</a>
-          <a href="livestream.html" class="live-nav-link"><span class="live-dot-pulse"></span> Watch Live</a>
+          <a href="app.html?view=home" class="mobile-only-link"><i data-lucide="layout-grid"></i><span>Home</span></a>
+          <a href="app.html?view=spotlight" class="mobile-only-link"><i data-lucide="play-square"></i><span>Spotlight</span></a>
+          <a href="app.html?view=meditation" class="mobile-only-link"><i data-lucide="sparkles"></i><span>Meditation</span></a>
+          <a href="churches.html"><i class="drawer-nav-icon" data-lucide="church"></i><span>Churches</span></a>
+          <a href="channels.html"><i class="drawer-nav-icon" data-lucide="podcast"></i><span>Channels</span></a>
+          <a href="events.html"><i class="drawer-nav-icon" data-lucide="calendar-days"></i><span>Events</span></a>
+          <a href="livestream.html" class="live-nav-link"><i class="drawer-nav-icon" data-lucide="radio"></i><span>Watch Live</span></a>
+          <a href="app.html?view=store" class="mobile-only-link"><i data-lucide="shopping-bag"></i><span>Store</span></a>
+          <a href="app.html?view=resources" class="mobile-only-link"><i data-lucide="book-open"></i><span>Resources</span></a>
         </nav>
         <div class="nav-actions" id="homepage-nav-auth">
           <!-- 1. Reinstated Language Selector -->
@@ -49,7 +54,7 @@
           <div id="nav-auth-slot" style="display: inline-flex; align-items: center; gap: 8px;">
             <div class="signin-dropdown-container" id="nav-signin-dropdown-container">
               <button type="button" class="button ghost small nav-signin-btn" id="nav-signin-trigger" aria-haspopup="dialog" aria-expanded="false" onclick="MWE.toggleNavSigninDropdown(event)">
-                <i data-lucide="user"></i> <span>Sign In</span> <i data-lucide="chevron-down" class="nav-chevron-icon"></i>
+                <span>Sign In</span> <i data-lucide="chevron-down" class="nav-chevron-icon"></i>
               </button>
               <div class="signin-dropdown-popover" id="nav-signin-popover" hidden role="dialog" aria-label="Sign In and Register">
                 <div class="signin-dropdown-header">
@@ -290,9 +295,6 @@
             <div class="church-card-immersive-overlay">
               <div class="church-card-top-bar">
                 <span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>
-                <button type="button" class="immersive-fav-btn" aria-label="Save church" onclick="MWE.toggleFavorite(event, 'christ-embassy-edmonton')">
-                  <i data-lucide="heart" style="width: 18px; height: 18px; fill: rgba(239, 68, 68, 0.2);"></i>
-                </button>
               </div>
               <div class="church-card-bottom-info">
                 <h3 class="immersive-card-title">Christ Embassy Edmonton</h3>
@@ -317,9 +319,6 @@
             <div class="church-card-immersive-overlay">
               <div class="church-card-top-bar">
                 <span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>
-                <button type="button" class="immersive-fav-btn" aria-label="Save church" onclick="MWE.toggleFavorite(event, 'beulah-alliance-west')">
-                  <i data-lucide="heart" style="width: 18px; height: 18px; fill: rgba(239, 68, 68, 0.2);"></i>
-                </button>
               </div>
               <div class="church-card-bottom-info">
                 <h3 class="immersive-card-title">Beulah Alliance Church</h3>
@@ -344,9 +343,6 @@
             <div class="church-card-immersive-overlay">
               <div class="church-card-top-bar">
                 <span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>
-                <button type="button" class="immersive-fav-btn" aria-label="Save church" onclick="MWE.toggleFavorite(event, 'celebration-church-edmonton')">
-                  <i data-lucide="heart" style="width: 18px; height: 18px; fill: rgba(239, 68, 68, 0.2);"></i>
-                </button>
               </div>
               <div class="church-card-bottom-info">
                 <h3 class="immersive-card-title">Celebration Church</h3>
@@ -688,7 +684,7 @@
           <div class="faith-hub-cta-inner" id="home-auth-status-container">
             <span class="eyebrow"><i data-lucide="sparkles"></i> Your Personal Faith Journey</span>
             <h2>Sign In to Your Faith Hub</h2>
-            <p class="lead">Sign in to save favorite churches, reserve event passes, access private meditation prayer rooms, submit prayer requests, and connect directly with pastors across our network.</p>
+            <p class="lead">Sign in to reserve event passes, access private meditation prayer rooms, submit prayer requests, and connect directly with pastors across our network.</p>
             <div class="faith-hub-btn-group" id="home-auth-actions-row">
               <button type="button" class="button primary lg" onclick="MWE.toggleNavSigninDropdown(event)">
                 <i data-lucide="log-in"></i> <span>Sign In to Account</span>

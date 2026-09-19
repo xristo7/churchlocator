@@ -7,7 +7,9 @@ export class ApiError extends Error {
 }
 
 export async function readJson(request) {
-  const maximum = 64 * 1024;
+  const requestUrl = new URL(request.url);
+  const isProfileImageUpdate = request.method === "PUT" && requestUrl.pathname.replace(/\/+$/, "") === "/api/auth/profile";
+  const maximum = isProfileImageUpdate ? 750 * 1024 : 64 * 1024;
   if (Number(request.headers.get("content-length") || 0) > maximum) throw new ApiError(413, "request body too large");
   if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get("content-type") || "")) throw new ApiError(415, "application/json required");
   const reader = request.body?.getReader();
@@ -41,7 +43,7 @@ function validateValue(value, key = "", depth = 0) {
   if (depth > 8) throw new ApiError(400, "JSON nesting too deep");
   if (["__proto__", "prototype", "constructor"].includes(key)) throw new ApiError(400, "invalid field");
   if (typeof value === "string") {
-    const maximum = /password/i.test(key) ? 128 : /email/i.test(key) ? 254 : /^(id|.*Id)$/i.test(key) ? 128 : /name|title|phone/i.test(key) ? 200 : 10000;
+    const maximum = /^avatarData$/i.test(key) ? 700000 : /password/i.test(key) ? 128 : /email/i.test(key) ? 254 : /^(id|.*Id)$/i.test(key) ? 128 : /name|title|phone/i.test(key) ? 200 : 10000;
     if (value.length > maximum) throw new ApiError(400, "field too long");
     if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(value)) throw new ApiError(400, "invalid control character");
     if (/url$|^(website|image|photo|cover|logo|pastorPhoto)$/i.test(key) && value && value !== "#") {

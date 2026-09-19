@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Livestream | My Way of Evangelism</title>
   <script src="livestream-canonical.js?v=20260916final1"></script>
-    <link rel="stylesheet" href="styles.css?v=20260905module19" />
+    <link rel="stylesheet" href="styles.css?v=20260919engagements1" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260916previewfallback1"></script><script defer src="app.js?v=20260916livestreamfinal1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260916previewfallback1"></script><script defer src="app.js?v=20260919directory3"></script><script defer src="auth-client.js?v=20260915security1"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <link rel="stylesheet" href="creator-public.css?v=20260907livestreamplayer1" />
   <script defer src="creator-data.js?v=20260904"></script>
-  <script defer src="creator-public.js?v=20260916livestreamfinal1"></script>
+  <script defer src="livestream-chat.js?v=20260918realchat1"></script>
+  <script defer src="content-engagements.js?v=20260919engagements1"></script>
+  <script defer src="creator-public.js?v=20260918realchat1"></script>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body class="live-page" data-page="livestream">
   <header class="topbar">
@@ -44,21 +46,20 @@
     <section id="streams-landing-view" style="display: none;">
       <div class="module-hero module-directory-hero">
         <div class="module-shell module-hero-inner">
-        <div class="section-head">
-          <div>
-            <p class="kicker"><i data-lucide="radio"></i> Broadcast Center</p>
-            <h2>Evangelism Live Channels</h2>
-            <p>Tune in to live Sunday services, Bible study broadcasts, and worship events streaming now.</p>
-          </div>
+        <div class="module-hero-copy">
+          <p class="kicker"><i data-lucide="radio"></i> Broadcast Center</p>
+          <h2>Evangelism Live Channels</h2>
+          <p>Tune in to live Sunday services, Bible study broadcasts, and worship events streaming now.</p>
         </div>
+        <button class="module-primary-action module-creator-action" type="button" data-creator-action data-creator-href="creator-workspace.html#livestream" disabled aria-disabled="true"><i data-lucide="radio"></i> Start a Broadcast</button>
         </div>
       </div>
 
       <div class="module-shell module-content">
         <div class="site-search-bar">
           <label class="module-search site-search"><i data-lucide="search"></i><input id="livestream-search" type="search" placeholder="Search churches or broadcasts..." /></label>
-          <select class="module-select" id="livestream-status" aria-label="Broadcast status"><option value="all">All broadcasts</option><option value="live">Live now</option><option value="scheduled">Scheduled</option></select>
-          <select class="module-select" id="livestream-type" aria-label="Broadcast type"><option value="all">All services</option><option value="worship">Worship</option><option value="teaching">Teaching</option><option value="prayer">Prayer</option></select>
+          <select class="module-select" id="livestream-status" data-filter-label="Status" aria-label="Broadcast status"><option value="all">All broadcasts</option><option value="live">Live now</option><option value="scheduled">Scheduled</option></select>
+          <select class="module-select" id="livestream-type" data-filter-label="Service" aria-label="Broadcast type"><option value="all">All services</option><option value="worship">Worship</option><option value="teaching">Teaching</option><option value="prayer">Prayer</option></select>
         </div>
 
         <!-- Active Streams Grid -->
@@ -263,7 +264,7 @@
           </div>
           <div>
             <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Password</label>
-            <input type="password" required value="password123" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
+            <input type="password" id="login-password" required autocomplete="current-password" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
           </div>
           <button type="submit" style="width: 100%; padding: 10px; border-radius: 10px; background: var(--gradient-brand); border: none; color: #ffffff; font-weight: 700; font-size: 0.78rem; cursor: pointer; margin-top: 6px; box-shadow: 0 8px 22px rgba(51, 120, 236, 0.2);">Sign In</button>
         </form>
@@ -305,7 +306,7 @@
           </div>
           <div>
             <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Password</label>
-            <input type="password" required placeholder="Create password" value="password123" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
+            <input type="password" id="register-password" required minlength="12" autocomplete="new-password" placeholder="Create password" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
           </div>
           <button type="submit" style="width: 100%; padding: 10px; border-radius: 10px; background: var(--gradient-brand); border: none; color: #ffffff; font-weight: 700; font-size: 0.78rem; cursor: pointer; margin-top: 6px; box-shadow: 0 8px 22px rgba(51, 120, 236, 0.2);">Sign Up & Join</button>
         </form>
@@ -393,60 +394,40 @@
       }
     }
 
-    function handleChatLogin(e) {
+    async function handleChatLogin(e) {
       e.preventDefault();
       const emailInput = document.getElementById('login-email');
-      if (!emailInput || !emailInput.value.trim()) return;
-      
-      const email = emailInput.value.trim();
-      
-      // Derive a user-friendly name display from email
-      const namePrefix = email.split('@')[0];
-      const username = namePrefix.charAt(0).toUpperCase() + namePrefix.slice(1);
-      
-      // Save state
-      localStorage.setItem("mwe.userLoggedIn", "true");
-      localStorage.setItem("mwe.username", username);
-      localStorage.setItem("mwe.email", email);
-      // Remove any previously uploaded avatar to respect default avatars unless they register
-      localStorage.removeItem("mwe.userAvatar");
-      
+      const passwordInput = document.getElementById('login-password');
+      const button = e.currentTarget.querySelector('button[type="submit"]');
+      if (!emailInput?.value.trim() || !passwordInput?.value) return;
+      button.disabled = true;
+      const result = await window.MWEAuth.login(emailInput.value.trim(), passwordInput.value);
+      button.disabled = false;
+      if (!result.ok) { showToastNotification(result.error || "Sign in failed."); return; }
       closeLoginModal();
       checkLoginState();
       unlockStream();
-      
-      showToastNotification("Signed in successfully as " + email);
+      showToastNotification("Signed in successfully.");
     }
 
-    function handleChatRegister(e) {
+    async function handleChatRegister(e) {
       e.preventDefault();
       const firstnameInput = document.getElementById('register-firstname');
       const lastnameInput = document.getElementById('register-lastname');
       const emailInput = document.getElementById('register-email');
-      if (!firstnameInput || !firstnameInput.value.trim() || !lastnameInput || !lastnameInput.value.trim()) return;
-      
-      const firstname = firstnameInput.value.trim();
-      const lastname = lastnameInput.value.trim();
-      const email = emailInput ? emailInput.value.trim() : "";
-      const username = `${firstname} ${lastname}`;
-      
-      // Save state
-      localStorage.setItem("mwe.userLoggedIn", "true");
-      localStorage.setItem("mwe.username", username);
-      localStorage.setItem("mwe.firstname", firstname);
-      localStorage.setItem("mwe.lastname", lastname);
-      localStorage.setItem("mwe.email", email);
-      if (uploadedAvatarBase64) {
-        localStorage.setItem("mwe.userAvatar", uploadedAvatarBase64);
-      } else {
-        localStorage.removeItem("mwe.userAvatar");
-      }
-      
+      const passwordInput = document.getElementById('register-password');
+      const button = e.currentTarget.querySelector('button[type="submit"]');
+      if (!firstnameInput?.value.trim() || !lastnameInput?.value.trim() || !emailInput?.value.trim() || !passwordInput?.value) return;
+      const name = `${firstnameInput.value.trim()} ${lastnameInput.value.trim()}`;
+      button.disabled = true;
+      const result = await window.MWEAuth.register(name, emailInput.value.trim(), passwordInput.value);
+      if (result.ok && uploadedAvatarBase64) await window.MWEAuth.updateProfile({ avatarUrl: uploadedAvatarBase64 });
+      button.disabled = false;
+      if (!result.ok) { showToastNotification(result.error || "Registration failed."); return; }
       closeLoginModal();
       checkLoginState();
       unlockStream();
-      
-      showToastNotification("Registered and signed in as " + username);
+      showToastNotification("Account created and signed in.");
     }
 
     function showToastNotification(msg) {
@@ -492,12 +473,9 @@
       document.getElementById('profile-modal').style.display = 'none';
     }
 
-    function handleLogout() {
-      localStorage.removeItem("mwe.userLoggedIn");
-      localStorage.removeItem("mwe.username");
-      localStorage.removeItem("mwe.email");
-      localStorage.removeItem("mwe.userAvatar");
-      
+    async function handleLogout() {
+      const result = await window.MWEAuth.logout();
+      if (!result.ok) { showToastNotification(result.error || "Sign out failed."); return; }
       closeProfileModal();
       checkLoginState();
       
@@ -534,33 +512,6 @@
       } else {
         if (loginBtn) loginBtn.classList.remove('hidden');
         if (badge) badge.classList.add('hidden');
-      }
-    }
-
-    // Developer Simulator Helpers
-    function simulateLoginState(loggedIn) {
-      if (loggedIn) {
-        localStorage.setItem("mwe.userLoggedIn", "true");
-        localStorage.setItem("mwe.username", "Ama (Simulated)");
-        localStorage.setItem("mwe.email", "ama.simulated@gmail.com");
-        localStorage.setItem("mwe.userAvatar", "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80");
-        
-        checkLoginState();
-        unlockStream();
-        showToastNotification("Simulated: Logged In");
-      } else {
-        localStorage.removeItem("mwe.userLoggedIn");
-        localStorage.removeItem("mwe.username");
-        localStorage.removeItem("mwe.email");
-        localStorage.removeItem("mwe.userAvatar");
-        
-        checkLoginState();
-        
-        // Immediately lock stream video (show overlay on top)
-        const lockOverlay = document.getElementById('video-lock-overlay');
-        if (lockOverlay) lockOverlay.classList.remove('hidden');
-        
-        showToastNotification("Simulated: Logged Out");
       }
     }
 
