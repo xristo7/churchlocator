@@ -1270,15 +1270,19 @@ button {
 .kicker {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   width: max-content;
-  border-radius: 999px;
-  padding: 7px 10px;
-  background: #f8edcf;
-  color: #7a5207;
-  font-size: 0.78rem;
-  font-weight: 900;
+  border-radius: 9999px;
+  padding: 7px 15px;
+  background: var(--primary-surface);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 h1,
@@ -2320,7 +2324,8 @@ html[data-theme="dark"] .hero-glow-overlay {
   background: rgba(215, 168, 62, 0.18);
   color: #f5cb6c;
   border: 1px solid rgba(215, 168, 62, 0.35);
-  padding: 6px 12px;
+  border-radius: 9999px;
+  padding: 7px 15px;
   letter-spacing: 0.05em;
 }
 
@@ -10499,8 +10504,8 @@ body[data-page="profile"] .leader-bio .kicker {
   background: var(--primary-surface) !important;
   border: 1px solid var(--primary-border) !important;
   font-weight: 800;
-  border-radius: 999px;
-  padding: 4px 10px;
+  border-radius: 9999px;
+  padding: 7px 15px;
 }
 
 .leader-facts svg {
@@ -11173,8 +11178,31 @@ body[data-page="home"] .tiny-church-card:hover {
 .module-hero::before { top: -210px; right: 8%; background: hsla(var(--primary-h), var(--primary-s), 55%, 0.18); }
 .module-hero::after { bottom: -280px; left: 16%; background: rgba(var(--gold-rgb), 0.14); }
 .module-hero-inner { position: relative; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; }
-.module-kicker { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 12px; color: var(--primary); font-size: 0.73rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
-.module-kicker svg { width: 16px; }
+.module-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: max-content;
+  border-radius: 9999px;
+  padding: 7px 15px;
+  margin-bottom: 16px;
+  color: var(--primary);
+  background: var(--primary-surface);
+  border: 1px solid var(--primary-border);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  box-sizing: border-box;
+}
+.module-kicker svg,
+.module-kicker i {
+  width: 14px;
+  height: 14px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
 .module-hero h1 { max-width: 720px; margin: 0; color: var(--text-primary); font-size: clamp(2.1rem, 5vw, 3.55rem); line-height: 1.02; letter-spacing: -0.055em; }
 .module-hero p { max-width: 720px; margin: 16px 0 0; color: var(--text-secondary); font-size: 1rem; line-height: 1.72; }
 .module-primary-action,
@@ -14913,24 +14941,66 @@ html[data-theme="dark"] .is-featured-banner .event-price-tag-sub {
 .module-kicker,
 .broadcast-kicker,
 .hero-badge,
+.portal-kicker,
+.section-kicker,
+.dialog-kicker,
+.template-kicker-badge,
+.church-gallery-kicker,
+.service-modal-kicker,
 html[data-theme="dark"] .kicker,
 html[data-theme="dark"] .module-kicker,
 html[data-theme="dark"] .broadcast-kicker,
-html[data-theme="dark"] .hero-badge {
+html[data-theme="dark"] .hero-badge,
+html[data-theme="dark"] .portal-kicker,
+html[data-theme="dark"] .section-kicker,
+html[data-theme="dark"] .dialog-kicker,
+html[data-theme="dark"] .template-kicker-badge,
+html[data-theme="dark"] .church-gallery-kicker,
+html[data-theme="dark"] .service-modal-kicker {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  width: max-content !important;
+  border-radius: 9999px !important;
+  padding: 7px 15px !important;
   color: var(--primary) !important;
   background: var(--primary-surface) !important;
+  border: 1px solid var(--primary-border) !important;
   border-color: var(--primary-border) !important;
+  line-height: 1 !important;
+  box-sizing: border-box !important;
 }
 
 .kicker svg,
 .kicker i,
 .module-kicker svg,
 .module-kicker i,
+.broadcast-kicker svg,
+.broadcast-kicker i,
+.portal-kicker svg,
+.portal-kicker i,
+.section-kicker svg,
+.section-kicker i,
+.hero-badge svg,
+.hero-badge i,
 html[data-theme="dark"] .kicker svg,
 html[data-theme="dark"] .kicker i,
 html[data-theme="dark"] .module-kicker svg,
-html[data-theme="dark"] .module-kicker i {
+html[data-theme="dark"] .module-kicker i,
+html[data-theme="dark"] .broadcast-kicker svg,
+html[data-theme="dark"] .broadcast-kicker i,
+html[data-theme="dark"] .portal-kicker svg,
+html[data-theme="dark"] .portal-kicker i,
+html[data-theme="dark"] .section-kicker svg,
+html[data-theme="dark"] .section-kicker i,
+html[data-theme="dark"] .hero-badge svg,
+html[data-theme="dark"] .hero-badge i {
+  width: 14px !important;
+  height: 14px !important;
   color: var(--primary) !important;
+  flex-shrink: 0 !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
 }
 
 /* 3. Livestream Buttons & Chat Send (livestream.html) */
@@ -20953,12 +21023,22 @@ html[data-theme="dark"] .template-choice-card {
 
 .module-directory-hero .module-kicker,
 .module-directory-hero .kicker {
-  margin: 0 0 22px;
-  color: #b35cff;
-  font-size: 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: max-content;
+  border-radius: 9999px;
+  padding: 7px 15px;
+  margin: 0 0 20px;
+  color: var(--primary);
+  background: var(--primary-surface);
+  border: 1px solid var(--primary-border);
+  font-size: 0.76rem;
   font-weight: 850;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 .module-directory-hero h1,
