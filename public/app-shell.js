@@ -54,6 +54,7 @@
     "channel-content": { source: "channel-content.html", title: "Channel Content" },
     messages: { source: "messages.html", title: "Messages" },
     profile: { source: "account-profile.html", title: "Profile & Account" },
+    security: { source: "account-security.html", title: "Account Security" },
     events: { source: "events.html", title: "Events" },
     livestream: { source: "livestream.html", title: "Livestreams" },
     church: { source: "church-profile.html", title: "Church Profile" },
@@ -80,7 +81,7 @@
     livestream: ["Live", "radio"],
     store: ["Store", "shopping-bag"], product: ["Store", "shopping-bag"], cart: ["Store", "shopping-bag"], checkout: ["Store", "shopping-bag"], "store-manager": ["Store", "shopping-bag"],
     resources: ["Resources", "book-open"], "resource-detail": ["Resources", "book-open"], "resource-reader": ["Resources", "book-open"],
-    giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"], profile: ["Profile", "user-round"],
+    giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"], profile: ["Profile", "user-round"], security: ["Security", "shield-check"],
     portal: ["Creator Hub", "rocket"]
   };
 
@@ -183,7 +184,7 @@
   function setActiveNavigation(view) {
     document.querySelectorAll("[data-shell-view]").forEach(link => {
       const linkView = link.dataset.shellView;
-      const isActive = linkView === view || (view === "portal" && linkView === "portal") || (view === "church" && linkView === "directory") || (["channel-detail", "channel-content"].includes(view) && linkView === "channels") || (view === "event" && linkView === "events") || (["store-manager", "product", "cart", "checkout"].includes(view) && linkView === "store") || (["resource-detail", "resource-reader"].includes(view) && linkView === "resources");
+      const isActive = linkView === view || (view === "portal" && linkView === "portal") || (view === "church" && linkView === "directory") || (["channel-detail", "channel-content"].includes(view) && linkView === "channels") || (view === "event" && linkView === "events") || (["store-manager", "product", "cart", "checkout"].includes(view) && linkView === "store") || (["resource-detail", "resource-reader"].includes(view) && linkView === "resources") || (view === "security" && linkView === "profile");
       link.classList.toggle("active", isActive);
       if (isActive) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
@@ -191,7 +192,7 @@
   }
 
   function isProtectedView(view) {
-    return ["messages", "profile", "store-manager", "cart", "checkout"].includes(view);
+    return ["messages", "profile", "security", "store-manager", "cart", "checkout"].includes(view);
   }
 
   function hasMatchingCreatorIdentity() {
@@ -305,9 +306,9 @@
   };
   const languages = { en: "EN", fr: "FR", es: "ES" };
   const shellTranslations = {
-    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", portal: "Creator Hub", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Send Invite", loading: "Loading your My Way view…", search: "Search churches, channels, events...", member: "My Way member", signOut: "Sign out" },
-    fr: { home: "Accueil", spotlight: "À la une", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", portal: "Espace créateur", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Envoyer l’invitation", loading: "Chargement de votre espace My Way…", search: "Rechercher des églises, chaînes, événements…", member: "Membre My Way", signOut: "Se déconnecter" },
-    es: { home: "Inicio", spotlight: "Destacados", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", portal: "Centro de creadores", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Enviar invitación", loading: "Cargando tu espacio My Way…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de My Way", signOut: "Cerrar sesión" }
+    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", profile: "Profile", security: "Security", portal: "Creator Hub", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Send Invite", loading: "Loading your My Way view…", search: "Search churches, channels, events...", member: "My Way member", signOut: "Sign out" },
+    fr: { home: "Accueil", spotlight: "À la une", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", profile: "Profil", security: "Sécurité", portal: "Espace créateur", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Envoyer l’invitation", loading: "Chargement de votre espace My Way…", search: "Rechercher des églises, chaînes, événements…", member: "Membre My Way", signOut: "Se déconnecter" },
+    es: { home: "Inicio", spotlight: "Destacados", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", profile: "Perfil", security: "Seguridad", portal: "Centro de creadores", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Enviar invitación", loading: "Cargando tu espacio My Way…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de My Way", signOut: "Cerrar sesión" }
   };
   let currentMemberLanguage = localStorage.getItem("mwe.lang") || "en";
   if (!shellTranslations[currentMemberLanguage]) currentMemberLanguage = "en";

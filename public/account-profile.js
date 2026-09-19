@@ -25,10 +25,23 @@
 
   function drawAvatar() {
     avatarFallback.textContent = initials(detailsForm.elements.name.value || user.name);
-    avatarImage.hidden = !avatarUrl;
-    avatarFallback.hidden = Boolean(avatarUrl);
-    if (avatarUrl) avatarImage.src = avatarUrl;
-    removeAvatar.disabled = !avatarUrl;
+    if (!avatarUrl) {
+      avatarImage.hidden = true;
+      avatarImage.removeAttribute("src");
+      avatarFallback.hidden = false;
+      removeAvatar.disabled = true;
+      return;
+    }
+    removeAvatar.disabled = false;
+    avatarImage.onload = () => {
+      avatarImage.hidden = false;
+      avatarFallback.hidden = true;
+    };
+    avatarImage.onerror = () => {
+      avatarImage.hidden = true;
+      avatarFallback.hidden = false;
+    };
+    avatarImage.src = avatarUrl;
   }
 
   function showNotice(message, kind = "success") {

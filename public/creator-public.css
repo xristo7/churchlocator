@@ -148,6 +148,28 @@
   color: #fff;
   transform: scale(1.04);
 }
+html[data-theme="dark"] .livestream-showcase-play {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+html[data-theme="dark"] .livestream-showcase-play b {
+  color: #000000 !important;
+}
+html[data-theme="dark"] .livestream-showcase-play svg {
+  color: #000000 !important;
+  fill: #000000 !important;
+}
+html[data-theme="dark"] .livestream-showcase-card:hover .livestream-showcase-play {
+  background: var(--primary, #3b82f6) !important;
+  color: #ffffff !important;
+}
+html[data-theme="dark"] .livestream-showcase-card:hover .livestream-showcase-play b {
+  color: #ffffff !important;
+}
+html[data-theme="dark"] .livestream-showcase-card:hover .livestream-showcase-play svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
 @media (max-width: 680px) {
   .livestream-showcase-card {
     min-height: 180px;

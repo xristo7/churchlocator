@@ -32,8 +32,7 @@
       card.innerHTML = '<span class="livestream-showcase-shade" aria-hidden="true"></span>' +
         '<span class="livestream-showcase-badge"><span class="livestream-showcase-badge-dot"></span> LIVE</span>' +
         '<div class="livestream-showcase-copy"><h3>' + esc(stream.name) + '</h3><p><i data-lucide="map-pin"></i> ' + esc(stream.description || "Live broadcast") + '</p></div>' +
-        '<span class="livestream-showcase-play"><i data-lucide="play"></i><b>Play</b></span>' +
-        '<button class="content-love-button content-love-overlay" type="button" data-love-type="livestream" data-love-id="' + esc(stream.type + ':' + stream.id) + '" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>';
+        '<span class="livestream-showcase-play"><i data-lucide="play"></i><b>Play</b></span>';
       target.append(card);
     });
     const empty = document.getElementById("streams-empty-state");

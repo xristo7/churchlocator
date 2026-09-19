@@ -11473,12 +11473,20 @@ html[data-theme="dark"] .reset-simple-btn:hover {
 
 /* 5. Global Top Navigation & Headers - Theme Accent Harmonized */
 html[data-theme="dark"] .topbar,
-html[data-theme="dark"] .dash-topbar,
-html[data-theme="dark"] .profile-app-header,
-html[data-theme="dark"] body.member-app-shell .member-shell-header {
+html[data-theme="dark"] .dash-topbar {
   background: hsla(var(--primary-h), 42%, 7%, 0.94) !important;
   border-bottom: 1px solid var(--border-subtle) !important;
   border-bottom-color: var(--border-subtle) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+html[data-theme="dark"] body.member-app-shell .profile-app-header,
+html[data-theme="dark"] body.member-app-shell .member-shell-header {
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
   color: #f8fafc !important;
@@ -13016,10 +13024,15 @@ html[data-theme="dark"] .status-badge {
 
 /* 4. Navigation, Headers, Rails, Tabs & Account Menus */
 html[data-theme="dark"] .topbar,
-html[data-theme="dark"] .dash-topbar,
-html[data-theme="dark"] .profile-app-header,
-html[data-theme="dark"] .member-shell-header {
+html[data-theme="dark"] .dash-topbar {
   background: hsla(var(--primary-h), 42%, 7%, 0.94) !important;
+  border-bottom-color: var(--border-subtle) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+html[data-theme="dark"] body.member-app-shell .profile-app-header,
+html[data-theme="dark"] body.member-app-shell .member-shell-header {
+  background: var(--surface) !important;
   border-bottom-color: var(--border-subtle) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
@@ -14264,9 +14277,9 @@ body.account-profile-page {
 }
 
 .account-profile-shell {
-  width: min(1120px, calc(100% - 48px));
+  width: min(var(--max), calc(100% - 44px));
   margin: 0 auto;
-  padding: 48px 0 72px;
+  padding: 36px 0 72px;
 }
 
 .account-profile-heading {
@@ -14469,6 +14482,114 @@ body.account-profile-page {
 .account-security-row { display: flex; align-items: center; gap: 16px; margin-top: 22px; padding: 22px 26px; }
 .account-security-row > div { flex: 1 1 auto; min-width: 0; }
 .account-security-row .account-profile-button { flex: 0 0 auto; }
+
+.account-security-status-text {
+  margin: 0 0 16px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.account-security-card-desc {
+  margin: 0 0 16px !important;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.account-security-tag {
+  display: inline-block;
+  margin-top: 6px;
+  margin-right: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.account-security-tag.tag-success {
+  background: rgba(34, 197, 94, 0.14);
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.28);
+}
+.account-security-tag.tag-warning {
+  background: rgba(245, 158, 11, 0.14);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+}
+.account-security-tag.tag-muted {
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+html[data-theme="dark"] .account-security-tag.tag-success {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+html[data-theme="dark"] .account-security-tag.tag-warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+.account-security-enrollment-box {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+.account-security-secret-code {
+  display: block;
+  margin: 10px 0 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.account-security-subform {
+  display: grid;
+  gap: 12px;
+}
+.account-security-subform label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.86rem;
+  font-weight: 780;
+  color: var(--text-primary);
+}
+.account-security-standalone-form {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Live showcase play button text visibility in dark mode */
+html[data-theme="dark"] .livestream-showcase-play {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+html[data-theme="dark"] .livestream-showcase-play b {
+  color: #000000 !important;
+}
+html[data-theme="dark"] .livestream-showcase-play svg {
+  color: #000000 !important;
+  fill: #000000 !important;
+}
+html[data-theme="dark"] .livestream-showcase-card:hover .livestream-showcase-play {
+  background: var(--primary, #3b82f6) !important;
+  color: #ffffff !important;
+}
+html[data-theme="dark"] .livestream-showcase-card:hover .livestream-showcase-play b {
+  color: #ffffff !important;
+}
+html[data-theme="dark"] .livestream-showcase-card:hover .livestream-showcase-play svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
 
 html[data-theme="dark"] .account-profile-notice { color: #86efac; }
 html[data-theme="dark"] .account-profile-notice[data-kind="error"] { color: #fca5a5; }
@@ -14948,10 +15069,16 @@ html[data-theme="dark"] .block-editor[open] .editor-body {
 
 /* System-Wide Headers & Footers Polish (All 25 Pages) */
 html[data-theme="dark"] .topbar,
-html[data-theme="dark"] .dash-topbar,
-html[data-theme="dark"] .profile-app-header,
-html[data-theme="dark"] .member-shell-header {
+html[data-theme="dark"] .dash-topbar {
   background: hsla(var(--primary-h), 42%, 7%, 0.94) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+html[data-theme="dark"] body.member-app-shell .profile-app-header,
+html[data-theme="dark"] body.member-app-shell .member-shell-header {
+  background: var(--surface) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
   border-bottom: 1px solid var(--border-subtle) !important;
@@ -25900,7 +26027,7 @@ html[data-theme="dark"] .service-tier-card.selected {
 .content-love-detail { flex: 0 0 auto; }
 .channel-profile-card, .product-card, .resource-card { position: relative; }
 .channel-profile-card .content-love-overlay { top: 3.15rem; }
-.livestream-showcase-card .content-love-overlay { top: 3.4rem; }
+.livestream-showcase-card .content-love-overlay { display: none !important; }
 
 /* Service details inherit the active platform palette in both appearance modes. */
 .service-hero-card,

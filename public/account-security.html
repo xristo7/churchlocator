@@ -1,9 +1,151 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Account security | My Way</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="responsive.css"><script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260915trusted1"></script><script defer src="auth-client.js?v=20260915trusted1"></script><script defer src="account-security.js"></script></head>
-<body><main style="max-width:650px;margin:40px auto;padding:20px"><a href="index.html">Back to My Way</a><h1>Account security</h1><p id="security-notice" role="status" aria-live="polite"></p>
-<form id="security-signin"><h2>Sign in</h2><label class="form-field">Email<input name="email" type="email" autocomplete="username" required></label><label class="form-field">Password<input name="password" type="password" autocomplete="current-password" required></label><button type="submit" class="button primary">Sign in</button></form>
-<form id="security-recovery"><h2>Recover your account</h2><label class="form-field">Account email<input name="email" type="email" autocomplete="email" required></label><button type="submit" class="button">Send recovery link</button></form>
-<form id="security-reset" hidden><h2>Set a new password</h2><label class="form-field">New password<input name="password" type="password" minlength="15" maxlength="128" autocomplete="new-password" required></label><button type="submit" class="button primary">Change password</button></form>
-<section id="security-controls" hidden><h2>Your account</h2><p id="security-summary"></p><button id="security-verify" type="button" class="button">Send verification email</button><h2>Authenticator</h2><button id="security-enroll" type="button" class="button">Set up an authenticator</button><div id="security-enrollment" hidden><p>Add this secret to your authenticator. Keep it private.</p><code id="security-secret" style="overflow-wrap:anywhere"></code><form id="security-activate"><label class="form-field">Six-digit code<input name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required></label><button type="submit" class="button primary">Enable authenticator</button></form></div><h2>Sessions</h2><p id="security-sessions"></p><button id="security-revoke" type="button" class="button">Sign out on all devices</button><p><a href="creator-workspace.html">Creator workspace</a> · <a href="owner-dashboard.html">Platform owner dashboard</a></p></section>
-<section id="security-legacy" hidden><h2>Old browser records</h2><p>This browser contains records from the previous local-only version. They are excluded from your account. You can export them for review, then remove the old browser copies. Only import records after their ownership is verified.</p><button id="security-export" type="button" class="button">Export old records</button><button id="security-clear-legacy" type="button" class="button">Remove old records from this browser</button></section>
-</main></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Account Security | My Way</title>
+  <link rel="stylesheet" href="styles.css?v=20260918profile1" />
+  <link rel="stylesheet" href="responsive.css?v=20260918profile1" />
+  <script src="vendor/lucide.js"></script>
+  <script defer src="platform-client.js?v=20260918profile1"></script>
+  <script defer src="app.js?v=20260918profile1"></script>
+  <script defer src="auth-client.js?v=20260918profile1"></script>
+  <script defer src="account-security.js?v=20260918profile1"></script>
+</head>
+<body class="module-page account-profile-page member-shell-embed" data-page="account-security">
+  <main class="module-shell account-profile-shell account-security-shell">
+    <header class="account-profile-heading">
+      <div>
+        <p class="account-profile-eyebrow"><i data-lucide="shield-check"></i> Account protection</p>
+        <h1>Security &amp; sign-in</h1>
+        <p>Manage two-factor authentication, email verification, and active sessions.</p>
+      </div>
+      <a class="account-profile-button account-profile-button-quiet" href="account-profile.html" id="security-back-link">
+        <i data-lucide="arrow-left"></i> Back to profile
+      </a>
+    </header>
+
+    <p class="account-profile-notice" id="security-notice" role="status" aria-live="polite" hidden></p>
+
+    <!-- Signed-in security controls -->
+    <div id="security-controls" class="account-profile-grid" hidden>
+      <div class="account-profile-card">
+        <div class="account-profile-card-title">
+          <span><i data-lucide="shield-alert"></i></span>
+          <div>
+            <h2>Account status</h2>
+            <p>Your verification and security summary.</p>
+          </div>
+        </div>
+        <p class="account-security-status-text" id="security-summary"></p>
+        <button id="security-verify" type="button" class="account-profile-button account-profile-button-primary">
+          <i data-lucide="mail-check"></i> Send verification email
+        </button>
+      </div>
+
+      <div class="account-profile-card">
+        <div class="account-profile-card-title">
+          <span><i data-lucide="smartphone"></i></span>
+          <div>
+            <h2>Authenticator (2FA)</h2>
+            <p>Add a time-based one-time password authenticator.</p>
+          </div>
+        </div>
+        <p class="account-security-card-desc">Two-factor authentication adds an extra layer of protection when signing in to your account.</p>
+        <button id="security-enroll" type="button" class="account-profile-button account-profile-button-primary">
+          <i data-lucide="key"></i> Set up an authenticator
+        </button>
+        <div id="security-enrollment" class="account-security-enrollment-box" hidden>
+          <p><strong>Step 1:</strong> Add this secret code into your authenticator app (Google Authenticator, Microsoft Authenticator, 1Password, etc.):</p>
+          <code id="security-secret" class="account-security-secret-code"></code>
+          <form id="security-activate" class="account-security-subform">
+            <label>
+              Step 2: Enter six-digit code from your app
+              <input name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="123456" required>
+            </label>
+            <button type="submit" class="account-profile-button account-profile-button-primary">
+              <i data-lucide="check-circle-2"></i> Enable authenticator
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="account-profile-card">
+        <div class="account-profile-card-title">
+          <span><i data-lucide="laptop"></i></span>
+          <div>
+            <h2>Active sessions</h2>
+            <p>Devices currently signed in to your account.</p>
+          </div>
+        </div>
+        <p class="account-security-status-text" id="security-sessions"></p>
+        <button id="security-revoke" type="button" class="account-profile-button account-profile-button-quiet">
+          <i data-lucide="log-out"></i> Sign out on all devices
+        </button>
+      </div>
+
+      <div class="account-profile-card">
+        <div class="account-profile-card-title">
+          <span><i data-lucide="layers"></i></span>
+          <div>
+            <h2>Workspaces &amp; portals</h2>
+            <p>Quick access to your creator and administrative spaces.</p>
+          </div>
+        </div>
+        <div class="account-profile-actions">
+          <a class="account-profile-button account-profile-button-quiet" href="creator-workspace.html"><i data-lucide="briefcase"></i> Creator workspace</a>
+          <a class="account-profile-button account-profile-button-quiet" href="owner-dashboard.html"><i data-lucide="layout-dashboard"></i> Owner dashboard</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legacy browser records (if present) -->
+    <section id="security-legacy" class="account-profile-card" style="margin-top: 24px;" hidden>
+      <div class="account-profile-card-title">
+        <span><i data-lucide="archive"></i></span>
+        <div>
+          <h2>Old browser records</h2>
+          <p>Records from the previous local-only version.</p>
+        </div>
+      </div>
+      <p class="account-security-card-desc">This browser contains records from the previous local-only version. They are excluded from your account. You can export them for review, then remove the old browser copies.</p>
+      <div class="account-profile-actions">
+        <button id="security-export" type="button" class="account-profile-button account-profile-button-quiet"><i data-lucide="download"></i> Export old records</button>
+        <button id="security-clear-legacy" type="button" class="account-profile-button account-profile-button-quiet"><i data-lucide="trash-2"></i> Remove old records</button>
+      </div>
+    </section>
+
+    <!-- Sign-in & recovery forms for unauthenticated visitors -->
+    <div id="security-auth-forms" class="account-profile-grid account-security-standalone-form">
+      <form id="security-signin" class="account-profile-card account-profile-form">
+        <div class="account-profile-card-title">
+          <span><i data-lucide="log-in"></i></span>
+          <div><h2>Sign in</h2><p>Sign in to access your security settings.</p></div>
+        </div>
+        <label>Email<input name="email" type="email" autocomplete="username" required></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit" class="account-profile-button account-profile-button-primary"><i data-lucide="arrow-right"></i> Sign in</button>
+      </form>
+
+      <form id="security-recovery" class="account-profile-card account-profile-form">
+        <div class="account-profile-card-title">
+          <span><i data-lucide="life-buoy"></i></span>
+          <div><h2>Recover your account</h2><p>Send a secure password recovery link.</p></div>
+        </div>
+        <label>Account email<input name="email" type="email" autocomplete="email" required></label>
+        <button type="submit" class="account-profile-button account-profile-button-primary"><i data-lucide="send"></i> Send recovery link</button>
+      </form>
+
+      <form id="security-reset" class="account-profile-card account-profile-form" hidden>
+        <div class="account-profile-card-title">
+          <span><i data-lucide="key-round"></i></span>
+          <div><h2>Set a new password</h2><p>Enter your new password below.</p></div>
+        </div>
+        <label>New password<input name="password" type="password" minlength="15" maxlength="128" autocomplete="new-password" required></label>
+        <button type="submit" class="account-profile-button account-profile-button-primary"><i data-lucide="lock"></i> Change password</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
