@@ -17327,6 +17327,10 @@ html[data-theme="dark"] .switch-slider {
   color: #f59e0b !important;
 }
 
+.guest-status-banner[hidden] {
+  display: none !important;
+}
+
 .chat-messages-feed {
   flex: 1 1 auto !important;
   overflow-y: auto !important;
@@ -23048,6 +23052,21 @@ body[data-theme="dark"] .meditation-overlay {
   padding: 0 14px !important;
   font-size: .76rem !important;
   box-shadow: none !important;
+}
+
+@media (max-width: 720px) {
+  .sanctuary-top-right {
+    gap: 6px !important;
+  }
+
+  .sanctuary-top-action-btn {
+    width: 38px !important;
+    padding: 0 !important;
+  }
+
+  .sanctuary-top-action-btn > span:not(#chat-unread-badge) {
+    display: none !important;
+  }
 }
 
 @media (max-height: 760px) and (min-width: 761px) {

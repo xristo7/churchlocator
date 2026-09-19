@@ -7,7 +7,7 @@ const privateKinds=['prayer','reflection','ride','visit','salvation','foundation
 const forbidden=new Set(['createdBy','tenantId','createdAt','updatedAt','revision','verified','ticketsSold','followers','items','rating','orders','amountPaidCents','attachmentData','totpSecret','password','isOwner','role']);
 const fields={
  churches:['name','city','country','postal','denomination','pastor','pastorTitle','pastorBio','pastorPhoto','about','location','email','phone','phoneLabel','emailHref','website','language','worship','ministries','sunday','midweek','photo','logo','tagline','livestream','history','vision','mission','statementOfFaith','firstVisit','parkingInformation','childrenInformation','gallery'],
- meditation:['title','subtitle','category','categoryLabel','theme','template','toneFreq','cover','selectedAudio','audioTracks','verses','icon','commentsEnabled'],
+ meditation:['title','subtitle','category','categoryLabel','theme','template','purpose','mode','timeMode','durationMinutes','toneFreq','themeColor','themeHue','cover','selectedAudio','audioTracks','ambience','verses','pictures','teachings','prayers','worship','journeySteps','inhaleWord','exhaleWord','autoPlayInterval','allowUserNavigation','icon','commentsEnabled','ownerName'],
  events:['title','churchId','eventType','startsAt','endsAt','venueName','city','country','coverImageUrl','registrationRequired','ticketPriceCents','currency','totalTickets','isFeatured','isPromoted','registrationUrl','livestreamUrl','directionsUrl','description','highlights','expectations','speakers','schedule','faqs','ownerName'],
  store:['name','ownerName','category','description','image','email','liveUrl','live'],
  products:['title','storeId','seller','sellerType','category','description','price','compareAt','inventory','status','featured','image','itemType','serviceType','packages'],
@@ -76,6 +76,11 @@ function entityRecord(row,publicView=false) {
  if(publicView && row.kind==='resources') delete data.sourceUrl;
  return {...data,id:row.id,kind:row.kind,tenantId:row.tenant_id,createdBy:publicView?'tenant:'+row.tenant_id:row.created_by,state:row.state,publicationState:row.state,revision:row.revision,createdAt:row.created_at,updatedAt:row.updated_at,verified:row.state==='published'};
 }
+async function canManageEntity(env,user,entity) {
+ if(!user) return false;
+ if(await isOwner(env,user)) return true;
+ return ['owner','editor'].includes((await membership(env,user.id,entity.tenant_id))?.role);
+}
 async function checkRelated(env,user,kind,data,tenantId,owner) {
  const id=kind==='products'?data.storeId:kind==='events'?data.churchId:null;
  if(!id) { if(kind==='products') throw new ApiError(400,'Choose a store you manage.'); return; }
@@ -125,8 +130,43 @@ export async function writeEntity(request,env,ctx,kind,id) {
 }
 export async function handlePlatformApi(request,env,ctx) {
  const url=new URL(request.url), parts=url.pathname.split('/').filter(Boolean), scope=parts[1];
- if(!['catalog','taxonomies','workspace','private','admin-audit','tenant-members','resource-material'].includes(scope)) return null;
+ if(!['catalog','taxonomies','workspace','private','admin-audit','tenant-members','resource-material','meditation-chat'].includes(scope)) return null;
  if(!env.DB) throw new ApiError(503,'Storage unavailable.');
+ if(scope==='meditation-chat') {
+  const roomId=parts[2];
+  if(!roomId || roomId.length>128) throw new ApiError(404,'Meditation chat not found.');
+  const entity=await env.DB.prepare("select * from platform_entities where id=? and kind='meditation' and state='published'").bind(roomId).first();
+  if(!entity) throw new ApiError(404,'Meditation chat not found.');
+  const viewer=await ctx.getSessionUser(request,env), manager=await canManageEntity(env,viewer,entity), room=JSON.parse(entity.data_json);
+  if(request.method==='GET') {
+   const {results}=await env.DB.prepare(`select m.id,m.user_id,m.body,m.is_host,m.created_at,u.name
+    from meditation_chat_messages m join users u on u.id=m.user_id
+    where m.room_id=? and m.deleted_at is null
+    order by m.created_at desc,m.id desc limit 100`).bind(roomId).all();
+   const messages=(results||[]).reverse().map(row=>({id:row.id,name:row.name,body:row.body,isHost:!!row.is_host,createdAt:row.created_at,own:row.user_id===viewer?.id}));
+   return ctx.json({ok:true,enabled:!!room.commentsEnabled,canManage:manager,revision:entity.revision,messages});
+  }
+  if(request.method==='POST') {
+   const user=viewer||await requireUser(request,env,ctx), isHost=manager||await canManageEntity(env,user,entity);
+   if(!room.commentsEnabled) throw new ApiError(409,'Comments are closed for this meditation room.');
+   const input=await readJson(request), body=String(input.body||'').trim();
+   if(!body || body.length>300) throw new ApiError(400,'Comments must be between 1 and 300 characters.');
+   const id=crypto.randomUUID(), createdAt=new Date().toISOString();
+   await env.DB.prepare('insert into meditation_chat_messages (id,room_id,user_id,body,is_host,created_at) values (?,?,?,?,?,?)').bind(id,roomId,user.id,body,Number(isHost),createdAt).run();
+   return ctx.json({ok:true,message:{id,name:user.name,body,isHost,createdAt,own:true}},201);
+  }
+  if(request.method==='PUT') {
+   const user=viewer||await requireUser(request,env,ctx);
+   if(!manager && !await canManageEntity(env,user,entity)) throw new ApiError(403,'Only this room’s creator can change comments.');
+   const input=await readJson(request), enabled=input.enabled===true, now=new Date().toISOString();
+   room.commentsEnabled=enabled;
+   const result=await env.DB.prepare('update platform_entities set data_json=?,revision=revision+1,updated_at=? where id=? and revision=? returning revision').bind(JSON.stringify(room),now,roomId,Number(input.revision)).first();
+   if(!result) throw new ApiError(409,'Room settings changed. Reload and try again.');
+   await auditStatement(env,user.id,'meditation.comments.'+(enabled?'enabled':'disabled'),roomId,entity.tenant_id).run();
+   return ctx.json({ok:true,enabled,revision:result.revision});
+  }
+  throw new ApiError(405,'Method not allowed.');
+ }
  if(scope==='catalog' && request.method==='GET') {
   const kind=parts[2]; if(kind && !kinds.includes(kind)) throw new ApiError(404,'Collection not found.');
   const {results}=await env.DB.prepare(`select * from platform_entities where state='published' ${kind?'and kind=?':''} order by updated_at desc limit 1000`).bind(...(kind?[kind]:[])).all();

@@ -5,6 +5,8 @@ import fs from 'node:fs';
 const html = fs.readFileSync('public/meditation.html', 'utf8');
 const js = fs.readFileSync('public/meditation.js', 'utf8');
 const css = fs.readFileSync('public/styles.css', 'utf8');
+const trustedPlatform = fs.readFileSync('src/trusted-platform.js', 'utf8');
+const demoSeed = fs.readFileSync('database/demo-preview-seed.sql', 'utf8');
 
 test('1. Lobby with Room Cards (Favorites, Bible Books, Scriptural Themes & Filter Bar)', () => {
   assert.match(html, /id="meditation-lobby"/, 'Lobby container exists');
@@ -82,6 +84,9 @@ test('5. Distraction-Free Sidebar-Free Sanctuary with Creator Settings, Invite L
   assert.match(js, /function openInviteFriendModal\(/, 'Invite friend modal opener exists');
   assert.match(js, /function toggleLiveComments\(/, 'Host comment toggle function exists');
   assert.match(js, /function sendComment\(/, 'Send comment function exists');
+  assert.match(js, /meditation-chat\//, 'Room comments use the persisted server API');
+  assert.match(js, /setInterval\(\(\) => loadRoomChatMessages\(roomId\), 3000\)/, 'Room comments refresh for other participants');
+  assert.doesNotMatch(js, /mwe\.meditation\.chat\./, 'Room comments are not stored as a browser-only demo');
 });
 
 test('6. Single-Viewport Responsive Fit (100vh No Overflow & Docked Audio Player without Overlap)', () => {
@@ -233,5 +238,27 @@ test('14. Reflection Notes Modal, Audio Scrubber & Ambient Soundscapes', () => {
   assert.match(html, /id="btn-ambience-dropdown"/, 'Ambience dropdown button exists');
   assert.match(html, /id="ambience-dropdown-menu"/, 'Ambience dropdown menu exists');
   assert.match(js, /function setupAmbienceDropdown\(/, 'setupAmbienceDropdown wired in JS');
+});
+
+test('15. Connected initialization, creator persistence, and attributed chat', () => {
+  assert.match(js, /function initializeMeditation\(\)/, 'Meditation has an explicit initializer');
+  assert.match(js, /document\.readyState === "loading"/, 'Initializer handles scripts that finish after DOMContentLoaded');
+  assert.match(js, /MWEPlatform\.save\("meditation", newRoom\)/, 'Creator rooms persist through the authenticated platform API');
+  assert.doesNotMatch(js, /mwe\.meditation\.owner\./, 'Creator ownership is not represented by a browser-only owner token');
+  assert.match(js, /m\.name \|\| m\.sender/, 'Persisted chat displays the server-provided account name');
+  assert.match(html, /class="sanctuary-top-right">[\s\S]*id="chat-toggle-btn"[\s\S]*aria-controls="meditation-chat-drawer"/, 'Every room template exposes live chat from the shared header');
+  assert.match(css, /\.guest-status-banner\[hidden\]\s*\{[^}]*display:\s*none\s*!important/, 'Enabled chat does not retain the disabled guest banner');
+  assert.match(trustedPlatform, /journeySteps/, 'The server keeps advanced room-template settings');
+  assert.match(trustedPlatform, /allowUserNavigation/, 'The server keeps participant navigation settings');
+});
+
+test('16. Preview seed covers all sanctuary templates with account-backed ownership', () => {
+  for (const template of ['timer', 'ripple', 'journey', 'nature', 'sunburst']) {
+    assert.match(demoSeed, new RegExp('"template":"' + template + '"'), `Preview includes the ${template} template`);
+  }
+  for (const account of ['rivercity@demo.myway.test', 'grace@demo.myway.test', 'harbor@demo.myway.test']) {
+    assert.match(demoSeed, new RegExp('local:' + account.replaceAll('.', '\\.')), `${account} owns preview content`);
+  }
+  assert.match(demoSeed, /insert into meditation_chat_messages/, 'Preview includes real account-backed room discussion');
 });
 

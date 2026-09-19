@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meditation Sanctuary | My Way</title>
-    <link rel="stylesheet" href="styles.css?v=20260905module19" />
+    <link rel="stylesheet" href="styles.css?v=20260919meditationchat2" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260919directory3"></script><script defer src="auth-client.js?v=20260915security1"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
-  <script defer src="meditation.js?v=20260905a"></script>
+  <script defer src="meditation.js?v=20260919connected1"></script>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body class="module-page" data-page="meditation">
   <header class="topbar"></header>
@@ -18,16 +18,12 @@
     
     <section class="module-hero module-directory-hero">
       <div class="module-shell module-hero-inner">
-        <div>
+        <div class="module-hero-copy">
           <span class="module-kicker"><i data-lucide="sparkles"></i> Meditation Sanctuary</span>
-          <h1>Quiet your soul. Abide in His presence.</h1>
-          <p>Select a sanctuary room below or create your own custom room to quiet your mind and meditate on Scripture. Invite friends to enter and meditate together in real time with ambient streams and Prayer & Sleep Timer.</p>
+          <h1>Abide in His Presence</h1>
+          <p>Choose a sanctuary room, meditate on Scripture, and invite friends to pray together with ambient streams and the Prayer & Sleep Timer.</p>
         </div>
-        <div class="module-hero-actions">
-          <button type="button" class="btn btn-primary" id="btn-open-create-room">
-            <i data-lucide="plus-circle"></i> <span>Create Sanctuary Room</span>
-          </button>
-        </div>
+        <button type="button" class="module-primary-action module-creator-action" id="btn-open-create-room" data-creator-action disabled aria-disabled="true"><i data-lucide="plus"></i> <span>Create Room</span></button>
       </div>
     </section>
 
@@ -38,10 +34,10 @@
         <label class="module-search site-search"><i data-lucide="search"></i><input id="meditation-search" type="search" placeholder="Search rooms, books, or themes..." /></label>
         <div class="lobby-filter-tabs module-filter-group" id="lobby-filter-tabs">
           <button type="button" class="lobby-tab-btn module-filter-trigger active" data-lobby-filter="all"><i data-lucide="layout-grid"></i> All Rooms</button>
-          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="featured"><i data-lucide="star"></i> Favorites & Featured</button>
-          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="bible-books"><i data-lucide="book-open"></i> Bible Books</button>
-          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="themes"><i data-lucide="heart"></i> Scriptural Themes</button>
-          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="community"><i data-lucide="users"></i> Community & Custom</button>
+          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="featured"><i data-lucide="star"></i> Featured</button>
+          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="bible-books"><i data-lucide="book-open"></i> Books</button>
+          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="themes"><i data-lucide="heart"></i> Themes</button>
+          <button type="button" class="lobby-tab-btn module-filter-trigger" data-lobby-filter="community"><i data-lucide="users"></i> Community</button>
         </div>
       </div>
 
@@ -113,6 +109,9 @@
       </div>
 
       <div class="sanctuary-top-right">
+        <button type="button" class="sanctuary-top-action-btn chat-toggle-pill" id="chat-toggle-btn" title="Open live chat" aria-label="Open Live Chat" aria-expanded="false" aria-controls="meditation-chat-drawer">
+          <i data-lucide="messages-square"></i> <span id="chat-status-pill">Chat</span><span id="chat-unread-badge" hidden>0</span>
+        </button>
         <button type="button" class="sanctuary-top-action-btn" id="room-invite-btn" title="Invite someone to meditate together" aria-label="Invite Someone">
           <i data-lucide="user-plus"></i> <span>Invite</span>
         </button>
@@ -558,7 +557,6 @@
             <button type="button" class="ambience-option-btn active" data-ambience="forest"></button>
           </div>
           <button type="button" id="btn-open-reflection"><span id="reflection-btn-text">Write Note</span></button>
-          <button type="button" id="chat-toggle-btn"><span id="chat-status-pill">Chat</span><span id="chat-unread-badge" hidden>0</span></button>
         </footer>
       </div>
       <!-- END LEGACY TEST COMPATIBILITY CONTAINER -->
@@ -808,10 +806,10 @@
           <label class="form-label">
             <span>Category / Collection *</span>
             <select id="new-room-category">
-              <option value="featured">Favorites & Featured</option>
-              <option value="bible-books">Books of the Bible</option>
-              <option value="themes">Scriptural Themes</option>
-              <option value="community">Community & Fellowship</option>
+              <option value="featured">Featured</option>
+              <option value="bible-books">Books</option>
+              <option value="themes">Themes</option>
+              <option value="community">Community</option>
             </select>
           </label>
         </div>
