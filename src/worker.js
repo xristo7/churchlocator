@@ -1,1 +1,1 @@
-PLACEHOLDER_LOAD_FROM_JSON
+FILE_CONTENT_FROM_/tmp/worker from invoke
