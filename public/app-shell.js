@@ -214,6 +214,12 @@
 
   function loadRoute(route, options = {}) {
     const safeRoute = views[route.view] ? route : { view: "directory", id: "", q: "", compose: "" };
+    // Canonical product detail is the standalone page (MWEStore hydrate works there).
+    if (safeRoute.view === "product") {
+      const id = safeRoute.id ? `?id=${encodeURIComponent(safeRoute.id)}` : "";
+      window.location.assign(`product-detail.html${id}`);
+      return;
+    }
     if (safeRoute.view === "portal" && localStorage.getItem("mwe.session.church.v1") === "authenticated" && hasMatchingCreatorIdentity()) {
       openCreatorWorkspace();
       loadRoute({ view: "directory", id: "", q: "" }, { replace: true });

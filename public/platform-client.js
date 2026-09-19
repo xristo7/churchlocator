@@ -52,6 +52,7 @@ const personal=root.MWEPrivate={
   if(c){c.account=()=>platform.session;c.setAccount=()=>platform.session;}
   if(f){f.upsertProduct=row=>platform.staging?row:platform.save('products',row);f.addChannel=row=>platform.save('channels',row);f.addResource=row=>platform.save('resources',row);f.getMessages=()=>personal.get('message').map(row=>({...row,read:row.status==='read',participantId:row.entityId}));f.refreshMessages=()=>personal.refresh();f.sendMessage=row=>personal.create('message',{...row,entityId:row.entityId||row.participantId});f.getMessageSettings=()=>personal.get('settings')[0]||{forwardingEnabled:false};f.saveMessageSettings=row=>personal.create('settings',row);}
   for(const [kind,mod]of Object.entries(root.MWEAdmin?.modules||{})){
+   if(mod.apiBacked) continue;
    const original=mod.save,groups=mod.groups;
    mod.get=()=>platform.records(kind,true);
    mod.groups=()=>groups().map(g=>({...g,fields:g.fields.filter(field=>!['verified','streamPaid'].includes(field.key)).map(field=>field.key==='storeId'?{...field,options:[['','Choose a store'],...platform.records('store',true).filter(s=>s.canManage).map(s=>[s.id,s.name])]}:field)})).concat({title:'Publication',fields:[{key:'publicationState',label:'Publication state',type:'select',required:true,options:platform.role==='owner'?['draft','pending','published','archived']:['draft','pending','archived']}]});

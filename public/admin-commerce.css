@@ -1,0 +1,11 @@
+/* Commerce ops: badges, line-item expand, action clusters */
+.admin-workspace .aw-badge.bad { color:#a52e21; background:#fff0ed; }
+html[data-theme="dark"] .admin-workspace .aw-badge.bad { color:#fecaca; background:#7f1d1d; }
+.admin-workspace .aw-commerce-metrics { margin-bottom: 22px; }
+.admin-workspace .aw-commerce-actions { display:flex; flex-wrap:wrap; gap:6px; }
+.admin-workspace .aw-order-detail { padding:4px 4px 8px; }
+.admin-workspace .aw-line-item { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.admin-workspace .aw-line-item:last-child { border-bottom:0; }
+.admin-workspace .aw-line-item span { color:var(--text-muted); white-space:nowrap; }
+.admin-workspace .aw-order-detail-row td { background:var(--surface-soft); }
+.admin-workspace .aw-muted { color:var(--text-muted); font-size:11px; }

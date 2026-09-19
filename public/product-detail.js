@@ -870,6 +870,8 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
   await window.MWEPlatform?.ready;
+  try { await window.__mweStoreBridgeReady; } catch (_) {}
+  try { await window.MWEStore?.ready; } catch (_) {}
     // Wire cart drawer removal (required by member-shell test)
     document.getElementById("cart-items")?.addEventListener("click", event => {
       const remove = event.target.closest("[data-remove-cart]");
@@ -882,9 +884,15 @@
 
     if (!data()) return;
 
-    // Fetch product or service
-    const item = (data().getItemById && data().getItemById(productId)) ||
-                 data().getProducts().find(p => p.id === productId);
+    // Prefer async API detail (GET /api/store/products/:id); fall back to list cache.
+    let item = null;
+    if (productId && typeof data().getProduct === "function") {
+      try { item = await data().getProduct(productId); } catch (_) { item = null; }
+    }
+    if (!item) {
+      item = (data().getItemById && data().getItemById(productId)) ||
+             (data().getProducts?.() || []).find(p => p.id === productId);
+    }
 
     const container = document.getElementById("product-detail");
     if (!container) return;
