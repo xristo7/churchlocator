@@ -6,11 +6,50 @@
   <title>Product | My Way Store</title>
   <link rel="stylesheet" href="styles.css?v=20260919themecolor1" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="store-api.js?v=20260919storeapi2"></script><script defer src="app.js?v=20260919directory2"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script>
+  /* P0: keep product-detail.html canonical — do not let app.js shell-redirect this page */
+  (function () {
+    var mwe;
+    function wrapRoute(fn) {
+      if (typeof fn !== 'function' || fn.__mweStoreDetailGuard) return fn;
+      function guarded(input) {
+        try {
+          var url = new URL(input, location.href);
+          var file = (url.pathname.split('/').pop() || '').toLowerCase().replace(/\.html$/, '');
+          if (file === 'product-detail') return null;
+        } catch (e) {}
+        return fn.call(this, input);
+      }
+      guarded.__mweStoreDetailGuard = true;
+      return guarded;
+    }
+    Object.defineProperty(window, 'MWE', {
+      configurable: true,
+      get: function () { return mwe; },
+      set: function (value) {
+        mwe = value;
+        if (!mwe || typeof mwe !== 'object') return;
+        try {
+          var current = mwe.getMemberShellRoute;
+          Object.defineProperty(mwe, 'getMemberShellRoute', {
+            configurable: true,
+            enumerable: true,
+            get: function () { return current; },
+            set: function (fn) { current = wrapRoute(fn); }
+          });
+          if (typeof current === 'function') current = wrapRoute(current);
+        } catch (e) {}
+      }
+    });
+  })();
+  </script>
+
+  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="store-api.js?v=20260919p0detail3"></script><script defer src="app.js?v=20260919p0detail3"></script><script defer src="auth-client.js?v=20260915security1"></script>
   <script defer src="platform-modules.js?v=20260825"></script>
   <script defer src="content-engagements.js?v=20260919engagements1"></script>
-  <script defer src="store-product-bridge.js?v=20260919storeapi3"></script>
-  <script defer src="product-detail.js?v=20260919storeapi3"></script>
+  <script defer src="store-product-bridge.js?v=20260919p0detail3"></script>
+  <script defer src="product-detail.js?v=20260919p0detail3"></script>
+  <script defer src="product-detail-boot.js?v=20260919p0detail3"></script>
 <link rel="stylesheet" href="responsive.css?v=20260919drawer1" /></head>
 <body class="module-page" data-page="product-detail">
   <header class="topbar"></header>
