@@ -1,0 +1,39 @@
+name: Deploy Preview Only
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [grok]
+    paths:
+      - ".github/workflows/deploy-preview.yml"
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout required SHA
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: dc1d622b22632fe7299ee588d10d74391681b2e5
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build reviewed native tools
+        run: npm rebuild esbuild workerd
+
+      - name: Deploy PREVIEW Worker only
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          packageManager: npm
+          wranglerVersion: "4.131.1"
+          command: deploy --env preview --keep-vars
