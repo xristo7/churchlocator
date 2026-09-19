@@ -29,6 +29,7 @@ delete from church_staff_roles;
 delete from service_schedules;
 delete from ministries;
 delete from church_profiles;
+delete from church_testimonies;
 delete from churches;
 delete from events;
 delete from platform_entities;
@@ -144,3 +145,13 @@ values
  ('demo-spotlight-grace','local:harbor@demo.myway.test','save','2026-09-17T09:11:00.000Z'),
  ('demo-spotlight-river','local:grace@demo.myway.test','like','2026-09-17T09:12:00.000Z'),
  ('demo-spotlight-harbor','local:rivercity@demo.myway.test','like','2026-09-17T09:13:00.000Z');
+
+-- Authentic community testimonies for demo churches.
+insert into church_testimonies (id,church_id,user_id,author_name,author_title,author_photo_url,scene_photo_url,quote,rating,status,is_featured,created_at,updated_at)
+values
+ ('demo-testimony-river-1','demo-church-river-city',null,'Sarah M.','Attending since 2022','https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80','https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=500&q=80','Connecting with River City completely changed my walk in faith. I found deep, word-based teachings and a youth network that coordinates outreach projects across Nairobi.',5,'approved',1,'2026-09-17T09:20:00.000Z','2026-09-17T09:20:00.000Z'),
+ ('demo-testimony-river-2','demo-church-river-city',null,'Jason L.','Member & Family Ministry','https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80','https://images.unsplash.com/photo-1602030028438-4cf153cbae9e?auto=format&fit=crop&w=500&q=80','The children''s programs and family gatherings are incredible. My kids look forward to Sunday School every week, and the livestream keeps us connected when traveling.',5,'approved',1,'2026-09-17T09:21:00.000Z','2026-09-17T09:21:00.000Z'),
+ ('demo-testimony-river-3','demo-church-river-city',null,'Marcus T.','Youth Fellowship','https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80','https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=500&q=80','Serving on the outreach and media teams has helped me discover my God-given purpose and develop leadership skills. River City truly lives out the Great Commission.',5,'approved',0,'2026-09-17T09:22:00.000Z','2026-09-17T09:22:00.000Z'),
+ ('demo-testimony-grace-1','demo-church-grace-community',null,'David & Maria K.','Joined in 2021','https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80','https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80','When we relocated to Kampala, we prayed for a spirit-filled church that prioritized discipleship and authentic community. We found our spiritual family here at Grace Community.',5,'approved',1,'2026-09-17T09:23:00.000Z','2026-09-17T09:23:00.000Z'),
+ ('demo-testimony-grace-2','demo-church-grace-community',null,'Grace O.','Attending since 2023','https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80','https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=500&q=80','The Midweek Bible study gave me clarity in God''s Word like never before. The pastoral prayer team supported me during a difficult season and we witnessed God''s healing power.',5,'approved',1,'2026-09-17T09:24:00.000Z','2026-09-17T09:24:00.000Z'),
+ ('demo-testimony-harbor-1','demo-church-harbor-light',null,'Hannah W.','Worship Team Member','https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80','https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=500&q=80','The coastal worship gatherings and young adult ministry provided an uplifting, encouraging space for me to grow strong in faith with genuine friends.',5,'approved',1,'2026-09-17T09:25:00.000Z','2026-09-17T09:25:00.000Z');

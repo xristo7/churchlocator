@@ -1,6 +1,6 @@
 import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityHeaders } from "./security.js";
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
-import { handlePlatformApi } from './trusted-platform.js';
+import { handlePlatformApi, isOwner } from './trusted-platform.js';
 import { handleSpotlightApi } from './spotlight.js';
 import { handleContentEngagementApi } from './content-engagements.js';
 
@@ -608,6 +608,7 @@ async function handleAdminChurches(request, env) {
     if (env.DB) {
       await env.DB.batch([
         env.DB.prepare("delete from event_registrations where event_id in (select id from events where church_id = ?)").bind(id),
+        env.DB.prepare("delete from church_testimonies where church_id = ?").bind(id),
         env.DB.prepare("delete from ride_followups where ride_request_id in (select id from ride_requests where church_id = ?)").bind(id),
         env.DB.prepare("delete from service_schedules where church_id = ?").bind(id),
         env.DB.prepare("delete from ministries where church_id = ?").bind(id),
@@ -1105,6 +1106,269 @@ async function handleGetServiceBookings(request, env) {
   return json({ ok: true, bookings: results || [] });
 }
 
+async function handleGetChurchTestimonies(churchId, request, env) {
+  if (!env.DB) return storageUnavailable();
+  if (!churchId) return json({ ok: false, error: "churchId is required" }, 400);
+
+  const { results } = await env.DB.prepare(`
+    select
+      id, church_id, user_id, author_name, author_title,
+      author_photo_url, scene_photo_url, quote, rating,
+      status, is_featured, created_at, updated_at
+    from church_testimonies
+    where church_id = ? and status = 'approved'
+    order by is_featured desc, created_at desc
+    limit 50
+  `).bind(churchId).all();
+
+  const testimonies = (results || []).map(r => ({
+    id: r.id,
+    churchId: r.church_id,
+    userId: r.user_id,
+    authorName: r.author_name,
+    authorTitle: r.author_title || "Member",
+    authorPhotoUrl: r.author_photo_url || "",
+    scenePhotoUrl: r.scene_photo_url || "",
+    quote: r.quote,
+    rating: Number(r.rating || 5),
+    status: r.status,
+    isFeatured: Boolean(r.is_featured),
+    createdAt: r.created_at
+  }));
+
+  return json({ ok: true, churchId, testimonies });
+}
+
+async function handleSubmitChurchTestimony(churchId, request, env, context) {
+  if (!env.DB) return storageUnavailable();
+  if (!churchId) return json({ ok: false, error: "churchId is required" }, 400);
+
+  const church = await env.DB.prepare(
+    "select id from churches where id = ? union select id from platform_entities where id = ? and kind = 'churches'"
+  ).bind(churchId, churchId).first();
+  if (!church) return json({ ok: false, error: "church not found" }, 404);
+
+  const payload = await readJson(request);
+  if (!payload || typeof payload !== "object") return json({ ok: false, error: "invalid payload" }, 400);
+
+  const user = await context.getSessionUser(request, env);
+
+  const quote = String(payload.quote || "").trim();
+  if (!quote || quote.length < 10) {
+    return json({ ok: false, error: "Please share a testimony of at least 10 characters." }, 400);
+  }
+  if (quote.length > 2000) {
+    return json({ ok: false, error: "Testimony must not exceed 2,000 characters." }, 400);
+  }
+
+  const rawAuthorName = String(payload.authorName || user?.name || "").trim();
+  if (!rawAuthorName || rawAuthorName.length < 2) {
+    return json({ ok: false, error: "Please provide your name (at least 2 characters)." }, 400);
+  }
+  const authorName = rawAuthorName.slice(0, 100);
+
+  const rawAuthorTitle = String(payload.authorTitle || (user ? "Member" : "Visitor")).trim();
+  const authorTitle = rawAuthorTitle.slice(0, 80);
+
+  let rating = Number(payload.rating ?? 5);
+  if (!Number.isSafeInteger(rating) || rating < 1 || rating > 5) {
+    rating = 5;
+  }
+
+  let authorPhotoUrl = String(payload.authorPhotoUrl || "").trim().slice(0, 500);
+  let scenePhotoUrl = String(payload.scenePhotoUrl || "").trim().slice(0, 500);
+
+  for (const urlStr of [authorPhotoUrl, scenePhotoUrl]) {
+    if (urlStr && urlStr !== "#") {
+      try {
+        const parsed = new URL(urlStr, "https://assets.invalid/");
+        if (!["http:", "https:"].includes(parsed.protocol) && !urlStr.startsWith("/")) {
+          return json({ ok: false, error: "Please provide a valid image URL." }, 400);
+        }
+      } catch {
+        return json({ ok: false, error: "Please provide a valid image URL." }, 400);
+      }
+    }
+  }
+
+  const id = `testimony-${crypto.randomUUID()}`;
+  const now = new Date().toISOString();
+  const status = "approved";
+  const isFeatured = 0;
+  const userId = user?.id || null;
+
+  await env.DB.prepare(`
+    insert into church_testimonies
+      (id, church_id, user_id, author_name, author_title, author_photo_url, scene_photo_url, quote, rating, status, is_featured, created_at, updated_at)
+    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    id, churchId, userId, authorName, authorTitle,
+    authorPhotoUrl, scenePhotoUrl, quote, rating,
+    status, isFeatured, now, now
+  ).run();
+
+  const testimony = {
+    id,
+    churchId,
+    userId,
+    authorName,
+    authorTitle,
+    authorPhotoUrl,
+    scenePhotoUrl,
+    quote,
+    rating,
+    status,
+    isFeatured: false,
+    createdAt: now
+  };
+
+  return json({
+    ok: true,
+    message: "Thank you for sharing your testimony! Your story will inspire and encourage others.",
+    testimony
+  }, 201);
+}
+
+async function handleCreatorGetTestimonies(request, env, context) {
+  if (!env.DB) return storageUnavailable();
+  const user = await context.getSessionUser(request, env);
+  if (!user) return unauthorized();
+
+  const url = new URL(request.url);
+  const churchId = url.searchParams.get("churchId");
+  const status = url.searchParams.get("status");
+
+  let query = `
+    select
+      t.id, t.church_id, t.user_id, t.author_name, t.author_title,
+      t.author_photo_url, t.scene_photo_url, t.quote, t.rating,
+      t.status, t.is_featured, t.created_at, t.updated_at,
+      c.name as church_name
+    from church_testimonies t
+    left join churches c on c.id = t.church_id
+    where 1=1
+  `;
+  const params = [];
+
+  if (churchId) {
+    query += " and t.church_id = ?";
+    params.push(churchId);
+  }
+  if (status && ["pending", "approved", "rejected"].includes(status)) {
+    query += " and t.status = ?";
+    params.push(status);
+  }
+
+  query += " order by t.created_at desc limit 200";
+
+  const { results } = await env.DB.prepare(query).bind(...params).all();
+
+  const testimonies = (results || []).map(r => ({
+    id: r.id,
+    churchId: r.church_id,
+    churchName: r.church_name || r.church_id,
+    userId: r.user_id,
+    authorName: r.author_name,
+    authorTitle: r.author_title || "Member",
+    authorPhotoUrl: r.author_photo_url || "",
+    scenePhotoUrl: r.scene_photo_url || "",
+    quote: r.quote,
+    rating: Number(r.rating || 5),
+    status: r.status,
+    isFeatured: Boolean(r.is_featured),
+    createdAt: r.created_at,
+    updatedAt: r.updated_at
+  }));
+
+  return json({ ok: true, testimonies });
+}
+
+async function handleCreatorUpdateTestimony(testimonyId, request, env, context) {
+  if (!env.DB) return storageUnavailable();
+  const user = await context.getSessionUser(request, env);
+  if (!user) return unauthorized();
+
+  const existing = await env.DB.prepare("select * from church_testimonies where id = ?").bind(testimonyId).first();
+  if (!existing) return json({ ok: false, error: "testimony not found" }, 404);
+
+  const payload = await readJson(request);
+  if (!payload || typeof payload !== "object") return json({ ok: false, error: "invalid payload" }, 400);
+
+  const now = new Date().toISOString();
+  let status = existing.status;
+  if (payload.status && ["pending", "approved", "rejected"].includes(payload.status)) {
+    status = payload.status;
+  }
+
+  let isFeatured = existing.is_featured;
+  if (payload.isFeatured !== undefined) {
+    isFeatured = Number(Boolean(payload.isFeatured));
+  }
+
+  let quote = existing.quote;
+  if (payload.quote) {
+    const q = String(payload.quote).trim();
+    if (q.length >= 10 && q.length <= 2000) quote = q;
+  }
+
+  let authorName = existing.author_name;
+  if (payload.authorName) {
+    const n = String(payload.authorName).trim();
+    if (n.length >= 2 && n.length <= 100) authorName = n;
+  }
+
+  let authorTitle = existing.author_title;
+  if (payload.authorTitle !== undefined) {
+    authorTitle = String(payload.authorTitle).trim().slice(0, 80);
+  }
+
+  let rating = existing.rating;
+  if (payload.rating !== undefined) {
+    const r = Number(payload.rating);
+    if (Number.isSafeInteger(r) && r >= 1 && r <= 5) rating = r;
+  }
+
+  await env.DB.prepare(`
+    update church_testimonies set
+      status = ?,
+      is_featured = ?,
+      quote = ?,
+      author_name = ?,
+      author_title = ?,
+      rating = ?,
+      updated_at = ?
+    where id = ?
+  `).bind(status, isFeatured, quote, authorName, authorTitle, rating, now, testimonyId).run();
+
+  return json({
+    ok: true,
+    message: "Testimony updated successfully",
+    testimony: {
+      id: testimonyId,
+      churchId: existing.church_id,
+      authorName,
+      authorTitle,
+      quote,
+      rating,
+      status,
+      isFeatured: Boolean(isFeatured),
+      updatedAt: now
+    }
+  });
+}
+
+async function handleCreatorDeleteTestimony(testimonyId, request, env, context) {
+  if (!env.DB) return storageUnavailable();
+  const user = await context.getSessionUser(request, env);
+  if (!user) return unauthorized();
+
+  const existing = await env.DB.prepare("select id from church_testimonies where id = ?").bind(testimonyId).first();
+  if (!existing) return json({ ok: false, error: "testimony not found" }, 404);
+
+  await env.DB.prepare("delete from church_testimonies where id = ?").bind(testimonyId).run();
+  return json({ ok: true, message: "Testimony deleted" });
+}
+
 async function handleApi(request, env) {
   const requestId = crypto.randomUUID();
 
@@ -1138,6 +1402,27 @@ async function handleApi(request, env) {
     if (path === "/api/auth/profile" && request.method === "PUT") return await handleAuthProfileUpdate(request, env);
     if (path === "/api/auth/password" && request.method === "PUT") return await handleAuthPasswordUpdate(request, env);
     if (path === "/api/services/bookings" && request.method === "GET") return await handleGetServiceBookings(request, env);
+
+    // Church-specific testimonies (public GET, visitor/member POST)
+    const churchTestimoniesMatch = path.match(/^\/api\/churches\/([^/]+)\/testimonies$/);
+    if (churchTestimoniesMatch) {
+      const churchId = decodeURIComponent(churchTestimoniesMatch[1]);
+      if (request.method === "GET") return await handleGetChurchTestimonies(churchId, request, env);
+      if (request.method === "POST") return await handleSubmitChurchTestimony(churchId, request, env, context);
+      return json({ ok: false, error: "method not allowed" }, 405);
+    }
+
+    // Creator / Moderator testimonies (GET all/filtered, PUT update, DELETE)
+    if (path === "/api/creator/testimonies" && request.method === "GET") {
+      return await handleCreatorGetTestimonies(request, env, context);
+    }
+    const creatorTestimonyMatch = path.match(/^\/api\/creator\/testimonies\/([^/]+)$/);
+    if (creatorTestimonyMatch) {
+      const testimonyId = decodeURIComponent(creatorTestimonyMatch[1]);
+      if (request.method === "PUT") return await handleCreatorUpdateTestimony(testimonyId, request, env, context);
+      if (request.method === "DELETE") return await handleCreatorDeleteTestimony(testimonyId, request, env, context);
+      return json({ ok: false, error: "method not allowed" }, 405);
+    }
 
     if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
     if (path === "/api/church-application") return await handleChurchApplication(request, env);

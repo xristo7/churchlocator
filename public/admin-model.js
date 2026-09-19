@@ -142,6 +142,57 @@
         replace(root.FaithLinkModules.getResources(), saved, root.FaithLinkModules.saveResources);
         return saved;
       }
+    },
+    testimonies: {
+      label: "Church Testimonies", singular: "testimony", icon: "quote", noun: "testimonies",
+      description: "Member stories of transformation, community praise and moderation.", page: "churches.html",
+      get: () => root.MWE.getTestimonies ? root.MWE.getTestimonies() : [],
+      title: r => r.authorName ? `${r.authorName} (${r.authorTitle || "Member"})` : "Community testimony",
+      owner: r => root.MWE.getChurches().find(c => c.id === r.churchId)?.name || r.churchId || "Church",
+      detail: r => `"${(r.quote || "").slice(0, 75)}${(r.quote || "").length > 75 ? "..." : ""}"`,
+      category: r => `${r.rating || 5} Stars`,
+      status: r => r.status ? (r.status.charAt(0).toUpperCase() + r.status.slice(1)) : "Approved",
+      statuses: ["Approved", "Pending", "Rejected"],
+      preview: r => "church-profile.html?id=" + encodeURIComponent(r.churchId || ""),
+      groups: () => [
+        group("01 · Church & Author", [
+          field("churchId", "Church", "select", true, root.MWE.getChurches().map(c => [c.id, c.name])),
+          field("authorName", "Author name", "text", true),
+          field("authorTitle", "Role / Relationship", "text", false, null, "e.g. Attending since 2022, Youth member, Volunteer"),
+          field("rating", "Rating (1-5)", "select", true, [["5", "5 Stars"], ["4", "4 Stars"], ["3", "3 Stars"], ["2", "2 Stars"], ["1", "1 Star"]])
+        ]),
+        group("02 · Story & Media", [
+          field("quote", "Testimony quote", "textarea", true, null, "The authentic story or praise shared by the member."),
+          field("authorPhotoUrl", "Author avatar URL", "url"),
+          field("scenePhotoUrl", "Scene / Church photo URL", "url")
+        ]),
+        group("03 · Moderation & Visibility", [
+          field("status", "Moderation status", "select", true, [["approved", "Approved"], ["pending", "Pending review"], ["rejected", "Rejected"]]),
+          field("isFeatured", "Featured story", "select", false, yesNo)
+        ])
+      ],
+      flatten: r => ({
+        ...r,
+        rating: String(r.rating || 5),
+        isFeatured: String(!!r.isFeatured),
+        status: r.status || "approved"
+      }),
+      defaults: () => ({
+        churchId: root.MWE.getChurches()[0]?.id || "",
+        authorTitle: "Member",
+        rating: "5",
+        status: "approved",
+        isFeatured: "false"
+      }),
+      save(r, v) {
+        return root.MWE.upsertTestimony({
+          ...r,
+          ...v,
+          rating: Number(v.rating || 5),
+          isFeatured: v.isFeatured === true || v.isFeatured === "true",
+          status: v.status || "approved"
+        });
+      }
     }
   };
   function replace(rows, saved, write) {

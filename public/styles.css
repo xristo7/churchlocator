@@ -10776,6 +10776,34 @@ body[data-page="profile"] .leader-bio-text { color: var(--text-secondary); font-
   width: 14px;
 }
 
+.btn-share-story {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-primary);
+  font-weight: 750;
+  font-size: 0.78rem;
+  background: var(--surface-card, #ffffff);
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 9999px;
+  cursor: pointer;
+  padding: 6px 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.btn-share-story:hover {
+  border-color: var(--primary, #db2777);
+  color: var(--primary, #db2777);
+  transform: translateY(-1px);
+}
+.btn-share-story svg {
+  width: 14px;
+  height: 14px;
+}
+.testimony-empty-card {
+  transition: all 0.2s ease;
+}
+
 body[data-page="profile"] .stories-section { padding: 20px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface-card); }
 body[data-page="profile"] .stories-heading { display: grid; grid-template-columns: 1fr auto; margin-bottom: 15px; }
 body[data-page="profile"] .stories-heading h3 { color: var(--text-primary); font-size: 1.35rem; }

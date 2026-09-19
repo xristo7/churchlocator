@@ -2739,7 +2739,102 @@ function renderProfile(church) {
   MWE.renderRelatedChurches(church.id);
   MWE.renderChurchProfileEvents(church.id);
   MWE.renderChurchGallery(church);
+  MWE.renderChurchProfileTestimonies(church.id);
 }
+
+MWE.renderChurchProfileTestimonies = async function(churchId) {
+  const container = document.getElementById("church-testimonials-container");
+  if (!container) return;
+
+  const targetId = churchId || MWE.currentProfileChurch?.id;
+  if (!targetId) return;
+
+  if (!container.children.length) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 32px 16px; color: var(--muted, #64748b);">
+        <i data-lucide="loader" class="spin" style="width: 28px; height: 28px; margin-bottom: 8px; display: inline-block;"></i>
+        <p style="font-size: 0.88rem; margin: 0;">Loading church stories...</p>
+      </div>
+    `;
+    if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+  }
+
+  let testimonies = [];
+  try {
+    const res = await fetch(`/api/churches/${encodeURIComponent(targetId)}/testimonies`, { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.ok && Array.isArray(data.testimonies)) {
+        testimonies = data.testimonies;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not load church testimonies from API:", err);
+  }
+
+  MWE.currentChurchTestimonies = testimonies;
+
+  const viewAllBtn = document.getElementById("btn-view-all-stories");
+  if (viewAllBtn) {
+    viewAllBtn.innerHTML = `View All Stories (${testimonies.length}) <i data-lucide="arrow-right"></i>`;
+    viewAllBtn.style.display = testimonies.length > 0 ? "inline-flex" : "none";
+  }
+
+  if (testimonies.length === 0) {
+    const churchName = MWE.currentProfileChurch?.name || "this fellowship";
+    container.innerHTML = `
+      <div class="testimony-empty-card" style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; background: var(--surface-card, #ffffff); border-radius: 20px; border: 1px dashed var(--line, #e2e8f0); margin: 8px 0;">
+        <i data-lucide="sparkles" style="width: 38px; height: 38px; color: var(--gold, #e5a93c); margin-bottom: 12px; display: inline-block;"></i>
+        <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--ink, #0f172a); margin: 0 0 6px 0;">Be the First to Share a Story</h4>
+        <p style="font-size: 0.88rem; color: var(--muted, #64748b); max-width: 440px; margin: 0 auto 16px auto; line-height: 1.5;">
+          Has your life been touched, encouraged, or blessed through ${MWE.escapeHtml(churchName)}? Share your testimony to inspire others in their walk of faith.
+        </p>
+        <button type="button" class="button primary" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 9999px; padding: 10px 22px; font-weight: 700;" onclick="MWE.openSubmitTestimonyModal('${MWE.escapeHtml(targetId)}')">
+          <i data-lucide="message-square-plus"></i> Share Your Story
+        </button>
+      </div>
+    `;
+    if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+    return;
+  }
+
+  const defaultScenes = [
+    "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1602030028438-4cf153cbae9e?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80"
+  ];
+
+  container.innerHTML = testimonies.slice(0, 3).map((t, idx) => {
+    const scene = t.scenePhotoUrl || defaultScenes[idx % defaultScenes.length];
+    const rating = Math.max(1, Math.min(5, Number(t.rating || 5)));
+    const starsHtml = Array.from({ length: 5 }, (_, i) => `
+      <i class="fa-solid fa-star" style="font-size: 11px; ${i < rating ? '' : 'opacity: 0.25;'}"></i>
+    `).join("");
+
+    return `
+      <div class="glass-card testimony-card">
+        <img class="testimony-scene" src="${MWE.escapeHtml(scene)}" alt="${MWE.escapeHtml(t.authorName)}" />
+        <div class="testimony-content">
+          <div class="testimony-stars">
+            <i data-lucide="quote" style="width: 16px; height: 16px; color: var(--primary, #db2777); margin-right: 4px;"></i>
+            ${starsHtml}
+          </div>
+          <p class="testimony-text">"${MWE.escapeHtml(t.quote)}"</p>
+          <div class="testimony-user">
+            ${t.authorPhotoUrl ? `<img class="testimony-user-img" src="${MWE.escapeHtml(t.authorPhotoUrl)}" alt="${MWE.escapeHtml(t.authorName)}" />` : ''}
+            <div class="testimony-user-info">
+              <h4>${MWE.escapeHtml(t.authorName)}</h4>
+              <span>${MWE.escapeHtml(t.authorTitle || 'Member')}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  if (typeof createIcons === "function") createIcons();
+  if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+};
 
 MWE.renderChurchProfileEvents = function(churchId) {
   const container = document.getElementById("church-events-container");
@@ -8531,52 +8626,34 @@ MWE.openCalendarModal = function(title, timeStr = "Sunday 10:00 AM", location = 
   if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
 };
 
-MWE.openStoriesModal = function() {
+MWE.openStoriesModal = async function(churchId) {
   document.getElementById("stories-modal-backdrop")?.remove();
 
-  const stories = [
-    {
-      name: "Sarah M.",
-      tenure: "Attending since 2022",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=500&q=80",
-      quote: "Connecting with this church family completely changed my perspective. I found deep, word-based teachings and a youth network that coordinates outreach projects across the area."
-    },
-    {
-      name: "Jason L.",
-      tenure: "Attending since 2021",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1602030028438-4cf153cbae9e?auto=format&fit=crop&w=500&q=80",
-      quote: "The children's programs and family gatherings are incredible. My kids look forward to Sunday School, and the virtual direct stream helps us stay tuned."
-    },
-    {
-      name: "David & Maria K.",
-      tenure: "Attending since 2020",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80",
-      quote: "When we relocated to the area, we prayed for a spirit-filled church that prioritized discipleship and authentic community. We found our spiritual family here."
-    },
-    {
-      name: "Grace O.",
-      tenure: "Attending since 2023",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=500&q=80",
-      quote: "The Midweek Bible study gave me clarity in God's Word like never before. The pastoral prayer team supported me during illness and we saw God's healing power in action."
-    },
-    {
-      name: "Marcus T.",
-      tenure: "Attending since 2019",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=500&q=80",
-      quote: "Serving on the outreach and media teams has helped me discover my purpose and develop my leadership skills. This church truly lives out the Great Commission."
-    },
-    {
-      name: "Hannah W.",
-      tenure: "Attending since 2022",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=500&q=80",
-      quote: "The Youth and Young Adult ministry provided a safe, encouraging space for me to ask hard questions and grow strong in faith with genuine friends."
+  const targetId = churchId || MWE.currentProfileChurch?.id;
+  let stories = MWE.currentChurchTestimonies;
+
+  if (!stories && targetId) {
+    try {
+      const res = await fetch(`/api/churches/${encodeURIComponent(targetId)}/testimonies`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.testimonies)) stories = data.testimonies;
+      }
+    } catch (err) {
+      console.warn("Could not fetch testimonies for modal:", err);
     }
+  }
+
+  stories = stories || [];
+
+  const churchName = MWE.currentProfileChurch?.name || "Church";
+  const defaultScenes = [
+    "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1602030028438-4cf153cbae9e?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=500&q=80"
   ];
 
   const backdrop = document.createElement("div");
@@ -8584,47 +8661,217 @@ MWE.openStoriesModal = function() {
   backdrop.id = "stories-modal-backdrop";
   backdrop.style.zIndex = "2500";
   backdrop.innerHTML = `
-    <div class="dash-panel dash-panel-pad" style="max-width: 780px; width: 92%; max-height: 88vh; margin: 24px auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); background: var(--surface, #ffffff); border: 1px solid var(--border, #e2e8f0); display: flex; flex-direction: column; overflow: hidden;">
+    <div class="dash-panel dash-panel-pad" style="max-width: 820px; width: 92%; max-height: 88vh; margin: 24px auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); background: var(--surface, #ffffff); border: 1px solid var(--border, #e2e8f0); display: flex; flex-direction: column; overflow: hidden;">
       <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--border, #e2e8f0); flex-shrink: 0;">
         <div>
           <span style="font-size: 0.7rem; font-weight: 850; text-transform: uppercase; color: var(--primary, #db2777); letter-spacing: 0.06em;">Lives Transformed</span>
-          <h3 style="margin: 2px 0 0; font-size: 1.35rem; font-weight: 850; color: var(--text-primary, #0f172a);">Stories of Transformation</h3>
+          <h3 style="margin: 2px 0 0; font-size: 1.35rem; font-weight: 850; color: var(--text-primary, #0f172a);">Stories from ${MWE.escapeHtml(churchName)}</h3>
         </div>
-        <button type="button" style="width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border, #e2e8f0); background: transparent; color: var(--text-muted, #64748b); display: grid; place-items: center; cursor: pointer;" onclick="document.getElementById('stories-modal-backdrop').remove()">
-          <i data-lucide="x"></i>
-        </button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="button primary sm" style="font-size: 0.8rem; padding: 6px 14px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px;" onclick="document.getElementById('stories-modal-backdrop')?.remove(); MWE.openSubmitTestimonyModal('${MWE.escapeHtml(targetId || '')}')">
+            <i data-lucide="message-square-plus" style="width: 14px; height: 14px;"></i> Share Story
+          </button>
+          <button type="button" style="width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border, #e2e8f0); background: transparent; color: var(--text-muted, #64748b); display: grid; place-items: center; cursor: pointer;" onclick="document.getElementById('stories-modal-backdrop').remove()">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
       </div>
 
       <div style="overflow-y: auto; padding: 20px 4px 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
-        ${stories.map(s => `
-          <div class="glass-card testimony-card" style="display: grid; grid-template-columns: 120px minmax(0,1fr); min-height: 190px; padding: 12px; border-radius: 16px; border: 1px solid var(--border, #e2e8f0); background: var(--surface-card, #ffffff); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
-            <img class="testimony-scene" src="${s.photo}" alt="${MWE.escapeHtml(s.name)}" style="width: 100%; height: 100%; min-height: 160px; object-fit: cover; border-radius: 12px;" />
-            <div class="testimony-content" style="display: flex; flex-direction: column; padding: 4px 6px 4px 12px;">
-              <div class="testimony-stars" style="display: flex; align-items: center; gap: 3px; margin-bottom: 8px; color: var(--gold, #e5a93c);">
-                <i data-lucide="quote" style="width: 16px; height: 16px; color: var(--primary, #db2777); margin-right: 4px;"></i>
-                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
-                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
-                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
-                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
-                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
-              </div>
-              <p class="testimony-text" style="font-size: 0.8rem; line-height: 1.5; color: var(--text-secondary, #475569); margin: 0 0 12px 0;">"${MWE.escapeHtml(s.quote)}"</p>
-              <div class="testimony-user" style="margin-top: auto;">
-                <div class="testimony-user-info">
-                  <h4 style="font-size: 0.82rem; font-weight: 800; color: var(--text-primary, #0f172a); margin: 0;">${MWE.escapeHtml(s.name)}</h4>
-                  <span style="font-size: 0.7rem; color: var(--text-muted, #64748b);">${MWE.escapeHtml(s.tenure)}</span>
+        ${stories.length === 0 ? `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--text-muted, #64748b);">
+            <i data-lucide="sparkles" style="width: 36px; height: 36px; color: var(--gold, #e5a93c); margin-bottom: 10px; display: inline-block;"></i>
+            <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary, #0f172a); margin: 0 0 6px 0;">No stories shared yet</h4>
+            <p style="font-size: 0.88rem; max-width: 360px; margin: 0 auto 16px auto;">Be the first person to share how God touched your life here.</p>
+            <button type="button" class="button primary" onclick="document.getElementById('stories-modal-backdrop')?.remove(); MWE.openSubmitTestimonyModal('${MWE.escapeHtml(targetId || '')}')">
+              <i data-lucide="message-square-plus"></i> Share Your Testimony
+            </button>
+          </div>
+        ` : stories.map((s, idx) => {
+          const scene = s.scenePhotoUrl || defaultScenes[idx % defaultScenes.length];
+          const rating = Math.max(1, Math.min(5, Number(s.rating || 5)));
+          const starsHtml = Array.from({ length: 5 }, (_, i) => `
+            <i class="fa-solid fa-star" style="font-size: 11px; ${i < rating ? '' : 'opacity: 0.25;'}"></i>
+          `).join("");
+
+          return `
+            <div class="glass-card testimony-card" style="display: grid; grid-template-columns: 120px minmax(0,1fr); min-height: 190px; padding: 12px; border-radius: 16px; border: 1px solid var(--border, #e2e8f0); background: var(--surface-card, #ffffff); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
+              <img class="testimony-scene" src="${MWE.escapeHtml(scene)}" alt="${MWE.escapeHtml(s.authorName)}" style="width: 100%; height: 100%; min-height: 160px; object-fit: cover; border-radius: 12px;" />
+              <div class="testimony-content" style="display: flex; flex-direction: column; padding: 4px 6px 4px 12px;">
+                <div class="testimony-stars" style="display: flex; align-items: center; gap: 3px; margin-bottom: 8px; color: var(--gold, #e5a93c);">
+                  <i data-lucide="quote" style="width: 16px; height: 16px; color: var(--primary, #db2777); margin-right: 4px;"></i>
+                  ${starsHtml}
+                </div>
+                <p class="testimony-text" style="font-size: 0.8rem; line-height: 1.5; color: var(--text-secondary, #475569); margin: 0 0 12px 0;">"${MWE.escapeHtml(s.quote)}"</p>
+                <div class="testimony-user" style="margin-top: auto;">
+                  <div class="testimony-user-info">
+                    <h4 style="font-size: 0.82rem; font-weight: 800; color: var(--text-primary, #0f172a); margin: 0;">${MWE.escapeHtml(s.authorName)}</h4>
+                    <span style="font-size: 0.7rem; color: var(--text-muted, #64748b);">${MWE.escapeHtml(s.authorTitle || 'Member')}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        `).join("")}
+          `;
+        }).join("")}
       </div>
 
-      <div style="padding-top: 14px; border-top: 1px solid var(--border, #e2e8f0); display: flex; justify-content: flex-end; flex-shrink: 0;">
+      <div style="padding-top: 14px; border-top: 1px solid var(--border, #e2e8f0); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+        <span style="font-size: 0.78rem; color: var(--text-muted, #64748b);">${stories.length} verified ${stories.length === 1 ? 'story' : 'stories'}</span>
         <button type="button" class="button ghost" onclick="document.getElementById('stories-modal-backdrop').remove()">Close</button>
       </div>
     </div>
   `;
+
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) backdrop.remove();
+  });
+
+  document.body.appendChild(backdrop);
+  if (typeof createIcons === "function") createIcons();
+  if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+};
+
+MWE.openSubmitTestimonyModal = function(churchId) {
+  document.getElementById("submit-testimony-modal-backdrop")?.remove();
+
+  const targetId = churchId || MWE.currentProfileChurch?.id;
+  const churchName = MWE.currentProfileChurch?.name || "this church";
+
+  const memberName = window.MWEPlatform?.session?.name || (typeof localStorage !== "undefined" && localStorage.getItem("mwe.username")) || "";
+  let selectedRating = 5;
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "alert-modal-backdrop open";
+  backdrop.id = "submit-testimony-modal-backdrop";
+  backdrop.style.zIndex = "2600";
+  backdrop.innerHTML = `
+    <div class="dash-panel dash-panel-pad" style="max-width: 540px; width: 92%; max-height: 90vh; margin: 24px auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.28); background: var(--surface, #ffffff); border: 1px solid var(--border, #e2e8f0); display: flex; flex-direction: column; overflow: hidden;">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid var(--border, #e2e8f0); flex-shrink: 0;">
+        <div>
+          <span style="font-size: 0.7rem; font-weight: 850; text-transform: uppercase; color: var(--primary, #db2777); letter-spacing: 0.06em;">Share Your Experience</span>
+          <h3 style="margin: 2px 0 0; font-size: 1.25rem; font-weight: 850; color: var(--text-primary, #0f172a);">Testimony for ${MWE.escapeHtml(churchName)}</h3>
+        </div>
+        <button type="button" style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border, #e2e8f0); background: transparent; color: var(--text-muted, #64748b); display: grid; place-items: center; cursor: pointer;" onclick="document.getElementById('submit-testimony-modal-backdrop').remove()">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <form id="testimony-submission-form" style="overflow-y: auto; padding: 16px 2px; display: flex; flex-direction: column; gap: 14px;">
+        <div id="testimony-form-error" style="display: none; padding: 10px 14px; border-radius: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #dc2626; font-size: 0.82rem; font-weight: 600;"></div>
+
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Your Rating</label>
+          <div id="testimony-rating-selector" style="display: flex; gap: 8px; color: var(--gold, #e5a93c); font-size: 1.5rem; cursor: pointer;">
+            <i class="fa-solid fa-star star-btn" data-star="1"></i>
+            <i class="fa-solid fa-star star-btn" data-star="2"></i>
+            <i class="fa-solid fa-star star-btn" data-star="3"></i>
+            <i class="fa-solid fa-star star-btn" data-star="4"></i>
+            <i class="fa-solid fa-star star-btn" data-star="5"></i>
+          </div>
+        </div>
+
+        <div>
+          <label for="testimony-name-input" style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Your Name *</label>
+          <input type="text" id="testimony-name-input" required value="${MWE.escapeHtml(memberName)}" placeholder="e.g. Sarah M. or David K." style="width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border, #cbd5e1); background: var(--surface-card, #ffffff); color: var(--text-primary, #0f172a); font-size: 0.9rem; box-sizing: border-box;" />
+        </div>
+
+        <div>
+          <label for="testimony-title-input" style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Relationship / Role</label>
+          <input type="text" id="testimony-title-input" placeholder="e.g. Attending since 2022, Youth member, First-time visitor" style="width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border, #cbd5e1); background: var(--surface-card, #ffffff); color: var(--text-primary, #0f172a); font-size: 0.9rem; box-sizing: border-box;" />
+        </div>
+
+        <div>
+          <label for="testimony-quote-input" style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Your Testimony Story *</label>
+          <textarea id="testimony-quote-input" required rows="4" minlength="10" maxlength="2000" placeholder="Describe how God touched your life, the fellowship you found, or how this church community encouraged you..." style="width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border, #cbd5e1); background: var(--surface-card, #ffffff); color: var(--text-primary, #0f172a); font-size: 0.9rem; line-height: 1.5; resize: vertical; box-sizing: border-box;"></textarea>
+          <div style="text-align: right; font-size: 0.72rem; color: var(--text-muted, #64748b); margin-top: 4px;">Min 10 characters</div>
+        </div>
+
+        <div>
+          <label for="testimony-photo-input" style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Photo URL <span style="font-weight: 400; color: var(--text-muted, #64748b);">(Optional)</span></label>
+          <input type="url" id="testimony-photo-input" placeholder="https://example.com/photo.jpg" style="width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border, #cbd5e1); background: var(--surface-card, #ffffff); color: var(--text-primary, #0f172a); font-size: 0.9rem; box-sizing: border-box;" />
+        </div>
+
+        <div style="padding-top: 12px; border-top: 1px solid var(--border, #e2e8f0); display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px;">
+          <button type="button" class="button ghost" onclick="document.getElementById('submit-testimony-modal-backdrop').remove()">Cancel</button>
+          <button type="submit" class="button primary" id="testimony-submit-btn" style="display: inline-flex; align-items: center; gap: 6px;">
+            <i data-lucide="send" style="width: 14px; height: 14px;"></i> Post Testimony
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  const updateStars = (val) => {
+    selectedRating = val;
+    backdrop.querySelectorAll(".star-btn").forEach(star => {
+      const sVal = Number(star.dataset.star);
+      if (sVal <= selectedRating) {
+        star.className = "fa-solid fa-star star-btn";
+        star.style.opacity = "1";
+      } else {
+        star.className = "fa-regular fa-star star-btn";
+        star.style.opacity = "0.4";
+      }
+    });
+  };
+
+  backdrop.querySelectorAll(".star-btn").forEach(star => {
+    star.addEventListener("click", () => updateStars(Number(star.dataset.star)));
+  });
+
+  const form = backdrop.querySelector("#testimony-submission-form");
+  const errorBox = backdrop.querySelector("#testimony-form-error");
+  const submitBtn = backdrop.querySelector("#testimony-submit-btn");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorBox.style.display = "none";
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<i data-lucide="loader" class="spin" style="width: 14px; height: 14px;"></i> Posting...`;
+    if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+
+    const authorName = document.getElementById("testimony-name-input").value.trim();
+    const authorTitle = document.getElementById("testimony-title-input").value.trim();
+    const quote = document.getElementById("testimony-quote-input").value.trim();
+    const authorPhotoUrl = document.getElementById("testimony-photo-input").value.trim();
+
+    try {
+      const res = await fetch(`/api/churches/${encodeURIComponent(targetId)}/testimonies`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          authorName,
+          authorTitle,
+          quote,
+          rating: selectedRating,
+          authorPhotoUrl: authorPhotoUrl || undefined
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Failed to submit testimony.");
+      }
+
+      backdrop.remove();
+
+      if (typeof MWE.showToast === "function") {
+        MWE.showToast("Your testimony has been published! Thank you for sharing.", "success");
+      } else {
+        alert("Your testimony has been published! Thank you for sharing.");
+      }
+
+      if (typeof MWE.renderChurchProfileTestimonies === "function") {
+        await MWE.renderChurchProfileTestimonies(targetId);
+      }
+    } catch (err) {
+      errorBox.textContent = err.message || "An error occurred while posting your testimony.";
+      errorBox.style.display = "block";
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<i data-lucide="send" style="width: 14px; height: 14px;"></i> Post Testimony`;
+      if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+    }
+  });
 
   backdrop.addEventListener("click", (e) => {
     if (e.target === backdrop) backdrop.remove();
@@ -8644,6 +8891,39 @@ MWE.toggleDirectoryMapView = function() {
 
 MWE.submitVerificationDocs = function() {
   showToast("Church verification documents submitted to owner dashboard for approval!");
+};
+
+MWE.cachedTestimonies = [];
+MWE.getTestimonies = function() {
+  return MWE.cachedTestimonies;
+};
+MWE.upsertTestimony = async function(testimony) {
+  const isNew = !testimony.id;
+  const churchId = testimony.churchId;
+  const endpoint = isNew ? `/api/churches/${encodeURIComponent(churchId)}/testimonies` : `/api/creator/testimonies/${encodeURIComponent(testimony.id)}`;
+  const method = isNew ? "POST" : "PUT";
+  const res = await fetch(endpoint, {
+    method,
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(testimony)
+  });
+  const data = await res.json();
+  if (!res.ok || !data.ok) throw new Error(data.error || "Failed to save testimony");
+  await MWE.refreshTestimonies();
+  return data.testimony || testimony;
+};
+MWE.refreshTestimonies = async function() {
+  try {
+    const res = await fetch("/api/creator/testimonies", { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.ok && Array.isArray(data.testimonies)) {
+        MWE.cachedTestimonies = data.testimonies;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not load creator testimonies:", err);
+  }
 };
 
 function renderFoundationPage() {

@@ -3,6 +3,7 @@
   document.addEventListener("DOMContentLoaded", async () => {
   await window.MWEPlatform?.ready;
     if (!document.body.hasAttribute("data-admin-workspace")) return;
+    await window.MWE?.refreshTestimonies?.();
     const { modules, filterRows, valuesFromEntries } = window.MWEAdmin;
     const creator = document.body.hasAttribute("data-creator-workspace");
     const mainModules = () => Object.entries(modules).filter(([, mod]) => !mod.auxiliary);
