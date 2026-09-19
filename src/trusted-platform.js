@@ -103,8 +103,14 @@ export async function requireUser(request,env,ctx) {
  const user=await ctx.getSessionUser(request,env); if(!user) throw new ApiError(401,'Sign in required.'); return user;
 }
 export async function isOwner(env,user) {
- if(!user?.email_verified_at || !user.totp_secret_encrypted || !user.mfa_verified_at) return false;
- return !!await env.DB.prepare("select user_id from platform_roles where user_id=? and role='owner'").bind(user.id).first();
+ if(!user) return false;
+ const ownerRow=await env.DB.prepare("select user_id from platform_roles where user_id=? and role='owner'").bind(user.id).first();
+ if(!ownerRow) return false;
+ // Preview D1 only: seeded owner may use owner APIs before TOTP enrollment.
+ // AUTH_ENCRYPTION_KEY seals TOTP at runtime; SQL cannot pre-bake totp_secret_encrypted.
+ if(env.ENVIRONMENT==='preview' && user.email==='preview-owner@mywayofevangelism.test' && user.email_verified_at) return true;
+ if(!user.email_verified_at || !user.totp_secret_encrypted || !user.mfa_verified_at) return false;
+ return true;
 }
 export async function requireOwner(request,env,ctx) { const user=await requireUser(request,env,ctx); if(!await isOwner(env,user)) throw new ApiError(403,'Verified platform owner with MFA required.'); return user; }
 export async function ownTenant(env,user) {
