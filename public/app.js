@@ -4793,7 +4793,7 @@ function updateHomepageAuthUI() {
               </div>
               <div class="form-group mb-3">
                 <label for="nav-auth-password">Password</label>
-                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required minlength="8" />
+                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required minlength="15" maxlength="128" title="Use 15 to 128 characters." autocomplete="current-password" />
               </div>
               <button type="submit" class="button primary small" id="nav-auth-submit-btn" style="width: 100%;">
                 <i data-lucide="log-in"></i> <span>Sign In</span>
@@ -4868,6 +4868,8 @@ MWE.switchAuthDropdownTab = function(tab) {
   const btnRegister = document.getElementById("tab-btn-register");
   const nameGroup = document.getElementById("nav-auth-name-group");
   const emailLabel = document.getElementById("nav-auth-email-label");
+  const nameInput = document.getElementById("nav-auth-name");
+  const passwordInput = document.getElementById("nav-auth-password");
   const submitBtn = document.getElementById("nav-auth-submit-btn");
   const googleLabel = document.getElementById("google-auth-fast-label");
 
@@ -4875,6 +4877,8 @@ MWE.switchAuthDropdownTab = function(tab) {
     btnRegister?.classList.add("active");
     btnSignin?.classList.remove("active");
     if (nameGroup) nameGroup.style.display = "block";
+    if (nameInput) nameInput.required = true;
+    if (passwordInput) passwordInput.autocomplete = "new-password";
     if (emailLabel) emailLabel.textContent = "Email Address";
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="user-plus"></i> <span>Create Account</span>`;
     if (googleLabel) googleLabel.textContent = "Sign up with Google";
@@ -4882,6 +4886,8 @@ MWE.switchAuthDropdownTab = function(tab) {
     btnSignin?.classList.add("active");
     btnRegister?.classList.remove("active");
     if (nameGroup) nameGroup.style.display = "none";
+    if (nameInput) nameInput.required = false;
+    if (passwordInput) passwordInput.autocomplete = "current-password";
     if (emailLabel) emailLabel.textContent = "Email Address";
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="log-in"></i> <span>Sign In</span>`;
     if (googleLabel) googleLabel.textContent = "Continue with Google";
@@ -4900,6 +4906,7 @@ MWE.handleNavDropdownAuthSubmit = async function(event) {
   const errorEl = document.getElementById("nav-auth-error");
   const submitBtn = document.getElementById("nav-auth-submit-btn");
   if (errorEl) { errorEl.hidden = true; errorEl.textContent = ""; }
+  if (!form.reportValidity()) return;
 
   if (!window.MWEAuth) {
     if (errorEl) { errorEl.textContent = "Sign-in is unavailable right now. Please reload and try again."; errorEl.hidden = false; }
@@ -4907,10 +4914,16 @@ MWE.handleNavDropdownAuthSubmit = async function(event) {
   }
 
   if (submitBtn) submitBtn.disabled = true;
-  const result = isRegister
-    ? await window.MWEAuth.register(name, email, password)
-    : await window.MWEAuth.login(email, password);
-  if (submitBtn) submitBtn.disabled = false;
+  let result;
+  try {
+    result = isRegister
+      ? await window.MWEAuth.register(name, email, password)
+      : await window.MWEAuth.login(email, password);
+  } catch {
+    result = { ok: false, error: "Account access is temporarily unavailable. Please try again." };
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
 
   if (!result.ok) {
     if (errorEl) { errorEl.textContent = result.error || "Something went wrong. Please try again."; errorEl.hidden = false; }
