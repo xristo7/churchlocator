@@ -184,6 +184,14 @@
   }
 
   function read(key, fallback) {
+    // Connected catalog data is intentionally kept in the in-memory platform
+    // cache.  The platform client protects those keys from local writes, so a
+    // seed merge must not try to persist them or the store renderer aborts.
+    const isConnectedCatalog = Boolean(
+      window.MWEPlatform?.installed &&
+      !window.MWEPlatform?.staging &&
+      [keys.channels, keys.products, keys.resources].includes(key)
+    );
     try {
       const value = JSON.parse(localStorage.getItem(key) || "null");
       if (Array.isArray(value)) {
@@ -192,7 +200,7 @@
           const missingSeeds = fallback.filter(item => !existingIds.has(item.id));
           if (missingSeeds.length > 0) {
             const merged = [...value, ...missingSeeds];
-            localStorage.setItem(key, JSON.stringify(merged));
+            if (!isConnectedCatalog) localStorage.setItem(key, JSON.stringify(merged));
             return merged;
           }
         }
@@ -200,7 +208,7 @@
       }
     } catch {}
     const seeded = clone(fallback);
-    localStorage.setItem(key, JSON.stringify(seeded));
+    if (!isConnectedCatalog) localStorage.setItem(key, JSON.stringify(seeded));
     return seeded;
   }
 

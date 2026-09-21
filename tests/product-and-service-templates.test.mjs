@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import vm from "node:vm";
 import worker, {
   handleServiceBooking,
   handleGetServiceBookings
@@ -161,8 +162,29 @@ test("Store Marketplace: Item type selector and service card badges", async () =
   assert.match(js, /store-type/);
   assert.match(js, /service-badge-pill/);
   assert.match(js, /service-book-mini-btn/);
+  assert.match(js, /publicationState === "published"/);
 });
 
+test("Store catalog: connected catalog seed fallback does not attempt protected local storage writes", async () => {
+  const modules = await fs.readFile(path.join(projectRoot, "public", "platform-modules.js"), "utf8");
+
+  assert.match(modules, /isConnectedCatalog/);
+  assert.match(modules, /if \(!isConnectedCatalog\) localStorage\.setItem\(key, JSON\.stringify\(merged\)\)/);
+
+  const storage = new Map([["faithlink.store.products.v1", "[]"]]);
+  const window = {
+    MWEPlatform: { installed: true, staging: false },
+    localStorage: {
+      getItem(key) { return storage.get(key) ?? null; },
+      setItem() { throw new Error("Use the connected workspace to save this record."); }
+    }
+  };
+  vm.runInNewContext(modules, { window, localStorage: window.localStorage, console });
+
+  const products = window.FaithLinkModules.getProducts();
+  assert.ok(products.length > 0);
+  assert.equal(products[0].status, "Active");
+});
 test("Styling & Theme: Product layout, service templates, dark mode, and mobile responsiveness", async () => {
   const css = await fs.readFile(path.join(projectRoot, "public", "styles.css"), "utf8");
 

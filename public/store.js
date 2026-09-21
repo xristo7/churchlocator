@@ -11,7 +11,11 @@
       if (type === "products" && product.itemType === "service") return false;
       if (type === "services" && product.itemType !== "service") return false;
       const searchable = `${product.title} ${product.seller} ${product.category} ${product.description}`.toLowerCase();
-      return product.status === "Active" && (!query || searchable.includes(query)) && (category === "all" || product.category === category) && (sellerType === "all" || product.sellerType === sellerType);
+      // The public catalog already returns only published records.  Older
+      // product records may still carry the legacy "Draft" product status,
+      // so use the authoritative publication state as well as that label.
+      const isPublished = product.status === "Active" || product.publicationState === "published" || product.state === "published";
+      return isPublished && (!query || searchable.includes(query)) && (category === "all" || product.category === category) && (sellerType === "all" || product.sellerType === sellerType);
     });
     return products.sort((a, b) => {
       if (sort === "price-low") return a.price - b.price;
