@@ -24761,6 +24761,11 @@ body[data-theme="dark"] .meditation-overlay {
   animation: fadeInModal 0.25s ease-out;
 }
 
+.service-modal-backdrop[hidden],
+.service-booking-modal[hidden] {
+  display: none !important;
+}
+
 .service-booking-modal {
   position: fixed;
   top: 50%;
