@@ -43,8 +43,11 @@
       sellerId: row.sellerId || '',
       seller: row.sellerName || row.seller || 'Seller',
       sellerName: row.sellerName || row.seller || 'Seller',
-      sellerType: row.sellerType || '',
-      category: row.category || '',
+      // Store records created before the unified Creator Studio did not
+      // carry marketplace display metadata. Keep those listings discoverable
+      // and avoid an empty badge while newer records retain their choices.
+      sellerType: row.sellerType || 'Creator',
+      category: row.category || (kind === 'service' ? 'Services' : 'Books & Resources'),
       featured: Boolean(row.featured),
       rating: Number(row.rating || 0),
       title: row.title || 'Untitled',
@@ -437,4 +440,3 @@
     donate: donate
   };
 })(window);
-
