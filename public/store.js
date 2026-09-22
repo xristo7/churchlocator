@@ -40,17 +40,20 @@
     }
     grid.innerHTML = products.map(product => {
       const isService = product.itemType === "service";
+      const rating = Number(product.rating);
+      const ratingLabel = Number.isFinite(rating) && rating > 0 ? rating.toFixed(1) : "New";
+      const fallbackImage = isService ? "assets/community-outreach.png" : "assets/hero-global-church.png";
       return `
       <article class="product-card ${isService ? "service-card-item" : ""}">
         <a class="product-image-wrap" href="product-detail.html?id=${encodeURIComponent(product.id)}" aria-label="View ${data().escapeHtml(product.title)}">
-          <img class="product-image" src="${data().escapeHtml(product.image)}" alt="${data().escapeHtml(product.title)}" />
+          <img class="product-image" src="${data().escapeHtml(product.image)}" data-fallback-src="${fallbackImage}" alt="${data().escapeHtml(product.title)}" />
           <span class="product-badge ${isService ? "service-badge-pill" : ""}">${isService ? `<i data-lucide="sparkles"></i> Service · ` : ""}${data().escapeHtml(product.sellerType)} · ${data().escapeHtml(product.category)}</span>
         </a>
         <div class="product-card-body">
           <span class="product-seller">${data().escapeHtml(product.sellerType)}: <strong>${data().escapeHtml(product.seller)}</strong></span>
           <h3><a href="product-detail.html?id=${encodeURIComponent(product.id)}">${data().escapeHtml(product.title)}</a></h3>
           <span class="product-rating">
-            <i data-lucide="star"></i>${Number(product.rating).toFixed(1)} · ${isService ? "Verified Service" : `${Number(product.inventory)} in stock`}
+            <i data-lucide="star"></i>${ratingLabel} · ${isService ? "Verified Service" : `${Number(product.inventory)} in stock`}
           </span>
           <div class="product-price-row">
             <div>
@@ -72,6 +75,13 @@
       </article>
       `;
     }).join("");
+    grid.querySelectorAll("img[data-fallback-src]").forEach(image => {
+      image.addEventListener("error", () => {
+        if (image.dataset.fallbackApplied) return;
+        image.dataset.fallbackApplied = "true";
+        image.src = image.dataset.fallbackSrc;
+      }, { once: true });
+    });
     window.lucide?.createIcons();
   }
 

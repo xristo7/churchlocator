@@ -2,7 +2,20 @@
   const esc = value => window.MWE.escapeHtml(value);
   const safe = value => window.MWECreator.safeLiveUrl(value);
   const broadcastLink = (type, id) => "broadcast.html?type=" + encodeURIComponent(type || "church") + "&id=" + encodeURIComponent(id);
-  function image(url, alt) { return safe(url) ? '<img src="' + esc(url) + '" alt="' + esc(alt) + '" loading="lazy">' : ""; }
+  function safeImageUrl(value) {
+    const remote = safe(value);
+    if (remote) return remote;
+    try {
+      const local = new URL(value, window.location.origin);
+      return local.origin === window.location.origin && local.pathname.startsWith("/assets/")
+        ? local.pathname + local.search
+        : "";
+    } catch { return ""; }
+  }
+  function image(url, alt) {
+    const source = safeImageUrl(url);
+    return source ? '<img src="' + esc(source) + '" alt="' + esc(alt) + '" loading="lazy">' : "";
+  }
   function thumbnail(stream) {
     const liveUrl = safe(stream.url);
     if (liveUrl) {
@@ -124,12 +137,14 @@
     liveDirectory();
     publicPage();
     if (document.body.dataset.page === "store") {
-      const destination = document.querySelector(".module-shell");
+      const destination = document.querySelector(".module-content");
       if (destination) {
         const section = document.createElement("section");
         section.className = "creator-stores-section";
         section.innerHTML = '<h2>Community stores</h2><p>Explore independent stores and live shopping.</p>' + renderStores() + '<a href="creator-workspace.html#store" target="_top">Create your own store →</a>';
-        destination.append(section);
+        const toolbar = destination.querySelector(".site-search-bar");
+        if (toolbar) toolbar.before(section);
+        else destination.append(section);
       }
     }
     if (document.body.dataset.page === "channel-detail") {

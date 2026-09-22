@@ -10,6 +10,11 @@
 .creator-store-card p { font-size:13px; color:var(--text-muted); margin:0; }
 .creator-store-card small { color:var(--primary); display:block; margin-top:14px; }
 .creator-stores-section { width:100%; padding:20px 0; }
+.module-page[data-page="store"] .creator-stores-section { padding:0 0 32px; }
+.module-page[data-page="store"] .creator-stores-section > h2 { margin:0; color:var(--text-primary); font-size:1.35rem; }
+.module-page[data-page="store"] .creator-stores-section > p { margin:8px 0 0; color:var(--text-secondary); }
+.module-page[data-page="store"] .creator-store-card { color:var(--text-primary); text-decoration:none; box-shadow:0 10px 28px rgba(4,18,52,.06); transition:transform 160ms ease, box-shadow 160ms ease; }
+.module-page[data-page="store"] .creator-store-card:hover { transform:translateY(-2px); box-shadow:0 16px 34px rgba(4,18,52,.11); }
 .creator-store-actions { display:flex; gap:12px; flex-wrap:wrap; margin:20px 0; }
 
 .livestream-showcase-card {

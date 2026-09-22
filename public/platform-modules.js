@@ -183,6 +183,29 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  function productFingerprint(product) {
+    const normalized = value => String(value ?? "").trim().toLowerCase();
+    return [
+      normalized(product.itemType || "product"),
+      normalized(product.title),
+      normalized(product.category),
+      String(Number(product.price) || 0),
+      normalized(product.image)
+    ].join("|");
+  }
+
+  function mergeCatalogProducts(records, fallback) {
+    const fallbackByFingerprint = new Map(fallback.map(product => [productFingerprint(product), product]));
+    const connected = records.map(product => ({
+      // Catalog records deliberately omit reputation fields. Preserve the
+      // matching demo value so the public card never renders "NaN".
+      ...(fallbackByFingerprint.get(productFingerprint(product)) || {}),
+      ...product
+    }));
+    const connectedFingerprints = new Set(connected.map(productFingerprint));
+    return [...connected, ...fallback.filter(product => !connectedFingerprints.has(productFingerprint(product)))];
+  }
+
   function read(key, fallback) {
     // Connected catalog data is intentionally kept in the in-memory platform
     // cache.  The platform client protects those keys from local writes, so a
@@ -196,13 +219,11 @@
       const value = JSON.parse(localStorage.getItem(key) || "null");
       if (Array.isArray(value)) {
         if (key === keys.products) {
-          const existingIds = new Set(value.map(item => item.id));
-          const missingSeeds = fallback.filter(item => !existingIds.has(item.id));
-          if (missingSeeds.length > 0) {
-            const merged = [...value, ...missingSeeds];
+          const merged = mergeCatalogProducts(value, fallback);
+          if (merged.length !== value.length) {
             if (!isConnectedCatalog) localStorage.setItem(key, JSON.stringify(merged));
-            return merged;
           }
+          return merged;
         }
         return value;
       }
