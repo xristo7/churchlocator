@@ -5504,24 +5504,6 @@ function initModuleDirectoryToolbars() {
     const popup = overflow.querySelector(".module-filter-popup");
     const desktopTrigger = overflow.querySelector(".module-overflow-trigger");
 
-    let popupHead = popup.querySelector(".module-filter-popup-head");
-    if (!popupHead) {
-      popupHead = document.createElement("div");
-      popupHead.className = "module-filter-popup-head";
-      popupHead.innerHTML = `
-        <span class="module-filter-popup-title"><i data-lucide="sliders-horizontal"></i> Filters</span>
-        <button type="button" class="module-filter-popup-close" aria-label="Close filters">
-          <i data-lucide="x"></i>
-        </button>
-      `;
-      popupHead.querySelector(".module-filter-popup-close").addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        closePopup();
-      });
-      popup.prepend(popupHead);
-    }
-
     const closePopup = () => {
       overflow.classList.remove("open");
       toolbar.classList.remove("has-open-dropdown");
@@ -5533,6 +5515,24 @@ function initModuleDirectoryToolbars() {
       popup.setAttribute("aria-hidden", "true");
       if (typeof createIcons === "function") createIcons();
       else if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+    };
+
+    let popupHead = popup.querySelector(".module-filter-popup-head");
+    if (!popupHead) {
+      popupHead = document.createElement("div");
+      popupHead.className = "module-filter-popup-head";
+      popupHead.innerHTML = `
+        <span class="module-filter-popup-title"><i data-lucide="sliders-horizontal"></i> Filters</span>
+        <button type="button" class="module-filter-popup-close" aria-label="Close filters">
+          <i data-lucide="x"></i>
+        </button>
+      `;
+      popup.prepend(popupHead);
+    }
+    popupHead.querySelector(".module-filter-popup-close").onclick = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      closePopup();
     };
     const togglePopup = event => {
       event.preventDefault();
