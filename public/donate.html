@@ -6,7 +6,7 @@
   <title>Donation | My Way of Evangelism</title>
   <link rel="stylesheet" href="styles.css?v=20260901g" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260922googleeverywhere1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="store-api.js?v=20260922payment-controls1"></script><script defer src="app.js?v=20260922payment-controls1"></script><script defer src="auth-client.js?v=20260915security1"></script>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body data-page="donate">
   <!-- Navigation Header -->
@@ -125,23 +125,16 @@
                 </div>
               </div>
 
-              <!-- Payment Method Selector -->
+              <!-- Sandbox payment state is controlled by the platform owner. -->
               <div class="form-group-block" style="margin-bottom: 24px;">
-                <label class="form-label-bold" style="display: block; margin-bottom: 10px; font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">Payment Method</label>
+                <label class="form-label-bold" style="display: block; margin-bottom: 10px; font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">Giving mode</label>
                 <div class="master-pay-method-grid">
                   <label class="master-pay-radio active">
-                    <input type="radio" name="payMethod" value="card" checked onchange="MWE.setPayMethod(this)" style="position: absolute; opacity: 0;" />
-                    <i data-lucide="credit-card" style="width: 16px; height: 16px;"></i> Credit Card
-                  </label>
-                  <label class="master-pay-radio">
-                    <input type="radio" name="payMethod" value="interac" onchange="MWE.setPayMethod(this)" style="position: absolute; opacity: 0;" />
-                    <i data-lucide="building-2" style="width: 16px; height: 16px;"></i> Interac
-                  </label>
-                  <label class="master-pay-radio">
-                    <input type="radio" name="payMethod" value="paypal" onchange="MWE.setPayMethod(this)" style="position: absolute; opacity: 0;" />
-                    <i data-lucide="wallet" style="width: 16px; height: 16px;"></i> PayPal
+                    <input type="radio" name="payMethod" value="sandbox_pending" checked disabled style="position: absolute; opacity: 0;" />
+                    <i data-lucide="flask-conical" style="width: 16px; height: 16px;"></i> Sandbox pending record
                   </label>
                 </div>
+                <p id="donation-payment-status" class="checkout-help" role="status">Checking whether sandbox giving is available…</p>
               </div>
 
               <!-- Donor Details -->
@@ -157,12 +150,12 @@
               </div>
 
               <!-- Submit Button -->
-              <button type="submit" class="button primary lg" style="width: 100%; height: 54px; border-radius: 16px; font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <i data-lucide="heart" style="width: 20px; height: 20px;"></i> Complete $50 Contribution
+              <button type="submit" data-donation-submit class="button primary lg" disabled style="width: 100%; height: 54px; border-radius: 16px; font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i data-lucide="heart" style="width: 20px; height: 20px;"></i> Record sandbox contribution
               </button>
 
               <p class="text-center" style="font-size: 0.82rem; color: var(--text-muted); margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                <i data-lucide="lock" style="width: 14px; height: 14px; color: var(--primary);"></i> 256-bit SSL Bank Encryption • Automatic Tax Receipts
+                <i data-lucide="shield-alert" style="width: 14px; height: 14px; color: var(--primary);"></i> No payment details are collected and no tax receipt is issued in sandbox mode.
               </p>
             </form>
           </div>

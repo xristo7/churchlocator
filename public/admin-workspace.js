@@ -9,7 +9,7 @@
     const $ = id => document.getElementById(id);
     const esc = window.MWE.escapeHtml;
     const icon = name => '<i data-lucide="' + esc(name) + '"></i>';
-    const state = { view: "overview", query: "", status: "", category: "", sort: "name", page: 1 };
+    const state = { view: "overview", query: "", status: "", category: "", sort: "name", page: 1, commerce: { type: "all", status: "", query: "", from: "", to: "" } };
     const pageSize = 8;
     let editing = null;
     let dirty = false;
@@ -29,7 +29,7 @@
       $("aw-nav").innerHTML = entry("overview", "Overview", "layout-dashboard") + '<p class="aw-nav-label">MANAGE PLATFORM</p>' +
         mainModules().map(([key, mod]) => entry(key, mod.label, mod.icon, count(key))).join("") +
         entry("spotlight", "Spotlight", "play-square", window.MWESpotlightWorkspace?.count() || 0) +
-        (creator ? "" : '<p class="aw-nav-label">PLATFORM CONTROL</p>' + entry("platform-options", "Platform options", "list-tree") + '<p class="aw-nav-label">OPERATIONS</p>' + entry("locations", "Location coverage", "map-pin") + entry("review", "Needs attention", "list-checks", pending().length));
+        (creator ? "" : '<p class="aw-nav-label">PLATFORM CONTROL</p>' + entry("platform-options", "Platform options", "list-tree") + '<p class="aw-nav-label">OPERATIONS</p>' + entry("commerce", "Payments & reports", "chart-column") + entry("locations", "Location coverage", "map-pin") + entry("review", "Needs attention", "list-checks", pending().length));
     }
     function pending() {
       return ["churches", "channels"].flatMap(key => modules[key].get().filter(r => !r.verified).map(r => ({ key, record: r, reason: key === "churches" ? "Church verification" : "Creator verification" })));
@@ -132,11 +132,69 @@
       }).join("");
       $("aw-content").innerHTML = '<div class="aw-notice"><strong>One source of truth</strong><p>Changes apply to public filters and new content forms. Existing records keep their saved value until edited.</p></div><div class="aw-taxonomy-grid">' + cards + '</div>';
     }
+    function commerceMoney(cents, currency = "USD") {
+      try { return new Intl.NumberFormat("en-US", { style: "currency", currency }).format((Number(cents) || 0) / 100); }
+      catch (_) { return currency + " " + ((Number(cents) || 0) / 100).toFixed(2); }
+    }
+    async function commerce() {
+      const target = $("aw-content");
+      target.innerHTML = '<section class="aw-panel"><h2>Loading payment controls and reports…</h2><p>Only verified owners can view commerce records.</p></section>';
+      try {
+        const paymentResult = await window.MWEPlatform.api("store/admin/payment-settings");
+        const payment = paymentResult.payment;
+        const filters = state.commerce;
+        const params = new URLSearchParams({ type: filters.type });
+        if (filters.status) params.set("status", filters.status);
+        if (filters.query) params.set("q", filters.query);
+        if (filters.from) params.set("from", filters.from);
+        if (filters.to) params.set("to", filters.to);
+        const report = await window.MWEPlatform.api("store/admin/reports?" + params.toString());
+        const analytics = report.analytics;
+        const records = [
+          ...(report.orders || []).map(row => ({ type: "Store order", ref: row.orderRef, person: row.buyerName, email: row.buyerEmail, amount: row.totalCents, currency: row.currency, status: row.status, createdAt: row.createdAt })),
+          ...(report.donations || []).map(row => ({ type: "Giving", ref: row.donationRef, person: row.donorName, email: row.donorEmail, amount: row.amountCents, currency: row.currency, status: row.status, createdAt: row.createdAt }))
+        ].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+        const metric = (label, value, note, symbol) => '<div class="aw-metric"><div class="aw-metric-label">' + esc(label) + icon(symbol) + '</div><strong>' + esc(String(value)) + '</strong><small>' + esc(note) + '</small></div>';
+        const reportRows = records.length ? records.map(row => '<tr><td><strong>' + esc(row.ref) + '</strong><small>' + esc(row.type) + '</small></td><td>' + esc(row.person) + '<small>' + esc(row.email) + '</small></td><td>' + esc(commerceMoney(row.amount, row.currency)) + '</td><td>' + badge(row.status.charAt(0).toUpperCase() + row.status.slice(1)) + '</td><td>' + esc(new Date(row.createdAt).toLocaleString()) + '</td></tr>').join("") : '<tr><td colspan="5"><div class="aw-empty"><h3>No matching payment records</h3><p>Adjust the report filters or enable sandbox mode to begin safely recording activity.</p></div></td></tr>';
+        const controls = '<form id="commerce-payment-form" class="aw-panel"><div class="aw-panel-heading"><div><h2>Sandbox payment controls</h2><p>Off blocks the flow before any order or giving record is created. On records pending sandbox activity only; it never captures a payment.</p></div><span class="aw-badge warn">No live provider</span></div><label class="checkout-check"><input type="checkbox" name="storeSandboxEnabled"' + (payment.storeSandboxEnabled ? " checked" : "") + ' /> Enable store sandbox checkout</label><label class="checkout-check"><input type="checkbox" name="givingSandboxEnabled"' + (payment.givingSandboxEnabled ? " checked" : "") + ' /> Enable giving sandbox records</label><div class="aw-taxonomy-actions"><button class="aw-button aw-primary" type="submit">Save payment controls</button></div></form>';
+        const filtersHtml = '<form id="commerce-report-filters" class="aw-filters module-toolbar module-directory-toolbar"><label class="module-search"><i data-lucide="search"></i><span class="sr-only">Search records</span><input type="search" name="query" placeholder="Search reference, name, or email" value="' + esc(filters.query) + '" /></label><div class="module-filter-group"><select class="module-select" name="type" aria-label="Record type"><option value="all"' + (filters.type === "all" ? " selected" : "") + '>Orders and giving</option><option value="orders"' + (filters.type === "orders" ? " selected" : "") + '>Store orders</option><option value="donations"' + (filters.type === "donations" ? " selected" : "") + '>Giving records</option></select><select class="module-select" name="status" aria-label="Record status"><option value="">All statuses</option>' + ["pending", "paid", "fulfilled", "cancelled", "refunded", "recorded", "confirmed"].map(value => '<option value="' + value + '"' + (filters.status === value ? " selected" : "") + '>' + value.charAt(0).toUpperCase() + value.slice(1) + '</option>').join("") + '</select><input class="module-select" name="from" type="date" value="' + esc(filters.from) + '" aria-label="From date" /><input class="module-select" name="to" type="date" value="' + esc(filters.to) + '" aria-label="To date" /><button class="aw-button" type="submit">Apply filters</button></div></form>';
+        const analyticsHtml = '<div class="aw-metrics">' + [
+          metric("Pending store records", analytics.pendingOrders, commerceMoney(analytics.pendingOrderCents) + " awaiting payment", "shopping-bag"),
+          metric("Completed store orders", analytics.completedOrders, "Provider-confirmed only", "circle-check"),
+          metric("Giving records", analytics.givingRecords, commerceMoney(analytics.recordedGivingCents) + " recorded in sandbox", "heart"),
+          metric("Confirmed giving", commerceMoney(analytics.confirmedGivingCents), "Provider-confirmed only", "badge-check")
+        ].join("") + '</div>';
+        target.innerHTML = controls + analyticsHtml + panel("Filterable commerce report", "Search and filter securely stored store and giving records. Amounts marked pending or recorded are not recognized revenue.", filtersHtml + '<div class="aw-table-scroll"><table><thead><tr><th>Reference</th><th>Customer / donor</th><th>Amount</th><th>Status</th><th>Created</th></tr></thead><tbody>' + reportRows + '</tbody></table></div>');
+        target.querySelector("#commerce-payment-form").addEventListener("submit", async event => {
+          event.preventDefault();
+          const submit = event.currentTarget.querySelector('[type="submit"]');
+          submit.disabled = true;
+          try {
+            await window.MWEPlatform.api("store/admin/payment-settings", {
+              storeSandboxEnabled: event.currentTarget.elements.storeSandboxEnabled.checked,
+              givingSandboxEnabled: event.currentTarget.elements.givingSandboxEnabled.checked
+            }, "PATCH");
+            notice("Sandbox payment controls saved.");
+            commerce();
+          } catch (error) { notice(error.message || "Unable to save payment controls."); }
+          finally { if (submit.isConnected) submit.disabled = false; }
+        });
+        target.querySelector("#commerce-report-filters").addEventListener("submit", event => {
+          event.preventDefault();
+          const values = new FormData(event.currentTarget);
+          state.commerce = { type: String(values.get("type") || "all"), status: String(values.get("status") || ""), query: String(values.get("query") || "").trim(), from: String(values.get("from") || ""), to: String(values.get("to") || "") };
+          commerce();
+        });
+        drawIcons();
+      } catch (error) {
+        target.innerHTML = '<section class="aw-panel aw-empty"><h3>Commerce reports are unavailable</h3><p>' + esc(error.message || "Reload and try again.") + '</p></section>';
+      }
+    }
     function render() {
       try {
         nav();
         const mod = modules[state.view];
-        const labels = { overview: ["Overview", "A clear view of your community and the content that connects it."], spotlight: ["Spotlight", creator ? "Submit channel content and track every moderation decision." : "Curate, review, schedule and publish the stories shown in Spotlight."], "platform-options": ["Platform options", "Manage the standard choices used across public filters and content forms."], locations: ["Location coverage", "Keep the church directory accurate, connected and easy to discover."], review: ["Needs attention", "A focused queue for church and creator verification."] };
+        const labels = { overview: ["Overview", "A clear view of your community and the content that connects it."], spotlight: ["Spotlight", creator ? "Submit channel content and track every moderation decision." : "Curate, review, schedule and publish the stories shown in Spotlight."], "platform-options": ["Platform options", "Manage the standard choices used across public filters and content forms."], commerce: ["Payments & reports", "Control sandbox collection and review recorded store and giving activity."], locations: ["Location coverage", "Keep the church directory accurate, connected and easy to discover."], review: ["Needs attention", "A focused queue for church and creator verification."] };
         $("aw-title").textContent = mod?.label || labels[state.view][0];
         if (creator && state.view === "overview") $("aw-title").textContent = "Your creator workspace";
         $("aw-breadcrumb").textContent = $("aw-title").textContent;
@@ -158,7 +216,7 @@
         if (creator && state.view === "overview") $("aw-heading-actions").innerHTML = link("app.html?view=home", "Open member app " + icon("arrow-up-right"), "aw-button");
         if (state.view === "store") $("aw-heading-actions").insertAdjacentHTML("afterbegin", link("#products", "Manage products", "aw-button") + " ");
         if (state.view === "products") $("aw-heading-actions").insertAdjacentHTML("afterbegin", link("#store", "Store profiles", "aw-button") + " ");
-        if (mod) list(); else if (state.view === "overview") overview(); else if (state.view === "spotlight") window.MWESpotlightWorkspace?.render({ target: $("aw-content"), creator }); else if (state.view === "platform-options") platformOptions(); else if (state.view === "locations") coverage(); else review();
+        if (mod) list(); else if (state.view === "overview") overview(); else if (state.view === "spotlight") window.MWESpotlightWorkspace?.render({ target: $("aw-content"), creator }); else if (state.view === "platform-options") platformOptions(); else if (state.view === "commerce") commerce(); else if (state.view === "locations") coverage(); else review();
         drawIcons();
       } catch (error) {
         $("aw-content").innerHTML = '<section class="aw-panel aw-empty"><h3>We couldn’t load the workspace</h3><p>Your existing records have not been reset. Check browser storage availability and reload.</p>' + button("retry", "Try again") + '</section>';
@@ -168,8 +226,8 @@
     function navigate() {
       const requested = location.hash.slice(1) || "overview";
       const aliases = { directory: "churches", editor: "churches", moderation: "review", analytics: "overview" };
-      state.view = modules[requested] || ["overview", "spotlight", "platform-options", "locations", "review"].includes(requested) ? requested : aliases[requested] || "overview";
-      if (creator && ["platform-options", "locations", "review"].includes(state.view)) state.view = "overview";
+      state.view = modules[requested] || ["overview", "spotlight", "platform-options", "commerce", "locations", "review"].includes(requested) ? requested : aliases[requested] || "overview";
+      if (creator && ["platform-options", "commerce", "locations", "review"].includes(state.view)) state.view = "overview";
       Object.assign(state, { query: "", status: "", category: "", sort: "name", page: 1 });
       document.body.classList.remove("aw-nav-open");
       $("aw-menu").setAttribute("aria-expanded", "false");

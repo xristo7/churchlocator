@@ -34,6 +34,12 @@ function cleanText(value, max, label, required = false) {
   return out;
 }
 
+function cleanEmail(value, label) {
+  const email = cleanText(value, 254, label, true).toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new ApiError(400, `${label} is invalid.`);
+  return email;
+}
+
 function cleanSlug(value) {
   const slug = cleanText(value, 80, 'Slug', true)
     .toLowerCase()
@@ -58,6 +64,24 @@ function cleanQty(value) {
 function isPreviewEnv(env) {
   const value = String(env.ENVIRONMENT || env.ENV || '').toLowerCase();
   return value === 'preview' || value === 'development' || value === 'dev' || value === '';
+}
+
+async function getPaymentSettings(env) {
+  const row = await env.DB.prepare('select * from commerce_payment_settings where id = 1').first();
+  return {
+    storeSandboxEnabled: Boolean(row?.store_sandbox_enabled),
+    givingSandboxEnabled: Boolean(row?.giving_sandbox_enabled),
+    updatedAt: row?.updated_at || null
+  };
+}
+
+function reportDate(value, label) {
+  const out = String(value || '').trim();
+  if (!out) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(out) || Number.isNaN(Date.parse(`${out}T00:00:00Z`))) {
+    throw new ApiError(400, `${label} must be a date.`);
+  }
+  return out;
 }
 
 function mapSeller(row) {
@@ -296,6 +320,9 @@ async function saveProduct(env, seller, productId, body, isCreate) {
 }
 
 async function checkout(env, user, body) {
+  if (!(await getPaymentSettings(env)).storeSandboxEnabled) {
+    throw new ApiError(409, 'Store sandbox checkout is currently disabled by the platform owner.');
+  }
   const cart = await ensureCart(env, user.id);
   const payload = await loadCart(env, cart.id);
   if (!payload.items.length) throw new ApiError(400, 'Cart is empty.');
@@ -308,7 +335,7 @@ async function checkout(env, user, body) {
     }
   }
   const buyerName = cleanText(body.buyerName || user.name, 120, 'Buyer name', true);
-  const buyerEmail = cleanText(body.buyerEmail || user.email, 254, 'Buyer email', true).toLowerCase();
+  const buyerEmail = cleanEmail(body.buyerEmail || user.email, 'Buyer email');
   const notes = cleanText(body.notes || '', 2000, 'Notes');
   const ts = nowIso();
   const orderId = newId('order');
@@ -369,6 +396,9 @@ export async function handleStoreApi(request, env, context) {
   try {
     if (path === '/api/store/products' && request.method === 'GET') {
       return context.json({ ok: true, products: await listPublishedProducts(env, url) });
+    }
+    if (path === '/api/store/payment-settings' && request.method === 'GET') {
+      return context.json({ ok: true, payment: await getPaymentSettings(env) });
     }
     const productMatch = path.match(/^\/api\/store\/products\/([^/]+)$/);
     if (productMatch && request.method === 'GET') {
@@ -537,12 +567,15 @@ export async function handleStoreApi(request, env, context) {
     }
 
     if (path === '/api/store/donations' && request.method === 'POST') {
+      if (!(await getPaymentSettings(env)).givingSandboxEnabled) {
+        throw new ApiError(409, 'Giving sandbox is currently disabled by the platform owner.');
+      }
       const user = await context.getSessionUser(request, env);
       const body = await readJson(request);
       const amountCents = cleanCents(body.amountCents, 'amount');
-      if (amountCents < 100) throw new ApiError(400, 'Minimum donation is 100 cents.');
+      if (amountCents < 500) throw new ApiError(400, 'Minimum donation is $5.00.');
       const donorName = cleanText(body.donorName || user?.name, 120, 'Donor name', true);
-      const donorEmail = cleanText(body.donorEmail || user?.email, 254, 'Donor email', true).toLowerCase();
+      const donorEmail = cleanEmail(body.donorEmail || user?.email, 'Donor email');
       const message = cleanText(body.message || '', 2000, 'Message');
       const churchId = body.churchId ? cleanText(body.churchId, 128, 'Church id') : null;
       const sellerId = body.sellerId ? cleanText(body.sellerId, 128, 'Seller id') : null;
@@ -562,6 +595,23 @@ export async function handleStoreApi(request, env, context) {
     if (path.startsWith('/api/store/admin')) {
       const user = await requireUser(request, env, context);
       if (!(await isOwner(env, user))) throw new ApiError(403, 'Owner access required.');
+
+      if (path === '/api/store/admin/payment-settings' && request.method === 'GET') {
+        return context.json({ ok: true, payment: await getPaymentSettings(env) });
+      }
+      if (path === '/api/store/admin/payment-settings' && request.method === 'PATCH') {
+        const body = await readJson(request);
+        if (typeof body.storeSandboxEnabled !== 'boolean' || typeof body.givingSandboxEnabled !== 'boolean') {
+          throw new ApiError(400, 'Both sandbox settings must be boolean values.');
+        }
+        const timestamp = nowIso();
+        await env.DB.prepare(`
+          update commerce_payment_settings
+          set store_sandbox_enabled = ?, giving_sandbox_enabled = ?, updated_by = ?, updated_at = ?
+          where id = 1
+        `).bind(body.storeSandboxEnabled ? 1 : 0, body.givingSandboxEnabled ? 1 : 0, user.id, timestamp).run();
+        return context.json({ ok: true, payment: await getPaymentSettings(env) });
+      }
 
       if (path === '/api/store/admin/products' && request.method === 'GET') {
         const status = String(url.searchParams.get('status') || '').trim();
@@ -625,6 +675,43 @@ export async function handleStoreApi(request, env, context) {
       if (path === '/api/store/admin/donations' && request.method === 'GET') {
         const { results } = await env.DB.prepare('select * from store_donations order by created_at desc limit 300').all();
         return context.json({ ok: true, donations: (results || []).map(mapDonation) });
+      }
+      if (path === '/api/store/admin/reports' && request.method === 'GET') {
+        const type = String(url.searchParams.get('type') || 'all').toLowerCase();
+        const status = String(url.searchParams.get('status') || '').toLowerCase();
+        const query = cleanText(url.searchParams.get('q') || '', 100, 'Search query');
+        const from = reportDate(url.searchParams.get('from'), 'From date');
+        const to = reportDate(url.searchParams.get('to'), 'To date');
+        if (!['all', 'orders', 'donations'].includes(type)) throw new ApiError(400, 'Invalid report type.');
+        if (status && !ORDER_STATUSES.has(status) && !['recorded', 'confirmed', 'refunded'].includes(status)) throw new ApiError(400, 'Invalid report status.');
+
+        const orderClauses = ['1=1'];
+        const orderBinds = [];
+        if (from) { orderClauses.push('created_at >= ?'); orderBinds.push(`${from}T00:00:00.000Z`); }
+        if (to) { orderClauses.push('created_at < ?'); orderBinds.push(`${to}T23:59:59.999Z`); }
+        if (status && ORDER_STATUSES.has(status)) { orderClauses.push('status = ?'); orderBinds.push(status); }
+        if (query) { orderClauses.push('(order_ref like ? or buyer_name like ? or buyer_email like ?)'); orderBinds.push(`%${query}%`, `%${query}%`, `%${query}%`); }
+        const donationClauses = ['1=1'];
+        const donationBinds = [];
+        if (from) { donationClauses.push('created_at >= ?'); donationBinds.push(`${from}T00:00:00.000Z`); }
+        if (to) { donationClauses.push('created_at < ?'); donationBinds.push(`${to}T23:59:59.999Z`); }
+        if (status && ['recorded', 'confirmed', 'refunded'].includes(status)) { donationClauses.push('status = ?'); donationBinds.push(status); }
+        if (query) { donationClauses.push('(donation_ref like ? or donor_name like ? or donor_email like ?)'); donationBinds.push(`%${query}%`, `%${query}%`, `%${query}%`); }
+
+        const orders = type === 'donations' ? [] : (await env.DB.prepare(`select * from store_orders where ${orderClauses.join(' and ')} order by created_at desc limit 300`).bind(...orderBinds).all()).results || [];
+        const donations = type === 'orders' ? [] : (await env.DB.prepare(`select * from store_donations where ${donationClauses.join(' and ')} order by created_at desc limit 300`).bind(...donationBinds).all()).results || [];
+        const mappedOrders = orders.map(mapOrder);
+        const mappedDonations = donations.map(mapDonation);
+        const analytics = {
+          orderRecords: mappedOrders.length,
+          pendingOrders: mappedOrders.filter((order) => order.status === 'pending').length,
+          completedOrders: mappedOrders.filter((order) => ['paid', 'fulfilled'].includes(order.status)).length,
+          pendingOrderCents: mappedOrders.filter((order) => order.status === 'pending').reduce((sum, order) => sum + Number(order.totalCents || 0), 0),
+          givingRecords: mappedDonations.length,
+          recordedGivingCents: mappedDonations.filter((donation) => donation.status === 'recorded').reduce((sum, donation) => sum + Number(donation.amountCents || 0), 0),
+          confirmedGivingCents: mappedDonations.filter((donation) => donation.status === 'confirmed').reduce((sum, donation) => sum + Number(donation.amountCents || 0), 0)
+        };
+        return context.json({ ok: true, filters: { type, status, query, from, to }, analytics, orders: mappedOrders, donations: mappedDonations });
       }
       if ((path === '/api/store/admin/metrics' || path === '/api/store/admin/overview') && request.method === 'GET') {
         const products = await env.DB.prepare("select count(*) as c from store_products where status = 'published'").first();

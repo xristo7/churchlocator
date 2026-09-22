@@ -8431,10 +8431,62 @@ MWE.setPayMethod = function(elem) {
   if (label) label.classList.add("active");
 };
 
-MWE.handleDonationSubmit = function(e) {
-  e.preventDefault();
-  showToast("Donations are unavailable until a verified payment provider is configured.");
+MWE.refreshDonationAvailability = async function() {
+  const form = document.querySelector("[data-donation-form]");
+  if (!form) return;
+  const submit = form.querySelector("[data-donation-submit]");
+  const status = document.getElementById("donation-payment-status");
+  try {
+    await window.MWEStore?.ready;
+    const payment = await window.MWEStore?.getPaymentSettings?.();
+    const enabled = Boolean(payment?.givingSandboxEnabled);
+    if (submit) submit.disabled = !enabled;
+    if (status) status.textContent = enabled
+      ? "Sandbox giving is enabled. This records a pending contribution only; no payment is captured."
+      : "Giving is currently unavailable because sandbox mode is off. No payment details are collected.";
+  } catch (_) {
+    if (submit) submit.disabled = true;
+    if (status) status.textContent = "Giving is temporarily unavailable. No payment details are collected.";
+  }
 };
+
+MWE.handleDonationSubmit = async function(e) {
+  e.preventDefault();
+  const form = e.currentTarget;
+  if (!form?.reportValidity?.()) return;
+  const submit = form.querySelector("[data-donation-submit]");
+  const amount = Number(document.getElementById("custom-donate-amount")?.value || 0);
+  if (!Number.isFinite(amount) || amount < 5) {
+    showToast("Enter a contribution of at least $5.");
+    return;
+  }
+  const frequency = form.querySelector(".master-freq-btn.active")?.dataset.freq || "one-time";
+  const values = new FormData(form);
+  if (submit) submit.disabled = true;
+  try {
+    await window.MWEStore?.ready;
+    const result = await window.MWEStore?.donate?.({
+      amountCents: Math.round(amount * 100),
+      donorName: values.get("donorName"),
+      donorEmail: values.get("donorEmail"),
+      message: `frequency=${frequency}; sandbox_pending=true`
+    });
+    const ref = result?.donation?.donationRef || "pending record";
+    showToast(`Sandbox contribution ${ref} recorded. No payment was captured.`);
+    form.reset();
+    MWE.setDonateAmount(50, form.querySelector('.master-amount-pill:nth-child(2)'));
+  } catch (error) {
+    showToast(error?.message || "Giving could not be recorded. No payment was captured.");
+  } finally {
+    await MWE.refreshDonationAvailability();
+  }
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => { MWE.refreshDonationAvailability(); }, { once: true });
+} else {
+  MWE.refreshDonationAvailability();
+}
 
 MWE.downloadCalendarICS = function(title, timeStr, location) {
   const currentChurch = MWE.activeChurchProfile || {};

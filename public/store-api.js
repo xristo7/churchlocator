@@ -176,6 +176,11 @@
     return [];
   }
 
+  async function getPaymentSettings() {
+    const data = await apiFetch('store/payment-settings');
+    return data?.payment || { storeSandboxEnabled: false, givingSandboxEnabled: false, updatedAt: null };
+  }
+
   async function refreshCart() {
     if (platform() && platform().session) {
       try {
@@ -428,6 +433,7 @@
     getProducts: function () { return published.slice(); },
     getAllProducts: function () { return (allCached.length ? allCached : published).slice(); },
     getProduct: getProduct,
+    getPaymentSettings: getPaymentSettings,
     getItemById: function (id) {
       return published.concat(allCached).find(function (row) { return row && row.id === id; }) || null;
     },

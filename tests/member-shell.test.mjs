@@ -158,6 +158,22 @@ test("checkout removes shipping requirements and totals whenever pickup or digit
   assert.match(checkoutJs, /delivery=digital; shipping=not_applicable/);
 });
 
+test("owner-controlled sandbox collection gates store and giving, with filterable reports", async () => {
+  const storeApi = await readProjectFile("public/store-api.js");
+  const donate = await readProjectFile("public/donate.html");
+  const app = await readProjectFile("public/app.js");
+  const admin = await readProjectFile("public/admin-workspace.js");
+  const worker = await readProjectFile("src/store.js");
+  assert.match(storeApi, /getPaymentSettings/);
+  assert.match(donate, /data-donation-submit/);
+  assert.match(app, /refreshDonationAvailability/);
+  assert.match(admin, /Payments & reports/);
+  assert.match(admin, /store\/admin\/reports/);
+  assert.match(worker, /commerce_payment_settings/);
+  assert.match(worker, /Store sandbox checkout is currently disabled/);
+  assert.match(worker, /Giving sandbox is currently disabled/);
+});
+
 test("Channels use creator profile cards and connect to member messaging", async () => {
   const app = await readProjectFile("public/app.html");
   const shell = await readProjectFile("public/app-shell.js");

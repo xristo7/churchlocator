@@ -125,6 +125,26 @@
     }
   }
 
+  async function syncPaymentAvailability() {
+    const payButton = document.querySelector(".checkout-pay-button");
+    const help = document.querySelector(".checkout-help");
+    try {
+      const payment = await data()?.getPaymentSettings?.();
+      if (payment?.storeSandboxEnabled) return true;
+      if (payButton) {
+        payButton.disabled = true;
+        payButton.innerHTML = '<i data-lucide="ban"></i> Store checkout unavailable';
+      }
+      if (help) help.textContent = "Store checkout is currently unavailable because sandbox mode is off. No payment details are collected.";
+      window.lucide?.createIcons();
+      return false;
+    } catch (_) {
+      if (payButton) payButton.disabled = true;
+      if (help) help.textContent = "Store checkout is temporarily unavailable. No payment details are collected.";
+      return false;
+    }
+  }
+
   function showSuccess(result) {
     const order = result.order || {};
     const orderId = order.orderRef || order.id || "SANDBOX";
@@ -172,6 +192,7 @@
       payButton.innerHTML = `<i data-lucide="lock"></i> Place sandbox order <span id="checkout-pay-total"></span>`;
     }
     showGuestNote();
+    await syncPaymentAvailability();
 
     document.querySelectorAll('input[name="shipping"],input[name="deliveryType"]').forEach(input => input.addEventListener("change", () => {
       render();
