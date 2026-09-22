@@ -1,14 +1,23 @@
 (function initializeCartPage() {
-  const data = () => window.FaithLinkModules;
+  const data = () => window.MWEStore || window.FaithLinkModules;
   const discountKey = "faithlink.store.discount.v1";
+  let visibleRows = [];
 
-  function rows() {
+  async function rows() {
+    await data().refreshProducts?.({ includeDrafts: false });
+    await data().refreshCart?.();
     const products = data().getProducts();
-    return data().getCart().map(item => ({ ...item, product: products.find(product => product.id === item.id) })).filter(item => item.product);
+    const resolved = [];
+    for (const item of data().getCart()) {
+      const product = products.find(row => row.id === item.id) || await data().getProduct?.(item.id);
+      if (product) resolved.push({ ...item, product });
+    }
+    return resolved;
   }
 
-  function render() {
-    const items = rows();
+  async function render() {
+    const items = await rows();
+    visibleRows = items;
     const count = items.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = items.reduce((sum, item) => sum + item.quantity * item.product.price, 0);
     const discount = localStorage.getItem(discountKey) === "FAITH10" ? subtotal * .1 : 0;
@@ -27,29 +36,31 @@
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
-  await window.MWEPlatform?.ready;
-    document.addEventListener("click", event => {
+    await window.MWEPlatform?.ready;
+    try { await window.MWEStore?.ready; } catch (_) {}
+    document.addEventListener("click", async event => {
       const remove = event.target.closest("[data-cart-remove]");
       const increase = event.target.closest("[data-cart-increase]");
       const decrease = event.target.closest("[data-cart-decrease]");
-      if (remove) data().setCartQuantity(remove.dataset.cartRemove, 0);
-      if (increase) { const item = data().getCart().find(row => row.id === increase.dataset.cartIncrease); data().setCartQuantity(item.id, item.quantity + 1); }
-      if (decrease) { const item = data().getCart().find(row => row.id === decrease.dataset.cartDecrease); data().setCartQuantity(item.id, item.quantity - 1); }
-      if (remove || increase || decrease) render();
+      try {
+        if (remove) await data().setCartQuantity(remove.dataset.cartRemove, 0);
+        if (increase) { const item = data().getCart().find(row => row.id === increase.dataset.cartIncrease); if (item) await data().setCartQuantity(item.id, item.quantity + 1); }
+        if (decrease) { const item = data().getCart().find(row => row.id === decrease.dataset.cartDecrease); if (item) await data().setCartQuantity(item.id, item.quantity - 1); }
+        if (remove || increase || decrease) await render();
+      } catch (error) { window.MWE?.showMemberToast?.(error.message || "Unable to update your cart"); }
     });
-    document.addEventListener("change", event => {
+    document.addEventListener("change", async event => {
       if (!event.target.matches("[data-cart-quantity]")) return;
-      data().setCartQuantity(event.target.dataset.cartQuantity, event.target.value);
-      render();
+      try { await data().setCartQuantity(event.target.dataset.cartQuantity, event.target.value); await render(); } catch (error) { window.MWE?.showMemberToast?.(error.message || "Unable to update your cart"); }
     });
     document.getElementById("apply-discount").addEventListener("click", () => {
       const code = document.getElementById("cart-discount").value.trim().toUpperCase();
       const message = document.getElementById("discount-message");
       if (code === "FAITH10") { localStorage.setItem(discountKey, code); message.textContent = "FAITH10 applied — 10% off."; message.className = "discount-message success"; }
       else { localStorage.removeItem(discountKey); message.textContent = "Enter a valid discount code."; message.className = "discount-message error"; }
-      render();
+      void render();
     });
-    document.getElementById("proceed-checkout").addEventListener("click", event => { if (!rows().length) event.preventDefault(); });
-    render();
+    document.getElementById("proceed-checkout").addEventListener("click", event => { if (!visibleRows.length) event.preventDefault(); });
+    await render();
   });
 })();

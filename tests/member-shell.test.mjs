@@ -53,7 +53,7 @@ test("directory, event, livestream, and detail views reuse the existing pages", 
   assert.match(shell, /event:\s*\{ source: "event-profile\.html"/);
 });
 
-test("Channels, Store, seller management, and Resources are independent modules", async () => {
+test("Channels, Store, creator management, and Resources are independent modules", async () => {
   const shell = await readProjectFile("public/app-shell.js");
   const channels = await readProjectFile("public/channels.html");
   const store = await readProjectFile("public/store.html");
@@ -65,14 +65,14 @@ test("Channels, Store, seller management, and Resources are independent modules"
   assert.match(shell, /channels:\s*\{ source: "channels\.html"/);
   assert.match(shell, /store:\s*\{ source: "store\.html"/);
   assert.match(shell, /product:\s*\{ source: "product-detail\.html"/);
-  assert.match(shell, /"store-manager":\s*\{ source: "seller-dashboard\.html"/);
+  assert.match(shell, /"store-manager":\s*\{ source: "creator-studio\.html\?kind=store"/);
   assert.match(shell, /resources:\s*\{ source: "resources\.html"/);
   assert.match(shell, /"resource-detail":\s*\{ source: "resource-detail\.html"/);
   assert.match(channels, /Create a Channel/);
   assert.match(store, /Manage Your Store/);
   assert.match(store, /id="store-cart-drawer"/);
   assert.match(product, /id="product-detail"/);
-  assert.match(seller, /Products and inventory/);
+  assert.match(seller, /app\.html\?view=create&kind=store/);
   assert.match(resources, /Christian Resource Library/);
   assert.match(resources, /<option>PDF<\/option>/);
   assert.match(resources, /<option>MP4<\/option>/);
@@ -102,7 +102,8 @@ test("Store has dedicated cart and Shopify-style checkout routes", async () => {
   assert.match(checkout, /Contact/);
   assert.match(checkout, /Shipping method/);
   assert.match(checkout, /Payment/);
-  assert.match(checkoutScript, /faithlink\.store\.orders\.v1/);
+  assert.match(checkoutScript, /placeOrder/);
+  assert.match(checkoutScript, /MWEStore/);
 });
 
 test("active livestreams retain thumbnail cards and open dedicated broadcast pages", async () => {
@@ -139,7 +140,7 @@ test("checkout login and express payment controls have working destinations", as
   const checkoutJs = await readProjectFile("public/checkout.js");
   assert.match(checkout, /href="app\.html\?view=checkout" target="_top">Log in/);
   assert.match(checkoutJs, /\.accelerated-checkout \.accelerated/);
-  assert.match(checkoutJs, /payment\.dispatchEvent\(new Event\("change"/);
+  assert.match(checkoutJs, /Place sandbox order/);
 });
 
 test("Channels use creator profile cards and connect to member messaging", async () => {

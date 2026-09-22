@@ -63,7 +63,7 @@
     product: { source: "product-detail.html", title: "Product Details" },
     cart: { source: "cart.html", title: "Your Cart" },
     checkout: { source: "checkout.html", title: "Checkout" },
-    "store-manager": { source: "seller-dashboard.html", title: "Store Manager" },
+    "store-manager": { source: "creator-studio.html?kind=store", title: "Create" },
     resources: { source: "resources.html", title: "Christian Resources" },
     "resource-detail": { source: "resource-detail.html", title: "Resource Details" },
     "resource-reader": { source: "resource-reader.html", title: "Resource Reader" },

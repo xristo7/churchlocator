@@ -1,5 +1,5 @@
 (function initializeProductDetail() {
-  const data = () => window.FaithLinkModules;
+  const data = () => window.MWEStore || window.FaithLinkModules;
   const productId = new URLSearchParams(location.search).get("id");
   let selectedTierIndex = 0;
   let audioPlaying = false;
@@ -275,22 +275,18 @@
     });
 
     // Add to Cart handler
-    document.getElementById("product-detail-add")?.addEventListener("click", () => {
+    document.getElementById("product-detail-add")?.addEventListener("click", async () => {
       const qty = parseInt(qtyInput?.value, 10) || 1;
-      for (let i = 0; i < qty; i++) {
-        data().addToCart(product.id);
-      }
+      await data().addToCart(product.id, qty);
       renderCart();
       setCartOpen(true);
       window.MWE?.showMemberToast?.(`Added ${qty} × "${product.title}" to cart`);
     });
 
     // Buy Now handler
-    document.getElementById("product-detail-buynow")?.addEventListener("click", () => {
+    document.getElementById("product-detail-buynow")?.addEventListener("click", async () => {
       const qty = parseInt(qtyInput?.value, 10) || 1;
-      for (let i = 0; i < qty; i++) {
-        data().addToCart(product.id);
-      }
+      await data().addToCart(product.id, qty);
       location.href = "checkout.html";
     });
 
@@ -859,12 +855,13 @@
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
-  await window.MWEPlatform?.ready;
+    await window.MWEPlatform?.ready;
+    try { await window.MWEStore?.ready; await window.MWEStore?.refreshProducts?.({ includeDrafts: false }); } catch (_) {}
     // Wire cart drawer removal (required by member-shell test)
-    document.getElementById("cart-items")?.addEventListener("click", event => {
+    document.getElementById("cart-items")?.addEventListener("click", async event => {
       const remove = event.target.closest("[data-remove-cart]");
       if (!remove) return;
-      data().setCartQuantity(remove.dataset.removeCart, 0);
+      await data().setCartQuantity(remove.dataset.removeCart, 0);
       renderCart();
     });
     document.getElementById("cart-close")?.addEventListener("click", () => setCartOpen(false));
@@ -873,7 +870,8 @@
     if (!data()) return;
 
     // Fetch product or service
-    const item = (data().getItemById && data().getItemById(productId)) ||
+    const item = await data().getProduct?.(productId) ||
+                 (data().getItemById && data().getItemById(productId)) ||
                  data().getProducts().find(p => p.id === productId);
 
     const container = document.getElementById("product-detail");

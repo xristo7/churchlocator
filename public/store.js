@@ -1,5 +1,5 @@
 (function initializeStoreModule() {
-  const data = () => window.FaithLinkModules;
+  const data = () => window.MWEStore || window.FaithLinkModules;
 
   function filteredProducts() {
     const query = document.getElementById("store-search")?.value.trim().toLowerCase() || "";
@@ -115,21 +115,22 @@
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
-  await window.MWEPlatform?.ready;
+    await window.MWEPlatform?.ready;
+    try { await window.MWEStore?.ready; await window.MWEStore?.refreshProducts?.({ includeDrafts: false }); } catch (_) {}
     const category = document.getElementById("store-category");
-    [...new Set(data().getProducts().map(product => product.category))].sort().forEach(value => category.insertAdjacentHTML("beforeend", `<option>${data().escapeHtml(value)}</option>`));
+    [...new Set(data().getProducts().map(product => product.category).filter(Boolean))].sort().forEach(value => category.insertAdjacentHTML("beforeend", `<option>${data().escapeHtml(value)}</option>`));
     ["store-search", "store-type", "store-category", "store-seller", "store-sort"].forEach(id => document.getElementById(id)?.addEventListener(id === "store-search" ? "input" : "change", renderProducts));
-    document.addEventListener("click", event => {
+    document.addEventListener("click", async event => {
       const add = event.target.closest("[data-add-product]");
       if (add) {
-        data().addToCart(add.dataset.addProduct);
+        try { await data().addToCart(add.dataset.addProduct); } catch (error) { window.MWE?.showMemberToast?.(error.message || "Unable to add that item to your cart"); return; }
         renderCart();
         setCartOpen(true);
         window.MWE?.showMemberToast?.("Added to your cart");
       }
       const remove = event.target.closest("[data-remove-cart]");
       if (remove) {
-        data().setCartQuantity(remove.dataset.removeCart, 0);
+        try { await data().setCartQuantity(remove.dataset.removeCart, 0); } catch (error) { window.MWE?.showMemberToast?.(error.message || "Unable to update your cart"); return; }
         renderCart();
       }
     });
