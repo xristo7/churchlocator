@@ -318,6 +318,11 @@ test("creation tools stay inside the member app and use full-page templates", as
   assert.match(studioJs, /publicationState/);
   assert.match(studioJs, /Submit for review/);
   assert.match(studioJs, /required details complete/);
+  assert.match(studioJs, /Choose a picture from your device/);
+  assert.match(studioJs, /data-image-picker/);
+  assert.doesNotMatch(studioJs, /Cover image URL/);
+  assert.match(worker, /\/api\/media\/upload/);
+  assert.match(worker, /MAX_IMAGE_UPLOAD_BYTES/);
 });
 
 test("dark mode adapts background surfaces and subtle borders to primary theme and homepage overlay adjusts dynamically", async () => {

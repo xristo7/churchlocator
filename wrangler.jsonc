@@ -18,6 +18,12 @@
       "database_id": "2a60c9f6-2850-4db3-9df3-ac80f69adb00"
     }
   ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "mwe-creator-media"
+    }
+  ],
   "vars": {
     "APP_NAME": "My Way of Evangelism",
     "ENVIRONMENT": "production",
@@ -45,6 +51,12 @@
           "binding": "DB",
           "database_name": "my-way-of-evangelism-preview",
           "database_id": "9d5c6215-602b-4641-bea9-dca104a1c3ba"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "MEDIA",
+          "bucket_name": "mwe-creator-media-preview"
         }
       ],
       "ratelimits": [

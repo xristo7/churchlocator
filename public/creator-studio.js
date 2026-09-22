@@ -11,27 +11,27 @@
   const kinds = {
     churches: { label:"Church", plural:"churches", icon:"church", description:"Create a public church profile with services, location, and a clear first-visit invitation.", sections:[
       ["Church identity","Help people recognize and find your church.",[ ["name","Church name","text",true],["city","City","text",true],["country","Country","select",true,["CA|Canada","US|United States"]],["postal","Postal / ZIP code","text"],["denomination","Denomination","select",true,["Pentecostal","Full Gospel","Charismatic","Baptist","Catholic","Anglican","Presbyterian","Protestant"]],["language","Primary language","select",true,["English","French","Spanish"]],["worship","Worship style","select",true,["Contemporary","Traditional","Blended","Charismatic"]] ]],
-      ["Welcome & contact","Give visitors enough information to take a confident next step.",[ ["about","Welcome message","textarea",true,null,"What should a first-time visitor know?"],["email","Public email","email",true],["phone","Public phone","tel"],["website","Website","url"],["sunday","Main service time","text",true,null,"For example, Sundays at 10:00 AM"],["photo","Cover image URL","url"] ]]
+      ["Welcome & contact","Give visitors enough information to take a confident next step.",[ ["about","Welcome message","textarea",true,null,"What should a first-time visitor know?"],["email","Public email","email",true],["phone","Public phone","tel"],["website","Website","url"],["sunday","Main service time","text",true,null,"For example, Sundays at 10:00 AM"],["photo","Church cover photo","image"] ]]
     ], defaults:{ country:"CA", language:"English", worship:"Contemporary", livestream:{enabled:false,paid:false,url:""} } },
     events: { label:"Event", plural:"events", icon:"calendar-plus", description:"Set up a gathering, conference, livestream, or outreach with clear logistics.", sections:[
-      ["Event details","Tell people what this event is and why it matters.",[ ["title","Event title","text",true],["description","Event description","textarea",true],["eventType","Event format","select",true,["in-person|In person","online|Online","hybrid|Hybrid"]],["coverImageUrl","Cover image URL","url"] ]],
+      ["Event details","Tell people what this event is and why it matters.",[ ["title","Event title","text",true],["description","Event description","textarea",true],["eventType","Event format","select",true,["in-person|In person","online|Online","hybrid|Hybrid"]],["coverImageUrl","Event cover photo","image"] ]],
       ["Date & place","Use the local time at the venue.",[ ["startsAt","Starts","datetime-local",true],["endsAt","Ends","datetime-local",true],["venueName","Venue name","text"],["city","City","text",true],["country","Country","select",true,["CA|Canada","US|United States"]],["directionsUrl","Directions URL","url"] ]],
       ["Registration","Choose whether guests need to reserve a place.",[ ["registrationRequired","Registration required","check"],["totalTickets","Capacity","number",false,null,"Use 0 for unlimited."],["ticketPriceCents","Ticket price in cents","number",false,null,"Use 0 for a free event."],["currency","Currency","select",true,["CAD","USD"]],["registrationUrl","Registration link","url"],["livestreamUrl","Livestream link","url"] ]]
     ], defaults:{ eventType:"in-person", country:"CA", currency:"CAD", totalTickets:0, ticketPriceCents:0, registrationRequired:false, isFeatured:false, isPromoted:false } },
     store: { label:"Store", plural:"stores", icon:"store", description:"Create a storefront before adding products or services.", sections:[
-      ["Store profile","Describe who is behind the storefront.",[ ["name","Store name","text",true],["ownerName","Owner or ministry name","text",true],["category","Store category","select",true,["Books & Resources","Apparel","Music","Gifts","Church Supplies","General"]],["description","Store description","textarea",true],["email","Store email","email",true],["image","Cover image URL","url"] ]],
+      ["Store profile","Describe who is behind the storefront.",[ ["name","Store name","text",true],["ownerName","Owner or ministry name","text",true],["category","Store category","select",true,["Books & Resources","Apparel","Music","Gifts","Church Supplies","General"]],["description","Store description","textarea",true],["email","Store email","email",true],["image","Store cover photo","image"] ]],
       ["Live shopping","Optional: connect your existing broadcast.",[ ["live","Live shopping is available","check"],["liveUrl","Live shopping URL","url"] ]]
     ], defaults:{ category:"Books & Resources", live:false } },
     products: { label:"Product or service", plural:"products", icon:"package-plus", description:"Add a product, digital item, or service to one of your storefronts.", sections:[
-      ["Item details","Choose the storefront and describe what someone receives.",[ ["storeId","Storefront","store",true],["title","Product or service name","text",true],["itemType","Item type","select",true,["product|Product","service|Service","digital|Digital item"]],["sellerType","Seller type","select",true,["Church","Channel"]],["category","Category","select",true,["Books","Journals","Apparel","Church Supplies","Study Tools","Kids","Music","Gifts"]],["description","Description","textarea",true],["image","Image URL","url"] ]],
+      ["Item details","Choose the storefront and describe what someone receives.",[ ["storeId","Storefront","store",true],["title","Product or service name","text",true],["itemType","Item type","select",true,["product|Product","service|Service","digital|Digital item"]],["sellerType","Seller type","select",true,["Church","Channel"]],["category","Category","select",true,["Books","Journals","Apparel","Church Supplies","Study Tools","Kids","Music","Gifts"]],["description","Description","textarea",true],["image","Product or service photo","image"] ]],
       ["Price & availability","Set a clear price and current availability.",[ ["price","Price (CAD)","number",true,null,"Use dollars, for example 19.99."],["compareAt","Compare-at price (CAD)","number"],["inventory","Available quantity","number",true],["status","Availability","select",true,["Draft","Active","Archived"]],["featured","Feature this item","check"] ]]
     ], defaults:{ itemType:"product", sellerType:"Church", category:"Books", price:0, compareAt:0, inventory:0, status:"Draft", featured:false } },
     channels: { label:"Channel", plural:"channels", icon:"radio-tower", description:"Give your ministry media a recognizable home for teaching, worship, and stories.", sections:[
       ["Channel identity","Make it easy for people to recognize and follow your media.",[ ["name","Channel name","text",true],["owner","Creator or ministry name","text",true],["handle","Channel handle","text",true,null,"Start with @, for example @rivercity."],["topic","Topic","select",true,["Bible Teaching","Worship","Family","Leadership","Youth","Bible Study"]],["description","Channel description","textarea",true] ]],
-      ["Media","Add a visual identity and optional live link.",[ ["format","Primary format","select",true,["Podcast","Video","Livestream"]],["cover","Cover image URL","url",true],["avatar","Avatar image URL","url"],["live","Currently live","check"],["liveUrl","Live URL","url"] ]]
+      ["Media","Add a visual identity and optional live link.",[ ["format","Primary format","select",true,["Podcast","Video","Livestream"]],["cover","Channel cover photo","image",true],["avatar","Channel avatar","image"],["live","Currently live","check"],["liveUrl","Live URL","url"] ]]
     ], defaults:{ topic:"Bible Teaching", format:"Podcast", live:false, posts:0 } },
     resources: { label:"Resource", plural:"resources", icon:"book-open-check", description:"Publish a study guide, devotional, audio, video, or another piece of useful content.", sections:[
-      ["Content details","Make the resource clear and useful before you publish it.",[ ["title","Resource title","text",true],["creator","Creator name","text",true],["topic","Topic","select",true,["Bible Study","Prayer","Discipleship","Worship","Devotional","Leadership"]],["description","Description","textarea",true],["type","Content type","select",true,["Text","Audio","Video"]],["format","Format","select",true,["PDF","EPUB","MP3","MP4"]],["duration","Length or duration","text",true],["image","Cover image URL","url",true] ]],
+      ["Content details","Make the resource clear and useful before you publish it.",[ ["title","Resource title","text",true],["creator","Creator name","text",true],["topic","Topic","select",true,["Bible Study","Prayer","Discipleship","Worship","Devotional","Leadership"]],["description","Description","textarea",true],["type","Content type","select",true,["Text","Audio","Video"]],["format","Format","select",true,["PDF","EPUB","MP3","MP4"]],["duration","Length or duration","text",true],["image","Resource cover photo","image",true] ]],
       ["Access","Choose who can open the resource.",[ ["access","Access","select",true,["Free","Paid"]],["price","Price (CAD)","number",true],["sourceUrl","Secure material URL","url",false,null,"Use a trusted HTTPS provider." ]]]
     ], defaults:{ topic:"Bible Study", type:"Text", format:"PDF", access:"Free", price:0 } }
   };
@@ -40,6 +40,7 @@
   const kindFromQuery = aliases[query.get("kind")] || query.get("kind");
   let activeKind = kinds[kindFromQuery] ? kindFromQuery : null;
   let editing = null;
+  const pendingUploads = new Set();
 
   function renderIcons() { window.lucide?.createIcons(); }
   function memberLink() { return `index.html?login=required&next=${encodeURIComponent("app.html?view=create")}`; }
@@ -72,9 +73,10 @@
 
   function options(values, selected) { return `<option value="">Choose one…</option>${(values||[]).map(value=>{ const [raw,label]=String(value).split("|"); return `<option value="${esc(raw)}"${String(selected??"")===raw?" selected":""}>${esc(label||raw)}</option>`; }).join("")}`; }
   function fieldMarkup(field, data) {
-    const [key,label,type,required=false,choices,hint] = field; const value=data[key] ?? ""; const wide=type==="textarea" || key==="description" || key==="about";
+    const [key,label,type,required=false,choices,hint] = field; const value=data[key] ?? ""; const wide=type==="textarea" || type==="image" || key==="description" || key==="about";
     if (type==="check") return `<div class="cs-field ${wide?"wide":""}" data-key="${key}" data-state="complete"><label>${esc(label)}</label><label class="cs-check"><input name="${key}" type="checkbox"${value?" checked":""} /> ${esc(label)}</label></div>`;
     if (type==="store") { const stores=platform.records("store",true).filter(record=>record.canManage); return `<div class="cs-field" data-key="${key}" data-state="${value?"complete":"missing"}"><label for="cs-${key}">${esc(label)} <em>*</em></label><select id="cs-${key}" name="${key}" required>${options(stores.map(record=>`${record.id}|${record.name}`),value)}</select><span class="cs-field-mark">${icon(value?"circle-check":"circle")}</span>${stores.length?"":`<small>Create a storefront first, then return here.</small>`}</div>`; }
+    if (type==="image") return `<div class="cs-field cs-image-field ${wide?"wide":""}" data-key="${key}" data-state="${required&&!String(value).trim()?"missing":"complete"}"><label for="cs-${key}">${esc(label)}${required?" <em>*</em>":""}</label><input id="cs-${key}" class="cs-image-picker" type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-image-picker aria-describedby="cs-${key}-help" /><input type="hidden" name="${key}" value="${esc(value)}" data-image-value /><div class="cs-image-drop"><div class="cs-image-preview" data-image-preview>${value?`<img src="${esc(value)}" alt="Selected ${esc(label).toLowerCase()}" referrerpolicy="no-referrer" />`:`<span>${icon("image-plus")}</span>`}</div><div><strong>Choose a picture from your device</strong><small id="cs-${key}-help">JPG, PNG, WebP, or GIF · up to 5 MB</small><p data-upload-status></p></div></div><span class="cs-field-mark">${icon(required&&!String(value).trim()?"circle":"circle-check")}</span></div>`;
     const control = type==="textarea" ? `<textarea id="cs-${key}" name="${key}"${required?" required":""} placeholder="${esc(hint||"")}">${esc(value)}</textarea>` : type==="select" ? `<select id="cs-${key}" name="${key}"${required?" required":""}>${options(choices,value)}</select>` : `<input id="cs-${key}" name="${key}" type="${type}" value="${esc(value)}"${required?" required":""} placeholder="${esc(hint||"")}"${type==="number"?" min=\"0\" step=\"any\"":""} />`;
     return `<div class="cs-field ${wide?"wide":""}" data-key="${key}" data-state="${required&&!String(value).trim()?"missing":"complete"}"><label for="cs-${key}">${esc(label)}${required?" <em>*</em>":""}</label>${control}<span class="cs-field-mark">${icon(required&&!String(value).trim()?"circle":"circle-check")}</span>${hint?`<small>${esc(hint)}</small>`:""}</div>`;
   }
@@ -91,19 +93,56 @@
   }
   function requiredFields() { return kinds[activeKind].sections.flatMap(section=>section[2]).filter(field=>field[3]); }
   function formData(form) { const value=Object.fromEntries(new FormData(form)); form.querySelectorAll('input[type="checkbox"]').forEach(input=>value[input.name]=input.checked); for (const [key,fieldValue] of Object.entries(value)) if (["price","compareAt","inventory","totalTickets","ticketPriceCents"].includes(key)) value[key]=Number(fieldValue||0); if(activeKind==="resources" && value.access==="Free") value.price=0; return value; }
+  async function uploadImage(input) {
+    const image = input.files?.[0];
+    if (!image) return;
+    const field = input.closest(".cs-image-field"), value = field.querySelector("[data-image-value]"), preview = field.querySelector("[data-image-preview]"), status = field.querySelector("[data-upload-status]");
+    const allowed = ["image/jpeg","image/png","image/webp","image/gif"];
+    if ((image.type && !allowed.includes(image.type)) || image.size > 5 * 1024 * 1024) {
+      status.textContent = "Choose a JPG, PNG, WebP, or GIF image smaller than 5 MB.";
+      status.className = "error";
+      input.value = "";
+      return;
+    }
+    const localPreview = URL.createObjectURL(image);
+    preview.innerHTML = `<img src="${localPreview}" alt="Selected image preview" />`;
+    status.textContent = "Uploading your picture…";
+    status.className = "uploading";
+    pendingUploads.add(input);
+    updateReadiness();
+    try {
+      const form = new FormData(); form.append("image", image);
+      const response = await fetch("/api/media/upload", { method:"POST", body:form, credentials:"same-origin" });
+      const result = await response.json().catch(()=>null);
+      if (!response.ok || !result?.ok || !result.url) throw new Error(result?.error || "We could not upload that picture.");
+      value.value = result.url;
+      preview.innerHTML = `<img src="${esc(result.url)}" alt="Selected image preview" />`;
+      status.textContent = "Picture ready.";
+      status.className = "success";
+    } catch (error) {
+      input.value = "";
+      preview.innerHTML = value.value ? `<img src="${esc(value.value)}" alt="Selected image preview" referrerpolicy="no-referrer" />` : `<span>${icon("image-plus")}</span>`;
+      status.textContent = error.message || "We could not upload that picture.";
+      status.className = "error";
+    } finally {
+      URL.revokeObjectURL(localPreview);
+      pendingUploads.delete(input);
+      updateReadiness();
+    }
+  }
   function updateReadiness() {
     const form=root.querySelector("#cs-editor-form"); if(!form) return false; const needed=requiredFields(); let complete=0;
     needed.forEach(([key])=>{ const input=form.elements[key]; const valid=!!input && String(input.value||"").trim().length>0 && input.checkValidity(); const field=input?.closest(".cs-field"); if(field){field.dataset.state=valid?"complete":"missing"; field.querySelector(".cs-field-mark").innerHTML=icon(valid?"circle-check":"circle");} if(valid)complete++; });
     const percent=needed.length?Math.round(complete/needed.length*100):100; root.querySelector("#cs-meter").style.width=percent+"%"; root.querySelector("#cs-progress").textContent=`${complete} of ${needed.length} required details complete`;
-    const list=root.querySelector("#cs-required-list"); list.innerHTML=needed.map(([key,label])=>{const input=form.elements[key];const done=!!input&&String(input.value||"").trim().length>0&&input.checkValidity();return `<div class="${done?"complete":""}">${icon(done?"circle-check":"circle")}<span>${esc(label)}</span></div>`;}).join(""); return complete===needed.length;
+    const list=root.querySelector("#cs-required-list"); list.innerHTML=needed.map(([key,label])=>{const input=form.elements[key];const done=!!input&&String(input.value||"").trim().length>0&&input.checkValidity();return `<div class="${done?"complete":""}">${icon(done?"circle-check":"circle")}<span>${esc(label)}</span></div>`;}).join(""); return complete===needed.length && pendingUploads.size===0;
   }
   function renderEditor() {
     const config=kinds[activeKind], data=editorRecord();
     root.innerHTML = `<div class="creator-studio"><button class="cs-back" type="button" id="cs-back">${icon("arrow-left")} All creation tools</button><div class="cs-editor-shell"><aside class="cs-editor-sidebar"><strong>${esc(config.label)} template</strong>${config.sections.map(([title],index)=>`<button type="button" data-section="${index}">${icon(index===0?config.icon:"circle-dot")} ${esc(title)}</button>`).join("")}</aside><div><header class="cs-editor-head"><p class="cs-eyebrow">${editing?"Continue your draft":"New creation"}</p><h1>${editing?`Edit ${esc(titleFor(editing))}`:`Create a ${esc(config.label.toLowerCase())}`}</h1><p>${esc(config.description)} Required fields are highlighted as you complete them.</p></header><form id="cs-editor-form" class="cs-editor-form" novalidate>${config.sections.map((section,index)=>sectionMarkup(section,data,index)).join("")}</form></div><aside class="cs-readiness"><strong>Publication readiness</strong><div class="cs-meter"><span id="cs-meter"></span></div><p id="cs-progress"></p><div class="cs-ready-list" id="cs-required-list"></div><div class="cs-ready-actions"><button class="cs-secondary" type="button" id="cs-save">Save draft</button><button class="cs-primary" type="button" id="cs-publish">Submit for review ${icon("send")}</button></div><p class="cs-message" id="cs-message" hidden></p></aside></div></div>`;
     document.getElementById("cs-back").onclick=()=>{activeKind=null;editing=null;const url=new URL(location.href);url.searchParams.delete("kind");history.pushState({},"",url);render();};
     root.querySelectorAll("[data-section]").forEach(button=>button.onclick=()=>document.getElementById("cs-section-"+button.dataset.section)?.scrollIntoView({behavior:"smooth",block:"start"}));
-    const form=root.querySelector("#cs-editor-form"); form.addEventListener("input",updateReadiness); form.addEventListener("change",updateReadiness);
-    const submit = async publicationState => { const ready=updateReadiness(); const message=document.getElementById("cs-message"); if(publicationState==="pending"&&!ready){message.hidden=false;message.className="cs-message error";message.textContent="Complete the highlighted required details before submitting for review.";form.querySelector(".cs-field[data-state=\"missing\"] input,.cs-field[data-state=\"missing\"] select,.cs-field[data-state=\"missing\"] textarea")?.focus();return;} const button=document.getElementById(publicationState==="pending"?"cs-publish":"cs-save");button.disabled=true;const original=button.textContent;button.textContent=publicationState==="pending"?"Submitting…":"Saving…";try {const saved=await platform.save(activeKind,{...formData(form),publicationState,...(editing?{id:editing.id,revision:editing.revision}:{})});editing=saved;message.hidden=false;message.className="cs-message success";message.textContent=publicationState==="pending"?"Submitted for administrator review. We’ll publish it after approval.":"Draft saved. You can return and finish it anytime.";button.textContent=publicationState==="pending"?"Submitted for review":"Saved";} catch(error){message.hidden=false;message.className="cs-message error";message.textContent=error.message||"We could not save this creation.";button.disabled=false;button.textContent=original;}};
+    const form=root.querySelector("#cs-editor-form"); form.addEventListener("input",updateReadiness); form.addEventListener("change",updateReadiness); form.querySelectorAll("[data-image-picker]").forEach(input=>{ input.addEventListener("change",()=>uploadImage(input)); input.closest(".cs-image-field").querySelector(".cs-image-drop").addEventListener("click",()=>input.click()); });
+    const submit = async publicationState => { const ready=updateReadiness(); const message=document.getElementById("cs-message"); if(pendingUploads.size){message.hidden=false;message.className="cs-message error";message.textContent="Wait for your picture upload to finish before saving.";return;} if(publicationState==="pending"&&!ready){message.hidden=false;message.className="cs-message error";message.textContent="Complete the highlighted required details before submitting for review.";form.querySelector(".cs-field[data-state=\"missing\"] input,.cs-field[data-state=\"missing\"] select,.cs-field[data-state=\"missing\"] textarea")?.focus();return;} const button=document.getElementById(publicationState==="pending"?"cs-publish":"cs-save");button.disabled=true;const original=button.textContent;button.textContent=publicationState==="pending"?"Submitting…":"Saving…";try {const saved=await platform.save(activeKind,{...formData(form),publicationState,...(editing?{id:editing.id,revision:editing.revision}:{})});editing=saved;message.hidden=false;message.className="cs-message success";message.textContent=publicationState==="pending"?"Submitted for administrator review. We’ll publish it after approval.":"Draft saved. You can return and finish it anytime.";button.textContent=publicationState==="pending"?"Submitted for review":"Saved";} catch(error){message.hidden=false;message.className="cs-message error";message.textContent=error.message||"We could not save this creation.";button.disabled=false;button.textContent=original;}};
     document.getElementById("cs-save").onclick=()=>submit("draft"); document.getElementById("cs-publish").onclick=()=>submit("pending"); updateReadiness(); renderIcons();
   }
   function render() { if(!user || !user.isCreator) return renderUpgrade(); if(activeKind) return renderEditor(); renderHub(); }
