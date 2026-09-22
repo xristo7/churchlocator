@@ -79,9 +79,9 @@ test("D1 trigger write counts are accepted while a guarded no-op is rejected", a
 
 test("coarse location uses the requesting edge metadata and never returns IPs", async () => {
   const request = new Request("https://example.test/api/location");
-  Object.defineProperty(request, "cf", { value: { city: "Nairobi", country: "KE", clientTcpRtt: 10 } });
+  Object.defineProperty(request, "cf", { value: { city: "Toronto", country: "CA", clientTcpRtt: 10 } });
   const response = await worker.fetch(request, { ASSETS: assets });
-  assert.deepEqual(await response.json(), { city: "Nairobi", countryCode: "KE" });
+  assert.deepEqual(await response.json(), { city: "Toronto", countryCode: "CA" });
   assert.equal(response.headers.get("cache-control"), "no-store");
 });
 
