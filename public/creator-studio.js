@@ -36,14 +36,14 @@
     ], defaults:{ topic:"Bible Study", type:"Text", format:"PDF", access:"Free", price:0 } }
   };
 
-  const user = platform?.session;
+  let user = platform?.session;
   const kindFromQuery = aliases[query.get("kind")] || query.get("kind");
   let activeKind = kinds[kindFromQuery] ? kindFromQuery : null;
   let editing = null;
 
   function renderIcons() { window.lucide?.createIcons(); }
   function memberLink() { return `index.html?login=required&next=${encodeURIComponent("app.html?view=create")}`; }
-  function goToStudio(kind) { const url = new URL(location.href); url.searchParams.set("kind", kind); history.pushState({}, "", url); activeKind=kind; editing=null; render(); }
+  function goToStudio(kind, record = null) { const url = new URL(location.href); url.searchParams.set("kind", kind); history.pushState({}, "", url); activeKind=kind; editing=record; render(); }
   function titleFor(record) { return record.name || record.title || "Untitled"; }
   function records() { return platform?.records ? Object.keys(kinds).flatMap(kind => platform.records(kind,true)) : []; }
 
@@ -57,7 +57,7 @@
       const button = event.currentTarget; button.disabled=true; button.textContent="Activating…";
       const result = await auth?.creatorUpgrade();
       if (!result?.ok) { const message=document.getElementById("cs-upgrade-message"); message.hidden=false; message.className="cs-message error"; message.textContent=result?.error || "We could not activate creator tools. Please try again."; button.disabled=false; button.textContent="Activate creator tools"; return; }
-      await platform.refresh(result.user); render();
+      await platform.refresh(result.user); user = platform.session; render();
     }); renderIcons();
   }
 
@@ -66,7 +66,7 @@
     const recent = records().slice(0,5);
     root.innerHTML = `<div class="creator-studio"><section class="cs-hero"><div><p class="cs-eyebrow">Member tools · Creation unlocked</p><h1>Create with the same My Way experience your audience already knows.</h1><p>Use one focused page for each substantial creation. Required details are marked as you go, drafts stay private, and finished work can be submitted for publication.</p></div><div class="cs-user"><span class="cs-avatar">${esc((user?.name||"M").split(/\s+/).map(v=>v[0]).join("").slice(0,2))}</span>${esc(user?.name||"Member")}</div></section><section class="cs-hub"><div class="cs-section-heading"><div><h2>What would you like to create?</h2><p>Start with a blank template. You can save a draft at any point.</p></div></div><div class="cs-create-grid">${Object.entries(kinds).map(([key,value])=>card(key,value)).join("")}</div></section><section class="cs-content-grid"><div class="cs-panel"><h2>Your recent work</h2><div class="cs-records">${recent.length ? recent.map(record=>`<div class="cs-record"><div><strong>${esc(titleFor(record))}</strong><span>${esc(kinds[record.kind]?.label||record.kind)} · ${esc(record.publicationState||record.state||"draft")}</span></div><button type="button" data-edit="${esc(record.id)}" data-kind="${esc(record.kind)}">Continue</button></div>`).join("") : `<div class="cs-empty">Your drafts and submissions will appear here. Start with a creation card above.</div>`}</div></div><div class="cs-panel"><h2>How publishing works</h2><p>Save while you work. When all required details are complete, submit for review. Platform administrators review and publish public listings from the protected owner dashboard.</p></div></section></div>`;
     root.querySelectorAll("[data-create]").forEach(button=>button.addEventListener("click",()=>goToStudio(button.dataset.create)));
-    root.querySelectorAll("[data-edit]").forEach(button=>button.addEventListener("click",()=>{ editing=records().find(record=>record.id===button.dataset.edit&&record.kind===button.dataset.kind)||null; goToStudio(button.dataset.kind); }));
+    root.querySelectorAll("[data-edit]").forEach(button=>button.addEventListener("click",()=>goToStudio(button.dataset.kind, records().find(record=>record.id===button.dataset.edit&&record.kind===button.dataset.kind)||null)));
     renderIcons();
   }
 
