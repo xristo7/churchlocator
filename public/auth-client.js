@@ -85,10 +85,10 @@
     }
   }
 
+  // Kept for older buttons, but registration never grants creator access.
+  // The member chooses to activate creator tools after signing in.
   async function creatorRegister(name, email, password) {
-    const result = await callApi("/api/creator/register", { name, email, password });
-    if (result.ok) await applySession(result.user);
-    return result;
+    return register(name, email, password);
   }
 
   async function creatorUpgrade() {

@@ -226,7 +226,7 @@ async function getSessionUser(request, env) {
   return row;
 }
 
-async function registerUser(request, env, { forceCreator = false } = {}) {
+async function registerUser(request, env) {
   if (!env.DB) return storageUnavailable();
   const payload = await readJson(request);
   const name = String(payload?.name || "").trim();
@@ -245,7 +245,9 @@ async function registerUser(request, env, { forceCreator = false } = {}) {
   const id = `local:${email}`;
   const { salt, hash } = await hashNewPassword(password,env);
   const createdAt = new Date().toISOString();
-  const isCreator = forceCreator || Boolean(payload?.isCreator);
+  // Registration creates a normal member account. Creator capability is a
+  // deliberate, authenticated upgrade and must never come from request data.
+  const isCreator = false;
 
   await env.DB.prepare(`
     insert into users (id, email, password_hash, password_salt, name, is_creator, created_at, last_login_at)
@@ -265,7 +267,10 @@ async function handleAuthRegister(request, env) {
 }
 
 async function handleCreatorRegister(request, env) {
-  return registerUser(request, env, { forceCreator: true });
+  // Legacy endpoint kept only as a safe compatibility alias. New accounts are
+  // always members first; a signed-in member explicitly activates creator
+  // tools through the upgrade endpoint.
+  return registerUser(request, env);
 }
 
 async function handleAuthLogin(request, env) {
@@ -471,7 +476,7 @@ async function handleStatus(env) {
     },
     applications: [
       { name: "Public Website", route: "/", authentication: "none" },
-      { name: "Church Portal", route: "/church-portal", authentication: "required" },
+      { name: "Creation Studio", route: "/app?view=create", authentication: "member sign-in, then optional creator upgrade" },
       { name: "Owner Dashboard", route: "/owner-dashboard", authentication: "required" },
       { name: "API Application", route: "/api/*", authentication: "token/session by endpoint" }
     ]
@@ -774,10 +779,10 @@ function assetRequest(request) {
   const url = new URL(request.url);
   const routes = new Map([
     ["/", "/index.html"],
-    ["/church-portal", "/church-portal.html"],
-    ["/portal", "/church-portal.html"],
-    ["/creator-hub", "/church-portal.html"],
-    ["/register-church", "/church-portal.html"],
+    ["/church-portal", "/creator-studio.html"],
+    ["/portal", "/creator-studio.html"],
+    ["/creator-hub", "/creator-studio.html"],
+    ["/register-church", "/creator-studio.html"],
     ["/owner-dashboard", "/owner-dashboard.html"],
     ["/admin", "/owner-dashboard.html"],
     ["/app", "/app.html"],

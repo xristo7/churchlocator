@@ -137,6 +137,15 @@ test("register creates a real account, hashes the password, and issues a session
   assert.ok(cookie, "a session cookie should be set");
 });
 
+test("registration ignores a forged creator flag", async () => {
+  const env = baseEnv();
+  const response = await worker.fetch(
+    postJson("/api/auth/register", { name: "Member", email: "member@example.com", password: "correct-horse-battery", isCreator: true }),
+    env
+  );
+  assert.equal((await response.json()).user.isCreator, false);
+});
+
 test("register rejects a duplicate email, a weak password, and a malformed email", async () => {
   const env = baseEnv();
   await worker.fetch(postJson("/api/auth/register", { name: "Ada", email: "dup@example.com", password: "correct-horse-battery" }), env);
@@ -189,7 +198,7 @@ test("a valid session cookie round-trips through /api/auth/session and clears on
   assert.equal(afterLogoutBody.user, null);
 });
 
-test("creator registration marks the account as a creator immediately", async () => {
+test("legacy creator registration is a member registration and cannot self-upgrade", async () => {
   const env = baseEnv();
   const response = await worker.fetch(
     postJson("/api/creator/register", { name: "Cee Creator", email: "creator@example.com", password: "correct-horse-battery" }),
@@ -197,7 +206,7 @@ test("creator registration marks the account as a creator immediately", async ()
   );
   const body = await response.json();
   assert.equal(response.status, 201);
-  assert.equal(body.user.isCreator, true);
+  assert.equal(body.user.isCreator, false);
 });
 
 test("creator upgrade requires a valid session and flips an existing member account", async () => {

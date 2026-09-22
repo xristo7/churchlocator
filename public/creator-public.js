@@ -141,7 +141,7 @@
       if (destination) {
         const section = document.createElement("section");
         section.className = "creator-stores-section";
-        section.innerHTML = '<h2>Community stores</h2><p>Explore independent stores and live shopping.</p>' + renderStores() + '<a href="creator-workspace.html#store" target="_top">Create your own store →</a>';
+        section.innerHTML = '<h2>Community stores</h2><p>Explore independent stores and live shopping.</p>' + renderStores() + '<a href="app.html?view=create&kind=store" target="_top">Create your own store →</a>';
         const toolbar = destination.querySelector(".site-search-bar");
         if (toolbar) toolbar.before(section);
         else destination.append(section);

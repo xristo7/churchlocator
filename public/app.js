@@ -1494,11 +1494,11 @@ MWE.getMemberShellRoute = function(input) {
     resources: "resources",
     "resource-detail": "resource-detail",
     "resource-reader": "resource-reader",
-    "church-portal": "portal",
-    portal: "portal",
-    "register-church": "portal",
-    creator: "portal",
-    "creator-hub": "portal"
+    "church-portal": "create",
+    portal: "create",
+    "register-church": "create",
+    creator: "create",
+    "creator-hub": "create"
   };
   const view = routeMap[file];
   if (!view) return null;
@@ -1508,7 +1508,8 @@ MWE.getMemberShellRoute = function(input) {
     id: url.searchParams.get("id") || url.searchParams.get("channel") || "",
     q: url.searchParams.get("q") || "",
     compose: url.searchParams.get("compose") || "",
-    post: url.searchParams.get("post") || ""
+    post: url.searchParams.get("post") || "",
+    kind: url.searchParams.get("kind") || ""
   };
 };
 
@@ -1518,6 +1519,7 @@ MWE.buildMemberShellUrl = function(route) {
   if (route.id) target.searchParams.set("id", route.id);
   if (route.q) target.searchParams.set("q", route.q);
   if (route.compose) target.searchParams.set("compose", route.compose);
+  if (route.kind) target.searchParams.set("kind", route.kind);
   return `${target.pathname.split("/").pop()}${target.search}`;
 };
 
@@ -1762,7 +1764,7 @@ MWE.initMemberExperience = function() {
   const currentRoute = MWE.getMemberShellRoute(window.location.href);
   if (!currentRoute) return "public";
 
-  if (MWE.isMemberAuthenticated() || currentRoute.view === "portal") {
+  if (MWE.isMemberAuthenticated() || currentRoute.view === "create") {
     window.location.replace(MWE.buildMemberShellUrl(currentRoute));
     return "redirecting";
   }
@@ -1864,18 +1866,10 @@ function initPrivateAppAuth() {
   }
   updateUserDisplay();
 
-  function openCreatorWorkspace(target = "overview", account = {}) {
-    const moduleMap = { channel: "channels", event: "events", resource: "resources", all: "overview" };
-    const module = moduleMap[target] || target || "overview";
-    const loginEmail = document.querySelector("[data-login-form] input[type='text']")?.value.trim().toLowerCase() || "";
-    const email = (account.email || loginEmail).trim().toLowerCase();
-    const name = account.name || localStorage.getItem("mwe.username") || (email ? email.split("@")[0] : "Creator");
-    if (email) {
-      localStorage.setItem("mwe.userEmail", email);
-      localStorage.setItem("mwe.creator.account.v1", JSON.stringify({ id: `local:${email}`, email, name }));
-    }
-    const workspace = window.open(`creator-workspace.html#${module}`, "_blank", "noopener");
-    if (!workspace) window.location.href = `creator-workspace.html#${module}`;
+  function openCreatorWorkspace(target = "overview") {
+    const moduleMap = { channel: "channels", event: "events", resource: "resources", all: "" };
+    const module = moduleMap[target] || target || "";
+    window.location.href = `app.html?view=create${module ? `&kind=${encodeURIComponent(module)}` : ""}`;
   }
 
   function signIn(target = "overview", account = {}) {
@@ -1884,7 +1878,7 @@ function initPrivateAppAuth() {
     localStorage.setItem("mwe.userLoggedIn", "true");
     document.body.classList.add("is-authenticated");
     updateUserDisplay();
-    showToast(app === "owner" ? "Welcome to your admin workspace" : "Welcome to Creator Hub");
+    showToast(app === "owner" ? "Welcome to your admin workspace" : "Welcome to creation tools");
     if (app === "church") openCreatorWorkspace(target, account);
   }
 
@@ -4143,7 +4137,7 @@ MWE.heroCarouselSlides = [
     title: "Find a Church Family Near You.",
     description: "We bridge the path from search to local church community—helping seekers find verified fellowships, request free Sunday rides, receive prayer, accept Jesus Christ, and support bi-monthly orphanage outreach.",
     btn1: { text: "Find a Church Family", url: "churches.html", icon: "search", className: "button primary lg" },
-    btn2: { text: "Register a Church", url: "church-portal.html", icon: "plus-circle", className: "button secondary lg" },
+    btn2: { text: "Register a Church", url: "app.html?view=create&kind=churches", icon: "plus-circle", className: "button secondary lg" },
     sliderLabelIcon: "compass",
     sliderLabelText: "Verified churches near you",
     getItems: () => {

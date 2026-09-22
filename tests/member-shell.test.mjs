@@ -294,56 +294,30 @@ test("two-pillar theme system supports rainbow primary palette, gold accents, an
   assert.match(shell, /mwe-primary-color/);
 });
 
-test("Creator Hub keeps SPA registration and opens the user workspace separately", async () => {
+test("creation tools stay inside the member app and use full-page templates", async () => {
   const html = await readProjectFile("public/app.html");
   const shell = await readProjectFile("public/app-shell.js");
   const app = await readProjectFile("public/app.js");
-  const portalHtml = await readProjectFile("public/church-portal.html");
+  const studioHtml = await readProjectFile("public/creator-studio.html");
+  const studioJs = await readProjectFile("public/creator-studio.js");
   const worker = await readProjectFile("src/worker.js");
 
-  // SPA navigation rail in app.html
-  assert.match(html, /data-shell-view="portal"/);
-  assert.match(html, /Creator Hub/);
-  assert.match(html, /data-lucide="rocket"/);
-
-  // Router in app-shell.js
-  assert.match(shell, /portal:\s*\{\s*source:\s*"church-portal\.html",\s*title:\s*"Creator & Ministry Hub"\s*\}/);
-  assert.match(shell, /window\.open\("creator-workspace\.html"/);
-  assert.match(shell, /hasMatchingCreatorIdentity/);
-  assert.match(shell, /mwe\.userEmail/);
-  assert.match(shell, /creator\?\.email/);
-
-  // Route map and top-level redirection to SPA shell in app.js
-  assert.match(app, /"church-portal":\s*"portal"/);
-  assert.match(app, /portal:\s*"portal"/);
-  assert.match(app, /currentRoute\.view === "portal"/);
-  assert.match(app, /body\[data-page="portal"\]\.member-shell-embed/);
-  assert.match(shell, /isProtectedView\(safeRoute\.view\)/);
-
-  // Worker routes
-  assert.match(worker, /\["\/portal",\s*"\/church-portal\.html"\]/);
-  assert.match(worker, /\["\/creator-hub",\s*"\/church-portal\.html"\]/);
-
-  // Original 3-step creator registration remains inside the SPA shell.
-  assert.match(portalHtml, /Create Creator Account/);
-  assert.match(portalHtml, /data-register-form/);
-  assert.match(portalHtml, /data-step="1"/);
-  assert.match(portalHtml, /data-step="2"/);
-  assert.match(portalHtml, /data-step="3"/);
-  assert.match(portalHtml, /name="launchGoal"/);
-  const creator = await readProjectFile("public/creator-workspace.html");
-  assert.match(creator, /data-creator-account-form/);
-  assert.match(app, /window\.open\(`creator-workspace\.html#\$\{module\}`/);
-  assert.match(app, /creatorIdentityMatches/);
-  assert.match(app, /if \(!creatorIdentityMatches\) localStorage\.removeItem\(key\)/);
-
-  // Launchpad overview and workspace cards in church-portal.html
-  assert.match(portalHtml, /id="launchpad-grid-container"/);
-  assert.match(portalHtml, /data-launch-target="church"/);
-  assert.match(portalHtml, /data-launch-target="channels"/);
-  assert.match(portalHtml, /data-launch-target="events"/);
-  assert.match(portalHtml, /data-launch-target="store"/);
-  assert.match(portalHtml, /data-launch-target="resources"/);
+  assert.match(html, /data-shell-view="create"/);
+  assert.match(html, />Create</);
+  assert.match(shell, /create:\s*\{\s*source:\s*"creator-studio\.html",\s*title:\s*"Create"\s*\}/);
+  assert.doesNotMatch(shell, /creator-workspace\.html/);
+  assert.doesNotMatch(shell, /hasMatchingCreatorIdentity/);
+  assert.match(app, /"church-portal":\s*"create"/);
+  assert.match(app, /currentRoute\.view === "create"/);
+  assert.match(worker, /\["\/portal",\s*"\/creator-studio\.html"\]/);
+  assert.match(worker, /\["\/creator-hub",\s*"\/creator-studio\.html"\]/);
+  assert.match(studioHtml, /creator-studio\.js/);
+  assert.match(studioJs, /churches:/);
+  assert.match(studioJs, /events:/);
+  assert.match(studioJs, /products:/);
+  assert.match(studioJs, /publicationState/);
+  assert.match(studioJs, /Submit for review/);
+  assert.match(studioJs, /required details complete/);
 });
 
 test("dark mode adapts background surfaces and subtle borders to primary theme and homepage overlay adjusts dynamically", async () => {
