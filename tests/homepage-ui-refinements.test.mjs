@@ -54,6 +54,8 @@ test("Homepage Refinements: Video hidden, image background active, equal buttons
   assert.match(appJs, /MWE\.toggleNavSigninDropdown/, "app.js must define toggleNavSigninDropdown");
   assert.match(appJs, /MWE\.switchAuthDropdownTab/, "app.js must define switchAuthDropdownTab");
   assert.match(appJs, /MWE\.handleGoogleAuthFast/, "app.js must define handleGoogleAuthFast");
+  assert.match(appJs, /data-member-google-auth/, "Member sign-in modal must offer Google sign-in");
+  assert.match(appJs, /\/api\/auth\/google\/start\?next=\$\{encodeURIComponent\(next\)\}/, "Member Google sign-in must preserve the safe destination");
 
   // 9. Header 100px fade out and border removal
   assert.match(stylesCss, /body\.hero-only-page \.topbar\s*\{[^}]*border-bottom:\s*none\s*!important;/, "topbar on hero page must have no bottom border");
