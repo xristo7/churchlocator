@@ -9,13 +9,13 @@
   <link rel="stylesheet" href="admin-workspace.css?v=20260916taxonomy1" />
   <link rel="stylesheet" href="spotlight-workspace.css?v=20260916" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260916taxonomy1"></script><script defer src="app.js?v=20260922membergoogle1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260916taxonomy1"></script><script defer src="app.js?v=20260922googleeverywhere1"></script><script defer src="auth-client.js?v=20260915security1"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <script defer src="meditation.js?v=20260904"></script>
   <script defer src="admin-model.js?v=20260916taxonomy1"></script>
   <script defer src="creator-data.js?v=20260904"></script>
   <script defer src="creator-model.js?v=20260904"></script>
-  <script defer src="creator-account.js?v=20260905"></script>
+  <script defer src="creator-account.js?v=20260922googleeverywhere1"></script>
   <script defer src="spotlight-workspace.js?v=20260916"></script>
   <script defer src="admin-workspace.js?v=20260916taxonomy1"></script>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
@@ -27,7 +27,7 @@
       <p class="aw-eyebrow">ONE CONNECTED WORKSPACE</p>
       <h1>Your account.<br>Your next beginning.</h1>
       <p>Create your account first. Then choose a church, meditation room, channel, event, store or resource. No church or organization is required.</p>
-      <form data-creator-account-form>
+      <form data-creator-account-form data-google-auth-surface data-google-auth-next="creator-workspace.html?google_auth=creator">
         <p class="member-auth-error" data-creator-account-error hidden></p>
         <label class="form-field"><span>Your name</span><input name="name" required autocomplete="name" placeholder="Your full name" /></label>
         <label class="form-field"><span>Email</span><input name="email" type="email" required autocomplete="username" placeholder="you@example.com" /></label>

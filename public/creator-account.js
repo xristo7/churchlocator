@@ -10,8 +10,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!hasMatchingSession && localStorage.getItem("mwe.userLoggedIn") === "true") {
     localStorage.removeItem("mwe.session.church.v1");
   }
-  window.MWEAuth?.session().then(result => {
-    document.body.classList.toggle("is-authenticated", !!result.ok && !!result.user?.isCreator);
+  const googleCreatorReturn = new URLSearchParams(window.location.search).get("google_auth") === "creator";
+  window.MWEAuth?.session().then(async result => {
+    if (googleCreatorReturn && result.ok && !result.user?.isCreator) result = await window.MWEAuth.creatorUpgrade();
+    if (!result.ok || !result.user?.isCreator) {
+      document.body.classList.remove("is-authenticated");
+      return;
+    }
+    window.MWECreator.setAccount(result.user.name, result.user.email);
+    localStorage.setItem("mwe.userEmail", result.user.email.trim().toLowerCase());
+    document.body.classList.add("is-authenticated");
+    if (googleCreatorReturn) {
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete("google_auth");
+      window.history.replaceState({}, "", `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+      window.showToast("Welcome. Choose what you’d like to create.");
+    }
   });
   let signingIn = false;
   document.getElementById("creator-account-mode").addEventListener("click", event => {

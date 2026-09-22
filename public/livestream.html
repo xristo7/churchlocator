@@ -7,7 +7,7 @@
   <script src="livestream-canonical.js?v=20260916final1"></script>
     <link rel="stylesheet" href="styles.css?v=20260905module19" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260916previewfallback1"></script><script defer src="app.js?v=20260922membergoogle1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260916previewfallback1"></script><script defer src="app.js?v=20260922googleeverywhere1"></script><script defer src="auth-client.js?v=20260915security1"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <link rel="stylesheet" href="creator-public.css?v=20260907livestreamplayer1" />
   <script defer src="creator-data.js?v=20260904"></script>
@@ -256,7 +256,7 @@
           <p style="font-size: 0.72rem; margin: 0; font-family: inherit;">Sign in to watch livestreams</p>
         </div>
         
-        <form id="chat-login-form" onsubmit="handleChatLogin(event)" style="display: flex; flex-direction: column; gap: 12px;">
+        <form id="chat-login-form" data-google-auth-surface onsubmit="handleChatLogin(event)" style="display: flex; flex-direction: column; gap: 12px;">
           <div>
             <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Email</label>
             <input type="email" id="login-email" required placeholder="Enter email address" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
@@ -276,7 +276,7 @@
           <p style="font-size: 0.72rem; margin: 0; font-family: inherit;">Register to participate in live chats</p>
         </div>
         
-        <form id="chat-register-form" onsubmit="handleChatRegister(event)" style="display: flex; flex-direction: column; gap: 12px;">
+        <form id="chat-register-form" data-google-auth-surface onsubmit="handleChatRegister(event)" style="display: flex; flex-direction: column; gap: 12px;">
           <!-- Profile Photo Upload -->
           <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 4px;">
             <input type="file" id="register-avatar-file" accept="image/*" onchange="previewRegisterAvatar(event)" style="display: none;" />
