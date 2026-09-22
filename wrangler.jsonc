@@ -22,7 +22,7 @@
     "APP_NAME": "My Way of Evangelism",
     "ENVIRONMENT": "production",
     "PUBLIC_ORIGIN": "https://my-way-of-evangelism.doxalight-inc.workers.dev",
-    "GOOGLE_CLIENT_ID": "744058453576-vj113o8em1fpm7dhoqorbv2cm2viag67.apps.googleusercontent.com"
+    "GOOGLE_CLIENT_ID": "744058453576-4v84hjrpkrun06tcnqn0ni8smuh6udgv.apps.googleusercontent.com"
   },
   "secrets": {
     "required": ["GOOGLE_CLIENT_SECRET"]
@@ -55,7 +55,7 @@
         "APP_NAME": "My Way of Evangelism",
         "ENVIRONMENT": "preview",
         "PUBLIC_ORIGIN": "https://my-way-of-evangelism-preview.doxalight-inc.workers.dev",
-        "GOOGLE_CLIENT_ID": "744058453576-vj113o8em1fpm7dhoqorbv2cm2viag67.apps.googleusercontent.com"
+        "GOOGLE_CLIENT_ID": "744058453576-4v84hjrpkrun06tcnqn0ni8smuh6udgv.apps.googleusercontent.com"
       },
       "secrets": {
         "required": ["GOOGLE_CLIENT_SECRET"]
