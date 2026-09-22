@@ -5,11 +5,11 @@
  * already reads, so existing UI code needs no further changes.
  */
 (function (root) {
-  async function callApi(path, body) {
+  async function callApi(path, body, method = "POST") {
     let response;
     try {
       response = await fetch(path, {
-        method: "POST",
+        method,
         credentials: "same-origin",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body || {})
@@ -30,7 +30,6 @@
 
   async function applySession(user) {
     if (!user) { clearSession(); return; }
-    if (root.MWEPlatform) { await root.MWEPlatform.refresh(user); return; }
     if ((localStorage.getItem("mwe.userEmail") || "").toLowerCase() !== (user.email || "").toLowerCase()) clearSession();
     if (!user.isCreator) localStorage.removeItem("mwe.creator.account.v1");
     localStorage.setItem("mwe.userLoggedIn", "true");
@@ -41,6 +40,17 @@
         "mwe.creator.account.v1",
         JSON.stringify({ id: user.id, name: user.name, email: user.email })
       );
+    }
+    if (root.MWEPlatform) {
+      root.MWEPlatform.session = user;
+      try {
+        await root.MWEPlatform.refresh(user);
+      } catch (error) {
+        // A successful authentication must survive a temporary catalog failure.
+        root.MWEPlatform.session = user;
+        root.MWEPlatform.error = error?.message || "Some account data is temporarily unavailable.";
+        root.dispatchEvent(new Event("mwe-platform-ready"));
+      }
     }
   }
 
@@ -97,6 +107,16 @@
     return result;
   }
 
+  async function updateProfile(profile) {
+    const result = await callApi("/api/auth/profile", profile, "PUT");
+    if (result.ok) await applySession(result.user);
+    return result;
+  }
+
+  async function changePassword(currentPassword, newPassword) {
+    return callApi("/api/auth/password", { currentPassword, newPassword }, "PUT");
+  }
+
   async function confirmMfa(challenge) {
     return new Promise(resolve => {
       const dialog=document.createElement('dialog');
@@ -113,5 +133,5 @@
     if (typeof root.updateHomepageAuthUI === "function") root.updateHomepageAuthUI();
   }); });
 
-  root.MWEAuth = { register, login, logout, session, creatorRegister, creatorUpgrade, applySession, clearSession };
+  root.MWEAuth = { register, login, logout, session, updateProfile, changePassword, creatorRegister, creatorUpgrade, applySession, clearSession };
 })(window);

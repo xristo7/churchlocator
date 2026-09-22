@@ -51,7 +51,6 @@ async function handleImageUpload(request, env) {
   if (!env.MEDIA) return mediaUnavailable();
   const user = await getSessionUser(request, env);
   if (!user) return unauthorized();
-  if (!user.is_creator && !await isOwner(env, user)) return json({ ok: false, error: "Creator account required." }, 403);
 
   const contentType = request.headers.get("content-type") || "";
   const declaredSize = Number(request.headers.get("content-length") || 0);
@@ -59,6 +58,9 @@ async function handleImageUpload(request, env) {
   if (Number.isFinite(declaredSize) && declaredSize > MAX_IMAGE_UPLOAD_BYTES + 128 * 1024) throw new ApiError(413, "Choose an image smaller than 5 MB.");
 
   const form = await request.formData();
+  const purpose = String(form.get("purpose") || "");
+  const profileUpload = purpose === "profile";
+  if (!profileUpload && !user.is_creator && !await isOwner(env, user)) return json({ ok: false, error: "Creator account required." }, 403);
   const image = form.get("image");
   if (!image || typeof image !== "object" || typeof image.arrayBuffer !== "function") throw new ApiError(400, "Choose an image from your device.");
   if (image.size < 1 || image.size > MAX_IMAGE_UPLOAD_BYTES) throw new ApiError(413, "Choose an image smaller than 5 MB.");
@@ -67,7 +69,7 @@ async function handleImageUpload(request, env) {
   const type = detectedImageType(bytes);
   if (!type || !imageTypes[type]) throw new ApiError(400, "Use a JPG, PNG, WebP, or GIF image.");
 
-  const key = `creator-media/${crypto.randomUUID()}.${imageTypes[type]}`;
+  const key = `${profileUpload ? "member-avatars" : "creator-media"}/${crypto.randomUUID()}.${imageTypes[type]}`;
   await env.MEDIA.put(key, bytes, {
     httpMetadata: {
       contentType: type,
@@ -81,7 +83,7 @@ async function handleMediaRequest(request, env) {
   if (!env.MEDIA) return new Response("Media storage unavailable", { status: 503, headers: securityHeaders });
   if (request.method !== "GET" && request.method !== "HEAD") return new Response("Method not allowed", { status: 405, headers: { allow: "GET, HEAD", ...securityHeaders } });
   const key = new URL(request.url).pathname.slice("/media/".length);
-  if (!/^creator-media\/[0-9a-f-]{36}\.(jpg|png|webp|gif)$/.test(key)) return new Response("Not found", { status: 404, headers: securityHeaders });
+  if (!/^(creator-media|member-avatars)\/[0-9a-f-]{36}\.(jpg|png|webp|gif)$/.test(key)) return new Response("Not found", { status: 404, headers: securityHeaders });
   const object = request.method === "HEAD" ? await env.MEDIA.head(key) : await env.MEDIA.get(key);
   if (!object) return new Response("Not found", { status: 404, headers: securityHeaders });
   const headers = new Headers({
@@ -254,9 +256,11 @@ function publicUser(row) {
     id: row.id,
     name: row.name,
     email: row.email,
+    avatarUrl: row.avatar_url || "",
     isCreator: Boolean(row.is_creator),
     emailVerified: Boolean(row.email_verified_at),
-    mfaEnabled: Boolean(row.totp_secret_encrypted)
+    mfaEnabled: Boolean(row.totp_secret_encrypted),
+    hasPassword: Boolean(row.password_hash && row.password_hash !== "authentication-disabled")
   };
 }
 
@@ -278,7 +282,7 @@ async function getSessionUser(request, env) {
   if (!token || !/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
 
   const row = await env.DB.prepare(`
-    select u.id, u.name, u.email, u.is_creator, s.expires_at, s.created_at as session_created_at,
+    select u.id, u.name, u.email, u.avatar_url, u.password_hash, u.password_salt, u.is_creator, s.expires_at, s.created_at as session_created_at,
       s.mfa_verified_at, u.email_verified_at, u.totp_secret_encrypted, u.totp_pending_encrypted, u.totp_last_step
     from sessions s
     join users u on u.id = s.user_id
@@ -324,7 +328,7 @@ async function registerUser(request, env) {
 
   const token = await createSession(env, id);
   return jsonWithCookie(
-    { ok: true, user: { id, name, email, isCreator } },
+    { ok: true, user: publicUser({ id, name, email, is_creator: Number(isCreator), password_hash: hash }) },
     201,
     sessionCookieHeader(request, token, SESSION_TTL_SECONDS)
   );
@@ -354,7 +358,7 @@ async function handleAuthLogin(request, env) {
   await throttleAccount(env, email);
 
   const row = await env.DB.prepare(`
-    select id, name, email, password_hash, password_salt, is_creator, email_verified_at, totp_secret_encrypted
+    select id, name, email, avatar_url, password_hash, password_salt, is_creator, email_verified_at, totp_secret_encrypted
     from users where email = ?
   `).bind(email).first();
 
@@ -401,6 +405,63 @@ async function handleAuthSession(request, env) {
   const user = await getSessionUser(request, env);
   if (!user) return json({ ok: true, user: null });
   return json({ ok: true, user: publicUser(user) });
+}
+
+function validAvatarUrl(value) {
+  if (!value) return true;
+  return /^\/media\/member-avatars\/[0-9a-f-]{36}\.(jpg|png|webp|gif)$/.test(value);
+}
+
+async function verifyUserPassword(user, password, env) {
+  if (!user?.password_hash || user.password_hash === "authentication-disabled") return false;
+  const modern = user.password_hash.startsWith(PASSWORD_PREFIX);
+  const versioned = user.password_hash.startsWith("pbkdf2-sha256$100000$");
+  const computed = modern
+    ? await modernPassword(password, user.password_salt)
+    : (versioned ? "pbkdf2-sha256$100000$" : "") + await hashPassword(password, user.password_salt);
+  return constantTimeEqual(computed, user.password_hash);
+}
+
+async function handleAuthProfileUpdate(request, env) {
+  if (!env.DB) return storageUnavailable();
+  const user = await getSessionUser(request, env);
+  if (!user) return unauthorized();
+  const payload = await readJson(request);
+  const name = String(payload?.name || "").trim();
+  const email = normalizeEmail(payload?.email);
+  const avatarUrl = String(payload?.avatarUrl || "");
+  if (!name || name.length > 200) return json({ ok: false, error: "Enter your full name." }, 400);
+  if (!isValidEmail(email)) return json({ ok: false, error: "Enter a valid email address." }, 400);
+  if (!validAvatarUrl(avatarUrl)) return json({ ok: false, error: "Choose a profile picture from your device." }, 400);
+
+  const emailChanged = email !== normalizeEmail(user.email);
+  if (emailChanged) {
+    if (user.password_hash === "authentication-disabled") return json({ ok: false, error: "Your email is managed by Google and cannot be changed here." }, 400);
+    const currentPassword = String(payload?.currentPassword || "");
+    if (!currentPassword || !(await verifyUserPassword(user, currentPassword, env))) return json({ ok: false, error: "Enter your current password to change your email." }, 401);
+    const existing = await env.DB.prepare("select id from users where email = ?").bind(email).first();
+    if (existing && existing.id !== user.id) return json({ ok: false, error: "That email is already in use." }, 409);
+  }
+
+  await env.DB.prepare("update users set name = ?, email = ?, avatar_url = ?, email_verified_at = case when email <> ? then null else email_verified_at end, updated_at = ? where id = ?")
+    .bind(name, email, avatarUrl || null, email, new Date().toISOString(), user.id).run();
+  return json({ ok: true, user: publicUser({ ...user, name, email, avatar_url: avatarUrl, email_verified_at: emailChanged ? null : user.email_verified_at }) });
+}
+
+async function handleAuthPasswordUpdate(request, env) {
+  if (!env.DB) return storageUnavailable();
+  const user = await getSessionUser(request, env);
+  if (!user) return unauthorized();
+  if (user.password_hash === "authentication-disabled") return json({ ok: false, error: "This account signs in with Google, so its password is managed there." }, 400);
+  const payload = await readJson(request);
+  const currentPassword = String(payload?.currentPassword || "");
+  const newPassword = String(payload?.newPassword || "");
+  if (!(await verifyUserPassword(user, currentPassword, env))) return json({ ok: false, error: "Your current password is incorrect." }, 401);
+  if (newPassword.length < 15 || newPassword.length > 128) return json({ ok: false, error: "Your new password must be between 15 and 128 characters." }, 400);
+  if (constantTimeEqual(currentPassword, newPassword)) return json({ ok: false, error: "Choose a new password that is different from your current password." }, 400);
+  const next = await hashNewPassword(newPassword, env);
+  await env.DB.prepare("update users set password_hash = ?, password_salt = ?, updated_at = ? where id = ?").bind(next.hash, next.salt, new Date().toISOString(), user.id).run();
+  return json({ ok: true, message: "Password updated." });
 }
 
 async function handleGoogleAuthStart(request, env) {
@@ -489,7 +550,7 @@ async function handleGoogleAuthCallback(request, env) {
   }
 
   let user = await env.DB.prepare(`
-    select id, name, email, password_hash, password_salt, is_creator, email_verified_at, totp_secret_encrypted
+    select id, name, email, avatar_url, password_hash, password_salt, is_creator, email_verified_at, totp_secret_encrypted
     from users where email = ?
   `).bind(email).first();
   const now = new Date().toISOString();
@@ -1164,6 +1225,8 @@ async function handleApi(request, env) {
     if (path === "/api/admin/churches") return await handleAdminChurches(request, env);
     if (path === "/api/events") return await handleEvents(request, env);
     if (path === "/api/auth/session" && request.method === "GET") return await handleAuthSession(request, env);
+    if (path === "/api/auth/profile" && request.method === "PUT") return await handleAuthProfileUpdate(request, env);
+    if (path === "/api/auth/password" && request.method === "PUT") return await handleAuthPasswordUpdate(request, env);
     if (path === "/api/services/bookings" && request.method === "GET") return await handleGetServiceBookings(request, env);
     if (path === "/api/media/upload" && request.method === "POST") return await handleImageUpload(request, env);
 

@@ -48,6 +48,22 @@ function createMockDb() {
               if (row) row.is_creator = 1;
               return { success: true };
             }
+            if (normalized.startsWith("update users set name =")) {
+              const [name, email, avatarUrl, , updatedAt, id] = args;
+              const row = usersById.get(id);
+              if (row) {
+                usersByEmail.delete(row.email);
+                Object.assign(row, { name, email, avatar_url: avatarUrl, updated_at: updatedAt });
+                usersByEmail.set(email, id);
+              }
+              return { success: true };
+            }
+            if (normalized.startsWith("update users set password_hash") && normalized.includes("updated_at")) {
+              const [password_hash, password_salt, updated_at, id] = args;
+              const row = usersById.get(id);
+              if (row) Object.assign(row, { password_hash, password_salt, updated_at });
+              return { success: true };
+            }
             if (normalized.startsWith("insert into sessions")) {
               const [token, userId, createdAt, expiresAt] = args;
               sessions.set(token, { user_id: userId, created_at: createdAt, expires_at: expiresAt });
@@ -64,7 +80,7 @@ function createMockDb() {
               const id = usersByEmail.get(args[0]);
               return id ? { id } : null;
             }
-            if (normalized.startsWith("select id, name, email, password_hash, password_salt, is_creator")) {
+            if (normalized.startsWith("select id, name, email,") && normalized.includes("from users where email")) {
               const id = usersByEmail.get(args[0]);
               return id ? usersById.get(id) : null;
             }
@@ -99,10 +115,14 @@ function extractSessionCookie(response) {
 }
 
 function postJson(path, body, cookie) {
+  return jsonRequest(path, body, cookie, "POST");
+}
+
+function jsonRequest(path, body, cookie, method) {
   const headers = { "content-type": "application/json" };
   if (cookie) headers.cookie = `mwe_session_v2=${cookie}`;
   return new Request(`https://example.test${path}`, {
-    method: "POST",
+    method,
     headers,
     body: JSON.stringify(body)
   });
@@ -224,6 +244,20 @@ test("creator upgrade requires a valid session and flips an existing member acco
   const upgradeBody = await upgrade.json();
   assert.equal(upgrade.status, 200);
   assert.equal(upgradeBody.user.isCreator, true);
+});
+
+test("members can save an initials-or-device-photo profile and update their password", async () => {
+  const env = baseEnv();
+  const register = await worker.fetch(postJson("/api/auth/register", { name: "Ada Lovelace", email: "ada@example.com", password: "correct-horse-battery" }), env);
+  const cookie = extractSessionCookie(register);
+  const profile = await worker.fetch(jsonRequest("/api/auth/profile", { name: "Ada Byron", email: "ada@example.com", avatarUrl: "/media/member-avatars/7f3d4e0e-2c63-47bb-b24f-88debe7f8d5c.jpg" }, cookie, "PUT"), env);
+  const profileBody = await profile.json();
+  assert.equal(profile.status, 200);
+  assert.equal(profileBody.user.name, "Ada Byron");
+  assert.equal(profileBody.user.avatarUrl.includes("member-avatars"), true);
+
+  const password = await worker.fetch(jsonRequest("/api/auth/password", { currentPassword: "correct-horse-battery", newPassword: "a-better-correct-horse-battery" }, cookie, "PUT"), env);
+  assert.equal(password.status, 200);
 });
 
 test("session cookies are hardened and stored only as hashes", async () => {

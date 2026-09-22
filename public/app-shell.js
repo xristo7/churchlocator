@@ -53,6 +53,7 @@
     "channel-detail": { source: "channel-detail.html", title: "Channel" },
     "channel-content": { source: "channel-content.html", title: "Channel Content" },
     messages: { source: "messages.html", title: "Messages" },
+    profile: { source: "account-profile.html", title: "Profile & Account" },
     events: { source: "events.html", title: "Events" },
     livestream: { source: "livestream.html", title: "Livestreams" },
     church: { source: "church-profile.html", title: "Church Profile" },
@@ -79,7 +80,7 @@
     livestream: ["Live", "radio"],
     store: ["Store", "shopping-bag"], product: ["Store", "shopping-bag"], cart: ["Store", "shopping-bag"], checkout: ["Store", "shopping-bag"], "store-manager": ["Store", "shopping-bag"],
     resources: ["Resources", "book-open"], "resource-detail": ["Resources", "book-open"], "resource-reader": ["Resources", "book-open"],
-    giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"],
+    giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"], profile: ["Profile", "user-round"],
     create: ["Create", "plus-circle"]
   };
 
@@ -104,7 +105,15 @@
   }
 
   function isAuthenticated() {
-    return localStorage.getItem("mwe.userLoggedIn") === "true";
+    return Boolean(window.MWEPlatform?.session) || localStorage.getItem("mwe.userLoggedIn") === "true";
+  }
+
+  function memberInitials(name) { return (String(name || "My Way").trim().split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join("") || "MW").toUpperCase(); }
+  function syncMemberIdentity() {
+    const session=window.MWEPlatform?.session, name=session?.name || localStorage.getItem("mwe.username") || "My Way member", role=session?.isCreator ? "Creator account" : "My Way member";
+    document.querySelectorAll("[data-member-name]").forEach(node=>node.textContent=name);
+    document.querySelectorAll("[data-member-role]").forEach(node=>node.textContent=role);
+    document.querySelectorAll("[data-member-avatar]").forEach(container=>{const avatar=container.querySelector("[data-member-avatar-image]"), fallback=container.querySelector("[data-member-avatar-initials]"); if(fallback)fallback.textContent=memberInitials(name); const reset=()=>{if(avatar){avatar.hidden=true;avatar.removeAttribute("src");}if(fallback)fallback.hidden=false;}; if(avatar&&session?.avatarUrl){avatar.onload=()=>{avatar.hidden=false;if(fallback)fallback.hidden=true;};avatar.onerror=reset;avatar.src=session.avatarUrl;}else reset();});
   }
 
   function getRoute() {
@@ -156,7 +165,7 @@
   }
 
   function isProtectedView(view) {
-    return ["messages", "store-manager", "cart", "checkout"].includes(view);
+    return ["messages", "profile", "store-manager", "cart", "checkout"].includes(view);
   }
 
   function loadRoute(route, options = {}) {
@@ -317,6 +326,7 @@
   window.addEventListener("message", event => {
     if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
     const message = event.data || {};
+    if (message.type === "mwe:profile-updated" && message.user) { window.MWEAuth?.applySession(message.user).then(syncMemberIdentity); return; }
     if (message.type === "faithlink:fullscreen" || message.type === "mwe-fullscreen") {
       document.body.classList.toggle("member-shell-fullscreen", !!message.fullscreen);
       return;
@@ -337,6 +347,8 @@
   window.addEventListener("DOMContentLoaded", placeResponsiveActions);
 
   placeResponsiveActions();
+  syncMemberIdentity();
+  window.addEventListener("mwe-platform-ready", syncMemberIdentity);
   loadRoute(getRoute(), { history: false });
   window.lucide?.createIcons();
 })();
