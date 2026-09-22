@@ -29,24 +29,69 @@
     return rows;
   }
 
+  function fulfillment() {
+    // A cart with only digital goods should never ask for a delivery choice.
+    const needsShipping = resolvedRows.some(({ product }) => product && product.kind !== "digital");
+    const deliveryType = needsShipping
+      ? (document.querySelector('input[name="deliveryType"]:checked')?.value || "ship")
+      : "digital";
+    const shippingMethod = document.querySelector('input[name="shipping"]:checked')?.value || "standard";
+    return { needsShipping, deliveryType, shippingMethod };
+  }
+
+  function setFieldState(container, enabled) {
+    container?.querySelectorAll("input, select, textarea").forEach(field => {
+      if (field.dataset.initialRequired == null) field.dataset.initialRequired = String(field.required);
+      field.disabled = !enabled;
+      field.required = enabled && field.dataset.initialRequired === "true";
+    });
+  }
+
+  function syncFulfillmentUi() {
+    const state = fulfillment();
+    const pickup = state.deliveryType === "pickup";
+    const deliverySection = document.getElementById("checkout-delivery-section");
+    const shippingFields = document.getElementById("shipping-fields");
+    const pickupFields = document.getElementById("pickup-fields");
+    const shippingMethodSection = document.getElementById("shipping-method-section");
+
+    if (deliverySection) {
+      deliverySection.hidden = !state.needsShipping;
+      deliverySection.setAttribute("aria-hidden", String(!state.needsShipping));
+    }
+    shippingFields.hidden = pickup || !state.needsShipping;
+    shippingFields.setAttribute("aria-hidden", String(pickup || !state.needsShipping));
+    pickupFields.hidden = !pickup;
+    pickupFields.setAttribute("aria-hidden", String(!pickup));
+    shippingMethodSection.hidden = pickup || !state.needsShipping;
+    shippingMethodSection.setAttribute("aria-hidden", String(pickup || !state.needsShipping));
+    setFieldState(shippingFields, state.needsShipping && !pickup);
+    setFieldState(pickupFields, pickup);
+    document.querySelectorAll('input[name="deliveryType"]').forEach(input => { input.disabled = !state.needsShipping; });
+    document.querySelectorAll('input[name="shipping"]').forEach(input => { input.disabled = pickup || !state.needsShipping; });
+    return state;
+  }
+
   function calculate() {
     const rows = resolvedRows;
     const subtotal = rows.reduce((sum, item) => sum + item.quantity * item.product.price, 0);
-    const shippingMethod = document.querySelector('input[name="shipping"]:checked')?.value || "standard";
-    const deliveryType = document.querySelector('input[name="deliveryType"]:checked')?.value || "ship";
-    const shipping = deliveryType === "pickup" ? 0 : shippingMethod === "express" ? 18 : 8;
+    const state = fulfillment();
+    const shipping = state.deliveryType === "ship" ? (state.shippingMethod === "express" ? 18 : 8) : 0;
     const discount = localStorage.getItem(discountKey) === "FAITH10" ? subtotal * .1 : 0;
     const tax = Math.max(0, subtotal - discount) * .05;
-    currentTotals = { subtotal, shipping, discount, tax, total: subtotal - discount + shipping + tax };
+    currentTotals = { subtotal, shipping, discount, tax, total: subtotal - discount + shipping + tax, fulfillment: state.deliveryType };
     return rows;
   }
 
   function render() {
+    const state = syncFulfillmentUi();
     const rows = calculate();
     const count = rows.reduce((sum, item) => sum + item.quantity, 0);
     document.getElementById("checkout-header-count").textContent = count;
     document.getElementById("checkout-order-items").innerHTML = rows.map(item => `<article class="checkout-order-item"><div><img src="${data().escapeHtml(productImage(item.product))}" alt="" /><span>${item.quantity}</span></div><p><strong>${data().escapeHtml(item.product.title)}</strong><small>${data().escapeHtml(item.product.seller)}</small></p><b>${data().money(item.product.price * item.quantity)}</b></article>`).join("");
     document.getElementById("checkout-subtotal").textContent = data().money(currentTotals.subtotal);
+    const fulfillmentLabel = document.getElementById("checkout-fulfillment-label");
+    if (fulfillmentLabel) fulfillmentLabel.textContent = state.deliveryType === "pickup" ? "Pickup" : state.deliveryType === "digital" ? "Digital delivery" : "Shipping";
     document.getElementById("checkout-shipping").textContent = currentTotals.shipping ? data().money(currentTotals.shipping) : "Free";
     document.getElementById("checkout-tax").textContent = data().money(currentTotals.tax);
     document.getElementById("checkout-discount-row").hidden = !currentTotals.discount;
@@ -54,6 +99,8 @@
     document.getElementById("checkout-total").textContent = data().money(currentTotals.total);
     document.getElementById("checkout-pay-total").textContent = data().money(currentTotals.total);
     document.getElementById("mobile-order-total").textContent = data().money(currentTotals.total);
+    const currency = rows[0]?.product?.currency || "USD";
+    document.getElementById("checkout-currency").textContent = currency;
   }
 
   function showGuestNote() {
@@ -126,15 +173,7 @@
     }
     showGuestNote();
 
-    document.querySelectorAll(".accelerated-checkout .accelerated").forEach(button => button.addEventListener("click", () => {
-      const message = document.getElementById("checkout-form-error");
-      message.textContent = "Express wallets need a payment provider. Use Place sandbox order below for a pending demo order.";
-      document.querySelector('#checkout-form input[name="email"]')?.focus();
-    }));
     document.querySelectorAll('input[name="shipping"],input[name="deliveryType"]').forEach(input => input.addEventListener("change", () => {
-      const pickup = document.querySelector('input[name="deliveryType"]:checked')?.value === "pickup";
-      document.getElementById("shipping-fields").classList.toggle("checkout-fields-disabled", pickup);
-      document.getElementById("shipping-fields").querySelectorAll("[required]").forEach(field => field.required = !pickup);
       render();
     }));
     document.getElementById("checkout-apply-discount")?.addEventListener("click", () => {
@@ -152,7 +191,13 @@
       errorEl.textContent = "";
       if (!form.reportValidity()) return;
       const fd = new FormData(form);
-      const buyerName = `${fd.get("firstName") || ""} ${fd.get("lastName") || ""}`.trim() || String(fd.get("email") || "");
+      const state = fulfillment();
+      const buyerName = String(fd.get("pickupName") || "").trim() || `${fd.get("firstName") || ""} ${fd.get("lastName") || ""}`.trim() || String(fd.get("email") || "");
+      const fulfillmentNotes = state.deliveryType === "pickup"
+        ? "delivery=pickup; shipping=not_applicable"
+        : state.deliveryType === "digital"
+          ? "delivery=digital; shipping=not_applicable"
+          : `delivery=ship; shipping=${state.shippingMethod}`;
       payButton && (payButton.disabled = true);
       try {
         const result = await data().placeOrder({
@@ -160,9 +205,9 @@
           buyerName,
           buyerEmail: String(fd.get("email") || "").trim(),
           email: String(fd.get("email") || "").trim(),
-          notes: `delivery=${fd.get("deliveryType") || "ship"}; shipping=${fd.get("shipping") || "standard"}`,
-          shipping: fd.get("shipping"),
-          deliveryType: fd.get("deliveryType"),
+          notes: fulfillmentNotes,
+          shipping: state.deliveryType === "ship" ? state.shippingMethod : null,
+          deliveryType: state.deliveryType,
           totals: { ...currentTotals }
         });
         showSuccess(result);

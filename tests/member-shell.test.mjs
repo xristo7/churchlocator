@@ -101,6 +101,8 @@ test("Store has dedicated cart and Shopify-style checkout routes", async () => {
   assert.match(cart, /data-page="cart"/);
   assert.match(checkout, /Contact/);
   assert.match(checkout, /Shipping method/);
+  assert.match(checkout, /id="shipping-method-section"/);
+  assert.match(checkout, /id="pickup-fields"/);
   assert.match(checkout, /Payment/);
   assert.match(checkoutScript, /placeOrder/);
   assert.match(checkoutScript, /MWEStore/);
@@ -135,12 +137,25 @@ test("dedicated livestream pages use a two-to-one player and chat layout", async
   assert.match(styles, /@media \(max-width: 900px\)[\s\S]*\.broadcast-watch-layout \{ grid-template-columns:minmax\(0,1fr\)/);
 });
 
-test("checkout login and express payment controls have working destinations", async () => {
+test("checkout makes the sandbox state explicit and does not offer unavailable express wallets", async () => {
   const checkout = await readProjectFile("public/checkout.html");
   const checkoutJs = await readProjectFile("public/checkout.js");
   assert.match(checkout, /href="app\.html\?view=checkout" target="_top">Log in/);
-  assert.match(checkoutJs, /\.accelerated-checkout \.accelerated/);
+  assert.match(checkout, /Express checkout is unavailable in this sandbox/);
+  assert.match(checkout, /class="accelerated shop" disabled/);
   assert.match(checkoutJs, /Place sandbox order/);
+});
+
+test("checkout removes shipping requirements and totals whenever pickup or digital delivery applies", async () => {
+  const checkout = await readProjectFile("public/checkout.html");
+  const checkoutJs = await readProjectFile("public/checkout.js");
+  assert.match(checkout, /id="checkout-delivery-section"/);
+  assert.match(checkout, /id="shipping-method-section"/);
+  assert.match(checkout, /id="pickup-fields"/);
+  assert.match(checkoutJs, /shippingMethodSection\.hidden = pickup \|\| !state\.needsShipping/);
+  assert.match(checkoutJs, /setFieldState\(shippingFields, state\.needsShipping && !pickup\)/);
+  assert.match(checkoutJs, /delivery=pickup; shipping=not_applicable/);
+  assert.match(checkoutJs, /delivery=digital; shipping=not_applicable/);
 });
 
 test("Channels use creator profile cards and connect to member messaging", async () => {
