@@ -55,7 +55,7 @@
   modules.events.groups = () => eventGroups().map(g => ({ ...g, fields: g.fields.map(field => field.key === "churchId" ? { ...field, required: false, options: [["", "Independent event / my account"], ...root.MWE.getChurches().map(c => [c.id, c.name])] } : field) }));
   modules.events.owner = r => root.MWE.getChurches().find(c => c.id === r.churchId)?.name || r.ownerName || "Independent event";
   const resourceGroups = modules.resources.groups;
-  modules.resources.groups = () => resourceGroups().concat({ title: "04 · Resource material", fields: [f("sourceUrl", "Material URL", "url", false, null, "Link to the actual PDF, EPUB, audio or video. Existing uploaded attachments are preserved.")] });
+  modules.resources.groups = () => resourceGroups();
   const resourceSave = modules.resources.save;
   modules.resources.save = (r, v) => {
     if (!r.title && !v.sourceUrl) throw new Error("Add a link to the resource material.");

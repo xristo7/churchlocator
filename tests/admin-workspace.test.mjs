@@ -115,6 +115,69 @@ test("paid resources require a positive price and compatible file format", async
   assert.throws(() => mod.save({ id: "new-resource" }, { ...values, sourceUrl: "" }), /resource material/);
 });
 
+test("creator model captures public detail fields for rooms, services, channels and resources", async () => {
+  const { MWEAdmin } = await setup();
+  const fieldKeys = key => new Set(MWEAdmin.modules[key].groups().flatMap(group => group.fields).map(field => field.key));
+  for (const key of ["template", "purpose", "mode", "themeColor", "timeMode", "durationMinutes", "autoPlayInterval", "allowUserNavigation", "inhaleWord", "exhaleWord"]) {
+    assert.ok(fieldKeys("meditation").has(key), "meditation captures " + key);
+  }
+  for (const key of ["itemType", "serviceType", "pricingUnit", "audioSample", "requirements", "guidelines", "turnaround", "deliverablesText", "amenitiesText", "tiersText"]) {
+    assert.ok(fieldKeys("products").has(key), "products capture " + key);
+  }
+  assert.ok(fieldKeys("channels").has("postsText"), "channels capture latest posts");
+  for (const key of ["sourceUrl", "mediaUrl", "pagesText"]) {
+    assert.ok(fieldKeys("resources").has(key), "resources capture " + key);
+  }
+});
+
+test("service products persist package and public service detail fields", async () => {
+  const { MWEAdmin, FaithLinkModules } = await setup();
+  const saved = MWEAdmin.modules.products.save({ id: "service-test" }, {
+    title: "Workshop Worship Team",
+    seller: "Creator Studio",
+    sellerType: "Channel",
+    itemType: "service",
+    serviceType: "singing",
+    category: "Worship & Music",
+    description: "Book a worship team.",
+    price: 200,
+    compareAt: 250,
+    pricingUnit: "per session",
+    inventory: 12,
+    status: "Active",
+    featured: true,
+    image: "https://example.test/worship.jpg",
+    audioSample: "https://example.test/sample.mp3",
+    audioTitle: "Sample",
+    requirements: "Indoor venue",
+    guidelines: "",
+    turnaround: "48 hours",
+    deliverablesText: "Setlist consultation\nLive worship leading",
+    amenitiesText: "",
+    tiersText: "Solo worship leader | 200 | 2 hours | Acoustic guitar; Soundcheck"
+  });
+  assert.equal(saved.itemType, "service");
+  assert.equal(saved.pricingUnit, "per session");
+  assert.deepEqual(Array.from(saved.deliverables), ["Setlist consultation", "Live worship leading"]);
+  assert.equal(saved.tiers[0].name, "Solo worship leader");
+  assert.equal(saved.tiers[0].price, 200);
+  assert.equal(FaithLinkModules.getItemById("service-test").tiers.length, 1);
+  assert.throws(() => MWEAdmin.modules.products.save({ id: "bad-service" }, { ...saved, tiersText: "", itemType: "service" }), /at least one package/);
+});
+
+test("channel and resource detail pages no longer hardcode dummy public content", async () => {
+  const channelDetail = await read("channel-detail.js");
+  const resourceDetail = await read("resource-detail.js");
+  assert.doesNotMatch(channelDetail, /A new beginning in faith|How to stay grounded in Scripture|Prayer, purpose, and everyday life/);
+  assert.match(channelDetail, /currentChannel\.posts/);
+  assert.match(channelDetail, /No posts published yet/);
+  assert.doesNotMatch(resourceDetail, /https:\/\/www\.youtube\.com\/embed\/jiSyB8QZzk8/);
+  assert.doesNotMatch(resourceDetail, /https:\/\/www\.soundhelix\.com\/examples\/mp3\/SoundHelix-Song-1\.mp3/);
+  assert.match(resourceDetail, /resource\.createdBy \? \[\] : \[resource\.description\]/);
+  assert.match(resourceDetail, /Video unavailable/);
+  assert.match(resourceDetail, /Audio unavailable/);
+});
+
 test("tenant cannot see sample records or edit another account's record", async () => {
   const { MWEAdmin, MWE } = await setup(true);
   assert.equal(MWEAdmin.modules.churches.get().length, 0);
@@ -231,6 +294,30 @@ test("creator workspace accepts only the matching public account session", async
   assert.match(source, /document\.body\.classList\.toggle\("is-authenticated", hasMatchingSession\)/);
   assert.match(source, /localStorage\.removeItem\("mwe\.session\.church\.v1"\)/);
   assert.doesNotMatch(source, /password[^\n]*localStorage\.setItem/);
+});
+
+test("creator workspace has a unified dashboard for registrations and model activity", async () => {
+  const source = await read("admin-workspace.js");
+  const styles = await read("admin-workspace.css");
+
+  assert.match(source, /function creatorEngagementDashboard\(\)/);
+  assert.match(source, /mwe\.event_registrations/);
+  assert.match(source, /faithlink\.store\.orders\.v1/);
+  assert.match(source, /mwe\.meditation\.reflections\./);
+  for (const tab of ["events", "store", "channels", "meditation", "resources", "churches"]) {
+    assert.match(source, new RegExp(`tab\\("${tab}"`));
+    assert.match(source, new RegExp(`table\\("${tab}"`));
+  }
+  assert.match(source, /data-creator-dashboard-panel=/);
+  assert.match(source, /Event attendees/);
+  assert.match(source, /Store orders/);
+  assert.match(source, /Channel followers/);
+  assert.match(source, /Room reflections/);
+  assert.match(source, /data-creator-dashboard-tab/);
+  assert.match(source, /classList\.toggle\("is-active"/);
+  assert.match(styles, /\.admin-workspace \.aw-tabs/);
+  assert.match(styles, /\.admin-workspace \.aw-tab-panel\s*\{\s*display:none/);
+  assert.match(styles, /\.admin-workspace \.aw-tab-panel\.is-active\s*\{\s*display:block/);
 });
 
 test("dropdowns and live popup modals have elevated stacking context to prevent obstruction", async () => {

@@ -43,12 +43,13 @@
       preview: r => "meditation.html?room=" + encodeURIComponent(r.id),
       groups: () => [
         group("01 · Room details", [field("title", "Room title", "text", true), field("category", "Collection", "select", true, [["featured", "Featured"], ["bible-books", "Bible books"], ["themes", "Scriptural themes"]]), field("subtitle", "Introduction", "textarea", true)]),
-        group("02 · Atmosphere & audio", [field("cover", "Background image URL", "url", true), field("theme", "Atmosphere", "select", true, ["chapel", "stream", "stars", "forest", "mountains"]), field("toneFreq", "Ambient tone (Hz)", "number", true, null, "Synthesized ambient tone; this is not an audio file upload."), field("selectedAudio", "Background audio track", "select", false, [["bible", "Dramatized Audio Bible"], ["instrumental", "Soaking Instrumental (432Hz)"], ["worship", "Christian Worship"], ["sermon", "Sermons & Preaching"], ["silence", "Silence / Ambience Only"]])]),
+        group("02 · Atmosphere & audio", [field("cover", "Background image URL", "url", true), field("theme", "Atmosphere", "select", true, ["chapel", "stream", "stars", "forest", "mountains"]), field("template", "Room experience", "select", true, [["timer", "Stillness timer"], ["ripple", "Healing ripple"], ["journey", "Guided journey"], ["nature", "Nature teaching"], ["sunburst", "Victory sunburst"]]), field("purpose", "Room purpose", "select", true, [["prayer", "Prayer"], ["peace", "Peace"], ["healing", "Healing"], ["scripture", "Scripture"], ["worship", "Worship"], ["joy", "Joy"]]), field("mode", "Preferred room mode", "select", true, [["light", "Light"], ["dark", "Dark"]]), field("themeColor", "Theme color", "color", false), field("toneFreq", "Ambient tone (Hz)", "number", true, null, "Synthesized ambient tone; this is not an audio file upload."), field("selectedAudio", "Background audio track", "select", false, [["bible", "Dramatized Audio Bible"], ["instrumental", "Soaking Instrumental (432Hz)"], ["worship", "Christian Worship"], ["sermon", "Sermons & Preaching"], ["silence", "Silence / Ambience Only"]])]),
         group("03 · Scripture", [field("scriptures", "Room scriptures", "textarea", true, null, "One per line: Topic | Scripture text | Reference. Existing audio track definitions are preserved.")]),
-        group("04 · Fellowship & live chat", [field("commentsEnabled", "Enable live comments", "select", false, yesNo, "Allow participants to share comments and prayer notes in the room.")])
+        group("04 · Prayer flow", [field("timeMode", "Session timing", "select", true, [["timed", "Timed"], ["teaching", "Teaching"], ["loop", "Endless loop"]]), field("durationMinutes", "Session duration minutes", "number", true), field("autoPlayInterval", "Auto-advance seconds", "number", true), field("allowUserNavigation", "Allow participant navigation", "select", false, yesNo), field("inhaleWord", "Breathing guide inhale word"), field("exhaleWord", "Breathing guide exhale word")]),
+        group("05 · Fellowship & live chat", [field("commentsEnabled", "Enable live comments", "select", false, yesNo, "Allow participants to share comments and prayer notes in the room.")])
       ],
-      flatten: r => ({ ...r, selectedAudio: r.selectedAudio || "bible", commentsEnabled: String(!!r.commentsEnabled), scriptures: (r.verses || []).map(v => [v.topic, v.text, v.ref].join(" | ")).join("\n") }),
-      defaults: () => ({ category: "featured", theme: "chapel", toneFreq: 432, selectedAudio: "bible", commentsEnabled: false }),
+      flatten: r => ({ ...r, selectedAudio: r.selectedAudio || "bible", commentsEnabled: String(!!r.commentsEnabled), allowUserNavigation: String(r.allowUserNavigation !== false), scriptures: (r.verses || []).map(v => [v.topic, v.text, v.ref].join(" | ")).join("\n") }),
+      defaults: () => ({ category: "featured", theme: "chapel", template: "timer", purpose: "prayer", mode: "light", themeColor: "#3b82f6", toneFreq: 432, selectedAudio: "bible", timeMode: "timed", durationMinutes: 20, autoPlayInterval: 300, allowUserNavigation: true, inhaleWord: "Jesus", exhaleWord: "Give Me Peace", commentsEnabled: false }),
       save(r, v) {
         const { scriptures, ...values } = v;
         const verses = scriptures.split("\n").filter(x => x.trim()).map(line => {
@@ -58,10 +59,13 @@
         });
         if (!verses.length) throw new Error("Add at least one scripture.");
         if (v.toneFreq < 20 || v.toneFreq > 2000) throw new Error("Use an ambient tone between 20 and 2,000 Hz.");
+        if (v.durationMinutes < 1 || v.durationMinutes > 240) throw new Error("Use a room duration between 1 and 240 minutes.");
+        if (v.autoPlayInterval < 0 || v.autoPlayInterval > 3600) throw new Error("Use an auto-advance interval between 0 and 3,600 seconds.");
         const audioTracks = r.audioTracks || Object.fromEntries(["bible", "instrumental", "worship", "sermon"].map(key => [key, { title: "Ambient reflection", cat: "Synthesized tone", freq: v.toneFreq }]));
         const selectedAudio = v.selectedAudio || r.selectedAudio || "bible";
         const commentsEnabled = typeof v.commentsEnabled === "boolean" ? v.commentsEnabled : (r.commentsEnabled ?? false);
-        const saved = { ...r, ...values, selectedAudio, commentsEnabled, verses, audioTracks, icon: r.icon || "book-open", categoryLabel: { featured: "Featured room", "bible-books": "Bible book", themes: "Scriptural theme" }[v.category] };
+        const allowUserNavigation = typeof v.allowUserNavigation === "boolean" ? v.allowUserNavigation : true;
+        const saved = { ...r, ...values, selectedAudio, commentsEnabled, allowUserNavigation, verses, audioTracks, icon: r.icon || "book-open", categoryLabel: { featured: "Featured room", "bible-books": "Bible book", themes: "Scriptural theme" }[v.category] };
         replace(root.MWEMeditation.getRooms(), saved, root.MWEMeditation.saveRooms);
         return saved;
       }
@@ -95,12 +99,26 @@
       detail: r => root.FaithLinkModules.money(r.price) + " · " + r.inventory + " in stock", category: r => r.category,
       status: r => r.status || "Draft", statuses: ["Active", "Draft", "Archived"], preview: r => "product-detail.html?id=" + encodeURIComponent(r.id),
       groups: () => [
-        group("01 · Product & seller", [field("title", "Product title", "text", true), field("seller", "Seller name", "text", true), field("sellerType", "Seller type", "select", true, ["Church", "Channel"]), field("category", "Category", "select", true, platformOptions("product_categories")), field("description", "Description", "textarea", true)]),
-        group("02 · Pricing & inventory", [field("price", "Price (CAD)", "number", true), field("compareAt", "Compare-at price (CAD)", "number"), field("inventory", "Stock quantity", "number", true)]),
-        group("03 · Visibility & media", [field("status", "Store visibility", "select", true, ["Draft", "Active", "Archived"]), field("featured", "Featured product", "select", false, yesNo), field("image", "Product image URL", "url", true)])
+        group("01 · Product & seller", [field("title", "Product title", "text", true), field("seller", "Seller name", "text", true), field("sellerType", "Seller type", "select", true, ["Church", "Channel"]), field("itemType", "Listing type", "select", true, [["product", "Physical product"], ["service", "Bookable service"]]), field("serviceType", "Service type"), field("category", "Category", "select", true, platformOptions("product_categories")), field("description", "Description", "textarea", true)]),
+        group("02 · Pricing & inventory", [field("price", "Price (CAD)", "number", true), field("compareAt", "Compare-at price (CAD)", "number"), field("pricingUnit", "Pricing unit"), field("inventory", "Stock / booking slots", "number", true)]),
+        group("03 · Service details", [field("capacity", "Capacity / specs"), field("audioSample", "Audio sample URL", "url"), field("audioTitle", "Audio sample title"), field("requirements", "Booking requirements", "textarea"), field("guidelines", "Facility guidelines", "textarea"), field("turnaround", "Turnaround time", "textarea"), field("deliverablesText", "Deliverables", "textarea", false, null, "One deliverable per line."), field("amenitiesText", "Amenities", "textarea", false, null, "One amenity per line."), field("tiersText", "Packages", "textarea", false, null, "One package per line: Name | Price | Duration | Highlight; Highlight")]),
+        group("04 · Visibility & media", [field("status", "Store visibility", "select", true, ["Draft", "Active", "Archived"]), field("featured", "Featured product", "select", false, yesNo), field("image", "Product image URL", "url", true)])
       ],
-      defaults: () => ({ status: "Draft", sellerType: "Church", category: platformOptions("product_categories")[0] || "", price: 0, compareAt: 0, inventory: 0, featured: false }),
-      save: (r, v) => root.FaithLinkModules.upsertProduct({ ...r, ...v })
+      flatten: r => ({ ...r, itemType: r.itemType || "product", deliverablesText: (r.deliverables || []).join("\n"), amenitiesText: (r.amenities || []).join("\n"), tiersText: (r.tiers || []).map(t => [t.name, t.price, t.duration, (t.highlights || []).join("; ")].join(" | ")).join("\n") }),
+      defaults: () => ({ status: "Draft", sellerType: "Church", itemType: "product", category: platformOptions("product_categories")[0] || "", price: 0, compareAt: 0, pricingUnit: "", inventory: 0, featured: false }),
+      save(r, v) {
+        const lines = value => String(value || "").split("\n").map(x => x.trim()).filter(Boolean);
+        const tiers = lines(v.tiersText).map((line, index) => {
+          const parts = line.split("|").map(x => x.trim());
+          if (parts.length < 3 || parts.some((part, i) => i < 3 && !part)) throw new Error("Each package needs a name, price and duration separated by |.");
+          const price = Number(parts[1]);
+          if (!Number.isFinite(price) || price < 0) throw new Error("Package prices must be zero or greater.");
+          return { id: "tier-" + (index + 1), name: parts[0], price, duration: parts[2], highlights: (parts[3] || "").split(";").map(x => x.trim()).filter(Boolean) };
+        });
+        const { deliverablesText, amenitiesText, tiersText, ...values } = v;
+        if (values.itemType === "service" && !tiers.length) throw new Error("Bookable services need at least one package.");
+        return root.FaithLinkModules.upsertProduct({ ...r, ...values, itemType: values.itemType || "product", deliverables: lines(deliverablesText), amenities: lines(amenitiesText), tiers });
+      }
     },
     channels: {
       label: "Channels", singular: "channel", icon: "radio-tower", noun: "channels",
@@ -112,13 +130,22 @@
       groups: () => [
         group("01 · Channel & creator", [field("name", "Channel name", "text", true), field("owner", "Creator / owner", "text", true), field("handle", "Channel handle", "text", true), field("topic", "Topic", "select", true, platformOptions("channel_topics")), field("description", "Description", "textarea", true)]),
         group("02 · Format & media", [field("format", "Primary format", "select", true, ["Podcast", "Video", "Livestream"]), field("cover", "Cover image URL", "url", true), field("avatar", "Avatar URL", "url")]),
-        group("03 · Verification", [field("verified", "Creator verified", "select", false, yesNo), field("live", "Currently live", "select", false, yesNo)])
+        group("03 · Channel content", [field("postsText", "Latest posts", "textarea", false, null, "One post per line: Title | Summary | Content URL")]),
+        group("04 · Verification", [field("verified", "Creator verified", "select", false, yesNo), field("live", "Currently live", "select", false, yesNo)])
       ],
+      flatten: r => ({ ...r, postsText: (r.posts || []).map(post => [post.title, post.summary, post.url].filter(Boolean).join(" | ")).join("\n") }),
       defaults: () => ({ topic: platformOptions("channel_topics")[0] || "", format: "Podcast", verified: false, live: false }),
       save(r, v) {
         if (!/^@[a-zA-Z0-9_.-]+$/.test(v.handle)) throw new Error("Use a handle starting with @, followed by letters, numbers, dots, underscores or hyphens.");
         if (root.FaithLinkModules.getChannels().some(c => c.id !== r.id && c.handle.toLowerCase() === v.handle.toLowerCase())) throw new Error("That channel handle is already in use.");
-        const saved = { followers: 0, items: 0, ...r, ...v };
+        const posts = String(v.postsText || "").split("\n").map(line => line.trim()).filter(Boolean).map(line => {
+          const [title, summary, url] = line.split("|").map(x => x.trim());
+          if (!title || !summary) throw new Error("Each channel post needs a title and summary separated by |.");
+          if (url && !/^https?:\/\//i.test(url) && !/^[\w.-]+\.html(?:[?#].*)?$/i.test(url)) throw new Error("Channel post URLs must be http(s) or a local page.");
+          return { title, summary, url };
+        });
+        const { postsText, ...values } = v;
+        const saved = { followers: 0, items: posts.length || Number(r.items || 0), ...r, ...values, posts };
         replace(root.FaithLinkModules.getChannels(), saved, root.FaithLinkModules.saveChannels);
         return saved;
       }
@@ -131,14 +158,20 @@
       status: r => r.access, statuses: ["Free", "Paid"], preview: r => "resource-detail.html?id=" + encodeURIComponent(r.id),
       groups: () => [
         group("01 · Resource & creator", [field("title", "Resource title", "text", true), field("creator", "Creator", "text", true), field("topic", "Topic", "select", true, platformOptions("resource_topics")), field("description", "Description", "textarea", true)]),
-        group("02 · Format & media", [field("type", "Content type", "select", true, ["Text", "Audio", "Video"]), field("format", "File format", "select", true, ["PDF", "EPUB", "MP3", "MP4"]), field("duration", "Length / duration", "text", true), field("image", "Cover image URL", "url", true)]),
-        group("03 · Access & pricing", [field("access", "Access", "select", true, ["Free", "Paid"]), field("price", "Price (CAD)", "number", true)])
+        group("02 · Format & media", [field("type", "Content type", "select", true, ["Text", "Audio", "Video"]), field("format", "File format", "select", true, ["Article", "PDF", "DOC", "EPUB", "TXT", "MP3", "AAC", "MP4", "FLV"]), field("duration", "Length / duration", "text", true), field("image", "Cover image URL", "url", true), field("sourceUrl", "Material URL", "url", false, null, "Link to the actual PDF, EPUB, audio or video."), field("mediaUrl", "Playable media URL", "url", false, null, "Direct audio/video file or embeddable video URL.")]),
+        group("03 · Content", [field("pagesText", "Article / reader pages", "textarea", false, null, "Use ---page--- on its own line to begin a new page.")]),
+        group("04 · Access & pricing", [field("access", "Access", "select", true, ["Free", "Paid"]), field("price", "Price (CAD)", "number", true)])
       ],
+      flatten: r => ({ ...r, pagesText: (r.pages || []).join("\n\n---page---\n\n") }),
       defaults: () => ({ type: "Text", format: "PDF", topic: platformOptions("resource_topics")[0] || "", access: "Free", price: 0 }),
       save(r, v) {
         if (v.access === "Paid" && v.price <= 0) throw new Error("Paid resources need a price above zero.");
-        if (!({ Text: ["PDF", "EPUB"], Audio: ["MP3"], Video: ["MP4"] }[v.type] || []).includes(v.format)) throw new Error("Choose a file format that matches the content type.");
-        const saved = { rating: 0, ...r, ...v, price: v.access === "Free" ? 0 : v.price };
+        if (!({ Text: ["Article", "PDF", "DOC", "EPUB", "TXT"], Audio: ["MP3", "AAC"], Video: ["MP4", "FLV"] }[v.type] || []).includes(v.format)) throw new Error("Choose a file format that matches the content type.");
+        const pages = String(v.pagesText || "").split(/\n\s*---page---\s*\n/i).map(page => page.trim()).filter(Boolean);
+        if (v.type === "Text" && !pages.length && !v.sourceUrl && !r.attachmentData) throw new Error("Text resources need reader pages or a material URL.");
+        if (["Audio", "Video"].includes(v.type) && !v.mediaUrl && !v.sourceUrl && !r.attachmentData) throw new Error(v.type + " resources need a playable media URL or material URL.");
+        const { pagesText, ...values } = v;
+        const saved = { rating: 0, ...r, ...values, pages, price: v.access === "Free" ? 0 : v.price };
         replace(root.FaithLinkModules.getResources(), saved, root.FaithLinkModules.saveResources);
         return saved;
       }
