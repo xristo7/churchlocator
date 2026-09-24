@@ -5610,8 +5610,8 @@ function initCreatorContentActions() {
           view: target.searchParams.get("view") || "create",
           kind: target.searchParams.get("kind") || ""
         };
-        if (window.parent !== window) {
-          window.parent.postMessage({ type: "myway:navigate", ...route }, window.location.origin);
+        if (MWE.isMemberShellEmbed()) {
+          window.top.postMessage({ type: "myway:navigate", ...route }, window.location.origin);
         } else {
           window.location.href = target.href;
         }
