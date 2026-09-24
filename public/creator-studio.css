@@ -4,7 +4,7 @@
 .creator-studio-loading { min-height:62vh; display:grid; place-content:center; gap:14px; text-align:center; color:var(--cs-muted); font-weight:700; }
 .creator-studio-loading span { width:34px; height:34px; margin:auto; border:3px solid #d8e4ff; border-top-color:var(--cs-indigo); border-radius:50%; animation:cs-spin .8s linear infinite; }
 @keyframes cs-spin { to { transform:rotate(360deg); } }
-.creator-studio { max-width:1240px; margin:0 auto; padding:clamp(20px,4vw,54px) clamp(16px,3vw,38px) 70px; }
+.creator-studio { width:100%; margin:0; padding:24px 38px 70px; }
 .cs-hero { display:flex; justify-content:space-between; gap:28px; padding:clamp(25px,4vw,44px); border-radius:28px; color:white; background:radial-gradient(circle at 84% 18%,rgba(110,163,255,.5),transparent 32%),linear-gradient(125deg,#142451,#273d9c 58%,#4f46e5); box-shadow:0 20px 45px rgba(29,54,137,.19); }
 .cs-hero h1 { margin:8px 0 10px; max-width:670px; font-size:clamp(2rem,4vw,3.4rem); line-height:1.02; letter-spacing:-.055em; color:white; }
 .cs-hero p { max-width:650px; margin:0; color:#dde7ff; font-size:1.05rem; line-height:1.6; }
