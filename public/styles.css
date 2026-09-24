@@ -20918,6 +20918,18 @@ html[data-theme="dark"] .template-choice-card {
   gap: clamp(28px, 5vw, 72px);
 }
 
+.sanctuary-dialog.create-room-page {
+  position:static !important;
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  border-radius:0 !important;
+  animation:none !important;
+}
+.sanctuary-dialog.create-room-page::backdrop { display:none !important; }
+.create-room-page .dialog-close-btn { display:none !important; }
+
 .module-directory-hero .module-hero-copy { min-width: 0; }
 
 .module-directory-hero .section-head,

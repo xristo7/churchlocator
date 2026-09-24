@@ -2355,6 +2355,11 @@
       createModal?.showModal?.();
       window.lucide?.createIcons();
     });
+    if (new URLSearchParams(window.location.search).get("create") === "1" && createModal) {
+      createModal.classList.add("create-room-page");
+      createModal.showModal?.();
+      window.lucide?.createIcons();
+    }
     document.getElementById("btn-close-create-room")?.addEventListener("click", () => createModal?.close?.());
     document.getElementById("btn-cancel-create-room")?.addEventListener("click", () => createModal?.close?.());
 

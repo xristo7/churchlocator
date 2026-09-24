@@ -156,7 +156,8 @@
       q: params.get("q") || "",
       compose: params.get("compose") || "",
       post: params.get("post") || "",
-      kind: params.get("kind") || ""
+      kind: params.get("kind") || "",
+      create: params.get("create") || ""
     };
   }
 
@@ -170,6 +171,7 @@
     if (route.view === "channel-content" && route.id) source.searchParams.set("channel", route.id);
     if (route.post) source.searchParams.set("post", route.post);
     if (route.kind) source.searchParams.set("kind", route.kind);
+    if (route.create) source.searchParams.set("create", route.create);
     return source.toString();
   }
 
@@ -181,6 +183,7 @@
     if (route.compose) target.searchParams.set("compose", route.compose);
     if (route.post) target.searchParams.set("post", route.post);
     if (route.kind) target.searchParams.set("kind", route.kind);
+    if (route.create) target.searchParams.set("create", route.create);
     return `${target.pathname.split("/").pop()}${target.search}`;
   }
 
