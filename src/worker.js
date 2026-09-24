@@ -29,10 +29,11 @@ const storageUnavailable = () => json({
 const mediaUnavailable = () => json({
   ok: false,
   error: "media storage unavailable",
-  message: "Image uploads are not configured for this environment."
+  message: "Media uploads are not configured for this environment."
 }, 503);
 
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1024 * 1024;
+const MAX_AUDIO_UPLOAD_BYTES = 10 * 1024 * 1024;
 const imageTypes = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -45,6 +46,12 @@ function detectedImageType(bytes) {
   if (bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) return "image/png";
   if (bytes.length >= 12 && bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return "image/webp";
   if (bytes.length >= 6 && bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38 && (bytes[4] === 0x37 || bytes[4] === 0x39) && bytes[5] === 0x61) return "image/gif";
+  return null;
+}
+
+function detectedAudioType(bytes) {
+  if (bytes.length >= 3 && bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) return "audio/mpeg";
+  if (bytes.length >= 2 && bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0) return "audio/mpeg";
   return null;
 }
 
@@ -80,11 +87,31 @@ async function handleImageUpload(request, env) {
   return json({ ok: true, url: `/media/${key}` }, 201);
 }
 
+async function handleAudioUpload(request, env) {
+  if (!env.MEDIA) return mediaUnavailable();
+  const user = await getSessionUser(request, env);
+  if (!user) return unauthorized();
+  const contentType = request.headers.get("content-type") || "";
+  const declaredSize = Number(request.headers.get("content-length") || 0);
+  if (!contentType.startsWith("multipart/form-data")) throw new ApiError(415, "Choose an MP3 audio file.");
+  if (Number.isFinite(declaredSize) && declaredSize > MAX_AUDIO_UPLOAD_BYTES + 128 * 1024) throw new ApiError(413, "Choose an MP3 smaller than 10 MB.");
+  const form = await request.formData();
+  if (!user.is_creator && !await isOwner(env, user)) return json({ ok: false, error: "Creator account required." }, 403);
+  const audio = form.get("audio");
+  if (!audio || typeof audio.arrayBuffer !== "function") throw new ApiError(400, "Choose an MP3 audio file.");
+  if (audio.size < 1 || audio.size > MAX_AUDIO_UPLOAD_BYTES) throw new ApiError(413, "Choose an MP3 smaller than 10 MB.");
+  const bytes = new Uint8Array(await audio.arrayBuffer());
+  if (detectedAudioType(bytes) !== "audio/mpeg") throw new ApiError(400, "Use an MP3 audio file.");
+  const key = `creator-media/${crypto.randomUUID()}.mp3`;
+  await env.MEDIA.put(key, bytes, { httpMetadata: { contentType: "audio/mpeg", cacheControl: "public, max-age=31536000, immutable" } });
+  return json({ ok: true, url: `/media/${key}` }, 201);
+}
+
 async function handleMediaRequest(request, env) {
   if (!env.MEDIA) return new Response("Media storage unavailable", { status: 503, headers: securityHeaders });
   if (request.method !== "GET" && request.method !== "HEAD") return new Response("Method not allowed", { status: 405, headers: { allow: "GET, HEAD", ...securityHeaders } });
   const key = new URL(request.url).pathname.slice("/media/".length);
-  if (!/^(creator-media|member-avatars)\/[0-9a-f-]{36}\.(jpg|png|webp|gif)$/.test(key)) return new Response("Not found", { status: 404, headers: securityHeaders });
+  if (!/^(creator-media|member-avatars)\/[0-9a-f-]{36}\.(jpg|png|webp|gif|mp3)$/.test(key)) return new Response("Not found", { status: 404, headers: securityHeaders });
   const object = request.method === "HEAD" ? await env.MEDIA.head(key) : await env.MEDIA.get(key);
   if (!object) return new Response("Not found", { status: 404, headers: securityHeaders });
   const headers = new Headers({
@@ -1196,6 +1223,7 @@ async function handleApi(request, env) {
     if (engagementResponse) return engagementResponse;
     if (path === "/api/status" && request.method === "GET") return await handleStatus(env);
     if (path === "/api/media/upload" && request.method === "POST") return await handleImageUpload(request, env);
+    if (path === "/api/media/audio-upload" && request.method === "POST") return await handleAudioUpload(request, env);
     if (path === "/api/auth/google/start" && request.method === "GET") return await handleGoogleAuthStart(request, env);
     if (path === "/api/auth/google/callback" && request.method === "GET") return await handleGoogleAuthCallback(request, env);
     if (path === "/api/location" && request.method === "GET") {
