@@ -7,11 +7,11 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>My Way Member App</title>
-  <link rel="stylesheet" href="styles.css?v=20260905module17" />
+  <link rel="stylesheet" href="styles.css?v=20260919theme1" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
-  <script defer src="app-shell.js?v=20260907headerfix1"></script>
-<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+  <script defer src="platform-client.js?v=20260918nav1"></script><script defer src="app.js?v=20260918nav1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="app-shell.js?v=20260918nav1"></script>
+<link rel="stylesheet" href="responsive.css?v=20260918nav1" /></head>
 <body class="member-app-shell" data-page="app-shell">
   <header class="profile-app-header member-shell-header" id="member-shell-header">
     <a class="profile-app-brand" href="index.html" aria-label="My Way home">
@@ -37,12 +37,29 @@
       <a class="member-header-giving" href="app.html?view=giving" data-shell-view="giving"><i data-lucide="heart-handshake"></i><span>Give</span></a>
       <div class="member-shell-account-wrap">
         <button class="profile-app-account" id="member-account-button" type="button" aria-expanded="false" aria-controls="member-account-menu">
+          <span class="member-account-identity">
+            <strong data-member-name>Sarah Johnson</strong>
+            <small data-member-role>My Way member</small>
+          </span>
           <span class="member-notification-icon" aria-hidden="true"><i data-lucide="bell"></i></span>
-          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=80&h=80&q=80" alt="Sarah Johnson" />
+          <span class="member-account-avatar" data-member-avatar aria-hidden="true">
+            <img data-member-avatar-image alt="" hidden />
+            <span data-member-avatar-initials>MW</span>
+          </span>
+          <i class="member-account-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
         </button>
         <div class="member-account-menu" id="member-account-menu" hidden>
-          <strong>Sarah Johnson</strong>
-          <span>My Way member</span>
+          <div class="member-account-menu-profile">
+            <span class="member-account-avatar" data-member-avatar aria-hidden="true">
+              <img data-member-avatar-image alt="" hidden />
+              <span data-member-avatar-initials>MW</span>
+            </span>
+            <span class="member-account-menu-identity">
+              <strong data-member-name>Sarah Johnson</strong>
+              <span data-member-role>My Way member</span>
+            </span>
+          </div>
+          <a href="app.html?view=profile" data-shell-view="profile"><i data-lucide="user-round"></i><span>Profile &amp; account</span></a>
           <a href="app.html?view=messages" data-shell-view="messages"><i data-lucide="messages-square"></i><span>Messages</span><b id="member-message-count">1</b></a>
           <button type="button" id="member-sign-out"><i data-lucide="log-out"></i> Sign out</button>
         </div>
@@ -55,6 +72,7 @@
   </header>
 
   <aside class="profile-left-rail member-shell-rail" id="member-shell-rail" aria-label="Main navigation">
+    <div class="member-mobile-actions" id="member-mobile-actions" aria-label="Account actions"></div>
     <nav class="profile-rail-nav">
       <a href="app.html?view=home" data-shell-view="home"><i data-lucide="layout-grid"></i><span>Home</span></a>
       <a href="app.html?view=spotlight" data-shell-view="spotlight"><i data-lucide="play-square"></i><span>Spotlight</span></a>
@@ -68,7 +86,6 @@
     </nav>
 
     <div class="profile-rail-bottom">
-      <div class="member-mobile-actions" id="member-mobile-actions" aria-label="Account actions"></div>
       <div class="profile-invite-card">
         <strong><i data-lucide="sparkles"></i> Invite a friend</strong>
         <p>Help others find their church home.</p>

@@ -48,6 +48,23 @@ function createMockDb() {
               if (row) row.is_creator = 1;
               return { success: true };
             }
+            if (normalized.startsWith("update users set name =")) {
+              const [name, email, avatarUrl, nextEmail, updatedAt, id] = args;
+              const row = usersById.get(id);
+              if (row) {
+                usersByEmail.delete(row.email);
+                if (row.email !== nextEmail) row.email_verified_at = null;
+                Object.assign(row, { name, email, avatar_url: avatarUrl, updated_at: updatedAt });
+                usersByEmail.set(email, id);
+              }
+              return { success: true };
+            }
+            if (normalized.startsWith("update users set password_hash =")) {
+              const [passwordHash, passwordSalt, updatedAt, id] = args;
+              const row = usersById.get(id);
+              if (row) Object.assign(row, { password_hash: passwordHash, password_salt: passwordSalt, updated_at: updatedAt });
+              return { success: true };
+            }
             if (normalized.startsWith("insert into sessions")) {
               const [token, userId, createdAt, expiresAt] = args;
               sessions.set(token, { user_id: userId, created_at: createdAt, expires_at: expiresAt });
@@ -103,6 +120,16 @@ function postJson(path, body, cookie) {
   if (cookie) headers.cookie = `mwe_session_v2=${cookie}`;
   return new Request(`https://example.test${path}`, {
     method: "POST",
+    headers,
+    body: JSON.stringify(body)
+  });
+}
+
+function putJson(path, body, cookie) {
+  const headers = { "content-type": "application/json" };
+  if (cookie) headers.cookie = `mwe_session_v2=${cookie}`;
+  return new Request(`https://example.test${path}`, {
+    method: "PUT",
     headers,
     body: JSON.stringify(body)
   });
@@ -239,6 +266,66 @@ test("expired or malformed session expiries never authenticate", async () => {
     [...env.DB._debug.sessions.values()][0].expires_at = expiry;
     assert.equal((await (await worker.fetch(getWithCookie("/api/auth/session", cookie), env)).json()).user, null);
   }
+});
+
+test("members can update profile details and a resized profile picture", async () => {
+  const env = baseEnv();
+  const registered = await worker.fetch(
+    postJson("/api/auth/register", { name: "Ada", email: "ada@example.com", password: "correct-horse-battery" }),
+    env
+  );
+  const cookie = extractSessionCookie(registered);
+  const avatarUrl = "data:image/png;base64,aGVsbG8=";
+  const response = await worker.fetch(putJson("/api/auth/profile", {
+    name: "Ada Lovelace",
+    email: "ada.new@example.com",
+    avatarData: avatarUrl,
+    currentPassword: "correct-horse-battery"
+  }, cookie), env);
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(body.user.name, "Ada Lovelace");
+  assert.equal(body.user.email, "ada.new@example.com");
+  assert.equal(body.user.avatarUrl, avatarUrl);
+  assert.equal(env.DB._debug.usersByEmail.has("ada@example.com"), false);
+  assert.ok(env.DB._debug.usersByEmail.has("ada.new@example.com"));
+});
+
+test("email and password changes require the current password", async () => {
+  const env = baseEnv();
+  const registered = await worker.fetch(
+    postJson("/api/auth/register", { name: "Member", email: "member@example.com", password: "correct-horse-battery" }),
+    env
+  );
+  const cookie = extractSessionCookie(registered);
+
+  const emailDenied = await worker.fetch(putJson("/api/auth/profile", {
+    name: "Member",
+    email: "new@example.com",
+    avatarData: "",
+    currentPassword: "wrong-password"
+  }, cookie), env);
+  assert.equal(emailDenied.status, 401);
+
+  const passwordDenied = await worker.fetch(putJson("/api/auth/password", {
+    currentPassword: "wrong-password",
+    newPassword: "an-even-better-password"
+  }, cookie), env);
+  assert.equal(passwordDenied.status, 401);
+
+  const passwordChanged = await worker.fetch(putJson("/api/auth/password", {
+    currentPassword: "correct-horse-battery",
+    newPassword: "an-even-better-password"
+  }, cookie), env);
+  assert.equal(passwordChanged.status, 200);
+  assert.equal((await passwordChanged.json()).ok, true);
+
+  const login = await worker.fetch(postJson("/api/auth/login", {
+    email: "member@example.com",
+    password: "an-even-better-password"
+  }), env);
+  assert.equal(login.status, 200);
 });
 
 test("Google sign-in starts an authorization-code flow with a protected return path", async () => {

@@ -35,6 +35,78 @@ test("Task 8.1: events.html and styles.css define host triggers and workshop sty
   assert.match(appJs, /MWE\.handleHostEventSubmit\s*=\s*function/, "app.js must define MWE.handleHostEventSubmit");
   assert.match(appJs, /MWE\.openHostDashboard\s*=\s*function/, "app.js must define MWE.openHostDashboard");
   assert.match(appJs, /MWE\.openEventAttendeeRoster\s*=\s*function/, "app.js must define MWE.openEventAttendeeRoster");
+  assert.match(appJs, /MWE\.getEventPaymentState\s*=\s*function/, "app.js must classify free, external, and unavailable paid event payment states");
+  assert.match(appJs, /Paid registration requires a verified payment provider|Payment unavailable|Payment Not Available/, "event registration UI should not imply unavailable paid checkout is functional");
+});
+
+test("single event profile tabs activate visible panels", async () => {
+  const eventProfileHtml = await fs.readFile(path.join(projectRoot, "public", "event-profile.html"), "utf8");
+
+  assert.match(eventProfileHtml, /function activateEventTab\(button\)/, "event profile should use a shared tab activator");
+  assert.match(eventProfileHtml, /panel\.classList\.toggle\("active", isActive\)/, "tab activator should set the active class required by CSS");
+  assert.match(eventProfileHtml, /panel\.classList\.toggle\("hidden", !isActive\)/, "tab activator should keep hidden state in sync");
+  assert.match(eventProfileHtml, /if \(initiallyActive\) activateEventTab\(initiallyActive\)/, "first tab should be made visible on load");
+});
+
+test("single event speaker modal renders centered above sticky chrome", async () => {
+  const eventProfileHtml = await fs.readFile(path.join(projectRoot, "public", "event-profile.html"), "utf8");
+  const stylesCss = await fs.readFile(path.join(projectRoot, "public", "styles.css"), "utf8");
+
+  assert.match(eventProfileHtml, /id="speaker-modal"\s+class="event-speaker-modal hidden"/, "speaker modal should use the dedicated top-layer overlay class");
+  assert.doesNotMatch(eventProfileHtml, /id="speaker-modal"\s+class="[^"]*z-50/, "speaker modal should not rely on a low Tailwind z-index utility");
+  assert.match(eventProfileHtml, /document\.body\.classList\.add\('speaker-modal-open'\)/, "opening the speaker modal should lock the page behind it");
+  assert.match(stylesCss, /\.event-speaker-modal\s*\{[\s\S]*position:\s*fixed[\s\S]*z-index:\s*120000\s*!important[\s\S]*place-items:\s*center/, "speaker modal should be fixed, centered, and above app chrome");
+  assert.match(stylesCss, /\.event-speaker-modal-card\s*\{[\s\S]*width:\s*min\(100%,\s*720px\)[\s\S]*max-height:\s*min\(86vh,\s*760px\)/, "speaker modal card should stay centered and fit within the viewport");
+});
+
+test("event speaker cards use theme tokens instead of fixed colors", async () => {
+  const stylesCss = await fs.readFile(path.join(projectRoot, "public", "styles.css"), "utf8");
+  const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
+  const platformModulesJs = await fs.readFile(path.join(projectRoot, "public", "platform-modules.js"), "utf8");
+  const channelsJs = await fs.readFile(path.join(projectRoot, "public", "channels.js"), "utf8");
+  const channelDetailJs = await fs.readFile(path.join(projectRoot, "public", "channel-detail.js"), "utf8");
+
+  const speakerBlock = stylesCss.slice(stylesCss.indexOf(".spk-card {"), stylesCss.indexOf(".events-empty-state"));
+  assert.match(speakerBlock, /background:\s*var\(--surface-card\)/, "speaker cards should use themed surfaces");
+  assert.match(speakerBlock, /color:\s*var\(--text-primary\)/, "speaker card text should use themed text");
+  assert.match(speakerBlock, /background:\s*var\(--primary-surface\)/, "follow button should use primary surface token");
+  assert.match(speakerBlock, /color:\s*var\(--primary\)/, "follow button should use selected theme color");
+  assert.doesNotMatch(speakerBlock, /background:\s*#fff\b/, "speaker cards should not force white backgrounds");
+  assert.doesNotMatch(speakerBlock, /#1a5c3a|#006241|#f0f4f1/, "speaker cards should not force legacy green palette");
+  assert.match(stylesCss, /html\[data-theme="dark"\]\s+body\[data-page="event-profile"\]\s+\.spk-card/, "dark event profile should include speaker card override");
+  assert.match(appJs, /event-session-badge \$\{badgeTrackClass\}/, "agenda badges should render semantic theme-aware classes");
+  assert.match(appJs, /MWE\.findSpeakerChannel\s*=\s*function/, "speaker cards should resolve linked platform channel accounts");
+  assert.match(appJs, /MWE\.toggleSpeakerFollow\s*=\s*function/, "speaker follow buttons should toggle real follow state");
+  assert.match(appJs, /mwe\.followed\.channels\.v1/, "speaker follow state should persist in the shared channel follow store");
+  assert.match(appJs, /data-speaker-follow-slot/, "speaker cards should render refreshable follow button slots");
+  assert.match(platformModulesJs, /channelFollows:\s*"mwe\.followed\.channels\.v1"/, "channel module should read the shared follow store");
+  assert.match(platformModulesJs, /toggleChannelFollow\(id\)/, "channel module should expose a platform follow toggle");
+  assert.match(channelsJs, /data-channel-follow/, "channels directory should render platform follow buttons");
+  assert.match(channelDetailJs, /data-channel-follow/, "channel detail page should render platform follow buttons");
+  assert.doesNotMatch(appJs, /badgeColorClass[\s\S]{0,220}bg-clay-100/, "agenda badges should not use fixed Tailwind color classes");
+  assert.match(stylesCss, /\.event-session-badge\s*\{[\s\S]*background:\s*var\(--primary-surface\)/, "agenda badges should use primary surface token");
+  assert.match(stylesCss, /html\[data-theme="dark"\]\s+body\[data-page="event-profile"\]\s+\.event-session-badge/, "agenda badges should include dark-mode styling");
+});
+
+test("embedded event profile keeps tabs flush and schedule canvas transparent", async () => {
+  const stylesCss = await fs.readFile(path.join(projectRoot, "public", "styles.css"), "utf8");
+  const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
+  const embeddedTabRule = stylesCss.slice(
+    stylesCss.indexOf('body[data-page="event-profile"].member-shell-embed .sticky.top-\\[70px\\]'),
+    stylesCss.indexOf('body[data-page="event-profile"].member-shell-embed #event-tabs-container')
+  );
+  const darkOuterCardRule = stylesCss.slice(
+    stylesCss.indexOf('html[data-theme="dark"] body[data-page="event-profile"] .schedule-item-row > div:last-child'),
+    stylesCss.indexOf('html[data-theme="dark"] body[data-page="event-profile"] .spk-card')
+  );
+
+  assert.match(embeddedTabRule, /position:\s*sticky\s*!important[\s\S]*top:\s*0\s*!important/, "embedded event tab bar should stay in normal flow and stick only while scrolling");
+  assert.doesNotMatch(embeddedTabRule, /position:\s*fixed\s*!important/, "embedded event tab bar should not be permanently fixed under the header");
+  assert.match(stylesCss, /body\[data-page="event-profile"\]\s+section#schedule[\s\S]*background:\s*transparent\s*!important/, "schedule section should not paint a solid background behind cards");
+  assert.match(stylesCss, /body\[data-page="event-profile"\]\s+#schedule-timeline[\s\S]*background:\s*transparent\s*!important/, "schedule timeline canvas should stay transparent");
+  assert.match(appJs, /event-highlight-row flex gap-3\.5 items-start/, "hero highlight rows should use the native flat row class");
+  assert.doesNotMatch(darkOuterCardRule, /#event-highlights-list\s*>\s*div/, "hero highlight rows should not inherit outer-card background or shadow styling");
+  assert.match(stylesCss, /#event-highlights-list\s+\.event-highlight-row\s*\{[\s\S]*background:\s*transparent\s*!important[\s\S]*box-shadow:\s*none\s*!important/, "hero highlight rows should stay flat on the main card");
 });
 
 test("Task 8.2: External host account lifecycle, workshop studio creation, and attendee roster management", async () => {
@@ -181,6 +253,24 @@ test("Task 8.2: External host account lifecycle, workshop studio creation, and a
   // 3. Submit a new Workshop via handleHostEventSubmit
   const testStarts = new Date(Date.now() + 86400000 * 5).toISOString();
   const testEnds = new Date(Date.now() + 86400000 * 5 + 7200000).toISOString();
+  const studioSpeakers = [
+    { name: "Dr. David Sterling", role: "Workshop Leader", image: "https://example.com/david.jpg", specialty: "Evangelism", bio: "Equipping leaders." },
+    { name: "Rebecca Johnson", role: "Breakout Coach", image: "https://example.com/rebecca.jpg", specialty: "Discipleship", bio: "Training small group leaders." }
+  ];
+  const studioSchedule = [
+    { day: 1, time: "09:00 AM", endTime: "10:00 AM", title: "Opening Framework", track: "keynote", host: "Dr. David Sterling", desc: "Foundation teaching." },
+    { day: 1, time: "10:15 AM", endTime: "11:30 AM", title: "Media Lab", track: "workshop", host: "Rebecca Johnson", desc: "Hands-on practice." }
+  ];
+  const studioExpectations = [
+    { title: "Practical Labs", desc: "Hands-on ministry planning.", icon: "fa-screwdriver-wrench", color: "brand" }
+  ];
+  const studioHighlights = [
+    { title: "Strategy Lab", desc: "Build an outreach plan.", icon: "fa-lightbulb", color: "brand" },
+    { title: "Live Coaching", desc: "Get feedback from hosts.", icon: "fa-comments", color: "clay" }
+  ];
+  const studioFaqs = [
+    { question: "Is lunch included?", answer: "Yes, lunch is included with registration." }
+  ];
   const mockForm = {
     _mockEntries: [
       ["title", "Advanced Evangelism & Discipleship Workshop"],
@@ -193,14 +283,26 @@ test("Task 8.2: External host account lifecycle, workshop studio creation, and a
       ["streamUrl", "https://zoom.us/j/123456789"],
       ["speakerName", "Dr. David Sterling"],
       ["organization", "Kingdom Leadership Network"],
+      ["organizerName", "Kingdom Leadership Network"],
+      ["organizerUrl", "https://example.com/kingdom-leadership"],
+      ["churchId", ""],
+      ["directionsUrl", "https://maps.example.com/kings-sanctuary"],
       ["admissionType", "paid"],
       ["priceDollars", "35"],
       ["capacity", "150"],
       ["coverImageUrl", "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80"],
       ["description", "Intensive masterclass on modern outreach methods and mentorship."],
+      ["heroBadgeText", "AUG 2026 • CALGARY • HYBRID"],
+      ["aboutTitle", "What leaders will practice"],
+      ["aboutIntro", "A focused training day with labs, coaching, and practical next steps."],
       ["highlight1", "Strategic discipleship frameworks"],
       ["highlight2", "Interactive media workshop"],
-      ["highlight3", "Official workshop certification"]
+      ["highlight3", "Official workshop certification"],
+      ["speakersJson", JSON.stringify(studioSpeakers)],
+      ["highlightsJson", JSON.stringify(studioHighlights)],
+      ["scheduleJson", JSON.stringify(studioSchedule)],
+      ["expectationsJson", JSON.stringify(studioExpectations)],
+      ["faqsJson", JSON.stringify(studioFaqs)]
     ]
   };
 
@@ -217,6 +319,28 @@ test("Task 8.2: External host account lifecycle, workshop studio creation, and a
   assert.equal(createdWorkshop.isWorkshop, true, "Workshop should be marked isWorkshop: true");
   assert.equal(createdWorkshop.hostId, testHost.id, "Workshop hostId should match logged in host");
   assert.equal(createdWorkshop.ticketPriceCents, 3500, "Price should be 3500 cents ($35)");
+  assert.equal(createdWorkshop.admissionType, "paid", "Admission type should be persisted");
+  assert.equal(createdWorkshop.priceDollars, 35, "Original price dollars should be persisted");
+  assert.equal(createdWorkshop.capacity, 150, "Capacity should be persisted");
+  assert.equal(createdWorkshop.totalTickets, 150, "Capacity should also populate public ticket total");
+  assert.equal(createdWorkshop.venueName, "King's Sanctuary & Zoom Hub", "Venue name should be persisted for event profile views");
+  assert.equal(createdWorkshop.livestreamUrl, "https://zoom.us/j/123456789", "Livestream URL should be available to event profile views");
+  assert.equal(createdWorkshop.organizerName, "Kingdom Leadership Network", "Organizer display name should be persisted");
+  assert.equal(createdWorkshop.organizerUrl, "https://example.com/kingdom-leadership", "Organizer URL should be persisted");
+  assert.equal(createdWorkshop.directionsUrl, "https://maps.example.com/kings-sanctuary", "Directions URL should be persisted");
+  assert.equal(createdWorkshop.heroBadgeText, "AUG 2026 • CALGARY • HYBRID", "Hero badge text should be persisted");
+  assert.equal(createdWorkshop.aboutTitle, "What leaders will practice", "About section title should be persisted");
+  assert.equal(createdWorkshop.aboutIntro, "A focused training day with labs, coaching, and practical next steps.", "About section intro should be persisted");
+  assert.equal(JSON.stringify(createdWorkshop.speakers), JSON.stringify(studioSpeakers), "Studio speakers should be persisted for Host & Speakers tab");
+  assert.equal(JSON.stringify(createdWorkshop.highlights), JSON.stringify(studioHighlights), "Studio highlight cards should be persisted for hero/detail cards");
+  assert.equal(JSON.stringify(createdWorkshop.schedule), JSON.stringify(studioSchedule), "Studio schedule should be persisted for Agenda tab");
+  assert.equal(JSON.stringify(createdWorkshop.expectations), JSON.stringify(studioExpectations), "Studio expectations should be persisted for About tab");
+  assert.equal(JSON.stringify(createdWorkshop.faqs), JSON.stringify(studioFaqs), "Studio FAQs should be persisted for FAQ tab");
+
+  const expectedStudioFields = Object.fromEntries(mockForm._mockEntries);
+  for (const [key, value] of Object.entries(expectedStudioFields)) {
+    assert.equal(createdWorkshop.creatorStudioFields?.[key], value, `Creator studio field '${key}' should be retained`);
+  }
 
   // 4. Verify Event Card rendering displays Workshop Badge
   const cardHtml = mwe.createEventCardHtml(createdWorkshop);
@@ -279,4 +403,66 @@ test("Task 8.2: External host account lifecycle, workshop studio creation, and a
   // 7. Logout Host
   mwe.logoutEventHost();
   assert.equal(mwe.getEventHost(), null, "Host account should be removed upon logout");
+});
+
+test("single event seed links survive stale saved event storage", async () => {
+  const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
+
+  const mockStorage = new Map([
+    ["mwe.platform.events.v4", JSON.stringify([
+      {
+        id: "custom-local-event",
+        title: "Custom Local Event",
+        startsAt: new Date(Date.now() + 86400000).toISOString()
+      }
+    ])]
+  ]);
+  const localStorageMock = {
+    getItem: (k) => mockStorage.get(k) || null,
+    setItem: (k, v) => mockStorage.set(k, String(v)),
+    removeItem: (k) => mockStorage.delete(k),
+    clear: () => mockStorage.clear()
+  };
+
+  const documentMock = {
+    documentElement: { dataset: {}, style: {}, setAttribute: () => {}, classList: { add: () => {}, remove: () => {} } },
+    body: { dataset: {}, classList: { add: () => {}, remove: () => {}, toggle: () => {} }, appendChild: () => {} },
+    getElementById: () => null,
+    createElement: () => ({ setAttribute: () => {}, addEventListener: () => {}, querySelector: () => null, classList: { add: () => {} } }),
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    removeEventListener: () => {}
+  };
+
+  const context = {
+    window: {
+      location: { hash: "", search: "?id=calgary-awakening-2026", href: "https://mywayofevangelism.com/event-profile.html?id=calgary-awakening-2026" },
+      localStorage: localStorageMock,
+      setTimeout: () => 1,
+      clearTimeout: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {}
+    },
+    document: documentMock,
+    localStorage: localStorageMock,
+    navigator: {},
+    console,
+    URL,
+    URLSearchParams,
+    createIcons: () => {},
+    setTimeout: () => 1,
+    clearTimeout: () => {},
+    setInterval: () => {},
+    clearInterval: () => {},
+    MutationObserver: class { observe() {} },
+    MWE: {}
+  };
+
+  vm.createContext(context);
+  vm.runInContext(appJs, context);
+  const mwe = context.window.MWE || context.MWE;
+
+  assert.ok(mwe.getEvent("custom-local-event"), "Saved custom event should still be available");
+  assert.ok(mwe.getEvent("calgary-awakening-2026"), "Seeded event links should remain available with stale storage");
 });

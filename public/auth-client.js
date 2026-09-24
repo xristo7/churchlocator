@@ -5,11 +5,11 @@
  * already reads, so existing UI code needs no further changes.
  */
 (function (root) {
-  async function callApi(path, body) {
+  async function callApi(path, body, method = "POST") {
     let response;
     try {
       response = await fetch(path, {
-        method: "POST",
+        method,
         credentials: "same-origin",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body || {})
@@ -30,7 +30,6 @@
 
   async function applySession(user) {
     if (!user) { clearSession(); return; }
-    if (root.MWEPlatform) { await root.MWEPlatform.refresh(user); return; }
     if ((localStorage.getItem("mwe.userEmail") || "").toLowerCase() !== (user.email || "").toLowerCase()) clearSession();
     if (!user.isCreator) localStorage.removeItem("mwe.creator.account.v1");
     localStorage.setItem("mwe.userLoggedIn", "true");
@@ -41,6 +40,18 @@
         "mwe.creator.account.v1",
         JSON.stringify({ id: user.id, name: user.name, email: user.email })
       );
+    }
+    if (root.MWEPlatform) {
+      root.MWEPlatform.session = user;
+      try {
+        await root.MWEPlatform.refresh(user);
+      } catch (error) {
+        // Authentication already succeeded. Optional catalog/workspace failures
+        // must not sign the member out or trap the sign-in dialog.
+        root.MWEPlatform.session = user;
+        root.MWEPlatform.error = error?.message || "Some account data is temporarily unavailable.";
+        root.dispatchEvent(new Event("mwe-platform-ready"));
+      }
     }
   }
 
@@ -77,11 +88,10 @@
     try {
       const response = await fetch("/api/auth/session", { credentials: "same-origin" });
       const result = await response.json();
-      if (response.ok) await applySession(result.user); else clearSession();
+      if (response.ok) await applySession(result.user);
       return result;
     } catch {
-      clearSession();
-      return { ok: false, user: null };
+      return { ok: false, user: root.MWEPlatform?.session || null, error: "Session check is temporarily unavailable." };
     }
   }
 
@@ -108,10 +118,21 @@
       document.body.append(dialog);dialog.showModal();dialog.querySelector('input').focus();
     });
   }
-  document.addEventListener("DOMContentLoaded", async () => { await root.MWEPlatform?.ready; session().then(result => {
-    if (!result.ok || !result.user) clearSession();
-    if (typeof root.updateHomepageAuthUI === "function") root.updateHomepageAuthUI();
-  }); });
 
-  root.MWEAuth = { register, login, logout, session, creatorRegister, creatorUpgrade, applySession, clearSession };
+  async function updateProfile(profile) {
+    const result = await callApi("/api/auth/profile", profile, "PUT");
+    if (result.ok) await applySession(result.user);
+    return result;
+  }
+
+  async function changePassword(currentPassword, newPassword) {
+    return callApi("/api/auth/password", { currentPassword, newPassword }, "PUT");
+  }
+  document.addEventListener("DOMContentLoaded", async () => {
+    if (root.MWEPlatform?.ready) await root.MWEPlatform.ready;
+    else await session();
+    if (typeof root.updateHomepageAuthUI === "function") root.updateHomepageAuthUI();
+  });
+
+  root.MWEAuth = { register, login, logout, session, updateProfile, changePassword, creatorRegister, creatorUpgrade, applySession, clearSession };
 })(window);

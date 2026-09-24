@@ -7,9 +7,9 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>Christian Events Finder | My Way of Evangelism</title>
-    <link rel="stylesheet" href="styles.css?v=20260905module19" />
+    <link rel="stylesheet" href="styles.css?v=20260919directory5" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260919directory3"></script><script defer src="auth-client.js?v=20260915security1"></script>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body data-page="events">
   <header class="topbar">
@@ -41,19 +41,13 @@
   <main>
     <section class="module-hero module-directory-hero" id="find-events">
       <div class="module-shell module-hero-inner">
-        <div class="section-head flex-between" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
-          <div>
-            <p class="kicker"><i data-lucide="calendar"></i> Church Events & Outreaches</p>
-            <h2>Search Upcoming Gatherings</h2>
-            <p class="lead">Discover in-person gatherings, conferences, outreach efforts, and streamed virtual services.</p>
-          </div>
-          <div class="hero-actions host-hero-actions" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <button type="button" class="btn-host-event" onclick="MWE.openHostEventStudio()">
-              <i data-lucide="calendar-plus"></i> Host a Workshop / Event
-            </button>
-            <div id="host-auth-status"></div>
-          </div>
+        <div class="module-hero-copy">
+          <p class="kicker"><i data-lucide="calendar"></i> Church Events & Outreaches</p>
+          <h2>Search Upcoming Gatherings</h2>
+          <p class="lead">Discover in-person gatherings, conferences, outreach efforts, and streamed virtual services.</p>
         </div>
+        <button type="button" class="module-primary-action module-creator-action btn-host-event" data-creator-action disabled aria-disabled="true" onclick="MWE.openHostEventStudio()"><i data-lucide="calendar-plus"></i> Host an Event</button>
+        <div id="host-auth-status" hidden></div>
       </div>
     </section>
 
@@ -139,10 +133,10 @@
               </div>
             </div>
 
-            <!-- Date Range Pill -->
+            <!-- Date Pill -->
             <div class="custom-pill-filter module-filter-control" id="event-time-pill" data-filter-group="timerange">
               <button type="button" class="filter-pill-btn module-filter-trigger" onclick="MWE.toggleFilterPillDropdown(this, event)">
-                <span class="pill-title">Date Range</span>
+                <span class="pill-title">Date</span>
                 <span class="pill-badge" style="display: none;">0</span>
                 <i data-lucide="chevron-down" class="pill-arrow"></i>
               </button>

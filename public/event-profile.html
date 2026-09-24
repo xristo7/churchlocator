@@ -380,9 +380,9 @@
     <section id="about" class="tab-panel py-16 bg-slate-100/50 relative">
     <div class="container">
       <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="text-xs font-bold uppercase tracking-widest text-brand-600">WHAT TO EXPECT</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold mt-2 tracking-tight">The ultimate ecosystem for fellowship</h2>
-        <p class="text-slate-600 mt-4 leading-relaxed">
+        <span id="event-about-eyebrow" class="text-xs font-bold uppercase tracking-widest text-brand-600">WHAT TO EXPECT</span>
+        <h2 id="event-about-title" class="text-3xl sm:text-4xl font-extrabold mt-2 tracking-tight">What to expect</h2>
+        <p id="event-about-intro" class="text-slate-600 mt-4 leading-relaxed">
           Designed from the ground up to nurture local fellowship, explore biblical teachings, and support dynamic church connection pathways.
         </p>
       </div>
@@ -469,16 +469,16 @@
               <div class="grid grid-cols-1 gap-4">
                 <div>
                   <label class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Full Name</label>
-                  <input type="text" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all text-slate-800">
+                  <input type="text" name="fullName" required maxlength="200" autocomplete="name" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all text-slate-800">
                 </div>
                 <div>
                   <label class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Email Address</label>
-                  <input type="email" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all text-slate-800">
+                  <input type="email" name="email" required maxlength="254" autocomplete="email" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all text-slate-800">
                 </div>
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1.5 uppercase text-slate-500">Your Message</label>
-                <textarea required rows="4" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all resize-none text-slate-800" placeholder="How can our church coordinators help you?"></textarea>
+                <textarea name="message" required maxlength="3000" rows="4" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none text-sm transition-all resize-none text-slate-800" placeholder="How can our church coordinators help you?"></textarea>
               </div>
               <button type="submit" class="w-full py-3 rounded-xl bg-clay-500 hover:bg-clay-600 text-white font-bold text-xs hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-1.5">
                 Send Message <i class="fa-solid fa-paper-plane text-[10px]"></i>
@@ -493,12 +493,11 @@
   </div> <!-- Close #event-tabs-container -->
 
   <!-- Speaker Detail Modal Popup -->
-  <div id="speaker-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-      <div onclick="closeSpeakerModal()" class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm" aria-hidden="true"></div>
-      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+  <div id="speaker-modal" class="event-speaker-modal hidden" aria-labelledby="speaker-modal-title" role="dialog" aria-modal="true">
+    <div class="event-speaker-modal-shell">
+      <div onclick="closeSpeakerModal()" class="event-speaker-modal-backdrop" aria-hidden="true"></div>
 
-      <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative border border-slate-200">
+      <div class="event-speaker-modal-card bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all relative border border-slate-200">
         <button onclick="closeSpeakerModal()" class="absolute top-5 right-5 z-10 w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors flex items-center justify-center">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
@@ -630,11 +629,17 @@
 
     // Speaker Detail Modal control
     function openSpeakerModal(bodyContent) {
-      document.getElementById('speaker-modal-body').innerHTML = bodyContent;
-      document.getElementById('speaker-modal').classList.remove('hidden');
+      const modal = document.getElementById('speaker-modal');
+      const body = document.getElementById('speaker-modal-body');
+      if (!modal || !body) return;
+      body.innerHTML = bodyContent;
+      modal.classList.remove('hidden');
+      document.body.classList.add('speaker-modal-open');
     }
     function closeSpeakerModal() {
-      document.getElementById('speaker-modal').classList.add('hidden');
+      const modal = document.getElementById('speaker-modal');
+      if (modal) modal.classList.add('hidden');
+      document.body.classList.remove('speaker-modal-open');
     }
 
     // FAQ Accordion toggles
@@ -661,16 +666,30 @@
       drawer.classList.toggle('translate-x-full');
     }
 
-    // Mock contact messaging form submit
-    function handleContactSubmit(e) {
+    // Deliver event inquiries to the organizer's real My Way inbox.
+    async function handleContactSubmit(e) {
       e.preventDefault();
       const toast = document.querySelector('[data-toast]');
-      if (toast) {
-        toast.textContent = "Message sent successfully! Our church coordinators will reach out shortly.";
-        toast.classList.add('open');
-        setTimeout(() => toast.classList.remove('open'), 4000);
+      if (!window.MWEPlatform?.session) {
+        window.MWE?.openMemberLogin?.(location.href);
+        if (toast) { toast.textContent = "Sign in to message this event organizer."; toast.classList.add('open'); setTimeout(() => toast.classList.remove('open'), 4000); }
+        return;
       }
-      e.target.reset();
+      const eventRecord = window.MWE?.currentEvent;
+      if (!eventRecord?.id) return;
+      const form = e.currentTarget;
+      const button = form.querySelector('button[type="submit"]');
+      const values = Object.fromEntries(new FormData(form));
+      button.disabled = true;
+      try {
+        await window.MWEPrivate.create('message', { entityId: eventRecord.id, subject: 'Event inquiry: ' + eventRecord.title, body: String(values.message || '').trim(), fullName: values.fullName, contactEmail: values.email, avatar: eventRecord.coverImageUrl || '' });
+        if (toast) { toast.textContent = "Message delivered to the event organizer."; toast.classList.add('open'); setTimeout(() => toast.classList.remove('open'), 4000); }
+        form.reset();
+      } catch (error) {
+        if (toast) { toast.textContent = error.message || "Your message could not be delivered."; toast.classList.add('open'); setTimeout(() => toast.classList.remove('open'), 4000); }
+      } finally {
+        button.disabled = false;
+      }
     }
 
     // In-page Tab Panels Switcher
@@ -678,29 +697,33 @@
       const tabButtons = document.querySelectorAll("#local-nav-menu button");
       const tabPanels = document.querySelectorAll(".tab-panel");
       
+      function activateEventTab(button) {
+        const targetId = button.getAttribute("data-target");
+        if (!targetId) return;
+        
+        tabPanels.forEach(panel => {
+          const isActive = panel.id === targetId;
+          panel.classList.toggle("hidden", !isActive);
+          panel.classList.toggle("active", isActive);
+        });
+        
+        tabButtons.forEach(b => {
+          const isCurrent = b.getAttribute("data-target") === targetId;
+          if (isCurrent) {
+            b.className = "px-2 py-2 text-xs sm:text-sm font-extrabold text-brand-600 border-b-2 border-brand-500 transition-all active";
+          } else {
+            b.className = "px-2 py-2 text-xs sm:text-sm font-extrabold text-slate-500 hover:text-brand-600 transition-all";
+          }
+        });
+      }
+
+      const initiallyActive = document.querySelector("#local-nav-menu button.border-brand-500") || tabButtons[0];
+      if (initiallyActive) activateEventTab(initiallyActive);
+
       tabButtons.forEach(btn => {
         btn.addEventListener("click", (e) => {
           e.preventDefault();
-          const targetId = btn.getAttribute("data-target");
-          
-          // Hide all tab panels
-          tabPanels.forEach(panel => panel.classList.add("hidden"));
-          
-          // Show active panel
-          const activePanel = document.getElementById(targetId);
-          if (activePanel) {
-            activePanel.classList.remove("hidden");
-          }
-          
-          // Toggle tab button classes
-          tabButtons.forEach(b => {
-            const isCurrent = b.getAttribute("data-target") === targetId;
-            if (isCurrent) {
-              b.className = "px-2 py-2 text-xs sm:text-sm font-extrabold text-brand-600 border-b-2 border-brand-500 transition-all";
-            } else {
-              b.className = "px-2 py-2 text-xs sm:text-sm font-extrabold text-slate-500 hover:text-brand-600 transition-all";
-            }
-          });
+          activateEventTab(btn);
           
           // Smooth scroll to tabs container top
           const tabMenu = document.getElementById("local-nav-menu");
