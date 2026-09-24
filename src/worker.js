@@ -1,6 +1,6 @@
 import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityHeaders } from "./security.js";
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
-import { handlePlatformApi } from './trusted-platform.js';
+import { handlePlatformApi, isOwner } from './trusted-platform.js';
 import { handleSpotlightApi } from './spotlight.js';
 import { handleContentEngagementApi } from './content-engagements.js';
 
@@ -26,6 +26,76 @@ const storageUnavailable = () => json({
   error: "storage unavailable",
   message: "The database binding is not configured for this environment."
 }, 503);
+const mediaUnavailable = () => json({
+  ok: false,
+  error: "media storage unavailable",
+  message: "Image uploads are not configured for this environment."
+}, 503);
+
+const MAX_IMAGE_UPLOAD_BYTES = 5 * 1024 * 1024;
+const imageTypes = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif"
+};
+
+function detectedImageType(bytes) {
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) return "image/png";
+  if (bytes.length >= 12 && bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return "image/webp";
+  if (bytes.length >= 6 && bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38 && (bytes[4] === 0x37 || bytes[4] === 0x39) && bytes[5] === 0x61) return "image/gif";
+  return null;
+}
+
+async function handleImageUpload(request, env) {
+  if (!env.MEDIA) return mediaUnavailable();
+  const user = await getSessionUser(request, env);
+  if (!user) return unauthorized();
+
+  const contentType = request.headers.get("content-type") || "";
+  const declaredSize = Number(request.headers.get("content-length") || 0);
+  if (!contentType.startsWith("multipart/form-data")) throw new ApiError(415, "Choose an image from your device.");
+  if (Number.isFinite(declaredSize) && declaredSize > MAX_IMAGE_UPLOAD_BYTES + 128 * 1024) throw new ApiError(413, "Choose an image smaller than 5 MB.");
+
+  const form = await request.formData();
+  const purpose = String(form.get("purpose") || "");
+  const profileUpload = purpose === "profile";
+  if (!profileUpload && !user.is_creator && !await isOwner(env, user)) return json({ ok: false, error: "Creator account required." }, 403);
+  const image = form.get("image");
+  if (!image || typeof image !== "object" || typeof image.arrayBuffer !== "function") throw new ApiError(400, "Choose an image from your device.");
+  if (image.size < 1 || image.size > MAX_IMAGE_UPLOAD_BYTES) throw new ApiError(413, "Choose an image smaller than 5 MB.");
+
+  const bytes = new Uint8Array(await image.arrayBuffer());
+  const type = detectedImageType(bytes);
+  if (!type || !imageTypes[type]) throw new ApiError(400, "Use a JPG, PNG, WebP, or GIF image.");
+
+  const key = `${profileUpload ? "member-avatars" : "creator-media"}/${crypto.randomUUID()}.${imageTypes[type]}`;
+  await env.MEDIA.put(key, bytes, {
+    httpMetadata: {
+      contentType: type,
+      cacheControl: "public, max-age=31536000, immutable"
+    }
+  });
+  return json({ ok: true, url: `/media/${key}` }, 201);
+}
+
+async function handleMediaRequest(request, env) {
+  if (!env.MEDIA) return new Response("Media storage unavailable", { status: 503, headers: securityHeaders });
+  if (request.method !== "GET" && request.method !== "HEAD") return new Response("Method not allowed", { status: 405, headers: { allow: "GET, HEAD", ...securityHeaders } });
+  const key = new URL(request.url).pathname.slice("/media/".length);
+  if (!/^(creator-media|member-avatars)\/[0-9a-f-]{36}\.(jpg|png|webp|gif)$/.test(key)) return new Response("Not found", { status: 404, headers: securityHeaders });
+  const object = request.method === "HEAD" ? await env.MEDIA.head(key) : await env.MEDIA.get(key);
+  if (!object) return new Response("Not found", { status: 404, headers: securityHeaders });
+  const headers = new Headers({
+    "content-type": object.httpMetadata?.contentType || "application/octet-stream",
+    "cache-control": object.httpMetadata?.cacheControl || "public, max-age=31536000, immutable",
+    "etag": object.httpEtag,
+    ...securityHeaders
+  });
+  if (object.size !== undefined) headers.set("content-length", String(object.size));
+  return new Response(request.method === "HEAD" ? null : object.body, { headers });
+}
 
 function constantTimeEqual(left, right) {
   const encoder = new TextEncoder();
@@ -816,10 +886,10 @@ function assetRequest(request) {
   const url = new URL(request.url);
   const routes = new Map([
     ["/", "/index.html"],
-    ["/church-portal", "/church-portal.html"],
-    ["/portal", "/church-portal.html"],
-    ["/creator-hub", "/church-portal.html"],
-    ["/register-church", "/church-portal.html"],
+    ["/church-portal", "/creator-studio.html"],
+    ["/portal", "/creator-studio.html"],
+    ["/creator-hub", "/creator-studio.html"],
+    ["/register-church", "/creator-studio.html"],
     ["/owner-dashboard", "/owner-dashboard.html"],
     ["/admin", "/owner-dashboard.html"],
     ["/app", "/app.html"],
@@ -1125,6 +1195,7 @@ async function handleApi(request, env) {
     const engagementResponse = await handleContentEngagementApi(request, env, context);
     if (engagementResponse) return engagementResponse;
     if (path === "/api/status" && request.method === "GET") return await handleStatus(env);
+    if (path === "/api/media/upload" && request.method === "POST") return await handleImageUpload(request, env);
     if (path === "/api/auth/google/start" && request.method === "GET") return await handleGoogleAuthStart(request, env);
     if (path === "/api/auth/google/callback" && request.method === "GET") return await handleGoogleAuthCallback(request, env);
     if (path === "/api/location" && request.method === "GET") {
@@ -1176,6 +1247,9 @@ export default {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
       return handleApi(request, env);
+    }
+    if (url.pathname.startsWith("/media/")) {
+      return handleMediaRequest(request, env);
     }
 
     const assetRes = await env.ASSETS.fetch(assetRequest(request));

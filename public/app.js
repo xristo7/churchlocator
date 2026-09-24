@@ -1539,11 +1539,12 @@ MWE.getMemberShellRoute = function(input) {
     resources: "resources",
     "resource-detail": "resource-detail",
     "resource-reader": "resource-reader",
-    "church-portal": "portal",
-    portal: "portal",
-    "register-church": "portal",
-    creator: "portal",
-    "creator-hub": "portal"
+    "church-portal": "create",
+    portal: "create",
+    create: "create",
+    "register-church": "create",
+    creator: "create",
+    "creator-hub": "create"
   };
   const view = routeMap[file];
   if (!view) return null;
@@ -1807,7 +1808,7 @@ MWE.initMemberExperience = function() {
   const currentRoute = MWE.getMemberShellRoute(window.location.href);
   if (!currentRoute) return "public";
 
-  if (MWE.isMemberAuthenticated() || currentRoute.view === "portal") {
+  if (MWE.isMemberAuthenticated() || currentRoute.view === "portal" || currentRoute.view === "create") {
     window.location.replace(MWE.buildMemberShellUrl(currentRoute));
     return "redirecting";
   }
