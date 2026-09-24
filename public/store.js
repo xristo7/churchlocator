@@ -46,6 +46,7 @@
           <img class="product-image" src="${data().escapeHtml(product.image)}" alt="${data().escapeHtml(product.title)}" />
           <span class="product-badge ${isService ? "service-badge-pill" : ""}">${isService ? `<i data-lucide="sparkles"></i> Service · ` : ""}${data().escapeHtml(product.sellerType)} · ${data().escapeHtml(product.category)}</span>
         </a>
+        <button class="content-love-button content-love-overlay" type="button" data-love-type="product" data-love-id="${data().escapeHtml(product.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
         <div class="product-card-body">
           <span class="product-seller">${data().escapeHtml(product.sellerType)}: <strong>${data().escapeHtml(product.seller)}</strong></span>
           <h3><a href="product-detail.html?id=${encodeURIComponent(product.id)}">${data().escapeHtml(product.title)}</a></h3>

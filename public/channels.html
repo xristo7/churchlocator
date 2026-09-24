@@ -4,11 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Christian Channels | My Way</title>
-    <link rel="stylesheet" href="styles.css?v=20260905module19" />
+    <link rel="stylesheet" href="styles.css?v=20260919engagements1" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260915security1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260919directory3"></script><script defer src="auth-client.js?v=20260915security1"></script>
   <script defer src="platform-modules.js?v=20260826"></script>
   <script defer src="channels.js?v=20260826"></script>
+  <script defer src="content-engagements.js?v=20260919engagements1"></script>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body class="module-page" data-page="channels">
   <header class="topbar"></header>
@@ -16,12 +17,12 @@
   <main>
     <section class="module-hero module-directory-hero">
       <div class="module-shell module-hero-inner">
-        <div>
+        <div class="module-hero-copy">
           <span class="module-kicker"><i data-lucide="podcast"></i> Creator Channels</span>
-          <h1>Share the Gospel with the world.</h1>
-          <p>Discover Christian podcasts, livestreams, video teaching, worship, testimony, and creator-led communities—or start a channel of your own.</p>
+          <h1>Share the Gospel Worldwide</h1>
+          <p>Discover Christian podcasts, livestreams, teaching, worship, testimonies, and creator-led communities—or start a channel of your own.</p>
         </div>
-        <button class="module-primary-action" id="create-channel-button" type="button"><i data-lucide="plus"></i> Create a Channel</button>
+        <button class="module-primary-action module-creator-action" id="create-channel-button" type="button" data-creator-action disabled aria-disabled="true"><i data-lucide="plus"></i> Create a Channel</button>
       </div>
     </section>
 
@@ -31,14 +32,14 @@
           <i data-lucide="search"></i>
           <input id="channel-search" type="search" placeholder="Search channels, creators, or topics..." />
         </label>
-        <select class="module-select" id="channel-topic" aria-label="Filter by topic">
+        <select class="module-select" id="channel-topic" data-filter-label="Topic" aria-label="Filter by topic">
           <option value="all">All topics</option>
           <option>Bible Teaching</option><option>Bible Study</option><option>Worship</option><option>Family</option><option>Leadership</option><option>Youth</option>
         </select>
-        <select class="module-select" id="channel-format" aria-label="Filter by format">
+        <select class="module-select" id="channel-format" data-filter-label="Format" aria-label="Filter by format">
           <option value="all">All formats</option><option>Podcast</option><option>Livestream</option><option>Video</option>
         </select>
-        <select class="module-select" id="channel-status" aria-label="Filter by status">
+        <select class="module-select" id="channel-status" data-filter-label="Status" aria-label="Filter by status">
           <option value="all">Any status</option><option value="live">Live now</option><option value="verified">Verified</option>
         </select>
       </div>

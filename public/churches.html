@@ -7,9 +7,9 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>My Way of Evangelism | Find a Church Family</title>
-    <link rel="stylesheet" href="styles.css?v=20260905module19" />
+    <link rel="stylesheet" href="styles.css?v=20260919directory5" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260916taxonomy1"></script><script defer src="app.js?v=20260916taxonomy1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260916taxonomy1"></script><script defer src="app.js?v=20260919directory3"></script><script defer src="auth-client.js?v=20260915security1"></script>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body data-page="public">
   <header class="topbar">
@@ -38,13 +38,12 @@
   <main>
     <section class="module-hero module-directory-hero" id="find">
       <div class="module-shell module-hero-inner">
-        <div class="section-head mb-8">
-          <div>
-            <p class="module-kicker"><i data-lucide="church"></i> Church Directory</p>
-            <h2>Find a Church Family Near You</h2>
-            <p class="lead">Search verified fellowships by location, denomination, or pastor.</p>
-          </div>
+        <div class="module-hero-copy">
+          <p class="module-kicker"><i data-lucide="church"></i> Church Directory</p>
+          <h2>Find Your Church Family</h2>
+          <p class="lead">Search verified fellowships by location, denomination, or pastor.</p>
         </div>
+        <button class="module-primary-action module-creator-action" type="button" data-creator-action data-creator-href="creator-workspace.html#church" disabled aria-disabled="true"><i data-lucide="plus"></i> Add a Church</button>
       </div>
     </section>
 
@@ -67,22 +66,8 @@
               </button>
               <div class="filter-dropdown-panel">
                 <span class="dropdown-panel-title">Filter by Region</span>
-                <div class="dropdown-options-list">
-                  <label class="custom-checkbox-row">
-                    <input type="checkbox" value="Canada" onchange="MWE.onChurchPillChange()" />
-                    <span class="checkbox-box"><i data-lucide="check"></i></span>
-                    <span class="checkbox-label">🇨🇦 Canada</span>
-                  </label>
-                  <label class="custom-checkbox-row">
-                    <input type="checkbox" value="United States" onchange="MWE.onChurchPillChange()" />
-                    <span class="checkbox-box"><i data-lucide="check"></i></span>
-                    <span class="checkbox-label">🇺🇸 United States</span>
-                  </label>
-                  <label class="custom-checkbox-row">
-                    <input type="checkbox" value="United Kingdom" onchange="MWE.onChurchPillChange()" />
-                    <span class="checkbox-box"><i data-lucide="check"></i></span>
-                    <span class="checkbox-label">🇬🇧 United Kingdom</span>
-                  </label>
+                <div class="dropdown-options-list" id="church-country-options-list">
+                  <!-- Dynamically populated from published church records. -->
                 </div>
               </div>
             </div>

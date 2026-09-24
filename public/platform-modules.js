@@ -6,7 +6,8 @@
     resources: "faithlink.resources.v1",
     messages: "faithlink.messages.v1",
     messageSettings: "faithlink.messages.settings.v1",
-    serviceBookings: "faithlink.services.bookings.v1"
+    serviceBookings: "faithlink.services.bookings.v1",
+    channelFollows: "mwe.followed.channels.v1"
   };
 
   const channelSeeds = [
@@ -174,10 +175,7 @@
     { id: "new-believer", title: "New Believer Foundations", creator: "Christ Embassy Edmonton", topic: "Discipleship", type: "Text", format: "EPUB", access: "Free", price: 0, duration: "52 pages", rating: 4.9, image: "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=800&q=82", description: "Essential teaching on prayer, scripture, fellowship, identity, and sharing faith." }
   ];
 
-  const messageSeeds = [
-    { id: "message-worship-room", threadId: "channel-worship-room", participantId: "worship-room", participant: "The Worship Room", participantType: "Channel", avatar: channelSeeds[1].avatar, subject: "Welcome to The Worship Room", body: "Thanks for connecting with us. Let us know how we can pray with you or help you find a worship resource.", direction: "received", createdAt: "2026-08-19T17:20:00.000Z", read: false },
-    { id: "message-river-city", threadId: "church-river-city", participantId: "river-city", participant: "River City Church", participantType: "Church", avatar: "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=160&q=82", subject: "Your Sunday visit", body: "We would be delighted to welcome you this Sunday. Reply if you have questions about parking, children’s ministry, or accessibility.", direction: "received", createdAt: "2026-08-18T14:05:00.000Z", read: true }
-  ];
+  const messageSeeds = [];
 
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
@@ -230,6 +228,34 @@
     return new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 2 }).format(Number(value) || 0);
   }
 
+  function getFollowedChannelIds() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(keys.channelFollows) || "[]");
+      return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveFollowedChannelIds(ids) {
+    const unique = [...new Set((ids || []).filter(Boolean))];
+    localStorage.setItem(keys.channelFollows, JSON.stringify(unique));
+    return unique;
+  }
+
+  function isFollowingChannel(id) {
+    return Boolean(id && getFollowedChannelIds().includes(id));
+  }
+
+  function withFollowState(channel) {
+    const following = isFollowingChannel(channel.id);
+    return {
+      ...channel,
+      isFollowing: following,
+      followers: (Number(channel.followers) || 0) + (following ? 1 : 0)
+    };
+  }
+
   function safeAttachmentData(value) {
     const source = String(value || "");
     // Never navigate downloads to javascript:, HTML, SVG or arbitrary URLs.
@@ -242,10 +268,18 @@
     escapeHtml,
     safeAttachmentData,
     money,
-    getChannels: () => read(keys.channels, channelSeeds),
+    getChannels: () => read(keys.channels, channelSeeds).map(withFollowState),
     saveChannels: channels => write(keys.channels, channels),
+    getFollowedChannelIds,
+    isFollowingChannel,
+    toggleChannelFollow(id) {
+      const followed = getFollowedChannelIds();
+      const isFollowing = followed.includes(id);
+      saveFollowedChannelIds(isFollowing ? followed.filter(item => item !== id) : [...followed, id]);
+      return !isFollowing;
+    },
     addChannel(channel) {
-      const channels = api.getChannels();
+      const channels = read(keys.channels, channelSeeds);
       const saved = { ...channel, id: makeId("channel", channel.name), followers: 0, items: 0, live: false, verified: false };
       channels.unshift(saved);
       api.saveChannels(channels);

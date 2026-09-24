@@ -43,6 +43,27 @@ test("member header identifies the active section and mobile moves account actio
   assert.match(app, /padding-left: max\(22px/);
 });
 
+test("member header uses the saved profile picture with an initials fallback", async () => {
+  const html = await readProjectFile("public/app.html");
+  const shell = await readProjectFile("public/app-shell.js");
+  const styles = await readProjectFile("public/styles.css");
+
+  assert.match(html, /data-member-avatar-image/);
+  assert.match(html, /data-member-avatar-initials>MW/);
+  assert.equal((html.match(/data-member-avatar(?=[\s>])/g) || []).length, 2);
+  assert.match(html, /member-notification-icon[\s\S]*member-account-avatar[\s\S]*member-account-chevron/);
+  assert.match(html, /class="member-account-menu-profile"/);
+  assert.doesNotMatch(html, /photo-1494790108377-be9c29b29330/);
+  assert.match(shell, /function memberInitials\(name\)/);
+  assert.match(shell, /session\?\.avatarUrl/);
+  assert.match(shell, /querySelectorAll\("\[data-member-avatar\]"\)/);
+  assert.match(shell, /avatar\.onerror = showFallback/);
+  assert.match(styles, /\.member-account-menu \.member-account-menu-profile\s*\{[\s\S]*display:\s*flex !important/);
+  assert.match(styles, /\.member-account-menu \.member-account-menu-identity\s*\{[\s\S]*display:\s*grid !important/);
+  assert.match(styles, /\.member-account-avatar\s*\{[\s\S]*background:\s*var\(--primary\)/);
+  assert.match(styles, /\.member-account-avatar > \[data-member-avatar-initials\]\s*\{[\s\S]*place-items:\s*center/);
+});
+
 test("directory, event, livestream, and detail views reuse the existing pages", async () => {
   const shell = await readProjectFile("public/app-shell.js");
 
@@ -69,7 +90,7 @@ test("Channels, Store, seller management, and Resources are independent modules"
   assert.match(shell, /resources:\s*\{ source: "resources\.html"/);
   assert.match(shell, /"resource-detail":\s*\{ source: "resource-detail\.html"/);
   assert.match(channels, /Create a Channel/);
-  assert.match(store, /Manage Your Store/);
+  assert.match(store, /Add a Product or Service/);
   assert.match(store, /id="store-cart-drawer"/);
   assert.match(product, /id="product-detail"/);
   assert.match(seller, /Products and inventory/);
@@ -122,6 +143,7 @@ test("active livestreams retain thumbnail cards and open dedicated broadcast pag
 test("dedicated livestream pages use a two-to-one player and chat layout", async () => {
   const broadcast = await readProjectFile("public/broadcast.html");
   const renderer = await readProjectFile("public/creator-public.js");
+  const chat = await readProjectFile("public/livestream-chat.js");
   const styles = await readProjectFile("public/creator-public.css");
 
   assert.match(broadcast, /data-page="broadcast"/);
@@ -129,6 +151,11 @@ test("dedicated livestream pages use a two-to-one player and chat layout", async
   assert.match(renderer, /broadcast-main-column/);
   assert.match(renderer, /broadcast-chat/);
   assert.match(renderer, /id="broadcast-chat-form"/);
+  assert.match(broadcast, /livestream-chat\.js/);
+  assert.match(renderer, /MWELivestreamChat\?\.mount/);
+  assert.match(chat, /livestream-chat\//);
+  assert.match(chat, /setInterval\(refresh, pollIntervalMs\)/);
+  assert.doesNotMatch(renderer, /<b>Sarah<\/b>|<b>Daniel<\/b>/);
   assert.match(styles, /grid-template-columns:minmax\(0,2fr\) minmax\(300px,1fr\)/);
   assert.match(styles, /\.broadcast-main-column \.creator-live-player/);
   assert.match(styles, /@media \(max-width: 900px\)[\s\S]*\.broadcast-watch-layout \{ grid-template-columns:minmax\(0,1fr\)/);
@@ -180,6 +207,41 @@ test("light and dark themes persist across the public site and member shell", as
   assert.match(styles, /html\[data-theme="dark"\]/);
   assert.match(styles, /body\[data-page="home"\] \.tiny-church-card/);
   assert.match(styles, /body\.member-app-shell \.member-shell-rail/);
+});
+
+test("light mode keeps account, message settings, icons, and card text readable", async () => {
+  const styles = await readProjectFile("public/styles.css");
+  const app = await readProjectFile("public/app.html");
+  const messages = await readProjectFile("public/messages.html");
+
+  assert.match(styles, /\.email-settings-visual h2\s*\{[^}]*color:\s*var\(--text-primary\)/);
+  assert.match(styles, /\.email-settings-visual p\s*\{[^}]*color:\s*var\(--text-secondary\)/);
+  assert.match(styles, /\.email-settings-visual div svg\s*\{[^}]*color:\s*var\(--primary\)/);
+  assert.match(styles, /\.member-account-menu-identity > strong\s*\{[^}]*color:\s*var\(--text-primary\)/);
+  assert.match(styles, /\.member-account-menu a\s*\{[^}]*color:\s*var\(--text-primary\)/);
+  assert.match(styles, /\.member-account-menu a > svg,[\s\S]*stroke:\s*currentColor/);
+  assert.doesNotMatch(styles, /\.member-account-menu span\s*\{/);
+  assert.doesNotMatch(styles, /html\[data-theme="dark"\] span:not/);
+  assert.doesNotMatch(styles, /html:not\(\[data-theme="dark"\]\) \.tiny-(?:church-card|card-name)\s*\{[^}]*color:\s*var\(--background-secondary\)/);
+  assert.match(app, /styles\.css\?v=20260919theme1/);
+  assert.match(messages, /styles\.css\?v=20260919theme1/);
+});
+
+test("public light header keeps sign in readable and shows section icons only in the drawer", async () => {
+  const home = await readProjectFile("public/index.html");
+  const app = await readProjectFile("public/app.js");
+  const styles = await readProjectFile("public/styles.css");
+
+  for (const label of ["Churches", "Channels", "Events", "Watch Live"]) {
+    assert.match(home, new RegExp(`drawer-nav-icon[^>]*>[\\s\\S]*<span>${label}<\\/span>`));
+    assert.match(app, new RegExp(`drawer-nav-icon[^>]*>[\\s\\S]*<span>${label}<\\/span>`));
+  }
+  assert.match(styles, /\.topbar \.nav-links \.drawer-nav-icon\s*\{[^}]*display:\s*none !important/);
+  const responsive = await readProjectFile("public/responsive.css");
+  assert.match(responsive, /\.topbar-menu-group \.nav-links \.drawer-nav-icon\s*\{[^}]*display:\s*block !important/);
+  assert.doesNotMatch(app, /data-lucide="user"[^>]*>\s*<\/i>\s*<span>Sign In<\/span>/);
+  assert.match(styles, /\.nav-signin-btn[^}]*\{[^}]*color:\s*var\(--text-primary\)[^}]*box-shadow:\s*none/s);
+  assert.match(styles, /body\.hero-only-page \.topbar \.nav-links a,[\s\S]*text-shadow:\s*none !important/);
 });
 
 test("language changes translate the shell and active embedded module", async () => {
@@ -241,6 +303,35 @@ test("protected cards use the shared member login gate", async () => {
   assert.match(app, /isProtectedDetail/);
   assert.match(app, /MWE\.openMemberLogin\(MWE\.buildMemberShellUrl\(route\)\)/);
   assert.match(app, /localStorage\.setItem\("mwe\.userLoggedIn", "true"\)/);
+  assert.doesNotMatch(app, /isProtectedDetail = [^;]*route\.view === "event"/);
+  assert.doesNotMatch(app, /isProtectedDetail = [^;]*currentRoute\.view === "event"/);
+});
+
+test("messages and event inquiries use activated server recipients without demo threads", async () => {
+  const modules = await readProjectFile("public/platform-modules.js");
+  const messages = await readProjectFile("public/messages.js");
+  const client = await readProjectFile("public/platform-client.js");
+  const event = await readProjectFile("public/event-profile.html");
+
+  assert.match(modules, /const messageSeeds = \[\];/);
+  assert.doesNotMatch(messages, /id:\s*["'](?:river-city|hope-night)["']/);
+  assert.match(messages, /filter\(item => item\.canMessage\)/);
+  assert.match(messages, /refreshMessages/);
+  assert.match(client, /f\.refreshMessages=\(\)=>personal\.refresh\(\)/);
+  assert.match(event, /MWEPrivate\.create\('message'/);
+  assert.doesNotMatch(event, /Mock contact messaging form submit/);
+});
+
+test("member sign-in modal offers Google OAuth and preserves its destination", async () => {
+  const app = await readProjectFile("public/app.js");
+  const styles = await readProjectFile("public/styles.css");
+
+  assert.match(app, /data-member-google-auth/);
+  assert.match(app, /Continue with Google/);
+  assert.match(app, /MWE\.handleGoogleAuthFast\(modal\.dataset\.destination/);
+  assert.match(app, /safeDestination\.pathname\}\$\{safeDestination\.search\}\$\{safeDestination\.hash/);
+  assert.doesNotMatch(app, /if \(modal\.dataset\.locked === "true"\) return;/);
+  assert.match(styles, /\.member-auth-google/);
 });
 
 test("security headers allow only same-origin pages inside the member shell", async () => {
@@ -427,10 +518,27 @@ test("directory modules share the standardized atmospheric hero and filter tray"
   assert.match(appJs, /module-filter-overflow/);
   assert.match(appJs, /module-mobile-filter-button/);
   assert.match(appJs, /filterItems\.slice\(capacity\)/);
-  assert.match(appJs, /const visibleLimit = Math\.min\(3, filterItems\.length\)/);
-  assert.match(appJs, /filterItems\.length <= 3 && available >= searchMinWidth/);
+  assert.match(appJs, /const searchMinWidth = 220/);
+  assert.match(appJs, /let capacity = filterItems\.length/);
+  assert.match(appJs, /available >= searchMinWidth \+ gap \+ visibleFiltersWidth/);
   const livestream = await readProjectFile("public/livestream.html");
   assert.match(livestream, /id="livestream-search"/);
+});
+
+test("content directories use one creator-gated 3-to-1 hero action", async () => {
+  const styles = await readProjectFile("public/styles.css");
+  const appJs = await readProjectFile("public/app.js");
+  for (const page of ["store", "channels", "events", "livestream", "resources", "meditation", "churches"]) {
+    const html = await readProjectFile(`public/${page}.html`);
+    assert.match(html, /class="module-hero-copy"/, `${page} needs the shared hero copy column`);
+    assert.equal((html.match(/data-creator-action/g) || []).length, 1, `${page} needs exactly one creator action`);
+    assert.match(html, /data-creator-action[^>]*disabled[^>]*aria-disabled="true"/, `${page} creator action starts disabled`);
+  }
+  assert.match(styles, /grid-template-columns:\s*minmax\(0, 3fr\) minmax\(220px, 1fr\)/);
+  assert.match(styles, /\.module-creator-action:disabled/);
+  assert.match(appJs, /function initCreatorContentActions\(\)/);
+  assert.match(appJs, /Boolean\(window\.MWEPlatform\?\.session\?\.isCreator\)/);
+  assert.match(appJs, /initCreatorContentActions\(\)/);
 });
 
 test("landing page location dropdown has unified single element with single arrow and light mode cards have dark readable text", async () => {

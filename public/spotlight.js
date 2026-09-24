@@ -1,15 +1,5 @@
 (function () {
   'use strict';
-  const fallbackItems = [
-    { id:'spotlight-grace-story', contentType:'long-preview', title:'A new beginning in faith', caption:'Grace shares how one faithful conversation helped her begin again.', creatorName:'Grace Stories', creatorHandle:'@gracestories', posterUrl:'assets/spotlight/grace-testimony.webp', fullContentUrl:'app.html?view=channels', previewSource:'creator', previewStartSeconds:42, previewEndSeconds:87, durationSeconds:1920, ctaLabel:'Watch full video', ctaUrl:'app.html?view=channels', placementKind:'editorial', likes:2400, comments:320, saves:128, commentsEnabled:true },
-    { id:'spotlight-marcus-word', contentType:'short', title:'Faith moves when we step out', caption:'Pastor Marcus shares what God taught him in the waiting.', creatorName:'Pastor Marcus Hale', creatorHandle:'@marcushale', posterUrl:'assets/spotlight/pastor-marcus.webp', previewSource:'automatic', previewStartSeconds:0, previewEndSeconds:60, durationSeconds:80, ctaLabel:'Open Channel', ctaUrl:'app.html?view=channels', placementKind:'organic', likes:912, comments:84, saves:147, commentsEnabled:true },
-    { id:'spotlight-river-city', contentType:'church', title:'River City Fellowship', caption:'A welcoming church for real people, real faith and a brighter tomorrow.', creatorName:'River City Fellowship', creatorHandle:'@rivercity', posterUrl:'assets/spotlight/river-city-fellowship.webp', ctaLabel:'View Church', ctaUrl:'app.html?view=directory', placementKind:'editorial', likes:340, comments:41, saves:93, commentsEnabled:true }
-  ];
-  const fallbackComments = [
-    { id:'demo-1', author:'Tasha M.', body:'This spoke right to my season. 🙏', createdAt:'2026-09-16T08:00:00Z' },
-    { id:'demo-2', author:'Daniel K.', body:'Faith really does make a way.', createdAt:'2026-09-16T07:00:00Z' },
-    { id:'demo-3', author:'Alicia R.', body:'Needed this today. Thank you!', createdAt:'2026-09-16T06:00:00Z' }
-  ];
   const savedFollowing = (() => { try { return JSON.parse(localStorage.getItem('mwe.spotlight.following.v1') || '[]'); } catch { return []; } })();
   const state = { items:[], visible:[], activeIndex:0, tab:'featured', inspectorTab:'comments', sound:false, comments:new Map(), following:new Set(savedFollowing) };
   const feed = document.getElementById('spotlight-feed');
@@ -90,9 +80,8 @@
     renderInspector();
   }
   async function loadComments(item) {
-    if (state.comments.has(item.id)) return state.comments.get(item.id);
-    try { const result = await api('comments/' + encodeURIComponent(item.id)); state.comments.set(item.id,result.comments); }
-    catch { state.comments.set(item.id,fallbackComments); }
+    const result = await api('comments/' + encodeURIComponent(item.id));
+    state.comments.set(item.id,result.comments);
     return state.comments.get(item.id);
   }
   async function renderInspector() {
@@ -104,7 +93,9 @@
     }
     inspector.innerHTML = '<div class="spotlight-loading">' + icon('loader-circle') + '<span>Loading conversation…</span></div>';
     window.lucide?.createIcons();
-    const rows = await loadComments(item);
+    let rows;
+    try { rows = await loadComments(item); }
+    catch (error) { inspector.innerHTML = '<div class="spotlight-comment-empty">' + icon('wifi-off') + '<strong>Comments are unavailable.</strong><p>' + esc(error.message) + '</p></div>'; window.lucide?.createIcons(); return; }
     if (!rows.length) inspector.innerHTML = '<div class="spotlight-comment-empty">' + icon('message-circle') + '<strong>Begin an encouraging conversation.</strong><p>Comments are reviewed under the My Way community standards.</p></div>';
     else inspector.innerHTML = rows.map(row => '<article class="spotlight-comment"><span class="spotlight-comment-avatar">' + icon('user') + '</span><div><strong>' + esc(row.author) + '</strong><p>' + esc(row.body) + '</p><small>' + new Date(row.createdAt).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}) + '</small></div></article>').join('');
     window.lucide?.createIcons();
@@ -167,5 +158,5 @@
   document.addEventListener('keydown',event=>{if(event.target.matches('input,textarea'))return;if(event.key==='ArrowDown'){event.preventDefault();activate(state.activeIndex+1);}if(event.key==='ArrowUp'){event.preventDefault();activate(state.activeIndex-1);}if(event.key.toLowerCase()==='m')document.querySelector('[data-sound-toggle]')?.click();if(event.key==='Escape')document.body.classList.remove('spotlight-panel-open');});
   function syncFullscreen() { if(window.self!==window.top) window.parent.postMessage({type:'mwe-fullscreen',fullscreen:matchMedia('(max-width:760px)').matches},window.location.origin); }
   window.addEventListener('resize',syncFullscreen); window.addEventListener('pagehide',()=>{if(window.self!==window.top)window.parent.postMessage({type:'mwe-fullscreen',fullscreen:false},window.location.origin);}); syncFullscreen();
-  (async function init(){feed.innerHTML='<div class="spotlight-loading">'+icon('sparkles')+'<span>Curating Spotlight…</span></div>';window.lucide?.createIcons();try{state.items=(await api('feed')).items;if(!state.items.length)state.items=fallbackItems;}catch{state.items=fallbackItems;}const match=state.items.findIndex(item=>item.id===location.hash.slice(1));if(match>=0)state.activeIndex=match;renderFeed();})();
+  (async function init(){feed.innerHTML='<div class="spotlight-loading">'+icon('sparkles')+'<span>Curating Spotlight…</span></div>';window.lucide?.createIcons();try{state.items=(await api('feed')).items;}catch(error){feed.innerHTML='<div class="spotlight-empty">'+icon('wifi-off')+'<h2>Spotlight is unavailable.</h2><p>'+esc(error.message)+'</p></div>';inspector.innerHTML='';window.lucide?.createIcons();return;}const match=state.items.findIndex(item=>item.id===location.hash.slice(1));if(match>=0)state.activeIndex=match;renderFeed();})();
 })();

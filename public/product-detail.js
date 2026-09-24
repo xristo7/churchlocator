@@ -74,6 +74,7 @@
     // Reset form and confirmation state
     document.getElementById("service-booking-form")?.removeAttribute("hidden");
     document.getElementById("service-booking-confirmation")?.setAttribute("hidden", "true");
+    document.getElementById("service-modal-title").textContent = "Book Service";
 
     // Pre-fill user details if logged in
     const currentUser = window.FaithLinkAuth?.getCurrentUser?.();
@@ -100,6 +101,7 @@
     }
     if (backdrop) backdrop.hidden = true;
     document.body.classList.remove("modal-open");
+    document.getElementById("service-booking-form")?.removeAttribute("aria-busy");
   }
 
   function renderProductUI(product, container) {
@@ -169,6 +171,7 @@
               <span class="seller-type-tag">${data().escapeHtml(product.sellerType)}</span>
             </div>
             <h1 class="product-title-sleek">${data().escapeHtml(product.title)}</h1>
+            <button class="content-love-button content-love-detail" type="button" data-love-type="product" data-love-id="${data().escapeHtml(product.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
             <div class="product-social-proof">
               <div class="rating-stars">
                 <i data-lucide="star" class="star-filled"></i>
@@ -629,6 +632,7 @@
 
             <h1 class="service-main-title">${data().escapeHtml(service.title)}</h1>
             <p class="service-main-desc">${data().escapeHtml(service.description)}</p>
+            <button class="content-love-button content-love-detail" type="button" data-love-type="product" data-love-id="${data().escapeHtml(service.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
 
             <div class="service-highlights-row">
               <div class="highlight-stat">
@@ -704,7 +708,9 @@
               <p>Submit your preferred date and requirements. No upfront obligation—the ministry will confirm availability.</p>
             </div>
             <button type="button" class="button primary service-book-now-btn" id="service-book-now-btn">
-              <i data-lucide="calendar-plus"></i> Inquire & Book Selected Tier (<span id="selected-tier-price-display">${data().money(tiers[selectedTierIndex]?.price || service.price)}</span>)
+              <i data-lucide="calendar-plus"></i>
+              <span class="service-book-now-label">Book selected tier</span>
+              <span class="service-book-now-price" id="selected-tier-price-display">${data().money(tiers[selectedTierIndex]?.price || service.price)}</span>
             </button>
           </div>
         </section>
@@ -806,6 +812,7 @@
         submitBtn.innerHTML = `<i data-lucide="loader-2" class="spin"></i> Submitting...`;
         window.lucide?.createIcons();
       }
+      form.setAttribute("aria-busy", "true");
 
       const formData = new FormData(form);
       const payload = {
@@ -835,11 +842,14 @@
         const refCodeEl = document.getElementById("confirmation-ref-code");
         if (refCodeEl) refCodeEl.textContent = refCode;
         if (confirmBox) confirmBox.removeAttribute("hidden");
+        document.getElementById("service-modal-title").textContent = "Request received";
+        document.getElementById("confirmation-done-btn")?.focus();
 
         window.MWE?.showMemberToast?.(`Booking inquiry received! Ref: ${refCode}`);
       } catch {
         window.MWE?.showMemberToast?.("Could not submit booking inquiry. Please try again.");
       } finally {
+        form.removeAttribute("aria-busy");
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.innerHTML = `<i data-lucide="send"></i> Submit Booking Request`;
@@ -894,8 +904,10 @@
     document.title = `${item.title} | My Way of Evangelism`;
 
     if (item.itemType === "service") {
+      container.classList.add("service-detail-host");
       renderServiceUI(item, container);
     } else {
+      container.classList.remove("service-detail-host");
       renderProductUI(item, container);
     }
 
