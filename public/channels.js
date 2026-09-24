@@ -68,7 +68,8 @@
       document.getElementById(id)?.addEventListener(id === "channel-search" ? "input" : "change", render);
     });
 
-    document.getElementById("create-channel-button")?.addEventListener("click", () => {
+    document.getElementById("create-channel-button")?.addEventListener("click", event => {
+      if (event.currentTarget.dataset.creatorHref) return;
       if (!window.MWE?.isMemberAuthenticated()) {
         window.MWE?.openMemberLogin("app.html?view=channels");
         return;

@@ -5602,7 +5602,11 @@ function initCreatorContentActions() {
     action.addEventListener("click", () => {
       if (!window.MWEPlatform?.session?.isCreator) return;
       const href = action.dataset.creatorHref;
-      if (href) window.location.href = href;
+      if (href) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        window.top.location.href = href;
+      }
     });
   });
 }
