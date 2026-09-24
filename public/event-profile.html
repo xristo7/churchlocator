@@ -13,62 +13,63 @@
   <!-- Global site styles (for topbar header and footers) -->
   <link rel="stylesheet" href="styles.css?v=20260901g" />
   
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config = { darkMode: ['selector', '[data-theme="dark"]'] }</script>
+  <!-- Tailwind CSS local bundle -->
+  <script src="vendor/tailwindcss.js"></script>
   <script>
-    tailwind.config = {
-      darkMode: ['selector', '[data-theme="dark"]'],
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'Twemoji Country Flags', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: 'hsla(var(--primary-h), 80%, 96%, 1)',
-              100: 'hsla(var(--primary-h), 75%, 90%, 1)',
-              200: 'hsla(var(--primary-h), 70%, 80%, 1)',
-              300: 'hsla(var(--primary-h), 65%, 70%, 1)',
-              400: 'hsla(var(--primary-h), 65%, 60%, 1)',
-              500: 'var(--primary)',
-              600: 'var(--primary-hover)',
-              700: 'hsla(var(--primary-h), 65%, 35%, 1)',
-              800: 'hsla(var(--primary-h), 65%, 25%, 1)',
-              900: 'hsla(var(--primary-h), 65%, 15%, 1)',
+    if (window.tailwind) {
+      window.tailwind.config = {
+        darkMode: ['selector', '[data-theme="dark"]'],
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'Twemoji Country Flags', 'sans-serif'],
             },
-            clay: {
-              50: 'hsla(var(--primary-h), 80%, 96%, 1)',
-              100: 'hsla(var(--primary-h), 75%, 90%, 1)',
-              200: 'hsla(var(--primary-h), 70%, 80%, 1)',
-              500: 'var(--primary)',
-              600: 'var(--primary-hover)',
-              700: 'var(--primary)',
+            colors: {
+              brand: {
+                50: 'hsla(var(--primary-h), 80%, 96%, 1)',
+                100: 'hsla(var(--primary-h), 75%, 90%, 1)',
+                200: 'hsla(var(--primary-h), 70%, 80%, 1)',
+                300: 'hsla(var(--primary-h), 65%, 70%, 1)',
+                400: 'hsla(var(--primary-h), 65%, 60%, 1)',
+                500: 'var(--primary)',
+                600: 'var(--primary-hover)',
+                700: 'hsla(var(--primary-h), 65%, 35%, 1)',
+                800: 'hsla(var(--primary-h), 65%, 25%, 1)',
+                900: 'hsla(var(--primary-h), 65%, 15%, 1)',
+              },
+              clay: {
+                50: 'hsla(var(--primary-h), 80%, 96%, 1)',
+                100: 'hsla(var(--primary-h), 75%, 90%, 1)',
+                200: 'hsla(var(--primary-h), 70%, 80%, 1)',
+                500: 'var(--primary)',
+                600: 'var(--primary-hover)',
+                700: 'var(--primary)',
+              },
+              gold: {
+                500: 'var(--gold)',
+                600: 'var(--gold)',
+                700: 'var(--gold)',
+              }
             },
-            gold: {
-              500: 'var(--gold)',
-              600: 'var(--gold)',
-              700: 'var(--gold)',
-            }
-          },
-          animation: {
-            'blob': 'blob 7s infinite',
-            'shimmer': 'shimmer 2.5s infinite linear',
-            'float': 'float 6s ease-in-out infinite',
-          },
-          keyframes: {
-            blob: {
-              '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
-              '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-              '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+            animation: {
+              'blob': 'blob 7s infinite',
+              'shimmer': 'shimmer 2.5s infinite linear',
+              'float': 'float 6s ease-in-out infinite',
             },
-            float: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-10px)' },
+            keyframes: {
+              blob: {
+                '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
+                '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+              },
+              float: {
+                '0%, 100%': { transform: 'translateY(0px)' },
+                '50%': { transform: 'translateY(-10px)' },
+              }
             }
           }
         }
-      }
+      };
     }
   </script>
 
@@ -89,6 +90,120 @@
       max-width: 1080px !important;
       margin-left: auto !important;
       margin-right: auto !important;
+    }
+
+    .event-profile-hero {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 1rem 4rem;
+      overflow: hidden;
+    }
+    .event-profile-hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.25;
+      filter: blur(16px);
+      transform: scale(1.05);
+    }
+    .event-profile-hero-bg img,
+    .event-profile-cover-blur img,
+    .event-profile-cover-frame > img {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      object-fit: cover;
+      display: block;
+    }
+    .event-profile-hero-grid {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    .event-profile-cover-column {
+      position: relative;
+      z-index: 20;
+      width: 100%;
+      flex-shrink: 0;
+    }
+    .event-profile-cover-blur {
+      position: absolute;
+      inset: -12px;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+      border-radius: 32px;
+      opacity: 0.5;
+      filter: blur(18px);
+    }
+    .event-profile-cover-frame {
+      position: relative;
+      width: 100%;
+      min-height: 300px;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      border: 1px solid rgba(226, 232, 240, 0.6);
+      border-radius: 24px;
+      background: #0f172a;
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    }
+    .event-profile-cover-frame > img {
+      position: absolute;
+      inset: 0;
+    }
+    .event-profile-cover-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.4), transparent);
+    }
+    .event-profile-cover-copy {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 30;
+      padding: 1.5rem;
+      text-align: left;
+    }
+    .event-profile-countdown-column {
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      margin-top: 1.5rem;
+    }
+    @media (min-width: 1024px) {
+      .event-profile-hero-grid {
+        flex-direction: row;
+      }
+      .event-profile-cover-column {
+        width: 65%;
+      }
+      .event-profile-cover-frame {
+        min-height: 420px;
+      }
+      .event-profile-cover-copy {
+        max-width: 72%;
+        padding: 2rem;
+      }
+      .event-profile-countdown-column {
+        width: 48%;
+        margin-top: 0;
+        margin-left: -3.5rem;
+      }
+      .event-profile-countdown-card {
+        padding-left: 6rem !important;
+      }
     }
     
     /* Premium Glassmorphism and effects */
@@ -260,9 +375,9 @@
   </header>
 
   <!-- Interactive Hero Section -->
-  <section class="relative flex flex-col items-center justify-center pt-[80px] pb-16 overflow-hidden px-4">
+  <section class="event-profile-hero relative flex flex-col items-center justify-center pt-[80px] pb-16 overflow-hidden px-4">
     <!-- Transparent Blurred Background Image (Featured Cover Image Copy in Cover State) -->
-    <div class="absolute inset-0 pointer-events-none opacity-[0.25] filter blur-lg scale-105 z-0">
+    <div class="event-profile-hero-bg absolute inset-0 pointer-events-none opacity-[0.25] filter blur-lg scale-105 z-0">
       <img id="event-profile-hero-blur-bg" src="" alt="" class="w-full h-full object-cover" />
     </div>
     <!-- Animated Backdrop Blobs -->
@@ -274,20 +389,20 @@
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-25"></div>
 
     <!-- Tucked Overlapping Hero Grid Layout (Margin reduced to push closer to topbar) -->
-    <div class="container relative z-10 flex flex-col lg:flex-row items-center justify-center gap-0 max-w-[1080px] mx-auto w-full mt-4">
+    <div class="event-profile-hero-grid container relative z-10 flex flex-col lg:flex-row items-center justify-center gap-0 max-w-[1080px] mx-auto w-full mt-4">
       <!-- Left side: Large Event Cover Thumbnail -->
-      <div class="w-full lg:w-[65%] z-20 flex-shrink-0 relative group">
+      <div class="event-profile-cover-column w-full lg:w-[65%] z-20 flex-shrink-0 relative group">
         <!-- Blurred background cover copy -->
-        <div class="absolute -inset-3 rounded-[32px] overflow-hidden pointer-events-none opacity-50 filter blur-xl -z-10 transition-opacity duration-300 group-hover:opacity-75">
+        <div class="event-profile-cover-blur absolute -inset-3 rounded-[32px] overflow-hidden pointer-events-none opacity-50 filter blur-xl -z-10 transition-opacity duration-300 group-hover:opacity-75">
           <img id="event-profile-cover-img-blur" src="" alt="" class="w-full h-full object-cover" />
         </div>
-        <div class="w-full rounded-3xl overflow-hidden shadow-2xl relative border border-slate-200/60 aspect-[4/3] min-h-[300px] lg:min-h-[420px]">
+        <div class="event-profile-cover-frame w-full rounded-3xl overflow-hidden shadow-2xl relative border border-slate-200/60 aspect-[4/3] min-h-[300px] lg:min-h-[420px]">
           <img id="event-profile-cover-img" src="" alt="Event Cover" class="w-full h-full object-cover" />
           <!-- Darker gradient overlay at the bottom for high-contrast text rendering -->
-          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+          <div class="event-profile-cover-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
           
           <!-- Absolute Overlay Header Info at the bottom area -->
-          <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-30 text-left lg:max-w-[72%]">
+          <div class="event-profile-cover-copy absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-30 text-left lg:max-w-[72%]">
             
             <h1 id="event-profile-title" class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight text-white mb-2 filter drop-shadow-md">
               Worship Gathering & Fellowship
@@ -298,8 +413,8 @@
       </div>
 
       <!-- Right side: Countdown Card tucked behind the cover -->
-      <div class="w-full lg:w-[48%] lg:-ml-14 z-10 mt-6 lg:mt-0 flex items-center">
-        <div class="w-full rounded-3xl gradient-border glassmorphism p-6 sm:p-7 lg:pl-24 shadow-2xl relative border border-slate-200/60">
+      <div class="event-profile-countdown-column w-full lg:w-[48%] lg:-ml-14 z-10 mt-6 lg:mt-0 flex items-center">
+        <div class="event-profile-countdown-card w-full rounded-3xl gradient-border glassmorphism p-6 sm:p-7 lg:pl-24 shadow-2xl relative border border-slate-200/60">
           <!-- Glass shine overlay -->
           <div class="absolute inset-0 bg-gradient-to-tr from-white/0 to-white/10 rounded-3xl pointer-events-none"></div>
 

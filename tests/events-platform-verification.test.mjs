@@ -48,6 +48,19 @@ test("single event profile tabs activate visible panels", async () => {
   assert.match(eventProfileHtml, /if \(initiallyActive\) activateEventTab\(initiallyActive\)/, "first tab should be made visible on load");
 });
 
+test("single event profile uses local Tailwind and critical hero fallback styles", async () => {
+  const eventProfileHtml = await fs.readFile(path.join(projectRoot, "public", "event-profile.html"), "utf8");
+
+  assert.match(eventProfileHtml, /src="vendor\/tailwindcss\.js"/, "event profile should load the bundled Tailwind runtime");
+  assert.match(eventProfileHtml, /if \(window\.tailwind\)/, "Tailwind config must be guarded so embedded pages do not throw");
+  assert.doesNotMatch(eventProfileHtml, /<script>tailwind\.config/, "event profile should not assign to an undefined tailwind global");
+  assert.match(eventProfileHtml, /\.event-profile-hero\s*\{[\s\S]*display:\s*flex[\s\S]*overflow:\s*hidden/, "event profile should provide a non-Tailwind hero layout fallback");
+  assert.match(eventProfileHtml, /\.event-profile-cover-frame\s*\{[\s\S]*min-height:\s*300px[\s\S]*aspect-ratio:\s*4 \/ 3/, "cover frame should stay constrained if utility CSS is unavailable");
+  assert.match(eventProfileHtml, /\.event-profile-cover-frame > img\s*\{[\s\S]*position:\s*absolute[\s\S]*inset:\s*0/, "cover image should not render at raw image dimensions");
+  assert.match(eventProfileHtml, /class="event-profile-cover-frame /, "cover frame markup should include the critical fallback class");
+  assert.match(eventProfileHtml, /class="event-profile-countdown-column /, "countdown column markup should include the critical fallback class");
+});
+
 test("single event speaker modal renders centered above sticky chrome", async () => {
   const eventProfileHtml = await fs.readFile(path.join(projectRoot, "public", "event-profile.html"), "utf8");
   const stylesCss = await fs.readFile(path.join(projectRoot, "public", "styles.css"), "utf8");
