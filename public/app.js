@@ -5605,7 +5605,16 @@ function initCreatorContentActions() {
       if (href) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        window.top.location.href = href;
+        const target = new URL(href, window.location.href);
+        const route = {
+          view: target.searchParams.get("view") || "create",
+          kind: target.searchParams.get("kind") || ""
+        };
+        if (window.parent !== window) {
+          window.parent.postMessage({ type: "myway:navigate", ...route }, window.location.origin);
+        } else {
+          window.location.href = target.href;
+        }
       }
     });
   });

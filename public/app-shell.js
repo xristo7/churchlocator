@@ -235,6 +235,11 @@
     });
   });
 
+  window.addEventListener("message", event => {
+    if (event.origin !== window.location.origin || event.data?.type !== "myway:navigate") return;
+    loadRoute({ view: event.data.view, id: "", q: "", compose: "", post: "", kind: event.data.kind || "" });
+  });
+
   document.addEventListener("click", event => {
     if (document.body.classList.contains("member-nav-open") && rail && !rail.contains(event.target) && !mobileMenu?.contains(event.target)) {
       document.body.classList.remove("member-nav-open");
