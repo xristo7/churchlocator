@@ -5610,11 +5610,10 @@ function initCreatorContentActions() {
           view: target.searchParams.get("view") || "create",
           kind: target.searchParams.get("kind") || ""
         };
-        if (MWE.isMemberShellEmbed()) {
-          window.top.postMessage({ type: "myway:navigate", ...route }, window.location.origin);
-        } else {
-          window.location.href = target.href;
-        }
+        const shellTarget = new URL("app.html", window.location.href);
+        shellTarget.searchParams.set("view", route.view);
+        if (route.kind) shellTarget.searchParams.set("kind", route.kind);
+        window.top.location.href = shellTarget.href;
       }
     });
   });
