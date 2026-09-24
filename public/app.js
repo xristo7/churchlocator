@@ -5599,7 +5599,7 @@ function initCreatorContentActions() {
 
     if (action.dataset.creatorActionInitialized === "true") return;
     action.dataset.creatorActionInitialized = "true";
-    action.addEventListener("click", () => {
+    action.addEventListener("click", event => {
       if (!window.MWEPlatform?.session?.isCreator) return;
       const href = action.dataset.creatorHref;
       if (href) {
