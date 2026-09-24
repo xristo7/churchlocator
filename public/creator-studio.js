@@ -7,7 +7,7 @@
   const esc = value => String(value ?? "").replace(/[&<>'"]/g, char => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#39;", '"':"&quot;" }[char]));
   const icon = name => `<i data-lucide="${name}"></i>`;
   const query = new URLSearchParams(location.search);
-  const aliases = { church:"churches", event:"events", product:"products", channel:"channels", resource:"resources" };
+  const aliases = { church:"churches", event:"events", product:"products", channel:"channels", resource:"resources", meditation:"meditation" };
   const kinds = {
     churches: { label:"Church", plural:"churches", icon:"church", description:"Create a public church profile with services, location, and a clear first-visit invitation.", sections:[
       ["Church identity","Help people recognize and find your church.",[ ["name","Church name","text",true],["city","City","text",true],["country","Country","select",true,["CA|Canada","US|United States"]],["postal","Postal / ZIP code","text"],["denomination","Denomination","select",true,["Pentecostal","Full Gospel","Charismatic","Baptist","Catholic","Anglican","Presbyterian","Protestant"]],["language","Primary language","select",true,["English","French","Spanish"]],["worship","Worship style","select",true,["Contemporary","Traditional","Blended","Charismatic"]] ]],
@@ -18,6 +18,10 @@
       ["Date & place","Use the local time at the venue.",[ ["startsAt","Starts","datetime-local",true],["endsAt","Ends","datetime-local",true],["venueName","Venue name","text"],["city","City","text",true],["country","Country","select",true,["CA|Canada","US|United States"]],["directionsUrl","Directions URL","url"] ]],
       ["Registration","Choose whether guests need to reserve a place.",[ ["registrationRequired","Registration required","check"],["totalTickets","Capacity","number",false,null,"Use 0 for unlimited."],["ticketPriceCents","Ticket price in cents","number",false,null,"Use 0 for a free event."],["currency","Currency","select",true,["CAD","USD"]],["registrationUrl","Registration link","url"],["livestreamUrl","Livestream link","url"] ]]
     ], defaults:{ eventType:"in-person", country:"CA", currency:"CAD", totalTickets:0, ticketPriceCents:0, registrationRequired:false, isFeatured:false, isPromoted:false } },
+    meditation: { label:"Meditation room", plural:"meditation rooms", icon:"sparkles", description:"Create a guided Christian sanctuary with a distinct atmosphere, prayer purpose, and contemplative rhythm.", sections:[
+      ["Room identity","Give your sanctuary a welcoming name and clear spiritual direction.",[ ["title","Room title","text",true], ["ownerName","Creator or ministry name","text",true], ["subtitle","Short description","textarea",true,null,"Describe the invitation into this room."], ["category","Collection","select",true,["featured|Featured","bible-books|Bible books","themes|Themes","community|Community"]], ["purpose","Meditation purpose","select",true,["prayer|Contemplative prayer","scriptural|Scriptural contemplation","motivational|Motivational encouragement","teaching|Audio teaching","worship|Christian worship","nature|Nature reflection"]] ]],
+      ["Sanctuary design","Choose the visual template and atmosphere visitors will experience.",[ ["template","Design template","select",true,["timer|Be Still timer","ripple|Breath prayer ripples","journey|Prayer journey","nature|Nature teaching","sunburst|Joy and praise"]], ["theme","Atmosphere","select",true,["chapel|Quiet chapel","forest|Forest stillness","ocean|Open water","sunrise|Sunrise glow"]], ["themeColor","Theme color","text",true], ["durationMinutes","Session length in minutes","number",true,null,"Use 0 for an open-ended session."], ["toneFreq","Tone frequency","number"], ["commentsEnabled","Enable live comments","check"] ]]
+    ], defaults:{ category:"featured", purpose:"prayer", template:"timer", theme:"chapel", themeColor:"#4a5d3f", durationMinutes:20, toneFreq:432, commentsEnabled:false } },
     store: { label:"Store", plural:"stores", icon:"store", description:"Create a storefront before adding products or services.", sections:[
       ["Store profile","Describe who is behind the storefront.",[ ["name","Store name","text",true],["ownerName","Owner or ministry name","text",true],["category","Store category","select",true,["Books & Resources","Apparel","Music","Gifts","Church Supplies","General"]],["description","Store description","textarea",true],["email","Store email","email",true],["image","Store cover photo","image"] ]],
       ["Live shopping","Optional: connect your existing broadcast.",[ ["live","Live shopping is available","check"],["liveUrl","Live shopping URL","url"] ]]
@@ -89,6 +93,7 @@
     if (activeKind === "products") Object.assign(defaults, { seller:user?.name || "" });
     if (activeKind === "channels") Object.assign(defaults, { owner:user?.name || "" });
     if (activeKind === "resources") Object.assign(defaults, { creator:user?.name || "" });
+    if (activeKind === "meditation") Object.assign(defaults, { ownerName:user?.name || "" });
     return defaults;
   }
   function requiredFields() { return kinds[activeKind].sections.flatMap(section=>section[2]).filter(field=>field[3]); }
