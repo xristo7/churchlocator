@@ -172,6 +172,7 @@
     if (route.post) source.searchParams.set("post", route.post);
     if (route.kind) source.searchParams.set("kind", route.kind);
     if (route.create) source.searchParams.set("create", route.create);
+    if (route.view === "create") source.searchParams.set("v", "20260924meditationstyles1");
     return source.toString();
   }
 
