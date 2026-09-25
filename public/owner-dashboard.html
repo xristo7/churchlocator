@@ -6,10 +6,10 @@
   <meta name="robots" content="noindex,nofollow" />
   <title>Platform admin | My Way</title>
   <link rel="stylesheet" href="styles.css?v=20260906" />
-  <link rel="stylesheet" href="admin-workspace.css?v=20260916taxonomy1" />
+  <link rel="stylesheet" href="admin-workspace.css?v=20260925ownerlogin1" />
   <link rel="stylesheet" href="spotlight-workspace.css?v=20260916" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260916taxonomy1"></script><script defer src="app.js?v=20260916taxonomy1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260916taxonomy1"></script><script defer src="app.js?v=20260925ownerlogin1"></script><script defer src="auth-client.js?v=20260915security1"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <script defer src="meditation.js?v=20260904"></script>
   <script defer src="admin-model.js?v=20260916taxonomy1"></script>
@@ -30,6 +30,14 @@
         <label class="form-field"><span>Email</span><input type="email" required autocomplete="username" placeholder="you@example.com" /></label>
         <label class="form-field"><span>Password</span><input type="password" required autocomplete="current-password" placeholder="Your password" /></label>
         <button class="aw-button aw-primary" type="submit">Open admin workspace <i data-lucide="arrow-right"></i></button>
+      </form>
+      <div class="aw-login-divider"><span>or</span></div>
+      <a class="aw-button aw-google-login" href="/api/auth/google/start?next=%2Fowner-dashboard.html"><span class="aw-google-mark">G</span> Continue with Google</a>
+      <button class="aw-forgot-link" type="button" data-open-password-reset>Forgot your password?</button>
+      <form class="aw-password-reset" data-password-reset-form hidden>
+        <label class="form-field"><span>Email for recovery</span><input type="email" required autocomplete="email" placeholder="you@example.com" /></label>
+        <button class="aw-button" type="submit">Email me a reset link</button>
+        <p role="status" data-password-reset-message></p>
       </form>
       <p class="aw-login-note"><i data-lucide="shield-check"></i> Access requires a server-assigned owner role, verified email and an authenticator.</p>
       <a href="account-security.html">Account verification and authenticator settings</a>

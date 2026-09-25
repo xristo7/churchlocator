@@ -1965,6 +1965,24 @@ function initPrivateAppAuth() {
     signIn("overview", result.user);
   });
 
+  document.querySelector("[data-open-password-reset]")?.addEventListener("click", event => {
+    const form = document.querySelector("[data-password-reset-form]");
+    if (form) { form.hidden = !form.hidden; if (!form.hidden) form.querySelector("input")?.focus(); }
+    event.currentTarget.setAttribute("aria-expanded", String(!form?.hidden));
+  });
+  document.querySelector("[data-password-reset-form]")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const form = event.currentTarget, button = form.querySelector("button"), message = form.querySelector("[data-password-reset-message]"), email = form.querySelector("input")?.value.trim().toLowerCase();
+    if (!form.reportValidity()) return;
+    button.disabled = true; message.textContent = "Sending recovery instructions...";
+    try {
+      const response = await fetch("/api/auth/password/request", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) });
+      const result = await response.json().catch(() => ({}));
+      message.textContent = response.ok ? "If that account exists, recovery instructions have been emailed." : (result.error || "We could not send recovery instructions.");
+    } catch { message.textContent = "We could not reach the server. Check your connection and try again."; }
+    button.disabled = false;
+  });
+
   // Launch Goal selection cards
   document.querySelectorAll(".launch-goal-card").forEach(card => {
     card.addEventListener("click", () => {
