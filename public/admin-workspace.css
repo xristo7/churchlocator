@@ -216,11 +216,17 @@ html[data-theme="dark"] .admin-workspace #aw-editor-error { color:#fecaca; backg
 .admin-workspace #aw-editor { border-color:var(--border-subtle); border-radius:22px; box-shadow:0 28px 90px rgba(5,15,38,.28); }
 .admin-workspace .login-screen { background-color:var(--background); background-image:var(--ambient-bg); }
 .admin-workspace .login-card { border-color:rgba(255,255,255,.12); border-radius:24px; box-shadow:0 30px 90px rgba(2,8,23,.35); }
-.admin-workspace .login-card { width:min(100% - 32px, 430px); padding:32px; }
-.admin-workspace .login-card>.aw-brand { margin-bottom:28px; }
-.admin-workspace .login-card h1 { margin:0; font-size:30px; line-height:1.15; letter-spacing:-.7px; }
-.admin-workspace .login-card>p:not(.aw-eyebrow) { margin:10px 0 24px; line-height:1.55; }
-.admin-workspace .login-card .aw-login-note { margin-top:22px!important; }
+.admin-workspace .login-card { display:grid; grid-template-columns:minmax(240px,.9fr) minmax(320px,1.1fr); gap:54px; width:min(calc(100% - 40px),900px); padding:56px; }
+.admin-workspace .login-intro { align-self:center; }
+.admin-workspace .login-card>.login-intro .aw-brand { padding:0; margin-bottom:68px; }
+.admin-workspace .login-card h1 { margin:0; font-size:clamp(30px,3vw,42px); line-height:1.08; letter-spacing:-1.2px; }
+.admin-workspace .login-card .login-intro>p:not(.aw-eyebrow) { margin:14px 0 0; line-height:1.6; }
+.admin-workspace .login-actions { align-self:center; }
+.admin-workspace .aw-google-login { width:100%; min-height:46px; border:1px solid var(--border-subtle); border-radius:11px; background:#fff; color:#1f2937!important; font-weight:700; box-shadow:0 3px 8px rgba(15,23,42,.08); }
+.admin-workspace .aw-google-login:hover { background:#f8fafc; border-color:#b9c4d5; }
+.admin-workspace .aw-google-mark { font-family:Arial,sans-serif; font-size:18px; font-weight:700; color:#4285f4; }
+.admin-workspace .login-actions .aw-login-note { margin-top:22px!important; }
+@media(max-width:700px) { .admin-workspace .login-card { grid-template-columns:1fr; gap:26px; width:min(calc(100% - 32px),480px); padding:30px 24px; }.admin-workspace .login-card>.login-intro .aw-brand { margin-bottom:32px; } }
 html[data-theme="dark"] .admin-workspace { --aw-panel-shadow:0 18px 46px rgba(0,0,0,.22); }
 html[data-theme="dark"] .admin-workspace .aw-topbar { background:color-mix(in srgb,var(--surface-canvas) 82%,transparent); }
 @media(max-width:900px) { .admin-workspace .aw-sidebar { box-shadow:18px 0 55px rgba(3,10,26,.3); } }
