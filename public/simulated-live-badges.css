@@ -1,0 +1,32 @@
+/* Simulated-live badges (public/simulated-live-badges.js) */
+.sl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-decoration: none;
+  background: rgba(15, 23, 42, 0.78);
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+}
+.sl-badge--live { background: #dc2626; color: #ffffff; }
+.sl-badge--upcoming { background: rgba(15, 23, 42, 0.78); color: #f8fafc; }
+.church-card-top-bar .sl-badge { margin-left: auto; }
+.sl-badge--profile { margin: 4px 0 10px; font-size: 0.8rem; align-self: flex-start; width: max-content; }
+a.sl-badge:hover, a.sl-badge:focus-visible { filter: brightness(1.08); text-decoration: underline; }
+a.sl-badge:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+.sl-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: sl-badge-pulse 1.6s ease-in-out infinite;
+}
+@keyframes sl-badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .sl-badge-dot { animation: none; } }
