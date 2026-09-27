@@ -198,7 +198,7 @@ test('overlaps across streams of one church are rejected; paused and archived st
   // Archiving B (DELETE) frees it again and hides B from the owner list.
   assert.equal((await s.call('churches/church-1/simulated-live/' + b.body.stream.id, 'DELETE')).status, 200);
   const active = await s.call('churches/church-1/simulated-live/' + a.id, 'PATCH', { status: 'active' });
-  assert.equal(active.status, 200); assert.equal(active.body.stream.pausedBy, null);
+  assert.equal(active.status, 200); assert.equal(active.body.stream.pausedBy, 'alice@example.test'); // pause history is kept
   assert.deepEqual((await s.call('churches/church-1/simulated-live')).body.streams.map(x => x.id), [a.id]);
 });
 
@@ -235,7 +235,7 @@ test('now-playing moves through upcoming, live, ended and none with an injected 
   assert.equal(r.body.poster, '/media/creator-media/00000000-0000-4000-8000-000000000001.jpg'); assert.equal(r.body.slotId, null);
   s.at(t0 + 600500); r = await now();
   assert.equal(r.body.state, 'live'); assert.equal(r.body.offsetSeconds, 600.5); assert.equal(r.body.loopIteration, 0);
-  assert.deepEqual(r.body.stream, { id: stream.id, title: 'Sunday service replay', videoUrl: 'https://cdn.example.org/videos/service.mp4', durationSeconds: 3600, playMode: 'once' });
+  assert.deepEqual(r.body.stream, { id: stream.id, title: 'Sunday service replay', videoUrl: 'https://cdn.example.org/videos/service.mp4', durationSeconds: 3600, playMode: 'once', timezone: 'Africa/Kampala' });
   assert.deepEqual(r.body.play, { startsAt: new Date(t0).toISOString(), endsAt: new Date(t0 + 3600000).toISOString(), slotId });
   assert.equal(r.body.slotId, slotId); assert.equal(r.body.nextPlay, null);
   s.at(t0 + 3600000 + 10 * 60000); r = await now();
@@ -271,6 +271,20 @@ test('paused streams go off air immediately and archived streams are excluded fr
   assert.equal(r.body.state, 'upcoming'); assert.equal(r.body.stream.id, b.id); assert.equal(r.body.nextPlay.title, 'B');
   s.as('alice'); await s.call('churches/church-1/simulated-live/' + b.id, 'DELETE');
   r = await s.call('churches/church-1/now-playing'); assert.equal(r.body.state, 'none');
+  // A platform-owner pause is a moderation lock: the church cannot put it back on air.
+  const blocked = await s.call('churches/church-1/simulated-live/' + a.id, 'PATCH', { status: 'active' });
+  assert.equal(blocked.status, 403); assert.equal(blocked.body.code, 'moderation_locked');
+  s.as('owner');
+  const resumed = await s.call('churches/church-1/simulated-live/' + a.id, 'PATCH', { status: 'active' });
+  assert.equal(resumed.status, 200); assert.equal(resumed.body.stream.status, 'active');
+  // Pause history is kept after resume.
+  assert.equal(resumed.body.stream.pausedBy, 'owner@example.test'); assert.equal(resumed.body.stream.moderationNote, 'Reported'); assert.equal(resumed.body.stream.moderationLocked, false);
+  r = await s.call('churches/church-1/now-playing'); assert.equal(r.body.timezone, 'Africa/Kampala'); assert.equal(r.body.stream.timezone, 'Africa/Kampala');
+  // A church's own pause is not locked.
+  s.as('alice');
+  await s.call('churches/church-1/simulated-live/' + a.id, 'PATCH', { status: 'paused' });
+  const own = await s.call('churches/church-1/simulated-live/' + a.id, 'PATCH', { status: 'active' });
+  assert.equal(own.status, 200);
 });
 
 test('batch now-playing answers many churches with one query and caps the list', async () => {
@@ -284,7 +298,7 @@ test('batch now-playing answers many churches with one query and caps the list',
   assert.equal(r.body.churches['church-1'].state, 'live'); assert.equal(r.body.churches['church-1'].poster, 'https://cdn.example.org/p.png'); assert.ok(r.body.churches['church-1'].slotId);
   assert.equal(r.body.churches['church-1'].play.slotId, r.body.churches['church-1'].slotId);
   assert.equal(r.body.churches['church-2'].state, 'upcoming'); assert.equal(r.body.churches['church-2'].nextPlay.title, 'Hope live');
-  assert.deepEqual(r.body.churches.unknown, { state: 'none', poster: null, slotId: null, play: null, nextPlay: null });
+  assert.deepEqual(r.body.churches.unknown, { state: 'none', timezone: null, poster: null, slotId: null, play: null, nextPlay: null });
   const many = Array.from({ length: 51 }, (_, i) => 'c' + i).join(',');
   const tooMany = await s.call('simulated-live/now-playing?churchIds=' + many);
   assert.equal(tooMany.status, 400); assert.equal(tooMany.body.code, 'invalid_request');

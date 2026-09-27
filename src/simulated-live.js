@@ -162,7 +162,8 @@ export function computeNowPlaying(streams, nowMs) {
   const s = current?.stream;
   return {
     state,
-    stream: s ? { id: s.id, title: s.title, videoUrl: s.videoUrl, durationSeconds: s.durationSeconds, playMode: s.playMode } : null,
+    stream: s ? { id: s.id, title: s.title, videoUrl: s.videoUrl, durationSeconds: s.durationSeconds, playMode: s.playMode, timezone: s.timezone } : null,
+    timezone: s?.timezone || null,
     poster: s?.posterUrl || null,
     slotId: (live || ended) ? current.slotId : null,
     play: current ? { startsAt: iso(current.startsAt), endsAt: iso(current.endsAt), slotId: current.slotId } : null,
@@ -258,13 +259,13 @@ function parseSlots(list, nowMs, allowedPast) {
 }
 
 // --- Data access ---------------------------------------------------------------
-const STREAM_COLUMNS = 's.id,s.church_id,s.title,s.description,s.video_url,s.poster_url,s.video_source,s.duration_seconds,s.play_mode,s.loop_window_minutes,s.timezone,s.status,s.created_by,s.paused_by,s.paused_at,s.moderation_note,s.created_at,s.updated_at';
+const STREAM_COLUMNS = 's.id,s.church_id,s.title,s.description,s.video_url,s.poster_url,s.video_source,s.duration_seconds,s.play_mode,s.loop_window_minutes,s.timezone,s.status,s.created_by,s.paused_by,s.paused_at,s.moderation_locked,s.moderation_note,s.created_at,s.updated_at';
 const SLOT_COLUMNS = 'l.id as slot_id,l.kind as slot_kind,l.starts_at as slot_starts_at,l.weekday as slot_weekday,l.local_time as slot_local_time,l.active_from as slot_active_from,l.active_until as slot_active_until,l.created_at as slot_created_at';
 function streamFromRow(row) {
   return {
     id: row.id, churchId: row.church_id, title: row.title, description: row.description, videoUrl: row.video_url, videoSource: row.video_source,
     posterUrl: row.poster_url, durationSeconds: row.duration_seconds, playMode: row.play_mode, loopWindowMinutes: row.loop_window_minutes,
-    timezone: row.timezone, status: row.status, createdBy: row.created_by, pausedBy: row.paused_by, pausedAt: row.paused_at,
+    timezone: row.timezone, status: row.status, createdBy: row.created_by, pausedBy: row.paused_by, pausedAt: row.paused_at, moderationLocked: !!row.moderation_locked,
     moderationNote: row.moderation_note, createdAt: row.created_at, updatedAt: row.updated_at, slots: []
   };
 }
@@ -298,13 +299,14 @@ function publicStream(stream, nowMs) {
 async function requireChurchManager(request, env, ctx, churchId) {
   const user = await ctx.getSessionUser(request, env);
   if (!user) throw new ApiError(401, 'Sign in required.');
-  if (!await isOwner(env, user)) {
+  const platformOwner = await isOwner(env, user);
+  if (!platformOwner) {
     const row = await env.DB.prepare("select 1 as ok from platform_entities e join tenant_memberships m on m.tenant_id = e.tenant_id where e.id = ? and e.kind = 'churches' and m.user_id = ? and m.role in ('owner','editor')").bind(churchId, user.id).first();
     if (!row) throw new ApiError(403, 'Only this church’s managers can schedule simulated live streams.');
   }
   const church = await env.DB.prepare('select id, name from churches where id = ?').bind(churchId).first();
   if (!church) throw new ApiError(404, 'Church not found.');
-  return { user, church };
+  return { user, church, platformOwner };
 }
 async function overlapConflicts(env, churchId, stream, candidateSlots, { excludeStreamId, nowMs }) {
   const to = nowMs + OVERLAP_HORIZON_MS;
@@ -450,7 +452,7 @@ function streamInputFrom(stream) {
 const EDITABLE = ['title', 'description', 'videoUrl', 'posterUrl', 'durationSeconds', 'playMode', 'loopWindowMinutes', 'timezone'];
 
 async function handleOwnerRoutes(request, env, ctx, churchId, rest, url, nowMs) {
-  const { user, church } = await requireChurchManager(request, env, ctx, churchId);
+  const { user, church, platformOwner } = await requireChurchManager(request, env, ctx, churchId);
   const now = iso(nowMs), method = request.method;
   if (rest.length === 0) {
     if (method === 'GET') {
@@ -521,6 +523,9 @@ async function handleOwnerRoutes(request, env, ctx, churchId, rest, url, nowMs) 
       firstError(errors);
       const status = has(input, 'status') ? input.status : stream.status;
       if (!['active', 'paused', 'archived'].includes(status)) fail('invalid_request', "Status must be 'active', 'paused' or 'archived'.");
+      if (stream.moderationLocked && !platformOwner && status === 'active' && stream.status !== 'active') {
+        fail('moderation_locked', 'A platform owner paused this stream for review. Contact support to put it back on air.', { httpStatus: 403 });
+      }
       let moderationNote = stream.moderationNote;
       if (has(input, 'moderationNote')) {
         moderationNote = input.moderationNote == null ? null : String(input.moderationNote).trim() || null;
@@ -531,10 +536,13 @@ async function handleOwnerRoutes(request, env, ctx, churchId, rest, url, nowMs) 
       const slots = replaceSlots ? parseSlots(input.slots, nowMs, allowedPast) : stream.slots;
       const next = { ...stream, ...fields, status };
       if (status === 'active') assertNoConflicts(await overlapConflicts(env, churchId, next, slots, { excludeStreamId: streamId, nowMs }));
-      const pausedBy = status === 'paused' ? (stream.status === 'paused' ? stream.pausedBy : user.email || user.id) : null;
-      const pausedAt = status === 'paused' ? (stream.status === 'paused' ? stream.pausedAt : now) : null;
-      const statements = [env.DB.prepare('update simulated_live_streams set title = ?, description = ?, video_url = ?, poster_url = ?, video_source = ?, duration_seconds = ?, play_mode = ?, loop_window_minutes = ?, timezone = ?, status = ?, paused_by = ?, paused_at = ?, moderation_note = ?, updated_at = ? where id = ?')
-        .bind(fields.title, fields.description, fields.videoUrl, fields.posterUrl, fields.videoSource, fields.durationSeconds, fields.playMode, fields.loopWindowMinutes, fields.timezone, status, pausedBy, pausedAt, moderationNote, now, streamId)];
+      // Pause history (pausedBy/pausedAt/moderationNote) is kept after a resume; status says whether it is live.
+      const newlyPaused = status === 'paused' && stream.status !== 'paused';
+      const pausedBy = newlyPaused ? (user.email || user.id) : stream.pausedBy;
+      const pausedAt = newlyPaused ? now : stream.pausedAt;
+      const moderationLocked = status === 'active' ? 0 : (status === 'paused' && platformOwner && (newlyPaused || has(input, 'moderationNote'))) ? 1 : (stream.moderationLocked ? 1 : 0);
+      const statements = [env.DB.prepare('update simulated_live_streams set title = ?, description = ?, video_url = ?, poster_url = ?, video_source = ?, duration_seconds = ?, play_mode = ?, loop_window_minutes = ?, timezone = ?, status = ?, paused_by = ?, paused_at = ?, moderation_locked = ?, moderation_note = ?, updated_at = ? where id = ?')
+        .bind(fields.title, fields.description, fields.videoUrl, fields.posterUrl, fields.videoSource, fields.durationSeconds, fields.playMode, fields.loopWindowMinutes, fields.timezone, status, pausedBy, pausedAt, moderationLocked, moderationNote, now, streamId)];
       if (replaceSlots) {
         slots.forEach(slot => { slot.id = crypto.randomUUID(); });
         statements.push(env.DB.prepare('delete from simulated_live_slots where stream_id = ?').bind(streamId), ...slots.map(slot => slotInsert(env, slot, streamId, churchId, now)));
@@ -583,7 +591,7 @@ async function handleBatchNowPlaying(request, env, ctx, url, nowMs) {
   const churches = {};
   for (const id of ids) {
     const result = computeNowPlaying(streams.filter(s => s.churchId === id), nowMs);
-    churches[id] = { state: result.state, poster: result.poster, slotId: result.slotId, play: result.play, nextPlay: result.nextPlay };
+    churches[id] = { state: result.state, timezone: result.timezone, poster: result.poster, slotId: result.slotId, play: result.play, nextPlay: result.nextPlay };
   }
   return noStore(ctx.json({ ok: true, serverTime: iso(nowMs), churches }));
 }
@@ -639,7 +647,7 @@ export async function handleSimulatedLiveApi(request, env, ctx) {
     }
     return await handleOwnerRoutes(request, env, ctx, churchId, churchMatch[3] ? churchMatch[3].split('/') : [], url, nowMs);
   } catch (error) {
-    if (error instanceof SimulatedLiveError) return ctx.json({ ok: false, error: error.message, code: error.code, ...error.extra }, 400);
+    if (error instanceof SimulatedLiveError) { const { httpStatus = 400, ...extra } = error.extra || {}; return ctx.json({ ok: false, error: error.message, code: error.code, ...extra }, httpStatus); }
     throw error;
   }
 }
