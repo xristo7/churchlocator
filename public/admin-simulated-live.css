@@ -1,0 +1,27 @@
+/* Owner "Livestream schedules" moderation view (admin-simulated-live.js). */
+.admin-workspace .asl-list { display:grid; }
+.admin-workspace .asl-row { display:grid; grid-template-columns:120px minmax(0,1fr) auto; gap:18px; padding:18px 22px; border-bottom:1px solid var(--border); align-items:start; }
+.admin-workspace .asl-media { display:grid; gap:8px; justify-items:start; }
+.admin-workspace .asl-poster { width:120px; height:68px; object-fit:cover; border-radius:10px; background:var(--background-secondary); display:grid; place-items:center; color:var(--text-muted); }
+.admin-workspace .asl-head { display:flex; justify-content:space-between; gap:12px; align-items:start; }
+.admin-workspace .asl-head h3 { font-size:14px; font-weight:700; margin-top:2px; }
+.admin-workspace .asl-church { color:var(--text-muted); font-size:11px; }
+.admin-workspace .asl-badges { display:flex; gap:6px; flex-wrap:wrap; }
+.admin-workspace .asl-lock { color:#a52e21; background:#fff0ed; }
+html[data-theme="dark"] .admin-workspace .asl-lock { color:#fecaca; background:#7f1d1d; }
+.admin-workspace .asl-meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px 16px; margin:12px 0 0; }
+.admin-workspace .asl-meta dt { font-size:10px; letter-spacing:.5px; text-transform:uppercase; color:var(--text-muted); }
+.admin-workspace .asl-meta dd { margin:2px 0 0; font-size:12px; color:var(--text-secondary); }
+.admin-workspace .asl-slots { margin-top:12px; font-size:12px; }
+.admin-workspace .asl-slots ul { margin:4px 0 0; padding-left:18px; color:var(--text-secondary); }
+.admin-workspace .asl-history { margin-top:12px; padding:10px 12px; border-left:3px solid #d39538; background:var(--surface-soft); border-radius:8px; font-size:12px; }
+.admin-workspace .asl-history p { margin:4px 0; white-space:pre-wrap; }
+.admin-workspace .asl-history small { color:var(--text-muted); }
+.admin-workspace .asl-error { margin:12px 0 0; padding:10px 12px; border-radius:8px; background:#fff0ed; color:#a52e21; font-size:12px; }
+html[data-theme="dark"] .admin-workspace .asl-error { background:#7f1d1d; color:#fecaca; }
+.admin-workspace .asl-list-error { margin:14px 22px 0; }
+.admin-workspace .asl-pause-form { display:grid; gap:10px; margin-top:12px; }
+.admin-workspace .asl-pause-form label { display:grid; gap:6px; font-size:12px; font-weight:600; }
+.admin-workspace .asl-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.admin-workspace .asl-more { justify-content:center; }
+@media(max-width:800px) { .admin-workspace .asl-row { grid-template-columns:1fr; } .admin-workspace .asl-head { flex-direction:column; } }
