@@ -2,6 +2,7 @@ import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityH
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
 import { handlePlatformApi, isOwner } from './trusted-platform.js';
 import { handleSpotlightApi } from './spotlight.js';
+import { handleStoreApi } from './store.js';
 import { handleContentEngagementApi } from './content-engagements.js';
 
 const apiHeaders = {
@@ -1481,6 +1482,8 @@ async function handleApi(request, env) {
     if (identityResponse) return identityResponse;
     const platformResponse = await handlePlatformApi(request, env, context);
     if (platformResponse) return platformResponse;
+    const storeResponse = await handleStoreApi(request, env, context);
+    if (storeResponse) return storeResponse;
     const spotlightResponse = await handleSpotlightApi(request, env, context);
     if (spotlightResponse) return spotlightResponse;
     const engagementResponse = await handleContentEngagementApi(request, env, context);
