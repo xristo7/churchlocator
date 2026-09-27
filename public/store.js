@@ -1,5 +1,5 @@
 (function initializeStoreModule() {
-  const data = () => window.FaithLinkModules;
+  const data = () => window.MWEStore || window.FaithLinkModules;
 
   function filteredProducts() {
     const query = document.getElementById("store-search")?.value.trim().toLowerCase() || "";
@@ -40,10 +40,13 @@
     }
     grid.innerHTML = products.map(product => {
       const isService = product.itemType === "service";
+      const rating = Number(product.rating);
+      const ratingLabel = Number.isFinite(rating) && rating > 0 ? rating.toFixed(1) : "New";
+      const fallbackImage = isService ? "assets/community-outreach.png" : "assets/hero-global-church.png";
       return `
       <article class="product-card ${isService ? "service-card-item" : ""}">
         <a class="product-image-wrap" href="product-detail.html?id=${encodeURIComponent(product.id)}" aria-label="View ${data().escapeHtml(product.title)}">
-          <img class="product-image" src="${data().escapeHtml(product.image)}" alt="${data().escapeHtml(product.title)}" />
+          <img class="product-image" src="${data().escapeHtml(product.image)}" data-fallback-src="${fallbackImage}" alt="${data().escapeHtml(product.title)}" />
           <span class="product-badge ${isService ? "service-badge-pill" : ""}">${isService ? `<i data-lucide="sparkles"></i> Service · ` : ""}${data().escapeHtml(product.sellerType)} · ${data().escapeHtml(product.category)}</span>
         </a>
         <button class="content-love-button content-love-overlay" type="button" data-love-type="product" data-love-id="${data().escapeHtml(product.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
@@ -51,7 +54,7 @@
           <span class="product-seller">${data().escapeHtml(product.sellerType)}: <strong>${data().escapeHtml(product.seller)}</strong></span>
           <h3><a href="product-detail.html?id=${encodeURIComponent(product.id)}">${data().escapeHtml(product.title)}</a></h3>
           <span class="product-rating">
-            <i data-lucide="star"></i>${Number(product.rating).toFixed(1)} · ${isService ? "Verified Service" : `${Number(product.inventory)} in stock`}
+            <i data-lucide="star"></i>${ratingLabel} · ${isService ? "Verified Service" : `${Number(product.inventory)} in stock`}
           </span>
           <div class="product-price-row">
             <div>
@@ -73,13 +76,20 @@
       </article>
       `;
     }).join("");
+    grid.querySelectorAll("img[data-fallback-src]").forEach(image => {
+      image.addEventListener("error", () => {
+        if (image.dataset.fallbackApplied) return;
+        image.dataset.fallbackApplied = "true";
+        image.src = image.dataset.fallbackSrc;
+      }, { once: true });
+    });
     window.lucide?.createIcons();
   }
 
   function renderCart() {
     const cart = data().getCart();
     const products = data().getProducts();
-    const rows = cart.map(item => ({ ...item, product: products.find(product => product.id === item.id) })).filter(item => item.product);
+    const rows = cart.map(item => ({ ...item, product: products.find(product => product.id === item.id) || data().getItemById?.(item.id) })).filter(item => item.product);
     const count = rows.reduce((sum, item) => sum + item.quantity, 0);
     const total = rows.reduce((sum, item) => sum + item.quantity * item.product.price, 0);
     document.getElementById("cart-count").textContent = count;
@@ -106,21 +116,22 @@
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
-  await window.MWEPlatform?.ready;
+    await window.MWEPlatform?.ready;
+    try { await window.MWEStore?.ready; await window.MWEStore?.refreshProducts?.({ includeDrafts: false }); } catch (_) {}
     const category = document.getElementById("store-category");
-    [...new Set(data().getProducts().map(product => product.category))].sort().forEach(value => category.insertAdjacentHTML("beforeend", `<option>${data().escapeHtml(value)}</option>`));
+    [...new Set(data().getProducts().map(product => product.category).filter(Boolean))].sort().forEach(value => category.insertAdjacentHTML("beforeend", `<option>${data().escapeHtml(value)}</option>`));
     ["store-search", "store-type", "store-category", "store-seller", "store-sort"].forEach(id => document.getElementById(id)?.addEventListener(id === "store-search" ? "input" : "change", renderProducts));
-    document.addEventListener("click", event => {
+    document.addEventListener("click", async event => {
       const add = event.target.closest("[data-add-product]");
       if (add) {
-        data().addToCart(add.dataset.addProduct);
+        try { await data().addToCart(add.dataset.addProduct); } catch (error) { window.MWE?.showMemberToast?.(error.message || "Unable to add that item to your cart"); return; }
         renderCart();
         setCartOpen(true);
         window.MWE?.showMemberToast?.("Added to your cart");
       }
       const remove = event.target.closest("[data-remove-cart]");
       if (remove) {
-        data().setCartQuantity(remove.dataset.removeCart, 0);
+        try { await data().setCartQuantity(remove.dataset.removeCart, 0); } catch (error) { window.MWE?.showMemberToast?.(error.message || "Unable to update your cart"); return; }
         renderCart();
       }
     });
