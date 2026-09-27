@@ -1,4 +1,5 @@
 import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityHeaders } from "./security.js";
+import { validateNewPassword } from './password-policy.js';
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
 import { handlePlatformApi, isOwner } from './trusted-platform.js';
 import { handleSpotlightApi } from './spotlight.js';
@@ -336,7 +337,8 @@ async function registerUser(request, env, { forceCreator = false } = {}) {
 
   if (!name || name.length > 200) return json({ ok: false, error: "Enter your full name." }, 400);
   if (!isValidEmail(email)) return json({ ok: false, error: "Enter a valid email address." }, 400);
-  if (password.length < 15 || password.length > 128) return json({ ok: false, error: "Password must be between 15 and 128 characters." }, 400);
+  const policy = validateNewPassword(password);
+  if (!policy.ok) return json({ ok: false, error: policy.error, missing: policy.missing }, 400);
 
   const existing = await env.DB.prepare("select id from users where email = ?").bind(email).first();
   if (existing) {
@@ -492,9 +494,8 @@ async function handleAuthPasswordUpdate(request, env) {
   if (!(await verifyUserPassword(user, currentPassword, env))) {
     return json({ ok: false, error: "Your current password is incorrect." }, 401);
   }
-  if (newPassword.length < 15 || newPassword.length > 128) {
-    return json({ ok: false, error: "Your new password must be between 15 and 128 characters." }, 400);
-  }
+  const policy = validateNewPassword(newPassword);
+  if (!policy.ok) return json({ ok: false, error: policy.error, missing: policy.missing }, 400);
   if (constantTimeEqual(currentPassword, newPassword)) {
     return json({ ok: false, error: "Choose a new password that is different from your current password." }, 400);
   }

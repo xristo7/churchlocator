@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import worker from "../src/worker.js";
+import { environmentPassword } from "../src/identity-security.js";
 
 const assets = {
   fetch() {
@@ -144,7 +145,7 @@ function getWithCookie(path, cookie) {
 test("register creates a real account, hashes the password, and issues a session", async () => {
   const env = baseEnv();
   const response = await worker.fetch(
-    postJson("/api/auth/register", { name: "Ada Lovelace", email: "Ada@Example.com ", password: "correct-horse-battery" }),
+    postJson("/api/auth/register", { name: "Ada Lovelace", email: "Ada@Example.com ", password: "Correct-horse-battery1" }),
     env
   );
   const body = await response.json();
@@ -157,7 +158,7 @@ test("register creates a real account, hashes the password, and issues a session
   const stored = env.DB._debug.usersByEmail.get("ada@example.com");
   assert.ok(stored, "user should be persisted");
   const row = env.DB._debug.usersById.get(stored);
-  assert.notEqual(row.password_hash, "correct-horse-battery");
+  assert.notEqual(row.password_hash, "Correct-horse-battery1");
   assert.ok(row.password_salt);
 
   const cookie = extractSessionCookie(response);
@@ -166,28 +167,61 @@ test("register creates a real account, hashes the password, and issues a session
 
 test("register rejects a duplicate email, a weak password, and a malformed email", async () => {
   const env = baseEnv();
-  await worker.fetch(postJson("/api/auth/register", { name: "Ada", email: "dup@example.com", password: "correct-horse-battery" }), env);
+  await worker.fetch(postJson("/api/auth/register", { name: "Ada", email: "dup@example.com", password: "Correct-horse-battery1" }), env);
 
-  const dup = await worker.fetch(postJson("/api/auth/register", { name: "Someone Else", email: "dup@example.com", password: "correct-horse-battery" }), env);
+  const dup = await worker.fetch(postJson("/api/auth/register", { name: "Someone Else", email: "dup@example.com", password: "Correct-horse-battery1" }), env);
   assert.equal(dup.status, 409);
 
   const weakPassword = await worker.fetch(postJson("/api/auth/register", { name: "Bob", email: "bob@example.com", password: "short" }), env);
   assert.equal(weakPassword.status, 400);
+  const weakBody = await weakPassword.json();
+  assert.equal(weakBody.ok, false);
+  assert.deepEqual(weakBody.missing, ["length", "uppercase", "number", "symbol"]);
+  assert.equal(weakBody.error, "Password must include: at least 8 characters, an uppercase letter, a number, a symbol.");
 
-  const badEmail = await worker.fetch(postJson("/api/auth/register", { name: "Bob", email: "not-an-email", password: "correct-horse-battery" }), env);
+  const noSymbol = await worker.fetch(postJson("/api/auth/register", { name: "Bob", email: "bob@example.com", password: "Password1234" }), env);
+  assert.equal(noSymbol.status, 400);
+  assert.deepEqual((await noSymbol.json()).missing, ["symbol"]);
+  assert.equal(env.DB._debug.usersByEmail.has("bob@example.com"), false);
+
+  const badEmail = await worker.fetch(postJson("/api/auth/register", { name: "Bob", email: "not-an-email", password: "Correct-horse-battery1" }), env);
   assert.equal(badEmail.status, 400);
 });
 
 test("login rejects wrong passwords and unknown emails without leaking which", async () => {
   const env = baseEnv();
-  await worker.fetch(postJson("/api/auth/register", { name: "Ada", email: "ada@example.com", password: "correct-horse-battery" }), env);
+  await worker.fetch(postJson("/api/auth/register", { name: "Ada", email: "ada@example.com", password: "Correct-horse-battery1" }), env);
 
   const wrongPassword = await worker.fetch(postJson("/api/auth/login", { email: "ada@example.com", password: "wrong-password" }), env);
   assert.equal(wrongPassword.status, 401);
 
-  const unknownEmail = await worker.fetch(postJson("/api/auth/login", { email: "nobody@example.com", password: "correct-horse-battery" }), env);
+  const unknownEmail = await worker.fetch(postJson("/api/auth/login", { email: "nobody@example.com", password: "Correct-horse-battery1" }), env);
   assert.equal(unknownEmail.status, 401);
   assert.equal((await wrongPassword.json()).error, (await unknownEmail.json()).error);
+});
+
+test("login does not enforce the new-password policy, so legacy passwords still sign in", async () => {
+  const env = baseEnv();
+  const registered = await worker.fetch(postJson("/api/auth/register", { name: "Legacy", email: "legacy@example.com", password: "Correct-horse-battery1" }), env);
+  assert.equal(registered.status, 201);
+  const row = env.DB._debug.usersById.get(env.DB._debug.usersByEmail.get("legacy@example.com"));
+  // Simulate an account created under an older, weaker rule.
+  row.password_hash = await environmentPassword("legacy", row.password_salt, env);
+
+  const login = await worker.fetch(postJson("/api/auth/login", { email: "legacy@example.com", password: "legacy" }), env);
+  assert.equal(login.status, 200);
+  assert.equal((await login.json()).ok, true);
+});
+
+test("password changes and resets reject new passwords that miss the policy", async () => {
+  const env = baseEnv();
+  const registered = await worker.fetch(postJson("/api/auth/register", { name: "Member", email: "policy@example.com", password: "Correct-horse-battery1" }), env);
+  const cookie = extractSessionCookie(registered);
+  const weakChange = await worker.fetch(putJson("/api/auth/password", { currentPassword: "Correct-horse-battery1", newPassword: "alllowercase-but-long" }, cookie), env);
+  assert.equal(weakChange.status, 400);
+  const body = await weakChange.json();
+  assert.deepEqual(body.missing, ["uppercase", "number"]);
+  assert.match(body.error, /^Password must include: an uppercase letter, a number\.$/);
 });
 
 test("stale auth bypass settings never accept arbitrary credentials", async () => {
@@ -200,7 +234,7 @@ test("stale auth bypass settings never accept arbitrary credentials", async () =
 test("a valid session cookie round-trips through /api/auth/session and clears on logout", async () => {
   const env = baseEnv();
   const registerResponse = await worker.fetch(
-    postJson("/api/auth/register", { name: "Ada", email: "ada@example.com", password: "correct-horse-battery" }),
+    postJson("/api/auth/register", { name: "Ada", email: "ada@example.com", password: "Correct-horse-battery1" }),
     env
   );
   const cookie = extractSessionCookie(registerResponse);
@@ -219,7 +253,7 @@ test("a valid session cookie round-trips through /api/auth/session and clears on
 test("creator registration marks the account as a creator immediately", async () => {
   const env = baseEnv();
   const response = await worker.fetch(
-    postJson("/api/creator/register", { name: "Cee Creator", email: "creator@example.com", password: "correct-horse-battery" }),
+    postJson("/api/creator/register", { name: "Cee Creator", email: "creator@example.com", password: "Correct-horse-battery1" }),
     env
   );
   const body = await response.json();
@@ -233,7 +267,7 @@ test("creator upgrade requires a valid session and flips an existing member acco
   assert.equal(noSession.status, 401);
 
   const registerResponse = await worker.fetch(
-    postJson("/api/auth/register", { name: "Member Mary", email: "mary@example.com", password: "correct-horse-battery" }),
+    postJson("/api/auth/register", { name: "Member Mary", email: "mary@example.com", password: "Correct-horse-battery1" }),
     env
   );
   const cookie = extractSessionCookie(registerResponse);
@@ -246,7 +280,7 @@ test("creator upgrade requires a valid session and flips an existing member acco
 
 test("session cookies are hardened and stored only as hashes", async () => {
   const env = baseEnv();
-  const response = await worker.fetch(postJson("/api/auth/register", { name: "Member", email: "member@example.com", password: "correct-horse-battery" }), env);
+  const response = await worker.fetch(postJson("/api/auth/register", { name: "Member", email: "member@example.com", password: "Correct-horse-battery1" }), env);
   const cookie = extractSessionCookie(response);
   assert.match(response.headers.get("set-cookie"), /HttpOnly/);
   assert.match(response.headers.get("set-cookie"), /Secure/);
@@ -261,7 +295,7 @@ test("session cookies are hardened and stored only as hashes", async () => {
 test("expired or malformed session expiries never authenticate", async () => {
   for (const expiry of ["invalid", "2000-01-01T00:00:00Z"]) {
     const env = baseEnv();
-    const response = await worker.fetch(postJson("/api/auth/register", { name: "Member", email: "member@example.com", password: "correct-horse-battery" }), env);
+    const response = await worker.fetch(postJson("/api/auth/register", { name: "Member", email: "member@example.com", password: "Correct-horse-battery1" }), env);
     const cookie = extractSessionCookie(response);
     [...env.DB._debug.sessions.values()][0].expires_at = expiry;
     assert.equal((await (await worker.fetch(getWithCookie("/api/auth/session", cookie), env)).json()).user, null);
@@ -271,7 +305,7 @@ test("expired or malformed session expiries never authenticate", async () => {
 test("members can update profile details and a resized profile picture", async () => {
   const env = baseEnv();
   const registered = await worker.fetch(
-    postJson("/api/auth/register", { name: "Ada", email: "ada@example.com", password: "correct-horse-battery" }),
+    postJson("/api/auth/register", { name: "Ada", email: "ada@example.com", password: "Correct-horse-battery1" }),
     env
   );
   const cookie = extractSessionCookie(registered);
@@ -280,7 +314,7 @@ test("members can update profile details and a resized profile picture", async (
     name: "Ada Lovelace",
     email: "ada.new@example.com",
     avatarData: avatarUrl,
-    currentPassword: "correct-horse-battery"
+    currentPassword: "Correct-horse-battery1"
   }, cookie), env);
   const body = await response.json();
 
@@ -295,7 +329,7 @@ test("members can update profile details and a resized profile picture", async (
 test("email and password changes require the current password", async () => {
   const env = baseEnv();
   const registered = await worker.fetch(
-    postJson("/api/auth/register", { name: "Member", email: "member@example.com", password: "correct-horse-battery" }),
+    postJson("/api/auth/register", { name: "Member", email: "member@example.com", password: "Correct-horse-battery1" }),
     env
   );
   const cookie = extractSessionCookie(registered);
@@ -310,20 +344,20 @@ test("email and password changes require the current password", async () => {
 
   const passwordDenied = await worker.fetch(putJson("/api/auth/password", {
     currentPassword: "wrong-password",
-    newPassword: "an-even-better-password"
+    newPassword: "An-even-better-password2"
   }, cookie), env);
   assert.equal(passwordDenied.status, 401);
 
   const passwordChanged = await worker.fetch(putJson("/api/auth/password", {
-    currentPassword: "correct-horse-battery",
-    newPassword: "an-even-better-password"
+    currentPassword: "Correct-horse-battery1",
+    newPassword: "An-even-better-password2"
   }, cookie), env);
   assert.equal(passwordChanged.status, 200);
   assert.equal((await passwordChanged.json()).ok, true);
 
   const login = await worker.fetch(postJson("/api/auth/login", {
     email: "member@example.com",
-    password: "an-even-better-password"
+    password: "An-even-better-password2"
   }), env);
   assert.equal(login.status, 200);
 });
