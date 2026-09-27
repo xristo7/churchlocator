@@ -114,6 +114,9 @@ function mapProduct(row) {
     currency: row.currency,
     priceCents: row.price_cents,
     compareAtCents: row.compare_at_cents ?? null,
+    // Dollar amounts for storefront clients (product-detail-boot.js reads price/compareAt).
+    price: Number(row.price_cents || 0) / 100,
+    compareAt: row.compare_at_cents == null ? null : Number(row.compare_at_cents) / 100,
     status: row.status,
     inventoryTracked: Boolean(row.inventory_tracked),
     stockQty: row.stock_qty,
