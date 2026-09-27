@@ -118,6 +118,8 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
   await window.MWEPlatform?.ready;
+    const sessionName = window.MWEPlatform?.session?.name || localStorage.getItem("mwe.username") || "there";
+    document.querySelectorAll("[data-member-home-name]").forEach(node => { node.textContent = sessionName; });
     renderStreams();
     renderChannels();
     renderResources();

@@ -1756,7 +1756,7 @@
       const roleTag = m.isHost ? '<span class="chat-host-tag">Host</span>' : '';
       return '<div class="chat-message-item ' + (m.isHost ? 'is-host-msg' : '') + '">' +
         '<div class="chat-message-meta">' +
-          '<strong class="chat-sender-name">' + escape(m.sender) + '</strong>' +
+          '<strong class="chat-sender-name">' + escape(m.name || m.sender || "Meditator") + '</strong>' +
           roleTag +
           '<span class="chat-timestamp">' + escape(m.createdAt ? new Date(m.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "Just now") + '</span>' +
         '</div>' +
@@ -1781,7 +1781,7 @@
     const item = document.createElement("div");
     item.className = "chat-message-item " + (message.isHost ? "is-host-msg" : "");
     item.innerHTML = '<div class="chat-message-meta">' +
-      '<strong class="chat-sender-name">' + escape(message.sender) + '</strong>' +
+      '<strong class="chat-sender-name">' + escape(message.name || message.sender || "Meditator") + '</strong>' +
       roleTag +
       '<span class="chat-timestamp">' + escape(message.createdAt ? new Date(message.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "Just now") + '</span>' +
     '</div>' +
@@ -2173,7 +2173,7 @@
   }
 
   // --- INITIALIZATION ---
-  document.addEventListener("DOMContentLoaded", () => {
+  function initializeMeditation() {
     renderLobby();
 
     const params = new URLSearchParams(window.location.search);
@@ -2355,6 +2355,11 @@
       createModal?.showModal?.();
       window.lucide?.createIcons();
     });
+    if (new URLSearchParams(window.location.search).get("create") === "1" && createModal) {
+      createModal.classList.add("create-room-page");
+      createModal.showModal?.();
+      window.lucide?.createIcons();
+    }
     document.getElementById("btn-close-create-room")?.addEventListener("click", () => createModal?.close?.());
     document.getElementById("btn-cancel-create-room")?.addEventListener("click", () => createModal?.close?.());
 
@@ -2400,8 +2405,15 @@
       if (wrapper) wrapper.hidden = (e.target.value === "loop");
     });
 
-    document.getElementById("form-create-sanctuary")?.addEventListener("submit", e => {
+    document.getElementById("form-create-sanctuary")?.addEventListener("submit", async e => {
       e.preventDefault();
+      if (!window.MWEPlatform?.session?.isCreator) {
+        window.MWE?.openMemberLogin?.(location.href);
+        showToast("Sign in with a creator account to create a room.");
+        return;
+      }
+      const submitButton = e.currentTarget.querySelector('[type="submit"]');
+      if (submitButton) submitButton.disabled = true;
       const title = document.getElementById("new-room-title")?.value.trim();
       const category = document.getElementById("new-room-category")?.value || "featured";
       const subtitle = document.getElementById("new-room-subtitle")?.value.trim();
@@ -2457,9 +2469,7 @@
 
       if (!title || !subtitle || !text) return;
 
-      const newId = "room-custom-" + Date.now();
-      const ownerKey = "host_" + Math.random().toString(36).slice(2, 10);
-      const creatorName = window.MWECreator?.account?.()?.name || "Host Creator";
+      const creatorName = window.MWEPlatform.session.name || "Host Creator";
 
       const coverByTheme = {
         chapel: "https://images.unsplash.com/photo-1548625361-195fe578ae14?auto=format&fit=crop&w=800&q=80",
@@ -2470,7 +2480,6 @@
       };
 
       const newRoom = {
-        id: newId,
         title,
         subtitle,
         category,
@@ -2492,8 +2501,6 @@
         ambience: { rain, stream, fire, breeze },
         commentsEnabled: comments,
         ownerName: creatorName,
-        ownerKey,
-        isLocalHost: true,
         verses: allVerses,
         audioTracks: {
           bible: { title: "Audio Bible: " + title, cat: "Dramatized Scripture", freq: 432 },
@@ -2504,19 +2511,18 @@
         }
       };
 
-      // Save ownerKey locally
       try {
-        localStorage.setItem("mwe.meditation.owner." + newId, ownerKey);
-        sessionStorage.setItem("mwe.meditation.host." + newId, "true");
-      } catch (e) {}
-
-      roomsCatalog.unshift(newRoom);
-      window.MWEMeditation?.saveRooms?.(roomsCatalog);
-      renderLobby();
-
-      createModal?.close?.();
-      showToast("Sanctuary room created! You are the host.");
-      enterRoom(newId, true);
+        const savedRoom = await window.MWEPlatform.save("meditation", newRoom);
+        roomsCatalog.unshift(enrichRoomWithMedia(savedRoom));
+        renderLobby();
+        createModal?.close?.();
+        showToast("Sanctuary room saved to your creator account.");
+        enterRoom(savedRoom.id, true);
+      } catch (error) {
+        showToast(error.message || "The sanctuary room could not be saved.");
+      } finally {
+        if (submitButton) submitButton.disabled = false;
+      }
     });
 
     // Keyboard Shortcuts
@@ -2531,5 +2537,11 @@
         }
       }
     });
-  });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeMeditation, { once: true });
+  } else {
+    initializeMeditation();
+  }
 })();

@@ -40,10 +40,19 @@
             <span><strong>${Number(channel.items).toLocaleString()}</strong><small>${channel.format === "Podcast" ? "Episodes" : "Posts"}</small></span>
             <span><strong>${channel.verified ? "4.9" : "4.7"}</strong><small>Rating</small></span>
           </div>
+          <button class="channel-follow-button${channel.isFollowing ? " is-following" : ""}" type="button" data-channel-follow="${data.escapeHtml(channel.id)}" aria-pressed="${channel.isFollowing ? "true" : "false"}">${channel.isFollowing ? "Following" : "Follow"}</button>
           <a class="channel-contact-button" href="messages.html?compose=channel&id=${encodeURIComponent(channel.id)}"><i data-lucide="message-circle"></i> Get in touch</a>
         </div>
       </article>
     `).join("");
+    grid.querySelectorAll("[data-channel-follow]").forEach(button => {
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        const next = data.toggleChannelFollow(button.getAttribute("data-channel-follow"));
+        window.MWE?.showMemberToast?.(next ? "Channel followed" : "Channel unfollowed");
+        render();
+      });
+    });
     window.lucide?.createIcons();
   }
 
@@ -59,7 +68,8 @@
       document.getElementById(id)?.addEventListener(id === "channel-search" ? "input" : "change", render);
     });
 
-    document.getElementById("create-channel-button")?.addEventListener("click", () => {
+    document.getElementById("create-channel-button")?.addEventListener("click", event => {
+      if (event.currentTarget.dataset.creatorHref) return;
       if (!window.MWE?.isMemberAuthenticated()) {
         window.MWE?.openMemberLogin("app.html?view=channels");
         return;

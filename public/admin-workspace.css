@@ -58,6 +58,15 @@
 .admin-workspace .aw-metric small { color:var(--text-muted); font-size:11px; }
 .admin-workspace .aw-panel { border:1px solid var(--border); background:var(--surface); border-radius:10px; overflow:hidden; margin-bottom:22px; }
 .admin-workspace .aw-panel-heading { display:flex; align-items:center; justify-content:space-between; padding:20px 22px; gap:14px; border-bottom:1px solid var(--border); }
+.admin-workspace .aw-compact-metrics { padding:20px 22px 0; margin-bottom:20px; }
+.admin-workspace .aw-tabs { display:flex; align-items:center; gap:8px; padding:0 22px 18px; border-bottom:1px solid var(--border); overflow-x:auto; }
+.admin-workspace .aw-tab-button { flex:0 0 auto; border:1px solid var(--border); background:var(--surface-soft); color:var(--text-secondary); border-radius:999px; padding:9px 13px; font-size:12px; font-weight:650; }
+.admin-workspace .aw-tab-button:hover { color:var(--text-primary); background:var(--primary-soft); border-color:var(--primary-border); }
+.admin-workspace .aw-tab-button.is-active { background:var(--primary); border-color:var(--primary); color:#fff; }
+.admin-workspace .aw-tab-panel { display:none; }
+.admin-workspace .aw-tab-panel.is-active { display:block; }
+.admin-workspace .aw-dashboard-note { display:flex; align-items:center; gap:9px; flex-wrap:wrap; padding:14px 22px; border-top:1px solid var(--border); color:var(--text-muted); font-size:11px; }
+.admin-workspace .aw-dashboard-note span { border:1px solid var(--border); background:var(--surface-soft); border-radius:999px; padding:5px 9px; }
 .admin-workspace h2 { font-size:16px; font-weight:650; letter-spacing:-.25px; }
 .admin-workspace .aw-panel-heading p { font-size:12px; color:var(--text-muted); margin-top:4px; }
 .admin-workspace .aw-text-link { font-size:12px; font-weight:600; color:var(--primary); display:inline-flex; align-items:center; gap:5px; }
@@ -117,6 +126,7 @@ html[data-theme="dark"] .admin-workspace #aw-editor-error { color:#fecaca; backg
 .admin-workspace .aw-pagination>div { display:flex; align-items:center; gap:12px; }
 .admin-workspace button:disabled { opacity:.45; cursor:not-allowed; }
 .admin-workspace .aw-empty { text-align:center; padding:45px 20px; color:var(--text-muted); }
+.admin-workspace .aw-empty.compact { padding:24px 14px; }
 .admin-workspace .aw-empty h3 { font-size:15px; color:var(--text-primary); margin-bottom:8px; }
 .admin-workspace .aw-empty p { font-size:12px; margin-bottom:16px; }
 .admin-workspace .aw-footer { padding:16px 38px; display:flex; justify-content:space-between; border-top:1px solid var(--border); font-size:10px; color:var(--text-muted); }
@@ -205,7 +215,19 @@ html[data-theme="dark"] .admin-workspace #aw-editor-error { color:#fecaca; backg
 .admin-workspace .aw-badge { border-radius:999px; padding-inline:9px; }
 .admin-workspace #aw-editor { border-color:var(--border-subtle); border-radius:22px; box-shadow:0 28px 90px rgba(5,15,38,.28); }
 .admin-workspace .login-screen { background-color:var(--background); background-image:var(--ambient-bg); }
-.admin-workspace .login-card { border-color:rgba(255,255,255,.12); border-radius:24px; box-shadow:0 30px 90px rgba(2,8,23,.35); }
+.admin-workspace .login-screen { height:100vh; min-height:0; justify-content:center; padding:32px; overflow:auto; }
+.admin-workspace .login-card { display:grid; grid-template-columns:minmax(0,1fr) minmax(360px,460px); gap:82px; width:min(100%,1040px); max-width:none; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; box-sizing:border-box; }
+.admin-workspace .login-intro { align-self:center; }
+.admin-workspace .login-card>.login-intro .aw-brand { padding:0; margin-bottom:68px; }
+.admin-workspace .login-card h1 { margin:0; font-size:clamp(30px,3vw,42px); line-height:1.08; letter-spacing:-1.2px; }
+.admin-workspace .login-card .login-intro>p:not(.aw-eyebrow) { margin:14px 0 0; line-height:1.6; }
+.admin-workspace .login-actions { align-self:center; padding:38px; border:1px solid rgba(255,255,255,.12); border-radius:24px; background:var(--surface); box-shadow:0 30px 90px rgba(2,8,23,.35); }
+html[data-theme="dark"] .admin-workspace .login-card { background:transparent!important; border:0!important; box-shadow:none!important; }
+.admin-workspace .aw-google-login { width:100%; min-height:46px; border:1px solid var(--border-subtle); border-radius:11px; background:#fff; color:#1f2937!important; font-weight:700; box-shadow:0 3px 8px rgba(15,23,42,.08); }
+.admin-workspace .aw-google-login:hover { background:#f8fafc; border-color:#b9c4d5; }
+.admin-workspace .aw-google-mark { font-family:Arial,sans-serif; font-size:18px; font-weight:700; color:#4285f4; }
+.admin-workspace .login-actions .aw-login-note { margin-top:22px!important; }
+@media(max-width:700px) { .admin-workspace .login-screen { height:auto; min-height:100vh; padding:28px 16px; }.admin-workspace .login-card { grid-template-columns:1fr; gap:26px; width:min(100%,480px); }.admin-workspace .login-card>.login-intro .aw-brand { margin-bottom:32px; }.admin-workspace .login-actions { padding:26px 22px; } }
 html[data-theme="dark"] .admin-workspace { --aw-panel-shadow:0 18px 46px rgba(0,0,0,.22); }
 html[data-theme="dark"] .admin-workspace .aw-topbar { background:color-mix(in srgb,var(--surface-canvas) 82%,transparent); }
 @media(max-width:900px) { .admin-workspace .aw-sidebar { box-shadow:18px 0 55px rgba(3,10,26,.3); } }
@@ -268,3 +290,4 @@ html[data-theme="dark"] .admin-workspace .aw-topbar { background:color-mix(in sr
 .admin-workspace .aw-notice p { margin:4px 0 0; color:var(--text-muted); }
 @media(max-width:800px) { .admin-workspace .aw-taxonomy-grid { grid-template-columns:1fr; } }
 @media(max-width:480px) { .admin-workspace .aw-taxonomy-actions { align-items:stretch; flex-direction:column; } }
+.aw-login-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:#93a4c4;font-size:.82rem}.aw-login-divider:before,.aw-login-divider:after{content:"";height:1px;flex:1;background:#344b79}.aw-google-login{display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;background:#fff;color:#17284d!important}.aw-google-mark{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;color:#4285f4;font-weight:900}.aw-forgot-link{display:block;margin:14px auto 0;border:0;background:transparent;color:#a9bce5;font:inherit;font-size:.85rem;text-decoration:underline;cursor:pointer}.aw-password-reset{margin-top:16px;padding-top:16px;border-top:1px solid #344b79}.aw-password-reset p{color:#a9d7c4;font-size:.82rem;line-height:1.4}

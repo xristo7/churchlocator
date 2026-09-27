@@ -6,7 +6,8 @@
     resources: "faithlink.resources.v1",
     messages: "faithlink.messages.v1",
     messageSettings: "faithlink.messages.settings.v1",
-    serviceBookings: "faithlink.services.bookings.v1"
+    serviceBookings: "faithlink.services.bookings.v1",
+    channelFollows: "mwe.followed.channels.v1"
   };
 
   const channelSeeds = [
@@ -181,6 +182,14 @@
   }
 
   function read(key, fallback) {
+    // Connected catalog data is intentionally kept in the in-memory platform
+    // cache.  The platform client protects those keys from local writes, so a
+    // seed merge must not try to persist them or the store renderer aborts.
+    const isConnectedCatalog = Boolean(
+      window.MWEPlatform?.installed &&
+      !window.MWEPlatform?.staging &&
+      [keys.channels, keys.products, keys.resources].includes(key)
+    );
     try {
       const value = JSON.parse(localStorage.getItem(key) || "null");
       if (Array.isArray(value)) {
@@ -189,7 +198,7 @@
           const missingSeeds = fallback.filter(item => !existingIds.has(item.id));
           if (missingSeeds.length > 0) {
             const merged = [...value, ...missingSeeds];
-            localStorage.setItem(key, JSON.stringify(merged));
+            if (!isConnectedCatalog) localStorage.setItem(key, JSON.stringify(merged));
             return merged;
           }
         }
@@ -197,7 +206,7 @@
       }
     } catch {}
     const seeded = clone(fallback);
-    localStorage.setItem(key, JSON.stringify(seeded));
+    if (!isConnectedCatalog) localStorage.setItem(key, JSON.stringify(seeded));
     return seeded;
   }
 
@@ -219,6 +228,34 @@
     return new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 2 }).format(Number(value) || 0);
   }
 
+  function getFollowedChannelIds() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(keys.channelFollows) || "[]");
+      return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveFollowedChannelIds(ids) {
+    const unique = [...new Set((ids || []).filter(Boolean))];
+    localStorage.setItem(keys.channelFollows, JSON.stringify(unique));
+    return unique;
+  }
+
+  function isFollowingChannel(id) {
+    return Boolean(id && getFollowedChannelIds().includes(id));
+  }
+
+  function withFollowState(channel) {
+    const following = isFollowingChannel(channel.id);
+    return {
+      ...channel,
+      isFollowing: following,
+      followers: (Number(channel.followers) || 0) + (following ? 1 : 0)
+    };
+  }
+
   function safeAttachmentData(value) {
     const source = String(value || "");
     // Never navigate downloads to javascript:, HTML, SVG or arbitrary URLs.
@@ -231,10 +268,18 @@
     escapeHtml,
     safeAttachmentData,
     money,
-    getChannels: () => read(keys.channels, channelSeeds),
+    getChannels: () => read(keys.channels, channelSeeds).map(withFollowState),
     saveChannels: channels => write(keys.channels, channels),
+    getFollowedChannelIds,
+    isFollowingChannel,
+    toggleChannelFollow(id) {
+      const followed = getFollowedChannelIds();
+      const isFollowing = followed.includes(id);
+      saveFollowedChannelIds(isFollowing ? followed.filter(item => item !== id) : [...followed, id]);
+      return !isFollowing;
+    },
     addChannel(channel) {
-      const channels = api.getChannels();
+      const channels = read(keys.channels, channelSeeds);
       const saved = { ...channel, id: makeId("channel", channel.name), followers: 0, items: 0, live: false, verified: false };
       channels.unshift(saved);
       api.saveChannels(channels);

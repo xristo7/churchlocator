@@ -1229,7 +1229,13 @@ const MWE = (() => {
   function loadEvents() {
     try {
       const saved = JSON.parse(localStorage.getItem(eventsStorageKey) || "null");
-      if (Array.isArray(saved) && saved.length > 0) return saved;
+      if (Array.isArray(saved) && saved.length > 0) {
+        const merged = new Map(seedEvents.map(evt => [evt.id, evt]));
+        saved.forEach(evt => {
+          if (evt && evt.id) merged.set(evt.id, evt);
+        });
+        return Array.from(merged.values());
+      }
     } catch {
       localStorage.removeItem(eventsStorageKey);
     }
@@ -1537,11 +1543,12 @@ MWE.getMemberShellRoute = function(input) {
     resources: "resources",
     "resource-detail": "resource-detail",
     "resource-reader": "resource-reader",
-    "church-portal": "portal",
-    portal: "portal",
-    "register-church": "portal",
-    creator: "portal",
-    "creator-hub": "portal"
+    "church-portal": "create",
+    portal: "create",
+    create: "create",
+    "register-church": "create",
+    creator: "create",
+    "creator-hub": "create"
   };
   const view = routeMap[file];
   if (!view) return null;
@@ -1784,7 +1791,7 @@ MWE.initMemberExperience = function() {
       }
 
       if (!route) return;
-      const isProtectedDetail = route.view === "church" || route.view === "event" || route.view === "channel-detail" || route.view === "channel-content" || route.view === "messages" || route.view === "store-manager" || route.view === "cart" || route.view === "checkout" || route.view === "profile" || route.view === "security" || (route.view === "livestream" && Boolean(route.id));
+      const isProtectedDetail = route.view === "church" || route.view === "channel-detail" || route.view === "channel-content" || route.view === "messages" || route.view === "store-manager" || route.view === "cart" || route.view === "checkout" || (route.view === "livestream" && Boolean(route.id));
       if (!MWE.isMemberAuthenticated() && isProtectedDetail) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -1805,12 +1812,12 @@ MWE.initMemberExperience = function() {
   const currentRoute = MWE.getMemberShellRoute(window.location.href);
   if (!currentRoute) return "public";
 
-  if (MWE.isMemberAuthenticated() || currentRoute.view === "portal") {
+  if (MWE.isMemberAuthenticated() || currentRoute.view === "portal" || currentRoute.view === "create") {
     window.location.replace(MWE.buildMemberShellUrl(currentRoute));
     return "redirecting";
   }
 
-  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "event" || currentRoute.view === "channel-detail" || currentRoute.view === "channel-content" || currentRoute.view === "messages" || currentRoute.view === "store-manager" || currentRoute.view === "cart" || currentRoute.view === "checkout" || currentRoute.view === "profile" || currentRoute.view === "security" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
+  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "channel-detail" || currentRoute.view === "channel-content" || currentRoute.view === "messages" || currentRoute.view === "store-manager" || currentRoute.view === "cart" || currentRoute.view === "checkout" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
   if (isProtectedDetail) {
     MWE.openMemberLogin(MWE.buildMemberShellUrl(currentRoute), { locked: true });
     return "locked";
@@ -1968,6 +1975,24 @@ function initPrivateAppAuth() {
     if (!result.ok) { showToast(result.error || "Sign-in failed."); return; }
     form.reset();
     signIn("overview", result.user);
+  });
+
+  document.querySelector("[data-open-password-reset]")?.addEventListener("click", event => {
+    const form = document.querySelector("[data-password-reset-form]");
+    if (form) { form.hidden = !form.hidden; if (!form.hidden) form.querySelector("input")?.focus(); }
+    event.currentTarget.setAttribute("aria-expanded", String(!form?.hidden));
+  });
+  document.querySelector("[data-password-reset-form]")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const form = event.currentTarget, button = form.querySelector("button"), message = form.querySelector("[data-password-reset-message]"), email = form.querySelector("input")?.value.trim().toLowerCase();
+    if (!form.reportValidity()) return;
+    button.disabled = true; message.textContent = "Sending recovery instructions...";
+    try {
+      const response = await fetch("/api/auth/password/request", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) });
+      const result = await response.json().catch(() => ({}));
+      message.textContent = response.ok ? "If that account exists, recovery instructions have been emailed." : (result.error || "We could not send recovery instructions.");
+    } catch { message.textContent = "We could not reach the server. Check your connection and try again."; }
+    button.disabled = false;
   });
 
   // Launch Goal selection cards
@@ -5013,7 +5038,7 @@ function updateHomepageAuthUI() {
               </div>
               <div class="form-group mb-3">
                 <label for="nav-auth-password">Password</label>
-                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required minlength="8" />
+                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required minlength="15" maxlength="128" title="Use 15 to 128 characters." autocomplete="current-password" />
               </div>
               <button type="submit" class="button primary small" id="nav-auth-submit-btn" style="width: 100%;">
                 <i data-lucide="log-in"></i> <span>Sign In</span>
@@ -5088,6 +5113,8 @@ MWE.switchAuthDropdownTab = function(tab) {
   const btnRegister = document.getElementById("tab-btn-register");
   const nameGroup = document.getElementById("nav-auth-name-group");
   const emailLabel = document.getElementById("nav-auth-email-label");
+  const nameInput = document.getElementById("nav-auth-name");
+  const passwordInput = document.getElementById("nav-auth-password");
   const submitBtn = document.getElementById("nav-auth-submit-btn");
   const googleLabel = document.getElementById("google-auth-fast-label");
 
@@ -5095,6 +5122,8 @@ MWE.switchAuthDropdownTab = function(tab) {
     btnRegister?.classList.add("active");
     btnSignin?.classList.remove("active");
     if (nameGroup) nameGroup.style.display = "block";
+    if (nameInput) nameInput.required = true;
+    if (passwordInput) passwordInput.autocomplete = "new-password";
     if (emailLabel) emailLabel.textContent = "Email Address";
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="user-plus"></i> <span>Create Account</span>`;
     if (googleLabel) googleLabel.textContent = "Sign up with Google";
@@ -5102,6 +5131,8 @@ MWE.switchAuthDropdownTab = function(tab) {
     btnSignin?.classList.add("active");
     btnRegister?.classList.remove("active");
     if (nameGroup) nameGroup.style.display = "none";
+    if (nameInput) nameInput.required = false;
+    if (passwordInput) passwordInput.autocomplete = "current-password";
     if (emailLabel) emailLabel.textContent = "Email Address";
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="log-in"></i> <span>Sign In</span>`;
     if (googleLabel) googleLabel.textContent = "Continue with Google";
@@ -5120,6 +5151,7 @@ MWE.handleNavDropdownAuthSubmit = async function(event) {
   const errorEl = document.getElementById("nav-auth-error");
   const submitBtn = document.getElementById("nav-auth-submit-btn");
   if (errorEl) { errorEl.hidden = true; errorEl.textContent = ""; }
+  if (!form.reportValidity()) return;
 
   if (!window.MWEAuth) {
     if (errorEl) { errorEl.textContent = "Sign-in is unavailable right now. Please reload and try again."; errorEl.hidden = false; }
@@ -5127,10 +5159,16 @@ MWE.handleNavDropdownAuthSubmit = async function(event) {
   }
 
   if (submitBtn) submitBtn.disabled = true;
-  const result = isRegister
-    ? await window.MWEAuth.register(name, email, password)
-    : await window.MWEAuth.login(email, password);
-  if (submitBtn) submitBtn.disabled = false;
+  let result;
+  try {
+    result = isRegister
+      ? await window.MWEAuth.register(name, email, password)
+      : await window.MWEAuth.login(email, password);
+  } catch {
+    result = { ok: false, error: "Account access is temporarily unavailable. Please try again." };
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
 
   if (!result.ok) {
     if (errorEl) { errorEl.textContent = result.error || "Something went wrong. Please try again."; errorEl.hidden = false; }
@@ -5850,10 +5888,22 @@ function initCreatorContentActions() {
 
     if (action.dataset.creatorActionInitialized === "true") return;
     action.dataset.creatorActionInitialized = "true";
-    action.addEventListener("click", () => {
+    action.addEventListener("click", event => {
       if (!window.MWEPlatform?.session?.isCreator) return;
       const href = action.dataset.creatorHref;
-      if (href) window.location.href = href;
+      if (href) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const target = new URL(href, window.location.href);
+        const route = {
+          view: target.searchParams.get("view") || "create",
+          kind: target.searchParams.get("kind") || ""
+        };
+        const shellTarget = new URL("app.html", window.location.href);
+        shellTarget.searchParams.set("view", route.view);
+        if (route.kind) shellTarget.searchParams.set("kind", route.kind);
+        window.top.location.href = shellTarget.href;
+      }
     });
   });
 }
@@ -6275,12 +6325,25 @@ MWE.openEventModal = function(id) {
   const formattedDate = dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   const price = (evt.ticketPriceCents || 0) === 0 ? "Free / Registration Required" : `$${(evt.ticketPriceCents / 100).toFixed(2)}`;
   const isPast = new Date(evt.startsAt) < new Date();
+  const paymentState = MWE.getEventPaymentState(evt);
 
   const church = MWE.getChurches().find(c => c.id === evt.churchId);
-  const organizerName = church ? church.name : "Christian Fellowship";
+  const organizerName = church ? church.name : (evt.organizerName || evt.organization || evt.hostName || "Event Host");
 
   let actionButton = "";
-  if (!isPast) {
+  if (!isPast && paymentState.kind === "external") {
+    actionButton = `
+      <a class="button primary block large" href="${MWE.safeLinkUrl(paymentState.externalUrl)}" target="_blank" rel="noopener noreferrer" style="margin-top: 24px; width: 100%; text-align:center;">
+        <i data-lucide="external-link"></i> Continue to Payment
+      </a>
+    `;
+  } else if (!isPast && paymentState.kind !== "free") {
+    actionButton = `
+      <div class="info-alert" style="margin-top: 20px; padding: 12px; background: rgba(245,158,11,0.12); border-radius: 8px; text-align: center; color: var(--muted);">
+        Online payment is not configured for this paid event yet.
+      </div>
+    `;
+  } else if (!isPast) {
     actionButton = `
       <button class="button primary block large" onclick="MWE.openRegModal('${MWE.escapeJsAttribute(evt.id)}')" style="margin-top: 24px; width: 100%;">
         <i data-lucide="ticket"></i> Register / Get Tickets
@@ -6311,7 +6374,7 @@ MWE.openEventModal = function(id) {
       <div class="event-meta-info-list" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
         <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="calendar" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Date & Time</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">${formattedDate}</p></div></div>
         ${locationInfo}
-        <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="church" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Hosted By</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);"><a href="church-profile.html?id=${encodeURIComponent(evt.churchId)}">${MWE.escapeHtml(organizerName)}</a></p></div></div>
+        <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="church" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Hosted By</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">${evt.churchId ? `<a href="church-profile.html?id=${encodeURIComponent(evt.churchId)}">${MWE.escapeHtml(organizerName)}</a>` : MWE.escapeHtml(organizerName)}</p></div></div>
         <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="banknote" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Admission Price</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">${price}</p></div></div>
       </div>
       <div class="event-description-box" style="border-top: 1px solid var(--line); padding-top: 16px;">
@@ -6360,6 +6423,23 @@ MWE.closeRegModal = function() {
   if (modal) modal.classList.remove("open");
 };
 
+MWE.getEventPaymentState = function(evt) {
+  const priceCents = Number(evt?.ticketPriceCents || 0);
+  const externalUrl = String(evt?.registrationUrl || "").trim();
+  const providerConfigured = Boolean(window.MWE_EVENT_PAYMENTS_ENABLED || window.MWE_STRIPE_PUBLIC_KEY);
+  if (priceCents <= 0) return { kind: "free", priceCents, externalUrl, providerConfigured };
+  if (externalUrl) return { kind: "external", priceCents, externalUrl, providerConfigured };
+  if (providerConfigured) return { kind: "provider", priceCents, externalUrl, providerConfigured };
+  return { kind: "unavailable", priceCents, externalUrl, providerConfigured };
+};
+
+MWE.showPaidEventUnavailable = function(evt) {
+  const amount = `$${((Number(evt?.ticketPriceCents || 0)) / 100).toFixed(2)}`;
+  if (typeof showToast === "function") {
+    showToast(`Online payment for this ${amount} event is not configured yet.`);
+  }
+};
+
 MWE.updateCheckoutPrice = function() {
   const eventId = document.getElementById("reg-event-id").value;
   const qty = Number(document.getElementById("reg-quantity").value || 1);
@@ -6377,7 +6457,10 @@ MWE.updateCheckoutPrice = function() {
   } else {
     if (priceBox && priceLabel) {
       priceBox.style.display = "flex";
-      priceLabel.textContent = `$${((priceCents * qty) / 100).toFixed(2)}`;
+      const paymentState = MWE.getEventPaymentState(evt);
+      priceLabel.textContent = paymentState.kind === "unavailable"
+        ? `$${((priceCents * qty) / 100).toFixed(2)} · Payment unavailable`
+        : `$${((priceCents * qty) / 100).toFixed(2)}`;
     }
   }
 };
@@ -6393,6 +6476,15 @@ MWE.handleRegistrationSubmit = async function(e) {
 
   const evt = MWE.getEvent(eventId);
   if (!evt) return;
+  const paymentState = MWE.getEventPaymentState(evt);
+  if (paymentState.kind === "external") {
+    window.location.href = MWE.safeLinkUrl(paymentState.externalUrl);
+    return;
+  }
+  if (paymentState.kind === "unavailable" || paymentState.kind === "provider") {
+    MWE.showPaidEventUnavailable(evt);
+    return;
+  }
 
   let reg;
   try { reg = await MWE.registerForEvent({
@@ -6734,7 +6826,9 @@ MWE.updatePageCheckoutPrice = function() {
   const evt = MWE.getEvent(id);
   if (!evt) return;
 
-  const qty = Number(document.getElementById("page-reg-quantity").value || 1);
+  const qtyInput = document.getElementById("page-reg-quantity");
+  if (!qtyInput) return;
+  const qty = Number(qtyInput.value || 1);
   const priceBox = document.getElementById("page-checkout-price-box");
   const priceLabel = document.getElementById("page-checkout-total-price");
 
@@ -6744,7 +6838,10 @@ MWE.updatePageCheckoutPrice = function() {
   } else {
     if (priceBox && priceLabel) {
       priceBox.style.display = "flex";
-      priceLabel.textContent = `$${((priceCents * qty) / 100).toFixed(2)}`;
+      const paymentState = MWE.getEventPaymentState(evt);
+      priceLabel.textContent = paymentState.kind === "unavailable"
+        ? `$${((priceCents * qty) / 100).toFixed(2)} · Payment unavailable`
+        : `$${((priceCents * qty) / 100).toFixed(2)}`;
     }
   }
 };
@@ -6757,6 +6854,15 @@ MWE.handlePageRegistrationSubmit = async function(e) {
 
   const evt = MWE.getEvent(eventId);
   if (!evt) return;
+  const paymentState = MWE.getEventPaymentState(evt);
+  if (paymentState.kind === "external") {
+    window.location.href = MWE.safeLinkUrl(paymentState.externalUrl);
+    return;
+  }
+  if (paymentState.kind === "unavailable" || paymentState.kind === "provider") {
+    MWE.showPaidEventUnavailable(evt);
+    return;
+  }
 
   const firstName = (document.getElementById("page-reg-first-name")?.value || "").trim();
   const lastName = (document.getElementById("page-reg-last-name")?.value || "").trim();
@@ -6893,6 +6999,8 @@ MWE.showSpeakerDetail = function(idx) {
   const speakers = (MWE.currentEvent && MWE.currentEvent.speakers) ? MWE.currentEvent.speakers : [];
   const sp = speakers[idx];
   if (!sp) return;
+  const channel = MWE.findSpeakerChannel(sp);
+  const followButton = MWE.renderSpeakerFollowButton(sp, idx, "modal");
   const modalBody = `
     <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
       <img src="${MWE.escapeHtml(sp.image)}" alt="${MWE.escapeHtml(sp.name)}" class="w-32 h-32 rounded-2xl object-cover border-4 border-brand-500/20 shadow-md shrink-0" />
@@ -6901,14 +7009,159 @@ MWE.showSpeakerDetail = function(idx) {
         <h3 class="text-2xl font-bold text-slate-900 mt-1">${MWE.escapeHtml(sp.name)}</h3>
         <p class="text-sm font-semibold text-clay-500 mb-4">${MWE.escapeHtml(sp.role)}</p>
         <p class="text-sm text-slate-600 leading-relaxed">${MWE.escapeHtml(sp.bio)}</p>
+        <div class="mt-5 flex flex-wrap items-center gap-3">
+          ${followButton}
+          ${channel ? `<a class="spk-channel-link" href="channel-detail.html?id=${encodeURIComponent(channel.id)}">View Channel</a>` : ""}
+        </div>
       </div>
     </div>
   `;
   openSpeakerModal(modalBody);
+  if (typeof createIcons === "function") createIcons();
+};
+
+MWE.SPEAKER_FOLLOW_KEY = "mwe.followed.channels.v1";
+
+MWE.normalizeSpeakerChannelKey = function(value) {
+  return String(value || "").toLowerCase().replace(/^@/, "").replace(/[^a-z0-9]+/g, "");
+};
+
+MWE.getFollowedChannelIds = function() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(MWE.SPEAKER_FOLLOW_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+};
+
+MWE.saveFollowedChannelIds = function(ids) {
+  const unique = [...new Set((ids || []).filter(Boolean))];
+  localStorage.setItem(MWE.SPEAKER_FOLLOW_KEY, JSON.stringify(unique));
+  return unique;
+};
+
+MWE.isFollowingChannel = function(channelId) {
+  return Boolean(channelId && MWE.getFollowedChannelIds().includes(channelId));
+};
+
+MWE.getPlatformChannels = function() {
+  try {
+    const moduleChannels = window.FaithLinkModules?.getChannels?.();
+    if (Array.isArray(moduleChannels) && moduleChannels.length) return moduleChannels;
+  } catch {}
+  try {
+    const saved = JSON.parse(localStorage.getItem("faithlink.channels.v1") || "null");
+    if (Array.isArray(saved) && saved.length) return saved;
+  } catch {}
+  return Array.isArray(HERO_CHANNEL_SEEDS) ? HERO_CHANNEL_SEEDS : [];
+};
+
+MWE.findSpeakerChannel = function(speaker) {
+  if (!speaker) return null;
+  const channels = MWE.getPlatformChannels();
+  if (!channels.length) return null;
+
+  const explicitIds = [speaker.channelId, speaker.channelID, speaker.channel_id, speaker.channelHandle, speaker.handle, speaker.channel]
+    .filter(Boolean)
+    .map(MWE.normalizeSpeakerChannelKey);
+  const speakerName = MWE.normalizeSpeakerChannelKey(speaker.name);
+
+  return channels.find(channel => {
+    const channelKeys = [channel.id, channel.handle, channel.name, channel.owner]
+      .filter(Boolean)
+      .map(MWE.normalizeSpeakerChannelKey);
+    return explicitIds.some(id => channelKeys.includes(id)) || (speakerName && channelKeys.includes(speakerName));
+  }) || null;
+};
+
+MWE.getChannelFollowerCount = function(channel) {
+  if (!channel) return 0;
+  const base = Number(channel.followers) || 0;
+  return base + (MWE.isFollowingChannel(channel.id) ? 1 : 0);
+};
+
+MWE.renderSpeakerFollowButton = function(speaker, idx, context = "card") {
+  const channel = MWE.findSpeakerChannel(speaker);
+  const isFollowing = channel ? MWE.isFollowingChannel(channel.id) : false;
+  const countLabel = channel ? ` data-follow-count="${MWE.getChannelFollowerCount(channel)}"` : "";
+  const title = channel ? `Follow ${MWE.escapeHtml(channel.name || speaker.name || "speaker")}` : "This speaker does not have a linked channel yet";
+  const text = channel && isFollowing ? "Following" : "Follow";
+  return `
+    <button
+      type="button"
+      class="spk-follow-btn${isFollowing ? " is-following" : ""}${channel ? "" : " is-unlinked"}"
+      onclick="MWE.toggleSpeakerFollow(event, ${idx}, '${MWE.escapeJsAttribute(context)}')"
+      aria-pressed="${isFollowing ? "true" : "false"}"
+      title="${title}"${countLabel}>
+      ${text}
+    </button>
+  `;
+};
+
+MWE.toggleSpeakerFollow = function(event, idx, context = "card") {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  const speakers = (MWE.currentEvent && Array.isArray(MWE.currentEvent.speakers)) ? MWE.currentEvent.speakers : [];
+  const speaker = speakers[idx];
+  const channel = MWE.findSpeakerChannel(speaker);
+  if (!channel) {
+    if (typeof showToast === "function") showToast("This speaker does not have a linked channel account yet.");
+    return;
+  }
+
+  const followed = MWE.getFollowedChannelIds();
+  const isFollowing = followed.includes(channel.id);
+  const next = isFollowing ? followed.filter(id => id !== channel.id) : [...followed, channel.id];
+  MWE.saveFollowedChannelIds(next);
+
+  if (typeof showToast === "function") {
+    showToast(isFollowing ? `Unfollowed ${channel.name}.` : `Following ${channel.name}.`);
+  }
+  MWE.refreshSpeakerFollowButtons();
+};
+
+MWE.refreshSpeakerFollowButtons = function() {
+  const speakers = (MWE.currentEvent && Array.isArray(MWE.currentEvent.speakers)) ? MWE.currentEvent.speakers : [];
+  document.querySelectorAll("[data-speaker-follow-slot]").forEach(slot => {
+    const idx = parseInt(slot.getAttribute("data-speaker-follow-slot"), 10);
+    if (!Number.isFinite(idx) || !speakers[idx]) return;
+    slot.innerHTML = MWE.renderSpeakerFollowButton(speakers[idx], idx, slot.getAttribute("data-follow-context") || "card");
+  });
+  if (typeof createIcons === "function") createIcons();
 };
 
 MWE.currentScheduleDay = 1;
 MWE.currentScheduleTrack = "all";
+
+MWE.titleCaseLabel = function(value) {
+  return String(value || "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+MWE.getEventScheduleDays = function() {
+  const schedule = (MWE.currentEvent && Array.isArray(MWE.currentEvent.schedule)) ? MWE.currentEvent.schedule : [];
+  const days = [...new Set(schedule.map(item => parseInt(item.day, 10)).filter(Number.isFinite))].sort((a, b) => a - b);
+  return days.length ? days : [1];
+};
+
+MWE.getEventScheduleTracks = function() {
+  const schedule = (MWE.currentEvent && Array.isArray(MWE.currentEvent.schedule)) ? MWE.currentEvent.schedule : [];
+  const seen = new Set();
+  const tracks = [{ id: "all", label: "All" }];
+  schedule.forEach((item) => {
+    const id = String(item.track || "").trim();
+    if (!id || seen.has(id)) return;
+    seen.add(id);
+    tracks.push({ id, label: item.trackLabel || MWE.titleCaseLabel(id) });
+  });
+  return tracks;
+};
 
 MWE.switchScheduleDay = function(day) {
   MWE.currentScheduleDay = day;
@@ -6929,7 +7182,7 @@ MWE.renderScheduleDays = function() {
   const baseDate = new Date(MWE.currentEvent.startsAt);
   const options = { month: 'short', day: 'numeric', year: 'numeric' };
 
-  const daysData = [1, 2, 3].map(d => {
+  const daysData = MWE.getEventScheduleDays().map(d => {
     const dateObj = new Date(baseDate);
     dateObj.setDate(baseDate.getDate() + (d - 1));
     const dateStr = dateObj.toLocaleDateString(undefined, options);
@@ -6960,12 +7213,10 @@ MWE.renderScheduleTracks = function() {
   const container = document.getElementById("schedule-tracks-container");
   if (!container) return;
 
-  const tracks = [
-    { id: "all", label: "All" },
-    { id: "keynote", label: "Keynote" },
-    { id: "panel", label: "Panel" },
-    { id: "workshop", label: "Workshop" }
-  ];
+  const tracks = MWE.getEventScheduleTracks();
+  if (!tracks.some(track => track.id === MWE.currentScheduleTrack)) {
+    MWE.currentScheduleTrack = "all";
+  }
 
   container.innerHTML = tracks.map(tr => {
     const isActive = MWE.currentScheduleTrack === tr.id;
@@ -6998,14 +7249,15 @@ MWE.renderSchedule = function() {
 
   timelineEl.innerHTML = filtered.map((item) => {
     const isStarred = MWE.isSessionStarred(item.title);
-    const badgeLabel = item.track === 'keynote' ? 'Keynote Focus' : item.track === 'workshop' ? 'Technical Workshop' : 'Panel Session';
-    const roomLabel = item.track === 'keynote' ? 'Stage Alpha' : item.track === 'workshop' ? 'Workshop Room B' : 'Panel Room C';
+    const badgeLabel = item.badgeLabel || item.trackLabel || MWE.titleCaseLabel(item.track || "session");
+    const roomLabel = item.room || item.location || "";
+    const presenterLabel = item.presenter || item.host || "";
     
-    const badgeColorClass = item.track === 'keynote' 
-      ? 'bg-clay-100 text-clay-700' 
-      : item.track === 'workshop' 
-        ? 'bg-brand-100 text-brand-700' 
-        : 'bg-slate-100 text-slate-700';
+    const badgeTrackClass = item.track === 'keynote'
+      ? 'track-keynote'
+      : item.track === 'workshop'
+        ? 'track-workshop'
+        : 'track-panel';
 
     return `
       <div class="relative pl-12 sm:pl-[180px] pb-8 group schedule-item-row">
@@ -7029,26 +7281,30 @@ MWE.renderSchedule = function() {
                 <i class="fa-regular fa-clock"></i> ${item.time} - ${item.endTime || ''}
               </div>
               
-              <span class="inline-block px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${badgeColorClass} mb-3">
-                ${badgeLabel}
+              <span class="event-session-badge ${badgeTrackClass}">
+                ${MWE.escapeHtml(badgeLabel)}
               </span>
-              <h4 class="font-extrabold text-slate-900 text-lg leading-snug group-hover:text-brand-500 transition-colors">${item.title}</h4>
-              <p class="text-slate-500 text-sm mt-3 leading-relaxed">${item.desc}</p>
+              <h4 class="font-extrabold text-slate-900 text-lg leading-snug group-hover:text-brand-500 transition-colors">${MWE.escapeHtml(item.title || "Session")}</h4>
+              ${item.desc ? `<p class="text-slate-500 text-sm mt-3 leading-relaxed">${MWE.escapeHtml(item.desc)}</p>` : ""}
             </div>
             
-            <button onclick="MWE.toggleSessionStar(event, '${MWE.escapeJsAttribute(item.title)}')" class="p-2.5 rounded-full border border-slate-200 hover:border-brand-200 bg-white hover:bg-brand-50/30 text-slate-400 hover:text-brand-500 transition-colors shrink-0">
+            <button onclick="MWE.toggleSessionStar(event, '${MWE.escapeJsAttribute(item.title || "Session")}')" class="p-2.5 rounded-full border border-slate-200 hover:border-brand-200 bg-white hover:bg-brand-50/30 text-slate-400 hover:text-brand-500 transition-colors shrink-0">
               <i class="${isStarred ? 'fa-solid text-clay-500' : 'fa-regular'} fa-star"></i>
             </button>
           </div>
           
           <!-- Presenter and Stage Location Footer -->
           <div class="flex flex-wrap items-center justify-between gap-4 mt-6 pt-4 border-t border-slate-100 text-slate-500 text-xs font-semibold">
-            <div class="flex items-center gap-1.5">
-              <i class="fa-solid fa-microphone text-brand-500"></i> Presenter: ${item.host}
-            </div>
-            <div class="flex items-center gap-1.5 text-slate-400">
-               <i class="fa-solid fa-map-pin"></i> ${roomLabel}
-            </div>
+            ${presenterLabel ? `
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-microphone text-brand-500"></i> Presenter: ${MWE.escapeHtml(presenterLabel)}
+              </div>
+            ` : `<span></span>`}
+            ${roomLabel ? `
+              <div class="flex items-center gap-1.5 text-slate-400">
+                <i class="fa-solid fa-map-pin"></i> ${MWE.escapeHtml(roomLabel)}
+              </div>
+            ` : ""}
           </div>
         </div>
       </div>
@@ -7081,15 +7337,24 @@ function initEventProfilePage() {
   if (titleEl) titleEl.textContent = evt.title;
 
   const church = MWE.getChurches().find(c => c.id === evt.churchId);
-  const organizerName = church ? church.name : "Christian Fellowship";
+  const organizerName = church ? church.name : (evt.organizerName || evt.organization || evt.hostName || "Event Host");
   const orgLead = document.getElementById("event-profile-organizer-lead");
-  if (orgLead) orgLead.innerHTML = `Hosted by <a href="church-profile.html?id=${encodeURIComponent(evt.churchId || '')}" class="text-clay-500 dark:text-gold-500 hover:underline">${MWE.escapeHtml(organizerName)}</a>`;
+  if (orgLead) {
+    const organizerUrl = church && evt.churchId
+      ? `church-profile.html?id=${encodeURIComponent(evt.churchId)}`
+      : (evt.organizerUrl || "");
+    orgLead.innerHTML = organizerUrl
+      ? `Hosted by <a href="${MWE.safeLinkUrl(organizerUrl)}" class="text-clay-500 dark:text-gold-500 hover:underline">${MWE.escapeHtml(organizerName)}</a>`
+      : `Hosted by <span class="text-clay-500 dark:text-gold-500">${MWE.escapeHtml(organizerName)}</span>`;
+  }
 
   // Populate dynamic badge details
   const dateObj = new Date(evt.startsAt);
   const dateStr = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
-  const displayCity = evt.city || (church ? church.city : "Local");
-  const badgeText = `${dateStr} • ${displayCity.toUpperCase()} CONVENTION CENTER & ONLINE`;
+  const displayCity = evt.city || (church ? church.city : "");
+  const venueLabel = evt.venueName || evt.venue || evt.location || "";
+  const formatLabel = evt.eventType === "streamed" ? "ONLINE" : (evt.eventType === "hybrid" ? "HYBRID" : "IN PERSON");
+  const badgeText = evt.heroBadgeText || [dateStr, displayCity ? displayCity.toUpperCase() : "", formatLabel].filter(Boolean).join(" • ");
   const badgeTextEl = document.getElementById("hero-badge-text");
   if (badgeTextEl) badgeTextEl.textContent = badgeText;
 
@@ -7108,38 +7373,48 @@ function initEventProfilePage() {
   const descEl = document.getElementById("event-profile-description");
   if (descEl) descEl.textContent = evt.description || "No description details provided.";
 
+  const aboutEyebrowEl = document.getElementById("event-about-eyebrow");
+  if (aboutEyebrowEl) aboutEyebrowEl.textContent = evt.aboutEyebrow || "WHAT TO EXPECT";
+  const aboutTitleEl = document.getElementById("event-about-title");
+  if (aboutTitleEl) aboutTitleEl.textContent = evt.aboutTitle || `What to expect at ${evt.title}`;
+  const aboutIntroEl = document.getElementById("event-about-intro");
+  if (aboutIntroEl) aboutIntroEl.textContent = evt.aboutIntro || evt.description || "Event details will be updated by the organizer.";
+
   // Populate Church Host Details
   const churchAboutEl = document.getElementById("event-profile-church-about");
   if (churchAboutEl && church) {
     churchAboutEl.textContent = church.about || `Join regular worship services and community groups hosted by ${organizerName}. Discover local fellowship groups, Sunday school sessions, and regular Bible study streams.`;
+  } else if (churchAboutEl) {
+    churchAboutEl.textContent = evt.organizerAbout || evt.aboutIntro || evt.description || "";
   }
 
   const churchLink = document.getElementById("event-profile-church-link");
   if (churchLink && evt.churchId) churchLink.href = `church-profile.html?id=${evt.churchId}`;
 
   // Populate Location Details
-  const venueLoc = `${evt.venueName || 'Main Sanctuary'}, ${displayCity}`;
+  const venueLoc = [venueLabel, displayCity].filter(Boolean).join(", ") || "Location to be announced";
   const locEl = document.getElementById("event-profile-location");
   if (locEl) locEl.textContent = venueLoc;
 
-  // Extract arrays (fallback to defaults if undefined)
-  const speakers = evt.speakers || [];
-  const schedule = evt.schedule || [];
-  const highlights = evt.highlights || [
+  // Extract arrays. Seed events keep their sample content; hosted events only show what the creator saved.
+  const useSeedFallback = !evt.isHosted;
+  const speakers = Array.isArray(evt.speakers) ? evt.speakers : [];
+  const schedule = Array.isArray(evt.schedule) ? evt.schedule : [];
+  const highlights = Array.isArray(evt.highlights) ? evt.highlights : (useSeedFallback ? [
     { title: "Community Fellowship", desc: "Meet leaders and network over refreshments.", icon: "fa-users", color: "brand" },
     { title: "Live Worship Session", desc: "Contemporary hymns led by worship choirs.", icon: "fa-music", color: "clay" },
     { title: "Family & Kids Activities", desc: "Dedicated playground and Sunday school support.", icon: "fa-child", color: "gold" }
-  ];
-  const expectations = evt.expectations || [
+  ] : []);
+  const expectations = Array.isArray(evt.expectations) ? evt.expectations : (useSeedFallback ? [
     { title: "Deep Biblical Sermons", desc: "Join custom seminars exploring scriptures, history context reviews, and dynamic modern application models.", icon: "fa-book-bible", color: "brand" },
     { title: "Worship & Praise Choirs", desc: "Experience powerful contemporary hymns, worship team bands, and inspirational spiritual choir sessions.", icon: "fa-guitar", color: "clay" },
     { title: "Community Outreach", desc: "Participate in charity events, networking forums, and local missionary support plans.", icon: "fa-hands-holding-heart", color: "gold" }
-  ];
-  const faqs = evt.faqs || [
+  ] : []);
+  const faqs = Array.isArray(evt.faqs) ? evt.faqs : (useSeedFallback ? [
     { question: "Are tickets refundable or required?", answer: "Most registrations are free and simply help our church hospitality team prepare refreshments and seating. For ticketed events, bookings are refundable up to 7 days prior." },
     { question: "Is child care or Sunday school available?", answer: "Yes! For family-friendly events, children aged 2-12 have access to child supervision programs and child assemblies in Sunday School Room B." },
     { question: "Are snacks and refreshments provided?", answer: "Yes, complimentary beverages (coffee, tea) and snack platters are served during the fellowship intervals at the dining desk." }
-  ];
+  ] : []);
 
   // Populate Stats
   const statSpeakersEl = document.getElementById("stat-speakers");
@@ -7150,7 +7425,7 @@ function initEventProfilePage() {
 
   const statCapacityEl = document.getElementById("stat-capacity");
   if (statCapacityEl) {
-    statCapacityEl.textContent = evt.totalTickets ? `${evt.totalTickets}` : "500+";
+    statCapacityEl.textContent = evt.totalTickets ? `${evt.totalTickets}` : (evt.capacity ? `${evt.capacity}` : "Open");
   }
 
   // Populate Map Directions
@@ -7169,12 +7444,34 @@ function initEventProfilePage() {
   // Handle register / tickets card visibility for past events
   const isPast = new Date(evt.startsAt) < new Date();
   const regPanel = document.getElementById("event-register-panel");
+  const paymentState = MWE.getEventPaymentState(evt);
   if (isPast && regPanel) {
     regPanel.innerHTML = `
       <div class="text-center py-6">
         <span class="text-[10px] font-bold uppercase tracking-widest text-clay-500"><i class="fa-solid fa-circle-info"></i> Event Concluded</span>
         <h3 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Admission Closed</h3>
         <p class="text-xs text-slate-500 mt-2">This event has already concluded. Keep checking for upcoming evangelism channels!</p>
+      </div>
+    `;
+  } else if (regPanel && paymentState.kind === "external") {
+    const amount = `$${(paymentState.priceCents / 100).toFixed(2)}`;
+    regPanel.innerHTML = `
+      <div class="text-center py-6">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600"><i class="fa-solid fa-lock"></i> Secure Checkout</span>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mt-1">${amount} Admission</h3>
+        <p class="text-xs text-slate-500 mt-2 mb-5">This event uses the organizer's verified external checkout.</p>
+        <a class="w-full py-3.5 rounded-xl bg-clay-500 hover:bg-clay-600 text-white font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-1.5" href="${MWE.safeLinkUrl(paymentState.externalUrl)}" target="_blank" rel="noopener noreferrer">
+          Continue to Payment <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+        </a>
+      </div>
+    `;
+  } else if (regPanel && paymentState.kind !== "free") {
+    const amount = `$${(paymentState.priceCents / 100).toFixed(2)}`;
+    regPanel.innerHTML = `
+      <div class="text-center py-6">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-clay-500"><i class="fa-solid fa-triangle-exclamation"></i> Payment Not Available</span>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mt-1">${amount} Admission</h3>
+        <p class="text-xs text-slate-500 mt-2">Online payment has not been configured for this event yet. Registration will open after a verified payment provider is connected.</p>
       </div>
     `;
   }
@@ -7212,13 +7509,13 @@ function initEventProfilePage() {
       if (hl.color === "clay") iconColorClass = "text-clay-500 bg-clay-500/10";
       if (hl.color === "gold") iconColorClass = "text-gold-600 bg-gold-500/10";
       return `
-        <div class="flex gap-3.5 items-start">
+        <div class="event-highlight-row flex gap-3.5 items-start">
           <div class="w-7 h-7 rounded-lg ${iconColorClass} flex items-center justify-center shrink-0">
-            <i class="fa-solid ${hl.icon} text-xs"></i>
+            <i class="fa-solid ${MWE.escapeHtml(hl.icon || "fa-circle-check")} text-xs"></i>
           </div>
           <div>
             <h4 class="text-xs sm:text-sm font-bold text-slate-900">${MWE.escapeHtml(hl.title)}</h4>
-            <p class="text-[11px] text-slate-500 mt-0.5">${MWE.escapeHtml(hl.desc)}</p>
+            ${hl.desc ? `<p class="text-[11px] text-slate-500 mt-0.5">${MWE.escapeHtml(hl.desc)}</p>` : ""}
           </div>
         </div>
       `;
@@ -7237,8 +7534,8 @@ function initEventProfilePage() {
           <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${gradientClass} flex items-center justify-center text-white text-xl shadow-md mb-6">
             <i class="fa-solid ${exp.icon}"></i>
           </div>
-          <h3 class="text-lg font-bold text-slate-900 mb-2">${MWE.escapeHtml(exp.title)}</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">${MWE.escapeHtml(exp.desc)}</p>
+          <h3 class="text-lg font-bold text-slate-900 mb-2">${MWE.escapeHtml(exp.title || "Event Detail")}</h3>
+          ${exp.desc ? `<p class="text-sm text-slate-600 leading-relaxed">${MWE.escapeHtml(exp.desc)}</p>` : ""}
         </div>
       `;
     }).join("");
@@ -7253,25 +7550,29 @@ function initEventProfilePage() {
     gridEl.style.setProperty('--spk-cols-desktop', desktopCols);
     gridEl.innerHTML = speakers.map((sp, idx) => {
       const sessions = (evt.schedule || []).filter(s => s.host === sp.name).length;
+      const channel = MWE.findSpeakerChannel(sp);
+      const audienceCount = channel ? MWE.getChannelFollowerCount(channel) : (sp.followers || sp.attendees || sp.audience || "");
       return `
       <div class="spk-card" onclick="MWE.showSpeakerDetail(${idx})">
         <div class="spk-photo-wrap">
-          <img src="${MWE.escapeHtml(sp.image)}" alt="${MWE.escapeHtml(sp.name)}" class="spk-photo" />
+          <img src="${MWE.escapeHtml(sp.image || evt.coverImageUrl || "")}" alt="${MWE.escapeHtml(sp.name || "Speaker")}" class="spk-photo" />
         </div>
         <div class="spk-info">
-          <h4 class="spk-name">${MWE.escapeHtml(sp.name)}</h4>
-          <p class="spk-role">${MWE.escapeHtml(sp.role)}</p>
+          <h4 class="spk-name">${MWE.escapeHtml(sp.name || "Speaker")}</h4>
+          ${sp.role ? `<p class="spk-role">${MWE.escapeHtml(sp.role)}</p>` : ""}
         </div>
         <div class="spk-footer">
           <div class="spk-stats">
             <span class="spk-stat"><i data-lucide="mic" style="width:13px;height:13px;"></i> ${sessions}</span>
-            <span class="spk-stat"><i data-lucide="users" style="width:13px;height:13px;"></i> ${Math.floor(40 + Math.random() * 160)}</span>
+            ${audienceCount ? `<span class="spk-stat"><i data-lucide="users" style="width:13px;height:13px;"></i> ${MWE.escapeHtml(audienceCount)}</span>` : ""}
           </div>
-          <span class="spk-follow-btn">Follow</span>
+          <span data-speaker-follow-slot="${idx}" data-follow-context="card">${MWE.renderSpeakerFollowButton(sp, idx, "card")}</span>
         </div>
       </div>
     `;
     }).join("");
+    const noSpeakersMsg = document.getElementById("no-speakers-msg");
+    if (noSpeakersMsg) noSpeakersMsg.classList.toggle("hidden", speakers.length > 0);
     createIcons();
   }
 
@@ -7293,7 +7594,7 @@ function initEventProfilePage() {
     `).join("");
   }
 
-  MWE.currentScheduleDay = 1;
+  MWE.currentScheduleDay = MWE.getEventScheduleDays()[0] || 1;
   MWE.currentScheduleTrack = "all";
   MWE.renderScheduleDays();
   MWE.renderScheduleTracks();
@@ -9676,6 +9977,61 @@ MWE.openHostEventStudio = function(eventId = null) {
 
   const defaultStartsAt = new Date(Date.now() + 86400000 * 7).toISOString().slice(0, 16);
   const defaultEndsAt = new Date(Date.now() + 86400000 * 7 + 7200000).toISOString().slice(0, 16);
+  const defaultSpeakers = editingEvent?.speakers || [
+    {
+      name: editingEvent?.speakerName || editingEvent?.hostName || host.name,
+      role: host.role || "Event Host",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
+      specialty: "Teaching",
+      bio: host.bio || "Serving the community through practical teaching, discipleship, and fellowship."
+    }
+  ];
+  const defaultSchedule = editingEvent?.schedule || [
+    {
+      day: 1,
+      time: "09:30 AM",
+      endTime: "11:00 AM",
+      title: "Opening Session",
+      track: "keynote",
+      host: editingEvent?.speakerName || editingEvent?.hostName || host.name,
+      desc: "Welcome, worship, and opening teaching."
+    }
+  ];
+  const defaultExpectations = editingEvent?.expectations || [
+    {
+      title: "Biblical Teaching",
+      desc: "Practical sessions designed to equip attendees for faith, service, and community impact.",
+      icon: "fa-book-bible",
+      color: "brand"
+    }
+  ];
+  const defaultFaqs = editingEvent?.faqs || [
+    {
+      question: "Do I need to register?",
+      answer: "Registration helps the host prepare seating, materials, and hospitality."
+    }
+  ];
+  const defaultHighlights = editingEvent?.highlights || [
+    {
+      title: "Community Fellowship",
+      desc: "Meet leaders and connect with attendees.",
+      icon: "fa-users",
+      color: "brand"
+    },
+    {
+      title: "Guided Session",
+      desc: "Follow a focused agenda shaped by the organizer.",
+      icon: "fa-microphone",
+      color: "clay"
+    },
+    {
+      title: "Practical Takeaways",
+      desc: "Leave with next steps for your ministry or community.",
+      icon: "fa-circle-check",
+      color: "gold"
+    }
+  ];
+  const jsonFieldValue = (value) => MWE.escapeHtml(JSON.stringify(value, null, 2));
 
   modal.innerHTML = `
     <div class="dash-panel dash-panel-pad host-studio-panel" style="max-width: 720px; width: 94%; margin: 20px auto; max-height: 92vh; overflow-y: auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.35);">
@@ -9763,7 +10119,7 @@ MWE.openHostEventStudio = function(eventId = null) {
 
         <label class="form-field mb-3" id="studio-stream-link-field" style="display: ${(editingEvent && (editingEvent.eventType === 'streamed' || editingEvent.eventType === 'hybrid')) ? 'block' : 'none'};">
           <span>Live Broadcast / Webinar URL</span>
-          <input type="url" name="streamUrl" class="field" placeholder="https://zoom.us/j/... or YouTube/Vimeo stream URL" value="${MWE.escapeHtml(editingEvent ? (editingEvent.streamUrl || '') : '')}" />
+          <input type="url" name="streamUrl" class="field" placeholder="https://zoom.us/j/... or YouTube/Vimeo stream URL" value="${MWE.escapeHtml(editingEvent ? (editingEvent.streamUrl || editingEvent.livestreamUrl || '') : '')}" />
         </label>
 
         <!-- Host & Speaker details -->
@@ -9773,6 +10129,24 @@ MWE.openHostEventStudio = function(eventId = null) {
           </label>
           <label class="form-field"><span>Hosting Ministry / Group *</span>
             <input required name="organization" class="field" value="${MWE.escapeHtml(editingEvent ? (editingEvent.organization || host.organization) : host.organization)}" />
+          </label>
+        </div>
+
+        <div class="compact-grid mb-3">
+          <label class="form-field"><span>Organizer Display Name</span>
+            <input name="organizerName" class="field" placeholder="Name shown after Hosted by" value="${MWE.escapeHtml(editingEvent ? (editingEvent.organizerName || editingEvent.organization || host.organization) : host.organization)}" />
+          </label>
+          <label class="form-field"><span>Organizer / Church Link</span>
+            <input type="url" name="organizerUrl" class="field" placeholder="https://..." value="${MWE.escapeHtml(editingEvent ? (editingEvent.organizerUrl || '') : '')}" />
+          </label>
+        </div>
+
+        <div class="compact-grid mb-3">
+          <label class="form-field"><span>Linked Church ID</span>
+            <input name="churchId" class="field" placeholder="Optional existing church id" value="${MWE.escapeHtml(editingEvent ? (editingEvent.churchId || '') : '')}" />
+          </label>
+          <label class="form-field"><span>Directions URL</span>
+            <input type="url" name="directionsUrl" class="field" placeholder="https://maps.google.com/..." value="${MWE.escapeHtml(editingEvent ? (editingEvent.directionsUrl || '') : '')}" />
           </label>
         </div>
 
@@ -9827,6 +10201,20 @@ MWE.openHostEventStudio = function(eventId = null) {
           <textarea required name="description" rows="4" class="field" placeholder="Provide a detailed curriculum breakdown, what attendees will learn, prerequisites, and workshop schedule...">${MWE.escapeHtml(editingEvent ? (editingEvent.description || '') : '')}</textarea>
         </label>
 
+        <div class="compact-grid mb-3">
+          <label class="form-field"><span>Hero Badge Text</span>
+            <input name="heroBadgeText" class="field" placeholder="Optional short label above the hero details" value="${MWE.escapeHtml(editingEvent ? (editingEvent.heroBadgeText || '') : '')}" />
+          </label>
+          <label class="form-field"><span>About Section Title</span>
+            <input name="aboutTitle" class="field" placeholder="What to expect at this event" value="${MWE.escapeHtml(editingEvent ? (editingEvent.aboutTitle || '') : '')}" />
+          </label>
+        </div>
+
+        <label class="form-field mb-3">
+          <span>About Section Intro</span>
+          <textarea name="aboutIntro" rows="3" class="field" placeholder="Short intro that appears above the What To Expect cards">${MWE.escapeHtml(editingEvent ? (editingEvent.aboutIntro || '') : '')}</textarea>
+        </label>
+
         <!-- Highlights / Bullet points -->
         <div class="form-field mb-3">
           <span>Key Workshop Takeaways</span>
@@ -9835,6 +10223,32 @@ MWE.openHostEventStudio = function(eventId = null) {
             <input name="highlight2" class="field" placeholder="Key takeaway 2 (e.g. Free Workbook & Study Materials)" value="${MWE.escapeHtml(editingEvent?.highlights?.[1]?.title || '')}" />
             <input name="highlight3" class="field" placeholder="Key takeaway 3 (e.g. Certificate of Participation)" value="${MWE.escapeHtml(editingEvent?.highlights?.[2]?.title || '')}" />
           </div>
+        </div>
+
+        <!-- Dynamic Single-Event Page Sections -->
+        <div class="form-field mb-3">
+          <span>Speakers / Hosts JSON</span>
+          <textarea name="speakersJson" rows="7" class="field" spellcheck="false">${jsonFieldValue(defaultSpeakers)}</textarea>
+        </div>
+
+        <div class="form-field mb-3">
+          <span>Hero Highlight Cards JSON</span>
+          <textarea name="highlightsJson" rows="7" class="field" spellcheck="false">${jsonFieldValue(defaultHighlights)}</textarea>
+        </div>
+
+        <div class="form-field mb-3">
+          <span>Agenda / Schedule JSON</span>
+          <textarea name="scheduleJson" rows="8" class="field" spellcheck="false">${jsonFieldValue(defaultSchedule)}</textarea>
+        </div>
+
+        <div class="form-field mb-3">
+          <span>What To Expect JSON</span>
+          <textarea name="expectationsJson" rows="7" class="field" spellcheck="false">${jsonFieldValue(defaultExpectations)}</textarea>
+        </div>
+
+        <div class="form-field mb-3">
+          <span>FAQs JSON</span>
+          <textarea name="faqsJson" rows="7" class="field" spellcheck="false">${jsonFieldValue(defaultFaqs)}</textarea>
         </div>
 
         <!-- Actions -->
@@ -9905,11 +10319,43 @@ MWE.handleHostEventSubmit = function(e) {
   const eventId = data.id || "evt-host-" + Date.now();
   const priceDollars = parseFloat(data.priceDollars) || 0;
   const priceCents = data.admissionType === "paid" ? Math.round(priceDollars * 100) : 0;
+  const creatorStudioFields = Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [key, typeof value === "string" ? value.trim() : value])
+  );
 
-  const highlights = [];
-  if (data.highlight1) highlights.push({ title: data.highlight1, desc: "Interactive session module" });
-  if (data.highlight2) highlights.push({ title: data.highlight2, desc: "Materials provided" });
-  if (data.highlight3) highlights.push({ title: data.highlight3, desc: "Q&A and practical application" });
+  const parseStudioArray = (fieldName, label) => {
+    const raw = (data[fieldName] || "").trim();
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) throw new Error("Expected an array");
+      return parsed;
+    } catch {
+      if (typeof showToast === "function") showToast(`${label} must be a valid JSON array.`);
+      throw new Error(`Invalid ${fieldName}`);
+    }
+  };
+
+  let speakers = [];
+  let highlights = [];
+  let schedule = [];
+  let expectations = [];
+  let faqs = [];
+  try {
+    speakers = parseStudioArray("speakersJson", "Speakers / Hosts");
+    highlights = parseStudioArray("highlightsJson", "Hero Highlight Cards");
+    schedule = parseStudioArray("scheduleJson", "Agenda / Schedule");
+    expectations = parseStudioArray("expectationsJson", "What To Expect");
+    faqs = parseStudioArray("faqsJson", "FAQs");
+  } catch {
+    return;
+  }
+
+  if (!highlights.length) {
+    if (data.highlight1) highlights.push({ title: data.highlight1.trim(), desc: "" });
+    if (data.highlight2) highlights.push({ title: data.highlight2.trim(), desc: "" });
+    if (data.highlight3) highlights.push({ title: data.highlight3.trim(), desc: "" });
+  }
 
   const eventObj = {
     id: eventId,
@@ -9922,20 +10368,37 @@ MWE.handleHostEventSubmit = function(e) {
     hostName: (data.speakerName || host.name).trim(),
     hostEmail: host.email,
     organization: (data.organization || host.organization).trim(),
+    organizerName: (data.organizerName || data.organization || host.organization || "").trim(),
+    organizerUrl: data.organizerUrl ? data.organizerUrl.trim() : "",
+    churchId: data.churchId ? data.churchId.trim() : "",
     speakerName: (data.speakerName || host.name).trim(),
     speakerRole: host.role,
     startsAt: startsAt.toISOString(),
     endsAt: endsAt.toISOString(),
     location: (data.venue || "").trim(),
     venue: (data.venue || "").trim(),
+    venueName: (data.venue || "").trim(),
     city: (data.city || "Edmonton, AB").trim(),
     streamUrl: data.streamUrl ? data.streamUrl.trim() : "",
+    livestreamUrl: data.streamUrl ? data.streamUrl.trim() : "",
+    directionsUrl: data.directionsUrl ? data.directionsUrl.trim() : "",
+    heroBadgeText: data.heroBadgeText ? data.heroBadgeText.trim() : "",
+    aboutTitle: data.aboutTitle ? data.aboutTitle.trim() : "",
+    aboutIntro: data.aboutIntro ? data.aboutIntro.trim() : "",
+    admissionType: data.admissionType || "free",
+    priceDollars: data.admissionType === "paid" ? priceDollars : 0,
     ticketPriceCents: priceCents,
     capacity: data.capacity ? parseInt(data.capacity, 10) : 100,
+    totalTickets: data.capacity ? parseInt(data.capacity, 10) : 100,
     ticketsSold: isEditing ? (MWE.getEvent(eventId)?.ticketsSold || 0) : 0,
     coverImageUrl: data.coverImageUrl ? data.coverImageUrl.trim() : "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
     description: (data.description || "").trim(),
     highlights,
+    speakers,
+    schedule,
+    expectations,
+    faqs,
+    creatorStudioFields,
     createdAt: isEditing ? (MWE.getEvent(eventId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };

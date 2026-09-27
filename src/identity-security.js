@@ -151,7 +151,22 @@ export async function handleIdentityApi(request,env,ctx) {
   if(!user) throw new ApiError(401,'Sign in required.');
   if(path==='/api/auth/security' && request.method==='GET') {
     const {results}=await env.DB.prepare('select created_at,expires_at,mfa_verified_at from sessions where user_id=? order by created_at desc').bind(user.id).all();
-    return json({ok:true,emailVerified:!!user.email_verified_at,mfaEnabled:!!user.totp_secret_encrypted,emailConfigured:!!env.RESEND_API_KEY && !!env.EMAIL_FROM,sessions:results||[]});
+    const ownerRole=!!await env.DB.prepare("select user_id from platform_roles where user_id=? and role='owner'").bind(user.id).first();
+    const bootstrapEmail=String(env.OWNER_BOOTSTRAP_EMAIL||'').trim().toLowerCase();
+    return json({ok:true,emailVerified:!!user.email_verified_at,mfaEnabled:!!user.totp_secret_encrypted,mfaVerified:!!user.mfa_verified_at,ownerRole,canClaimOwner:!!bootstrapEmail && user.email===bootstrapEmail,emailConfigured:!!env.RESEND_API_KEY && !!env.EMAIL_FROM,sessions:results||[]});
+  }
+  if(path==='/api/auth/security/owner-claim' && request.method==='POST') {
+    await readJson(request);
+    const bootstrapEmail=String(env.OWNER_BOOTSTRAP_EMAIL||'').trim().toLowerCase();
+    if(!bootstrapEmail || user.email!==bootstrapEmail) throw new ApiError(403,'This account is not authorized to activate platform ownership.');
+    if(!user.email_verified_at || !user.totp_secret_encrypted || !user.mfa_verified_at) throw new ApiError(409,'Verify your email and complete authenticator setup before activating owner access.');
+    const existing=await env.DB.prepare("select user_id from platform_roles where user_id=? and role='owner'").bind(user.id).first();
+    if(existing) return json({ok:true,alreadyOwner:true,message:'Owner access is already active.'});
+    await env.DB.batch([
+      env.DB.prepare("insert into platform_roles values (?,'owner')").bind(user.id),
+      auditStatement(env,user.id,'owner.claimed',user.id)
+    ]);
+    return json({ok:true,message:'Owner access is active.'});
   }
   if(path==='/api/auth/verification/request' && request.method==='POST') { await readJson(request); await sendIdentityEmail(env,user,'verify'); return json({ok:true,message:'Verification email sent.'}); }
   if(path==='/api/auth/security/revoke-sessions' && request.method==='POST') {
