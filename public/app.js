@@ -5119,7 +5119,7 @@ MWE.toggleNavSigninDropdown = function(event) {
 MWE.ensurePasswordPolicy = function() {
   if (window.MWEPasswordPolicy || document.querySelector('script[src^="password-policy.js"]')) return;
   const script = document.createElement("script");
-  script.src = "password-policy.js?v=20260927pwpolicy1";
+  script.src = "password-policy.js?v=20260927pwpolicy2";
   script.defer = true;
   document.head.appendChild(script);
 };
