@@ -192,7 +192,7 @@ export async function handlePlatformApi(request,env,ctx) {
    const {results}=await env.DB.prepare(`select m.id,m.user_id,m.body,m.is_host,m.created_at,u.name
     from meditation_chat_messages m join users u on u.id=m.user_id
     where m.room_id=? and m.deleted_at is null
-    order by m.created_at desc,m.id desc limit 100`).bind(roomId).all();
+    order by m.created_at desc,m.rowid desc limit 100`).bind(roomId).all();
    const messages=(results||[]).reverse().map(row=>({id:row.id,name:row.name,body:row.body,isHost:!!row.is_host,createdAt:row.created_at,own:row.user_id===viewer?.id}));
    return ctx.json({ok:true,enabled:!!room.commentsEnabled,canManage:manager,revision:entity.revision,messages});
   }
