@@ -66,3 +66,29 @@ test("client password policy mirrors the server validator", async () => {
     assert.equal(pattern.test(pw), server.ok, pw);
   }
 });
+
+test("Google sign-in is offered on every marked account form and preserves creator returns", async () => {
+  const read = file => fs.readFile(path.join(root, "public", file), "utf8");
+  const [app, creatorAccount, portal, workspace, livestream, security] = await Promise.all([
+    read("app.js"),
+    read("creator-account.js"),
+    read("church-portal.html"),
+    read("creator-workspace.html"),
+    read("livestream.html"),
+    read("account-security.html")
+  ]);
+
+  assert.match(app, /MWE\.addGoogleAuthOptions = function/);
+  assert.match(app, /querySelectorAll\?\.\("\[data-google-auth-surface\]"\)/);
+  assert.match(app, /MWE\.startGoogleAuth = function/);
+  assert.match(app, /\/api\/auth\/google\/start\?next=\$\{encodeURIComponent\(next\)\}/);
+  assert.match(app, /id="host-signup-form" data-google-auth-surface/);
+  assert.match(app, /id="host-signin-form" data-google-auth-surface/);
+  assert.match(app, /get\("google_auth"\) === "creator"/);
+  assert.match(creatorAccount, /get\("google_auth"\) === "creator"/);
+  assert.match(creatorAccount, /creatorUpgrade\(\)/);
+  assert.equal((portal.match(/data-google-auth-surface data-google-auth-next="church-portal\.html\?google_auth=creator"/g) || []).length, 2);
+  assert.match(workspace, /data-creator-account-form data-google-auth-surface data-google-auth-next="creator-workspace\.html\?google_auth=creator"/);
+  assert.equal((livestream.match(/data-google-auth-surface/g) || []).length, 2);
+  assert.match(security, /id="security-signin"[^>]*data-google-auth-surface/);
+});

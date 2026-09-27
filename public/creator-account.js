@@ -12,9 +12,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   const esc = str => String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-  window.MWEAuth?.session().then(result => {
+  const googleCreatorReturn = new URLSearchParams(window.location.search).get("google_auth") === "creator";
+  window.MWEAuth?.session().then(async result => {
+    if (googleCreatorReturn && result.ok && !result.user?.isCreator) {
+      const upgraded = await window.MWEAuth.creatorUpgrade();
+      if (upgraded.ok) result = upgraded;
+      else window.showToast(upgraded.error || "We could not finish setting up your Creator account.");
+    }
+    if (googleCreatorReturn) {
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete("google_auth");
+      window.history.replaceState({}, "", `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
+    }
     if (result.ok && result.user?.isCreator) {
+      if (googleCreatorReturn) {
+        window.MWECreator.setAccount(result.user.name, result.user.email);
+        localStorage.setItem("mwe.userEmail", result.user.email.trim().toLowerCase());
+      }
       document.body.classList.add("is-authenticated");
+      if (googleCreatorReturn) {
+        window.dispatchEvent(new HashChangeEvent("hashchange"));
+        window.showToast("Welcome. Choose what you’d like to create.");
+      }
       return;
     }
     if (result.ok && result.user && !result.user.isCreator) {
