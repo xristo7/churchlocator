@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="admin-workspace.css?v=20260916taxonomy1" />
   <link rel="stylesheet" href="spotlight-workspace.css?v=20260916" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260916taxonomy1"></script><script defer src="app.js?v=20260916taxonomy1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260916taxonomy1"></script><script defer src="app.js?v=20260916taxonomy1"></script><script defer src="auth-client.js?v=20260915security1"></script><script defer src="password-policy.js?v=20260927pwpolicy1"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <script defer src="meditation.js?v=20260904"></script>
   <script defer src="admin-model.js?v=20260916taxonomy1"></script>
@@ -33,7 +33,7 @@
         <p class="member-auth-error" data-creator-account-error hidden></p>
         <label class="form-field"><span>Your name</span><input name="name" required autocomplete="name" placeholder="Your full name" /></label>
         <label class="form-field"><span>Email</span><input name="email" type="email" required autocomplete="username" placeholder="you@example.com" /></label>
-        <label class="form-field"><span>Password</span><input name="password" type="password" minlength="8" required autocomplete="new-password" placeholder="At least 8 characters" /></label>
+        <label class="form-field"><span>Password</span><input name="password" type="password" minlength="8" maxlength="128" required autocomplete="new-password" data-password-policy placeholder="8+ characters: Aa, 1 &amp; symbol" /></label>
         <button class="aw-button aw-primary" type="submit">Create account & continue <i data-lucide="arrow-right"></i></button>
       </form>
       <p class="aw-login-note"><i data-lucide="info"></i> Your account and password are securely stored on the server. Content you create in this workspace (churches, channels, stores, events) still lives in this browser only.</p>

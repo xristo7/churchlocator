@@ -76,6 +76,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     form.querySelector('[type="submit"]').textContent = signingIn ? "Sign in & continue" : "Create account & continue";
     event.currentTarget.textContent = signingIn ? "New here? Create an account" : "Already have an account? Sign in";
     form.elements.password.autocomplete = signingIn ? "current-password" : "new-password";
+    // New-password policy only applies when creating an account; sign-in accepts any legacy password.
+    form.elements.password.setAttribute("data-password-policy", signingIn ? "off" : "");
+    if (signingIn) form.elements.password.removeAttribute("minlength");
+    else form.elements.password.minLength = 8;
   });
   form.addEventListener("submit", async event => {
     event.preventDefault();

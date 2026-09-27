@@ -26560,3 +26560,11 @@ html body :is(.button.ghost, .button.secondary, .button.outline,
   outline: 2px solid var(--secondary-action-border-hover);
   outline-offset: 3px;
 }
+
+/* Shared new-password policy checklist (public/password-policy.js) */
+.password-policy-hints { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.75rem; line-height: 1.4; color: var(--text-secondary, #64748b); }
+.password-policy-hints[hidden] { display: none; }
+.password-policy-hints li { display: inline-flex; align-items: center; gap: 4px; }
+.password-policy-hints li::before { content: "\25CB"; font-size: 0.7rem; }
+.password-policy-hints li.is-met { color: var(--success, #15803d); }
+.password-policy-hints li.is-met::before { content: "\2713"; font-weight: 700; }

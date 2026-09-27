@@ -2124,6 +2124,12 @@ function initPrivateAppAuth() {
       passConfirmInput.focus();
       return;
     }
+    const passwordProblem = MWE.newPasswordProblem(passInput?.value || "");
+    if (passwordProblem) {
+      showToast(passwordProblem);
+      passInput?.focus();
+      return;
+    }
     
     if (app === "owner" || !window.MWEAuth) return;
     const result = await window.MWEAuth.creatorRegister(registrantNameInput?.value || nameInput?.value || "Creator", emailInput?.value || "", passInput?.value || "");
@@ -5038,7 +5044,7 @@ function updateHomepageAuthUI() {
               </div>
               <div class="form-group mb-3">
                 <label for="nav-auth-password">Password</label>
-                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required minlength="8" maxlength="128" title="Use 8 to 128 characters." autocomplete="current-password" />
+                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required maxlength="128" autocomplete="current-password" />
               </div>
               <button type="submit" class="button primary small" id="nav-auth-submit-btn" style="width: 100%;">
                 <i data-lucide="log-in"></i> <span>Sign In</span>
@@ -5108,6 +5114,21 @@ MWE.toggleNavSigninDropdown = function(event) {
   if (window.lucide) window.lucide.createIcons();
 };
 
+// Loads the shared new-password policy (public/password-policy.js) on pages
+// that did not include it directly. Same-origin script, so CSP 'self' allows it.
+MWE.ensurePasswordPolicy = function() {
+  if (window.MWEPasswordPolicy || document.querySelector('script[src^="password-policy.js"]')) return;
+  const script = document.createElement("script");
+  script.src = "password-policy.js?v=20260927pwpolicy1";
+  script.defer = true;
+  document.head.appendChild(script);
+};
+
+MWE.newPasswordProblem = function(password) {
+  const result = window.MWEPasswordPolicy?.check(password);
+  return result && !result.ok ? result.message : "";
+};
+
 MWE.switchAuthDropdownTab = function(tab) {
   const btnSignin = document.getElementById("tab-btn-signin");
   const btnRegister = document.getElementById("tab-btn-register");
@@ -5124,7 +5145,13 @@ MWE.switchAuthDropdownTab = function(tab) {
     if (nameGroup) nameGroup.style.display = "block";
     if (nameInput) nameInput.required = true;
     if (passwordInput) passwordInput.autocomplete = "new-password";
-    if (passwordInput) { passwordInput.minLength = 15; passwordInput.title = "Use 15 to 128 characters."; }
+    if (passwordInput) {
+      // Register: new-password policy (8+ chars, upper, lower, number, symbol) with live hints.
+      passwordInput.minLength = 8;
+      passwordInput.maxLength = 128;
+      passwordInput.setAttribute("data-password-policy", "");
+      MWE.ensurePasswordPolicy();
+    }
     if (emailLabel) emailLabel.textContent = "Email Address";
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="user-plus"></i> <span>Create Account</span>`;
     if (googleLabel) googleLabel.textContent = "Sign up with Google";
@@ -5134,7 +5161,14 @@ MWE.switchAuthDropdownTab = function(tab) {
     if (nameGroup) nameGroup.style.display = "none";
     if (nameInput) nameInput.required = false;
     if (passwordInput) passwordInput.autocomplete = "current-password";
-    if (passwordInput) { passwordInput.minLength = 8; passwordInput.title = "Use 8 to 128 characters."; }
+    if (passwordInput) {
+      // Sign in: no length or complexity checks so legacy passwords keep working.
+      if (passwordInput.hasAttribute("data-password-policy")) passwordInput.setAttribute("data-password-policy", "off");
+      passwordInput.removeAttribute("minlength");
+      passwordInput.removeAttribute("pattern");
+      passwordInput.removeAttribute("title");
+      passwordInput.setCustomValidity("");
+    }
     if (emailLabel) emailLabel.textContent = "Email Address";
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="log-in"></i> <span>Sign In</span>`;
     if (googleLabel) googleLabel.textContent = "Continue with Google";
@@ -5154,6 +5188,11 @@ MWE.handleNavDropdownAuthSubmit = async function(event) {
   const submitBtn = document.getElementById("nav-auth-submit-btn");
   if (errorEl) { errorEl.hidden = true; errorEl.textContent = ""; }
   if (!form.reportValidity()) return;
+  const passwordProblem = isRegister ? MWE.newPasswordProblem(password) : "";
+  if (passwordProblem) {
+    if (errorEl) { errorEl.textContent = passwordProblem; errorEl.hidden = false; }
+    return;
+  }
 
   if (!window.MWEAuth) {
     if (errorEl) { errorEl.textContent = "Sign-in is unavailable right now. Please reload and try again."; errorEl.hidden = false; }
@@ -9830,7 +9869,7 @@ MWE.openHostAuthModal = function(onSuccessCallback = null) {
         </div>
         <div class="compact-grid mt-2">
           <label class="form-field"><span>Contact Phone *</span><input required type="tel" name="phone" placeholder="(555) 000-1234" class="field" /></label>
-          <label class="form-field"><span>Password *</span><input required type="password" name="password" minlength="6" placeholder="At least 6 characters" class="field" /></label>
+          <label class="form-field"><span>Password *</span><input required type="password" name="password" minlength="8" maxlength="128" autocomplete="new-password" data-password-policy placeholder="8+ characters: Aa, 1 &amp; symbol" class="field" /></label>
         </div>
         <div class="form-field mt-2">
           <span>Short Bio / Ministry Focus</span>
@@ -9855,6 +9894,7 @@ MWE.openHostAuthModal = function(onSuccessCallback = null) {
   `;
 
   document.body.appendChild(modal);
+  MWE.ensurePasswordPolicy();
   if (typeof createIcons === "function") createIcons();
   MWE._pendingHostAuthSuccess = onSuccessCallback;
 };
@@ -9884,6 +9924,8 @@ MWE.handleHostSignup = async function(e) {
   const data = Object.fromEntries(new FormData(form));
 
   if (!form.reportValidity() || !window.MWEAuth) return;
+  const passwordProblem = MWE.newPasswordProblem(data.password || "");
+  if (passwordProblem) { showToast(passwordProblem); return; }
   const authResult = await window.MWEAuth.creatorRegister(data.name, data.email, data.password);
   if (!authResult.ok) { showToast(authResult.error || "Registration failed."); return; }
   form.reset();

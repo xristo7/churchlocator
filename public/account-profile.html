@@ -11,6 +11,7 @@
   <script defer src="platform-client.js?v=20260918profile1"></script>
   <script defer src="app.js?v=20260918profile1"></script>
   <script defer src="auth-client.js?v=20260918profile1"></script>
+  <script defer src="password-policy.js?v=20260927pwpolicy1"></script>
   <script defer src="account-profile.js?v=20260918profile1"></script>
 </head>
 <body class="account-profile-page member-shell-embed" data-page="account-profile">
@@ -62,8 +63,8 @@
         </div>
         <div id="profile-password-fields">
           <label>Current password<span class="account-password-field"><input name="currentPassword" type="password" autocomplete="current-password" required /><button type="button" data-password-toggle aria-label="Show current password"><i data-lucide="eye"></i></button></span></label>
-          <label>New password<span class="account-password-field"><input name="newPassword" type="password" minlength="15" maxlength="128" autocomplete="new-password" required /><button type="button" data-password-toggle aria-label="Show new password"><i data-lucide="eye"></i></button></span><small>Use at least 15 characters.</small></label>
-          <label>Confirm new password<span class="account-password-field"><input name="confirmPassword" type="password" minlength="15" maxlength="128" autocomplete="new-password" required /><button type="button" data-password-toggle aria-label="Show confirmed password"><i data-lucide="eye"></i></button></span></label>
+          <label>New password<span class="account-password-field"><input name="newPassword" type="password" minlength="8" maxlength="128" autocomplete="new-password" data-password-policy required /><button type="button" data-password-toggle aria-label="Show new password"><i data-lucide="eye"></i></button></span><small>Use at least 8 characters with an uppercase letter, a lowercase letter, a number, and a symbol.</small></label>
+          <label>Confirm new password<span class="account-password-field"><input name="confirmPassword" type="password" minlength="8" maxlength="128" autocomplete="new-password" required /><button type="button" data-password-toggle aria-label="Show confirmed password"><i data-lucide="eye"></i></button></span></label>
           <button class="account-profile-button account-profile-button-primary account-profile-submit" type="submit"><i data-lucide="lock-keyhole"></i> Update password</button>
         </div>
         <div class="account-google-password" id="profile-google-password" hidden>

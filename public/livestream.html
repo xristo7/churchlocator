@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="styles.css?v=20260919engagements1" />
   <script src="vendor/lucide.js"></script>
   <script defer src="platform-client.js?v=20260916previewfallback1"></script><script defer src="app.js?v=20260924shellroutes5"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="password-policy.js?v=20260927pwpolicy1"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <link rel="stylesheet" href="creator-public.css?v=20260907livestreamplayer1" />
   <script defer src="creator-data.js?v=20260904"></script>
@@ -306,7 +307,7 @@
           </div>
           <div>
             <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Password</label>
-            <input type="password" id="register-password" required minlength="12" autocomplete="new-password" placeholder="Create password" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
+            <input type="password" id="register-password" required minlength="8" maxlength="128" autocomplete="new-password" data-password-policy placeholder="Create password" style="width: 100%; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; box-sizing: border-box;" />
           </div>
           <button type="submit" style="width: 100%; padding: 10px; border-radius: 10px; background: var(--gradient-brand); border: none; color: #ffffff; font-weight: 700; font-size: 0.78rem; cursor: pointer; margin-top: 6px; box-shadow: 0 8px 22px rgba(51, 120, 236, 0.2);">Sign Up & Join</button>
         </form>
