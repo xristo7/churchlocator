@@ -9,6 +9,15 @@
   <script defer src="platform-client.js?v=20260915trusted1"></script><script defer src="app.js?v=20260927pwpolicy2"></script><script defer src="auth-client.js?v=20260915security1"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <script defer src="member-home.js?v=20260924identity1"></script>
+<style>
+  /* Spotlight launch card (restored): six-card grid, Spotlight artwork, Meditation keeps its lake image. */
+  .member-quick-launchpad { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .launch-card.launch-meditation { background-image: url("assets/meditation-lake.png") !important; }
+  .launch-card.launch-spotlight,
+  .launch-spotlight:hover,
+  .launch-spotlight:focus-visible { background-image: url("assets/spotlight/grace-testimony.webp") !important; }
+  .launch-spotlight .launch-icon { background: rgba(255, 255, 255, 0.24) !important; color: #ffffff !important; }
+</style>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body class="module-page member-home-body" data-page="member-home">
   <main class="module-shell member-home-shell">
@@ -26,6 +35,15 @@
 
       <!-- Quick Launchpad Action Grid -->
       <div class="member-quick-launchpad">
+        <a href="spotlight.html" class="launch-card launch-spotlight" data-navigate-view="spotlight">
+          <div class="launch-icon"><i data-lucide="play-square"></i></div>
+          <div class="launch-text">
+            <strong>Spotlight</strong>
+            <span>Stories, creators & ministries</span>
+          </div>
+          <i data-lucide="arrow-right" class="launch-arrow"></i>
+        </a>
+
         <a href="meditation.html" class="launch-card launch-meditation" data-navigate-view="meditation">
           <div class="launch-icon"><i data-lucide="sparkles"></i></div>
           <div class="launch-text">
