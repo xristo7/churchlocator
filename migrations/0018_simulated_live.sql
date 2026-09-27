@@ -18,6 +18,7 @@ create table if not exists simulated_live_streams (
   created_by text,
   paused_by text,
   paused_at text,
+  moderation_locked integer not null default 0,
   moderation_note text,
   created_at text not null,
   updated_at text not null
