@@ -105,6 +105,17 @@ test('livestream chat persists authenticated messages and exposes them to every 
  assert.equal(publicFeed.messages[0].email,undefined);
  await assert.rejects(s.call('livestream-chat/channel/'+channel.id,'POST',{body:'x'.repeat(301)}),{status:400});
 });
+test('livestream chat keeps posting order when messages share a timestamp',async()=>{
+ const s=setup();
+ const {record:channel}=await (await s.call('workspace/channels','POST',{name:'Live channel',live:true,liveUrl:'https://www.youtube.com/watch?v=abcdefghijk'})).json();
+ s.as('owner');await s.call('workspace/channels/'+channel.id,'PUT',{revision:1,publicationState:'published'});
+ const bodies=['one','two','three','four','five','six'], realIso=Date.prototype.toISOString;
+ Date.prototype.toISOString=()=> '2026-09-27T19:00:00.000Z';
+ try { for(const [index,body] of bodies.entries()) { s.as(index%2?'alice':'bob'); assert.equal((await s.call('livestream-chat/channel/'+channel.id,'POST',{body})).status,201); } }
+ finally { Date.prototype.toISOString=realIso; }
+ s.as('viewer');
+ assert.deepEqual((await (await s.call('livestream-chat/channel/'+channel.id)).json()).messages.map(message=>message.body),bodies);
+});
 test('meditation room comments persist, respect host moderation, and remain publicly readable',async()=>{
  const s=setup();
  const {record:room}=await (await s.call('workspace/meditation','POST',{title:'Prayer room',toneFreq:432,commentsEnabled:false,verses:[{topic:'Peace',text:'Be still',ref:'Psalm 46:10'}]})).json();

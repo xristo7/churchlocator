@@ -229,7 +229,7 @@ export async function handlePlatformApi(request,env,ctx) {
    const {results}=await env.DB.prepare(`select m.id,m.user_id,m.body,m.created_at,u.name
     from livestream_chat_messages m join users u on u.id=m.user_id
     where m.entity_id=? and m.stream_type=? and m.deleted_at is null
-    order by m.created_at desc,m.id desc limit 100`).bind(entityId,streamType).all();
+    order by m.created_at desc,m.rowid desc limit 100`).bind(entityId,streamType).all();
    const messages=(results||[]).reverse().map(row=>({id:row.id,name:row.name,body:row.body,createdAt:row.created_at,own:row.user_id===viewer?.id}));
    return ctx.json({ok:true,messages});
   }
