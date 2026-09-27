@@ -87,7 +87,7 @@ test("Google sign-in is offered on every marked account form and preserves creat
   assert.match(app, /get\("google_auth"\) === "creator"/);
   assert.match(creatorAccount, /get\("google_auth"\) === "creator"/);
   assert.match(creatorAccount, /creatorUpgrade\(\)/);
-  assert.equal((portal.match(/data-google-auth-surface data-google-auth-next="church-portal\.html\?google_auth=creator"/g) || []).length, 2);
+  assert.doesNotMatch(portal, /data-google-auth-surface/);
   assert.match(workspace, /data-creator-account-form data-google-auth-surface data-google-auth-next="creator-workspace\.html\?google_auth=creator"/);
   assert.equal((livestream.match(/data-google-auth-surface/g) || []).length, 2);
   assert.match(security, /id="security-signin"[^>]*data-google-auth-surface/);
