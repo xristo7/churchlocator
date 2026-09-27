@@ -429,6 +429,20 @@ async function handleMultipart(request, env, ctx, church, user, rest, url, nowMs
 }
 
 // --- Handlers ----------------------------------------------------------------------
+// readJson rejects non-http(s) values in *Url fields with a generic 400; map those to contract codes.
+async function readBody(request) {
+  const copy = request.clone();
+  try { return await readJson(request); }
+  catch (error) {
+    if (!(error instanceof ApiError) || error.status !== 400 || !/URL/.test(error.message)) throw error;
+    let raw = {};
+    try { raw = await copy.json(); } catch { /* ignore */ }
+    const safe = value => { try { return ['https:', 'http:'].includes(new URL(String(value), 'https://asset.invalid/').protocol); } catch { return false; } };
+    if (raw && raw.videoUrl != null && !safe(raw.videoUrl)) fail('invalid_video', 'Use an uploaded MP4 or an https:// link that ends in .mp4.');
+    if (raw && raw.posterUrl != null && !safe(raw.posterUrl)) fail('invalid_poster', 'Use an uploaded image or an https:// image link for the poster.');
+    fail('invalid_request', 'A link in this request is not a safe web address.');
+  }
+}
 function noStore(response) { response.headers.set('cache-control', 'no-store'); return response; }
 function streamInputFrom(stream) {
   return { title: stream.title, description: stream.description, videoUrl: stream.videoUrl, posterUrl: stream.posterUrl, durationSeconds: stream.durationSeconds, playMode: stream.playMode, loopWindowMinutes: stream.loopWindowMinutes, timezone: stream.timezone };
@@ -444,7 +458,7 @@ async function handleOwnerRoutes(request, env, ctx, churchId, rest, url, nowMs) 
       return ctx.json({ ok: true, streams: streams.map(s => publicStream(s, nowMs)) });
     }
     if (method === 'POST') {
-      const input = await readJson(request);
+      const input = await readBody(request);
       const { fields, errors } = parseStreamFields(input);
       firstError(errors);
       const slots = parseSlots(input.slots, nowMs);
@@ -462,7 +476,7 @@ async function handleOwnerRoutes(request, env, ctx, churchId, rest, url, nowMs) 
   }
   if (rest[0] === 'preview' && rest.length === 1) {
     if (method !== 'POST') throw new ApiError(405, 'Method not allowed.');
-    const input = await readJson(request);
+    const input = await readBody(request);
     let allowedPast = new Set(), excludeStreamId = null;
     if (input.streamId != null) {
       const existing = await readStream(env, churchId, String(input.streamId));
@@ -500,7 +514,7 @@ async function handleOwnerRoutes(request, env, ctx, churchId, rest, url, nowMs) 
       return ctx.json({ ok: true });
     }
     if (method === 'PATCH') {
-      const input = await readJson(request);
+      const input = await readBody(request);
       const merged = streamInputFrom(stream);
       for (const key of EDITABLE) if (has(input, key)) merged[key] = input[key];
       const { fields, errors } = parseStreamFields(merged);
@@ -538,7 +552,7 @@ async function handleOwnerRoutes(request, env, ctx, churchId, rest, url, nowMs) 
   }
   if (rest[1] === 'slots') {
     if (rest.length === 2 && method === 'POST') {
-      const input = await readJson(request);
+      const input = await readBody(request);
       const raw = input.slot && typeof input.slot === 'object' ? input.slot : input;
       if (stream.slots.length >= MAX_SLOTS) fail('invalid_slot', `A stream can have at most ${MAX_SLOTS} time slots.`);
       const result = parseSlot(raw, 0, nowMs);
