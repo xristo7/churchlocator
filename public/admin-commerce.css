@@ -1,0 +1,8 @@
+/* Owner commerce views (admin-commerce-reports.js, admin-commerce-manage.js). */
+.admin-workspace .owc-checks { display:grid; gap:12px; padding:18px 24px; }
+.admin-workspace .owc-checks small { color:var(--text-muted); font-size:11px; }
+.admin-workspace .owc-check { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-secondary); }
+.admin-workspace .owc-check input[type="checkbox"] { width:18px; height:18px; min-height:0; padding:0; flex:0 0 auto; }
+.admin-workspace .owc-actions { display:flex; gap:6px; flex-wrap:wrap; }
+.admin-workspace .owc-actions .aw-button { min-height:32px; padding:6px 12px; }
+.admin-workspace .owc-tabs { padding-top:18px; }
