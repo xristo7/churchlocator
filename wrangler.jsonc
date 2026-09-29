@@ -47,6 +47,9 @@
           "database_id": "9d5c6215-602b-4641-bea9-dca104a1c3ba"
         }
       ],
+      "r2_buckets": [
+        { "binding": "MEDIA", "bucket_name": "mwe-creator-media-preview" }
+      ],
       "ratelimits": [
         { "name": "AUTH_RATE_LIMITER", "namespace_id": "2026091503", "simple": { "limit": 10, "period": 60 } },
         { "name": "WRITE_RATE_LIMITER", "namespace_id": "2026091504", "simple": { "limit": 30, "period": 60 } }
