@@ -1,0 +1,113 @@
+/* Simulated live ("play as live") viewer player. Prefix: simlive- (the church setup panel uses sl-). Uses theme tokens from styles.css. */
+.simlive-host { position: absolute; inset: 0; z-index: 2; }
+.simlive { display: block; width: 100%; height: 100%; color: var(--text-primary); }
+.simlive-stage {
+  position: relative; width: 100%; height: 100%; min-height: 220px; overflow: hidden;
+  background: #000; border-radius: inherit;
+}
+.simlive-stage:focus-visible { outline: 3px solid var(--primary); outline-offset: -3px; }
+.simlive-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
+.simlive-video[hidden] { display: none; }
+.simlive-poster { position: absolute; inset: 0; background-size: cover; background-position: center; transform: scale(1.02); }
+.simlive-poster::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(2, 6, 23, 0.35), rgba(2, 6, 23, 0.72)); }
+.simlive-poster[hidden] { display: none; }
+
+.simlive-topbar { position: absolute; top: 14px; left: 14px; display: flex; gap: 8px; align-items: center; z-index: 3; pointer-events: none; }
+.simlive-live-badge, .simlive-behind-badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 9999px;
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; color: #fff; line-height: 1;
+}
+.simlive-live-badge { background: #e11d48; box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35); }
+.simlive-live-badge.is-behind { background: rgba(15, 23, 42, 0.78); box-shadow: none; }
+.simlive-behind-badge { background: rgba(15, 23, 42, 0.78); letter-spacing: 0.02em; font-weight: 700; }
+.simlive-live-badge[hidden], .simlive-behind-badge[hidden] { display: none; }
+.simlive-live-dot { width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: simlive-pulse 1.6s ease-in-out infinite; }
+.simlive-live-badge.is-behind .simlive-live-dot { animation: none; opacity: 0.6; }
+@keyframes simlive-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.7); } }
+
+.simlive-controls {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  padding: 28px 14px 14px; background: linear-gradient(180deg, transparent, rgba(2, 6, 23, 0.72));
+}
+.simlive-controls[hidden] { display: none; }
+.simlive-controls [data-simlive-fullscreen] { margin-left: auto; }
+.simlive-btn {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 7px 13px; border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.28); background: rgba(15, 23, 42, 0.62); color: #fff;
+  font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: background 0.2s ease;
+}
+.simlive-btn svg, .simlive-btn i { width: 16px; height: 16px; }
+.simlive-btn:hover { background: rgba(15, 23, 42, 0.82); }
+.simlive-btn:focus-visible, .simlive-tap-play:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.simlive-btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.simlive-btn-primary:hover { background: var(--primary-hover); }
+.simlive-btn-live { background: #e11d48; border-color: #e11d48; }
+.simlive-btn[hidden] { display: none; }
+
+.simlive-spinner { position: absolute; inset: 0; display: grid; place-items: center; z-index: 2; pointer-events: none; }
+.simlive-spinner[hidden] { display: none; }
+.simlive-spinner span { width: 42px; height: 42px; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.25); border-top-color: #fff; animation: simlive-spin 0.9s linear infinite; }
+@keyframes simlive-spin { to { transform: rotate(360deg); } }
+
+.simlive-panel { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; padding: 18px; overflow: auto; }
+.simlive-panel[hidden], .simlive-panel:empty { display: none; }
+.simlive-card {
+  width: min(460px, 100%); padding: 22px 24px; border-radius: 18px; text-align: center;
+  background: var(--surface-card, var(--surface)); color: var(--text-primary);
+  border: 1px solid var(--border); box-shadow: 0 18px 44px rgba(2, 6, 23, 0.28);
+}
+.simlive-card h3 { margin: 8px 0; font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; color: var(--text-primary); }
+.simlive-kicker {
+  display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 5px 12px; border-radius: 9999px;
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--primary); background: var(--primary-surface); border: 1px solid var(--primary-border);
+}
+.simlive-kicker svg, .simlive-kicker i { width: 14px; height: 14px; }
+.simlive-card-error .simlive-kicker { color: #e11d48; background: rgba(225, 29, 72, 0.08); border-color: rgba(225, 29, 72, 0.3); }
+.simlive-card-neutral .simlive-kicker { color: var(--text-secondary); background: var(--background-secondary); border-color: var(--border); }
+.simlive-copy, .simlive-when { margin: 0 0 10px; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+.simlive-next { margin: 10px 0 12px; font-size: 0.88rem; color: var(--text-secondary); }
+.simlive-next span { color: var(--text-muted); }
+.simlive-next strong { color: var(--text-primary); }
+
+.simlive-countdown { margin: 12px 0 10px; }
+.simlive-countdown-digits { display: inline-flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.simlive-unit {
+  display: inline-flex; flex-direction: column; align-items: center; min-width: 58px; padding: 8px 6px; border-radius: 12px;
+  background: var(--surface-soft); border: 1px solid var(--border);
+}
+.simlive-unit b { font-size: 1.45rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text-primary); line-height: 1.1; }
+.simlive-unit small { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+
+.simlive-tap-play {
+  display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 9999px; border: none; cursor: pointer;
+  background: var(--primary); color: #fff; font: inherit; font-weight: 800; box-shadow: var(--primary-glow);
+}
+
+html[data-theme="dark"] .simlive-card { box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55); }
+
+@media (max-width: 560px) {
+  .simlive-card { padding: 16px; border-radius: 14px; }
+  .simlive-unit { min-width: 46px; padding: 6px 4px; }
+  .simlive-unit b { font-size: 1.1rem; }
+  .simlive-btn span { display: none; }
+  .simlive-btn-primary span, .simlive-btn-live span { display: inline; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .simlive-live-dot { animation: none; }
+  .simlive-spinner span { animation-duration: 2.4s; }
+  .simlive-btn { transition: none; }
+}
+
+/* Church time zone shown next to the viewer's local time */
+.simlive-tz-label { color: var(--text-muted); font-size: 0.78em; }
+.simlive-tz-church { white-space: nowrap; color: var(--text-secondary); }
+.simlive-tz-sep { color: var(--text-muted); margin: 0 2px; }
+
+/* livestream.html: the simulated player replaces the external embed and its demo stage overlays */
+#streams-player-view.is-simulated-live #main-player-iframe,
+#streams-player-view.is-simulated-live .stage-guest-container,
+#streams-player-view.is-simulated-live .player-overlay-badge { display: none !important; }
+body.simlive-active #streams-landing-view { display: none !important; }
+body.simlive-active #streams-player-view { display: block !important; }
