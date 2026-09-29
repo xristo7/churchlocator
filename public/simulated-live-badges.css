@@ -1,0 +1,54 @@
+/* Play-as-live badges for church directory cards and church profiles. */
+.simlive-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #f8fafc;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+}
+.simlive-badge--live {
+  background: #dc2626;
+  color: #ffffff;
+}
+.simlive-badge--upcoming {
+  background: rgba(15, 23, 42, 0.78);
+  color: #f8fafc;
+}
+.church-card-top-bar .simlive-badge {
+  margin-left: auto;
+}
+.simlive-badge--profile {
+  align-self: flex-start;
+  width: max-content;
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+}
+a.simlive-badge:hover,
+a.simlive-badge:focus-visible {
+  filter: brightness(1.08);
+  text-decoration: underline;
+}
+a.simlive-badge:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+.simlive-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.28);
+}
+@media (prefers-reduced-motion: reduce) {
+  .simlive-badge-dot { box-shadow: none; }
+}
