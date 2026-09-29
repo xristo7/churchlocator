@@ -3,9 +3,10 @@ import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX
 import { handlePlatformApi, isOwner } from './trusted-platform.js';
 import { handleSpotlightApi } from './spotlight.js';
 import { handleContentEngagementApi } from './content-engagements.js';
+import { handleSimulatedLiveApi } from './simulated-live.js';
 
 const apiHeaders = {
-  "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, authorization",
   "cache-control": "no-store",
   "x-content-type-options": "nosniff"
@@ -1369,6 +1370,62 @@ async function handleCreatorDeleteTestimony(testimonyId, request, env, context) 
   return json({ ok: true, message: "Testimony deleted" });
 }
 
+
+function parseByteRange(header, size) {
+  const match = /^bytes=(\d*)-(\d*)$/.exec(String(header || "").trim());
+  if (!match || (!match[1] && !match[2])) return null;
+  let start, end;
+  if (!match[1]) {
+    const suffix = Number(match[2]);
+    if (suffix === 0) return "unsatisfiable";
+    start = Math.max(0, size - suffix);
+    end = size - 1;
+  } else {
+    start = Number(match[1]);
+    end = match[2] ? Math.min(Number(match[2]), size - 1) : size - 1;
+  }
+  if (!Number.isFinite(start) || !Number.isFinite(end) || start >= size || end < start) return "unsatisfiable";
+  return { start, end };
+}
+
+async function handleMediaRequest(request, env) {
+  if (!env.MEDIA) return new Response("Media storage unavailable", { status: 503, headers: securityHeaders });
+  if (request.method !== "GET" && request.method !== "HEAD") return new Response("Method not allowed", { status: 405, headers: { allow: "GET, HEAD", ...securityHeaders } });
+  const key = new URL(request.url).pathname.slice("/media/".length);
+  const isChurchVideo = /^church-video\/[0-9a-f-]{36}\.mp4$/.test(key);
+  const isImage = /^(creator-media|member-avatars)\/[0-9a-f-]{36}\.(jpg|png|webp|gif|mp3)$/.test(key);
+  if (!isChurchVideo && !isImage) return new Response("Not found", { status: 404, headers: securityHeaders });
+  const rangeHeader = isChurchVideo && request.method === "GET" ? request.headers.get("range") : null;
+  let range = null;
+  let totalSize;
+  let object;
+  if (rangeHeader) {
+    const head = await env.MEDIA.head(key);
+    if (!head) return new Response("Not found", { status: 404, headers: securityHeaders });
+    totalSize = head.size;
+    range = parseByteRange(rangeHeader, totalSize);
+    if (range === "unsatisfiable") return new Response("Range not satisfiable", { status: 416, headers: { "content-range": `bytes */${totalSize}`, "accept-ranges": "bytes", ...securityHeaders } });
+    object = range ? await env.MEDIA.get(key, { range: { offset: range.start, length: range.end - range.start + 1 } }) : await env.MEDIA.get(key);
+  } else {
+    object = request.method === "HEAD" ? await env.MEDIA.head(key) : await env.MEDIA.get(key);
+  }
+  if (!object) return new Response("Not found", { status: 404, headers: securityHeaders });
+  const headers = new Headers({
+    "content-type": object.httpMetadata?.contentType || "application/octet-stream",
+    "cache-control": object.httpMetadata?.cacheControl || "public, max-age=31536000, immutable",
+    "etag": object.httpEtag,
+    ...securityHeaders
+  });
+  if (isChurchVideo) headers.set("accept-ranges", "bytes");
+  if (range) {
+    headers.set("content-range", `bytes ${range.start}-${range.end}/${totalSize}`);
+    headers.set("content-length", String(range.end - range.start + 1));
+    return new Response(object.body, { status: 206, headers });
+  }
+  if (object.size !== undefined) headers.set("content-length", String(object.size));
+  return new Response(request.method === "HEAD" ? null : object.body, { headers });
+}
+
 async function handleApi(request, env) {
   const requestId = crypto.randomUUID();
 
@@ -1388,6 +1445,8 @@ async function handleApi(request, env) {
     if (spotlightResponse) return spotlightResponse;
     const engagementResponse = await handleContentEngagementApi(request, env, context);
     if (engagementResponse) return engagementResponse;
+    const simulatedLiveResponse = await handleSimulatedLiveApi(request, env, context);
+    if (simulatedLiveResponse) return simulatedLiveResponse;
     if (path === "/api/status" && request.method === "GET") return await handleStatus(env);
     if (path === "/api/auth/google/start" && request.method === "GET") return await handleGoogleAuthStart(request, env);
     if (path === "/api/auth/google/callback" && request.method === "GET") return await handleGoogleAuthCallback(request, env);
@@ -1462,6 +1521,9 @@ export default {
     if (url.pathname.startsWith("/api/")) {
       return handleApi(request, env);
     }
+    if (url.pathname.startsWith("/media/")) {
+      return handleMediaRequest(request, env);
+    }
 
     const assetRes = await env.ASSETS.fetch(assetRequest(request));
     const newHeaders = new Headers(assetRes.headers);
@@ -1487,4 +1549,4 @@ export default {
   }
 };
 
-export { constantTimeEqual, readJson, registrationCode, handleServiceBooking, handleGetServiceBookings, serviceBookingRef };
+export { handleMediaRequest, parseByteRange, constantTimeEqual, readJson, registrationCode, handleServiceBooking, handleGetServiceBookings, serviceBookingRef };
