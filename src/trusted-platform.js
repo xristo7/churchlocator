@@ -5,9 +5,19 @@ export const kinds=['churches','meditation','events','store','products','channel
 export const taxonomyKeys=['denominations','languages','worship_styles','store_categories','product_categories','channel_topics','resource_topics'];
 const privateKinds=['prayer','reflection','ride','visit','salvation','foundation','message','settings'];
 const livestreamKinds={church:'churches',channel:'channels',store:'store'};
+const publicationDefinitions={
+ churches:{key:'church_publication',route:'church-publication',responseKey:'churchPublication',field:'autoPublishPendingChurches'},
+ meditation:{key:'meditation_publication',route:'meditation-publication',responseKey:'meditationPublication',field:'autoPublishPendingMeditations'},
+ events:{key:'event_publication',route:'event-publication',responseKey:'eventPublication',field:'autoPublishPendingEvents'},
+ store:{key:'store_publication',route:'store-publication',responseKey:'storePublication',field:'autoPublishPendingStores'},
+ products:{key:'product_publication',route:'product-publication',responseKey:'productPublication',field:'autoPublishPendingProducts'},
+ channels:{key:'channel_publication',route:'channel-publication',responseKey:'channelPublication',field:'autoPublishPendingChannels'},
+ resources:{key:'resource_publication',route:'resource-publication',responseKey:'resourcePublication',field:'autoPublishPendingResources'}
+};
+const publicationByRoute=Object.fromEntries(Object.entries(publicationDefinitions).map(([kind,definition])=>[definition.route,{kind,...definition}]));
 const forbidden=new Set(['createdBy','tenantId','createdAt','updatedAt','revision','verified','ticketsSold','followers','items','rating','orders','amountPaidCents','attachmentData','totpSecret','password','isOwner','role']);
 const fields={
- churches:['name','city','country','postal','denomination','pastor','pastorTitle','pastorBio','pastorPhoto','about','location','email','phone','phoneLabel','emailHref','website','language','worship','ministries','sunday','midweek','photo','logo','tagline','livestream','history','vision','mission','statementOfFaith','firstVisit','parkingInformation','childrenInformation','gallery'],
+ churches:['name','city','country','postal','area','denomination','pastor','pastorTitle','pastorBio','pastorPhoto','about','location','email','phone','phoneLabel','emailHref','website','language','worship','ministries','sunday','midweek','photo','logo','tagline','welcomeMedia','heroOrder','livestream','history','vision','mission','statementOfFaith','firstVisit','parkingInformation','childrenInformation','gallery','schedule','testimonies'],
  meditation:['title','subtitle','category','categoryLabel','theme','template','purpose','mode','timeMode','durationMinutes','toneFreq','themeColor','themeHue','cover','selectedAudio','audioTracks','ambience','verses','pictures','teachings','prayers','worship','journeySteps','inhaleWord','exhaleWord','autoPlayInterval','allowUserNavigation','icon','commentsEnabled','ownerName'],
  events:['title','churchId','eventType','startsAt','endsAt','venueName','city','country','coverImageUrl','registrationRequired','ticketPriceCents','currency','totalTickets','isFeatured','isPromoted','registrationUrl','livestreamUrl','directionsUrl','description','highlights','expectations','speakers','schedule','faqs','ownerName'],
  store:['name','ownerName','category','description','image','email','liveUrl','live'],
@@ -16,6 +26,23 @@ const fields={
  resources:['title','creator','topic','description','type','format','duration','image','access','price','sourceUrl','pages','audioSrc','embedUrl']
 };
 function boolean(value) { return value===true || value===1 || value==='true'; }
+export async function getPublicationSettings(env,kind) {
+ const definition=publicationDefinitions[kind];
+ if(!definition) throw new ApiError(404,'Platform setting not found.');
+ const row=await env.DB.prepare('select value_json,revision,updated_at from platform_settings where key=?').bind(definition.key).first();
+ const value=row?.value_json?JSON.parse(row.value_json):{};
+ return {[definition.field]:boolean(value[definition.field]),revision:row?.revision||1,updatedAt:row?.updated_at||null};
+}
+export const getChurchPublicationSettings=env=>getPublicationSettings(env,'churches');
+export const getMeditationPublicationSettings=env=>getPublicationSettings(env,'meditation');
+async function publicationSettings(env) {
+ const entries=await Promise.all(Object.entries(publicationDefinitions).map(async([kind,definition])=>[definition.responseKey,await getPublicationSettings(env,kind)]));
+ return Object.fromEntries(entries);
+}
+async function pendingIsPublic(env,kind) {
+ const definition=publicationDefinitions[kind];
+ return !!definition && (await getPublicationSettings(env,kind))[definition.field];
+}
 function number(value, field, maximum=100000000) {
  const n=Number(value??0); if(!Number.isFinite(n) || n<0 || n>maximum) throw new ApiError(400,'Invalid '+field+'.'); return n;
 }
@@ -70,7 +97,7 @@ function privateSubmission(kind,input,entity) {
 }
 function sanitizeValue(value, key='') {
  if(typeof value==='string') {
-  if(/url$|^(website|image|photo|cover|logo|pastorPhoto|src|audioSrc)$/i.test(key) && value && value!=='#') {
+  if(/url$|^(website|image|photo|cover|logo|pastorPhoto|src|audioSrc|welcomeMedia)$/i.test(key) && value && value!=='#') {
    const url=new URL(value,'https://assets.invalid/');
    if(url.protocol!=='https:' || url.username || url.password) throw new ApiError(400,'Use a safe HTTPS media URL.');
   }
@@ -180,19 +207,20 @@ export async function writeEntity(request,env,ctx,kind,id) {
 }
 export async function handlePlatformApi(request,env,ctx) {
  const url=new URL(request.url), parts=url.pathname.split('/').filter(Boolean), scope=parts[1];
- if(!['catalog','taxonomies','workspace','private','admin-audit','tenant-members','resource-material','livestream-chat','meditation-chat'].includes(scope)) return null;
+ if(!['catalog','taxonomies','platform-settings','workspace','private','admin-audit','tenant-members','resource-material','livestream-chat','meditation-chat'].includes(scope)) return null;
  if(!env.DB) throw new ApiError(503,'Storage unavailable.');
  if(scope==='meditation-chat') {
   const roomId=parts[2];
   if(!roomId || roomId.length>128) throw new ApiError(404,'Meditation chat not found.');
-  const entity=await env.DB.prepare("select * from platform_entities where id=? and kind='meditation' and state='published'").bind(roomId).first();
+  const publication=await getMeditationPublicationSettings(env);
+  const entity=await env.DB.prepare("select * from platform_entities where id=? and kind='meditation' and (state='published' or (state='pending' and ?=1))").bind(roomId,Number(publication.autoPublishPendingMeditations)).first();
   if(!entity) throw new ApiError(404,'Meditation chat not found.');
   const viewer=await ctx.getSessionUser(request,env), manager=await canManageEntity(env,viewer,entity), room=JSON.parse(entity.data_json);
   if(request.method==='GET') {
    const {results}=await env.DB.prepare(`select m.id,m.user_id,m.body,m.is_host,m.created_at,u.name
     from meditation_chat_messages m join users u on u.id=m.user_id
     where m.room_id=? and m.deleted_at is null
-    order by m.created_at desc,m.id desc limit 100`).bind(roomId).all();
+    order by m.rowid desc limit 100`).bind(roomId).all();
    const messages=(results||[]).reverse().map(row=>({id:row.id,name:row.name,body:row.body,isHost:!!row.is_host,createdAt:row.created_at,own:row.user_id===viewer?.id}));
    return ctx.json({ok:true,enabled:!!room.commentsEnabled,canManage:manager,revision:entity.revision,messages});
   }
@@ -220,7 +248,8 @@ export async function handlePlatformApi(request,env,ctx) {
  if(scope==='livestream-chat') {
   const streamType=parts[2], entityId=parts[3], kind=livestreamKinds[streamType];
   if(!kind || !entityId || entityId.length>128) throw new ApiError(404,'Livestream chat not found.');
-  const entity=await env.DB.prepare("select id,data_json from platform_entities where id=? and kind=? and state='published'").bind(entityId,kind).first();
+  const allowPending=await pendingIsPublic(env,kind);
+  const entity=await env.DB.prepare("select id,data_json from platform_entities where id=? and kind=? and (state='published' or (state='pending' and ?=1))").bind(entityId,kind,Number(allowPending)).first();
   if(!entity) throw new ApiError(404,'Livestream chat not found.');
   const data=JSON.parse(entity.data_json), active=streamType==='church' ? boolean(data.livestream?.enabled) && !!data.livestream?.url : boolean(data.live) && !!data.liveUrl;
   if(!active) throw new ApiError(404,'This broadcast is offline.');
@@ -229,7 +258,7 @@ export async function handlePlatformApi(request,env,ctx) {
    const {results}=await env.DB.prepare(`select m.id,m.user_id,m.body,m.created_at,u.name
     from livestream_chat_messages m join users u on u.id=m.user_id
     where m.entity_id=? and m.stream_type=? and m.deleted_at is null
-    order by m.created_at desc,m.id desc limit 100`).bind(entityId,streamType).all();
+    order by m.rowid desc limit 100`).bind(entityId,streamType).all();
    const messages=(results||[]).reverse().map(row=>({id:row.id,name:row.name,body:row.body,createdAt:row.created_at,own:row.user_id===viewer?.id}));
    return ctx.json({ok:true,messages});
   }
@@ -244,16 +273,23 @@ export async function handlePlatformApi(request,env,ctx) {
  }
  if(scope==='catalog' && request.method==='GET') {
   const kind=parts[2]; if(kind && !kinds.includes(kind)) throw new ApiError(404,'Collection not found.');
-  const {results}=await env.DB.prepare(`select e.*,t.owner_user_id from platform_entities e join tenants t on t.id=e.tenant_id where e.state='published' ${kind?'and e.kind=?':''} order by e.updated_at desc limit 1000`).bind(...(kind?[kind]:[])).all();
+  const settings=await publicationSettings(env), pending=[];
+  for(const [publicationKind,definition] of Object.entries(publicationDefinitions)) if(settings[definition.responseKey][definition.field]) pending.push("e.kind='"+publicationKind+"'");
+  const visible=pending.length?"(e.state='published' or (e.state='pending' and ("+pending.join(' or ')+")))":"e.state='published'";
+  const {results}=await env.DB.prepare(`select e.*,t.owner_user_id from platform_entities e join tenants t on t.id=e.tenant_id where ${visible} ${kind?'and e.kind=?':''} order by e.updated_at desc limit 1000`).bind(...(kind?[kind]:[])).all();
   return ctx.json({ok:true,records:(results||[]).map(row=>entityRecord(row,true))});
  }
  if(scope==='taxonomies' && request.method==='GET') {
   const {results}=await env.DB.prepare('select key,items_json,revision,updated_at from platform_taxonomies order by key').bind().all();
   return ctx.json({ok:true,taxonomies:Object.fromEntries((results||[]).map(row=>[row.key,{items:JSON.parse(row.items_json),revision:row.revision,updatedAt:row.updated_at}]))});
  }
+ if(scope==='platform-settings' && request.method==='GET') {
+  return ctx.json({ok:true,...await publicationSettings(env)});
+ }
  if(scope==='resource-material') {
   if(request.method!=='GET') throw new ApiError(405,'Method not allowed.');
-  const row=await env.DB.prepare("select * from platform_entities where id=? and kind='resources' and state='published'").bind(parts[2]||'').first();
+  const allowPending=await pendingIsPublic(env,'resources');
+  const row=await env.DB.prepare("select * from platform_entities where id=? and kind='resources' and (state='published' or (state='pending' and ?=1))").bind(parts[2]||'',Number(allowPending)).first();
   if(!row) throw new ApiError(404,'Resource not available.');
   const data=JSON.parse(row.data_json);
   if(data.access==='Paid') { const user=await requireUser(request,env,ctx); if(!await env.DB.prepare('select order_id from entitlements where user_id=? and entity_id=? and revoked_at is null').bind(user.id,row.id).first()) throw new ApiError(403,'Purchase verified access before opening this resource.'); }
@@ -262,6 +298,19 @@ export async function handlePlatformApi(request,env,ctx) {
   return ctx.json({ok:true,material:{pages:data.pages||[],sourceUrl:data.sourceUrl||null,audioSrc:data.audioSrc||null,embedUrl:data.embedUrl||null}});
  }
  const user=await requireUser(request,env,ctx), owner=await isOwner(env,user);
+ if(scope==='platform-settings') {
+  const definition=publicationByRoute[parts[2]];
+  if(request.method!=='PUT' || !definition) throw new ApiError(request.method==='PUT'?404:405,request.method==='PUT'?'Platform setting not found.':'Method not allowed.');
+  if(!owner) throw new ApiError(403,'Platform owner with MFA required.');
+  const input=await readJson(request), current=await getPublicationSettings(env,definition.kind), now=new Date().toISOString();
+  if(Number(input.revision)!==current.revision) throw new ApiError(409,'This setting changed elsewhere. Reload before saving.');
+  const value={[definition.field]:input[definition.field]===true};
+  const row=await env.DB.prepare('update platform_settings set value_json=?,revision=revision+1,updated_by=?,updated_at=? where key=? and revision=? returning value_json,revision,updated_at').bind(JSON.stringify(value),user.id,now,definition.key,current.revision).first();
+  if(!row) throw new ApiError(409,'This setting changed elsewhere. Reload before saving.');
+  await auditStatement(env,user.id,'settings.'+definition.kind.replace(/s$/,'')+'_publication.updated',definition.key,null).run();
+  const setting={...value,revision:row.revision,updatedAt:row.updated_at};
+  return ctx.json({ok:true,[definition.responseKey]:setting});
+ }
  if(scope==='taxonomies') {
   if(request.method!=='PUT' || !parts[2] || !taxonomyKeys.includes(parts[2])) throw new ApiError(request.method==='PUT'?404:405,request.method==='PUT'?'Platform option not found.':'Method not allowed.');
   if(!owner) throw new ApiError(403,'Platform owner with MFA required.');

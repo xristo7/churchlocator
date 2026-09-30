@@ -68,6 +68,7 @@
     "resource-detail": { source: "resource-detail.html", title: "Resource Details" },
     "resource-reader": { source: "resource-reader.html", title: "Resource Reader" },
     create: { source: "creator-studio.html", title: "Create" },
+    "spotlight-studio": { source: "spotlight-studio.html", title: "Spotlight Studio" },
     portal: { source: "creator-studio.html", title: "Create" }
   };
 
@@ -82,7 +83,7 @@
     store: ["Store", "shopping-bag"], product: ["Store", "shopping-bag"], cart: ["Store", "shopping-bag"], checkout: ["Store", "shopping-bag"], "store-manager": ["Store", "shopping-bag"],
     resources: ["Resources", "book-open"], "resource-detail": ["Resources", "book-open"], "resource-reader": ["Resources", "book-open"],
     giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"], profile: ["Profile", "user-round"],
-    create: ["Create", "plus-circle"], portal: ["Create", "plus-circle"]
+    create: ["Create", "plus-circle"], "spotlight-studio": ["Spotlight Studio", "sparkles"], portal: ["Create", "plus-circle"]
   };
 
   function updateSectionContext(view) {

@@ -81,3 +81,47 @@ No actionable P0, P1, or P2 findings remain. The public Sign In row is an intent
 No blocking polish remains for this scope.
 
 final result: passed
+
+---
+
+## Directory hero badge design QA
+
+## Evidence
+
+- Source visual truth: `C:\Users\Administrator\Documents\ChatGPT\My Way of Evang\.codex-remote-attachments\01a0ea23-1cb0-7a11-8792-3cf30986d2cf\e584a29d-b1f8-4424-aea1-e5f3d5ae29c3\1-Photo-1.jpg` (576 × 1280 px, including mobile browser chrome).
+- Browser-rendered implementation: `http://127.0.0.1:4173/app.html?view=directory`, captured in the Codex in-app browser at a 576 × 1150 CSS viewport.
+- Density normalization: the implementation used device scale factor 1. The reference's browser chrome was treated as non-product framing; the app-owned content was compared at the same 576 px width.
+- State: Church Directory, dark theme, mobile navigation closed.
+
+## Full-view comparison
+
+The directory composition, headline wrap, description, primary action, filter tray, and first church card remain aligned with the supplied reference. The requested change is isolated to the label above the title: it now reads as a compact pill rather than a loose rectangular tag.
+
+## Focused region comparison
+
+The browser-rendered Church Directory badge measures approximately 202 × 32 CSS px with 7px vertical and 13px horizontal padding, a full 999px radius, a theme-aware bright hairline border, a low-opacity theme surface, 7px icon spacing, and a 20px gap before the title. This focused region was readable in the full mobile capture, so a separate crop was unnecessary.
+
+## Required fidelity surfaces
+
+- Fonts and typography: the existing uppercase label family, 0.78rem size, 850 weight, and 0.12em tracking are preserved.
+- Spacing and layout rhythm: the badge has standardized internal padding, icon alignment, height, and a consistent 20px title gap.
+- Colors and visual tokens: foreground, surface, border, and glow derive from the active primary theme and remain legible in dark and light modes.
+- Image quality and asset fidelity: no imagery changed; the existing Lucide directory icons remain crisp and correctly sized.
+- Copy and content: all existing directory badge labels are unchanged.
+
+## Comparison history
+
+1. Initial reference showed a square-ended translucent label with inconsistent internal breathing room. Applied the shared pill treatment to every directory hero.
+2. Post-fix browser evidence confirms a 32px-high badge, `7px 13px` padding, `999px` radius, subtle bright border, and correct placement immediately above the Church Directory title.
+
+## Findings
+
+No actionable P0, P1, or P2 findings remain. The shared selector covers Churches, Meditation, Events, Store, Livestream, Resources, and Channels.
+
+The production Church Directory was also checked after deployment. The pill rendered with the expected 32px height, `7px 13px` padding, full radius, and subtle theme-colored border; no browser console errors were reported.
+
+## Follow-up polish
+
+No additional polish is required for this badge-only scope.
+
+final result: passed

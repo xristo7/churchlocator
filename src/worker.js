@@ -1,6 +1,6 @@
 import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityHeaders } from "./security.js";
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
-import { handlePlatformApi, isOwner } from './trusted-platform.js';
+import { getChurchPublicationSettings, getPublicationSettings, handlePlatformApi, isOwner } from './trusted-platform.js';
 import { handleSpotlightApi } from './spotlight.js';
 import { handleContentEngagementApi } from './content-engagements.js';
 import { handleSimulatedLiveApi } from './simulated-live.js';
@@ -653,9 +653,50 @@ async function handleGoogleAuthCallback(request, env) {
   }
 
   const token = await createSession(env, user.id);
+  // Keep the successful cross-site callback to a single Set-Cookie header.
+  // Some mobile in-app browsers drop the session cookie when it shares the
+  // redirect response with the OAuth-state deletion cookie. The state cookie
+  // is path-scoped and expires after ten minutes, and the next login replaces it.
   return redirectWithCookies(savedState.returnPath, [
-    clearStateCookie,
     sessionCookieHeader(request, token, SESSION_TTL_SECONDS)
+  ]);
+}
+
+async function handleOwnerAccessLink(request, env) {
+  if (!env.DB) return storageUnavailable();
+  const requestUrl = new URL(request.url);
+  const token = String(requestUrl.searchParams.get("token") || "");
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) {
+    return redirectWithCookies("/owner-dashboard.html?auth_error=owner_link");
+  }
+
+  const digest = await digestToken(token);
+  const now = new Date().toISOString();
+  const access = await env.DB.prepare(`
+    update owner_access_tokens
+    set used_at = ?
+    where digest = ? and used_at is null and expires_at > ?
+      and exists (
+        select 1
+        from users u
+        join platform_roles p on p.user_id = u.id and p.role = 'owner'
+        where u.id = owner_access_tokens.user_id
+          and u.email_verified_at is not null
+          and u.totp_secret_encrypted is not null
+      )
+    returning user_id
+  `).bind(now, digest, now).first();
+  if (!access?.user_id) {
+    return redirectWithCookies("/owner-dashboard.html?auth_error=owner_link");
+  }
+
+  const sessionToken = await createSession(env, access.user_id, true);
+  await env.DB.prepare(`
+    insert into audit_log (id, actor_user_id, action, entity_id, tenant_id, created_at)
+    values (?, ?, 'auth.owner_link', ?, null, ?)
+  `).bind(crypto.randomUUID(), access.user_id, access.user_id, now).run();
+  return redirectWithCookies("/owner-dashboard.html", [
+    sessionCookieHeader(request, sessionToken, SESSION_TTL_SECONDS)
   ]);
 }
 
@@ -694,19 +735,26 @@ async function handlePublicChurches(request, env) {
   if (!env.DB) return storageUnavailable();
   if (request.method !== "GET") return json({ ok: false, error: "method not allowed; submit new churches through the church application" }, 405);
 
+  const publication = await getChurchPublicationSettings(env);
+  const visibility = publication.autoPublishPendingChurches ? "c.is_verified in (0, 1)" : "c.is_verified = 1";
+
   const { results } = await env.DB.prepare(`
     select
       c.id, c.name, c.city, c.country, c.postal_code, c.denomination,
       c.language, c.website, c.phone, c.email, c.cover_image_url,
       c.livestream_enabled, c.livestream_paid, c.livestream_url,
-      p.pastor_name, p.pastor_title, p.pastor_bio, p.about
+      c.is_verified, p.pastor_name, p.pastor_title, p.pastor_bio, p.about
     from churches c
     left join church_profiles p on p.church_id = c.id
-    where c.is_verified = 1
+    where ${visibility}
     order by c.name
   `).all();
 
-  return json({ ok: true, churches: results });
+  return json({ ok: true, churches: results.map(church => ({
+    ...church,
+    verified: Boolean(church.is_verified),
+    reviewStatus: church.is_verified ? "verified" : "pending-review"
+  })) });
 }
 
 async function handleAdminChurches(request, env) {
@@ -1004,6 +1052,7 @@ async function handleEvents(request, env) {
   if (!env.DB) return storageUnavailable();
 
   if (request.method === "GET") {
+    const publication = await getPublicationSettings(env, 'events');
     const url = new URL(request.url);
     const city = url.searchParams.get("city");
     const churchId = url.searchParams.get("churchId");
@@ -1014,9 +1063,10 @@ async function handleEvents(request, env) {
       select e.*, c.name as church_name, c.city as church_city, c.country as church_country
       from events e
       left join churches c on c.id = e.church_id
-      where 1=1
+      left join platform_entities pe on pe.id = e.id and pe.kind = 'events'
+      where (pe.id is null or pe.state = 'published' or (pe.state = 'pending' and ? = 1))
     `;
-    const params = [];
+    const params = [Number(publication.autoPublishPendingEvents)];
 
     if (city) {
       query += ` and (e.city = ? or c.city = ?)`;
@@ -1123,7 +1173,10 @@ async function handleEventRegister(request, env) {
   const qty = Number(payload.ticketQuantity ?? 1);
   if (!Number.isSafeInteger(qty) || qty < 1 || qty > 20) return json({ ok: false, error: "ticketQuantity must be a whole number from 1 to 20" }, 400);
   if (!isValidEmail(normalizeEmail(payload.email))) return json({ ok: false, error: "valid email required" }, 400);
-  const event = await env.DB.prepare("select id, ticket_price_cents, total_tickets, tickets_sold from events where id = ?").bind(payload.eventId).first();
+  const publication = await getPublicationSettings(env, 'events');
+  const event = await env.DB.prepare(`select e.id,e.ticket_price_cents,e.total_tickets,e.tickets_sold
+    from events e left join platform_entities pe on pe.id=e.id and pe.kind='events'
+    where e.id=? and (pe.id is null or pe.state='published' or (pe.state='pending' and ?=1))`).bind(payload.eventId,Number(publication.autoPublishPendingEvents)).first();
   if (!event) return json({ ok: false, error: "event not found" }, 404);
   // Payment must be verified by a trusted provider webhook. Never accept a client claim of payment.
   if (event.ticket_price_cents > 0) return json({ ok: false, error: "Paid registration requires a verified payment provider." }, 409);
@@ -1134,8 +1187,10 @@ async function handleEventRegister(request, env) {
       (id, event_id, full_name, email, ticket_quantity, amount_paid_cents, registration_code, created_at)
     select ?, id, ?, ?, ?, 0, ?, ? from events
     where id = ? and ticket_price_cents = 0
+      and (not exists(select 1 from platform_entities pe where pe.id=events.id and pe.kind='events')
+        or exists(select 1 from platform_entities pe where pe.id=events.id and pe.kind='events' and (pe.state='published' or (pe.state='pending' and ?=1))))
       and (total_tickets is null or total_tickets = 0 or coalesce(tickets_sold, 0) + ? <= total_tickets)
-  `).bind(id, payload.fullName, normalizeEmail(payload.email), qty, regCode, createdAt, payload.eventId, qty).run();
+  `).bind(id, payload.fullName, normalizeEmail(payload.email), qty, regCode, createdAt, payload.eventId, Number(publication.autoPublishPendingEvents), qty).run();
   // D1 includes writes performed by reservation triggers in the changes count.
   if (!(result.meta?.changes > 0)) return json({ ok: false, error: "Registration unavailable or event full." }, 409);
   return json({ ok: true, id, registrationCode: regCode, amountPaidCents: amountPaid, status: "registered" }, 201);
@@ -1266,6 +1321,7 @@ async function handleApi(request, env) {
     if (path === "/api/media/audio-upload" && request.method === "POST") return await handleAudioUpload(request, env);
     if (path === "/api/auth/google/start" && request.method === "GET") return await handleGoogleAuthStart(request, env);
     if (path === "/api/auth/google/callback" && request.method === "GET") return await handleGoogleAuthCallback(request, env);
+    if (path === "/api/auth/owner-access" && request.method === "GET") return await handleOwnerAccessLink(request, env);
     if (path === "/api/location" && request.method === "GET") {
       // Return only the requesting visitor's coarse edge location; never forward IPs.
       return json({ city: String(request.cf?.city || "Edmonton"), countryCode: String(request.cf?.country || "CA") });

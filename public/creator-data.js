@@ -23,9 +23,9 @@
     try { const url = new URL(value); return url.protocol === "https:" && !url.username && !url.password ? url.href : ""; } catch { return ""; }
   }
   function broadcasts() {
-    const churches = root.MWE.getChurches().filter(r => r.livestream?.enabled && safeLiveUrl(r.livestream.url)).map(r => ({ id: r.id, type: "church", name: r.name, url: r.livestream.url, image: r.photo, description: r.city }));
-    const channels = root.FaithLinkModules.getChannels().filter(r => r.live && safeLiveUrl(r.liveUrl)).map(r => ({ id: r.id, type: "channel", name: r.name, url: r.liveUrl, image: r.cover, description: r.topic }));
-    const stores = getStores().filter(r => r.live && safeLiveUrl(r.liveUrl)).map(r => ({ id: r.id, type: "store", name: r.name, url: r.liveUrl, image: r.image, description: r.description }));
+    const churches = root.MWE.getChurches().filter(r => r.livestream?.enabled && safeLiveUrl(r.livestream.url)).map(r => ({ id: r.id, type: "church", name: r.name, url: r.livestream.url, image: r.photo, description: r.city, publicationState: r.publicationState, state: r.state }));
+    const channels = root.FaithLinkModules.getChannels().filter(r => r.live && safeLiveUrl(r.liveUrl)).map(r => ({ id: r.id, type: "channel", name: r.name, url: r.liveUrl, image: r.cover, description: r.topic, publicationState: r.publicationState, state: r.state }));
+    const stores = getStores().filter(r => r.live && safeLiveUrl(r.liveUrl)).map(r => ({ id: r.id, type: "store", name: r.name, url: r.liveUrl, image: r.image, description: r.description, publicationState: r.publicationState, state: r.state }));
     return [...churches, ...channels, ...stores];
   }
   root.MWECreator = { account, setAccount, getStores, saveStores, safeLiveUrl, broadcasts };

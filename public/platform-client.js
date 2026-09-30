@@ -14,6 +14,15 @@
   channel_topics:['Bible Teaching','Worship','Family','Leadership','Youth','Bible Study'],
   resource_topics:['Bible Study','Prayer','Discipleship','Worship','Devotional','Leadership']
  };
+ const publicationDefinitions={
+  churches:{path:'platform-settings/church-publication',responseKey:'churchPublication',field:'autoPublishPendingChurches'},
+  meditation:{path:'platform-settings/meditation-publication',responseKey:'meditationPublication',field:'autoPublishPendingMeditations'},
+  events:{path:'platform-settings/event-publication',responseKey:'eventPublication',field:'autoPublishPendingEvents'},
+  store:{path:'platform-settings/store-publication',responseKey:'storePublication',field:'autoPublishPendingStores'},
+  products:{path:'platform-settings/product-publication',responseKey:'productPublication',field:'autoPublishPendingProducts'},
+  channels:{path:'platform-settings/channel-publication',responseKey:'channelPublication',field:'autoPublishPendingChannels'},
+  resources:{path:'platform-settings/resource-publication',responseKey:'resourcePublication',field:'autoPublishPendingResources'}
+ };
  const locked=new Set([...Object.values(catalogKeys),...Object.values(privateKeys)]);
  const storage={getItem:key=>preferences.test(key)?disk.getItem(key):memory.get(key)??null,setItem(key,value){if(preferences.test(key)) return disk.setItem(key,String(value));if(locked.has(key)&&platform.installed&&!platform.staging)throw new Error('Use the connected workspace to save this record.');memory.set(key,String(value));},removeItem(key){if(preferences.test(key))disk.removeItem(key);else memory.delete(key);},clear(){memory.clear();},key:index=>[...memory.keys()][index]??null,get length(){return memory.size;}};
  Object.defineProperty(root,'localStorage',{configurable:true,value:storage});
@@ -23,14 +32,20 @@
   const response=await fetch('/api/'+path,{method,credentials:'same-origin',cache:'no-store',headers:body?{'content-type':'application/json'}:{},...(body?{body:JSON.stringify(body)}:{})});
   const data=await response.json();if(!response.ok || !data.ok){const error=new Error(data.error||'The server could not complete this request.');error.status=response.status;throw error;}return data;
  }
- const platform=root.MWEPlatform={session:null,role:null,installed:false,staging:false,error:null,api,taxonomies:Object.fromEntries(Object.entries(taxonomyDefaults).map(([key,items])=>[key,{items:[...items],revision:1}])),
+ const platform=root.MWEPlatform={session:null,role:null,installed:false,staging:false,error:null,api,taxonomies:Object.fromEntries(Object.entries(taxonomyDefaults).map(([key,items])=>[key,{items:[...items],revision:1}])),settings:Object.fromEntries(Object.values(publicationDefinitions).map(definition=>[definition.responseKey,{[definition.field]:false,revision:1,updatedAt:null}])),
   options(key){return [...(this.taxonomies[key]?.items||taxonomyDefaults[key]||[])];},
   async saveTaxonomy(key,items){if(this.role!=='owner')throw new Error('Super Admin access is required.');const current=this.taxonomies[key];const response=await api('taxonomies/'+encodeURIComponent(key),{items,revision:current?.revision},'PUT');this.taxonomies[key]=response.taxonomy;return response.taxonomy;},
+  async savePublicationSettings(kind,enabled){if(this.role!=='owner')throw new Error('Platform owner access is required.');const definition=publicationDefinitions[kind];if(!definition)throw new Error('Publication setting not found.');const current=this.settings[definition.responseKey];const response=await api(definition.path,{[definition.field]:enabled===true,revision:current.revision},'PUT');this.settings[definition.responseKey]=response[definition.responseKey];await this.refresh(this.session);return this.settings[definition.responseKey];},
+  saveChurchPublicationSettings(enabled){return this.savePublicationSettings('churches',enabled);},
+  saveMeditationPublicationSettings(enabled){return this.savePublicationSettings('meditation',enabled);},
+  isPending(record){return record?.publicationState==='pending'||record?.state==='pending';},
+  pendingBadge(record){return this.isPending(record)?'<span class="platform-pending-badge">Pending review</span>':'';},
   records(kind,managed=false){return clone((managed?workspace:publicRecords).filter(row=>row.kind===kind));},
   canManage(kind,id){return workspace.some(row=>row.kind===kind&&row.id===id&&row.canManage);},
   async refresh(user){this.session=user||null;workspace=[];privateRecords=[];this.role=null;
-   const [catalog,taxonomyResult]=await Promise.all([api('catalog'),api('taxonomies').catch(()=>null)]);publicRecords=catalog.records;
+   const [catalog,taxonomyResult,settingsResult]=await Promise.all([api('catalog'),api('taxonomies').catch(()=>null),api('platform-settings').catch(()=>null)]);publicRecords=catalog.records;
    if(taxonomyResult?.taxonomies)this.taxonomies={...this.taxonomies,...taxonomyResult.taxonomies};
+   for(const definition of Object.values(publicationDefinitions)) if(settingsResult?.[definition.responseKey])this.settings[definition.responseKey]=settingsResult[definition.responseKey];
    if(user){const results=await Promise.allSettled([api('workspace'),api('private')]);if(results[0].status==='fulfilled'){workspace=results[0].value.records;this.role=results[0].value.role;}if(results[1].status==='fulfilled')privateRecords=results[1].value.records;else throw results[1].reason;}
    hydrate();root.dispatchEvent(new Event('mwe-platform-ready'));
   },
@@ -48,7 +63,7 @@ const personal=root.MWEPrivate={
  function hydrate(){const managed=document.body?.hasAttribute('data-admin-workspace');const source=managed?workspace:publicRecords;for(const [kind,key]of Object.entries(catalogKeys))memory.set(key,JSON.stringify(source.filter(row=>row.kind===kind)));for(const [kind,key]of Object.entries(privateKeys))memory.set(key,JSON.stringify(kind==='settings'?(privateRecords.find(row=>row.kind===kind)||{}):privateRecords.filter(row=>row.kind===kind)));for(const row of privateRecords.filter(row=>row.kind==='reflection')){const key='mwe.meditation.reflections.'+row.entityId;const list=JSON.parse(memory.get(key)||'[]');if(!list.some(n=>n.id===row.id))list.push(row);memory.set(key,JSON.stringify(list));}if(platform.session){memory.set('mwe.userLoggedIn','true');memory.set('mwe.username',platform.session.name);memory.set('mwe.userEmail',platform.session.email);if(platform.session.isCreator)memory.set('mwe.creator.account.v1',JSON.stringify(platform.session));}else{memory.delete('mwe.userLoggedIn');memory.delete('mwe.creator.account.v1');}}
  function install(){
   const m=root.MWE,f=root.FaithLinkModules,c=root.MWECreator;
-  if(m){m.isMemberAuthenticated=()=>!!platform.session;if(m.normalizeChurch){m.getChurches=()=>platform.records('churches',document.body.hasAttribute('data-admin-workspace')).map(row=>({...row,...m.normalizeChurch(row)}));}m.upsertChurch=row=>platform.staging?row:platform.save('churches',row);m.upsertEvent=row=>platform.staging?row:platform.save('events',row);}
+   if(m){m.isMemberAuthenticated=()=>!!platform.session;if(m.normalizeChurch){m.getChurches=()=>{const studioPreview=new URLSearchParams(location.search).get('preview')==='studio';return platform.records('churches',document.body.hasAttribute('data-admin-workspace')||studioPreview).map(row=>({...row,...m.normalizeChurch(row)}));};}m.upsertChurch=row=>platform.staging?row:platform.save('churches',row);m.upsertEvent=row=>platform.staging?row:platform.save('events',row);}
   if(c){c.account=()=>platform.session;c.setAccount=()=>platform.session;}
   if(f){f.upsertProduct=row=>platform.staging?row:platform.save('products',row);f.addChannel=row=>platform.save('channels',row);f.addResource=row=>platform.save('resources',row);f.getMessages=()=>personal.get('message').map(row=>({...row,read:row.status==='read',participantId:row.entityId}));f.refreshMessages=()=>personal.refresh();f.sendMessage=row=>personal.create('message',{...row,entityId:row.entityId||row.participantId});f.getMessageSettings=()=>personal.get('settings')[0]||{forwardingEnabled:false};f.saveMessageSettings=row=>personal.create('settings',row);}
   for(const [kind,mod]of Object.entries(root.MWEAdmin?.modules||{})){

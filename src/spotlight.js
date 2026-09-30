@@ -77,6 +77,91 @@ function itemRecord(row) {
   };
 }
 
+function randomIndex(maximum) {
+  if (maximum <= 1) return 0;
+  const values = new Uint32Array(1);
+  crypto.getRandomValues(values);
+  return values[0] % maximum;
+}
+
+function shuffled(items) {
+  const copy = [...items];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swap = randomIndex(index + 1);
+    [copy[index], copy[swap]] = [copy[swap], copy[index]];
+  }
+  return copy;
+}
+
+function profileCover(data, kind) {
+  if (kind === 'churches') {
+    const gallery = Array.isArray(data.gallery) ? data.gallery : [];
+    const firstGalleryImage = gallery.find(item => item && (item.src || item.image || item.url));
+    return data.photo || firstGalleryImage?.src || firstGalleryImage?.image || firstGalleryImage?.url || data.logo || '';
+  }
+  return data.cover || data.avatar || '';
+}
+
+function automaticProfileItem(row) {
+  let data;
+  try { data = JSON.parse(row.data_json); } catch { return null; }
+  const posterUrl = profileCover(data, row.kind);
+  const name = String(data.name || '').trim().slice(0, 120);
+  if (!name || !posterUrl) return null;
+  const church = row.kind === 'churches';
+  const location = [data.city, data.country].filter(Boolean).join(', ').slice(0, 160);
+  const description = String(data.tagline || data.about || data.description || (church ? `Discover ${name}${location ? ` in ${location}` : ''}.` : `Discover teaching and stories from ${name}.`)).trim().slice(0, 1000);
+  return {
+    id: `automatic-${church ? 'church' : 'channel'}-${row.id}`,
+    tenantId: row.tenant_id,
+    channelEntityId: church ? null : row.id,
+    subjectEntityId: row.id,
+    contentType: church ? 'church' : 'channel',
+    title: String(data.tagline || name).trim().slice(0, 120),
+    caption: description,
+    creatorName: name,
+    creatorHandle: String(church ? location : (data.handle || data.owner || '')).trim().slice(0, 80),
+    creatorAvatarUrl: church ? (data.logo || posterUrl) : (data.avatar || posterUrl),
+    mediaUrl: null,
+    posterUrl,
+    fullContentUrl: `app.html?view=${church ? 'church' : 'channel-detail'}&id=${encodeURIComponent(row.id)}`,
+    previewSource: 'automatic',
+    previewStartSeconds: 0,
+    previewEndSeconds: null,
+    durationSeconds: null,
+    ctaLabel: church ? 'Open church' : 'Open channel',
+    ctaUrl: null,
+    status: 'live',
+    placementKind: 'organic',
+    moderationNote: null,
+    commentsEnabled: false,
+    priority: 0,
+    scheduledAt: null,
+    expiresAt: null,
+    publishedAt: row.updated_at,
+    revision: 1,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    likes: 0,
+    saves: 0,
+    comments: 0,
+    liked: false,
+    saved: false,
+    isAutomaticProfile: true,
+    automaticSourceKind: row.kind
+  };
+}
+
+function blendAutomaticProfiles(curated, profiles, maximum = 100) {
+  const represented = new Set(curated.flatMap(item => [item.subjectEntityId, item.contentType === 'channel' ? item.channelEntityId : null]).filter(Boolean));
+  const availableProfiles = shuffled(profiles.filter(item => item && !represented.has(item.subjectEntityId)));
+  const profileCount = Math.min(30, availableProfiles.length, maximum);
+  const selectedCurated = curated.slice(0, maximum - profileCount);
+  const pinned = selectedCurated.filter(item => item.placementKind === 'sponsored' || item.priority > 0);
+  const organic = selectedCurated.filter(item => !pinned.includes(item));
+  return [...pinned, ...shuffled([...organic, ...availableProfiles.slice(0, profileCount)])].slice(0, maximum);
+}
+
 function validateItem(input) {
   const contentType = cleanText(input.contentType, 30, 'Content type', true);
   if (!contentTypes.has(contentType)) throw new ApiError(400, 'Choose a valid Spotlight content type.');
@@ -126,7 +211,7 @@ async function listFeed(request, env, ctx) {
   if (request.method !== 'GET') throw new ApiError(405, 'Method not allowed.');
   const now = new Date().toISOString();
   const user = await ctx.getSessionUser(request, env);
-  const { results } = await env.DB.prepare(`
+  const [spotlightRows, profileRows] = await Promise.all([env.DB.prepare(`
     select s.*,
       (select count(*) from spotlight_engagements e where e.item_id=s.id and e.action='like') likes,
       (select count(*) from spotlight_engagements e where e.item_id=s.id and e.action='save') saves,
@@ -141,8 +226,16 @@ async function listFeed(request, env, ctx) {
     ) and (s.expires_at is null or s.expires_at>?)
     order by s.priority desc, coalesce(s.published_at,s.scheduled_at,s.updated_at) desc
     limit 100
-  `).bind(user?.id || '', user?.id || '', now, now, now).all();
-  return ctx.json({ ok: true, items: (results || []).map(itemRecord) });
+  `).bind(user?.id || '', user?.id || '', now, now, now).all(), env.DB.prepare(`
+    select id,kind,tenant_id,data_json,created_at,updated_at
+    from platform_entities
+    where state='published' and kind in ('churches','channels')
+    order by updated_at desc
+    limit 240
+  `).all()]);
+  const curated = (spotlightRows.results || []).map(itemRecord);
+  const automaticProfiles = (profileRows.results || []).map(automaticProfileItem).filter(Boolean);
+  return ctx.json({ ok: true, items: blendAutomaticProfiles(curated, automaticProfiles) });
 }
 
 async function workspace(request, env, ctx, id) {

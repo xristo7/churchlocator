@@ -739,6 +739,32 @@ const MWE = (() => {
     const streamPaid = Boolean(livestream.paid || church.streamPaid);
     const phone = church.phone || "";
     const email = church.email || "";
+    const gallery = Array.isArray(church.gallery)
+      ? church.gallery
+        .filter(item => item && (typeof item === "string" || item.src))
+        .slice(0, 8)
+        .map((item, index) => {
+          if (typeof item === "string") {
+            return { id: `gallery-${index + 1}`, src: item, title: `Church life ${index + 1}`, caption: "", tag: "Our church" };
+          }
+          return {
+            id: String(item.id || `gallery-${index + 1}`).replace(/[^a-z0-9_-]/gi, "-").slice(0, 64),
+            src: item.src || "",
+            title: item.title || `Church life ${index + 1}`,
+            caption: item.caption || item.description || "",
+            tag: item.tag || "Our church"
+          };
+        })
+      : [];
+    const testimonies = Array.isArray(church.testimonies)
+      ? church.testimonies.filter(item => item && item.quote).slice(0, 12).map((item, index) => ({
+          id: String(item.id || `testimony-${index + 1}`).replace(/[^a-z0-9_-]/gi, "-").slice(0, 64),
+          name: item.name || "Church member",
+          tenure: item.tenure || "",
+          quote: item.quote || "",
+          photo: item.photo || ""
+        }))
+      : [];
 
     return {
       createdBy: church.createdBy || "",
@@ -754,30 +780,49 @@ const MWE = (() => {
       worship: church.worship || "Contemporary",
       area: church.area || church.city || "Local Area",
       distance: church.distance || "Local listing",
-      sunday: church.sunday || "Sunday service",
-      midweek: church.midweek || "Midweek gathering",
-      location: church.location || church.address || "Location pending",
-      website: church.website || "#",
+      sunday: church.sunday || "",
+      midweek: church.midweek || "",
+      location: church.location || church.address || "",
+      website: church.website || "",
       phone,
       phoneLabel: church.phoneLabel || phone,
       email,
       emailHref: church.emailHref || (email && email.includes("@") ? `mailto:${email}` : church.website || "#"),
       photo: church.photo || church.image || defaultImage,
-      logo: church.logo || "assets/logo-light-chapel.png",
-      pastorPhoto: church.pastorPhoto || "assets/pastor-light-chapel.png",
-      pastor: church.pastor || "Pastoral Team",
-      pastorTitle: church.pastorTitle || "Church Leadership",
-      pastorBio: church.pastorBio || "A welcoming church leadership team ready to help visitors connect.",
-      welcomeMedia: church.welcomeMedia || "https://www.youtube.com/embed/jiSyB8QZzk8",
-      tagline: church.tagline || "A welcoming Christ-centered community dedicated to vibrant worship, biblical teaching, loving discipleship, and joining together in corporate prayer to impact our city and nurture families.",
-      about: church.about || church.description || "This church profile is ready for more details from the church team.",
+      logo: church.logo || church.photo || church.image || defaultImage,
+      pastorPhoto: church.pastorPhoto || "",
+      pastor: church.pastor || "",
+      pastorTitle: church.pastorTitle || "",
+      pastorBio: church.pastorBio || "",
+      welcomeMedia: church.welcomeMedia || church.videoUrl || church.video || "",
+      tagline: church.tagline || church.about || church.description || "",
+      about: church.about || church.description || "",
+      history: church.history || "",
+      vision: church.vision || "",
+      mission: church.mission || "",
+      statementOfFaith: church.statementOfFaith || "",
+      firstVisit: church.firstVisit || "",
+      parkingInformation: church.parkingInformation || "",
+      childrenInformation: church.childrenInformation || "",
       ministries,
       features: Array.isArray(church.features) ? church.features : [],
-      schedule: Array.isArray(church.schedule)
-        ? church.schedule
-          .filter(item => Array.isArray(item) && item.length >= 2)
-          .map(item => [String(item[0] || "Gathering"), String(item[1] || "Time to be announced")])
+      gallery,
+      heroOrder: Array.isArray(church.heroOrder)
+        ? [...new Set(church.heroOrder.map(value => String(value || "").trim()).filter(Boolean))].slice(0, 10)
         : [],
+      schedule: Array.isArray(church.schedule)
+        ? church.schedule.filter(item => item && (!Array.isArray(item) || item.length >= 2)).slice(0, 12).map((item, index) => Array.isArray(item)
+          ? { id: `gathering-${index + 1}`, title: String(item[0] || "Gathering"), time: String(item[1] || ""), description: "", location: "", image: "" }
+          : {
+              id: String(item.id || `gathering-${index + 1}`).replace(/[^a-z0-9_-]/gi, "-").slice(0, 64),
+              title: String(item.title || item.name || "Gathering"),
+              time: String(item.time || ""),
+              description: String(item.description || ""),
+              location: String(item.location || ""),
+              image: String(item.image || item.photo || "")
+            })
+        : [],
+      testimonies,
       livestream: {
         enabled: streamEnabled,
         paid: streamPaid,
@@ -864,6 +909,22 @@ const MWE = (() => {
     const phone = String(data.get("phone") || "").trim();
     const email = String(data.get("email") || "").trim();
     const name = String(data.get("name") || "").trim();
+    const gallery = String(data.get("heroImages") || "")
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean)
+      .slice(0, 8)
+      .map((line, index) => {
+        const [src = "", title = "", caption = ""] = line.split("|").map(value => value.trim());
+        return {
+          id: `gallery-${index + 1}`,
+          src,
+          title: title || `Church life ${index + 1}`,
+          caption,
+          tag: "Our church"
+        };
+      })
+      .filter(item => item.src);
 
     return normalizeChurch({
       id: uniqueId(name, currentId),
@@ -888,8 +949,14 @@ const MWE = (() => {
       pastor: data.get("pastor"),
       pastorTitle: data.get("pastorTitle"),
       pastorBio: data.get("pastorBio"),
+      welcomeMedia: String(data.get("welcomeMedia") || "").trim(),
+      heroOrder: String(data.get("heroOrder") || "")
+        .split(",")
+        .map(value => value.trim())
+        .filter(Boolean),
       tagline: data.get("tagline"),
       about: data.get("about"),
+      gallery,
       ministries,
       features: [
         ministries.some(item => item.toLowerCase().includes("kids") || item.toLowerCase().includes("children")) ? "Children's Ministry" : "",
@@ -931,8 +998,11 @@ const MWE = (() => {
       pastor: normalized.pastor,
       pastorTitle: normalized.pastorTitle,
       pastorBio: normalized.pastorBio,
+      welcomeMedia: normalized.welcomeMedia,
       tagline: normalized.tagline,
       about: normalized.about,
+      heroImages: normalized.gallery.map(item => [item.src, item.title, item.caption].filter(Boolean).join(" | ")).join("\n"),
+      heroOrder: normalized.heroOrder.join(","),
       ministries: normalized.ministries.join(", "),
       streamEnabled: String(normalized.livestream.enabled),
       streamPaid: String(normalized.livestream.paid),
@@ -1341,7 +1411,7 @@ const MWE = (() => {
           <div class="cpc-modal-photo-overlay"></div>
           <div class="cpc-modal-photo-badges">
             <span class="cpc-modal-photo-badge"><i data-lucide="camera"></i> Sanctuary Photo</span>
-            <span class="cpc-modal-verified-badge"><i data-lucide="badge-check"></i> Verified Church</span>
+            <span class="cpc-modal-verified-badge${church.verified ? '' : ' pending-review'}"><i data-lucide="${church.verified ? 'badge-check' : 'clock-3'}"></i> ${church.verified ? 'Verified Church' : 'Pending review'}</span>
           </div>
           <button onclick="MWE.closeMapModal()" class="cpc-modal-close" aria-label="Close modal">
             <i data-lucide="x" style="width: 18px; height: 18px;"></i>
@@ -2117,7 +2187,8 @@ function initPrivateAppAuth() {
     const result = await window.MWEAuth.creatorRegister(registrantNameInput?.value || nameInput?.value || "Creator", emailInput?.value || "", passInput?.value || "");
     if (!result.ok) { showToast(result.error || "Registration failed."); return; }
 
-    if (nameInput && cityInput) {
+    const launchGoal = event.target.querySelector("input[name='launchGoal']:checked")?.value || "overview";
+    if (nameInput && cityInput && ["church", "all"].includes(launchGoal)) {
       const newId = nameInput.value.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       
       let finalRole = registrantRoleSelect ? registrantRoleSelect.value : "Lead Pastor";
@@ -2131,7 +2202,7 @@ function initPrivateAppAuth() {
         city: cityInput.value,
         country: countrySelect ? countrySelect.value : "CA",
         area: "Downtown",
-        denomination: "Christian Ministry",
+        denomination: "Pentecostal",
         language: "English",
         worship: "Contemporary",
         tagline: "A vibrant faith community sharing God's love.",
@@ -2153,13 +2224,20 @@ function initPrivateAppAuth() {
         livestream: { enabled: false, status: "Offline", player: "", paid: false }
       };
       
-      const list = MWE.getChurches();
-      list.push(newChurch);
+      let savedChurch;
+      try {
+        savedChurch = await MWE.upsertChurch(newChurch);
+      } catch (error) {
+        showToast(error.message || "Your account was created, but the church profile could not be submitted. Open Church Profile and try again.");
+        signIn("church", result.user);
+        return;
+      }
       
       const portalSelect = document.querySelector("[data-portal-select]");
       if (portalSelect) {
+        const list = MWE.getChurches();
         portalSelect.innerHTML = list.map(c => `<option value="${MWE.escapeHtml(c.id)}">${MWE.escapeHtml(c.name)}</option>`).join("");
-        portalSelect.value = newId;
+        portalSelect.value = savedChurch.id;
         portalSelect.dispatchEvent(new Event("change"));
       }
 
@@ -2169,8 +2247,7 @@ function initPrivateAppAuth() {
       }
     }
     
-    showToast("Creator account created successfully!");
-    const launchGoal = event.target.querySelector("input[name='launchGoal']:checked")?.value || "overview";
+    showToast(["church", "all"].includes(launchGoal) ? "Creator account created. Your church is pending owner review." : "Creator account created successfully!");
     signIn(launchGoal, {
       name: registrantNameInput?.value || nameInput?.value || "Creator",
       email: emailInput?.value || ""
@@ -2294,7 +2371,7 @@ function churchCard(church) {
     <article class="church-card-immersive" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=' + encodeURIComponent('${MWE.escapeJsAttribute(church.id)}'); }" style="background-image: url(&quot;${MWE.escapeHtml(bgPhoto)}&quot;); cursor: pointer;">
       <div class="church-card-immersive-overlay">
         <div class="church-card-top-bar">
-          ${church.verified ? '<span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>' : ''}
+          ${church.verified ? '<span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>' : '<span class="immersive-badge pending-review"><i data-lucide="clock-3"></i> Pending review</span>'}
         </div>
         
         <div class="church-card-bottom-info">
@@ -2515,6 +2592,261 @@ MWE.formatHeroDescription = function(church) {
   return "Welcome to our community fellowship profile. We would love to meet you, connect with your life journey, experience inspiring worship together, and partner with your family in faith, discipleship, and prayer.";
 };
 
+MWE.churchHeroState = { index: 0, slides: [], timer: null };
+
+MWE.getChurchHeroVideo = function(church) {
+  const raw = String(church?.welcomeMedia || church?.videoUrl || church?.video || "").trim();
+  if (!raw || /\.mp3(?:$|\?)/i.test(raw) || church?.mediaType === "audio") return null;
+
+  try {
+    const url = new URL(raw, window.location.href);
+    const direct = /\.(mp4|webm|ogg)(?:$|\?)/i.test(url.pathname + url.search);
+    if (direct) {
+      const src = MWE.safeImageUrl(url.href, "");
+      return src ? { type: "native", src } : null;
+    }
+
+    if (["youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"].includes(url.hostname)) {
+      let id = "";
+      if (url.hostname === "youtu.be") id = url.pathname.split("/").filter(Boolean)[0] || "";
+      else if (url.pathname.startsWith("/embed/")) id = url.pathname.split("/")[2] || "";
+      else id = url.searchParams.get("v") || "";
+      if (id) url.href = `https://www.youtube.com/embed/${encodeURIComponent(id)}`;
+      url.searchParams.set("autoplay", "1");
+      url.searchParams.set("mute", "1");
+      url.searchParams.set("playsinline", "1");
+      url.searchParams.set("controls", "1");
+      url.searchParams.set("rel", "0");
+    } else if (url.hostname === "player.vimeo.com") {
+      url.searchParams.set("autoplay", "1");
+      url.searchParams.set("muted", "1");
+      url.searchParams.set("playsinline", "1");
+    }
+
+    const src = MWE.safeEmbedUrl(url.href);
+    return src !== "about:blank" ? { type: "embed", src } : null;
+  } catch {
+    return null;
+  }
+};
+
+MWE.getChurchHeroSlides = function(church) {
+  const cover = MWE.safeImageUrl(church.photo || church.coverImage || church.image, "assets/hero-global-church.png");
+  const gallery = (Array.isArray(church.gallery) ? church.gallery : [])
+    .map((item, index) => ({
+      type: "image",
+      src: MWE.safeImageUrl(item?.src || item, ""),
+      title: item?.title || `${church.name} community`,
+      description: item?.caption || item?.description || MWE.formatHeroDescription(church),
+      kicker: item?.tag || "Church life",
+      key: `gallery:${String(item?.id || `gallery-${index + 1}`).replace(/[^a-z0-9_-]/gi, "-")}`
+    }))
+    .filter(item => item.src && item.src !== cover)
+    .slice(0, 8);
+  const video = MWE.getChurchHeroVideo(church);
+  const defaultSlides = [
+    {
+      type: "image",
+      src: cover,
+      title: church.name,
+      description: MWE.formatHeroDescription(church),
+      kicker: "About us",
+      key: "cover"
+    },
+    ...(video ? [{
+      type: "video",
+      video,
+      title: church.name,
+      description: church.pastorBio || church.about || MWE.formatHeroDescription(church),
+      kicker: "Welcome film",
+      key: "video"
+    }] : []),
+    ...gallery
+  ];
+  const byKey = new Map(defaultSlides.map(slide => [slide.key, slide]));
+  const requestedOrder = Array.isArray(church.heroOrder) ? church.heroOrder : [];
+  const ordered = requestedOrder.map(key => byKey.get(String(key))).filter(Boolean);
+  defaultSlides.forEach(slide => {
+    if (!ordered.includes(slide)) ordered.push(slide);
+  });
+  return ordered;
+};
+
+MWE.renderChurchHero = function(church) {
+  const root = document.getElementById("church-hero-showcase");
+  const track = document.getElementById("church-hero-track");
+  const dots = document.getElementById("church-hero-dots");
+  if (!root || !track || !dots) return;
+
+  clearTimeout(MWE.churchHeroState.timer);
+  const slides = MWE.getChurchHeroSlides(church);
+
+  MWE.churchHeroState = { index: 0, slides, timer: null };
+  track.innerHTML = slides.map((slide, index) => {
+    const copy = `
+      <div class="church-hero-content-bottom-left">
+        <span class="church-hero-kicker">${MWE.escapeHtml(slide.kicker)}</span>
+        <h${index === 0 ? "1" : "2"} class="church-hero-name"${index === 0 ? " data-church-name" : ""}>${MWE.escapeHtml(slide.title)}</h${index === 0 ? "1" : "2"}>
+        <p class="church-hero-desc"${index === 0 ? " data-church-tagline" : ""}>${MWE.escapeHtml(slide.description)}</p>
+        ${slide.type === "image" ? `<button type="button" class="church-hero-action" onclick="MWE.openChurchHeroAbout()">Explore our church <i data-lucide="arrow-down-right"></i></button>` : ""}
+      </div>`;
+
+    if (slide.type === "video") {
+      const media = slide.video.type === "native"
+        ? `<video data-hero-video data-src="${MWE.escapeHtml(slide.video.src)}" muted loop playsinline controls preload="metadata" aria-label="${MWE.escapeHtml(church.name)} welcome video"></video>`
+        : `<iframe data-hero-video data-src="${MWE.escapeHtml(slide.video.src)}" title="${MWE.escapeHtml(church.name)} welcome video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+      return `<article class="church-hero-slide church-hero-slide--video" data-hero-slide="${index}" data-hero-kind="video" aria-roledescription="slide" aria-label="${index + 1} of ${slides.length}" aria-hidden="true"><div class="church-hero-video-shell"><div class="church-hero-video-visual">${media}</div></div>${copy}</article>`;
+    }
+
+    return `<article class="church-hero-slide church-hero-slide--image${index === 0 ? " is-active" : ""}" data-hero-slide="${index}" data-hero-kind="image" aria-roledescription="slide" aria-label="${index + 1} of ${slides.length}" aria-hidden="${index === 0 ? "false" : "true"}"><div class="church-hero-image-layer" style="--hero-image:url(&quot;${MWE.escapeHtml(slide.src)}&quot;)"></div>${copy}</article>`;
+  }).join("");
+
+  dots.innerHTML = slides.map((slide, index) => `<button type="button" class="church-hero-dot${index === 0 ? " is-active" : ""}" aria-label="Show slide ${index + 1}: ${MWE.escapeHtml(slide.title)}" aria-current="${index === 0 ? "true" : "false"}" onclick="MWE.setChurchHeroSlide(${index}, true)"></button>`).join("");
+  document.getElementById("church-hero-controls")?.toggleAttribute("hidden", slides.length < 2);
+
+  if (!root.dataset.heroBound) {
+    root.dataset.heroBound = "true";
+    root.addEventListener("mouseenter", () => clearTimeout(MWE.churchHeroState.timer));
+    root.addEventListener("mouseleave", () => MWE.scheduleChurchHero());
+    root.addEventListener("focusin", () => clearTimeout(MWE.churchHeroState.timer));
+    root.addEventListener("focusout", event => {
+      if (!root.contains(event.relatedTarget)) MWE.scheduleChurchHero();
+    });
+    root.addEventListener("keydown", event => {
+      if (event.key === "ArrowLeft") MWE.stepChurchHero(-1);
+      if (event.key === "ArrowRight") MWE.stepChurchHero(1);
+    });
+  }
+
+  MWE.setChurchHeroSlide(0, false);
+  if (window.lucide) window.lucide.createIcons();
+};
+
+MWE.scheduleChurchHero = function() {
+  clearTimeout(MWE.churchHeroState.timer);
+  if (MWE.churchHeroState.slides.length < 2 || document.hidden) return;
+  const root = document.getElementById("church-hero-showcase");
+  const active = root?.querySelector(".church-hero-slide.is-active");
+  if (active?.classList.contains("details-open")) return;
+  const delay = active?.dataset.heroKind === "video" ? 12000 : 7000;
+  MWE.churchHeroState.timer = setTimeout(() => MWE.stepChurchHero(1), delay);
+};
+
+MWE.setChurchHeroSlide = function(index, userInitiated = false) {
+  const root = document.getElementById("church-hero-showcase");
+  const slides = [...(root?.querySelectorAll("[data-hero-slide]") || [])];
+  if (!root || !slides.length) return;
+  const next = (Number(index) + slides.length) % slides.length;
+  MWE.churchHeroState.index = next;
+
+  slides.forEach((slide, position) => {
+    const active = position === next;
+    slide.classList.toggle("is-active", active);
+    slide.classList.remove("details-open");
+    slide.setAttribute("aria-hidden", String(!active));
+    const media = slide.querySelector("[data-hero-video]");
+    if (media) {
+      if (active) {
+        if (!media.src) media.src = media.dataset.src || "";
+        if (media.tagName === "VIDEO") media.play().catch(() => {});
+      } else {
+        if (media.tagName === "VIDEO") media.pause();
+        media.removeAttribute("src");
+        if (media.tagName === "VIDEO") media.load();
+      }
+    }
+  });
+
+  root.classList.toggle("is-video-active", slides[next]?.dataset.heroKind === "video");
+  root.querySelectorAll(".church-hero-dot").forEach((dot, position) => {
+    dot.classList.toggle("is-active", position === next);
+    dot.setAttribute("aria-current", String(position === next));
+  });
+  const count = document.getElementById("church-hero-count");
+  if (count) count.textContent = `${String(next + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+  const toggle = document.getElementById("church-hero-mobile-toggle");
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "Show slide description");
+    toggle.innerHTML = '<i data-lucide="chevron-down"></i>';
+  }
+  if (userInitiated) root.focus({ preventScroll: true });
+  if (window.lucide) window.lucide.createIcons();
+  MWE.scheduleChurchHero();
+};
+
+MWE.stepChurchHero = function(direction) {
+  MWE.setChurchHeroSlide(MWE.churchHeroState.index + Number(direction || 1), true);
+};
+
+MWE.toggleChurchHeroDetails = function() {
+  const slide = document.querySelector(".church-hero-slide.is-active");
+  const toggle = document.getElementById("church-hero-mobile-toggle");
+  if (!slide || !toggle || slide.dataset.heroKind === "video") return;
+  const expanded = slide.classList.toggle("details-open");
+  toggle.setAttribute("aria-expanded", String(expanded));
+  toggle.setAttribute("aria-label", expanded ? "Show slide title" : "Show slide description");
+  toggle.innerHTML = `<i data-lucide="${expanded ? "chevron-up" : "chevron-down"}"></i>`;
+  if (window.lucide) window.lucide.createIcons();
+  if (expanded) clearTimeout(MWE.churchHeroState.timer);
+  else MWE.scheduleChurchHero();
+};
+
+MWE.openChurchHeroAbout = function() {
+  MWE.switchProfileTab?.("overview");
+  document.getElementById("tab-pane-overview")?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+MWE.getChurchScheduleItems = function(church) {
+  if (Array.isArray(church?.schedule) && church.schedule.length) return church.schedule;
+  return church?.sunday ? [{ id:"primary-service", title:"Sunday Service", time:church.sunday, description:"", location:church.location||"", image:church.photo||"" }] : [];
+};
+
+MWE.renderChurchSchedule = function(church) {
+  const container=document.getElementById("profile-schedules-grid");
+  if(!container) return;
+  const items=MWE.getChurchScheduleItems(church);
+  container.innerHTML=items.length?items.map((item,index)=>{
+    const image=MWE.safeImageUrl(item.image||church.photo, MWE.defaultImage);
+    return `<article class="gathering-modern-card"><div class="gathering-thumb-wrap"><img src="${MWE.escapeHtml(image)}" alt="${MWE.escapeHtml(item.title)}" class="gathering-thumb" referrerpolicy="no-referrer" /><div class="gathering-time-pill"><i data-lucide="clock"></i> <span>${MWE.escapeHtml(item.time||"Time to be announced")}</span></div></div><div class="gathering-card-body"><div class="gathering-title-row"><h4 class="gathering-title">${MWE.escapeHtml(item.title)}</h4></div>${item.description?`<p class="gathering-desc">${MWE.escapeHtml(item.description)}</p>`:""}</div><div class="gathering-card-footer"><button type="button" class="gathering-cal-btn" data-schedule-calendar="${index}"><i data-lucide="calendar-plus"></i> Add to Calendar</button></div></article>`;
+  }).join(""):`<div class="profile-content-empty"><i data-lucide="calendar-clock"></i><strong>No gathering times published yet</strong><span>The church team can add weekly gatherings in Studio.</span></div>`;
+  container.querySelectorAll("[data-schedule-calendar]").forEach(button=>button.addEventListener("click",()=>{const item=items[Number(button.dataset.scheduleCalendar)];if(item)MWE.openCalendarModal(item.title,item.time,item.location||church.location);}));
+  const next=items[0];
+  const nextServicePanel=document.querySelector(".profile-next-service");
+  if(nextServicePanel) nextServicePanel.hidden=!next;
+  const setText=(selector,value)=>document.querySelectorAll(selector).forEach(element=>{element.textContent=value||"";});
+  setText("[data-profile-next-title]",next?.title||"");
+  setText("[data-profile-next-time]",next?.time||"");
+  setText("[data-profile-next-location]",next?.location||church.location||"");
+  setText("[data-profile-next-description]",next?.description||"");
+  const calendar=document.getElementById("profile-next-calendar");
+  if(calendar){calendar.hidden=!next;calendar.onclick=next?()=>MWE.openCalendarModal(next.title,next.time,next.location||church.location):null;}
+  if(window.lucide)window.lucide.createIcons();
+};
+
+MWE.renderChurchTestimonials = function(church) {
+  const grid=document.getElementById("profile-testimonials-grid");
+  const section=grid?.closest(".stories-section");
+  if(!grid||!section) return;
+  const stories=Array.isArray(church.testimonies)?church.testimonies.filter(item=>item.quote):[];
+  section.hidden=!stories.length;
+  if(!stories.length){grid.innerHTML="";return;}
+  grid.innerHTML=stories.slice(0,2).map(story=>`<article class="glass-card testimony-card${story.photo?"":" testimony-card--text-only"}">${story.photo?`<img class="testimony-scene" src="${MWE.escapeHtml(MWE.safeImageUrl(story.photo,""))}" alt="${MWE.escapeHtml(story.name||"Church member")}" referrerpolicy="no-referrer" />`:""}<div class="testimony-content"><div class="testimony-stars"><i data-lucide="quote"></i></div><p class="testimony-text">“${MWE.escapeHtml(story.quote)}”</p><div class="testimony-user"><div class="testimony-user-info"><h4>${MWE.escapeHtml(story.name||"Church member")}</h4>${story.tenure?`<span>${MWE.escapeHtml(story.tenure)}</span>`:""}</div></div></div></article>`).join("");
+  const more=section.querySelector(".btn-more-stories");if(more)more.hidden=stories.length<=2;
+  if(window.lucide)window.lucide.createIcons();
+};
+
+MWE.renderChurchCreatorDetails = function(church) {
+  const ministries=document.getElementById("profile-ministries");
+  if(ministries) ministries.innerHTML=(church.ministries||[]).map(item=>`<span>${MWE.escapeHtml(item)}</span>`).join("");
+  const story=document.getElementById("profile-church-story");
+  if(story){const items=[["Our history",church.history],["Vision",church.vision],["Mission",church.mission],["What we believe",church.statementOfFaith]].filter(([,text])=>text);story.hidden=!items.length;story.innerHTML=items.map(([label,text])=>`<article class="profile-story-card"><span>${MWE.escapeHtml(label)}</span><p>${MWE.escapeHtml(text)}</p></article>`).join("");}
+  const notes=document.getElementById("profile-visitor-notes");
+  if(notes){const items=[["Your first visit",church.firstVisit],["Parking",church.parkingInformation],["Children & family",church.childrenInformation]].filter(([,text])=>text);notes.innerHTML=items.map(([label,text])=>`<article class="profile-visitor-note"><strong>${MWE.escapeHtml(label)}</strong><p>${MWE.escapeHtml(text)}</p></article>`).join("");notes.hidden=!items.length;}
+  const firstVisit=document.querySelector("[data-profile-first-visit]");
+  if(firstVisit){firstVisit.textContent=church.firstVisit||"";firstVisit.hidden=!church.firstVisit;}
+};
+
 function renderProfile(church) {
   if (!church) return;
   document.title = `${church.name} | My Way of Evangelism`;
@@ -2522,6 +2854,11 @@ function renderProfile(church) {
   MWE.activeChurchProfile = church;
   
   document.querySelectorAll("[data-church-name]").forEach(el => { el.textContent = church.name; });
+  document.querySelectorAll("[data-profile-review-badge]").forEach(el => {
+    el.classList.toggle("pending-review", !church.verified);
+    el.innerHTML = church.verified ? '<i data-lucide="badge-check"></i><span>Verified</span>' : '<i data-lucide="clock-3"></i><span>Pending review</span>';
+    el.setAttribute("aria-label", church.verified ? "Verified church" : "Church pending review");
+  });
   document.querySelectorAll("[data-church-tagline]").forEach(el => {
     el.textContent = MWE.formatHeroDescription(church);
   });
@@ -2534,20 +2871,43 @@ function renderProfile(church) {
   setVal("[data-profile-sunday]", church.sunday);
   setVal("[data-profile-midweek]", church.midweek);
   setVal("[data-profile-pastor]", church.pastor);
-  setVal("[data-profile-pastor-title]", church.pastorTitle || "Lead Pastor");
+  setVal("[data-profile-pastor-title]", church.pastorTitle);
   setVal("[data-profile-pastor-bio]", church.pastorBio || church.about);
+  setVal("[data-profile-phone]", church.phoneLabel || church.phone);
+  setVal("[data-profile-email]", church.email);
+  const pastorTitle=document.querySelector("[data-profile-pastor-title]");
+  if(pastorTitle) pastorTitle.closest(".kicker")?.toggleAttribute("hidden",!church.pastorTitle);
+  document.querySelectorAll("[data-profile-website]").forEach(link=>{
+    const href=MWE.safeLinkUrl(church.website||"");
+    link.textContent=church.website||"";
+    link.href=href==="#"?"":href;
+  });
+  [
+    ["[data-profile-sunday]", church.sunday],
+    ["[data-profile-midweek]", church.midweek],
+    ["[data-profile-location]", church.location],
+    ["[data-profile-phone]", church.phoneLabel || church.phone],
+    ["[data-profile-email]", church.email],
+    ["[data-profile-website]", church.website]
+  ].forEach(([selector, value]) => {
+    document.querySelectorAll(selector).forEach(element => {
+      const row = element.closest(".leader-facts > div, .church-quick-contact-card .flex.items-center");
+      if (row) row.hidden = !value;
+    });
+  });
+  document.querySelectorAll("[data-church-logo]").forEach(image=>{
+    image.src=MWE.safeImageUrl(church.logo||church.photo,MWE.defaultImage);
+    image.alt=`${church.name} logo`;
+    image.referrerPolicy="no-referrer";
+  });
   
   const leaderPhoto = document.getElementById("leader-profile-img");
-  const defaultPastorPhoto = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
   if (leaderPhoto) {
-    leaderPhoto.src = MWE.safeImageUrl(church.pastorPhoto, defaultPastorPhoto);
+    leaderPhoto.src = MWE.safeImageUrl(church.pastorPhoto || church.photo, MWE.defaultImage);
     leaderPhoto.referrerPolicy = "no-referrer";
   }
-  const heroShowcase = document.getElementById("church-hero-showcase") || document.querySelector("[data-profile-hero]");
   const churchBg = MWE.safeImageUrl(church.photo || church.coverImage || church.image, "assets/hero-global-church.png");
-  if (heroShowcase) {
-    heroShowcase.style.backgroundImage = `url("${churchBg}")`;
-  }
+  MWE.renderChurchHero(church);
   document.querySelector("[data-profile-hero]")?.style.setProperty("--profile-image", `url("${churchBg}")`);
 
   // Bind church photo to location & map preview elements
@@ -2564,18 +2924,19 @@ function renderProfile(church) {
   
   const msgCard = document.querySelector(".message-card");
   if (msgCard) {
+    msgCard.hidden = !church.welcomeMedia;
     msgCard.removeAttribute("onclick");
-    msgCard.onclick = (e) => {
+    msgCard.onclick = church.welcomeMedia ? (e) => {
       e.preventDefault();
       MWE.playPastorWelcomeMedia(church);
-    };
+    } : null;
   }
   
   const gatheringSelect = document.getElementById("rsvp-gathering-select");
   if (gatheringSelect) {
-    const schedule = church.schedule.length ? church.schedule : [["Sunday Service", church.sunday || "Time to be announced"]];
-    gatheringSelect.innerHTML = schedule.map(([label, time]) => `
-      <option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>
+    const schedule = MWE.getChurchScheduleItems(church);
+    gatheringSelect.innerHTML = schedule.map(item => `
+      <option value="${MWE.escapeHtml(item.title)} (${MWE.escapeHtml(item.time)})">${MWE.escapeHtml(item.title)} - ${MWE.escapeHtml(item.time)}</option>
     `).join("");
     gatheringSelect.dispatchEvent(new Event("change", { bubbles: true }));
   }
@@ -2588,6 +2949,9 @@ function renderProfile(church) {
   MWE.renderRelatedChurches(church.id);
   MWE.renderChurchProfileEvents(church.id);
   MWE.renderChurchGallery(church);
+  MWE.renderChurchSchedule(church);
+  MWE.renderChurchTestimonials(church);
+  MWE.renderChurchCreatorDetails(church);
 }
 
 MWE.renderChurchProfileEvents = function(churchId) {
@@ -2629,7 +2993,7 @@ MWE.renderRelatedChurches = function(currentChurchId) {
   container.innerHTML = otherChurches.map(c => `
     <article class="church-card-split" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=' + encodeURIComponent('${MWE.escapeJsAttribute(c.id)}'); }" style="cursor: pointer;">
       <div class="church-card-split-media" style="background-image: url(&quot;${MWE.escapeHtml(MWE.safeImageUrl(c.coverImage || c.photo, MWE.defaultImage))}&quot;); cursor: pointer;">
-        ${c.verified ? '<span class="immersive-badge" style="position: absolute; top: 14px; left: 14px;"><i data-lucide="badge-check"></i> Verified</span>' : ''}
+        ${c.verified ? '<span class="immersive-badge" style="position: absolute; top: 14px; left: 14px;"><i data-lucide="badge-check"></i> Verified</span>' : '<span class="immersive-badge pending-review" style="position: absolute; top: 14px; left: 14px;"><i data-lucide="clock-3"></i> Pending review</span>'}
       </div>
       <div class="church-card-split-body">
         <h3 class="split-card-title">${MWE.escapeHtml(c.name)}</h3>
@@ -2657,54 +3021,17 @@ MWE.activeChurchGallery = [];
 MWE.currentLightboxIndex = 0;
 
 MWE.getDefaultGalleryImages = function(church) {
-  const name = church?.name || "Church";
-  const mainPhoto = church?.photo || church?.coverImage || "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1200&q=80";
-  return [
-    {
-      src: "https://images.unsplash.com/photo-1510590337019-5ef8d3d32116?auto=format&fit=crop&w=1200&q=80",
-      title: "Sunday Worship & Praise",
-      caption: `Dynamic praise and worship celebration in the main sanctuary at ${name}.`,
-      tag: "Worship"
-    },
-    {
-      src: mainPhoto,
-      title: "Sanctuary & Gathering Space",
-      caption: `A warm, welcoming auditorium designed for fellowship and encountering God.`,
-      tag: "Sanctuary"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1200&q=80",
-      title: "Youth & Young Adults",
-      caption: `Building life-giving relationships rooted in scripture, discipleship, and community.`,
-      tag: "Youth"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80",
-      title: "Corporate Prayer Night",
-      caption: `United in fervent prayer and spiritual renewal for families and our city.`,
-      tag: "Prayer"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1200&q=80",
-      title: "Children's Ministry",
-      caption: `Nurturing the next generation with joyful Bible lessons, crafts, and games.`,
-      tag: "Kids"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80",
-      title: "Community Outreach & Care",
-      caption: `Sharing the compassion and love of Christ through practical food drives and care.`,
-      tag: "Outreach"
-    }
-  ];
+  return [];
 };
 
 MWE.renderChurchGallery = function(church) {
   const track = document.getElementById("church-gallery-track");
   if (!track) return;
+  const section = document.getElementById("church-gallery-section");
   const images = (church && church.gallery && Array.isArray(church.gallery) && church.gallery.length > 0)
     ? church.gallery
     : MWE.getDefaultGalleryImages(church);
+  if (section) section.hidden = images.length === 0;
   MWE.activeChurchGallery = images;
   
   track.innerHTML = images.map((img, idx) => `
@@ -3136,7 +3463,11 @@ MWE.closeVideoModal = function() {
 };
 
 MWE.playPastorWelcomeMedia = function(church) {
-  const mediaUrl = church.welcomeMedia || "https://www.youtube.com/embed/jiSyB8QZzk8";
+  const mediaUrl = church.welcomeMedia || "";
+  if (!mediaUrl) {
+    showToast("This church has not published a welcome recording yet.");
+    return;
+  }
   const isAudio = mediaUrl.endsWith(".mp3") || mediaUrl.includes(".mp3?");
   
   if (isAudio) {
@@ -3155,10 +3486,10 @@ MWE.openAudioModal = function(church, audioUrl) {
   
   if (!modal || !audioEl) return;
   
-  pastorImg.src = MWE.safeImageUrl(church.pastorPhoto, "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80");
+  pastorImg.src = MWE.safeImageUrl(church.pastorPhoto || church.photo, MWE.defaultImage);
   pastorImg.referrerPolicy = "no-referrer";
-  playerTitle.textContent = `${church.pastor || 'Pastor'}'s Welcome`;
-  playerSubtitle.textContent = `Senior Pastor, ${church.name}`;
+  playerTitle.textContent = `${church.pastor || church.name} Welcome`;
+  playerSubtitle.textContent = [church.pastorTitle, church.name].filter(Boolean).join(", ");
   
   const safeAudioUrl = MWE.safeImageUrl(audioUrl, "");
   if (!safeAudioUrl) {
@@ -3724,6 +4055,8 @@ function initChurchPortal() {
     set("about", church.about);
     set("photo", church.photo === MWE.defaultImage ? "Default platform cover image" : church.photo);
     set("logo", church.logo);
+    set("welcomeMedia", church.welcomeMedia, "No welcome video added yet");
+    set("heroImages", church.gallery?.length ? `${church.gallery.length} image${church.gallery.length === 1 ? "" : "s"} configured` : "Cover image only");
     set("streamEnabled", stream.enabled ? "Enabled" : "Not enabled");
     set("streamPaid", stream.paid ? "Premium paid feature" : "Free / inactive");
     set("streamUrl", stream.url === "#" ? "" : stream.url);
@@ -3904,14 +4237,21 @@ function initChurchPortal() {
   form?.addEventListener("change", renderDraft);
   form?.addEventListener("submit", async event => {
     event.preventDefault();
-    const church = MWE.upsertChurch(MWE.churchFromForm(form));
-    await MWE.syncAdminChurch(church);
-    refreshSelect(church.id);
-    MWE.fillChurchForm(form, church);
-    renderReadableProfile(church);
-    renderPreview(church);
-    closeEditors();
-    showToast("Church portal profile saved");
+    const submitter = event.submitter;
+    if (submitter) submitter.disabled = true;
+    try {
+      const church = await MWE.upsertChurch(MWE.churchFromForm(form));
+      refreshSelect(church.id);
+      MWE.fillChurchForm(form, church);
+      renderReadableProfile(church);
+      renderPreview(church);
+      closeEditors();
+      showToast(church.verified ? "Church profile saved" : "Church submitted for owner review");
+    } catch (error) {
+      showToast(error.message || "The church profile could not be saved.");
+    } finally {
+      if (submitter) submitter.disabled = false;
+    }
   });
 }
 
@@ -4517,7 +4857,7 @@ async function initHeroPage() {
   // 4. Update slider with detected city matches if any
   try {
     if (detectedCity) {
-      const cityFiltered = churches.filter(c => c.city && c.city.toLowerCase() === detectedCity.toLowerCase() && c.verified);
+      const cityFiltered = churches.filter(c => c.city && c.city.toLowerCase() === detectedCity.toLowerCase());
       if (cityFiltered.length > 0) {
         renderSlider(cityFiltered);
       }
@@ -4617,7 +4957,7 @@ function renderHomepageSections() {
             <div class="channel-profile-body">
               <div class="channel-profile-identity">
                 <div>
-                  <h3><a href="channel-detail.html?id=${encodeURIComponent(c.id)}">${MWE.escapeHtml(c.name)}</a>${c.verified ? '<i data-lucide="badge-check" aria-label="Verified"></i>' : ''}</h3>
+                  <h3><a href="channel-detail.html?id=${encodeURIComponent(c.id)}">${MWE.escapeHtml(c.name)}</a>${c.verified ? '<i data-lucide="badge-check" aria-label="Verified"></i>' : ''}</h3>${window.MWEPlatform?.pendingBadge(c) || ''}
                   <span>${MWE.escapeHtml(c.owner)} · ${MWE.escapeHtml(c.topic)}</span>
                 </div>
                 <span class="channel-online"><i></i>${c.live ? "Live now" : "Active"}</span>
@@ -4657,7 +4997,7 @@ function renderHomepageSections() {
             </a>
             <div class="product-card-body">
               <span class="product-seller">Sold by ${MWE.escapeHtml(p.seller || 'FaithLink')}</span>
-              <h3><a href="product-detail.html?id=${encodeURIComponent(p.id)}">${MWE.escapeHtml(p.title)}</a></h3>
+              <h3><a href="product-detail.html?id=${encodeURIComponent(p.id)}">${MWE.escapeHtml(p.title)}</a></h3>${window.MWEPlatform?.pendingBadge(p) || ''}
               <span class="product-rating"><i data-lucide="star"></i>${Number(p.rating || 4.8).toFixed(1)} · In stock</span>
               <div class="product-price-row">
                 <div><span class="product-price">${priceStr}</span></div>
@@ -5983,6 +6323,7 @@ MWE.createEventCardHtml = function(evt, isFeatured = false) {
   } else if (isPast) {
     badgeHtml = `<span class="event-card-top-badge" style="color: #64748b;">Past</span>`;
   }
+  const pendingBadgeHtml = window.MWEPlatform?.isPending(evt) ? '<span class="platform-pending-badge">Pending review</span>' : '';
 
   if (isFeatured) {
     return `
@@ -5990,7 +6331,7 @@ MWE.createEventCardHtml = function(evt, isFeatured = false) {
         <div class="event-card-banner-wrap is-featured-banner" style="background-image: url('${MWE.escapeHtml(bgPhoto)}');">
           <div class="event-card-featured-overlay"></div>
           
-          <span class="event-card-top-badge" style="top: 15px; left: 15px; background: rgba(255,255,255,0.92); color: #0f172a;"><i data-lucide="sparkles" style="color: var(--color-primary-gold);"></i> Featured</span>
+          <span class="event-card-top-badge" style="top: 15px; left: 15px; background: rgba(255,255,255,0.92); color: #0f172a;"><i data-lucide="sparkles" style="color: var(--color-primary-gold);"></i> Featured</span>${pendingBadgeHtml}
 
           <div class="event-card-bottom-row">
             <!-- Date Badge & Ticket Price Column -->
@@ -6018,7 +6359,7 @@ MWE.createEventCardHtml = function(evt, isFeatured = false) {
     <a href="event-profile.html?id=${evt.id}" class="event-card-modern ${isPast ? 'opacity-75' : ''}">
       <div class="event-card-banner-wrap">
         <img class="event-card-banner-img" src="${MWE.escapeHtml(bgPhoto)}" alt="${MWE.escapeHtml(evt.title)}" loading="lazy" />
-        ${badgeHtml}
+        ${badgeHtml}${pendingBadgeHtml}
       </div>
 
       <div class="event-card-bottom-row">
@@ -7063,7 +7404,10 @@ function initEventProfilePage() {
 
   // Populate Hero
   const titleEl = document.getElementById("event-profile-title");
-  if (titleEl) titleEl.textContent = evt.title;
+  if (titleEl) {
+    titleEl.textContent = evt.title;
+    if (window.MWEPlatform?.isPending(evt)) titleEl.insertAdjacentHTML("afterend", '<span class="platform-pending-badge">Pending review</span>');
+  }
 
   const church = MWE.getChurches().find(c => c.id === evt.churchId);
   const organizerName = church ? church.name : (evt.organizerName || evt.organization || evt.hostName || "Event Host");
@@ -8060,7 +8404,7 @@ MWE.openPlanVisitModal = function(targetChurchId = "") {
           </label>
           <label class="form-field mb-2"><span>Preferred Gathering Time *</span>
             <select name="gathering" id="modal-gathering-select" class="field" required>
-              ${(church.schedule || [["Sunday Service", church.sunday || "10:00 AM"]]).map(([label, time]) => `<option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>`).join("")}
+              ${MWE.getChurchScheduleItems(church).map(item => `<option value="${MWE.escapeHtml(item.title)} (${MWE.escapeHtml(item.time)})">${MWE.escapeHtml(item.title)} - ${MWE.escapeHtml(item.time)}</option>`).join("")}
             </select>
           </label>
           <div class="compact-grid">
@@ -8097,8 +8441,8 @@ MWE.onVisitChurchChange = function(churchId) {
   const church = churches.find(c => c.id === churchId);
   const select = document.getElementById("modal-gathering-select");
   if (select && church) {
-    const schedules = church.schedule || [["Sunday Service", church.sunday || "10:00 AM"]];
-    select.innerHTML = schedules.map(([label, time]) => `<option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>`).join("");
+    const schedules = MWE.getChurchScheduleItems(church);
+    select.innerHTML = schedules.map(item => `<option value="${MWE.escapeHtml(item.title)} (${MWE.escapeHtml(item.time)})">${MWE.escapeHtml(item.title)} - ${MWE.escapeHtml(item.time)}</option>`).join("");
   }
 };
 
@@ -8659,50 +9003,13 @@ MWE.openCalendarModal = function(title, timeStr = "Sunday 10:00 AM", location = 
 MWE.openStoriesModal = function() {
   document.getElementById("stories-modal-backdrop")?.remove();
 
-  const stories = [
-    {
-      name: "Sarah M.",
-      tenure: "Attending since 2022",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=500&q=80",
-      quote: "Connecting with this church family completely changed my perspective. I found deep, word-based teachings and a youth network that coordinates outreach projects across the area."
-    },
-    {
-      name: "Jason L.",
-      tenure: "Attending since 2021",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1602030028438-4cf153cbae9e?auto=format&fit=crop&w=500&q=80",
-      quote: "The children's programs and family gatherings are incredible. My kids look forward to Sunday School, and the virtual direct stream helps us stay tuned."
-    },
-    {
-      name: "David & Maria K.",
-      tenure: "Attending since 2020",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80",
-      quote: "When we relocated to the area, we prayed for a spirit-filled church that prioritized discipleship and authentic community. We found our spiritual family here."
-    },
-    {
-      name: "Grace O.",
-      tenure: "Attending since 2023",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=500&q=80",
-      quote: "The Midweek Bible study gave me clarity in God's Word like never before. The pastoral prayer team supported me during illness and we saw God's healing power in action."
-    },
-    {
-      name: "Marcus T.",
-      tenure: "Attending since 2019",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=500&q=80",
-      quote: "Serving on the outreach and media teams has helped me discover my purpose and develop my leadership skills. This church truly lives out the Great Commission."
-    },
-    {
-      name: "Hannah W.",
-      tenure: "Attending since 2022",
-      stars: 5,
-      photo: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=500&q=80",
-      quote: "The Youth and Young Adult ministry provided a safe, encouraging space for me to ask hard questions and grow strong in faith with genuine friends."
-    }
-  ];
+  const stories = Array.isArray(MWE.activeChurchProfile?.testimonies)
+    ? MWE.activeChurchProfile.testimonies.filter(story => story.quote)
+    : [];
+  if (!stories.length) {
+    showToast("This church has not published any testimonies yet.");
+    return;
+  }
 
   const backdrop = document.createElement("div");
   backdrop.className = "alert-modal-backdrop open";
@@ -8722,8 +9029,8 @@ MWE.openStoriesModal = function() {
 
       <div style="overflow-y: auto; padding: 20px 4px 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
         ${stories.map(s => `
-          <div class="glass-card testimony-card" style="display: grid; grid-template-columns: 120px minmax(0,1fr); min-height: 190px; padding: 12px; border-radius: 16px; border: 1px solid var(--border, #e2e8f0); background: var(--surface-card, #ffffff); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
-            <img class="testimony-scene" src="${s.photo}" alt="${MWE.escapeHtml(s.name)}" style="width: 100%; height: 100%; min-height: 160px; object-fit: cover; border-radius: 12px;" />
+          <div class="glass-card testimony-card${s.photo ? "" : " testimony-card--text-only"}" style="display: grid; grid-template-columns: ${s.photo ? "120px minmax(0,1fr)" : "1fr"}; min-height: 190px; padding: 12px; border-radius: 16px; border: 1px solid var(--border, #e2e8f0); background: var(--surface-card, #ffffff); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
+            ${s.photo ? `<img class="testimony-scene" src="${MWE.escapeHtml(MWE.safeImageUrl(s.photo, ""))}" alt="${MWE.escapeHtml(s.name)}" style="width: 100%; height: 100%; min-height: 160px; object-fit: cover; border-radius: 12px;" referrerpolicy="no-referrer" />` : ""}
             <div class="testimony-content" style="display: flex; flex-direction: column; padding: 4px 6px 4px 12px;">
               <div class="testimony-stars" style="display: flex; align-items: center; gap: 3px; margin-bottom: 8px; color: var(--gold, #e5a93c);">
                 <i data-lucide="quote" style="width: 16px; height: 16px; color: var(--primary, #db2777); margin-right: 4px;"></i>
@@ -9182,7 +9489,11 @@ MWE.openChurchVideoModal = function() {
 
   const currentChurch = MWE.activeChurchProfile || {};
   const churchName = currentChurch.name || "Church Intro Video";
-  const videoUrl = currentChurch.videoUrl || "https://www.youtube.com/embed/jiSyB8QZzk8";
+  const videoUrl = currentChurch.videoUrl || currentChurch.welcomeMedia || "";
+  if (!videoUrl) {
+    showToast("This church has not published a welcome video yet.");
+    return;
+  }
   const embedUrl = videoUrl.includes("autoplay=1") ? videoUrl : `${videoUrl}${videoUrl.includes("?") ? "&" : "?"}autoplay=1&enablejsapi=1`;
 
   const titleEl = modal.querySelector("[data-church-name-video]");
@@ -9196,7 +9507,11 @@ MWE.openChurchVideoModal = function() {
 
 MWE.playChurchMainMedia = function() {
   const church = MWE.currentProfileChurch || MWE.activeChurchProfile || (typeof getRouteChurch === "function" ? getRouteChurch() : null) || {};
-  const mediaUrl = church.videoUrl || church.welcomeMedia || church.video || church.audioUrl || "https://www.youtube.com/embed/jiSyB8QZzk8";
+  const mediaUrl = church.videoUrl || church.welcomeMedia || church.video || church.audioUrl || "";
+  if (!mediaUrl) {
+    showToast("This church has not published welcome media yet.");
+    return;
+  }
   const isAudio = mediaUrl.endsWith(".mp3") || mediaUrl.includes(".mp3?") || church.mediaType === "audio";
 
   if (isAudio) {

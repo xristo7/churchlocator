@@ -169,16 +169,23 @@ test("checkout login and express payment controls have working destinations", as
   assert.match(checkoutJs, /payment\.dispatchEvent\(new Event\("change"/);
 });
 
-test("Channels use creator profile cards and connect to member messaging", async () => {
+test("Channels use open and follow card actions while detail pages connect to messaging", async () => {
   const app = await readProjectFile("public/app.html");
   const shell = await readProjectFile("public/app-shell.js");
   const channels = await readProjectFile("public/channels.js");
+  const channelDetail = await readProjectFile("public/channel-detail.js");
   const messages = await readProjectFile("public/messages.html");
   const messageScript = await readProjectFile("public/messages.js");
 
   assert.match(channels, /class="channel-profile-card"/);
   assert.match(channels, /channel-detail\.html\?id=/);
-  assert.match(channels, /Get in touch/);
+  assert.match(channels, /class="channel-open-button"[^>]*>[\s\S]*?Open channel/);
+  assert.match(channels, /channel-card-follow/);
+  assert.doesNotMatch(channels, /Get in touch/);
+  assert.match(channelDetail, /channel-cover-follow/);
+  assert.match(channelDetail, /channel-detail-title-actions/);
+  assert.match(channelDetail, /class="channel-detail-contact"[^>]*messages\.html\?compose=channel/);
+  assert.match(channelDetail, /> Get in touch<\/a>/);
   assert.match(shell, /"channel-detail":\s*\{ source: "channel-detail\.html"/);
   assert.match(shell, /messages:\s*\{ source: "messages\.html"/);
   assert.match(app, /data-shell-view="messages"/);
@@ -492,6 +499,7 @@ test("directory modules share the standardized atmospheric hero and filter tray"
   for (const page of ["churches", "meditation", "events", "store", "livestream", "resources", "channels"]) {
     const html = await readProjectFile(`public/${page}.html`);
     assert.match(html, /module-directory-hero/, `${page} needs the shared hero`);
+    assert.match(html, /module-directory-hero[\s\S]*?class="[^"]*(?:module-kicker|kicker)/, `${page} needs a shared badge above its main title`);
     assert.match(html, /site-search-bar/, `${page} needs the shared filter tray`);
   }
   assert.doesNotMatch(styles, /module-hero-blob\.png/);
@@ -500,6 +508,8 @@ test("directory modules share the standardized atmospheric hero and filter tray"
   assert.match(styles, /\.module-directory-hero::before[\s\S]*hsla\(var\(--primary-h\), var\(--primary-s\), var\(--primary-l\)/);
   assert.match(styles, /--module-control-height:\s*56px/);
   assert.match(styles, /--module-control-radius:\s*14px/);
+  assert.match(styles, /\.module-directory-hero \.module-kicker,[\s\S]*?padding:\s*7px 13px;[\s\S]*?border-radius:\s*999px;/);
+  assert.match(styles, /\.module-directory-hero \.module-kicker,[\s\S]*?border:\s*1px solid color-mix\(in srgb, var\(--primary\) 42%/);
   assert.match(styles, /\.site-search-bar \{[\s\S]*flex-wrap:\s*nowrap !important/);
   assert.match(styles, /\.site-search-bar \.site-search[\s\S]*min-width:\s*360px !important/);
   assert.match(styles, /@media\(max-width:700px\)[\s\S]*\.site-search-bar > \.module-filter-group \{ display: none !important; \}/);

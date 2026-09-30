@@ -48,6 +48,35 @@ test('Spotlight backend provides feed, creator, moderation, engagement and comme
   assert.match(migration, /create table spotlight_comments/);
 });
 
+test('Spotlight automatically blends randomized published church and channel covers', async () => {
+  const [handler, client] = await Promise.all([
+    read('src/spotlight.js'), read('public/spotlight.js')
+  ]);
+  assert.match(handler, /state='published' and kind in \('churches','channels'\)/);
+  assert.match(handler, /function automaticProfileItem/);
+  assert.match(handler, /function blendAutomaticProfiles/);
+  assert.match(handler, /crypto\.getRandomValues/);
+  assert.match(handler, /isAutomaticProfile:\s*true/);
+  assert.match(client, /Live profile/);
+  assert.match(client, /id:target\.searchParams\.get\('id'\)/);
+  assert.match(client, /commentForm\.hidden = item\.isAutomaticProfile/);
+});
+
+test('Spotlight plays approved YouTube excerpts inside the scrolling feed', async () => {
+  const [page, client, styles, headers] = await Promise.all([
+    read('public/spotlight.html'), read('public/spotlight.js'),
+    read('public/spotlight.css'), read('public/_headers')
+  ]);
+  assert.match(client, /function youtubeId/);
+  assert.match(client, /www\.youtube-nocookie\.com\/embed/);
+  assert.match(client, /data-youtube-src/);
+  assert.match(client, /youtubeFrame\.removeAttribute\('src'\)/);
+  assert.match(client, /target="_blank" rel="noopener"/);
+  assert.match(styles, /\.spotlight-youtube-frame/);
+  assert.match(headers, /frame-src[^\n]*youtube-nocookie\.com/);
+  assert.match(page, /spotlight\.js\?v=20260929youtube1/);
+});
+
 test('Spotlight comments never substitute demo conversations when the API is unavailable', async () => {
   const script = await read('public/spotlight.js');
   assert.match(script, /api\('comments\/\'/);
@@ -66,4 +95,20 @@ test('creator and owner workspaces expose Spotlight submission and moderation', 
   assert.match(workspace, /Save moderation decision/);
   assert.match(owner, /spotlight-workspace\.js/);
   assert.match(creator, /spotlight-workspace\.js/);
+});
+
+test('Spotlight has a dedicated creator Studio using the canonical workspace workflow', async () => {
+  const [page, studio, shell, creator, workspace] = await Promise.all([
+    read('public/spotlight-studio.html'), read('public/spotlight-studio.js'),
+    read('public/app-shell.js'), read('public/creator-studio.js'), read('public/spotlight-workspace.js')
+  ]);
+  assert.match(page, /data-page="spotlight-studio"/);
+  assert.match(page, /spotlight-workspace\.js/);
+  assert.match(studio, /MWESpotlightWorkspace\?\.render/);
+  assert.match(studio, /Create a Spotlight story/);
+  assert.match(shell, /"spotlight-studio":\s*\{ source: "spotlight-studio\.html"/);
+  assert.match(creator, /href="app\.html\?view=spotlight-studio"/);
+  assert.match(workspace, /\/api\/media\/upload/);
+  assert.match(workspace, /Save draft/);
+  assert.match(workspace, /Submit for review/);
 });

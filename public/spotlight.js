@@ -10,6 +10,21 @@
   const compact = value => Number(value || 0) >= 1000 ? (Number(value) / 1000).toFixed(Number(value) >= 10000 ? 0 : 1) + 'K' : String(Number(value || 0));
   const duration = seconds => seconds ? Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2,'0') : '';
   const authenticated = () => localStorage.getItem('mwe.userLoggedIn') === 'true';
+  function youtubeId(value) {
+    if (!value) return '';
+    try {
+      const url = new URL(value);
+      if (url.hostname === 'youtu.be') return /^[\w-]{11}$/.test(url.pathname.slice(1)) ? url.pathname.slice(1) : '';
+      if (!['youtube.com','www.youtube.com','m.youtube.com','www.youtube-nocookie.com'].includes(url.hostname)) return '';
+      const candidate = url.searchParams.get('v') || url.pathname.match(/^\/(?:embed|shorts)\/([\w-]{11})/)?.[1] || '';
+      return /^[\w-]{11}$/.test(candidate) ? candidate : '';
+    } catch { return ''; }
+  }
+  function youtubePreview(item, id) {
+    const start = Math.max(0, Number(item.previewStartSeconds || 0));
+    const end = Math.max(start + 1, Number(item.previewEndSeconds || Math.min(Number(item.durationSeconds || 60), 60)));
+    return `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1&start=${start}&end=${end}`;
+  }
 
   async function api(path, body, method = body ? 'POST' : 'GET') {
     const response = await fetch('/api/spotlight/' + path, { method, credentials:'same-origin', cache:'no-store', headers:body?{'content-type':'application/json'}:{}, ...(body?{body:JSON.stringify(body)}:{}) });
@@ -31,17 +46,20 @@
     const editorial = item.placementKind === 'sponsored' ? 'Sponsored' : feature ? 'Featured ' + item.contentType[0].toUpperCase() + item.contentType.slice(1) : item.placementKind === 'editorial' ? 'My Way selection' : '';
     const previewLength = item.previewEndSeconds ? item.previewEndSeconds - (item.previewStartSeconds || 0) : 0;
     const progress = item.durationSeconds ? Math.max(8, Math.min(100, ((item.previewEndSeconds || previewLength || 30) / item.durationSeconds) * 100)) : 38;
-    const media = item.mediaUrl && /\.(mp4|webm)(?:\?|$)/i.test(item.mediaUrl)
+    const youtube = youtubeId(item.mediaUrl);
+    const media = youtube
+      ? '<img class="spotlight-card-media spotlight-youtube-poster" src="' + esc(item.posterUrl) + '" alt="" /><iframe class="spotlight-card-media spotlight-youtube-frame" title="' + esc(item.title) + ' video preview" data-youtube-src="' + esc(youtubePreview(item,youtube)) + '" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>'
+      : item.mediaUrl && /\.(mp4|webm)(?:\?|$)/i.test(item.mediaUrl)
       ? '<video class="spotlight-card-media" playsinline muted preload="metadata" poster="' + esc(item.posterUrl) + '" src="' + esc(item.mediaUrl) + '"></video>'
       : '<img class="spotlight-card-media" data-animated="true" src="' + esc(item.posterUrl) + '" alt="" />';
     const avatar = item.creatorAvatarUrl ? '<img src="' + esc(item.creatorAvatarUrl) + '" alt="" />' : icon(feature ? 'church' : 'user');
     const cta = item.ctaUrl || item.fullContentUrl;
     return '<article class="spotlight-card' + (feature ? ' spotlight-feature-card' : '') + '" data-spotlight-id="' + esc(item.id) + '" data-index="' + index + '" aria-label="' + esc(item.title) + '">' + media +
-      '<div class="spotlight-card-top">' + (editorial ? '<span class="spotlight-editorial-label' + (item.placementKind === 'sponsored' ? ' spotlight-sponsored' : '') + '">' + icon(item.placementKind === 'sponsored' ? 'badge-dollar-sign' : 'sparkles') + esc(editorial) + '</span>' : '<span></span>') + '<button type="button" data-card-menu aria-label="Report this item">' + icon('ellipsis') + '</button></div>' +
+      '<div class="spotlight-card-top">' + (editorial ? '<span class="spotlight-editorial-label' + (item.placementKind === 'sponsored' ? ' spotlight-sponsored' : '') + '">' + icon(item.placementKind === 'sponsored' ? 'badge-dollar-sign' : 'sparkles') + esc(editorial) + '</span>' : '<span></span>') + (item.isAutomaticProfile ? '<span class="spotlight-auto-label">Live profile</span>' : '<button type="button" data-card-menu aria-label="Report this item">' + icon('ellipsis') + '</button>') + '</div>' +
       '<div class="spotlight-copy"><div class="spotlight-identity"><span class="spotlight-avatar">' + avatar + '</span><div><strong>' + esc(item.creatorName) + icon('badge-check') + '</strong><span>' + esc(item.creatorHandle) + '</span></div>' + (!feature ? '<button type="button" class="spotlight-follow' + (state.following.has(item.creatorHandle) ? ' is-active' : '') + '" data-follow>' + (state.following.has(item.creatorHandle) ? 'Following' : 'Follow') + '</button>' : '') + '</div>' +
       '<h2>' + esc(item.title) + '</h2><p>' + esc(item.caption) + '</p>' +
       (feature ? '<div class="spotlight-member-row"><span class="spotlight-member-faces"><span></span><span></span><span></span></span><span>Growing community on My Way</span></div>' : '') +
-      '<div class="spotlight-preview-row">' + (cta ? '<a class="spotlight-primary-cta" href="' + esc(cta) + '" data-spotlight-cta>' + icon(feature ? 'arrow-up-right' : 'play') + esc(item.ctaLabel || (item.contentType === 'long-preview' ? 'Watch full video' : 'Open')) + '</a>' : '') + (!feature && item.contentType === 'long-preview' ? '<span class="spotlight-preview-meta">Preview · ' + duration(item.durationSeconds) + ' full video</span>' : '') + '</div>' +
+      '<div class="spotlight-preview-row">' + (cta ? '<a class="spotlight-primary-cta" href="' + esc(cta) + '" data-spotlight-cta' + (/^https:\/\//i.test(cta) ? ' target="_blank" rel="noopener"' : '') + '>' + icon(feature ? 'arrow-up-right' : 'play') + esc(item.ctaLabel || (item.contentType === 'long-preview' ? 'Watch full video' : 'Open')) + '</a>' : '') + (!feature && item.contentType === 'long-preview' ? '<span class="spotlight-preview-meta">Preview · ' + duration(item.durationSeconds) + ' full video</span>' : '') + '</div>' +
       (!feature ? '<div class="spotlight-progress" aria-hidden="true"><span style="--progress:' + progress + '%"></span></div>' : '') + '</div>' +
       (!feature ? '<div class="spotlight-actions">' + actionButton('like','heart',compact(item.likes),'Like',item.liked) + actionButton('comments','message-circle',compact(item.comments),'Open comments',false) + actionButton('save','bookmark',compact(item.saves),'Save',item.saved) + actionButton('share','share-2','Share','Share',false) + '</div>' : '') + '</article>';
   }
@@ -75,6 +93,11 @@
       card.classList.toggle('is-active', active);
       const video = card.querySelector('video');
       if (video) { video.muted = !state.sound; if (active) video.play().catch(()=>{}); else video.pause(); }
+      const youtubeFrame = card.querySelector('[data-youtube-src]');
+      if (youtubeFrame) {
+        if (active && !youtubeFrame.src) youtubeFrame.src = youtubeFrame.dataset.youtubeSrc.replace('mute=1',state.sound?'mute=0':'mute=1');
+        if (!active && youtubeFrame.src) youtubeFrame.removeAttribute('src');
+      }
     });
     if (scroll) feed.children[state.activeIndex]?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
     renderInspector();
@@ -87,8 +110,13 @@
   async function renderInspector() {
     const item = state.visible[state.activeIndex];
     if (!item) return;
+    commentForm.hidden = item.isAutomaticProfile || state.inspectorTab === 'details';
     if (state.inspectorTab === 'details') {
-      inspector.innerHTML = '<div class="spotlight-detail-card"><span class="spotlight-eyebrow">' + esc(item.placementKind === 'sponsored' ? 'SPONSORED' : 'CURATED SPOTLIGHT') + '</span><h3>' + esc(item.title) + '</h3><p>' + esc(item.caption) + '</p><div class="spotlight-detail-list"><span>Creator <strong>' + esc(item.creatorName) + '</strong></span><span>Format <strong>' + esc(item.contentType.replace('-', ' ')) + '</strong></span><span>Preview <strong>' + esc(item.previewSource === 'automatic' ? 'Automatic selection' : 'Creator selected') + '</strong></span></div></div>';
+      inspector.innerHTML = '<div class="spotlight-detail-card"><span class="spotlight-eyebrow">' + esc(item.isAutomaticProfile ? 'DISCOVER ON MY WAY' : item.placementKind === 'sponsored' ? 'SPONSORED' : 'CURATED SPOTLIGHT') + '</span><h3>' + esc(item.title) + '</h3><p>' + esc(item.caption) + '</p><div class="spotlight-detail-list"><span>Creator <strong>' + esc(item.creatorName) + '</strong></span><span>Format <strong>' + esc(item.contentType.replace('-', ' ')) + '</strong></span><span>Preview <strong>' + esc(item.isAutomaticProfile ? 'Automatic profile cover' : item.previewSource === 'automatic' ? 'Automatic selection' : 'Creator selected') + '</strong></span></div></div>';
+      window.lucide?.createIcons(); return;
+    }
+    if (item.isAutomaticProfile) {
+      inspector.innerHTML = '<div class="spotlight-comment-empty">' + icon(item.contentType === 'church' ? 'church' : 'radio-tower') + '<strong>Featured from a live profile.</strong><p>This cover was selected automatically from a published ' + esc(item.contentType) + ' profile. Open it to explore the full page.</p></div>';
       window.lucide?.createIcons(); return;
     }
     inspector.innerHTML = '<div class="spotlight-loading">' + icon('loader-circle') + '<span>Loading conversation…</span></div>';
@@ -121,7 +149,7 @@
       const target = new URL(cta.href, window.location.href);
       if (target.origin === window.location.origin && target.pathname.endsWith('/app.html')) {
         event.preventDefault();
-        window.parent.postMessage({type:'faithlink:navigate',view:target.searchParams.get('view') || 'home'},window.location.origin);
+        window.parent.postMessage({type:'faithlink:navigate',view:target.searchParams.get('view') || 'home',id:target.searchParams.get('id') || ''},window.location.origin);
         return;
       }
     }
@@ -149,7 +177,7 @@
   document.querySelector('[data-feed-previous]')?.addEventListener('click',()=>activate(state.activeIndex-1));
   document.querySelector('[data-feed-next]')?.addEventListener('click',()=>activate(state.activeIndex+1));
   document.querySelectorAll('[data-feed-tab]').forEach(button => button.addEventListener('click',()=>{state.tab=button.dataset.feedTab;state.activeIndex=0;document.querySelectorAll('[data-feed-tab]').forEach(tab=>tab.setAttribute('aria-selected',String(tab===button)));renderFeed();}));
-  document.querySelector('[data-sound-toggle]')?.addEventListener('click',event=>{state.sound=!state.sound;event.currentTarget.innerHTML=icon(state.sound?'volume-2':'volume-x');event.currentTarget.setAttribute('aria-label',state.sound?'Mute':'Turn sound on');feed.querySelectorAll('video').forEach(video=>video.muted=!state.sound);window.lucide?.createIcons();});
+  document.querySelector('[data-sound-toggle]')?.addEventListener('click',event=>{state.sound=!state.sound;event.currentTarget.innerHTML=icon(state.sound?'volume-2':'volume-x');event.currentTarget.setAttribute('aria-label',state.sound?'Mute':'Turn sound on');feed.querySelectorAll('video').forEach(video=>video.muted=!state.sound);const youtubeFrame=feed.querySelector('.spotlight-card.is-active [data-youtube-src]');if(youtubeFrame?.src){youtubeFrame.src=youtubeFrame.src.replace(/mute=[01]/,'mute='+(state.sound?'0':'1'));}window.lucide?.createIcons();});
   const about=document.getElementById('spotlight-about');
   document.querySelector('[data-feed-info]')?.addEventListener('click',()=>about?.showModal());
   document.querySelector('[data-about-close]')?.addEventListener('click',()=>about?.close());
@@ -158,5 +186,5 @@
   document.addEventListener('keydown',event=>{if(event.target.matches('input,textarea'))return;if(event.key==='ArrowDown'){event.preventDefault();activate(state.activeIndex+1);}if(event.key==='ArrowUp'){event.preventDefault();activate(state.activeIndex-1);}if(event.key.toLowerCase()==='m')document.querySelector('[data-sound-toggle]')?.click();if(event.key==='Escape')document.body.classList.remove('spotlight-panel-open');});
   function syncFullscreen() { if(window.self!==window.top) window.parent.postMessage({type:'mwe-fullscreen',fullscreen:matchMedia('(max-width:760px)').matches},window.location.origin); }
   window.addEventListener('resize',syncFullscreen); window.addEventListener('pagehide',()=>{if(window.self!==window.top)window.parent.postMessage({type:'mwe-fullscreen',fullscreen:false},window.location.origin);}); syncFullscreen();
-  (async function init(){feed.innerHTML='<div class="spotlight-loading">'+icon('sparkles')+'<span>Curating Spotlight…</span></div>';window.lucide?.createIcons();try{state.items=(await api('feed')).items;}catch(error){feed.innerHTML='<div class="spotlight-empty">'+icon('wifi-off')+'<h2>Spotlight is unavailable.</h2><p>'+esc(error.message)+'</p></div>';inspector.innerHTML='';window.lucide?.createIcons();return;}const match=state.items.findIndex(item=>item.id===location.hash.slice(1));if(match>=0)state.activeIndex=match;renderFeed();})();
+  (async function init(){feed.innerHTML='<div class="spotlight-loading">'+icon('sparkles')+'<span>Curating Spotlight…</span></div>';window.lucide?.createIcons();try{state.items=(await api('feed')).items;}catch(error){feed.innerHTML='<div class="spotlight-empty">'+icon('wifi-off')+'<h2>Spotlight is unavailable.</h2><p>'+esc(error.message)+'</p></div>';inspector.innerHTML='';commentForm.hidden=true;window.lucide?.createIcons();return;}const match=state.items.findIndex(item=>item.id===location.hash.slice(1));if(match>=0)state.activeIndex=match;renderFeed();})();
 })();

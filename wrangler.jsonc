@@ -28,8 +28,8 @@
     "APP_NAME": "My Way of Evangelism",
     "ENVIRONMENT": "production",
     "PUBLIC_ORIGIN": "https://my-way-of-evangelism.doxalight-inc.workers.dev",
-    "GOOGLE_CLIENT_ID": "744058453576-4v84hjrpkrun06tcnqn0ni8smuh6udgv.apps.googleusercontent.com",
-    "OWNER_BOOTSTRAP_EMAIL": "churchoal@gmail.com"
+    "GOOGLE_CLIENT_ID": "744058453576-38m5g7h2jafifi44ptv4m5uft11jangi.apps.googleusercontent.com",
+    "OWNER_BOOTSTRAP_EMAIL": "xristoinno@gmail.com"
   },
   "secrets": {
     "required": ["GOOGLE_CLIENT_SECRET", "AUTH_ENCRYPTION_KEY"]
@@ -68,8 +68,8 @@
         "APP_NAME": "My Way of Evangelism",
         "ENVIRONMENT": "preview",
         "PUBLIC_ORIGIN": "https://my-way-of-evangelism-preview.doxalight-inc.workers.dev",
-        "GOOGLE_CLIENT_ID": "744058453576-4v84hjrpkrun06tcnqn0ni8smuh6udgv.apps.googleusercontent.com",
-        "OWNER_BOOTSTRAP_EMAIL": "churchoal@gmail.com"
+        "GOOGLE_CLIENT_ID": "744058453576-38m5g7h2jafifi44ptv4m5uft11jangi.apps.googleusercontent.com",
+        "OWNER_BOOTSTRAP_EMAIL": "xristoinno@gmail.com"
       },
       "secrets": {
         "required": ["AUTH_ENCRYPTION_KEY"]

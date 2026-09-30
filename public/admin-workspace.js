@@ -102,7 +102,8 @@
         (creator ? "" : '<p class="aw-nav-label">PLATFORM CONTROL</p>' + entry("platform-options", "Platform options", "list-tree") + '<p class="aw-nav-label">OPERATIONS</p>' + entry("locations", "Location coverage", "map-pin") + entry("review", "Needs attention", "list-checks", pending().length));
     }
     function pending() {
-      return ["churches", "channels"].flatMap(key => modules[key].get().filter(r => !r.verified).map(r => ({ key, record: r, reason: key === "churches" ? "Church verification" : "Creator verification" })));
+      const reasons = { churches: "Church verification", meditation: "Meditation room approval", events: "Event approval", store: "Store approval", products: "Product approval", channels: "Channel approval", resources: "Resource approval" };
+      return Object.keys(reasons).flatMap(key => (modules[key]?.get?.() || []).filter(r => r.publicationState === "pending").map(record => ({ key, record, reason: reasons[key] })));
     }
     function overview() {
       if (creator) {
@@ -124,11 +125,11 @@
         ["Church network", churches.length, "church", churches.filter(c => c.verified).length + " verified profiles"],
         ["Locations served", locations.size, "map-pin", "City and country combinations"],
         ["Content library", contentCount, "library", "Rooms, channels and resources"],
-        ["Awaiting verification", pending().length, "shield-check", "Church and creator profiles"]
+        ["Awaiting review", pending().length, "shield-check", "Pending records across every module"]
       ];
       const metricsHtml = '<div class="aw-metrics">' + metrics.map(([label, number, symbol, caption]) => '<div class="aw-metric"><div class="aw-metric-label">' + label + icon(symbol) + '</div><strong>' + number + '</strong><small>' + caption + '</small></div>').join("") + '</div>';
       const cards = '<div class="aw-module-grid">' + mainModules().map(([key, mod]) => '<a class="aw-module-card" href="#' + key + '"><div class="aw-module-top"><span class="aw-module-icon">' + icon(mod.icon) + '</span>' + icon("arrow-up-right") + '</div><h3>' + mod.label + '</h3><p>' + mod.description + '</p><div class="aw-module-count"><strong>' + count(key) + '</strong>' + mod.noun + '</div></a>').join("") + '</div>';
-      const queue = pending().slice(0, 3).map(({ key, record, reason }) => '<div class="aw-queue-row"><span class="aw-record-icon">' + icon(modules[key].icon) + '</span><div><strong>' + esc(modules[key].title(record)) + '</strong><small>' + reason + '</small></div><button class="aw-icon-button" type="button" data-edit-module="' + key + '" data-edit-id="' + esc(record.id) + '" aria-label="Review ' + esc(modules[key].title(record)) + '">' + icon("arrow-right") + '</button></div>').join("") || '<div class="aw-empty"><h3>You’re all caught up</h3><p>No church or creator profiles are awaiting verification.</p></div>';
+      const queue = pending().slice(0, 3).map(({ key, record, reason }) => '<div class="aw-queue-row"><span class="aw-record-icon">' + icon(modules[key].icon) + '</span><div><strong>' + esc(modules[key].title(record)) + '</strong><small>' + reason + '</small></div><button class="aw-icon-button" type="button" data-edit-module="' + key + '" data-edit-id="' + esc(record.id) + '" aria-label="Review ' + esc(modules[key].title(record)) + '">' + icon("arrow-right") + '</button></div>').join("") || '<div class="aw-empty"><h3>You’re all caught up</h3><p>No content is awaiting review.</p></div>';
       const steps = '<div class="aw-steps">' + [
         ["Find the right module", "Open a collection, then search or filter its records."],
         ["Review the essentials", "Check ownership, content, location and access details."],
@@ -183,7 +184,7 @@
     }
     function review() {
       const rows = pending();
-      $("aw-content").innerHTML = panel("Verification queue", rows.length + " profiles to review · verify only after checking ownership and contact details.", rows.length ? rows.map(({ key, record, reason }) => '<div class="aw-queue-row"><span class="aw-record-icon">' + icon(modules[key].icon) + '</span><div><strong>' + esc(modules[key].title(record)) + '</strong><small>' + reason + ' · ' + esc(modules[key].owner(record) || "Owner missing") + '</small></div>' + badge("Pending") + '<button type="button" class="aw-button" data-edit-module="' + key + '" data-edit-id="' + esc(record.id) + '">Review</button></div>').join("") : '<div class="aw-empty"><h3>All profiles reviewed</h3><p>No pending church or channel verification.</p></div>');
+      $("aw-content").innerHTML = panel("Review queue", rows.length + " records to review · approve only after checking ownership and content details.", rows.length ? rows.map(({ key, record, reason }) => '<div class="aw-queue-row"><span class="aw-record-icon">' + icon(modules[key].icon) + '</span><div><strong>' + esc(modules[key].title(record)) + '</strong><small>' + reason + ' · ' + esc(modules[key].owner(record) || "Owner missing") + '</small></div>' + badge("Pending") + '<button type="button" class="aw-button" data-edit-module="' + key + '" data-edit-id="' + esc(record.id) + '">Review</button></div>').join("") : '<div class="aw-empty"><h3>All records reviewed</h3><p>No content is awaiting review.</p></div>');
     }
     const taxonomyMeta = [
       ["denominations", "Denominations", "Used by church profiles and the public church filter."],
@@ -195,18 +196,32 @@
       ["resource_topics", "Resource topics", "Topics used to organize learning resources."]
     ];
     function platformOptions() {
+      const publicationMeta = [
+        ["churches", "churchPublication", "autoPublishPendingChurches", "Churches", "church", "church profiles"],
+        ["meditation", "meditationPublication", "autoPublishPendingMeditations", "Meditation", "sparkles", "meditation rooms"],
+        ["events", "eventPublication", "autoPublishPendingEvents", "Events", "calendar-days", "events"],
+        ["store", "storePublication", "autoPublishPendingStores", "Stores", "store", "store profiles"],
+        ["products", "productPublication", "autoPublishPendingProducts", "Products & services", "package", "products and services"],
+        ["channels", "channelPublication", "autoPublishPendingChannels", "Channels", "radio-tower", "channels"],
+        ["resources", "resourcePublication", "autoPublishPendingResources", "Resources", "library", "resources"]
+      ];
+      const publicationCards = publicationMeta.map(([kind, responseKey, field, label, symbol, noun]) => {
+        const setting = window.MWEPlatform.settings[responseKey] || {};
+        const enabled = setting[field] === true;
+        return '<form class="aw-panel aw-publication-card" data-publication-form="' + kind + '" data-publication-field="' + field + '"><div class="aw-publication-copy"><span class="aw-record-icon">' + icon(symbol) + '</span><div><p class="aw-eyebrow">' + label.toUpperCase() + ' PUBLICATION</p><h2>Auto approval</h2><p>Publish new ' + noun + ' immediately while they remain in the owner review queue. Public content shows a <strong>Pending review</strong> badge until you approve it.</p></div></div><label class="aw-switch-row"><span><strong>Publish while pending review</strong><small>' + (enabled ? 'On · pending ' + noun + ' are visible publicly' : 'Off · pending ' + noun + ' stay private') + '</small></span><input type="checkbox" name="enabled" role="switch" ' + (enabled ? 'checked' : '') + ' /><span class="aw-switch" aria-hidden="true"></span></label><div class="aw-taxonomy-actions"><span class="aw-setting-status">Manual owner approval is still required to remove the Pending review badge.</span><button class="aw-button aw-primary" type="submit">Save ' + label.toLowerCase() + ' setting</button></div></form>';
+      }).join("");
       const cards = taxonomyMeta.map(([key, title, description]) => {
         const taxonomy = window.MWEPlatform.taxonomies[key];
         const rows = (taxonomy?.items || []).map(item => '<div class="aw-taxonomy-row"><input name="item" value="' + esc(item) + '" aria-label="' + esc(title) + ' option" maxlength="80" required /><button class="aw-icon-button" type="button" data-taxonomy-remove aria-label="Remove ' + esc(item) + '">' + icon("trash-2") + '</button></div>').join("");
         return '<form class="aw-panel aw-taxonomy-card" data-taxonomy-form="' + key + '"><div class="aw-panel-heading"><div><h2>' + title + '</h2><p>' + description + '</p></div><span class="aw-badge">' + (taxonomy?.items.length || 0) + ' options</span></div><div class="aw-taxonomy-list">' + rows + '</div><div class="aw-taxonomy-actions"><button class="aw-button" type="button" data-taxonomy-add>' + icon("plus") + ' Add option</button><button class="aw-button aw-primary" type="submit">Save ' + title.toLowerCase() + '</button></div></form>';
       }).join("");
-      $("aw-content").innerHTML = '<div class="aw-notice"><strong>One source of truth</strong><p>Changes apply to public filters and new content forms. Existing records keep their saved value until edited.</p></div><div class="aw-taxonomy-grid">' + cards + '</div>';
+      $("aw-content").innerHTML = '<div class="aw-taxonomy-grid aw-publication-grid">' + publicationCards + '</div><div class="aw-notice"><strong>One source of truth</strong><p>Changes apply to public filters and new content forms. Existing records keep their saved value until edited.</p></div><div class="aw-taxonomy-grid">' + cards + '</div>';
     }
     function render() {
       try {
         nav();
         const mod = modules[state.view];
-        const labels = { overview: ["Overview", "A clear view of your community and the content that connects it."], spotlight: ["Spotlight", creator ? "Submit channel content and track every moderation decision." : "Curate, review, schedule and publish the stories shown in Spotlight."], "platform-options": ["Platform options", "Manage the standard choices used across public filters and content forms."], locations: ["Location coverage", "Keep the church directory accurate, connected and easy to discover."], review: ["Needs attention", "A focused queue for church and creator verification."] };
+        const labels = { overview: ["Overview", "A clear view of your community and the content that connects it."], spotlight: ["Spotlight", creator ? "Submit channel content and track every moderation decision." : "Curate, review, schedule and publish the stories shown in Spotlight."], "platform-options": ["Platform options", "Manage publication controls and the standard choices used across the platform."], locations: ["Location coverage", "Keep the church directory accurate, connected and easy to discover."], review: ["Needs attention", "A focused queue for pending content across every module."] };
         $("aw-title").textContent = mod?.label || labels[state.view][0];
         if (creator && state.view === "overview") $("aw-title").textContent = "Your creator workspace";
         $("aw-breadcrumb").textContent = $("aw-title").textContent;
@@ -222,7 +237,7 @@
           document.querySelector(".aw-nav-label").textContent = "YOUR MODULES";
         }
         $("aw-heading-actions").innerHTML = mod ? button("new", icon("plus") + " Add " + mod.singular, true) : link(state.view === "overview" ? "#churches" : "#overview", state.view === "overview" ? "Manage churches " + icon("arrow-right") : "Back to overview", "aw-button");
-        if (state.view === "spotlight") $("aw-heading-actions").innerHTML = link("app.html?view=spotlight", "Open Spotlight " + icon("arrow-up-right"), "aw-button");
+        if (state.view === "spotlight") $("aw-heading-actions").innerHTML = link("app.html?view=spotlight-studio", "Create in Spotlight Studio " + icon("sparkles"), "aw-button aw-primary") + link("app.html?view=spotlight", "Open Spotlight " + icon("arrow-up-right"), "aw-button");
         document.title = $("aw-title").textContent + " · Admin | My Way";
         if (creator) document.title = $("aw-title").textContent + " | My Way";
         if (creator && state.view === "overview") $("aw-heading-actions").innerHTML = link("app.html?view=home", "Open member app " + icon("arrow-up-right"), "aw-button");
@@ -266,7 +281,7 @@
       if (id && !record) { notice("This record is no longer available."); return; }
       editing = { key, record: record ? JSON.parse(JSON.stringify(record)) : null };
       const data = record ? (mod.flatten ? mod.flatten(record) : record) : mod.defaults();
-      data.publicationState = creator && record?.publicationState === "published" ? "pending" : record?.publicationState || "draft";
+      data.publicationState = creator ? (record?.publicationState === "archived" ? "archived" : "pending") : record?.publicationState || "draft";
       if (creator && !record) {
         const profile = window.MWECreator.account();
         Object.assign(data, { ownerName: profile?.name || "", owner: profile?.name || "", creator: profile?.name || "", email: profile?.email || "" });
@@ -362,6 +377,26 @@
       }
     });
     $("aw-content").addEventListener("submit", async event => {
+      const publicationForm = event.target.closest("[data-publication-form]");
+      if (publicationForm) {
+        event.preventDefault();
+        const button = publicationForm.querySelector('[type="submit"]');
+        button.disabled = true;
+        try {
+          const kind = publicationForm.dataset.publicationForm;
+          if (kind === "churches") await window.MWEPlatform.saveChurchPublicationSettings(publicationForm.elements.enabled.checked);
+          else if (kind === "meditation") await window.MWEPlatform.saveMeditationPublicationSettings(publicationForm.elements.enabled.checked);
+          else await window.MWEPlatform.savePublicationSettings(kind, publicationForm.elements.enabled.checked);
+          platformOptions();
+          drawIcons();
+          notice("Publication setting saved.");
+        } catch (error) {
+          notice(error.message || "Unable to save the publication setting.");
+        } finally {
+          if (button.isConnected) button.disabled = false;
+        }
+        return;
+      }
       const form = event.target.closest("[data-taxonomy-form]");
       if (!form) return;
       event.preventDefault();

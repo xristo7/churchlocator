@@ -262,3 +262,10 @@ test('16. Preview seed covers all sanctuary templates with account-backed owners
   assert.match(demoSeed, /insert into meditation_chat_messages/, 'Preview includes real account-backed room discussion');
 });
 
+test('17. Pending meditation rooms are visibly identified in the lobby and room', () => {
+  assert.match(js, /meditation-pending-badge[^\n]*Pending review/, 'Lobby card renders the pending review badge');
+  assert.match(html, /id="room-pending-badge"[^>]*hidden>Pending review/, 'Room header includes a hidden pending review badge');
+  assert.match(js, /room\.publicationState === "pending" \|\| room\.verified === false/, 'Badge visibility follows server publication state');
+  assert.match(css, /\.meditation-pending-badge\s*\{/, 'Pending review badge has dedicated styling');
+});
+

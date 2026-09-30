@@ -43,8 +43,127 @@ test('platform taxonomies are public, owner-managed and enforced for new classif
  await assert.rejects(s.call('taxonomies/denominations','PUT',{items:['Baptist','baptist'],revision:2}),{status:400});
  s.as('alice');
  await assert.rejects(s.call('workspace/churches','POST',{name:'Church',city:'City',country:'Country',denomination:'Made Up'}),{status:400});
- const response=await s.call('workspace/churches','POST',{name:'Church',city:'City',country:'Country',denomination:'Baptist'});
+ const response=await s.call('workspace/churches','POST',{name:'Church',city:'City',country:'Country',area:'Downtown',denomination:'Baptist'});
  assert.equal(response.status,201);
+ assert.equal((await response.json()).record.area,'Downtown');
+});
+test('church creation reaches owner review and the owner can publish it while it remains pending',async()=>{
+ const s=setup();
+ const createdResponse=await s.call('workspace/churches','POST',{name:'Pending Hope Church',city:'Edmonton',country:'Canada',denomination:'Baptist',pastor:'Pastor Hope',email:'hope@example.test',phone:'555-0101'});
+ assert.equal(createdResponse.status,201);
+ const {record:created}=await createdResponse.json();
+ assert.equal(created.publicationState,'pending');
+ assert.equal(created.verified,false);
+
+ const creatorWorkspace=await (await s.call('workspace')).json();
+ assert.equal(creatorWorkspace.records.some(record=>record.id===created.id),true);
+ assert.equal((await (await s.call('catalog/churches')).json()).records.some(record=>record.id===created.id),false);
+
+ s.as('owner');
+ const ownerWorkspace=await (await s.call('workspace')).json();
+ assert.equal(ownerWorkspace.records.some(record=>record.id===created.id&&record.publicationState==='pending'),true);
+ const initialSettings=await (await s.call('platform-settings')).json();
+ assert.equal(initialSettings.churchPublication.autoPublishPendingChurches,false);
+ const enabled=await (await s.call('platform-settings/church-publication','PUT',{autoPublishPendingChurches:true,revision:initialSettings.churchPublication.revision})).json();
+ assert.equal(enabled.churchPublication.autoPublishPendingChurches,true);
+
+ const publicPending=(await (await s.call('catalog/churches')).json()).records.find(record=>record.id===created.id);
+ assert.equal(publicPending.publicationState,'pending');
+ assert.equal(publicPending.verified,false);
+
+ await s.call('workspace/churches/'+created.id,'PUT',{revision:created.revision,publicationState:'published'});
+ const publicApproved=(await (await s.call('catalog/churches')).json()).records.find(record=>record.id===created.id);
+ assert.equal(publicApproved.publicationState,'published');
+ assert.equal(publicApproved.verified,true);
+});
+test('only the verified platform owner can change church auto publication',async()=>{
+ const s=setup();
+ const initial=(await (await s.call('platform-settings')).json()).churchPublication;
+ await assert.rejects(s.call('platform-settings/church-publication','PUT',{autoPublishPendingChurches:true,revision:initial.revision}),{status:403});
+});
+test('meditation creation reaches owner review and can be public while still pending',async()=>{
+ const s=setup();
+ const payload={title:'Pending Peace Room',subtitle:'A quiet place to rest',category:'community',theme:'chapel',template:'timer',purpose:'prayer',mode:'light',timeMode:'timed',durationMinutes:20,toneFreq:432,selectedAudio:'silence',verses:[{topic:'Peace',text:'Be still',ref:'Psalm 46:10'}],commentsEnabled:true};
+ const createdResponse=await s.call('workspace/meditation','POST',payload);
+ assert.equal(createdResponse.status,201);
+ const {record:created}=await createdResponse.json();
+ assert.equal(created.publicationState,'pending');
+ assert.equal(created.verified,false);
+ assert.equal((await (await s.call('catalog/meditation')).json()).records.some(record=>record.id===created.id),false);
+ await assert.rejects(s.call('meditation-chat/'+created.id),{status:404});
+ s.as('owner');
+ const ownerWorkspace=await (await s.call('workspace')).json();
+ assert.equal(ownerWorkspace.records.some(record=>record.id===created.id&&record.kind==='meditation'&&record.publicationState==='pending'),true);
+ const initial=(await (await s.call('platform-settings')).json()).meditationPublication;
+ assert.equal(initial.autoPublishPendingMeditations,false);
+ const enabled=await (await s.call('platform-settings/meditation-publication','PUT',{autoPublishPendingMeditations:true,revision:initial.revision})).json();
+ assert.equal(enabled.meditationPublication.autoPublishPendingMeditations,true);
+ const publicPending=(await (await s.call('catalog/meditation')).json()).records.find(record=>record.id===created.id);
+ assert.equal(publicPending.publicationState,'pending');
+ assert.equal(publicPending.verified,false);
+ assert.equal((await s.call('meditation-chat/'+created.id)).status,200);
+ await s.call('workspace/meditation/'+created.id,'PUT',{revision:created.revision,publicationState:'published'});
+ const publicApproved=(await (await s.call('catalog/meditation')).json()).records.find(record=>record.id===created.id);
+ assert.equal(publicApproved.publicationState,'published');
+ assert.equal(publicApproved.verified,true);
+});
+test('only the verified platform owner can change meditation auto publication',async()=>{
+ const s=setup();
+ const initial=(await (await s.call('platform-settings')).json()).meditationPublication;
+ await assert.rejects(s.call('platform-settings/meditation-publication','PUT',{autoPublishPendingMeditations:true,revision:initial.revision}),{status:403});
+});
+test('every remaining module can be public while pending, stays in owner review, and loses the badge state after approval',async()=>{
+ const s=setup();
+ const created={};
+ const payloads={
+  events:{title:'Pending Community Night',eventType:'in-person',startsAt:'2099-05-01T18:00:00Z',endsAt:'2099-05-01T20:00:00Z',city:'Edmonton',country:'Canada',currency:'CAD',totalTickets:100,ticketPriceCents:0},
+  store:{name:'Pending Community Store',ownerName:'Alice',category:'Books & Resources',description:'Books and tools',email:'alice@example.test',live:false},
+  channels:{name:'Pending Teaching Channel',owner:'Alice',handle:'@pending-teaching',topic:'Bible Teaching',description:'Weekly teaching',format:'Video',cover:'https://example.test/channel.jpg',avatar:'https://example.test/avatar.jpg',live:false},
+  resources:{title:'Pending Study Guide',creator:'Alice',topic:'Bible Study',description:'A short study guide',type:'Text',format:'PDF',duration:'12 pages',image:'https://example.test/resource.jpg',access:'Free',price:0,pages:['Study page']}
+ };
+ for(const kind of ['events','store','channels','resources']) {
+  const response=await s.call('workspace/'+kind,'POST',payloads[kind]);
+  assert.equal(response.status,201);
+  created[kind]=(await response.json()).record;
+  assert.equal(created[kind].publicationState,'pending');
+  assert.equal((await (await s.call('catalog/'+kind)).json()).records.some(record=>record.id===created[kind].id),false);
+ }
+ const productResponse=await s.call('workspace/products','POST',{title:'Pending Journal',storeId:created.store.id,seller:'Pending Community Store',sellerType:'Channel',category:'Books',description:'A guided journal',price:18,inventory:25,status:'Active',featured:false,image:'https://example.test/journal.jpg',itemType:'product'});
+ assert.equal(productResponse.status,201);
+ created.products=(await productResponse.json()).record;
+ assert.equal(created.products.publicationState,'pending');
+ assert.equal((await (await s.call('catalog/products')).json()).records.some(record=>record.id===created.products.id),false);
+
+ const definitions={
+  events:['eventPublication','event-publication','autoPublishPendingEvents'],
+  store:['storePublication','store-publication','autoPublishPendingStores'],
+  products:['productPublication','product-publication','autoPublishPendingProducts'],
+  channels:['channelPublication','channel-publication','autoPublishPendingChannels'],
+  resources:['resourcePublication','resource-publication','autoPublishPendingResources']
+ };
+ const creatorWorkspace=(await (await s.call('workspace')).json()).records;
+ for(const [kind,record] of Object.entries(created)) assert.equal(creatorWorkspace.some(item=>item.id===record.id&&item.publicationState==='pending'),true,kind+' should remain pending in the creator workspace');
+
+ const initial=await (await s.call('platform-settings')).json();
+ for(const [kind,[responseKey,route,field]] of Object.entries(definitions)) {
+  assert.equal(initial[responseKey][field],false);
+  await assert.rejects(s.call('platform-settings/'+route,'PUT',{[field]:true,revision:initial[responseKey].revision}),{status:403});
+ }
+
+ s.as('owner');
+ const ownerWorkspace=(await (await s.call('workspace')).json()).records;
+ for(const [kind,record] of Object.entries(created)) assert.equal(ownerWorkspace.some(item=>item.id===record.id&&item.publicationState==='pending'),true,kind+' should reach owner review');
+ for(const [kind,[responseKey,route,field]] of Object.entries(definitions)) {
+  const enabled=await (await s.call('platform-settings/'+route,'PUT',{[field]:true,revision:initial[responseKey].revision})).json();
+  assert.equal(enabled[responseKey][field],true);
+  const pending=(await (await s.call('catalog/'+kind)).json()).records.find(record=>record.id===created[kind].id);
+  assert.equal(pending.publicationState,'pending');
+  assert.equal(pending.verified,false);
+  await s.call('workspace/'+kind+'/'+created[kind].id,'PUT',{revision:created[kind].revision,publicationState:'published'});
+  const approved=(await (await s.call('catalog/'+kind)).json()).records.find(record=>record.id===created[kind].id);
+  assert.equal(approved.publicationState,'published');
+  assert.equal(approved.verified,true);
+ }
 });
 test('private records encrypt text and enforce author, recipient and explicit pastoral scope',async()=>{
  const s=setup(); const {record}=await (await s.call('private/prayer','POST',{text:'Confidential prayer',recipientUserId:'bob'})).json();

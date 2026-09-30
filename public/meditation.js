@@ -670,6 +670,7 @@
       const safe = { ...room, ...Object.fromEntries(["id", "cover", "title", "subtitle", "categoryLabel", "icon"].map(key => [key, escape(room[key])])) };
       const creatorName = escape(room.ownerName || "My Way");
       const audioName = ({ bible: "Audio Bible", instrumental: "Soaking Instrumental", worship: "Worship Stream", sermon: "Sermon", silence: "Silence / Ambient" })[room.selectedAudio] || "Curated Audio";
+      const pendingBadge = room.publicationState === "pending" || room.verified === false ? '<span class="meditation-pending-badge">Pending review</span>' : '';
       return '<div class="sanctuary-room-card" data-enter-room="' + safe.id + '">' +
         '<div class="room-card-cover">' +
           '<img src="' + safe.cover + '" alt="' + safe.title + '" />' +
@@ -678,6 +679,7 @@
         '</div>' +
         '<div class="room-card-body">' +
           '<h3>' + safe.title + '</h3>' +
+          pendingBadge +
           '<p>' + safe.subtitle + '</p>' +
           '<div class="room-card-footer">' +
             '<span><i data-lucide="user"></i> ' + creatorName + '</span>' +
@@ -1146,6 +1148,8 @@
       const owner = room.ownerName || room.creator || "My Way";
       ownerEl.textContent = "By " + owner;
     }
+    const pendingEl = document.getElementById("room-pending-badge");
+    if (pendingEl) pendingEl.hidden = !(room.publicationState === "pending" || room.verified === false);
     
     const iconEl = document.getElementById("room-badge-icon");
     if (iconEl) iconEl.innerHTML = '<i data-lucide="' + escape(room.icon || "sparkles") + '"></i>';
