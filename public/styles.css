@@ -26234,3 +26234,59 @@ html[data-theme="dark"] .service-hero-content > .content-love-button {
   background: var(--primary-surface);
   border-color: var(--primary-border);
 }
+
+/* Daily scripture card: overlays the top-right of the church directory hero. */
+.daily-scripture {
+  position: absolute;
+  top: clamp(20px, 3vw, 36px);
+  right: max(16px, calc(50% - 540px));
+  z-index: 2;
+  width: min(340px, calc(100% - 32px));
+  box-sizing: border-box;
+  padding: 16px 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.daily-scripture:empty { display: none; }
+.daily-scripture .daily-scripture-label {
+  max-width: none;
+  margin: 0 0 8px;
+  color: var(--gold);
+  line-height: 1.4;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.daily-scripture blockquote {
+  margin: 0 0 8px;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  font-style: italic;
+}
+.daily-scripture cite {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-style: normal;
+  font-weight: 600;
+}
+html[data-theme="dark"] .daily-scripture {
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+@media (max-width: 900px) {
+  .daily-scripture {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin: 0 16px 20px;
+    width: auto;
+    max-width: none;
+  }
+  .module-directory-hero { flex-direction: column; justify-content: flex-end; align-items: stretch; }
+}
