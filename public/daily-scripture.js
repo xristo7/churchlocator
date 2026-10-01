@@ -48,7 +48,7 @@
     mount.innerHTML = "";
     const label = document.createElement("div");
     label.className = "daily-scripture-label";
-    label.textContent = "Daily Scripture · " + date;
+    label.textContent = "Scripture of the Day · " + date;
     const quote = document.createElement("blockquote");
     quote.textContent = "“" + text + "”";
     const cite = document.createElement("cite");
