@@ -1,7 +1,7 @@
 import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityHeaders } from "./security.js";
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
 import { handlePlatformApi, isOwner } from './trusted-platform.js';
-import { handleSpotlightApi } from './spotlight.js';
+import { handleSpotlightApi, deliverSpotlightNotifications } from './spotlight.js';
 import { handleContentEngagementApi } from './content-engagements.js';
 
 const apiHeaders = {
@@ -1457,6 +1457,9 @@ async function handleApi(request, env) {
 }
 
 export default {
+  async scheduled(event, env) {
+    await deliverSpotlightNotifications(env);
+  },
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {

@@ -11,17 +11,17 @@
   function metrics(){const count=status=>cache.items.filter(item=>status.includes(item.status)).length;return '<div class="sw-metrics">'+[
     ['All submissions',cache.items.length,'layers'],['Awaiting review',count(['pending']),'list-checks'],['Scheduled',count(['approved','scheduled']),'calendar-clock'],['Live now',count(['live']),'play-square']
   ].map(([label,value,symbol])=>'<article class="sw-metric"><span>'+label+icon(symbol)+'</span><strong>'+value+'</strong></article>').join('')+'</div>';}
-  function channelOptions(selected){return '<option value="">'+(cache.role==='owner'?'Editorial / no channel':'Choose a published channel')+'</option>'+cache.channels.map(channel=>'<option value="'+esc(channel.id)+'"'+(channel.id===selected?' selected':'')+'>'+esc(channel.name||channel.handle||channel.id)+'</option>').join('');}
+  function channelOptions(selected){return '<option value="">Choose a published channel</option>'+cache.channels.map(channel=>'<option value="'+esc(channel.id)+'"'+(channel.id===selected?' selected':'')+'>'+esc(channel.name||channel.handle||channel.id)+'</option>').join('');}
   function form(item={}){const automatic=(item.previewSource||'creator')==='automatic';return '<form class="sw-form" id="sw-submission-form" data-edit-id="'+esc(item.id||'')+'">'+
     '<input type="hidden" name="revision" value="'+esc(item.revision||'')+'" />'+
-    '<label class="wide">Submitting channel<select name="channelEntityId"'+(cache.role==='creator'?' required':'')+'>'+channelOptions(item.channelEntityId)+'</select><small>Only published, verified channels can submit to Spotlight.</small></label>'+
+    '<label class="wide">Submitting channel<select name="channelEntityId" required>'+channelOptions(item.channelEntityId)+'</select><small>Only published, verified channels can submit to Spotlight.</small></label>'+
     '<label>Format<select name="contentType" required>'+['short','long-preview','church','channel','event','live'].map(value=>'<option value="'+value+'"'+(value===(item.contentType||'short')?' selected':'')+'>'+value.replace('-',' ')+'</option>').join('')+'</select></label>'+
     '<label>Full duration (seconds)<input name="durationSeconds" type="number" min="0" max="43200" value="'+esc(item.durationSeconds??60)+'" /></label>'+
     '<label class="wide">Title<input name="title" maxlength="120" required value="'+esc(item.title||'')+'" placeholder="A new beginning in faith" /></label>'+
     '<label class="wide">Caption<textarea name="caption" maxlength="1000" placeholder="Tell viewers why this story matters.">'+esc(item.caption||'')+'</textarea></label>'+
     '<label class="wide">Vertical poster URL<input name="posterUrl" type="text" required value="'+esc(item.posterUrl||'')+'" placeholder="https://… or /assets/…" /></label>'+
     '<label class="wide">Direct video URL<input name="mediaUrl" type="url" value="'+esc(item.mediaUrl||'')+'" placeholder="Optional HTTPS MP4 or WebM URL" /><small>The poster remains visible when a direct playable video is not supplied.</small></label>'+
-    '<label>Full content URL<input name="fullContentUrl" type="text" value="'+esc(item.fullContentUrl||'')+'" placeholder="app.html?view=channels" /></label>'+
+    '<label>Full video URL<input name="fullContentUrl" type="url" value="'+esc(item.fullContentUrl||'')+'" placeholder="https://www.youtube.com/watch?v=…" /><small>Required for video posts. Channel features can leave this empty.</small></label>'+
     '<label>Button label<input name="ctaLabel" maxlength="60" value="'+esc(item.ctaLabel||'Watch full video')+'" /></label>'+
     '<label class="wide">Preview method<div class="sw-preview-mode"><label><input type="radio" name="previewSource" value="creator"'+(!automatic?' checked':'')+' /> Select my excerpt</label><label><input type="radio" name="previewSource" value="automatic"'+(automatic?' checked':'')+' /> Automatic first 60s</label></div></label>'+
     '<label>Excerpt starts at<input name="previewStartSeconds" type="number" min="0" value="'+esc(item.previewStartSeconds??0)+'" /></label>'+

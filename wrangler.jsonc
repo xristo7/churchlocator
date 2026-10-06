@@ -33,6 +33,7 @@
   ],
   "preview_urls": false,
   "workers_dev": true,
+  "triggers": { "crons": ["* * * * *"] },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1
@@ -40,6 +41,7 @@
   "env": {
     "preview": {
       "name": "my-way-of-evangelism-preview",
+      "triggers": { "crons": [] },
       "d1_databases": [
         {
           "binding": "DB",

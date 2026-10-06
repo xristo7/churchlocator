@@ -397,7 +397,7 @@
       return;
     }
     if (!views[message.view]) return;
-    loadRoute({ view: message.view, id: message.id || "", q: message.q || "" });
+    loadRoute({ view: message.view, id: message.id || "", q: message.q || "", post: message.post || "", compose: message.compose || "" });
   });
 
   window.addEventListener("popstate", () => loadRoute(getRoute(), { history: false }));

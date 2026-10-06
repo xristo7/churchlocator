@@ -10,7 +10,7 @@
       window.lucide?.createIcons();
       return;
     }
-    const posts = ["A new beginning in faith", "How to stay grounded in Scripture", "Prayer, purpose, and everyday life"];
+    const posts = (channel.posts||[]).map(post=>post.title);
     document.title = `${channel.name} | My Way`;
     root.innerHTML = `<article class="channel-detail-hero channel-detail-modern">
       <div class="channel-detail-cover"><img src="${data().escapeHtml(channel.cover)}" alt="${data().escapeHtml(channel.name)} cover" /><span class="channel-cover-type"><i data-lucide="${channel.format === "Podcast" ? "headphones" : "radio"}"></i>${data().escapeHtml(channel.format)} · ${data().escapeHtml(channel.topic)}</span></div>
@@ -19,6 +19,18 @@
       <nav class="channel-detail-tabs"><a class="active" href="#latest">Home</a><a href="#latest">Posts</a><a href="#about">About</a></nav>
     </article>
     <section class="channel-content-section" id="latest"><div class="module-results-head"><h2>Latest from this channel</h2><span>${data().escapeHtml(channel.format)}</span></div><div class="channel-content-grid">${posts.map((title,index) => `<article><a class="channel-content-cover" href="channel-content.html?channel=${encodeURIComponent(channel.id)}&post=${index}" style="background-image:url('${data().escapeHtml(channel.cover)}')" aria-label="Open ${data().escapeHtml(title)}"><span><i data-lucide="${channel.format === "Podcast" ? "headphones" : "play"}"></i></span></a><small>${data().escapeHtml(channel.format)} · ${index + 2} days ago</small><h3><a href="channel-content.html?channel=${encodeURIComponent(channel.id)}&post=${index}">${data().escapeHtml(title)}</a></h3><p>${index === 0 ? "A practical invitation to begin again with grace, truth, and a faithful community." : index === 1 ? "Simple rhythms that keep the Word close in a noisy, demanding week." : "A thoughtful conversation about bringing prayer into ordinary decisions."}</p></article>`).join("")}</div></section>`;
+    try {
+      const result=await fetch('/api/spotlight/channel/'+encodeURIComponent(channel.id),{credentials:'same-origin',cache:'no-store'}).then(response=>response.json());
+      if(!result.ok)throw new Error(result.error);
+      const grid=document.querySelector('.channel-content-grid');
+      const actualPosts=[...result.items,...(channel.posts||[]).map((post,index)=>({id:String(index),title:post.title,caption:post.summary,posterUrl:post.image||channel.cover}))];
+      const stats=document.querySelectorAll('.channel-detail-stats strong');stats[0].textContent=Number(result.followers).toLocaleString();stats[1].textContent=actualPosts.length;
+      grid.innerHTML=actualPosts.length?actualPosts.map(item=>`<article><a class="channel-content-cover" href="channel-content.html?channel=${encodeURIComponent(channel.id)}&post=${encodeURIComponent(item.id)}"><img src="${data().escapeHtml(item.posterUrl)}" alt="" /><span><i data-lucide="play"></i></span></a><h3><a href="channel-content.html?channel=${encodeURIComponent(channel.id)}&post=${encodeURIComponent(item.id)}">${data().escapeHtml(item.title)}</a></h3><p>${data().escapeHtml(item.caption)}</p></article>`).join(''):'<p>No published content yet.</p>';
+      const controls=document.createElement('div');controls.className='channel-follow-controls';document.querySelector('.channel-detail-profile').append(controls);
+      let following=result.following,notifications=result.notificationsEnabled;
+      function draw(){controls.innerHTML=`<button type="button" data-channel-follow>${following?'Following':'Follow Channel'}</button>${following?`<label><input type="checkbox" data-channel-notify ${notifications?'checked':''}> Notify me about new Spotlight posts</label>`:''}`;controls.querySelector('button').onclick=()=>save(!following,notifications);controls.querySelector('input')?.addEventListener('change',event=>save(true,event.target.checked));}
+      async function save(active,notify){controls.querySelector('button').disabled=true;controls.querySelector('input')?.setAttribute('disabled','');try{const response=await fetch('/api/spotlight/channel-follow/'+encodeURIComponent(channel.id),{method:'PUT',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({active,notificationsEnabled:active&&!following?true:notify})});const updated=await response.json();if(!response.ok){if(response.status===401)window.MWE?.openMemberLogin?.('app.html?view=channel-detail&id='+encodeURIComponent(channel.id));throw new Error(updated.error);}following=updated.following;notifications=updated.notificationsEnabled;}catch(error){window.showToast?.(error.message);}draw();}draw();
+    }catch(error){document.querySelector('.channel-content-grid').innerHTML='<p>Channel content is temporarily unavailable.</p>';}
     window.lucide?.createIcons();
   });
 })();
