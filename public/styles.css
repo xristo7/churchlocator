@@ -26290,3 +26290,29 @@ html[data-theme="dark"] .daily-scripture {
   }
   .module-directory-hero { flex-direction: column; justify-content: flex-end; align-items: stretch; }
 }
+.church-city-options-status {
+  margin: 12px 0;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+.church-city-source {
+  display: block;
+  margin-top: 12px;
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+#church-city-option-search {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+#church-city-show-more[hidden] {
+  display: none;
+}
+
+.church-directory-reset {
+  display: flex;
+  margin: 0 0 16px auto;
+}

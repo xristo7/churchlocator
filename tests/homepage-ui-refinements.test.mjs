@@ -40,10 +40,11 @@ test("Homepage Refinements: Video hidden, image background active, equal buttons
 
   // 7. Homepage header navigation links: Churches, Events, Channels, Watch Live (About Us & Donation removed)
   const navSection = indexHtml.match(/<nav class="nav-links">[\s\S]*?<\/nav>/)?.[0] || "";
-  assert.match(navSection, /href="churches\.html">Churches<\/a>/, "Nav must have Churches");
-  assert.match(navSection, /href="events\.html">Events<\/a>/, "Nav must have Events");
-  assert.match(navSection, /href="channels\.html">Channels<\/a>/, "Nav must have Channels");
-  assert.match(navSection, /Watch Live<\/a>/, "Nav must have Watch Live");
+  const navLinks = [...navSection.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)]
+    .map(([, href, content]) => ({ href, label: content.replace(/<[^>]*>/g, "").trim() }));
+  for (const [href, label] of [["churches.html", "Churches"], ["events.html", "Events"], ["channels.html", "Channels"], ["livestream.html", "Watch Live"]]) {
+    assert.ok(navLinks.some(link => link.href === href && link.label === label), `Nav must link to ${label}`);
+  }
   assert.doesNotMatch(navSection, /About Us<\/a>/, "Nav must NOT have About Us link");
   assert.doesNotMatch(navSection, /href="donate\.html"/, "Homepage nav must not have Donation link");
 

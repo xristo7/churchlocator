@@ -122,6 +122,10 @@ test('meditation room comments persist, respect host moderation, and remain publ
  s.as('alice');
  const hostPost=await (await s.call('meditation-chat/'+room.id,'POST',{body:'Welcome to the room'})).json();
  assert.equal(hostPost.message.isHost,true);
+ // API calls can finish in the same millisecond; use distinct fixture times so
+ // this chronology assertion does not depend on randomly generated message IDs.
+ s.db.prepare('update meditation_chat_messages set created_at=? where id=?').run('2026-10-05T10:00:00.000Z',posted.message.id);
+ s.db.prepare('update meditation_chat_messages set created_at=? where id=?').run('2026-10-05T10:00:01.000Z',hostPost.message.id);
  s.as('viewer');
  const publicFeed=await (await s.call('meditation-chat/'+room.id)).json();
  assert.deepEqual(publicFeed.messages.map(message=>message.body),['A real reflection','Welcome to the room']);

@@ -28,9 +28,9 @@ function formValues(mod, record = {}) {
   return Object.fromEntries(mod.groups().flatMap(g => g.fields).map(f => [f.key, String(values[f.key] ?? (f.type === "select" ? (Array.isArray(f.options?.[0]) ? f.options[0][0] : f.options?.[0]) ?? "" : ""))]));
 }
 
-test("owner and creator share six modules, with products nested under stores", async () => {
+test("owner and creator share seven modules, with products nested under stores", async () => {
   const { MWEAdmin } = await setup();
-  assert.deepEqual(Object.keys(MWEAdmin.modules).filter(k => !MWEAdmin.modules[k].auxiliary).sort(), ["channels", "churches", "events", "meditation", "resources", "store"]);
+  assert.deepEqual(Object.keys(MWEAdmin.modules).filter(k => !MWEAdmin.modules[k].auxiliary).sort(), ["channels", "churches", "events", "meditation", "resources", "store", "testimonies"]);
   assert.equal(MWEAdmin.modules.products.auxiliary, true);
 });
 
