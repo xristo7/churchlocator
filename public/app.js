@@ -7517,6 +7517,13 @@ function initEventProfilePage() {
     if (blurImg) blurImg.src = src;
     const heroBlurBg = document.getElementById("event-profile-hero-blur-bg");
     if (heroBlurBg) heroBlurBg.src = src;
+    coverImg.onerror = () => {
+      coverImg.onerror = null;
+      const fallback = new URL("/assets/demo-event-worship-night.png", window.location.origin).href;
+      coverImg.src = fallback;
+      if (blurImg) blurImg.src = fallback;
+      if (heroBlurBg) heroBlurBg.src = fallback;
+    };
   }
 
   // Populate Overview Description
