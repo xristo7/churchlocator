@@ -2669,6 +2669,698 @@
       body[data-page="profile"] .testimony-scene { max-height: 190px; }
       body[data-page="profile"] .gathering-thumb-wrap { height: 160px; }
     }
+    /* Mixed-media church hero carousel */
+    .church-hero-showcase {
+      position: relative;
+      width: 100%;
+      height: 420px;
+      min-height: 420px;
+      margin-bottom: 22px;
+      overflow: hidden;
+      isolation: isolate;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 26px;
+      background: #07111f;
+      box-shadow: 0 22px 54px rgba(15, 23, 42, 0.22);
+    }
+
+    .church-hero-track,
+    .church-hero-slide { position: absolute; inset: 0; }
+
+    .church-hero-slide {
+      display: flex;
+      align-items: stretch;
+      overflow: hidden;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(1.018);
+      transition: opacity 620ms ease, transform 760ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 760ms;
+    }
+
+    .church-hero-slide.is-active {
+      z-index: 2;
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+      transition-delay: 0s;
+    }
+
+    .church-hero-image-layer {
+      position: absolute;
+      inset: 0;
+      background-image: var(--hero-image);
+      background-repeat: no-repeat;
+      background-position: center right;
+      background-size: cover;
+      transform: scale(1.02);
+      transition: transform 7s ease;
+    }
+
+    .church-hero-slide.is-active .church-hero-image-layer { transform: scale(1.075); }
+
+    .church-hero-slide--image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(3, 9, 18, .94) 0%, rgba(4, 12, 23, .84) 30%, rgba(5, 13, 24, .37) 60%, rgba(5, 13, 24, .06) 100%),
+        linear-gradient(0deg, rgba(2, 8, 15, .4), transparent 42%);
+      pointer-events: none;
+    }
+
+    .church-hero-video-shell {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+      background: #030914;
+    }
+
+    .church-hero-video-visual {
+      position: relative;
+      z-index: 0;
+      flex: 0 1 auto;
+      width: auto;
+      height: 100%;
+      max-width: 76%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: #000;
+      -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 75%, transparent 100%);
+      mask-image: linear-gradient(90deg, #000 0%, #000 75%, transparent 100%);
+    }
+
+    .church-hero-video-visual iframe,
+    .church-hero-video-visual video { width: 100%; height: 100%; display: block; border: 0; object-fit: cover; }
+
+    .church-hero-video-visual [hidden] { display: none !important; }
+    .church-hero-embed-preview { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: #080d16; }
+    .church-hero-embed-preview > img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .church-hero-embed-play {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 72px; height: 72px;
+      display: grid; place-items: center;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(255,255,255,.6);
+      border-radius: 50%;
+      background: rgba(7, 17, 31, .72);
+      color: #fff;
+      cursor: pointer;
+      transition: transform 180ms ease, background 180ms ease;
+    }
+    .church-hero-embed-play:hover { transform: translate(-50%, -50%) scale(1.08); background: rgba(7, 17, 31, .92); }
+    .church-hero-embed-play svg { width: 28px; height: 28px; fill: currentColor; }
+    .church-hero-embed-link {
+      position: absolute;
+      z-index: 2;
+      top: 18px; left: 18px;
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 999px;
+      background: rgba(5,12,23,.7);
+      color: #fff;
+      font-size: .76rem; font-weight: 750;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+    }
+    .church-hero-embed-link svg { width: 14px; height: 14px; }
+
+    .church-hero-video-shell::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, transparent 42%, rgba(3, 9, 20, .34) 64%, rgba(3, 9, 20, .97) 88%);
+      pointer-events: none;
+    }
+
+    .church-hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(2, 6, 15, .08), transparent 45%, rgba(2, 6, 15, .2));
+    }
+
+    .church-hero-content-bottom-left {
+      position: relative;
+      z-index: 3;
+      align-self: center;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: min(58%, 720px);
+      margin: 0 auto 0 0;
+      padding: 32px 42px 96px;
+      color: #fff;
+    }
+
+    .church-hero-slide--media-left .church-hero-content-bottom-left {
+      margin: 0 0 0 auto;
+      padding-left: 36px;
+      padding-right: 56px;
+      align-items: flex-end;
+      text-align: right;
+    }
+
+    .church-hero-slide--media-right .church-hero-content-bottom-left {
+      margin: 0 auto 0 0;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .church-hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 10px;
+      color: #fbbf24;
+      font-size: .72rem;
+      font-weight: 850;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .church-hero-kicker::before { content: ""; width: 24px; height: 1px; background: currentColor; }
+
+    .church-hero-name {
+      max-width: 620px;
+      margin: 0;
+      color: #fff;
+      font-size: clamp(1.9rem, 3.8vw, 3.8rem);
+      font-weight: 850;
+      line-height: .98;
+      letter-spacing: -.055em;
+      text-wrap: balance;
+      text-shadow: 0 3px 18px rgba(0, 0, 0, .38);
+    }
+
+    .church-hero-desc {
+      max-width: 600px;
+      margin: 14px 0 0;
+      color: rgba(255, 255, 255, .85);
+      font-size: clamp(.9rem, 1.15vw, 1.02rem);
+      line-height: 1.5;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, .4);
+    }
+
+    .church-hero-slide--media-left .church-hero-name,
+    .church-hero-slide--media-left .church-hero-desc { margin-left: auto; }
+
+    .church-hero-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 43px;
+      margin-top: 16px;
+      padding: 0 18px;
+      border: 1px solid rgba(255, 255, 255, .32);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .12);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      font-size: .82rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 180ms ease, transform 180ms ease;
+    }
+
+    .church-hero-action:hover { background: rgba(255, 255, 255, .22); transform: translateY(-2px); }
+    .church-hero-action svg { width: 16px; height: 16px; }
+
+    .church-hero-controls {
+      position: absolute;
+      right: 28px;
+      bottom: 24px;
+      left: 28px;
+      z-index: 8;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 18px;
+      pointer-events: none;
+    }
+
+    .church-hero-nav { display: flex; gap: 8px; pointer-events: auto; }
+    .church-hero-nav button,
+    .church-hero-mobile-toggle {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .24);
+      border-radius: 50%;
+      background: rgba(5, 12, 23, .5);
+      backdrop-filter: blur(14px);
+      color: #fff;
+      cursor: pointer;
+    }
+    .church-hero-nav svg,
+    .church-hero-mobile-toggle svg { width: 17px; height: 17px; }
+
+    .church-hero-dots { display: flex; justify-content: center; align-items: center; gap: 8px; pointer-events: auto; }
+    .church-hero-dot { display: block; width: 7px; min-width: 0 !important; height: 7px; min-height: 0 !important; padding: 0; border: 0; border-radius: 999px; background: rgba(255,255,255,.42); cursor: pointer; transition: width 220ms ease, background 220ms ease; }
+    .church-hero-dot.is-active { width: 28px; background: #fbbf24; }
+    .church-hero-count { color: rgba(255,255,255,.72); font-size: .72rem; font-weight: 800; letter-spacing: .12em; }
+    .church-hero-mobile-toggle { display: none; }
+
+
+    .gathering-desc {
+      font-size: 0.84rem;
+      color: var(--text-secondary, #64748b);
+      line-height: 1.55;
+      margin: 0 0 16px 0;
+    }
+    .gathering-card-footer {
+      padding: 0 20px 20px;
+      margin-top: auto;
+    }
+    .gathering-cal-btn {
+      width: 100%;
+      height: 42px;
+      border-radius: 12px;
+      border: 1.5px solid var(--primary-border, rgba(236, 72, 153, 0.3));
+      background: var(--primary-surface, rgba(236, 72, 153, 0.06));
+      color: var(--primary, #db2777);
+      font-size: 0.82rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .gathering-cal-btn svg,
+    .gathering-cal-btn i {
+      width: 15px;
+      height: 15px;
+      color: var(--primary, #db2777);
+    }
+    .gathering-cal-btn:hover {
+      background: var(--primary, #db2777);
+      color: #ffffff;
+      border-color: var(--primary, #db2777);
+      box-shadow: 0 4px 14px var(--primary-glow, rgba(236, 72, 153, 0.3));
+      transform: translateY(-1px);
+    }
+    .gathering-cal-btn:hover svg,
+    .gathering-cal-btn:hover i {
+      color: #ffffff;
+    }
+
+    /* Church Photo Slide Gallery */
+    .church-gallery-section {
+      margin-top: 32px;
+      margin-bottom: 50px !important;
+      position: relative;
+    }
+    .church-gallery-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 16px;
+    }
+    .church-gallery-kicker {
+      display: block;
+      color: var(--primary, #db2777);
+      font-size: 0.72rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+    .church-gallery-title {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 850;
+      color: var(--ai-navy, #0f172a);
+      letter-spacing: -0.01em;
+    }
+    .church-gallery-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .church-gallery-arrow-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--ai-border, #e2e8f0);
+      background: #ffffff;
+      color: var(--ai-navy, #0f172a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .church-gallery-arrow-btn:hover {
+      background: #f8fafc;
+      border-color: var(--primary, #db2777);
+      color: var(--primary, #db2777);
+      transform: translateY(-1px);
+    }
+    .church-gallery-arrow-btn svg,
+    .church-gallery-arrow-btn i {
+      width: 16px;
+      height: 16px;
+    }
+    .church-gallery-track-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+    .church-gallery-track {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding: 4px 2px 14px;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .church-gallery-track::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+    .church-gallery-card {
+      flex: 0 0 240px;
+      min-width: 210px;
+      max-width: 270px;
+      scroll-snap-align: start;
+      aspect-ratio: 4 / 3;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      user-select: none;
+    }
+    .church-gallery-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+    }
+    .church-gallery-thumb-wrap {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    .church-gallery-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+      display: block;
+    }
+    .church-gallery-card:hover .church-gallery-thumb {
+      transform: scale(1.06);
+    }
+    .church-gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.2) 50%, rgba(0, 0, 0, 0.02) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      opacity: 0.95;
+      transition: opacity 0.25s ease;
+    }
+    .gallery-zoom-badge {
+      align-self: flex-end;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .gallery-zoom-badge svg,
+    .gallery-zoom-badge i {
+      width: 14px;
+      height: 14px;
+    }
+    .church-gallery-card:hover .gallery-zoom-badge {
+      background: var(--primary, #db2777);
+      border-color: var(--primary, #db2777);
+      transform: scale(1.1);
+    }
+    .gallery-overlay-tag {
+      display: inline-block;
+      color: #fbbf24;
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 2px;
+    }
+    .gallery-overlay-title {
+      margin: 0;
+      color: #ffffff;
+      font-size: 0.88rem;
+      font-weight: 800;
+      line-height: 1.25;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* Lightbox Modal & Popup Navigation Arrows */
+    .church-lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .church-lightbox-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(7, 12, 28, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .church-lightbox-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 24px;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+    .church-lightbox-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-bottom: 12px;
+      pointer-events: auto;
+    }
+    .church-lightbox-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .church-lightbox-counter {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 750;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      letter-spacing: 0.03em;
+    }
+    .church-lightbox-church-name {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .church-lightbox-close-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .church-lightbox-close-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+      transform: scale(1.06);
+    }
+    .church-lightbox-close-btn svg,
+    .church-lightbox-close-btn i {
+      width: 20px;
+      height: 20px;
+    }
+    .church-lightbox-stage {
+      position: relative;
+      flex: 1 1 auto;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      pointer-events: auto;
+    }
+    .church-lightbox-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    }
+    .church-lightbox-nav-btn.lightbox-popup-prev {
+      left: 14px;
+    }
+    .church-lightbox-nav-btn.lightbox-popup-next {
+      right: 14px;
+    }
+    .church-lightbox-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 6px 24px rgba(255, 255, 255, 0.25);
+    }
+    .church-lightbox-nav-btn svg,
+    .church-lightbox-nav-btn i {
+      width: 28px;
+      height: 28px;
+      color: #ffffff;
+    }
+    .church-lightbox-figure-wrap {
+      position: relative;
+      max-width: min(920px, 86vw);
+      max-height: calc(82vh - 60px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .church-lightbox-img {
+      max-width: 100%;
+      max-height: calc(75vh - 70px);
+      object-fit: contain;
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      transition: opacity 0.25s ease;
+    }
+    .church-lightbox-caption-bar {
+      margin-top: 14px;
+      text-align: center;
+      max-width: 680px;
+    }
+    .church-lightbox-caption-title {
+      margin: 0;
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+    .church-lightbox-caption-desc {
+      margin: 4px 0 0;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    /* Dark Mode Overrides for Church Gallery */
+    html[data-theme="dark"] .church-gallery-title {
+      color: #f1f5f9;
+    }
+    html[data-theme="dark"] .church-gallery-arrow-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+    }
+    html[data-theme="dark"] .church-gallery-arrow-btn:hover {
+      background: rgba(51, 65, 85, 0.9);
+      border-color: var(--primary, #db2777);
+      color: var(--primary, #db2777);
+    }
+    html[data-theme="dark"] .church-gallery-card {
+      border-color: rgba(255, 255, 255, 0.08);
+      background: rgba(30, 41, 59, 0.7);
+    }
+
+    @media (max-width: 640px) {
+      .church-gallery-card {
+        flex: 0 0 190px;
+        min-width: 175px;
+      }
+      .church-lightbox-content {
+        padding: 12px;
+      }
+      .church-lightbox-nav-btn {
+        width: 44px;
+        height: 44px;
+      }
+      .church-lightbox-nav-btn svg,
+      .church-lightbox-nav-btn i {
+        width: 22px;
+        height: 22px;
+      }
+      .church-lightbox-nav-btn.lightbox-popup-prev {
+        left: 6px;
+      }
+      .church-lightbox-nav-btn.lightbox-popup-next {
+        right: 6px;
+      }
+    }
+
+
+    @media (max-width: 980px) { .church-hero-showcase { height: 420px; min-height: 420px; } }
+    @media (max-width: 720px) {
+      .church-hero-showcase { height: min(58svh, 420px); min-height: 320px; }
+      .church-hero-content-bottom-left { width: 100%; padding: 22px 26px 82px; }
+      .church-hero-name { font-size: 1.45rem; }
+      .church-hero-desc { margin-top: 10px; font-size: .84rem; line-height: 1.4; }
+      .church-hero-action { margin-top: 12px; }
+      .church-hero-controls { right: 16px; bottom: 16px; left: 16px; gap: 10px; }
+    }
   </style>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body data-page="profile">
@@ -2722,20 +3414,18 @@
 
   <main>
     <div class="container">
-      <!-- Large Hero Media Showcase Area (Full-width spanning above tabs and sidebar) -->
-      <section class="church-hero-showcase" id="church-hero-showcase" data-profile-hero>
+      <!-- Creator-configured mixed-media hero carousel -->
+      <section class="church-hero-showcase" id="church-hero-showcase" data-profile-hero aria-label="Church introduction" aria-roledescription="carousel" tabindex="0">
+        <div class="church-hero-track" id="church-hero-track" aria-live="polite"><article class="church-hero-slide church-hero-slide--image church-hero-slide--media-right is-active" data-hero-slide="0" data-hero-kind="image" aria-roledescription="slide" aria-label="1 of 1" aria-hidden="false"><div class="church-hero-image-layer" style="--hero-image:url(&quot;assets/hero-global-church.png&quot;)"></div><div class="church-hero-content-bottom-left"><span class="church-hero-kicker">About us</span><h1 class="church-hero-name" data-church-name>Welcome to our church</h1><p class="church-hero-desc" data-church-tagline>Join our welcoming community to grow in faith through worship, biblical teaching, prayer, friendship, service, and outreach. Discover weekly gatherings and ways to connect, grow, and take part in our church.</p><a class="church-hero-action" href="#tab-pane-overview">Explore our church</a></div></article></div>
         <div class="church-hero-overlay"></div>
-        <div class="church-hero-content-bottom-left">
-          <!-- Interactive Play Button Hovering Over Thumbnail, directly above description -->
-          <button type="button" class="church-hero-play-trigger" id="church-hero-play-trigger" aria-label="Play church welcome video or audio message" onclick="MWE.playChurchMainMedia()">
-            <span class="church-hero-play-pulse"></span>
-            <span class="church-hero-play-circle">
-              <i data-lucide="play"></i>
-            </span>
-            <span class="church-hero-play-text">Play Welcome Message</span>
-          </button>
-          <h1 class="church-hero-name" data-church-name>Church &amp; Fellowship Profile</h1>
-          <p class="church-hero-desc" data-church-tagline>Welcome to our community fellowship profile. We would love to meet you, connect with your life journey, experience inspiring worship together, and partner with your family in faith, discipleship, and prayer.</p>
+        <div class="church-hero-controls" id="church-hero-controls">
+          <div class="church-hero-nav">
+            <button type="button" aria-label="Previous hero slide" onclick="MWE.stepChurchHero(-1)"><i data-lucide="arrow-left"></i></button>
+            <button type="button" aria-label="Next hero slide" onclick="MWE.stepChurchHero(1)"><i data-lucide="arrow-right"></i></button>
+          </div>
+          <div class="church-hero-dots" id="church-hero-dots" aria-label="Choose a hero slide"></div>
+          <span class="church-hero-count" id="church-hero-count">01 / 01</span>
+          <button type="button" class="church-hero-mobile-toggle" id="church-hero-mobile-toggle" aria-expanded="false" aria-label="Show slide description" onclick="MWE.toggleChurchHeroDetails()"><i data-lucide="chevron-down"></i></button>
         </div>
       </section>
 
@@ -3343,7 +4033,7 @@
   </div>
 
   <!-- Import core platform application script -->
-  <script defer src="platform-client.js?v=20260915trusted1"></script><script src="app.js?v=20260916livestreamfinal1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20261007carousel1"></script><script src="app.js?v=20261007ytpreview1"></script><script defer src="auth-client.js?v=20260915security1"></script>
 
 </body>
 </html>

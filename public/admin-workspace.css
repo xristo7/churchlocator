@@ -8,6 +8,19 @@
 .admin-workspace button { cursor:pointer; }
 .admin-workspace :focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
 .admin-workspace svg { width:18px; height:18px; flex-shrink:0; }
+.admin-workspace .aw-hero-editor { grid-column:1/-1; display:grid; gap:11px; }
+.admin-workspace .aw-hero-intro { color:var(--text-muted); font-size:12px; font-weight:400; }
+.admin-workspace .aw-hero-list { display:grid; gap:10px; }
+.admin-workspace .aw-hero-slide { border:1px solid var(--border); border-radius:10px; padding:13px; display:grid; gap:12px; background:var(--surface); }
+.admin-workspace .aw-hero-slide header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.admin-workspace .aw-hero-slide header strong { font-size:13px; }
+.admin-workspace .aw-hero-actions,.admin-workspace .aw-hero-add-actions { display:flex; flex-wrap:wrap; align-items:center; gap:7px; }
+.admin-workspace .aw-hero-actions button { border:1px solid var(--border); border-radius:6px; padding:5px 8px; background:var(--background); color:var(--text-primary); font-size:11px; }
+.admin-workspace .aw-hero-actions button:disabled,.admin-workspace .aw-hero-add-actions button:disabled { opacity:.45; cursor:not-allowed; }
+.admin-workspace .aw-hero-slide label { display:grid; gap:5px; color:var(--text-secondary); font-size:11px; }
+.admin-workspace .aw-hero-slide input { width:100%; min-width:0; border:1px solid var(--border); border-radius:6px; padding:9px; background:var(--background); color:var(--text-primary); }
+.admin-workspace .aw-hero-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+@media(max-width:640px) { .admin-workspace .aw-hero-slide header { align-items:flex-start; flex-direction:column; } .admin-workspace .aw-hero-fields { grid-template-columns:1fr; } }
 .admin-workspace h1,.admin-workspace h2,.admin-workspace h3,.admin-workspace p { margin:0; }
 .admin-workspace .aw-shell { display:grid; grid-template-columns:240px minmax(0,1fr); min-height:100vh; }
 .admin-workspace .aw-sidebar { background:var(--surface); border-right:1px solid var(--border); position:sticky; top:0; height:100vh; padding:30px 18px 20px; display:flex; flex-direction:column; overflow:auto; z-index:30; }

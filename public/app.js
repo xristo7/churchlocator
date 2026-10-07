@@ -811,7 +811,9 @@ const MWE = (() => {
       pastor: church.pastor || "Pastoral Team",
       pastorTitle: church.pastorTitle || "Church Leadership",
       pastorBio: church.pastorBio || "A welcoming church leadership team ready to help visitors connect.",
-      welcomeMedia: church.welcomeMedia || "https://www.youtube.com/embed/jiSyB8QZzk8",
+      welcomeMedia: church.welcomeMedia || "",
+      heroOrder: Array.isArray(church.heroOrder) ? church.heroOrder.filter(key => typeof key === "string").slice(0, 10) : [],
+      gallery: Array.isArray(church.gallery) ? church.gallery.slice(0, 8).map(item => typeof item === "string" ? { src: item } : ({ id: item?.id || "", src: item?.src || "", title: item?.title || "", caption: item?.caption || "", tag: item?.tag || "" })) : [],
       tagline: church.tagline || "A welcoming Christ-centered community dedicated to vibrant worship, biblical teaching, loving discipleship, and joining together in corporate prayer to impact our city and nurture families.",
       about: church.about || church.description || "This church profile is ready for more details from the church team.",
       ministries,
@@ -2763,6 +2765,302 @@ MWE.formatHeroDescription = function(church) {
   return "Welcome to our community fellowship profile. We would love to meet you, connect with your life journey, experience inspiring worship together, and partner with your family in faith, discipleship, and prayer.";
 };
 
+MWE.churchHeroState = { index: 0, slides: [], timer: null };
+
+MWE.getChurchHeroVideo = function(church) {
+  const raw = String(church?.welcomeMedia || church?.videoUrl || church?.video || "").trim();
+  if (!raw || /\.mp3(?:$|\?)/i.test(raw) || church?.mediaType === "audio") return null;
+
+  try {
+    const url = new URL(raw, window.location.href);
+    const direct = /\.(mp4|webm|ogg)(?:$|\?)/i.test(url.pathname + url.search);
+    if (direct) {
+      const src = MWE.safeImageUrl(url.href, "");
+      return src ? { type: "native", src } : null;
+    }
+
+    if (["youtube.com", "www.youtube.com", "m.youtube.com", "youtube-nocookie.com", "www.youtube-nocookie.com", "youtu.be"].includes(url.hostname)) {
+      let id = "";
+      if (url.hostname === "youtu.be") id = url.pathname.split("/").filter(Boolean)[0] || "";
+      else if (url.pathname.startsWith("/embed/")) id = url.pathname.split("/")[2] || "";
+      else id = url.searchParams.get("v") || "";
+      if (!/^[a-zA-Z0-9_-]{6,20}$/.test(id)) return null;
+      if (id) url.href = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}`;
+      url.hostname = "www.youtube-nocookie.com";
+      url.searchParams.set("autoplay", "0");
+      url.searchParams.set("playsinline", "1");
+      url.searchParams.set("controls", "1");
+      url.searchParams.set("rel", "0");
+      url.searchParams.set("modestbranding", "1");
+      url.searchParams.set("iv_load_policy", "3");
+      const src = MWE.safeEmbedUrl(url.href);
+      return src !== "about:blank" ? {
+        type: "embed",
+        provider: "youtube",
+        src,
+        preview: `https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefault.jpg`,
+        watchUrl: `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`
+      } : null;
+    } else if (["vimeo.com", "www.vimeo.com"].includes(url.hostname)) {
+      const videoId = url.pathname.split("/").filter(Boolean).find(part => /^\d+$/.test(part));
+      if (!videoId) return null;
+      url.hostname = "player.vimeo.com";
+      url.pathname = `/video/${videoId}`;
+      url.search = "";
+    }
+
+    if (url.hostname === "player.vimeo.com") {
+      url.searchParams.set("autoplay", "1");
+      url.searchParams.set("muted", "1");
+      url.searchParams.set("playsinline", "1");
+    }
+
+    const src = MWE.safeEmbedUrl(url.href);
+    return src !== "about:blank" ? { type: "embed", src } : null;
+  } catch {
+    return null;
+  }
+};
+
+MWE.getChurchHeroSlides = function(church) {
+  const cover = MWE.safeImageUrl(church.photo || church.coverImage || church.image, "assets/hero-global-church.png");
+  const gallery = (Array.isArray(church.gallery) ? church.gallery : [])
+    .map((item, index) => ({
+      type: "image",
+      src: MWE.safeImageUrl(item?.src || item, ""),
+      title: item?.title || `${church.name} community`,
+      description: item?.caption || item?.description || MWE.formatHeroDescription(church),
+      kicker: item?.tag || "Church life",
+      key: `gallery:${String(item?.id || `gallery-${index + 1}`).replace(/[^a-z0-9_-]/gi, "-")}`
+    }))
+    .filter(item => item.src && item.src !== cover)
+    .slice(0, 8);
+  const video = MWE.getChurchHeroVideo(church);
+  const defaultSlides = [
+    {
+      type: "image",
+      src: cover,
+      title: church.name,
+      description: MWE.formatHeroDescription(church),
+      kicker: "About us",
+      key: "cover"
+    },
+    ...(video ? [{
+      type: "video",
+      video,
+      title: church.name,
+      description: church.pastorBio || church.about || MWE.formatHeroDescription(church),
+      kicker: "Welcome film",
+      key: "video"
+    }] : []),
+    ...gallery
+  ];
+  const byKey = new Map(defaultSlides.map(slide => [slide.key, slide]));
+  const requestedOrder = Array.isArray(church.heroOrder) ? church.heroOrder : [];
+  const ordered = requestedOrder.map(key => byKey.get(String(key))).filter(Boolean);
+  defaultSlides.forEach(slide => {
+    if (!ordered.includes(slide)) ordered.push(slide);
+  });
+  return ordered;
+};
+
+MWE.renderChurchHero = function(church) {
+  const root = document.getElementById("church-hero-showcase");
+  const track = document.getElementById("church-hero-track");
+  const dots = document.getElementById("church-hero-dots");
+  if (!root || !track || !dots) return;
+
+  clearTimeout(MWE.churchHeroState.timer);
+  const slides = MWE.getChurchHeroSlides(church);
+
+  MWE.churchHeroState = { index: 0, slides, timer: null };
+  track.innerHTML = slides.map((slide, index) => {
+    const copy = `
+      <div class="church-hero-content-bottom-left">
+        <span class="church-hero-kicker">${MWE.escapeHtml(slide.kicker)}</span>
+        <h${index === 0 ? "1" : "2"} class="church-hero-name"${index === 0 ? " data-church-name" : ""}>${MWE.escapeHtml(slide.title)}</h${index === 0 ? "1" : "2"}>
+        <p class="church-hero-desc"${index === 0 ? " data-church-tagline" : ""}>${MWE.escapeHtml(slide.description)}</p>
+        ${slide.type === "image" ? `<button type="button" class="church-hero-action" onclick="MWE.openChurchHeroAbout()">Explore our church <i data-lucide="arrow-down-right"></i></button>` : ""}
+      </div>`;
+
+    if (slide.type === "video") {
+      const media = slide.video.type === "native"
+        ? `<video data-hero-video data-src="${MWE.escapeHtml(slide.video.src)}" muted loop playsinline controls preload="metadata" aria-label="${MWE.escapeHtml(church.name)} welcome video"></video>`
+        : slide.video.provider === "youtube"
+          ? `<div class="church-hero-embed-preview" data-hero-embed-preview><img src="${MWE.escapeHtml(slide.video.preview)}" alt="" loading="eager"><button type="button" class="church-hero-embed-play" aria-label="Play ${MWE.escapeHtml(church.name)} welcome video" onclick="MWE.playChurchHeroEmbed(this)"><i data-lucide="play"></i></button></div><a class="church-hero-embed-link" href="${MWE.escapeHtml(slide.video.watchUrl)}" target="_blank" rel="noopener noreferrer">Watch on YouTube <i data-lucide="external-link"></i></a><iframe data-hero-video data-defer-until-play="true" data-src="${MWE.escapeHtml(slide.video.src)}" title="${MWE.escapeHtml(church.name)} welcome video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen hidden></iframe>`
+          : `<iframe data-hero-video data-src="${MWE.escapeHtml(slide.video.src)}" title="${MWE.escapeHtml(church.name)} welcome video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+      return `<article class="church-hero-slide church-hero-slide--video church-hero-slide--media-left" data-hero-slide="${index}" data-hero-kind="video" aria-roledescription="slide" aria-label="${index + 1} of ${slides.length}" aria-hidden="true"><div class="church-hero-video-shell"><div class="church-hero-video-visual">${media}</div></div>${copy}</article>`;
+    }
+
+    return `<article class="church-hero-slide church-hero-slide--image church-hero-slide--media-right${index === 0 ? " is-active" : ""}" data-hero-slide="${index}" data-hero-kind="image" aria-roledescription="slide" aria-label="${index + 1} of ${slides.length}" aria-hidden="${index === 0 ? "false" : "true"}"><div class="church-hero-image-layer" style="--hero-image:url(&quot;${MWE.escapeHtml(slide.src)}&quot;)"></div>${copy}</article>`;
+  }).join("");
+
+  dots.innerHTML = slides.map((slide, index) => `<button type="button" class="church-hero-dot${index === 0 ? " is-active" : ""}" aria-label="Show slide ${index + 1}: ${MWE.escapeHtml(slide.title)}" aria-current="${index === 0 ? "true" : "false"}" onclick="MWE.setChurchHeroSlide(${index}, true)"></button>`).join("");
+  document.getElementById("church-hero-controls")?.toggleAttribute("hidden", slides.length < 2);
+
+  if (!root.dataset.heroBound) {
+    root.dataset.heroBound = "true";
+    root.addEventListener("mouseenter", () => clearTimeout(MWE.churchHeroState.timer));
+    root.addEventListener("mouseleave", () => MWE.scheduleChurchHero());
+    root.addEventListener("focusin", () => clearTimeout(MWE.churchHeroState.timer));
+    root.addEventListener("focusout", event => {
+      if (!root.contains(event.relatedTarget)) MWE.scheduleChurchHero();
+    });
+    root.addEventListener("keydown", event => {
+      if (event.key === "ArrowLeft") MWE.stepChurchHero(-1);
+      if (event.key === "ArrowRight") MWE.stepChurchHero(1);
+    });
+  }
+
+  MWE.setChurchHeroSlide(0, false);
+  if (window.lucide) window.lucide.createIcons();
+};
+
+MWE.scheduleChurchHero = function() {
+  clearTimeout(MWE.churchHeroState.timer);
+  if (MWE.churchHeroState.slides.length < 2 || document.hidden) return;
+  const root = document.getElementById("church-hero-showcase");
+  const active = root?.querySelector(".church-hero-slide.is-active");
+  if (active?.classList.contains("details-open")) return;
+  if (active?.querySelector('iframe[data-hero-video][src]')) return;
+  const delay = active?.dataset.heroKind === "video" ? 12000 : 7000;
+  MWE.churchHeroState.timer = setTimeout(() => MWE.stepChurchHero(1), delay);
+};
+
+MWE.setChurchHeroSlide = function(index, userInitiated = false) {
+  const root = document.getElementById("church-hero-showcase");
+  const slides = [...(root?.querySelectorAll("[data-hero-slide]") || [])];
+  if (!root || !slides.length) return;
+  const next = (Number(index) + slides.length) % slides.length;
+  MWE.churchHeroState.index = next;
+
+  slides.forEach((slide, position) => {
+    const active = position === next;
+    slide.classList.toggle("is-active", active);
+    slide.classList.remove("details-open");
+    slide.setAttribute("aria-hidden", String(!active));
+    const media = slide.querySelector("[data-hero-video]");
+    if (media) {
+      if (active) {
+        if (!media.src && !media.dataset.deferUntilPlay) media.src = media.dataset.src || "";
+        if (media.tagName === "VIDEO") media.play().catch(() => {});
+      } else {
+        if (media.tagName === "VIDEO") media.pause();
+        media.removeAttribute("src");
+        if (media.tagName === "VIDEO") media.load();
+        const preview = slide.querySelector("[data-hero-embed-preview]");
+        if (preview) preview.hidden = false;
+        if (media.dataset.deferUntilPlay) media.hidden = true;
+      }
+    }
+  });
+
+  root.classList.toggle("is-video-active", slides[next]?.dataset.heroKind === "video");
+  root.querySelectorAll(".church-hero-dot").forEach((dot, position) => {
+    dot.classList.toggle("is-active", position === next);
+    dot.setAttribute("aria-current", String(position === next));
+  });
+  const count = document.getElementById("church-hero-count");
+  if (count) count.textContent = `${String(next + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+  const toggle = document.getElementById("church-hero-mobile-toggle");
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "Show slide description");
+    toggle.innerHTML = '<i data-lucide="chevron-down"></i>';
+  }
+  if (userInitiated) root.focus({ preventScroll: true });
+  if (window.lucide) window.lucide.createIcons();
+  MWE.scheduleChurchHero();
+};
+
+MWE.stepChurchHero = function(direction) {
+  MWE.setChurchHeroSlide(MWE.churchHeroState.index + Number(direction || 1), true);
+};
+
+MWE.playChurchHeroEmbed = function(button) {
+  const slide = button?.closest("[data-hero-slide]");
+  const media = slide?.querySelector("iframe[data-hero-video][data-defer-until-play]");
+  const preview = slide?.querySelector("[data-hero-embed-preview]");
+  if (!media || !preview || !slide.classList.contains("is-active")) return;
+  try {
+    const src = new URL(media.dataset.src);
+    clearTimeout(MWE.churchHeroState.timer);
+    src.searchParams.set("autoplay", "1");
+    media.src = src.href;
+    media.hidden = false;
+    preview.hidden = true;
+  } catch {}
+};
+
+MWE.toggleChurchHeroDetails = function() {
+  const slide = document.querySelector(".church-hero-slide.is-active");
+  const toggle = document.getElementById("church-hero-mobile-toggle");
+  if (!slide || !toggle || slide.dataset.heroKind === "video") return;
+  const expanded = slide.classList.toggle("details-open");
+  toggle.setAttribute("aria-expanded", String(expanded));
+  toggle.setAttribute("aria-label", expanded ? "Show slide title" : "Show slide description");
+  toggle.innerHTML = `<i data-lucide="${expanded ? "chevron-up" : "chevron-down"}"></i>`;
+  if (window.lucide) window.lucide.createIcons();
+  if (expanded) clearTimeout(MWE.churchHeroState.timer);
+  else MWE.scheduleChurchHero();
+};
+
+MWE.openChurchHeroAbout = function() {
+  MWE.switchProfileTab?.("overview");
+  document.getElementById("tab-pane-overview")?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+MWE.getChurchScheduleItems = function(church) {
+  if (Array.isArray(church?.schedule) && church.schedule.length) return church.schedule;
+  return church?.sunday ? [{ id:"primary-service", title:"Sunday Service", time:church.sunday, description:"", location:church.location||"", image:church.photo||"" }] : [];
+};
+
+MWE.renderChurchSchedule = function(church) {
+  const container=document.getElementById("profile-schedules-grid");
+  if(!container) return;
+  const items=MWE.getChurchScheduleItems(church);
+  container.innerHTML=items.length?items.map((item,index)=>{
+    const image=MWE.safeImageUrl(item.image||church.photo, MWE.defaultImage);
+    return `<article class="gathering-modern-card"><div class="gathering-thumb-wrap"><img src="${MWE.escapeHtml(image)}" alt="${MWE.escapeHtml(item.title)}" class="gathering-thumb" referrerpolicy="no-referrer" /><div class="gathering-time-pill"><i data-lucide="clock"></i> <span>${MWE.escapeHtml(item.time||"Time to be announced")}</span></div></div><div class="gathering-card-body"><div class="gathering-title-row"><h4 class="gathering-title">${MWE.escapeHtml(item.title)}</h4></div>${item.description?`<p class="gathering-desc">${MWE.escapeHtml(item.description)}</p>`:""}</div><div class="gathering-card-footer"><button type="button" class="gathering-cal-btn" data-schedule-calendar="${index}"><i data-lucide="calendar-plus"></i> Add to Calendar</button></div></article>`;
+  }).join(""):`<div class="profile-content-empty"><i data-lucide="calendar-clock"></i><strong>No gathering times published yet</strong><span>The church team can add weekly gatherings in Studio.</span></div>`;
+  container.querySelectorAll("[data-schedule-calendar]").forEach(button=>button.addEventListener("click",()=>{const item=items[Number(button.dataset.scheduleCalendar)];if(item)MWE.openCalendarModal(item.title,item.time,item.location||church.location);}));
+  const next=items[0];
+  const nextServicePanel=document.querySelector(".profile-next-service");
+  if(nextServicePanel) nextServicePanel.hidden=!next;
+  const setText=(selector,value)=>document.querySelectorAll(selector).forEach(element=>{element.textContent=value||"";});
+  setText("[data-profile-next-title]",next?.title||"");
+  setText("[data-profile-next-time]",next?.time||"");
+  setText("[data-profile-next-location]",next?.location||church.location||"");
+  setText("[data-profile-next-description]",next?.description||"");
+  const calendar=document.getElementById("profile-next-calendar");
+  if(calendar){calendar.hidden=!next;calendar.onclick=next?()=>MWE.openCalendarModal(next.title,next.time,next.location||church.location):null;}
+  if(window.lucide)window.lucide.createIcons();
+};
+
+MWE.renderChurchTestimonials = function(church) {
+  const grid=document.getElementById("profile-testimonials-grid");
+  const section=grid?.closest(".stories-section");
+  if(!grid||!section) return;
+  const stories=Array.isArray(church.testimonies)?church.testimonies.filter(item=>item.quote):[];
+  section.hidden=!stories.length;
+  if(!stories.length){grid.innerHTML="";return;}
+  grid.innerHTML=stories.slice(0,2).map(story=>`<article class="glass-card testimony-card${story.photo?"":" testimony-card--text-only"}">${story.photo?`<img class="testimony-scene" src="${MWE.escapeHtml(MWE.safeImageUrl(story.photo,""))}" alt="${MWE.escapeHtml(story.name||"Church member")}" referrerpolicy="no-referrer" />`:""}<div class="testimony-content"><div class="testimony-stars"><i data-lucide="quote"></i></div><p class="testimony-text">“${MWE.escapeHtml(story.quote)}”</p><div class="testimony-user"><div class="testimony-user-info"><h4>${MWE.escapeHtml(story.name||"Church member")}</h4>${story.tenure?`<span>${MWE.escapeHtml(story.tenure)}</span>`:""}</div></div></div></article>`).join("");
+  const more=section.querySelector(".btn-more-stories");if(more)more.hidden=stories.length<=2;
+  if(window.lucide)window.lucide.createIcons();
+};
+
+MWE.renderChurchCreatorDetails = function(church) {
+  const ministries=document.getElementById("profile-ministries");
+  if(ministries) ministries.innerHTML=(church.ministries||[]).map(item=>`<span>${MWE.escapeHtml(item)}</span>`).join("");
+  const story=document.getElementById("profile-church-story");
+  if(story){const items=[["Our history",church.history],["Vision",church.vision],["Mission",church.mission],["What we believe",church.statementOfFaith]].filter(([,text])=>text);story.hidden=!items.length;story.innerHTML=items.map(([label,text])=>`<article class="profile-story-card"><span>${MWE.escapeHtml(label)}</span><p>${MWE.escapeHtml(text)}</p></article>`).join("");}
+  const notes=document.getElementById("profile-visitor-notes");
+  if(notes){const items=[["Your first visit",church.firstVisit],["Parking",church.parkingInformation],["Children & family",church.childrenInformation]].filter(([,text])=>text);notes.innerHTML=items.map(([label,text])=>`<article class="profile-visitor-note"><strong>${MWE.escapeHtml(label)}</strong><p>${MWE.escapeHtml(text)}</p></article>`).join("");notes.hidden=!items.length;}
+  const firstVisit=document.querySelector("[data-profile-first-visit]");
+  if(firstVisit){firstVisit.textContent=church.firstVisit||"";firstVisit.hidden=!church.firstVisit;}
+};
+
+
 function renderProfile(church) {
   if (!church) return;
   document.title = `${church.name} | My Way of Evangelism`;
@@ -2791,12 +3089,7 @@ function renderProfile(church) {
     leaderPhoto.src = MWE.safeImageUrl(church.pastorPhoto, defaultPastorPhoto);
     leaderPhoto.referrerPolicy = "no-referrer";
   }
-  const heroShowcase = document.getElementById("church-hero-showcase") || document.querySelector("[data-profile-hero]");
-  const churchBg = MWE.safeImageUrl(church.photo || church.coverImage || church.image, "assets/hero-global-church.png");
-  if (heroShowcase) {
-    heroShowcase.style.backgroundImage = `url("${churchBg}")`;
-  }
-  document.querySelector("[data-profile-hero]")?.style.setProperty("--profile-image", `url("${churchBg}")`);
+  MWE.renderChurchHero(church);
 
   // Bind church photo to location & map preview elements
   const churchPhoto = MWE.safeImageUrl(church.photo || church.coverImage, MWE.defaultImage);

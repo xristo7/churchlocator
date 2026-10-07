@@ -181,6 +181,7 @@
       let value = data[f.key] ?? "";
       if (f.type === "url" && value === "#") value = "";
       const common = ' name="' + f.key + '" id="aw-field-' + f.key + '"' + (f.required ? " required" : "") + (f.hint ? ' aria-describedby="aw-hint-' + f.key + '"' : "");
+      if (f.type === "heroSlides") return heroSlidesField(data.heroSlides || "{}", f);
       let control;
       if (f.type === "select") {
         const entries = (f.options || []).map(o => Array.isArray(o) ? o : [o, o]);
@@ -190,6 +191,43 @@
       } else if (f.type === "textarea") control = '<textarea' + common + ' rows="4">' + esc(value) + '</textarea>';
       else control = '<input' + common + ' type="' + (f.type === "url" && String(value).startsWith("assets/") ? "text" : f.type) + '" value="' + esc(value) + '"' + (f.type === "number" ? ' min="0" step="' + (["inventory", "totalTickets", "ticketPriceCents", "toneFreq"].includes(f.key) ? "1" : "0.01") + '"' : "") + ' />';
       return '<label class="aw-field' + (f.type === "textarea" ? " wide" : "") + '" for="aw-field-' + f.key + '"><span>' + esc(f.label) + (f.required ? ' <span aria-hidden="true">*</span>' : "") + '</span>' + control + (f.hint ? '<small id="aw-hint-' + f.key + '">' + esc(f.hint) + '</small>' : "") + '</label>';
+    }
+    function heroSlidesField(raw, field) {
+      let config = {};
+      try { config = JSON.parse(raw); } catch { config = {}; }
+      const gallery = Array.isArray(config.gallery) ? config.gallery.slice(0, 8) : [];
+      const welcomeMedia = String(config.welcomeMedia || "");
+      const order = Array.isArray(config.heroOrder) ? config.heroOrder : [];
+      const cards = [{ id: "cover", kind: "cover", title: "Church cover", note: "Uses the Cover image URL above" }];
+      if (welcomeMedia) cards.push({ id: "video", kind: "video", title: "Welcome video", src: welcomeMedia });
+      gallery.forEach((slide, index) => cards.push({ id: "gallery:" + String(slide.id || "gallery-" + (index + 1)), kind: "image", title: slide.title || "Gallery image", src: slide.src || "", caption: slide.caption || "", tag: slide.tag || "" }));
+      const rank = new Map(order.map((id, index) => [id, index]));
+      cards.sort((a, b) => (rank.get(a.id) ?? 999) - (rank.get(b.id) ?? 999));
+      const cardHtml = cards.map((slide, index) => '<article class="aw-hero-slide" data-hero-slide="' + esc(slide.id) + '" data-hero-kind="' + slide.kind + '"><header><strong>' + esc(slide.title) + '</strong><div class="aw-hero-actions"><button type="button" data-hero-action="first" aria-label="Make first slide"' + (index === 0 ? ' disabled' : '') + '>Make first</button><button type="button" data-hero-action="up" aria-label="Move slide up"' + (index === 0 ? ' disabled' : '') + '>↑</button><button type="button" data-hero-action="down" aria-label="Move slide down"' + (index === cards.length - 1 ? ' disabled' : '') + '>↓</button>' + (slide.kind !== "cover" ? '<button type="button" data-hero-action="remove">Remove</button>' : '') + '</div></header>' + (slide.kind === "video" ? '<label>Video link<input data-hero-value="src" type="url" value="' + esc(slide.src) + '" placeholder="https://…" /></label>' : slide.kind === "image" ? '<div class="aw-hero-fields"><label>Image URL<input data-hero-value="src" type="url" value="' + esc(slide.src) + '" required placeholder="https://…" /></label><label>Title<input data-hero-value="title" maxlength="120" value="' + esc(slide.title) + '" /></label><label>Caption<input data-hero-value="caption" maxlength="500" value="' + esc(slide.caption) + '" /></label><label>Tag<input data-hero-value="tag" maxlength="60" value="' + esc(slide.tag) + '" /></label></div>' : '') + '</article>').join("");
+      const encoded = JSON.stringify(config);
+      return '<div class="aw-field wide aw-hero-editor"><span>' + esc(field.label) + '</span><p class="aw-hero-intro">Choose the order visitors see in the profile banner. The cover image is managed above; add a welcome video and up to eight gallery images.</p><input type="hidden" name="heroSlides" id="aw-field-heroSlides" value="' + esc(encoded) + '" /><div class="aw-hero-list">' + cardHtml + '</div><div class="aw-hero-add-actions"><button class="aw-button aw-secondary" type="button" data-hero-action="video"' + (welcomeMedia ? ' hidden' : '') + '>Add welcome video</button><button class="aw-button aw-secondary" type="button" data-hero-action="add">Add gallery image</button></div>' + (field.hint ? '<small>' + esc(field.hint) + '</small>' : '') + '</div>';
+    }
+    function syncHeroSlides() {
+      const list = document.querySelector(".aw-hero-list");
+      const hidden = $("aw-field-heroSlides");
+      if (!list || !hidden) return;
+      const slides = [...list.querySelectorAll("[data-hero-slide]")];
+      const heroOrder = slides.map(card => card.dataset.heroSlide);
+      const video = slides.find(card => card.dataset.heroKind === "video");
+      const gallery = slides.filter(card => card.dataset.heroKind === "image").map(card => ({ id: card.dataset.heroSlide.slice(8), src: card.querySelector('[data-hero-value="src"]').value.trim(), title: card.querySelector('[data-hero-value="title"]').value.trim(), caption: card.querySelector('[data-hero-value="caption"]').value.trim(), tag: card.querySelector('[data-hero-value="tag"]').value.trim() }));
+      hidden.value = JSON.stringify({ heroOrder, welcomeMedia: video?.querySelector('[data-hero-value="src"]').value.trim() || "", gallery });
+    }
+    function refreshHeroSlideButtons() {
+      const cards = [...document.querySelectorAll(".aw-hero-list [data-hero-slide]")];
+      cards.forEach((card, index) => {
+        card.querySelector('[data-hero-action="first"]').disabled = index === 0;
+        card.querySelector('[data-hero-action="up"]').disabled = index === 0;
+        card.querySelector('[data-hero-action="down"]').disabled = index === cards.length - 1;
+      });
+      const add = document.querySelector('[data-hero-action="add"]');
+      if (add) add.disabled = cards.filter(card => card.dataset.heroKind === "image").length >= 8;
+      const hasVideo = cards.some(card => card.dataset.heroKind === "video");
+      document.querySelector('[data-hero-action="video"]')?.toggleAttribute("hidden", hasVideo);
     }
     function openEditor(key, id) {
       if (!document.body.classList.contains("is-authenticated")) return;
@@ -221,7 +259,8 @@
       dirty = false;
       if (returnFocus?.isConnected) returnFocus.focus(); else $("aw-main").focus();
     }
-    $("aw-editor-form").addEventListener("input", () => { dirty = true; });
+    $("aw-editor-form").addEventListener("input", event => { dirty = true; if (event.target.closest(".aw-hero-editor")) syncHeroSlides(); });
+    $("aw-editor-form").addEventListener("change", event => { if (event.target.closest(".aw-hero-editor")) syncHeroSlides(); });
     $("aw-editor").addEventListener("cancel", e => { e.preventDefault(); closeEditor(); });
     document.querySelectorAll("[data-editor-close]").forEach(el => el.addEventListener("click", closeEditor));
     $("aw-editor-form").addEventListener("submit", async event => {
@@ -254,6 +293,26 @@
       }
     });
     document.addEventListener("click", event => {
+      const heroAction = event.target.closest("[data-hero-action]")?.dataset.heroAction;
+      if (heroAction) {
+        const list = document.querySelector(".aw-hero-list");
+        if (heroAction === "add") {
+          const id = "gallery:" + crypto.randomUUID();
+          list.insertAdjacentHTML("beforeend", '<article class="aw-hero-slide" data-hero-slide="' + esc(id) + '" data-hero-kind="image"><header><strong>Gallery image</strong><div class="aw-hero-actions"><button type="button" data-hero-action="first">Make first</button><button type="button" data-hero-action="up">↑</button><button type="button" data-hero-action="down">↓</button><button type="button" data-hero-action="remove">Remove</button></div></header><div class="aw-hero-fields"><label>Image URL<input data-hero-value="src" type="url" required placeholder="https://…" /></label><label>Title<input data-hero-value="title" maxlength="120" /></label><label>Caption<input data-hero-value="caption" maxlength="500" /></label><label>Tag<input data-hero-value="tag" maxlength="60" /></label></div></article>');
+          list.lastElementChild.querySelector('[data-hero-value="src"]').focus();
+        } else if (heroAction === "video") {
+          list.insertAdjacentHTML("beforeend", '<article class="aw-hero-slide" data-hero-slide="video" data-hero-kind="video"><header><strong>Welcome video</strong><div class="aw-hero-actions"><button type="button" data-hero-action="first">Make first</button><button type="button" data-hero-action="up">↑</button><button type="button" data-hero-action="down">↓</button><button type="button" data-hero-action="remove">Remove</button></div></header><label>Video link<input data-hero-value="src" type="url" placeholder="https://…" /></label></article>');
+          list.lastElementChild.querySelector('[data-hero-value="src"]').focus();
+        } else if (heroAction !== "add") {
+          const card = event.target.closest("[data-hero-slide]");
+          if (heroAction === "remove") { card.remove(); if (card.dataset.heroKind === "video") document.querySelector('[data-hero-action="video"]')?.removeAttribute("hidden"); }
+          else if (heroAction === "first") list.prepend(card);
+          else if (heroAction === "up" && card.previousElementSibling) list.insertBefore(card, card.previousElementSibling);
+          else if (heroAction === "down" && card.nextElementSibling) list.insertBefore(card.nextElementSibling, card);
+        }
+        syncHeroSlides(); refreshHeroSlideButtons(); dirty = true;
+        return;
+      }
       const create = event.target.closest("[data-create-module]");
       if (create) openEditor(create.dataset.createModule);
       const edit = event.target.closest("[data-edit-module]");

@@ -24,14 +24,23 @@
       groups: () => [
         group("01 · Church profile", [field("name", "Church name", "text", true), field("denomination", "Denomination", "select", true, platformOptions("denominations")), field("pastor", "Lead pastor", "text", true), field("pastorTitle", "Leadership title"), field("about", "About the church", "textarea", true), field("pastorBio", "Pastor biography", "textarea")]),
         group("02 · Location & contact", [field("country", "Country", "text", true), field("city", "City", "text", true), field("area", "Area / neighbourhood"), field("postal", "Postal code"), field("location", "Street address", "text", true), field("email", "Contact email", "email", true), field("phone", "Contact phone", "tel"), field("website", "Website", "url")]),
-        group("03 · Services & media", [field("sunday", "Sunday service", "text", true), field("midweek", "Midweek service"), field("language", "Language", "select", false, platformOptions("languages")), field("worship", "Worship style", "select", false, platformOptions("worship_styles")), field("ministries", "Ministries", "text", false, null, "Separate ministries with commas."), field("photo", "Cover image URL", "url"), field("logo", "Logo URL", "url"), field("pastorPhoto", "Pastor image URL", "url"), field("tagline", "Short introduction")]),
+        group("03 · Services & media", [field("sunday", "Sunday service", "text", true), field("midweek", "Midweek service"), field("language", "Language", "select", false, platformOptions("languages")), field("worship", "Worship style", "select", false, platformOptions("worship_styles")), field("ministries", "Ministries", "text", false, null, "Separate ministries with commas."), field("photo", "Cover image URL", "url"), field("logo", "Logo URL", "url"), field("pastorPhoto", "Pastor image URL", "url"), field("tagline", "Short introduction"), field("heroSlides", "Spotlight slide sequence", "heroSlides", false, null, "Arrange the profile cover, welcome video and gallery images. Add image URLs, captions and tags; choose which slide opens first.")]),
         group("04 · Verification & access", [field("verified", "Profile verified", "select", false, yesNo, "Manage church broadcasts in Live setup."), field("streamPaid", "Premium stream", "select", false, yesNo)])
       ],
-      flatten: r => ({ ...r, ministries: (r.ministries || []).join(", "), website: r.website === "#" ? "" : r.website, streamEnabled: !!r.livestream?.enabled, streamPaid: !!r.livestream?.paid, streamUrl: r.livestream?.url === "#" ? "" : r.livestream?.url }),
+      flatten: r => ({ ...r, ministries: (r.ministries || []).join(", "), website: r.website === "#" ? "" : r.website, streamEnabled: !!r.livestream?.enabled, streamPaid: !!r.livestream?.paid, streamUrl: r.livestream?.url === "#" ? "" : r.livestream?.url, heroSlides: JSON.stringify({ heroOrder: r.heroOrder || [], welcomeMedia: r.welcomeMedia || "", gallery: r.gallery || [] }) }),
       defaults: () => ({ verified: false, streamEnabled: false, streamPaid: false, country: "Canada" }),
       save(r, v) {
-        const { streamEnabled = !!r.livestream?.enabled, streamPaid = !!r.livestream?.paid, streamUrl = r.livestream?.url, ...values } = v;
-        return root.MWE.upsertChurch({ ...r, ...values, phoneLabel: v.phone, emailHref: v.email ? "mailto:" + v.email : "", ministries: v.ministries.split(",").map(x => x.trim()).filter(Boolean), livestream: { ...r.livestream, enabled: streamEnabled, paid: streamPaid, url: streamUrl || "#", status: streamEnabled ? "Livestream active" : "Livestream unavailable" } });
+        const { streamEnabled = !!r.livestream?.enabled, streamPaid = !!r.livestream?.paid, streamUrl = r.livestream?.url, heroSlides = "{}", ...values } = v;
+        let carousel;
+        try { carousel = JSON.parse(heroSlides); } catch { throw new Error("Review the spotlight slide sequence and try again."); }
+        const gallery = Array.isArray(carousel.gallery) ? carousel.gallery.slice(0, 8).map((slide, index) => ({ id: String(slide.id || `gallery-${index + 1}`).replace(/[^a-z0-9_-]/gi, "-").slice(0, 64), src: String(slide.src || "").trim(), title: String(slide.title || "").trim().slice(0, 120), caption: String(slide.caption || "").trim().slice(0, 500), tag: String(slide.tag || "").trim().slice(0, 60) })).filter(slide => slide.src) : [];
+        const media = String(carousel.welcomeMedia || "").trim();
+        if (media && !/^https:\/\//i.test(media)) throw new Error("The welcome video must use a secure https:// link.");
+        if (gallery.some(slide => !/^https:\/\//i.test(slide.src) && !/^assets\/[a-z0-9_./-]+$/i.test(slide.src))) throw new Error("Slide images must use secure https:// links or an assets/ path.");
+        const knownSlides = new Set(["cover", ...(media ? ["video"] : []), ...gallery.map(slide => `gallery:${slide.id}`)]);
+        const requestedOrder = Array.isArray(carousel.heroOrder) ? carousel.heroOrder.filter(id => knownSlides.has(id)) : [];
+        const heroOrder = [...new Set([...requestedOrder, ...[...knownSlides].filter(id => !requestedOrder.includes(id))])];
+        return root.MWE.upsertChurch({ ...r, ...values, heroOrder, welcomeMedia: media, gallery, phoneLabel: v.phone, emailHref: v.email ? "mailto:" + v.email : "", ministries: v.ministries.split(",").map(x => x.trim()).filter(Boolean), livestream: { ...r.livestream, enabled: streamEnabled, paid: streamPaid, url: streamUrl || "#", status: streamEnabled ? "Livestream active" : "Livestream unavailable" } });
       }
     },
     meditation: {
@@ -206,6 +215,7 @@
       const raw = String(entries[f.key] ?? "").trim();
       if (f.required && !raw) throw new Error(f.label + " is required.");
       if (f.type === "url" && raw && !/^https?:\/\//i.test(raw) && !/^assets\/[a-z0-9_./-]+$/i.test(raw)) throw new Error(f.label + " must be an http(s) URL.");
+      if (f.type === "heroSlides" && raw.length > 30000) throw new Error("The slide sequence is too large. Remove a slide or shorten its captions.");
       if (f.type === "select") {
         const allowed = (f.options || []).map(o => Array.isArray(o) ? o[0] : o);
         const existing = modules[moduleKey].get().some(record => String(record[f.key]) === raw);

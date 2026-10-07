@@ -5,19 +5,30 @@ import path from "node:path";
 
 const projectRoot = path.resolve(".");
 
-test("Church Profile: Top hero media showcase banner", async () => {
+test("Church Profile: Hero carousel structure and navigation", async () => {
   const html = await fs.readFile(path.join(projectRoot, "public", "church-profile.html"), "utf8");
 
-  // Hero showcase section exists with open layout, overlay, play trigger, and lower-left content
+  // Hero carousel provides its track, overlay, copy, and accessible controls.
   assert.match(html, /class="church-hero-showcase"/, "should have church-hero-showcase section");
+  assert.match(html, /id="church-hero-track"/, "should have a dynamic hero slide track");
   assert.match(html, /class="church-hero-overlay"/, "should have church-hero-overlay");
   assert.match(html, /class="church-hero-content-bottom-left"/, "should have church-hero-content-bottom-left container");
-  assert.match(html, /id="church-hero-play-trigger"/, "should have play trigger button");
-  assert.match(html, /class="church-hero-play-pulse"/, "should have pulse ring on play button");
-  assert.match(html, /class="church-hero-play-circle"/, "should have play icon circle");
-  assert.match(html, /onclick="MWE\.playChurchMainMedia\(\)"/, "play button should trigger MWE.playChurchMainMedia()");
+  assert.match(html, /aria-label="Church introduction" aria-roledescription="carousel"/, "hero should expose carousel semantics");
+  assert.match(html, /aria-label="Previous hero slide"/, "should provide previous slide control");
+  assert.match(html, /aria-label="Next hero slide"/, "should provide next slide control");
+  assert.match(html, /id="church-hero-dots"/, "should provide slide selection dots");
   assert.match(html, /class="church-hero-name" data-church-name/, "should display church name in hero");
   assert.match(html, /class="church-hero-desc" data-church-tagline/, "should display church tagline/short description");
+});
+
+test("Church Profile: YouTube hero uses a click-to-play preview and provider fallback", async () => {
+  const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
+
+  assert.match(appJs, /provider:\s*"youtube"/, "YouTube hero videos should be identified as YouTube embeds");
+  assert.match(appJs, /data-defer-until-play/, "YouTube iframe should not load until requested");
+  assert.match(appJs, /MWE\.playChurchHeroEmbed\s*=\s*function/, "hero preview should have a click-to-play handler");
+  assert.match(appJs, /watchUrl:\s*`https:\/\/www\.youtube\.com\/watch\?v=/, "preview should offer a direct YouTube fallback");
+  assert.match(appJs, /searchParams\.set\("rel", "0"\)/, "related videos should be limited to the same channel where supported");
 });
 
 test("Church Profile: Sticky tab navigation bar in left column with reinstated Location tab", async () => {
