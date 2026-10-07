@@ -264,14 +264,49 @@
     window.location.href = "index.html";
   });
 
-  document.getElementById("member-send-invite")?.addEventListener("click", async () => {
+  const inviteButton = document.getElementById("member-send-invite");
+  const invitePopover = document.getElementById("member-invite-popover");
+  const inviteCard = inviteButton?.closest(".profile-invite-card");
+  function closeInvitePopover() {
+    if (!invitePopover || invitePopover.hidden) return;
+    invitePopover.hidden = true;
+    inviteButton?.setAttribute("aria-expanded", "false");
+  }
+  function openInvitePopover() {
+    if (!invitePopover || !inviteButton) return;
+    invitePopover.hidden = false;
+    inviteButton.setAttribute("aria-expanded", "true");
+    const inviteUrl = new URL("/churches.html", window.location.origin).href;
+    const shareText = "Find a church community with My Way.";
+    const encodedUrl = encodeURIComponent(inviteUrl);
+    const encodedText = encodeURIComponent(shareText);
+    invitePopover.querySelector('[data-share-target="whatsapp"]')?.setAttribute("href", `https://wa.me/?text=${encodedText}%20${encodedUrl}`);
+    invitePopover.querySelector('[data-share-target="facebook"]')?.setAttribute("href", `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`);
+    invitePopover.querySelector('[data-share-target="x"]')?.setAttribute("href", `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`);
+    invitePopover.querySelector('[data-share-target="telegram"]')?.setAttribute("href", `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`);
+    invitePopover.querySelector('[data-share-target="email"]')?.setAttribute("href", `mailto:?subject=${encodeURIComponent("Find a church with My Way")}&body=${encodedText}%20${encodedUrl}`);
+    requestAnimationFrame(() => {
+      const cardRect = inviteCard.getBoundingClientRect();
+      const popoverRect = invitePopover.getBoundingClientRect();
+      const left = Math.max(12, Math.min(cardRect.left, window.innerWidth - popoverRect.width - 12));
+      const top = Math.max(12, Math.min(inviteButton.getBoundingClientRect().top - popoverRect.height - 10, window.innerHeight - popoverRect.height - 12));
+      invitePopover.style.left = `${left}px`;
+      invitePopover.style.top = `${top}px`;
+    });
+  }
+  inviteButton?.addEventListener("click", () => invitePopover?.hidden ? openInvitePopover() : closeInvitePopover());
+  invitePopover?.querySelector(".member-invite-close")?.addEventListener("click", closeInvitePopover);
+  invitePopover?.querySelector('[data-share-target="copy"]')?.addEventListener("click", async () => {
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}/churches.html`);
+      await navigator.clipboard.writeText(new URL("/churches.html", window.location.origin).href);
       window.MWE?.showMemberToast?.("Church directory link copied");
+      closeInvitePopover();
     } catch {
-      window.MWE?.showMemberToast?.("Share the church directory with a friend");
+      window.MWE?.showMemberToast?.("Could not copy the link. Please try again.");
     }
   });
+  document.addEventListener("click", event => { if (invitePopover && !inviteCard?.contains(event.target)) closeInvitePopover(); });
+  document.addEventListener("keydown", event => { if (event.key === "Escape") closeInvitePopover(); });
 
     const flagSvgs = {
     en: '<svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg>',
@@ -280,9 +315,9 @@
   };
   const languages = { en: "EN", fr: "FR", es: "ES" };
   const shellTranslations = {
-    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", profile: "Profile", security: "Security", portal: "Studio", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Send Invite", loading: "Loading your My Way view…", search: "Search churches, channels, events...", member: "My Way member", signOut: "Sign out" },
-    fr: { home: "Accueil", spotlight: "À la une", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", profile: "Profil", security: "Sécurité", portal: "Studio", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Envoyer l’invitation", loading: "Chargement de votre espace My Way…", search: "Rechercher des églises, chaînes, événements…", member: "Membre My Way", signOut: "Se déconnecter" },
-    es: { home: "Inicio", spotlight: "Destacados", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", profile: "Perfil", security: "Seguridad", portal: "Estudio", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Enviar invitación", loading: "Cargando tu espacio My Way…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de My Way", signOut: "Cerrar sesión" }
+    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", profile: "Profile", security: "Security", portal: "Studio", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Share", loading: "Loading your My Way view…", search: "Search churches, channels, events...", member: "My Way member", signOut: "Sign out" },
+    fr: { home: "Accueil", spotlight: "À la une", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", profile: "Profil", security: "Sécurité", portal: "Studio", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Partager", loading: "Chargement de votre espace My Way…", search: "Rechercher des églises, chaînes, événements…", member: "Membre My Way", signOut: "Se déconnecter" },
+    es: { home: "Inicio", spotlight: "Destacados", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", profile: "Perfil", security: "Seguridad", portal: "Estudio", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Compartir", loading: "Cargando tu espacio My Way…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de My Way", signOut: "Cerrar sesión" }
   };
   let currentMemberLanguage = localStorage.getItem("mwe.lang") || "en";
   if (!shellTranslations[currentMemberLanguage]) currentMemberLanguage = "en";
