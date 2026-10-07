@@ -24,7 +24,7 @@
   }
   function broadcasts() {
     const churches = root.MWE.getChurches().filter(r => r.livestream?.enabled && safeLiveUrl(r.livestream.url)).map(r => ({ id: r.id, type: "church", name: r.name, url: r.livestream.url, image: r.photo, description: r.city }));
-    const channels = root.FaithLinkModules.getChannels().filter(r => r.live && safeLiveUrl(r.liveUrl)).map(r => ({ id: r.id, type: "channel", name: r.name, url: r.liveUrl, image: r.cover, description: r.topic }));
+    const channels = root.FaithLinkModules.getChannels().filter(r => r.live).map(r => ({ id: r.id, type: "channel", name: r.name, url: r.liveUrl, image: r.cover, description: r.topic }));
     const stores = getStores().filter(r => r.live && safeLiveUrl(r.liveUrl)).map(r => ({ id: r.id, type: "store", name: r.name, url: r.liveUrl, image: r.image, description: r.description }));
     return [...churches, ...channels, ...stores];
   }

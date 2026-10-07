@@ -346,12 +346,14 @@ async function discovery(request,env,ctx,scope,id) {
   }
   if(scope==='notifications') {
     if(request.method==='PUT') {
+      if(id?.startsWith('live:')){await env.DB.prepare('update live_notifications set read_at=? where user_id=? and session_id=?').bind(new Date().toISOString(),user.id,id.slice(5)).run();return ctx.json({ok:true});}
       await env.DB.prepare('update spotlight_notifications set read_at=? where user_id=? and id=?').bind(new Date().toISOString(),user.id,id).run();
       return ctx.json({ok:true});
     }
     if(request.method!=='GET') throw new ApiError(405,'Method not allowed.');
     const {results}=await env.DB.prepare(`select n.*,s.title,s.channel_entity_id from spotlight_notifications n join spotlight_items s on s.id=n.item_id where n.user_id=? and ${visibleSql} order by n.created_at desc limit 100`).bind(user.id).all();
-    return ctx.json({ok:true,notifications:results.map(row=>({id:row.id,itemId:row.item_id,title:row.title,kind:row.kind,read:!!row.read_at,createdAt:row.created_at,url:'app.html?view=spotlight&post='+encodeURIComponent(row.item_id)}))});
+    const live=await env.DB.prepare("select n.*,s.title,s.channel_id from live_notifications n join channel_live_sessions s on s.id=n.session_id join platform_entities e on e.id=s.channel_id where n.user_id=? and e.state='published' order by n.created_at desc limit 100").bind(user.id).all();
+    return ctx.json({ok:true,notifications:[...results.map(row=>({id:row.id,itemId:row.item_id,title:row.title,kind:row.kind,read:!!row.read_at,createdAt:row.created_at,url:'app.html?view=spotlight&post='+encodeURIComponent(row.item_id)})),...live.results.map(row=>({id:'live:'+row.session_id,title:row.title,kind:'live',read:!!row.read_at,createdAt:row.created_at,url:'app.html?view=channel-live&id='+encodeURIComponent(row.channel_id)+'&post='+encodeURIComponent(row.session_id)}))].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,100)});
   }
   if(scope==='reminders') {
     await publicItem(env,id);

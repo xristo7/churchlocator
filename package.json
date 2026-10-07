@@ -6,7 +6,7 @@
   "description": "Cloudflare Worker static assets project for My Way of Evangelism church discovery and digital evangelism platform.",
   "scripts": {
     "build": "wrangler deploy --dry-run --env=\"\"",
-    "check": "node --check src/worker.js && node --check src/spotlight.js && node --check src/trusted-platform.js && node --check public/app.js && node --check public/app-shell.js && node --check public/account-profile.js && node --check public/spotlight.js && node --check public/spotlight-workspace.js && node --check public/platform-modules.js && node --check public/livestream-chat.js && node --check public/meditation.js && node --check public/daily-scripture.js && node --check public/channels.js && node --check public/channel-detail.js && node --check public/channel-content.js && node --check public/spotlight-navigation.js && node --check public/home-spotlight.js && node --check public/messages.js && node --check public/store.js && node --check public/product-detail.js && node --check public/cart.js && node --check public/checkout.js && node --check public/seller-dashboard.js && node --check public/resources.js && node --check public/resource-detail.js && node --check public/resource-reader.js && pnpm run build",
+    "check": "node --check src/worker.js && node --check src/spotlight.js && node --check src/trusted-platform.js && node --check public/app.js && node --check public/app-shell.js && node --check public/account-profile.js && node --check public/spotlight.js && node --check public/spotlight-workspace.js && node --check public/platform-modules.js && node --check public/livestream-chat.js && node --check public/meditation.js && node --check public/daily-scripture.js && node --check public/channels.js && node --check public/channel-detail.js && node --check public/channel-content.js && node --check public/spotlight-navigation.js && node --check public/home-spotlight.js && node --check public/messages.js && node --check public/store.js && node --check public/product-detail.js && node --check public/cart.js && node --check public/checkout.js && node --check public/seller-dashboard.js && node --check public/resources.js && node --check public/resource-detail.js && node --check public/resource-reader.js && node --check src/live.js && node --check public/live-player.js && node --check public/live-setup.js && node --check public/channel-live.js && node --check public/creator-public.js && node --check public/admin-workspace.js && node --check tools/build-live-assets.mjs && npm run build",
     "test": "node --test tests/*.test.mjs",
     "preview": "node tools/static-server.mjs --root public --port 4173",
     "dev": "wrangler dev --env preview",
@@ -19,7 +19,8 @@
     "db:seed:demo:preview": "wrangler d1 execute my-way-of-evangelism-preview --remote --env preview --file ./database/demo-preview-seed.sql",
     "db:migrate:production": "wrangler d1 migrations apply my-way-of-evangelism --remote --env=\"\"",
     "tail": "wrangler tail my-way-of-evangelism",
-    "security:scan": "node tools/security-audit.mjs"
+    "security:scan": "node tools/security-audit.mjs",
+    "build:live-assets": "node tools/build-live-assets.mjs"
   },
   "devDependencies": {
     "wrangler": "4.147.0"
@@ -33,6 +34,15 @@
   },
   "packageManager": "pnpm@11.19.0",
   "dependencies": {
-    "@noble/hashes": "2.4.0"
+    "@cloudflare/realtimekit": "2.0.2",
+    "@cloudflare/realtimekit-ui": "2.0.2",
+    "@noble/hashes": "2.4.0",
+    "hls.js": "1.7.3"
+  },
+  "overrides": {
+    "@cloudflare/realtimekit": {
+      "uuid": "11.1.1"
+    },
+    "sharp": "0.35.5"
   }
 }

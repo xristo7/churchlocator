@@ -166,7 +166,7 @@
     try {
       if(tab==='notifications') {
         const result=await api('notifications');if(request!==feedRequest)return;state.visible=[];state.items=[];inspector.innerHTML='';commentForm.hidden=true;
-        feed.innerHTML='<section class="spotlight-notifications"><h2>Notifications</h2>'+ (result.notifications.length?result.notifications.map(row=>'<article><a href="'+esc(row.url)+'" data-notification-id="'+esc(row.id)+'">'+esc(row.read?'':'● ')+esc(row.kind==='reminder'?'Time to watch: ':'New Spotlight: ')+esc(row.title)+'</a><small>'+esc(new Date(row.createdAt).toLocaleString())+'</small></article>').join(''):'<p>No notifications yet. Follow a channel to hear about its new Spotlight posts.</p>')+'</section>';
+        feed.innerHTML='<section class="spotlight-notifications"><h2>Notifications</h2>'+ (result.notifications.length?result.notifications.map(row=>'<article><a href="'+esc(row.url)+'" data-notification-id="'+esc(row.id)+'">'+esc(row.read?'':'● ')+esc(row.kind==='live'?'Channel is live: ':row.kind==='reminder'?'Time to watch: ':'New Spotlight: ')+esc(row.title)+'</a><small>'+esc(new Date(row.createdAt).toLocaleString())+'</small></article>').join(''):'<p>No notifications yet. Follow a channel to hear about its new Spotlight posts.</p>')+'</section>';
         feed.querySelectorAll('[data-notification-id]').forEach(link=>link.onclick=async event=>{event.preventDefault();try{await api('notifications/'+encodeURIComponent(link.dataset.notificationId),{},'PUT');navigate(link.href);}catch(error){window.showToast?.(error.message);}});return;
       }
       const result=await api(tab==='featured'?'feed':tab+(cursor?'?cursor='+encodeURIComponent(cursor):''));if(request!==feedRequest)return;

@@ -2,6 +2,7 @@ import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityH
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
 import { handlePlatformApi, isOwner } from './trusted-platform.js';
 import { handleSpotlightApi, deliverSpotlightNotifications } from './spotlight.js';
+import { handleLiveApi, closeExpiredLiveSessions, deliverLiveNotifications } from './live.js';
 import { handleContentEngagementApi } from './content-engagements.js';
 
 const apiHeaders = {
@@ -826,6 +827,8 @@ function assetRequest(request) {
     ["/app", "/app.html"],
     ["/member", "/app.html"],
     ["/spotlight", "/spotlight.html"],
+    ["/channel-live", "/channel-live.html"],
+    ["/live-setup", "/live-setup.html"],
     ["/livestream", "/livestream.html"],
     ["/live", "/livestream.html"],
     ["/broadcast", "/broadcast.html"],
@@ -1380,6 +1383,8 @@ async function handleApi(request, env) {
     await enforceRateLimit(request, env, path);
     if (request.method === "OPTIONS") return json({ ok: true });
     const context = {json,getSessionUser,createSession,sessionCookieHeader,jsonWithCookie,isAuthorized,publicUser,clearSessionCookieHeader,parseCookies,digestToken};
+    const liveResponse=await handleLiveApi(request,env,context);
+    if(liveResponse)return liveResponse;
     const identityResponse = await handleIdentityApi(request, env, context);
     if (identityResponse) return identityResponse;
     const platformResponse = await handlePlatformApi(request, env, context);
@@ -1459,6 +1464,8 @@ async function handleApi(request, env) {
 export default {
   async scheduled(event, env) {
     await deliverSpotlightNotifications(env);
+    await closeExpiredLiveSessions(env);
+    await deliverLiveNotifications(env);
   },
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -1469,6 +1476,18 @@ export default {
     const assetRes = await env.ASSETS.fetch(assetRequest(request));
     const newHeaders = new Headers(assetRes.headers);
     for (const [key, value] of Object.entries(securityHeaders)) newHeaders.set(key, value);
+    const livePath=assetRequest(request).url;
+    if(/\/(?:app|channel-live)\.html(?:\?|$)/.test(livePath))newHeaders.set('permissions-policy','camera=(self), microphone=(self), geolocation=()');
+    if(/\/channel-live\.html(?:\?|$)/.test(livePath))newHeaders.set('content-security-policy',newHeaders.get('content-security-policy').replace("connect-src 'self'","connect-src 'self' https://*.realtime.cloudflare.com wss://*.realtime.cloudflare.com"));
+    if(/\/broadcast\.html(?:\?|$)/.test(livePath)){
+      let policy=newHeaders.get('content-security-policy').replace("frame-src 'self'","frame-src 'self' https://platform.twitter.com https://syndication.twitter.com https://vimeo.com https://www.facebook.com https://iframe.videodelivery.net https://*.cloudflarestream.com https://player.mediadelivery.net https://iframe.mediadelivery.net https://player.cloudinary.com").replace("connect-src 'self'","connect-src 'self' https://*.cloudflarestream.com https://res.cloudinary.com https://*.b-cdn.net https://stream.mux.com").replace("script-src 'self'","script-src 'self' https://platform.twitter.com");
+      if(env.DB&&(!url.searchParams.get('type')||url.searchParams.get('type')==='church')){
+        const source=await env.DB.prepare('select source_url from church_broadcast_sources where church_id=?').bind(url.searchParams.get('id')||'').first();
+        let playbackOrigin;try{const parsed=new URL(source?.source_url);if(parsed.protocol==='https:'&&!parsed.username&&!parsed.password)playbackOrigin=parsed.origin;}catch{}
+        if(playbackOrigin)policy=policy.replace("connect-src 'self'","connect-src 'self' "+playbackOrigin);
+      }
+      newHeaders.set('content-security-policy',policy);
+    }
     const contentType = newHeaders.get("content-type") || "";
     const isHtml = contentType.includes("text/html") || !/\.[a-z0-9]+$/i.test(url.pathname);
     const isLongLivedAsset = /^\/(?:assets|vendor)\//.test(url.pathname) || /\.(?:avif|gif|ico|jpe?g|png|svg|webp|woff2?)$/i.test(url.pathname);

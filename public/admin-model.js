@@ -25,12 +25,12 @@
         group("01 · Church profile", [field("name", "Church name", "text", true), field("denomination", "Denomination", "select", true, platformOptions("denominations")), field("pastor", "Lead pastor", "text", true), field("pastorTitle", "Leadership title"), field("about", "About the church", "textarea", true), field("pastorBio", "Pastor biography", "textarea")]),
         group("02 · Location & contact", [field("country", "Country", "text", true), field("city", "City", "text", true), field("area", "Area / neighbourhood"), field("postal", "Postal code"), field("location", "Street address", "text", true), field("email", "Contact email", "email", true), field("phone", "Contact phone", "tel"), field("website", "Website", "url")]),
         group("03 · Services & media", [field("sunday", "Sunday service", "text", true), field("midweek", "Midweek service"), field("language", "Language", "select", false, platformOptions("languages")), field("worship", "Worship style", "select", false, platformOptions("worship_styles")), field("ministries", "Ministries", "text", false, null, "Separate ministries with commas."), field("photo", "Cover image URL", "url"), field("logo", "Logo URL", "url"), field("pastorPhoto", "Pastor image URL", "url"), field("tagline", "Short introduction")]),
-        group("04 · Verification & livestream", [field("verified", "Profile verified", "select", false, yesNo), field("streamEnabled", "Livestream enabled", "select", false, yesNo), field("streamPaid", "Premium stream", "select", false, yesNo), field("streamUrl", "Livestream URL", "url")])
+        group("04 · Verification & access", [field("verified", "Profile verified", "select", false, yesNo, "Manage church broadcasts in Live setup."), field("streamPaid", "Premium stream", "select", false, yesNo)])
       ],
       flatten: r => ({ ...r, ministries: (r.ministries || []).join(", "), website: r.website === "#" ? "" : r.website, streamEnabled: !!r.livestream?.enabled, streamPaid: !!r.livestream?.paid, streamUrl: r.livestream?.url === "#" ? "" : r.livestream?.url }),
       defaults: () => ({ verified: false, streamEnabled: false, streamPaid: false, country: "Canada" }),
       save(r, v) {
-        const { streamEnabled, streamPaid, streamUrl, ...values } = v;
+        const { streamEnabled = !!r.livestream?.enabled, streamPaid = !!r.livestream?.paid, streamUrl = r.livestream?.url, ...values } = v;
         return root.MWE.upsertChurch({ ...r, ...values, phoneLabel: v.phone, emailHref: v.email ? "mailto:" + v.email : "", ministries: v.ministries.split(",").map(x => x.trim()).filter(Boolean), livestream: { ...r.livestream, enabled: streamEnabled, paid: streamPaid, url: streamUrl || "#", status: streamEnabled ? "Livestream active" : "Livestream unavailable" } });
       }
     },
@@ -112,7 +112,7 @@
       groups: () => [
         group("01 · Channel & creator", [field("name", "Channel name", "text", true), field("owner", "Creator / owner", "text", true), field("handle", "Channel handle", "text", true), field("topic", "Topic", "select", true, platformOptions("channel_topics")), field("description", "Description", "textarea", true)]),
         group("02 · Format & media", [field("format", "Primary format", "select", true, ["Podcast", "Video", "Livestream"]), field("cover", "Cover image URL", "url", true), field("avatar", "Avatar URL", "url")]),
-        group("03 · Verification", [field("verified", "Creator verified", "select", false, yesNo), field("live", "Currently live", "select", false, yesNo)])
+        group("03 · Verification", [field("verified", "Creator verified", "select", false, yesNo, "Start and end channel stages in Live setup.")])
       ],
       defaults: () => ({ topic: platformOptions("channel_topics")[0] || "", format: "Podcast", verified: false, live: false }),
       save(r, v) {

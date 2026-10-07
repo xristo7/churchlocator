@@ -8,6 +8,7 @@
     if(route==='app.html'){view=target.searchParams.get('view');id=target.searchParams.get('id')||'';post=target.searchParams.get('post')||'';}
     else if(route==='channel-detail.html'){view='channel-detail';id=target.searchParams.get('id')||'';}
     else if(route==='channel-content.html'){view='channel-content';id=target.searchParams.get('channel')||'';post=target.searchParams.get('post')||'';}
+    else if(route==='channel-live.html'){view='channel-live';id=target.searchParams.get('id')||'';post=target.searchParams.get('session')||'';}
     else if(route==='channels.html')view='channels';
     else if(route==='messages.html'){view='messages';id=target.searchParams.get('id')||'';compose=target.searchParams.get('compose')||'';}
     if(!view||target.hash)return;

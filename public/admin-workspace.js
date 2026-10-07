@@ -30,6 +30,7 @@
       $("aw-nav").innerHTML = entry("overview", "Overview", "layout-dashboard") + '<p class="aw-nav-label">MANAGE PLATFORM</p>' +
         mainModules().map(([key, mod]) => entry(key, mod.label, mod.icon, count(key))).join("") +
         entry("spotlight", "Spotlight", "play-square", window.MWESpotlightWorkspace?.count() || 0) +
+        '<a class="aw-nav-link" href="live-setup.html">'+icon('radio')+'<span>Live setup</span></a>' +
         (creator ? "" : '<p class="aw-nav-label">PLATFORM CONTROL</p>' + entry("platform-options", "Platform options", "list-tree") + '<p class="aw-nav-label">OPERATIONS</p>' + entry("locations", "Location coverage", "map-pin") + entry("review", "Needs attention", "list-checks", pending().length));
     }
     function pending() {
@@ -45,7 +46,7 @@
         const cards = '<div class="aw-module-grid">' + mainModules().map(([key, mod]) => '<button type="button" class="aw-module-card aw-create-card" data-create-module="' + key + '"><div class="aw-module-top"><span class="aw-module-icon">' + icon(mod.icon) + '</span>' + icon("plus") + '</div><h3>' + descriptions[key] + '</h3><p>' + mod.description + '</p><div class="aw-module-count">' + (["churches", "channels", "store"].includes(key) ? badge("Live capable") : "Create and manage") + '<span>' + count(key) + ' created</span></div></button>').join("") + '</div>';
         const recent = mainModules().flatMap(([key, mod]) => mod.get().map(record => ({ key, mod, record }))).sort((a, b) => String(b.record.updatedAt || "").localeCompare(String(a.record.updatedAt || ""))).slice(0, 5);
         const recentHtml = recent.map(({ key, mod, record }) => '<div class="aw-queue-row"><span class="aw-record-icon">' + icon(mod.icon) + '</span><div><strong>' + esc(mod.title(record)) + '</strong><small>' + mod.label + ' · ' + esc(mod.status(record)) + '</small></div><button class="aw-button" data-edit-module="' + key + '" data-edit-id="' + esc(record.id) + '">Manage</button></div>').join("");
-        $("aw-content").innerHTML = metrics + panel(total ? "Create something new" : "What would you like to create?", "Start with one. You can add all six from the same account, at any time.", cards) + (recent.length ? panel("Recently updated", "Pick up where you left off.", recentHtml) : "") + panel("Churches, channels and stores can go live", "Add your external broadcast URL, then turn on Live in the record editor. My Way displays the broadcast; video hosting remains with your provider.", '<div class="aw-queue-row">' + link("livestream.html", "Explore Live " + icon("arrow-up-right")) + '</div>');
+        $("aw-content").innerHTML = metrics + panel(total ? "Create something new" : "What would you like to create?", "Start with one. You can add all six from the same account, at any time.", cards) + (recent.length ? panel("Recently updated", "Pick up where you left off.", recentHtml) : "") + panel("Church broadcasts and channel stages", "Broadcast a church service through your video provider, or host a channel conversation and bring guests on camera.", '<div class="aw-queue-row">' + link("live-setup.html", "Set up Live " + icon("arrow-up-right")) + '</div>');
         return;
       }
       const churches = modules.churches.get();

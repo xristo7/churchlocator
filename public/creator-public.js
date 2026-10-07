@@ -1,7 +1,7 @@
 (function () {
   const esc = value => window.MWE.escapeHtml(value);
   const safe = value => window.MWECreator.safeLiveUrl(value);
-  const broadcastLink = (type, id) => "broadcast.html?type=" + encodeURIComponent(type || "church") + "&id=" + encodeURIComponent(id);
+  const broadcastLink = (type, id) => type==='channel'?'channel-live.html?id='+encodeURIComponent(id):"broadcast.html?type=" + encodeURIComponent(type || "church") + "&id=" + encodeURIComponent(id);
   function image(url, alt) { return safe(url) ? '<img src="' + esc(url) + '" alt="' + esc(alt) + '" loading="lazy">' : ""; }
   function thumbnail(stream) {
     const liveUrl = safe(stream.url);
@@ -47,7 +47,7 @@
     const grid = '<div class="creator-store-cards">' + stores.map(store => '<a class="creator-store-card" href="storefront.html?id=' + encodeURIComponent(store.id) + '">' + image(store.image, store.name) + '<div><h3>' + esc(store.name) + '</h3><p>' + esc(store.category) + '</p><small>' + (store.live ? "● Live shopping" : "Visit store →") + '</small></div></a>').join("") + '</div>';
     return grid;
   }
-  function publicPage() {
+  async function publicPage() {
     const target = document.getElementById("creator-public");
     if (!target) return;
     const params = new URLSearchParams(location.search);
@@ -61,8 +61,10 @@
       return;
     }
     const requestedType = params.get("type");
+    if(requestedType==='channel'){location.replace('channel-live.html?id='+encodeURIComponent(id||''));return;}
     const stream = window.MWECreator.broadcasts().find(s => s.id === id && (!requestedType || s.type === requestedType));
     if (!stream) { target.innerHTML = '<h1>This broadcast is offline</h1><p>The creator may have ended their broadcast.</p><a href="livestream.html">Explore live broadcasts</a>'; return; }
+    if(stream.type==='channel'){location.replace('channel-live.html?id='+encodeURIComponent(stream.id));return;}
     document.title = stream.name + " · Live | My Way";
     const url = new URL(safe(stream.url));
     let embed = "";
@@ -91,6 +93,7 @@
       '<div class="broadcast-chat-messages" id="broadcast-chat-messages" aria-live="polite"><p class="broadcast-chat-status" data-chat-status>Loading live conversation…</p></div>' +
       '<form class="broadcast-chat-form" id="broadcast-chat-form"><label class="sr-only" for="broadcast-chat-input">Chat message</label><input id="broadcast-chat-input" maxlength="300" required placeholder="Write a message…"><button type="submit" aria-label="Send message"><i data-lucide="send"></i></button></form></aside></div>';
     const chatForm = target.querySelector("#broadcast-chat-form");
+    if(window.MWELivePlayer){const shell=target.querySelector('.broadcast-player-shell');const overlay=shell.querySelector('button');const surface=document.createElement('div');surface.className='broadcast-video-surface';shell.replaceChildren(surface,overlay);const cleanup=await window.MWELivePlayer.mount(surface,stream.url,stream.name);window.addEventListener('pagehide',cleanup,{once:true});}
     window.MWELivestreamChat?.mount({
       streamType: stream.type,
       entityId: stream.id,

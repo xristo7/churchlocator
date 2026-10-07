@@ -121,6 +121,8 @@ export async function ownTenant(env,user) {
 export async function membership(env,userId,tenantId) { return env.DB.prepare('select role from tenant_memberships where tenant_id=? and user_id=?').bind(tenantId,userId).first(); }
 function entityRecord(row,publicView=false) {
  const data=JSON.parse(row.data_json);
+ if(publicView && row.kind==='churches' && row.broadcast_mode) data.livestream={...data.livestream,enabled:!!row.broadcast_enabled,url:row.broadcast_url||'',mode:row.broadcast_mode};
+ if(publicView && row.kind==='channels') {data.live=!!row.stage_session_id;data.liveUrl=row.stage_session_id?'channel-live.html?id='+encodeURIComponent(row.id)+'&session='+encodeURIComponent(row.stage_session_id):'';}
  if(publicView && row.kind==='resources' && data.access==='Paid') for(const field of ['sourceUrl','pages','audioSrc','embedUrl']) delete data[field];
  if(publicView && row.kind==='resources') delete data.sourceUrl;
  return {...data,id:row.id,kind:row.kind,tenantId:row.tenant_id,createdBy:publicView?'tenant:'+row.tenant_id:row.created_by,state:row.state,publicationState:row.state,revision:row.revision,createdAt:row.created_at,updatedAt:row.updated_at,verified:row.state==='published',...(publicView?{canMessage:!!row.owner_user_id&&!row.owner_user_id.startsWith('system:')}:{})};
@@ -220,9 +222,9 @@ export async function handlePlatformApi(request,env,ctx) {
  if(scope==='livestream-chat') {
   const streamType=parts[2], entityId=parts[3], kind=livestreamKinds[streamType];
   if(!kind || !entityId || entityId.length>128) throw new ApiError(404,'Livestream chat not found.');
-  const entity=await env.DB.prepare("select id,data_json from platform_entities where id=? and kind=? and state='published'").bind(entityId,kind).first();
+  const entity=await env.DB.prepare("select e.id,e.data_json,b.mode broadcast_mode,b.source_url broadcast_url,(b.enabled=1 and b.status='ready') broadcast_enabled from platform_entities e left join church_broadcast_sources b on b.church_id=e.id where e.id=? and e.kind=? and e.state='published'").bind(entityId,kind).first();
   if(!entity) throw new ApiError(404,'Livestream chat not found.');
-  const data=JSON.parse(entity.data_json), active=streamType==='church' ? boolean(data.livestream?.enabled) && !!data.livestream?.url : boolean(data.live) && !!data.liveUrl;
+  const data=JSON.parse(entity.data_json), active=streamType==='church' ? (entity.broadcast_mode ? entity.broadcast_enabled&&!!entity.broadcast_url : boolean(data.livestream?.enabled) && !!data.livestream?.url) : boolean(data.live) && !!data.liveUrl;
   if(!active) throw new ApiError(404,'This broadcast is offline.');
   if(request.method==='GET') {
    const viewer=await ctx.getSessionUser(request,env);
@@ -244,7 +246,9 @@ export async function handlePlatformApi(request,env,ctx) {
  }
  if(scope==='catalog' && request.method==='GET') {
   const kind=parts[2]; if(kind && !kinds.includes(kind)) throw new ApiError(404,'Collection not found.');
-  const {results}=await env.DB.prepare(`select e.*,t.owner_user_id from platform_entities e join tenants t on t.id=e.tenant_id where e.state='published' ${kind?'and e.kind=?':''} order by e.updated_at desc limit 1000`).bind(...(kind?[kind]:[])).all();
+  const {results}=await env.DB.prepare(`select e.*,t.owner_user_id,b.mode broadcast_mode,b.source_url broadcast_url,(b.enabled=1 and b.status='ready') broadcast_enabled,
+  (select s.id from channel_live_sessions s where s.channel_id=e.id and s.status='live' and s.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') limit 1) stage_session_id
+  from platform_entities e join tenants t on t.id=e.tenant_id left join church_broadcast_sources b on b.church_id=e.id where e.state='published' ${kind?'and e.kind=?':''} order by e.updated_at desc limit 1000`).bind(...(kind?[kind]:[])).all();
   return ctx.json({ok:true,records:(results||[]).map(row=>entityRecord(row,true))});
  }
  if(scope==='taxonomies' && request.method==='GET') {

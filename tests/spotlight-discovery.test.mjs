@@ -12,6 +12,7 @@ function setup(){
     insert into platform_entities values('channel-a','channels','published','platform-system','{}'),('channel-b','channels','published','platform-system','{}');`);
   sql.exec(readFileSync(new URL('../migrations/0006_spotlight.sql',import.meta.url),'utf8'));
   sql.exec(readFileSync(new URL('../migrations/0013_spotlight_discovery.sql',import.meta.url),'utf8'));
+  sql.exec(readFileSync(new URL('../migrations/0015_separate_live.sql',import.meta.url),'utf8'));
   sql.exec("update spotlight_items set channel_entity_id='channel-a'");
   sql.exec("update spotlight_publications set published_at='2019-01-01T00:00:00.000Z'");
   const db={prepare(query){const statement=sql.prepare(query);let params=[];const wrapper={bind(...values){params=values;return wrapper;},async first(){return statement.get(...params)||null;},async all(){return {results:statement.all(...params)};},async run(){return {meta:statement.run(...params)};}};return wrapper;},async batch(statements){sql.exec('begin');try{const results=[];for(const statement of statements)results.push(await statement.run());sql.exec('commit');return results;}catch(error){sql.exec('rollback');throw error;}}};

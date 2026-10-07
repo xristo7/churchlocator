@@ -52,6 +52,7 @@
     channels: { source: "channels.html", title: "Christian Channels" },
     "channel-detail": { source: "channel-detail.html", title: "Channel" },
     "channel-content": { source: "channel-content.html", title: "Channel Content" },
+    "channel-live": { source: "channel-live.html", title: "Channel Live" },
     messages: { source: "messages.html", title: "Messages" },
     profile: { source: "account-profile.html", title: "Profile & Account" },
     security: { source: "account-security.html", title: "Account Security" },
@@ -167,6 +168,7 @@
     if (route.q) source.searchParams.set("q", route.q);
     if (route.compose) source.searchParams.set("compose", route.compose);
     if (route.view === "channel-content" && route.id) source.searchParams.set("channel", route.id);
+    if (route.view === "channel-live" && route.post) source.searchParams.set("session", route.post);
     if (route.post) source.searchParams.set("post", route.post);
     return source.toString();
   }

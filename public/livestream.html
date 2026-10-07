@@ -10,10 +10,10 @@
   <script defer src="platform-client.js?v=20260916previewfallback1"></script><script defer src="app.js?v=20260919directory3"></script><script defer src="auth-client.js?v=20260915security1"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <link rel="stylesheet" href="creator-public.css?v=20260907livestreamplayer1" />
-  <script defer src="creator-data.js?v=20260904"></script>
+  <script defer src="creator-data.js?v=20261007live2"></script>
   <script defer src="livestream-chat.js?v=20260918realchat1"></script>
   <script defer src="content-engagements.js?v=20260919engagements1"></script>
-  <script defer src="creator-public.js?v=20260918realchat1"></script>
+  <script defer src="creator-public.js?v=20261007live2"></script>
 <link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body class="live-page" data-page="livestream">
   <header class="topbar">
@@ -384,12 +384,9 @@
         } else if (iframe.src === "" || iframe.src === "about:blank") {
           const churchId = localStorage.getItem("mwe.currentChurchId") || "1";
           const churches = typeof MWE !== "undefined" && typeof MWE.getChurches === "function" ? MWE.getChurches() : [];
-          const church = churches.find(c => String(c.id) === String(churchId)) || { livestream: { url: "https://www.youtube.com/embed/jiSyB8QZzk8?autoplay=1" } };
-          let embedUrl = church.livestream?.url || "https://www.youtube.com/embed/jiSyB8QZzk8?autoplay=1";
-          if (!embedUrl.includes("embed")) {
-            embedUrl = "https://www.youtube.com/embed/jiSyB8QZzk8?autoplay=1";
-          }
-          iframe.src = embedUrl;
+          const church = churches.find(c => String(c.id) === String(churchId));
+          if(church?.livestream?.enabled&&church.livestream.url)location.href='broadcast.html?type=church&id='+encodeURIComponent(church.id);
+          else showToastNotification('This church broadcast is offline.');
         }
       }
     }

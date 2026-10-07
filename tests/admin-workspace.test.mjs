@@ -71,6 +71,8 @@ test("church edits retain location, ownership, existing content and livestream s
   assert.equal(loaded.location, original.location);
   assert.equal(loaded.updatedAt, original.updatedAt);
   assert.deepEqual(loaded.schedule, original.schedule);
+  assert.equal(loaded.livestream.enabled, original.livestream.enabled);
+  assert.equal(loaded.livestream.url, original.livestream.url);
 });
 
 test("meditation editor shares the sanctuary catalog and preserves all audio tracks", async () => {
