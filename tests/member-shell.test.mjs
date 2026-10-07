@@ -528,7 +528,7 @@ test("SPA shell supports member home dashboard and interactive meditation sanctu
   assert.match(memberHomeHtml, /daily-scripture\.js\?/);
   assert.match(memberHomeHtml, /class="daily-scripture member-home-scripture" data-daily-scripture/);
   assert.doesNotMatch(memberHomeHtml, /class="member-verse-pill"/);
-  assert.match(churchesHtml, /class="daily-scripture" data-daily-scripture/);
+  assert.doesNotMatch(churchesHtml, /data-daily-scripture/);
   assert.match(memberHomeHtml, /launch-spotlight/);
   assert.match(memberHomeJs, /MWEPlatform\?\.session\?\.name/);
   assert.match(styles, /\.member-quick-launchpad\s*\{[^}]*repeat\(6, minmax\(0, 1fr\)\)/);
