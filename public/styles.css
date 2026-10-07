@@ -16236,7 +16236,7 @@ html[data-theme="dark"] .member-hero-banner {
 }
 
 /* Reuse the church-directory Scripture card on the signed-in Home page. */
-.member-home-scripture {
+.daily-scripture.member-home-scripture {
   position: static;
   flex: 0 1 510px;
   width: min(510px, 100%);
@@ -26474,7 +26474,7 @@ html[data-theme="dark"] .daily-scripture {
     width: auto;
     max-width: none;
   }
-  .member-home-scripture {
+  .daily-scripture.member-home-scripture {
     position: static;
     width: 100%;
     max-width: 510px;
