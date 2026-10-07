@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Member Home | My Way</title>
-  <link rel="stylesheet" href="styles.css?v=20261007authfields1" />
+  <link rel="stylesheet" href="styles.css?v=20261007homescripture1" />
   <script src="vendor/lucide.js"></script>
+  <script defer src="daily-scripture.js?v=20261001scripture1"></script>
   <script defer src="platform-client.js?v=20261007memberhome1"></script><script defer src="app.js?v=20261007authfields1"></script><script defer src="auth-client.js?v=20260915security1"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <script defer src="member-home.js?v=20261007memberhome5"></script>
@@ -22,13 +23,7 @@
           <p>Explore today's Scripture devotion, active church livestreams, study resources, and Christian creator channels.</p>
         </div>
 
-        <div class="member-verse-pill">
-          <i data-lucide="sun"></i>
-          <div>
-            <strong>Verse of the Day</strong>
-            <span>“Be still, and know that I am God; I will be exalted among the nations.” — Psalm 46:10</span>
-          </div>
-        </div>
+        <aside class="daily-scripture member-home-scripture" data-daily-scripture aria-label="Scripture of the Day"></aside>
       </div>
 
       <!-- Quick Launchpad Action Grid -->

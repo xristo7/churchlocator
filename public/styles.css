@@ -16235,6 +16235,20 @@ html[data-theme="dark"] .member-hero-banner {
   font-style: italic;
 }
 
+/* Reuse the church-directory Scripture card on the signed-in Home page. */
+.member-home-scripture {
+  position: static;
+  flex: 0 1 510px;
+  width: min(510px, 100%);
+  max-width: 510px;
+  margin: 0;
+  padding: 24px 30px;
+  border-radius: 28px;
+}
+.member-home-scripture .daily-scripture-label { font-size: 0.82rem; }
+.member-home-scripture blockquote { font-size: 1.08rem; }
+.member-home-scripture cite { font-size: 0.92rem; }
+
 .member-quick-launchpad {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -26459,6 +26473,12 @@ html[data-theme="dark"] .daily-scripture {
     margin: 0 16px 20px;
     width: auto;
     max-width: none;
+  }
+  .member-home-scripture {
+    position: static;
+    width: 100%;
+    max-width: 510px;
+    margin: 0;
   }
   .module-directory-hero { flex-direction: column; justify-content: flex-end; align-items: stretch; }
 }

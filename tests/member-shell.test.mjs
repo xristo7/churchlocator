@@ -509,6 +509,7 @@ test("SPA shell supports member home dashboard and interactive meditation sanctu
   const shellJs = await readProjectFile("public/app-shell.js");
   const memberHomeHtml = await readProjectFile("public/member-home.html");
   const memberHomeJs = await readProjectFile("public/member-home.js");
+  const churchesHtml = await readProjectFile("public/churches.html");
   const medHtml = await readProjectFile("public/meditation.html");
   const medJs = await readProjectFile("public/meditation.js");
   const styles = await readProjectFile("public/styles.css");
@@ -524,6 +525,10 @@ test("SPA shell supports member home dashboard and interactive meditation sanctu
   // Member home sections
   assert.match(memberHomeHtml, /Welcome to Your Fellowship/);
   assert.match(memberHomeHtml, /data-member-home-name/);
+  assert.match(memberHomeHtml, /daily-scripture\.js\?/);
+  assert.match(memberHomeHtml, /class="daily-scripture member-home-scripture" data-daily-scripture/);
+  assert.doesNotMatch(memberHomeHtml, /class="member-verse-pill"/);
+  assert.match(churchesHtml, /class="daily-scripture" data-daily-scripture/);
   assert.match(memberHomeHtml, /launch-spotlight/);
   assert.match(memberHomeJs, /MWEPlatform\?\.session\?\.name/);
   assert.match(styles, /\.member-quick-launchpad\s*\{[^}]*repeat\(6, minmax\(0, 1fr\)\)/);
