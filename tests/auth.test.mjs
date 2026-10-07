@@ -369,7 +369,7 @@ test("Google callback creates a verified account and issues an app session", asy
     assert.equal(response.status, 302);
     assert.equal(response.headers.get("location"), "/member");
     assert.ok(extractSessionCookie(response));
-    assert.doesNotMatch(response.headers.get("set-cookie"), /mwe_google_oauth_state=/);
+    assert.match(response.headers.get("set-cookie"), /mwe_google_oauth_state=;[^,]*Max-Age=0/);
     const id = env.DB._debug.usersByEmail.get("grace@example.com");
     assert.equal(id, "google:google-user-123");
     assert.equal(env.DB._debug.usersById.get(id).password_hash, "authentication-disabled");

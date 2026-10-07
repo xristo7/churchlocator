@@ -616,9 +616,15 @@ async function handleGoogleAuthCallback(request, env) {
       grant_type: "authorization_code"
     })
   });
-  if (!tokenResponse.ok) return redirectWithCookies("/?auth_error=google_token", [clearStateCookie]);
-  const tokenPayload = await tokenResponse.json();
-  if (!tokenPayload?.access_token) return redirectWithCookies("/?auth_error=google_token", [clearStateCookie]);
+  const tokenPayload = await tokenResponse.json().catch(() => null);
+  if (!tokenResponse.ok || !tokenPayload?.access_token) {
+    console.error("Google OAuth token exchange failed", JSON.stringify({
+      status: tokenResponse.status,
+      error: tokenPayload?.error || "missing_access_token",
+      errorDescription: tokenPayload?.error_description || ""
+    }));
+    return redirectWithCookies("/?auth_error=google_token", [clearStateCookie]);
+  }
 
   const profileResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
     headers: { authorization: `Bearer ${tokenPayload.access_token}` }

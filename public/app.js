@@ -1645,11 +1645,13 @@ MWE.ensureMemberLoginModal = function() {
       <div class="auth-divider member-auth-divider"><span>or continue with email</span></div>
       <form class="member-auth-form" data-member-auth-form>
         <p class="member-auth-error" data-member-auth-error hidden></p>
-        <label>Email address
-          <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+        <label class="member-auth-field"><span class="auth-visually-hidden">Email address</span>
+          <input type="email" name="email" autocomplete="email" placeholder="Email address" required />
+          <small class="auth-field-helper">Use the email on your My Way account.</small>
         </label>
-        <label>Password
-          <input type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required />
+        <label class="member-auth-field"><span class="auth-visually-hidden">Password</span>
+          <input type="password" name="password" autocomplete="current-password" placeholder="Password" required />
+          <small class="auth-field-helper">Enter your account password.</small>
         </label>
         <button class="member-auth-submit" type="submit"><i data-lucide="log-in"></i> Sign in</button>
         <p class="member-auth-hint">No account yet? <a href="index.html#register">Register free</a> first.</p>
@@ -5393,17 +5395,19 @@ function updateHomepageAuthUI() {
             <!-- Auth Credentials Form -->
             <form id="nav-dropdown-auth-form" onsubmit="MWE.handleNavDropdownAuthSubmit(event)">
               <p class="member-auth-error" id="nav-auth-error" hidden></p>
-              <div class="form-group mb-2" id="nav-auth-name-group" style="display: none;">
-                <label for="nav-auth-name">Full Name</label>
-                <input type="text" id="nav-auth-name" name="name" class="field small-field" placeholder="e.g. John Doe" />
+              <div class="form-group mb-2 signin-field-group" id="nav-auth-name-group" style="display: none;">
+                <label for="nav-auth-name" class="auth-visually-hidden">Full name</label>
+                <input type="text" id="nav-auth-name" name="name" class="field small-field" placeholder="Full name" autocomplete="name" />
               </div>
-              <div class="form-group mb-2">
-                <label for="nav-auth-email" id="nav-auth-email-label">Email Address</label>
-                <input type="email" id="nav-auth-email" name="email" class="field small-field" placeholder="you@example.com" required />
+              <div class="form-group mb-2 signin-field-group">
+                <label for="nav-auth-email" id="nav-auth-email-label" class="auth-visually-hidden">Email address</label>
+                <input type="email" id="nav-auth-email" name="email" class="field small-field" placeholder="Email address" autocomplete="email" required />
+                <small class="auth-field-helper">Use the email on your My Way account.</small>
               </div>
-              <div class="form-group mb-3">
-                <label for="nav-auth-password">Password</label>
-                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required minlength="8" />
+              <div class="form-group mb-3 signin-field-group">
+                <label for="nav-auth-password" class="auth-visually-hidden">Password</label>
+                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Password" autocomplete="current-password" required minlength="8" />
+                <small class="auth-field-helper">Enter your account password.</small>
               </div>
               <button type="submit" class="button primary small" id="nav-auth-submit-btn" style="width: 100%;">
                 <i data-lucide="log-in"></i> <span>Sign In</span>
@@ -5477,7 +5481,9 @@ MWE.switchAuthDropdownTab = function(tab) {
   const btnSignin = document.getElementById("tab-btn-signin");
   const btnRegister = document.getElementById("tab-btn-register");
   const nameGroup = document.getElementById("nav-auth-name-group");
+  const nameInput = document.getElementById("nav-auth-name");
   const emailLabel = document.getElementById("nav-auth-email-label");
+  const passwordInput = document.getElementById("nav-auth-password");
   const submitBtn = document.getElementById("nav-auth-submit-btn");
   const googleLabel = document.getElementById("google-auth-fast-label");
 
@@ -5485,14 +5491,28 @@ MWE.switchAuthDropdownTab = function(tab) {
     btnRegister?.classList.add("active");
     btnSignin?.classList.remove("active");
     if (nameGroup) nameGroup.style.display = "block";
+    if (nameInput) nameInput.required = true;
     if (emailLabel) emailLabel.textContent = "Email Address";
+    if (passwordInput) {
+      passwordInput.minLength = 15;
+      passwordInput.maxLength = 128;
+      passwordInput.autocomplete = "new-password";
+      passwordInput.placeholder = "At least 15 characters";
+    }
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="user-plus"></i> <span>Create Account</span>`;
     if (googleLabel) googleLabel.textContent = "Sign up with Google";
   } else {
     btnSignin?.classList.add("active");
     btnRegister?.classList.remove("active");
     if (nameGroup) nameGroup.style.display = "none";
+    if (nameInput) nameInput.required = false;
     if (emailLabel) emailLabel.textContent = "Email Address";
+    if (passwordInput) {
+      passwordInput.removeAttribute("minlength");
+      passwordInput.removeAttribute("maxlength");
+      passwordInput.autocomplete = "current-password";
+      passwordInput.placeholder = "Password";
+    }
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="log-in"></i> <span>Sign In</span>`;
     if (googleLabel) googleLabel.textContent = "Continue with Google";
   }
@@ -5502,6 +5522,7 @@ MWE.switchAuthDropdownTab = function(tab) {
 MWE.handleNavDropdownAuthSubmit = async function(event) {
   event.preventDefault();
   const form = event.currentTarget;
+  if (!form.reportValidity()) return;
   const fd = new FormData(form);
   const name = (fd.get("name") || "").toString().trim();
   const email = (fd.get("email") || "").toString().trim();
@@ -5517,25 +5538,29 @@ MWE.handleNavDropdownAuthSubmit = async function(event) {
   }
 
   if (submitBtn) submitBtn.disabled = true;
-  const result = isRegister
-    ? await window.MWEAuth.register(name, email, password)
-    : await window.MWEAuth.login(email, password);
-  if (submitBtn) submitBtn.disabled = false;
+  try {
+    const result = isRegister
+      ? await window.MWEAuth.register(name, email, password)
+      : await window.MWEAuth.login(email, password);
+    if (!result.ok) {
+      if (errorEl) { errorEl.textContent = result.error || "Something went wrong. Please try again."; errorEl.hidden = false; }
+      return;
+    }
 
-  if (!result.ok) {
-    if (errorEl) { errorEl.textContent = result.error || "Something went wrong. Please try again."; errorEl.hidden = false; }
-    return;
+    const username = result.user?.name || email.split("@")[0] || "Member";
+    const popover = document.getElementById("nav-signin-popover");
+    if (popover) popover.hidden = true;
+    document.getElementById("nav-signin-dropdown-container")?.classList.remove("is-open");
+
+    if (typeof showToast === "function") {
+      showToast((isRegister ? "Welcome to My Way of Evangelism, " : "Welcome back, ") + username);
+    }
+    updateHomepageAuthUI();
+  } catch {
+    if (errorEl) { errorEl.textContent = "Sign-in is unavailable right now. Please try again."; errorEl.hidden = false; }
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
   }
-
-  const username = result.user?.name || email.split("@")[0] || "Member";
-  const popover = document.getElementById("nav-signin-popover");
-  if (popover) popover.hidden = true;
-  document.getElementById("nav-signin-dropdown-container")?.classList.remove("is-open");
-
-  if (typeof showToast === "function") {
-    showToast((isRegister ? "Welcome to My Way of Evangelism, " : "Welcome back, ") + username);
-  }
-  updateHomepageAuthUI();
 };
 
 MWE.handleGoogleAuthFast = function(destination) {

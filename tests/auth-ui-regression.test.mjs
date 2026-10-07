@@ -11,9 +11,12 @@ test("account form matches the server password policy and requires a name for re
     fs.readFile(path.join(root, "public", "index.html"), "utf8")
   ]);
 
-  assert.match(app, /minlength="15" maxlength="128"/);
-  assert.match(index, /minlength="15" maxlength="128"/);
-  assert.match(app, /nameInput\.required = true/);
+  assert.match(app, /passwordInput\.minLength = 15/);
+  assert.match(app, /passwordInput\.maxLength = 128/);
+  assert.match(app, /passwordInput\.removeAttribute\("minlength"\)/);
+  assert.match(app, /nameInput\) nameInput\.required = true/);
+  assert.match(index, /id="nav-auth-email"[^>]*placeholder="Email address"/);
+  assert.match(index, /id="nav-auth-password"[^>]*placeholder="Password"/);
   assert.match(app, /if \(!form\.reportValidity\(\)\) return/);
   assert.match(app, /finally \{\s*if \(submitBtn\) submitBtn\.disabled = false;/);
 });

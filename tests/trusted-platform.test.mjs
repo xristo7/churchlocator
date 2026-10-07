@@ -15,7 +15,7 @@ function setup() {
  for(const id of ['alice','bob','viewer','pastor','owner']) db.prepare('insert into users (id,email,name,password_hash,password_salt,is_creator,created_at,email_verified_at,totp_secret_encrypted) values (?,?,?,?,?,?,?,?,?)').run(id,id+'@example.test',id,'authentication-disabled','',1,now,now,id==='owner'?'encrypted-mfa':null);
  db.prepare("insert into platform_roles values ('owner','owner')").run();
  let current='alice';
- const ctx={json:(body,status=200)=>new Response(JSON.stringify(body),{status}),getSessionUser:async()=>({...db.prepare('select * from users where id=?').get(current),mfa_verified_at:now,session_created_at:now})};
+ const ctx={json:(body,status=200)=>new Response(JSON.stringify(body),{status}),getSessionUser:async()=>{const user=db.prepare('select * from users where id=?').get(current);return user?{...user,mfa_verified_at:now,session_created_at:now}:null;}};
  const call=async(path,method='GET',body)=>{const request=new Request('https://example.test/api/'+path,{method,headers:{'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});return handlePlatformApi(request,env,ctx);};
  return {db,env,ctx,call,as:id=>current=id};
 }
@@ -75,6 +75,16 @@ test('church teams control ride dispatch while requesters cannot forge confirmat
 test('paid resource material never appears in public catalog and access requires a server entitlement',async()=>{
  const s=setup();s.as('owner'); const {record}=await (await s.call('workspace/resources','POST',{title:'Paid book',access:'Paid',price:12,pages:['Secret chapter'],sourceUrl:'https://material.example/book.pdf',publicationState:'published'})).json();
  assert.equal((await (await s.call('catalog/resources')).json()).records[0].pages,undefined);s.as('bob');await assert.rejects(s.call('resource-material/'+record.id),{status:403});
+});
+test('video resource comments are public to read and require sign-in to post',async()=>{
+ const s=setup();s.as('owner');const {record:video}=await (await s.call('workspace/resources','POST',{title:'Video lesson',type:'Video',access:'Free',publicationState:'published'})).json();
+ const {record:audio}=await (await s.call('workspace/resources','POST',{title:'Audio lesson',type:'Audio',access:'Free',publicationState:'published'})).json();
+ s.as('viewer');await assert.rejects(s.call('resource-comments/'+audio.id),{status:404});
+ const first=await s.call('resource-comments/'+video.id);assert.equal((await first.json()).comments.length,0);
+ s.as('guest');await assert.rejects(s.call('resource-comments/'+video.id,'POST',{body:'Not signed in'}),{status:401});
+ s.as('alice');const posted=await s.call('resource-comments/'+video.id,'POST',{body:'A helpful lesson.'});assert.equal(posted.status,201);assert.equal((await posted.json()).comment.name,'alice');
+ const visible=(await (await s.call('resource-comments/'+video.id)).json()).comments;assert.equal(visible.length,1);assert.equal(visible[0].body,'A helpful lesson.');assert.equal(visible[0].email,undefined);
+ await assert.rejects(s.call('resource-comments/'+video.id,'POST',{body:'x'.repeat(1001)}),{status:400});
 });
 test('event projection preserves reservations and rejects capacity reductions',async()=>{
  const s=setup();s.as('owner');const payload={title:'Future event',eventType:'online',startsAt:'2099-01-01T10:00:00Z',endsAt:'2099-01-01T11:00:00Z',currency:'USD',totalTickets:10,ticketPriceCents:0,publicationState:'published'};

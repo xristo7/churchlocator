@@ -252,8 +252,8 @@ test("light mode keeps account, message settings, icons, and card text readable"
   assert.doesNotMatch(styles, /\.member-account-menu span\s*\{/);
   assert.doesNotMatch(styles, /html\[data-theme="dark"\] span:not/);
   assert.doesNotMatch(styles, /html:not\(\[data-theme="dark"\]\) \.tiny-(?:church-card|card-name)\s*\{[^}]*color:\s*var\(--background-secondary\)/);
-  assert.match(app, /styles\.css\?v=20260919theme1/);
-  assert.match(messages, /styles\.css\?v=20260919theme1/);
+  assert.match(app, /styles\.css\?v=20261007authfields1/);
+  assert.match(messages, /styles\.css\?v=20261007authfields1/);
 });
 
 test("public light header keeps sign in readable and shows section icons only in the drawer", async () => {
@@ -359,6 +359,12 @@ test("member sign-in modal offers Google OAuth and preserves its destination", a
   assert.match(app, /safeDestination\.pathname\}\$\{safeDestination\.search\}\$\{safeDestination\.hash/);
   assert.doesNotMatch(app, /if \(modal\.dataset\.locked === "true"\) return;/);
   assert.match(styles, /\.member-auth-google/);
+  assert.match(app, /name="email" autocomplete="email" placeholder="Email address"/);
+  assert.match(app, /name="password" autocomplete="current-password" placeholder="Password"/);
+  assert.match(app, /id="nav-auth-email"[^>]*placeholder="Email address"/);
+  assert.match(styles, /\.member-auth-field:focus-within \.auth-field-helper/);
+  assert.match(styles, /\.signin-dropdown-popover #nav-auth-submit-btn \{[^}]*height:48px[^}]*border-radius:11px/);
+  assert.match(styles, /@media \(max-width:600px\) \{[\s\S]*\.signin-dropdown-popover \{ position:fixed;[^}]*left:12px/);
 });
 
 test("security headers allow only same-origin pages inside the member shell", async () => {

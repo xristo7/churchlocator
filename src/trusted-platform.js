@@ -193,8 +193,28 @@ export async function writeEntity(request,env,ctx,kind,id) {
 }
 export async function handlePlatformApi(request,env,ctx) {
  const url=new URL(request.url), parts=url.pathname.split('/').filter(Boolean), scope=parts[1];
- if(!['catalog','taxonomies','workspace','private','admin-audit','tenant-members','resource-material','livestream-chat','meditation-chat'].includes(scope)) return null;
+ if(!['catalog','taxonomies','workspace','private','admin-audit','tenant-members','resource-material','resource-comments','livestream-chat','meditation-chat'].includes(scope)) return null;
  if(!env.DB) throw new ApiError(503,'Storage unavailable.');
+ if(scope==='resource-comments') {
+  const resourceId=parts[2];
+  if(!resourceId || resourceId.length>128) throw new ApiError(404,'Video resource not found.');
+  const resource=await env.DB.prepare("select id from platform_entities where id=? and kind='resources' and state='published' and json_extract(data_json,'$.type')='Video'").bind(resourceId).first();
+  if(!resource) throw new ApiError(404,'Video resource not found.');
+  if(request.method==='GET') {
+   const {results}=await env.DB.prepare(`select c.id,c.user_id,c.body,c.created_at,u.name
+    from resource_comments c join users u on u.id=c.user_id
+    where c.resource_id=? and c.status='visible'
+    order by c.created_at desc,c.id desc limit 100`).bind(resourceId).all();
+   const viewer=await ctx.getSessionUser(request,env);
+   return ctx.json({ok:true,comments:(results||[]).reverse().map(row=>({id:row.id,name:row.name,body:row.body,createdAt:row.created_at,own:row.user_id===viewer?.id}))});
+  }
+  if(request.method==='POST') {
+   const user=await requireUser(request,env,ctx), input=await readJson(request), body=requiredText(input.body,'Comment',1000), id=crypto.randomUUID(), createdAt=new Date().toISOString();
+   await env.DB.prepare("insert into resource_comments (id,resource_id,user_id,body,status,created_at) values (?,?,?,?,'visible',?)").bind(id,resourceId,user.id,body,createdAt).run();
+   return ctx.json({ok:true,comment:{id,name:user.name,body,createdAt,own:true}},201);
+  }
+  throw new ApiError(405,'Method not allowed.');
+ }
  if(scope==='meditation-chat') {
   const roomId=parts[2];
   if(!roomId || roomId.length>128) throw new ApiError(404,'Meditation chat not found.');
