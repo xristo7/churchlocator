@@ -5118,8 +5118,25 @@ body.lights-out .mini-footer-links a:hover {
 .editorial-card .resource-cover-icon { z-index: 3; left: 18px; top: 18px; bottom: auto; width: 46px; height: 46px; border-radius: 99px; box-shadow: 0 8px 24px rgba(4,18,52,.18); }
 .editorial-card .resource-type-label { position: absolute; z-index: 3; left: 18px; bottom: 17px; padding: 7px 10px; border-radius: 9px; color: #102554; background: rgba(255,255,255,.94); font-size: .67rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
 .editorial-card .resource-card-body { padding: 22px; }
-.editorial-card h3 { min-height: 50px; margin: 11px 0 7px; font-size: 1.08rem; line-height: 1.36; }
-.editorial-card .resource-card-body > p { margin: 12px 0 18px; font-size: .77rem; line-height: 1.6; }
+.editorial-card .resource-card-body { display: flex; min-height: 286px; flex-direction: column; padding: 21px; }
+.editorial-card .resource-identity { display: grid; gap: 8px; }
+.editorial-card h3 { min-height: 0; margin: 0; font-size: 1.08rem; line-height: 1.36; letter-spacing: -.015em; }
+.editorial-card .resource-subtitle { display: flex; align-items: center; gap: 7px; color: #8290a8; font-size: .7rem; font-weight: 700; }
+.editorial-card .resource-topic { color: #3972d4; font-weight: 850; }
+.editorial-card .resource-card-body > p { display: -webkit-box; overflow: hidden; margin: 12px 0 14px; color: #5f6f89; font-size: .78rem; line-height: 1.6; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.editorial-card .resource-channel-link { display: flex; min-width: 0; align-items: center; gap: 10px; margin-top: auto; padding: 11px 12px; border: 1px solid #e7edf7; border-radius: 13px; color: #263d65; background: #f8faff; text-decoration: none; transition: border-color .18s ease, background .18s ease; }
+.editorial-card .resource-channel-link:hover { border-color: #bfd2f5; background: #f1f6ff; }
+.editorial-card .resource-channel-link > svg { width: 17px; flex: 0 0 auto; color: #3878e8; }
+.editorial-card .resource-channel-link > span { display: grid; min-width: 0; gap: 2px; overflow: hidden; font-size: .73rem; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.editorial-card .resource-channel-link small { color: #8a97ac; font-size: .59rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.editorial-card .resource-channel-link strong { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 3px; margin-left: auto; color: #3972d4; font-size: .64rem; font-weight: 850; white-space: nowrap; }
+.editorial-card .resource-channel-link strong svg { width: 13px; height: 13px; }
+.editorial-card .resource-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 13px; border-top: 1px solid #edf1f7; }
+.editorial-card .resource-duration { display: inline-flex; align-items: center; gap: 6px; color: #78869d; font-size: .68rem; font-weight: 750; }
+.editorial-card .resource-duration svg { width: 15px; height: 15px; }
+.editorial-card .resource-price-badge { padding: 7px 11px; border-radius: 999px; color: #256a4e; background: #eaf7f0; font-size: .69rem; font-weight: 900; }
+.editorial-card .resource-price-badge.paid { color: #6245a5; background: #f1edfb; }
+.editorial-card .resource-price-badge { white-space: nowrap; }
 .resources-grid.list-view .editorial-card { grid-template-columns: 260px 1fr; }
 .resource-preview-action { width: 100%; min-height: 46px; margin-top: 11px; border: 1px solid var(--border-subtle); border-radius: 13px; color: #2875f2; background: #fff; font-weight: 850; cursor: pointer; }
 .resource-reader { margin-top: 34px; overflow: hidden; scroll-margin-top: 92px; border: 1px solid var(--border-subtle); border-radius: 26px; background: #fff; box-shadow: 0 24px 70px rgba(18,54,120,.12); }

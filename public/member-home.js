@@ -73,6 +73,13 @@
     container.innerHTML = resources.map((r, index) => {
       const icon = r.type === "Video" ? "video" : r.type === "Audio" ? "headphones" : "file-text";
       const priceTag = r.access === "Free" ? "Free" : data().money(r.price);
+      const creatorName = String(r.creator || "My Way").trim();
+      const normalizedCreator = creatorName.toLocaleLowerCase();
+      const channel = (data().getChannels() || []).find(c =>
+        [c.name, c.owner, c.handle].some(value => String(value || "").trim().toLocaleLowerCase() === normalizedCreator)
+      );
+      const channelHref = channel ? "channel-detail.html?id=" + encodeURIComponent(channel.id) : "channels.html";
+      const channelLinkLabel = channel ? "View channel" : "Explore channels";
 
       return '<article class="resource-card editorial-card tone-' + (index % 6) + '">' +
         '<a class="resource-cover" href="resource-detail.html?id=' + encodeURIComponent(r.id) + '" aria-label="View ' + data().escapeHtml(r.title) + '">' +
@@ -82,14 +89,14 @@
         '</a>' +
         '<div class="resource-card-body">' +
           '<div class="resource-identity">' +
-            '<span class="resource-topic">' + data().escapeHtml(r.topic) + '</span>' +
             '<h3><a href="resource-detail.html?id=' + encodeURIComponent(r.id) + '">' + data().escapeHtml(r.title) + '</a></h3>' +
-            '<span class="resource-creator">By ' + data().escapeHtml(r.creator) + '</span>' +
+            '<span class="resource-subtitle"><span class="resource-topic">' + data().escapeHtml(r.topic) + '</span><span aria-hidden="true">·</span>' + data().escapeHtml(r.format || r.type) + '</span>' +
           '</div>' +
           '<p class="resource-desc">' + data().escapeHtml(r.description) + '</p>' +
+          '<a class="resource-channel-link" href="' + channelHref + '" aria-label="' + channelLinkLabel + ': ' + data().escapeHtml(creatorName) + '"><i data-lucide="radio-tower" aria-hidden="true"></i><span><small>From</small>' + data().escapeHtml(creatorName) + '</span><strong>' + channelLinkLabel + '<i data-lucide="arrow-up-right" aria-hidden="true"></i></strong></a>' +
           '<div class="resource-card-footer">' +
             '<span class="resource-duration"><i data-lucide="clock"></i> ' + data().escapeHtml(r.duration) + '</span>' +
-            '<strong class="resource-price-badge">' + priceTag + '</strong>' +
+            '<strong class="resource-price-badge' + (r.access === "Free" ? "" : " paid") + '">' + priceTag + '</strong>' +
           '</div>' +
         '</div>' +
       '</article>';
