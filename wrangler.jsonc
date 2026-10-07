@@ -23,7 +23,7 @@
     "ENVIRONMENT": "production",
     "LIVE_CF_ACCOUNT_ID": "17e900e2ac8567adf3e60c83fc64589e",
     "PUBLIC_ORIGIN": "https://my-way-of-evangelism.doxalight-inc.workers.dev",
-    "GOOGLE_CLIENT_ID": "744058453576-4v84hjrpkrun06tcnqn0ni8smuh6udgv.apps.googleusercontent.com"
+    "GOOGLE_CLIENT_ID": "744058453576-38m5g7h2jafifi44ptv4m5uft11jangi.apps.googleusercontent.com"
   },
   "secrets": {
     "required": ["GOOGLE_CLIENT_SECRET", "AUTH_ENCRYPTION_KEY"]
