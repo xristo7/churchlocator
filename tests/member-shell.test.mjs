@@ -196,6 +196,23 @@ test("channel profile separates cover metadata, identity, description, and stats
   assert.match(detail, /About the channel/);
 });
 
+test("channel cards have two actions and public channel pages do not trigger the member gate", async () => {
+  const [app, channels, detail, styles] = await Promise.all([
+    readProjectFile("public/app.js"),
+    readProjectFile("public/channels.js"),
+    readProjectFile("public/channel-detail.js"),
+    readProjectFile("public/styles.css")
+  ]);
+  const guards = app.match(/const isProtectedDetail = ([^;]+);/g) || [];
+  assert.equal(guards.length, 2);
+  for (const guard of guards) assert.doesNotMatch(guard, /channel-detail|channel-content/);
+  assert.match(channels, /Open Channel/);
+  assert.match(channels, /Get in touch/);
+  assert.match(channels, /Number\.isFinite\(count\) \? count : 0/);
+  assert.match(detail, /Array\.isArray\(channel\.posts\)/);
+  assert.match(styles, /\.channel-card-actions\s*\{/);
+});
+
 test("light and dark themes persist across the public site and member shell", async () => {
   const app = await readProjectFile("public/app.js");
   const styles = await readProjectFile("public/styles.css");

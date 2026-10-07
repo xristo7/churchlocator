@@ -1833,7 +1833,7 @@ MWE.initMemberExperience = function() {
       }
 
       if (!route) return;
-      const isProtectedDetail = route.view === "church" || route.view === "event" || route.view === "channel-detail" || route.view === "channel-content" || route.view === "messages" || route.view === "store-manager" || route.view === "cart" || route.view === "checkout" || route.view === "profile" || route.view === "security" || (route.view === "livestream" && Boolean(route.id));
+      const isProtectedDetail = route.view === "church" || route.view === "event" || route.view === "messages" || route.view === "store-manager" || route.view === "cart" || route.view === "checkout" || route.view === "profile" || route.view === "security" || (route.view === "livestream" && Boolean(route.id));
       if (!MWE.isMemberAuthenticated() && isProtectedDetail) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -1859,7 +1859,7 @@ MWE.initMemberExperience = function() {
     return "redirecting";
   }
 
-  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "event" || currentRoute.view === "channel-detail" || currentRoute.view === "channel-content" || currentRoute.view === "messages" || currentRoute.view === "store-manager" || currentRoute.view === "cart" || currentRoute.view === "checkout" || currentRoute.view === "profile" || currentRoute.view === "security" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
+  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "event" || currentRoute.view === "messages" || currentRoute.view === "store-manager" || currentRoute.view === "cart" || currentRoute.view === "checkout" || currentRoute.view === "profile" || currentRoute.view === "security" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
   if (isProtectedDetail) {
     MWE.openMemberLogin(MWE.buildMemberShellUrl(currentRoute), { locked: true });
     return "locked";

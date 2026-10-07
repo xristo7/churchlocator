@@ -23,6 +23,12 @@
       return;
     }
 
+    const channelPostCount = channel => {
+      const value = channel.items ?? (Array.isArray(channel.posts) ? channel.posts.length : channel.posts);
+      const count = Number(value);
+      return Number.isFinite(count) ? count : 0;
+    };
+
     grid.innerHTML = channels.map(channel => `
       <article class="channel-profile-card">
         <a class="channel-profile-cover" href="channel-detail.html?id=${encodeURIComponent(channel.id)}" aria-label="Open ${data.escapeHtml(channel.name)}">
@@ -36,11 +42,11 @@
           <div class="channel-profile-identity"><div><h3><a href="channel-detail.html?id=${encodeURIComponent(channel.id)}">${data.escapeHtml(channel.name)}</a>${channel.verified ? `<i data-lucide="badge-check" aria-label="Verified"></i>` : ""}</h3><span>${data.escapeHtml(channel.owner)} · ${data.escapeHtml(channel.topic)}</span></div><span class="channel-online"><i></i>${channel.live ? "Live now" : "Active"}</span></div>
           <p>${data.escapeHtml(channel.description)}</p>
           <div class="channel-platform-stats">
-            <span><strong>${Number(channel.followers) >= 1000 ? `${(Number(channel.followers) / 1000).toFixed(1)}K` : Number(channel.followers)}</strong><small>Followers</small></span>
-            <span><strong>${Number(channel.items).toLocaleString()}</strong><small>${channel.format === "Podcast" ? "Episodes" : "Posts"}</small></span>
+            <span><strong>${(Number(channel.followers) || 0) >= 1000 ? `${((Number(channel.followers) || 0) / 1000).toFixed(1)}K` : (Number(channel.followers) || 0).toLocaleString()}</strong><small>Followers</small></span>
+            <span><strong>${channelPostCount(channel).toLocaleString()}</strong><small>${channel.format === "Podcast" ? "Episodes" : "Posts"}</small></span>
             <span><strong>${channel.verified ? "4.9" : "4.7"}</strong><small>Rating</small></span>
           </div>
-          <a class="channel-contact-button" href="messages.html?compose=channel&id=${encodeURIComponent(channel.id)}"><i data-lucide="message-circle"></i> Get in touch</a>
+          <div class="channel-card-actions"><a class="channel-open-button" href="channel-detail.html?id=${encodeURIComponent(channel.id)}"><i data-lucide="radio-tower"></i> Open Channel</a><a class="channel-contact-button" href="messages.html?compose=channel&id=${encodeURIComponent(channel.id)}"><i data-lucide="message-circle"></i> Get in touch</a></div>
         </div>
       </article>
     `).join("");

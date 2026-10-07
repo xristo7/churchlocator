@@ -5326,6 +5326,11 @@ html[data-theme="dark"] :where(.channel-profile-card, .store-product-card, .reso
 .channel-contact-button:hover { background: var(--primary-hover); transform: translateY(-1px); }
 .channel-contact-button:hover { background: #246fee; }
 .channel-contact-button svg { width: 16px; }
+.channel-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 14px; }
+.channel-card-actions .channel-contact-button { margin-top: 0; }
+.channel-open-button { min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 10px; border: 1px solid #d7e0f0; border-radius: 13px; background: #f5f8ff; color: #244779 !important; font-size: .78rem; font-weight: 820; text-decoration: none; transition: background .2s ease, transform .15s ease; }
+.channel-open-button:hover { background: #eaf1ff; transform: translateY(-1px); }
+.channel-open-button svg { width: 16px; }
 
 .channel-detail-page { padding: 30px 0 70px; }
 .channel-detail-hero { overflow: hidden; border: 1px solid var(--border-subtle); border-radius: 27px; background: #fff; box-shadow: 0 20px 55px rgba(25,52,108,.1); }
