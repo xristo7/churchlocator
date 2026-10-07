@@ -30,6 +30,7 @@
       const actualPosts=[...result.items,...channelPosts.map((post,index)=>({id:String(index),title:post.title,caption:post.summary,posterUrl:post.image||channel.cover}))];
       const stats=document.querySelectorAll('.channel-detail-stats strong');stats[0].textContent=(Number(result.followers)||Number(channel.followers)||0).toLocaleString();stats[1].textContent=actualPosts.length||listedPostCount;
       grid.innerHTML=actualPosts.length?actualPosts.map(item=>`<article><a class="channel-content-cover" href="channel-content.html?channel=${encodeURIComponent(channel.id)}&post=${encodeURIComponent(item.id)}"><img src="${data().escapeHtml(item.posterUrl)}" alt="" /><span><i data-lucide="play"></i></span></a><h3><a href="channel-content.html?channel=${encodeURIComponent(channel.id)}&post=${encodeURIComponent(item.id)}">${data().escapeHtml(item.title)}</a></h3><p>${data().escapeHtml(item.caption)}</p></article>`).join(''):'<p>No published content yet.</p>';
+      grid.querySelectorAll('.channel-content-cover img').forEach(image=>image.addEventListener('error',()=>{image.hidden=true;},{once:true}));
       const controls=document.querySelector('.channel-follow-controls');
       let following=result.following;
       function draw(){controls.innerHTML=`<button type="button" data-channel-follow aria-pressed="${following}">${following?'Following':'Follow'}</button>`;controls.querySelector('button').onclick=()=>save(!following);}
