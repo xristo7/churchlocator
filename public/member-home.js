@@ -33,7 +33,10 @@
     const channels = data().getChannels().slice(0, 3);
     container.innerHTML = channels.map(c => {
       const icon = c.format === "Podcast" ? "mic-2" : c.format === "Livestream" ? "radio" : "play-square";
-      const followers = Number(c.followers) >= 1000 ? (Number(c.followers) / 1000).toFixed(1) + 'K' : Number(c.followers);
+      const count = value => { const number = Number(value); return Number.isFinite(number) && number > 0 ? number : 0; };
+      const followerCount = count(c.followers ?? c.followerCount);
+      const postCount = count(c.items ?? c.itemCount ?? c.postCount ?? (Array.isArray(c.posts) ? c.posts.length : c.posts));
+      const followers = followerCount >= 1000 ? (followerCount / 1000).toFixed(1) + 'K' : followerCount.toLocaleString();
       const itemsLabel = c.format === "Podcast" ? "Episodes" : "Posts";
 
       return '<article class="channel-profile-card">' +
@@ -54,7 +57,7 @@
           '<p>' + data().escapeHtml(c.description) + '</p>' +
           '<div class="channel-platform-stats">' +
             '<span><strong>' + followers + '</strong><small>Followers</small></span>' +
-            '<span><strong>' + Number(c.items).toLocaleString() + '</strong><small>' + itemsLabel + '</small></span>' +
+            '<span><strong>' + postCount.toLocaleString() + '</strong><small>' + itemsLabel + '</small></span>' +
             '<span><strong>' + (c.verified ? "4.9" : "4.7") + '</strong><small>Rating</small></span>' +
           '</div>' +
           '<a class="channel-contact-button" href="messages.html?compose=channel&id=' + encodeURIComponent(c.id) + '"><i data-lucide="message-circle"></i> Connect with ' + data().escapeHtml(c.owner.split(' ')[0]) + '</a>' +
@@ -118,6 +121,8 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
   await window.MWEPlatform?.ready;
+    const sessionName = window.MWEPlatform?.session?.name || localStorage.getItem("mwe.username") || "there";
+    document.querySelectorAll("[data-member-home-name]").forEach(node => { node.textContent = sessionName; });
     renderStreams();
     renderChannels();
     renderResources();

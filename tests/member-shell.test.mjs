@@ -517,6 +517,13 @@ test("SPA shell supports member home dashboard and interactive meditation sanctu
 
   // Member home sections
   assert.match(memberHomeHtml, /Welcome to Your Fellowship/);
+  assert.match(memberHomeHtml, /data-member-home-name/);
+  assert.match(memberHomeHtml, /launch-spotlight/);
+  assert.match(memberHomeJs, /MWEPlatform\?\.session\?\.name/);
+  assert.match(styles, /\.member-quick-launchpad\s*\{[^}]*repeat\(6, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /\.launch-card\.launch-spotlight\s*\{[^}]*spotlight\/grace-testimony\.webp/);
+  assert.match(memberHomeJs, /Number\.isFinite\(number\)/);
+  assert.match(memberHomeJs, /postCount\.toLocaleString\(\)/);
   assert.match(memberHomeHtml, /Meditation Sanctuary/);
   assert.match(memberHomeHtml, /Virtual Sanctuary Streams/);
   assert.match(memberHomeHtml, /Inspiring Channels & Podcasts/);
