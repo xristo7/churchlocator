@@ -20943,11 +20943,20 @@ html[data-theme="dark"] .template-choice-card {
 
 .module-directory-hero .module-kicker,
 .module-directory-hero .kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
   margin: 0 0 22px;
+  padding: 8px 14px;
+  border: 1px solid var(--primary-border);
+  border-radius: 999px;
+  background: var(--primary-surface);
   color: #b35cff;
   font-size: 0.78rem;
   font-weight: 850;
   letter-spacing: 0.12em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
