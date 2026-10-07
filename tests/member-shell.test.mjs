@@ -210,7 +210,11 @@ test("channel cards have two actions and public channel pages do not trigger the
   assert.match(channels, /Get in touch/);
   assert.match(channels, /Number\.isFinite\(count\) \? count : 0/);
   assert.match(detail, /Array\.isArray\(channel\.posts\)/);
+  assert.match(detail, /channel-detail-actions/);
+  assert.match(detail, /channel-follow-controls/);
   assert.match(styles, /\.channel-card-actions\s*\{/);
+  assert.match(styles, /\.channel-detail-modern \.channel-follow-controls button\s*\{[^}]*border-radius:\s*999px/);
+  assert.match(styles, /\.channel-detail-modern \.channel-detail-actions\s*\{[^}]*justify-content:\s*flex-end/);
   assert.match(styles, /\.module-directory-hero \.module-kicker,[\s\S]*?border-radius:\s*999px/);
   assert.match(styles, /\.module-directory-hero \.module-kicker,[\s\S]*?padding:\s*8px 14px/);
 });
