@@ -524,6 +524,10 @@ test("SPA shell supports member home dashboard and interactive meditation sanctu
   assert.match(styles, /\.launch-card\.launch-spotlight\s*\{[^}]*spotlight\/grace-testimony\.webp/);
   assert.match(memberHomeJs, /Number\.isFinite\(number\)/);
   assert.match(memberHomeJs, /postCount\.toLocaleString\(\)/);
+  assert.match(memberHomeJs, /channel-card-actions/);
+  assert.match(memberHomeJs, /Open Channel/);
+  assert.match(memberHomeJs, /Get in touch/);
+  assert.doesNotMatch(memberHomeJs, /Connect with /);
   assert.match(memberHomeHtml, /Meditation Sanctuary/);
   assert.match(memberHomeHtml, /Virtual Sanctuary Streams/);
   assert.match(memberHomeHtml, /Inspiring Channels & Podcasts/);

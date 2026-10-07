@@ -60,7 +60,7 @@
             '<span><strong>' + postCount.toLocaleString() + '</strong><small>' + itemsLabel + '</small></span>' +
             '<span><strong>' + (c.verified ? "4.9" : "4.7") + '</strong><small>Rating</small></span>' +
           '</div>' +
-          '<a class="channel-contact-button" href="messages.html?compose=channel&id=' + encodeURIComponent(c.id) + '"><i data-lucide="message-circle"></i> Connect with ' + data().escapeHtml(c.owner.split(' ')[0]) + '</a>' +
+          '<div class="channel-card-actions"><a class="channel-open-button" href="channel-detail.html?id=' + encodeURIComponent(c.id) + '"><i data-lucide="radio-tower"></i> Open Channel</a><a class="channel-contact-button" href="messages.html?compose=channel&id=' + encodeURIComponent(c.id) + '"><i data-lucide="message-circle"></i> Get in touch</a></div>' +
         '</div>' +
       '</article>';
     }).join("");
