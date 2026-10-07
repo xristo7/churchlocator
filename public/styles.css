@@ -5138,6 +5138,9 @@ body.lights-out .mini-footer-links a:hover {
 .editorial-card .resource-price-badge.paid { color: #6245a5; background: #f1edfb; }
 .editorial-card .resource-price-badge { white-space: nowrap; }
 .resources-grid.list-view .editorial-card { grid-template-columns: 260px 1fr; }
+.editorial-card .resource-action { width: 100%; min-height: 42px; margin-top: 12px; border: 1px solid rgba(51,120,236,.2); border-radius: 11px; color: #286bd1; background: #f3f7ff; font-size: .72rem; font-weight: 850; transition: background .18s ease, border-color .18s ease; }
+.editorial-card .resource-action:hover { border-color: #bfd2f5; background: #eaf1ff; }
+.resources-grid.list-view .editorial-card .resource-card-body { min-height: 0; }
 .resource-preview-action { width: 100%; min-height: 46px; margin-top: 11px; border: 1px solid var(--border-subtle); border-radius: 13px; color: #2875f2; background: #fff; font-weight: 850; cursor: pointer; }
 .resource-reader { margin-top: 34px; overflow: hidden; scroll-margin-top: 92px; border: 1px solid var(--border-subtle); border-radius: 26px; background: #fff; box-shadow: 0 24px 70px rgba(18,54,120,.12); }
 .resource-reader-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 22px; border-bottom: 1px solid var(--border-subtle); }

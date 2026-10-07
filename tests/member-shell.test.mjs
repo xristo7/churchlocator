@@ -552,6 +552,21 @@ test("SPA shell supports member home dashboard and interactive meditation sanctu
   assert.match(styles, /body\.hero-only-page \.topbar \.nav-links a[\s\S]*#ffffff !important/);
 });
 
+test("resource cards present a clear creator link, duration, price, and action hierarchy", async () => {
+  const resourcesJs = await readProjectFile("public/resources.js");
+  const styles = await readProjectFile("public/styles.css");
+  assert.match(resourcesJs, /resource-subtitle/);
+  assert.match(resourcesJs, /resource-channel-link/);
+  assert.match(resourcesJs, /channel-detail\.html\?id=/);
+  assert.match(resourcesJs, /resource-duration/);
+  assert.match(resourcesJs, /resource-price-badge/);
+  assert.match(resourcesJs, /data-resource-action/);
+  assert.doesNotMatch(resourcesJs, /Number\(resource\.rating\)\.toFixed/);
+  assert.match(styles, /\.editorial-card \.resource-channel-link/);
+  assert.match(styles, /\.editorial-card \.resource-card-footer/);
+  assert.match(styles, /\.editorial-card \.resource-action/);
+});
+
 test("directory modules share the standardized atmospheric hero and filter tray", async () => {
   const styles = await readProjectFile("public/styles.css");
   const appJs = await readProjectFile("public/app.js");

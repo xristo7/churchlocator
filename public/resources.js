@@ -37,7 +37,17 @@
       window.lucide?.createIcons();
       return;
     }
-    grid.innerHTML = resources.map((resource, index) => `
+    grid.innerHTML = resources.map((resource, index) => {
+      const creatorName = String(resource.creator || "My Way").trim();
+      const creatorKey = creatorName.toLocaleLowerCase();
+      const channel = (data().getChannels() || []).find(item =>
+        [item.name, item.owner, item.handle].some(value => String(value || "").trim().toLocaleLowerCase() === creatorKey)
+      );
+      const channelHref = channel ? `channel-detail.html?id=${encodeURIComponent(channel.id)}` : "channels.html";
+      const channelAction = channel ? "Open Channel" : "Explore Channels";
+      const format = resource.format || resource.type;
+      const price = resource.access === "Free" ? "Free" : data().money(resource.price);
+      return `
       <article class="resource-card editorial-card tone-${index % 6}">
         <a class="resource-cover" href="resource-detail.html?id=${encodeURIComponent(resource.id)}" aria-label="View ${data().escapeHtml(resource.title)}">
           <img class="resource-image" src="${data().escapeHtml(resource.image)}" alt="" />
@@ -45,14 +55,16 @@
         </a>
         <button class="content-love-button content-love-overlay" type="button" data-love-type="resource" data-love-id="${data().escapeHtml(resource.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
         <div class="resource-card-body">
-          <div class="resource-format-row"><span class="resource-format">${data().escapeHtml(resource.type)} · ${data().escapeHtml(resource.topic)}</span><span class="resource-access ${resource.access === "Paid" ? "paid" : ""}">${resource.access === "Free" ? "Free" : data().money(resource.price)}</span></div>
           <h3><a href="resource-detail.html?id=${encodeURIComponent(resource.id)}">${data().escapeHtml(resource.title)}</a></h3>
-          <span class="resource-creator">By ${data().escapeHtml(resource.creator)}</span>
+          <div class="resource-subtitle"><span>${data().escapeHtml(resource.topic)}</span><span aria-hidden="true">·</span><span>${data().escapeHtml(format)}</span></div>
           <p>${data().escapeHtml(resource.description)}</p>
-          <div class="resource-footer"><span class="resource-meta"><i data-lucide="star"></i> ${Number(resource.rating).toFixed(1)} <span>·</span> ${data().escapeHtml(resource.duration)}</span><button class="resource-action" type="button" data-resource-action="${data().escapeHtml(resource.id)}">${resource.access === "Free" ? "Add to library" : "Get resource"}</button></div>
+          <a class="resource-channel-link" href="${channelHref}" aria-label="${channelAction}: ${data().escapeHtml(creatorName)}"><i data-lucide="radio-tower" aria-hidden="true"></i><span><small>From</small>${data().escapeHtml(creatorName)}</span><strong>${channelAction}<i data-lucide="arrow-up-right" aria-hidden="true"></i></strong></a>
+          <div class="resource-card-footer"><span class="resource-duration"><i data-lucide="clock" aria-hidden="true"></i>${data().escapeHtml(resource.duration || "On demand")}</span><strong class="resource-price-badge ${resource.access === "Paid" ? "paid" : ""}">${price}</strong></div>
+          <button class="resource-action" type="button" data-resource-action="${data().escapeHtml(resource.id)}">${resource.access === "Free" ? "Add to library" : "Get resource"}</button>
         </div>
       </article>
-    `).join("");
+    `;
+    }).join("");
     window.lucide?.createIcons();
   }
 
