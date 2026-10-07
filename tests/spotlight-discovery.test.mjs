@@ -56,13 +56,14 @@ test('channel follows synchronize with the feed and scheduled publications notif
     await call('channel-follow/channel-a',{active:false},'a','PUT');assert.equal((await call('following')).items.length,0);
   }finally{sql.close();}
 });
-test('notification preferences and watch reminders persist, deduplicate and cancel',async()=>{
+test('following always enables channel notifications and watch reminders persist, deduplicate and cancel',async()=>{
   const {sql,db,call}=setup();try{
     await call('channel-follow/channel-a',{active:true,notificationsEnabled:false},'a','PUT');
-    sql.exec("update channel_follows set created_at='2020-01-01T00:00:00.000Z';delete from spotlight_publications where item_id='spotlight-grace-story'");await deliverSpotlightNotifications({DB:db});assert.equal((await call('notifications')).notifications.length,0);
+    assert.equal(sql.prepare('select notifications_enabled from channel_follows where user_id=? and channel_id=?').get('a','channel-a').notifications_enabled,1);
+    sql.exec("update channel_follows set created_at='2020-01-01T00:00:00.000Z';delete from spotlight_publications where item_id='spotlight-grace-story'");await deliverSpotlightNotifications({DB:db});assert.equal((await call('notifications')).notifications.length,1);
     await assert.rejects(call('reminders/spotlight-grace-story',{dueAt:'2020-01-01T00:00:00Z'},'a','PUT'),/future/);
     const dueAt=new Date(Date.now()+3600000).toISOString();await call('reminders/spotlight-grace-story',{dueAt},'a','PUT');assert.equal((await call('item/spotlight-grace-story')).item.reminderAt,dueAt);
-    sql.exec("update spotlight_reminders set due_at='2020-01-01T00:00:00.000Z'");await deliverSpotlightNotifications({DB:db});await deliverSpotlightNotifications({DB:db});assert.equal((await call('notifications')).notifications.length,1);
+    sql.exec("update spotlight_reminders set due_at='2020-01-01T00:00:00.000Z'");await deliverSpotlightNotifications({DB:db});await deliverSpotlightNotifications({DB:db});assert.equal((await call('notifications')).notifications.length,2);
     await call('reminders/spotlight-grace-story',{dueAt},'a','PUT');await call('reminders/spotlight-grace-story',null,'a','DELETE');assert.equal(sql.prepare('select count(*) count from spotlight_reminders').get().count,0);
   }finally{sql.close();}
 });

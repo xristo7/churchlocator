@@ -212,9 +212,14 @@ test("channel cards have two actions and public channel pages do not trigger the
   assert.match(detail, /Array\.isArray\(channel\.posts\)/);
   assert.match(detail, /channel-detail-actions/);
   assert.match(detail, /channel-follow-controls/);
+  assert.match(detail, /channel-detail-cover[\s\S]*?channel-contact-button[\s\S]*?Get in touch/);
+  assert.match(detail, /class="channel-follow-controls"[\s\S]*?class="content-love-button content-love-detail"/);
+  assert.match(detail, /data-channel-follow aria-pressed/);
+  assert.doesNotMatch(detail, /Notify me about new Spotlight posts|data-channel-notify/);
   assert.match(styles, /\.channel-card-actions\s*\{/);
   assert.match(styles, /\.channel-detail-modern \.channel-follow-controls button\s*\{[^}]*border-radius:\s*999px/);
   assert.match(styles, /\.channel-detail-modern \.channel-detail-actions\s*\{[^}]*justify-content:\s*flex-end/);
+  assert.match(styles, /\.channel-detail-modern \.channel-detail-cover > \.channel-contact-button\s*\{[^}]*right:\s*24px/);
   assert.match(styles, /\.module-directory-hero \.module-kicker,[\s\S]*?border-radius:\s*999px/);
   assert.match(styles, /\.module-directory-hero \.module-kicker,[\s\S]*?padding:\s*8px 14px/);
 });

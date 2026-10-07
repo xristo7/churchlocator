@@ -307,7 +307,7 @@ export async function deliverSpotlightNotifications(env) {
     env.DB.prepare(`insert or ignore into spotlight_notifications(id,user_id,item_id,kind,created_at)
       select 'publication:'||f.user_id||':'||s.id,f.user_id,s.id,'publication',p.published_at
       from spotlight_publications p join spotlight_items s on s.id=p.item_id join channel_follows f on f.channel_id=s.channel_entity_id
-      where ${visibleSql} and f.notifications_enabled=1 and f.created_at<=p.published_at
+      where ${visibleSql} and f.created_at<=p.published_at
       and not exists(select 1 from spotlight_notifications n where n.id='publication:'||f.user_id||':'||s.id) limit 500`),
     env.DB.prepare(`insert or ignore into spotlight_notifications(id,user_id,item_id,kind,created_at)
       select 'reminder:'||r.user_id||':'||r.item_id||':'||r.due_at,r.user_id,r.item_id,'reminder',?
@@ -326,16 +326,16 @@ async function discovery(request,env,ctx,scope,id) {
     const {results}=await env.DB.prepare(`select s.id from spotlight_items s where s.channel_entity_id=? and ${visibleSql} order by coalesce(s.published_at,s.updated_at) desc limit 100`).bind(id).all();
     const follow=await env.DB.prepare('select notifications_enabled from channel_follows where user_id=? and channel_id=?').bind(user?.id||'',id).first();
     const counts=await env.DB.prepare('select count(*) count from channel_follows where channel_id=?').bind(id).first();
-    return ctx.json({ok:true,following:!!follow,notificationsEnabled:!!follow?.notifications_enabled,followers:counts.count,items:await Promise.all(results.map(row=>memberItem(env,row.id,user?.id||'')))});
+    return ctx.json({ok:true,following:!!follow,notificationsEnabled:!!follow,followers:counts.count,items:await Promise.all(results.map(row=>memberItem(env,row.id,user?.id||'')))});
   }
   const user=await requireUser(request,env,ctx);
   if(scope==='channel-follow') {
     if(request.method!=='PUT')throw new ApiError(405,'Method not allowed.');
     const channel=await env.DB.prepare("select id from platform_entities where id=? and kind='channels' and state='published'").bind(id).first();if(!channel)throw new ApiError(404,'Channel unavailable.');
     const input=await readJson(request);if(typeof input.active!=='boolean')throw new ApiError(400,'Choose follow or unfollow.');
-    if(input.active)await env.DB.prepare('insert into channel_follows(user_id,channel_id,notifications_enabled,created_at) values (?,?,?,?) on conflict(user_id,channel_id) do update set notifications_enabled=excluded.notifications_enabled').bind(user.id,id,input.notificationsEnabled===false?0:1,new Date().toISOString()).run();
+    if(input.active)await env.DB.prepare('insert into channel_follows(user_id,channel_id,notifications_enabled,created_at) values (?,?,1,?) on conflict(user_id,channel_id) do update set notifications_enabled=1').bind(user.id,id,new Date().toISOString()).run();
     else await env.DB.prepare('delete from channel_follows where user_id=? and channel_id=?').bind(user.id,id).run();
-    return ctx.json({ok:true,following:input.active,notificationsEnabled:input.active&&input.notificationsEnabled!==false});
+    return ctx.json({ok:true,following:input.active,notificationsEnabled:input.active});
   }
   if(scope==='saved' || scope==='following') {
     if(request.method!=='GET') throw new ApiError(405,'Method not allowed.');
