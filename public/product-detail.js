@@ -332,15 +332,8 @@
   }
 
   function renderServiceUI(service, container) {
-    const savedTiers = Array.isArray(service.tiers) && service.tiers.length ? service.tiers : Array.isArray(service.packages) ? service.packages : [];
-    const tiers = savedTiers.length ? savedTiers.map((tier,index) => ({
-      id: tier.id || `tier-${index+1}`,
-      name: tier.name || `Package ${index+1}`,
-      price: Number(tier.price || service.price || 0),
-      duration: tier.duration || "Flexible",
-      highlights: Array.isArray(tier.highlights) && tier.highlights.length ? tier.highlights : tier.description ? [tier.description] : []
-    })) : [
-      { id: "tier-1", name: "Standard Engagement", price: service.price, duration: "Flexible", highlights: [service.description || "Service consultation and coordinated support"] }
+    const tiers = service.tiers || [
+      { id: "tier-1", name: "Standard Engagement", price: service.price, duration: "Flexible", highlights: ["Dedicated service consultation", "Full coordination and support", "Satisfaction guarantee"] }
     ];
 
     let specializedContentHtml = "";
@@ -917,8 +910,6 @@
       container.classList.remove("service-detail-host");
       renderProductUI(item, container);
     }
-
-    if (window.MWEPlatform?.isPending(item)) container.insertAdjacentHTML("afterbegin", '<div class="platform-pending-notice"><span class="platform-pending-badge">Pending review</span><p>This offering is live while it awaits owner approval.</p></div>');
 
     setupBookingFormSubmission();
     renderCart();

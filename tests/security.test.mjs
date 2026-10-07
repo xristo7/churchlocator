@@ -8,6 +8,17 @@ import { onRequest as pagesAdmin } from "../functions/api/admin/churches.js";
 const assets = { fetch: async () => new Response("asset") };
 const post = (path, body, headers = {}) => new Request("https://example.test" + path, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body) });
 
+test('live media permissions and provider policies stay scoped to their player pages', async()=>{
+  const get=path=>worker.fetch(new Request('https://example.test'+path),{ASSETS:assets});
+  const normal=await get('/churches.html'),stage=await get('/channel-live.html'),shell=await get('/app.html'),broadcast=await get('/broadcast.html');
+  assert.match(normal.headers.get('permissions-policy'),/camera=\(\)/);
+  assert.match(stage.headers.get('permissions-policy'),/camera=\(self\), microphone=\(self\)/);
+  assert.match(shell.headers.get('permissions-policy'),/camera=\(self\)/);
+  assert.match(stage.headers.get('content-security-policy'),/wss:\/\/\*\.realtime\.cloudflare\.com/);
+  assert.doesNotMatch(normal.headers.get('content-security-policy'),/realtime\.cloudflare\.com|platform\.twitter\.com/);
+  assert.match(broadcast.headers.get('content-security-policy'),/https:\/\/platform\.twitter\.com/);
+});
+
 test("body limit counts actual streamed bytes without Content-Length", async () => {
   const body = new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode(JSON.stringify({ request: "x".repeat(70000) }))); c.close(); } });
   await assert.rejects(readJson(new Request("https://example.test", { method: "POST", headers: { "content-type": "application/json" }, body, duplex: "half" })), error => error.status === 413);

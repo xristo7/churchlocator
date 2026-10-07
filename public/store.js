@@ -11,11 +11,7 @@
       if (type === "products" && product.itemType === "service") return false;
       if (type === "services" && product.itemType !== "service") return false;
       const searchable = `${product.title} ${product.seller} ${product.category} ${product.description}`.toLowerCase();
-      // The public catalog already returns only published records.  Older
-      // product records may still carry the legacy "Draft" product status,
-      // so use the authoritative publication state as well as that label.
-      const isPublished = product.publicationState === "published" || product.publicationState === "pending" || product.state === "published" || product.state === "pending" || (!product.publicationState && !product.state && product.status === "Active");
-      return isPublished && (!query || searchable.includes(query)) && (category === "all" || product.category === category) && (sellerType === "all" || product.sellerType === sellerType);
+      return product.status === "Active" && (!query || searchable.includes(query)) && (category === "all" || product.category === category) && (sellerType === "all" || product.sellerType === sellerType);
     });
     return products.sort((a, b) => {
       if (sort === "price-low") return a.price - b.price;
@@ -49,7 +45,7 @@
         <button class="content-love-button content-love-overlay" type="button" data-love-type="product" data-love-id="${data().escapeHtml(product.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
         <div class="product-card-body">
           <span class="product-seller">${data().escapeHtml(product.sellerType)}: <strong>${data().escapeHtml(product.seller)}</strong></span>
-          <h3><a href="product-detail.html?id=${encodeURIComponent(product.id)}">${data().escapeHtml(product.title)}</a></h3>${window.MWEPlatform?.pendingBadge(product) || ""}
+          <h3><a href="product-detail.html?id=${encodeURIComponent(product.id)}">${data().escapeHtml(product.title)}</a></h3>
           <span class="product-rating">
             <i data-lucide="star"></i>${Number(product.rating).toFixed(1)} · ${isService ? "Verified Service" : `${Number(product.inventory)} in stock`}
           </span>

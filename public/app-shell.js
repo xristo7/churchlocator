@@ -52,8 +52,10 @@
     channels: { source: "channels.html", title: "Christian Channels" },
     "channel-detail": { source: "channel-detail.html", title: "Channel" },
     "channel-content": { source: "channel-content.html", title: "Channel Content" },
+    "channel-live": { source: "channel-live.html", title: "Channel Live" },
     messages: { source: "messages.html", title: "Messages" },
     profile: { source: "account-profile.html", title: "Profile & Account" },
+    security: { source: "account-security.html", title: "Account Security" },
     events: { source: "events.html", title: "Events" },
     livestream: { source: "livestream.html", title: "Livestreams" },
     church: { source: "church-profile.html", title: "Church Profile" },
@@ -63,13 +65,11 @@
     product: { source: "product-detail.html", title: "Product Details" },
     cart: { source: "cart.html", title: "Your Cart" },
     checkout: { source: "checkout.html", title: "Checkout" },
-    "store-manager": { source: "creator-studio.html?kind=store", title: "Create" },
+    "store-manager": { source: "seller-dashboard.html", title: "Store Manager" },
     resources: { source: "resources.html", title: "Christian Resources" },
     "resource-detail": { source: "resource-detail.html", title: "Resource Details" },
     "resource-reader": { source: "resource-reader.html", title: "Resource Reader" },
-    create: { source: "creator-studio.html", title: "Create" },
-    "spotlight-studio": { source: "spotlight-studio.html", title: "Spotlight Studio" },
-    portal: { source: "creator-studio.html", title: "Create" }
+    portal: { source: "church-portal.html", title: "Creator & Ministry Hub" }
   };
 
   const sectionContexts = {
@@ -82,8 +82,8 @@
     livestream: ["Live", "radio"],
     store: ["Store", "shopping-bag"], product: ["Store", "shopping-bag"], cart: ["Store", "shopping-bag"], checkout: ["Store", "shopping-bag"], "store-manager": ["Store", "shopping-bag"],
     resources: ["Resources", "book-open"], "resource-detail": ["Resources", "book-open"], "resource-reader": ["Resources", "book-open"],
-    giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"], profile: ["Profile", "user-round"],
-    create: ["Create", "plus-circle"], "spotlight-studio": ["Spotlight Studio", "sparkles"], portal: ["Create", "plus-circle"]
+    giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"], profile: ["Profile", "user-round"], security: ["Security", "shield-check"],
+    portal: ["Creator Hub", "rocket"]
   };
 
   function updateSectionContext(view) {
@@ -149,16 +149,14 @@
 
   function getRoute() {
     const params = new URLSearchParams(window.location.search);
-    const requested = params.get("view") === "portal" ? "create" : (params.get("view") || "directory");
+    const requested = params.get("view") || "directory";
     const view = views[requested] ? requested : "directory";
     return {
       view,
       id: params.get("id") || "",
       q: params.get("q") || "",
       compose: params.get("compose") || "",
-      post: params.get("post") || "",
-      kind: params.get("kind") || "",
-      create: params.get("create") || ""
+      post: params.get("post") || ""
     };
   }
 
@@ -170,10 +168,8 @@
     if (route.q) source.searchParams.set("q", route.q);
     if (route.compose) source.searchParams.set("compose", route.compose);
     if (route.view === "channel-content" && route.id) source.searchParams.set("channel", route.id);
+    if (route.view === "channel-live" && route.post) source.searchParams.set("session", route.post);
     if (route.post) source.searchParams.set("post", route.post);
-    if (route.kind) source.searchParams.set("kind", route.kind);
-    if (route.create) source.searchParams.set("create", route.create);
-    if (route.view === "create") source.searchParams.set("v", "20260924meditationstyles1");
     return source.toString();
   }
 
@@ -184,15 +180,13 @@
     if (route.q) target.searchParams.set("q", route.q);
     if (route.compose) target.searchParams.set("compose", route.compose);
     if (route.post) target.searchParams.set("post", route.post);
-    if (route.kind) target.searchParams.set("kind", route.kind);
-    if (route.create) target.searchParams.set("create", route.create);
     return `${target.pathname.split("/").pop()}${target.search}`;
   }
 
   function setActiveNavigation(view) {
     document.querySelectorAll("[data-shell-view]").forEach(link => {
       const linkView = link.dataset.shellView;
-      const isActive = linkView === view || (view === "portal" && linkView === "create") || (view === "church" && linkView === "directory") || (["channel-detail", "channel-content"].includes(view) && linkView === "channels") || (view === "event" && linkView === "events") || (["store-manager", "product", "cart", "checkout"].includes(view) && linkView === "store") || (["resource-detail", "resource-reader"].includes(view) && linkView === "resources");
+      const isActive = linkView === view || (view === "portal" && linkView === "portal") || (view === "church" && linkView === "directory") || (["channel-detail", "channel-content"].includes(view) && linkView === "channels") || (view === "event" && linkView === "events") || (["store-manager", "product", "cart", "checkout"].includes(view) && linkView === "store") || (["resource-detail", "resource-reader"].includes(view) && linkView === "resources") || (view === "security" && linkView === "profile");
       link.classList.toggle("active", isActive);
       if (isActive) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
@@ -200,11 +194,33 @@
   }
 
   function isProtectedView(view) {
-    return ["messages", "profile", "store-manager", "cart", "checkout", "create", "portal"].includes(view);
+    return ["messages", "profile", "security", "store-manager", "cart", "checkout"].includes(view);
+  }
+
+  function hasMatchingCreatorIdentity() {
+    if (localStorage.getItem("mwe.userLoggedIn") !== "true") return false;
+    const publicEmail = (localStorage.getItem("mwe.userEmail") || "").trim().toLowerCase();
+    if (!publicEmail) return false;
+    try {
+      const creator = JSON.parse(localStorage.getItem("mwe.creator.account.v1") || "null");
+      return (creator?.email || "").trim().toLowerCase() === publicEmail;
+    } catch {
+      return false;
+    }
+  }
+
+  function openCreatorWorkspace() {
+    const workspace = window.open("creator-workspace.html", "_blank", "noopener");
+    if (!workspace) window.location.href = "creator-workspace.html";
   }
 
   function loadRoute(route, options = {}) {
-    const safeRoute = views[route.view] ? route : { view: "directory", id: "", q: "", compose: "", kind: "" };
+    const safeRoute = views[route.view] ? route : { view: "directory", id: "", q: "", compose: "" };
+    if (safeRoute.view === "portal" && localStorage.getItem("mwe.session.church.v1") === "authenticated" && hasMatchingCreatorIdentity()) {
+      openCreatorWorkspace();
+      loadRoute({ view: "directory", id: "", q: "" }, { replace: true });
+      return;
+    }
     if (isProtectedView(safeRoute.view) && !isAuthenticated()) {
       const destination = buildShellUrl(safeRoute);
       if (window.MWE?.openMemberLogin) {
@@ -236,13 +252,14 @@
     link.addEventListener("click", event => {
       event.preventDefault();
       const view = link.dataset.shellView;
-      loadRoute({ view, id: "", q: "", kind: "" });
+      if (view === "portal" && localStorage.getItem("mwe.session.church.v1") === "authenticated" && hasMatchingCreatorIdentity()) {
+        openCreatorWorkspace();
+        document.body.classList.remove("member-nav-open");
+        mobileMenu?.setAttribute("aria-expanded", "false");
+        return;
+      }
+      loadRoute({ view, id: "", q: "" });
     });
-  });
-
-  window.addEventListener("message", event => {
-    if (event.origin !== window.location.origin || event.data?.type !== "myway:navigate") return;
-    loadRoute({ view: event.data.view, id: "", q: "", compose: "", post: "", kind: event.data.kind || "" });
   });
 
   document.addEventListener("click", event => {
@@ -291,9 +308,9 @@
   };
   const languages = { en: "EN", fr: "FR", es: "ES" };
   const shellTranslations = {
-    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", create: "Create", portal: "Create", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Send Invite", loading: "Loading your My Way view…", search: "Search churches, channels, events...", member: "My Way member", signOut: "Sign out" },
-    fr: { home: "Accueil", spotlight: "À la une", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", create: "Créer", portal: "Créer", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Envoyer l’invitation", loading: "Chargement de votre espace My Way…", search: "Rechercher des églises, chaînes, événements…", member: "Membre My Way", signOut: "Se déconnecter" },
-    es: { home: "Inicio", spotlight: "Destacados", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", create: "Crear", portal: "Crear", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Enviar invitación", loading: "Cargando tu espacio My Way…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de My Way", signOut: "Cerrar sesión" }
+    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", profile: "Profile", security: "Security", portal: "Creator Hub", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Send Invite", loading: "Loading your My Way view…", search: "Search churches, channels, events...", member: "My Way member", signOut: "Sign out" },
+    fr: { home: "Accueil", spotlight: "À la une", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", profile: "Profil", security: "Sécurité", portal: "Espace créateur", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Envoyer l’invitation", loading: "Chargement de votre espace My Way…", search: "Rechercher des églises, chaînes, événements…", member: "Membre My Way", signOut: "Se déconnecter" },
+    es: { home: "Inicio", spotlight: "Destacados", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", profile: "Perfil", security: "Seguridad", portal: "Centro de creadores", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Enviar invitación", loading: "Cargando tu espacio My Way…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de My Way", signOut: "Cerrar sesión" }
   };
   let currentMemberLanguage = localStorage.getItem("mwe.lang") || "en";
   if (!shellTranslations[currentMemberLanguage]) currentMemberLanguage = "en";
@@ -382,7 +399,7 @@
       return;
     }
     if (!views[message.view]) return;
-    loadRoute({ view: message.view, id: message.id || "", q: message.q || "" });
+    loadRoute({ view: message.view, id: message.id || "", q: message.q || "", post: message.post || "", compose: message.compose || "" });
   });
 
   window.addEventListener("popstate", () => loadRoute(getRoute(), { history: false }));

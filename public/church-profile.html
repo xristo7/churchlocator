@@ -21,7 +21,7 @@
   <script defer src="vendor/tailwindcss.js"></script>
   
   <!-- Global site styles -->
-  <link rel="stylesheet" href="styles.css?v=20260928churchapproval1" />
+  <link rel="stylesheet" href="styles.css?v=20260905module17" />
 
   <style>
     /* Premium Theme Variable Mapping (Matching Original Light styling) */
@@ -1625,7 +1625,6 @@
 
     .profile-app-account button { display: grid; width: 38px; height: 38px; margin-right: 5px; place-items: center; border: 0; border-radius: 10px; color: var(--ai-navy); background: transparent; cursor: pointer; }
     .profile-app-account button:hover { background: #eef4ff; }
-    .profile-app-account .profile-account-link { display: flex; width: auto; padding: 0 10px; gap: 8px; }
     .profile-app-account img { width: 34px; height: 34px; object-fit: cover; border-radius: 50%; }
     .profile-app-account svg { width: 16px; }
     .profile-mobile-menu { display: none; }
@@ -1701,7 +1700,7 @@
     body[data-page="profile"] .church-profile-grid {
       grid-template-columns: minmax(0, 1fr) 300px;
       gap: 34px;
-      margin-top: 50px;
+      margin-top: 24px;
       margin-bottom: 40px;
     }
 
@@ -1794,7 +1793,6 @@
       min-height: 0;
       align-items: center;
       padding: 0;
-      margin-bottom: 50px !important;
       overflow: visible;
       border: 0;
       border-radius: 0;
@@ -1883,7 +1881,7 @@
     .profile-secondary-action:hover, .profile-ride-action:hover { background: var(--primary-surface) !important; border-color: var(--primary) !important; transform: translateY(-1px); }
     .leader-actions button:hover, .profile-new-here:hover { transform: translateY(-1px); }
 
-    body[data-page="profile"] .stories-section { margin-bottom: 50px !important; padding: 20px; border: 1px solid #dce3f3; border-radius: 18px; background: rgba(255,255,255,0.72); }
+    body[data-page="profile"] .stories-section { padding: 20px; border: 1px solid #dce3f3; border-radius: 18px; background: rgba(255,255,255,0.72); }
     body[data-page="profile"] .stories-heading { grid-template-columns: 1fr auto; margin-bottom: 15px; }
     body[data-page="profile"] .stories-heading span { color: var(--primary); font-size: 0.65rem; font-weight: 800; }
     body[data-page="profile"] .stories-heading h3 { color: var(--ai-navy); font-size: 1.35rem; }
@@ -1895,7 +1893,6 @@
     body[data-page="profile"] .stories-heading .btn-more-stories svg { width: 14px; }
     body[data-page="profile"] .testimonials-grid { gap: 14px; }
     body[data-page="profile"] .testimony-card.glass-card { display: grid; grid-template-columns: 132px minmax(0,1fr); min-height: 210px; padding: 10px; border-radius: 14px; box-shadow: none; }
-    body[data-page="profile"] .testimony-card.glass-card.testimony-card--text-only { grid-template-columns: 1fr; }
     body[data-page="profile"] .testimony-scene { width: 100%; height: 100%; min-height: 188px; object-fit: cover; border-radius: 10px; }
     body[data-page="profile"] .testimony-content { display: flex; min-width: 0; padding: 8px 10px 4px 14px; flex-direction: column; }
     body[data-page="profile"] .testimony-stars { align-items: center; margin-bottom: 9px; color: var(--ai-blue); }
@@ -1953,35 +1950,6 @@
       grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
       gap: 22px !important;
     }
-    .profile-content-empty {
-      grid-column: 1 / -1;
-      min-height: 180px;
-      display: grid;
-      place-items: center;
-      align-content: center;
-      gap: 8px;
-      padding: 28px;
-      border: 1px dashed var(--ai-border, #dce3f3);
-      border-radius: 16px;
-      color: var(--ai-muted, #64748b);
-      text-align: center;
-      background: rgba(248, 250, 252, 0.72);
-    }
-    .profile-content-empty svg { width: 28px; height: 28px; }
-    .profile-content-empty strong { color: var(--ai-navy, #0f172a); }
-    .profile-content-empty span { font-size: .82rem; }
-    .profile-church-story { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin:10px 0 30px; }
-    .profile-church-story[hidden] { display:none; }
-    .profile-story-card { position:relative; overflow:hidden; padding:21px; border:1px solid color-mix(in srgb,var(--primary,#2563eb) 24%,#dce3f3); border-radius:16px; background:rgba(255,255,255,.9); background:linear-gradient(145deg,color-mix(in srgb,var(--primary,#2563eb) 7%,#fff),rgba(255,255,255,.96)); box-shadow:0 10px 28px rgba(15,23,42,.06); transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease; }
-    .profile-story-card::before { position:absolute; inset:0 auto 0 0; width:4px; background:var(--primary,#2563eb); content:""; }
-    .profile-story-card:hover { border-color:color-mix(in srgb,var(--primary,#2563eb) 52%,transparent); box-shadow:0 15px 34px color-mix(in srgb,var(--primary,#2563eb) 12%,transparent); transform:translateY(-2px); }
-    .profile-story-card span { color:var(--primary,#2563eb); font-size:.7rem; font-weight:900; letter-spacing:.09em; text-transform:uppercase; }
-    .profile-story-card p { margin:8px 0 0; color:var(--text-secondary,var(--ai-slate,#475569)); font-size:.84rem; line-height:1.66; }
-    html[data-theme="dark"] .profile-story-card { border-color:color-mix(in srgb,var(--primary,#60a5fa) 34%,rgba(255,255,255,.12)); background:rgba(15,23,42,.88); background:linear-gradient(145deg,color-mix(in srgb,var(--primary,#60a5fa) 12%,#111827),rgba(15,23,42,.94)); box-shadow:0 12px 30px rgba(0,0,0,.24); }
-    html[data-theme="dark"] .profile-story-card p { color:#cbd5e1; }
-    .profile-visitor-notes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:16px; }
-    .profile-visitor-note { padding:15px; border:1px solid var(--ai-border,#dce3f3); border-radius:13px; background:rgba(255,255,255,.78); }
-    .profile-visitor-note strong { display:block; margin-bottom:5px; font-size:.78rem; }.profile-visitor-note p { margin:0; color:var(--ai-muted,#64748b); font-size:.74rem; line-height:1.5; }
     .gathering-modern-card {
       background: var(--surface, #ffffff);
       border-radius: 20px;
@@ -2085,12 +2053,628 @@
       color: #4ade80 !important;
     }
 
+    /* Church Profile Top Hero Showcase Section */
+    .church-hero-showcase {
+      position: relative;
+      width: 100%;
+      min-height: 380px;
+      border-radius: 24px;
+      overflow: hidden;
+      padding: 100px 40px;
+      margin-bottom: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-start;
+      background-color: #0f172a;
+      background-image: url('assets/hero-global-church.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .church-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(15, 23, 42, 0.2) 0%,
+        rgba(15, 23, 42, 0.55) 45%,
+        rgba(15, 23, 42, 0.88) 100%
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .church-hero-content-bottom-left {
+      position: relative;
+      z-index: 2;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    /* Play Button Hovering Over Thumbnail, directly above description */
+    .church-hero-play-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 7px 18px 7px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #ffffff;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    .church-hero-play-trigger:hover {
+      background: rgba(255, 255, 255, 0.28);
+      border-color: rgba(255, 255, 255, 0.7);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
+    }
+
+    .church-hero-play-circle {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.5);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .church-hero-play-circle svg,
+    .church-hero-play-circle i {
+      width: 20px;
+      height: 20px;
+      margin-left: 3px;
+      fill: #ffffff;
+      color: #ffffff;
+    }
+
+    .church-hero-play-pulse {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 2px solid rgba(251, 191, 36, 0.6);
+      animation: churchHeroPlayPulse 2.2s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
+      pointer-events: none;
+    }
+
+    @keyframes churchHeroPlayPulse {
+      0% { transform: scale(1); opacity: 0.85; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .church-hero-name {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.025em;
+      margin: 0;
+      line-height: 1.25;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+    }
+
+    .church-hero-desc {
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.92);
+      margin: 0;
+      max-width: 620px;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+    }
+
+
+    .gathering-desc {
+      font-size: 0.84rem;
+      color: var(--text-secondary, #64748b);
+      line-height: 1.55;
+      margin: 0 0 16px 0;
+    }
+    .gathering-card-footer {
+      padding: 0 20px 20px;
+      margin-top: auto;
+    }
+    .gathering-cal-btn {
+      width: 100%;
+      height: 42px;
+      border-radius: 12px;
+      border: 1.5px solid var(--primary-border, rgba(236, 72, 153, 0.3));
+      background: var(--primary-surface, rgba(236, 72, 153, 0.06));
+      color: var(--primary, #db2777);
+      font-size: 0.82rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .gathering-cal-btn svg,
+    .gathering-cal-btn i {
+      width: 15px;
+      height: 15px;
+      color: var(--primary, #db2777);
+    }
+    .gathering-cal-btn:hover {
+      background: var(--primary, #db2777);
+      color: #ffffff;
+      border-color: var(--primary, #db2777);
+      box-shadow: 0 4px 14px var(--primary-glow, rgba(236, 72, 153, 0.3));
+      transform: translateY(-1px);
+    }
+    .gathering-cal-btn:hover svg,
+    .gathering-cal-btn:hover i {
+      color: #ffffff;
+    }
+
+    /* Church Photo Slide Gallery */
+    .church-gallery-section {
+      margin-top: 32px;
+      margin-bottom: 32px;
+      position: relative;
+    }
+    .church-gallery-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 16px;
+    }
+    .church-gallery-kicker {
+      display: block;
+      color: var(--primary, #db2777);
+      font-size: 0.72rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+    .church-gallery-title {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 850;
+      color: var(--ai-navy, #0f172a);
+      letter-spacing: -0.01em;
+    }
+    .church-gallery-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .church-gallery-arrow-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--ai-border, #e2e8f0);
+      background: #ffffff;
+      color: var(--ai-navy, #0f172a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .church-gallery-arrow-btn:hover {
+      background: #f8fafc;
+      border-color: var(--primary, #db2777);
+      color: var(--primary, #db2777);
+      transform: translateY(-1px);
+    }
+    .church-gallery-arrow-btn svg,
+    .church-gallery-arrow-btn i {
+      width: 16px;
+      height: 16px;
+    }
+    .church-gallery-track-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+    .church-gallery-track {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding: 4px 2px 14px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+    }
+    .church-gallery-track::-webkit-scrollbar {
+      height: 6px;
+    }
+    .church-gallery-track::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .church-gallery-track::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 9999px;
+    }
+    .church-gallery-card {
+      flex: 0 0 240px;
+      min-width: 210px;
+      max-width: 270px;
+      scroll-snap-align: start;
+      aspect-ratio: 4 / 3;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      user-select: none;
+    }
+    .church-gallery-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+    }
+    .church-gallery-thumb-wrap {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    .church-gallery-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+      display: block;
+    }
+    .church-gallery-card:hover .church-gallery-thumb {
+      transform: scale(1.06);
+    }
+    .church-gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.2) 50%, rgba(0, 0, 0, 0.02) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      opacity: 0.95;
+      transition: opacity 0.25s ease;
+    }
+    .gallery-zoom-badge {
+      align-self: flex-end;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .gallery-zoom-badge svg,
+    .gallery-zoom-badge i {
+      width: 14px;
+      height: 14px;
+    }
+    .church-gallery-card:hover .gallery-zoom-badge {
+      background: var(--primary, #db2777);
+      border-color: var(--primary, #db2777);
+      transform: scale(1.1);
+    }
+    .gallery-overlay-tag {
+      display: inline-block;
+      color: #fbbf24;
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 2px;
+    }
+    .gallery-overlay-title {
+      margin: 0;
+      color: #ffffff;
+      font-size: 0.88rem;
+      font-weight: 800;
+      line-height: 1.25;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* Lightbox Modal & Popup Navigation Arrows */
+    .church-lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .church-lightbox-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(7, 12, 28, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .church-lightbox-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 24px;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+    .church-lightbox-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-bottom: 12px;
+      pointer-events: auto;
+    }
+    .church-lightbox-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .church-lightbox-counter {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 750;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      letter-spacing: 0.03em;
+    }
+    .church-lightbox-church-name {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .church-lightbox-close-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .church-lightbox-close-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+      transform: scale(1.06);
+    }
+    .church-lightbox-close-btn svg,
+    .church-lightbox-close-btn i {
+      width: 20px;
+      height: 20px;
+    }
+    .church-lightbox-stage {
+      position: relative;
+      flex: 1 1 auto;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      pointer-events: auto;
+    }
+    .church-lightbox-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    }
+    .church-lightbox-nav-btn.lightbox-popup-prev {
+      left: 14px;
+    }
+    .church-lightbox-nav-btn.lightbox-popup-next {
+      right: 14px;
+    }
+    .church-lightbox-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 6px 24px rgba(255, 255, 255, 0.25);
+    }
+    .church-lightbox-nav-btn svg,
+    .church-lightbox-nav-btn i {
+      width: 28px;
+      height: 28px;
+      color: #ffffff;
+    }
+    .church-lightbox-figure-wrap {
+      position: relative;
+      max-width: min(920px, 86vw);
+      max-height: calc(82vh - 60px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .church-lightbox-img {
+      max-width: 100%;
+      max-height: calc(75vh - 70px);
+      object-fit: contain;
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      transition: opacity 0.25s ease;
+    }
+    .church-lightbox-caption-bar {
+      margin-top: 14px;
+      text-align: center;
+      max-width: 680px;
+    }
+    .church-lightbox-caption-title {
+      margin: 0;
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+    .church-lightbox-caption-desc {
+      margin: 4px 0 0;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    /* Dark Mode Overrides for Church Gallery */
+    html[data-theme="dark"] .church-gallery-title {
+      color: #f1f5f9;
+    }
+    html[data-theme="dark"] .church-gallery-arrow-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+    }
+    html[data-theme="dark"] .church-gallery-arrow-btn:hover {
+      background: rgba(51, 65, 85, 0.9);
+      border-color: var(--primary, #db2777);
+      color: var(--primary, #db2777);
+    }
+    html[data-theme="dark"] .church-gallery-card {
+      border-color: rgba(255, 255, 255, 0.08);
+      background: rgba(30, 41, 59, 0.7);
+    }
+
+    @media (max-width: 640px) {
+      .church-gallery-card {
+        flex: 0 0 190px;
+        min-width: 175px;
+      }
+      .church-lightbox-content {
+        padding: 12px;
+      }
+      .church-lightbox-nav-btn {
+        width: 44px;
+        height: 44px;
+      }
+      .church-lightbox-nav-btn svg,
+      .church-lightbox-nav-btn i {
+        width: 22px;
+        height: 22px;
+      }
+      .church-lightbox-nav-btn.lightbox-popup-prev {
+        left: 6px;
+      }
+      .church-lightbox-nav-btn.lightbox-popup-next {
+        right: 6px;
+      }
+    }
+
+    @media (max-width: 1180px) {
+      body[data-page="profile"] .profile-app-header { grid-template-columns: 210px minmax(240px, 1fr) minmax(230px, 0.8fr) auto; }
+      .profile-app-brand { padding-inline: 20px; }
+      .profile-app-account span { display: none; }
+      body[data-page="profile"] .church-profile-grid { grid-template-columns: minmax(0,1fr) 270px; gap: 22px; }
+      body[data-page="profile"] .leadership-grid { grid-template-columns: 240px 1fr; gap: 24px; }
+      .leader-facts { grid-template-columns: 1fr; gap: 9px; }
+      .leader-facts > div { padding: 0; border-right: 0; }
+      body[data-page="profile"] .testimony-card.glass-card { grid-template-columns: 100px 1fr; }
+    }
+
+    @media (max-width: 980px) {
+      body[data-page="profile"] .profile-app-header { grid-template-columns: 1fr auto auto; padding: 0 16px; }
+      .profile-app-brand { align-self: auto; padding: 0; border: 0; }
+      .profile-app-church, .profile-app-search { display: none; }
+      .profile-mobile-menu { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid var(--ai-border); border-radius: 10px; color: var(--ai-navy); background: #ffffff; }
+      .profile-left-rail { transform: translateX(-105%); transition: transform 180ms ease; }
+      body.profile-nav-open .profile-left-rail { transform: translateX(0); }
+      body[data-page="profile"] > main, body[data-page="profile"] > section, body[data-page="profile"] > footer { margin-left: 0; }
+      body[data-page="profile"] .church-profile-grid { grid-template-columns: 1fr; }
+      body[data-page="profile"] .church-sidebar-stack { position: static; display: grid; grid-template-columns: 1fr 1fr; }
+      body[data-page="profile"] .church-tabs-nav { top: 10px; }
+      body[data-page="profile"]:not(.member-shell-embed) .church-tabs-nav { top: 74px; }
+      body[data-page="profile"].member-shell-embed .church-tabs-nav { top: 10px !important; }
+      .church-hero-showcase { padding: 70px 24px; min-height: 340px; }
+    }
+
+    @media (max-width: 720px) {
+      body[data-page="profile"] > main > .container { width: calc(100% - 28px) !important; }
+      .profile-app-account { padding: 0; }
+      .church-hero-showcase { padding: 50px 18px; min-height: 290px; border-radius: 18px; }
+      .church-hero-name { font-size: 1.45rem; }
+      .church-hero-desc { font-size: 0.88rem; }
+      body[data-page="profile"] .church-tabs-nav { position: static; width: 100%; border-radius: 14px; padding: 3px; gap: 4px; overflow-x: auto; }
+      body[data-page="profile"] .church-tab-button { flex: 0 0 auto; min-width: max-content; padding: 9px 14px; font-size: 0.8rem; }
+      body[data-page="profile"] .leadership-grid { grid-template-columns: 1fr; height: auto; gap: 24px; }
+      body[data-page="profile"] .leader-photo-wrap { max-width: 280px; height: 380px; margin: 0 auto; }
+      body[data-page="profile"] .leader-photo { min-height: 0; }
+      body[data-page="profile"] .leader-bio { padding: 26px 22px; }
+      .leader-facts { grid-template-columns: 1fr 1fr; }
+      .leader-actions { grid-template-columns: 1fr; max-width: 100%; }
+      .gathering-card-grid { grid-template-columns: 1fr !important; gap: 18px !important; }
+      body[data-page="profile"] .stories-section { padding: 16px; }
+      body[data-page="profile"] .stories-heading a,
+      body[data-page="profile"] .stories-heading .btn-more-stories { display: none; }
+      body[data-page="profile"] .testimony-card.glass-card { grid-template-columns: 112px 1fr; }
+      body[data-page="profile"] .church-sidebar-stack { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .profile-app-account span, .profile-app-account > svg { display: none; }
+      body[data-page="profile"] .testimony-card.glass-card { grid-template-columns: 1fr; }
+      body[data-page="profile"] .testimony-scene { max-height: 190px; }
+      body[data-page="profile"] .gathering-thumb-wrap { height: 160px; }
+    }
     /* Mixed-media church hero carousel */
     .church-hero-showcase {
       position: relative;
       width: 100%;
-      height: clamp(390px, 46vw, 560px);
-      min-height: 390px;
+      height: 420px;
+      min-height: 420px;
       margin-bottom: 22px;
       overflow: hidden;
       isolation: isolate;
@@ -2170,6 +2754,40 @@
     .church-hero-video-visual iframe,
     .church-hero-video-visual video { width: 100%; height: 100%; display: block; border: 0; object-fit: cover; }
 
+    .church-hero-video-visual [hidden] { display: none !important; }
+    .church-hero-embed-preview { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: #080d16; }
+    .church-hero-embed-preview > img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .church-hero-embed-play {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 72px; height: 72px;
+      display: grid; place-items: center;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(255,255,255,.6);
+      border-radius: 50%;
+      background: rgba(7, 17, 31, .72);
+      color: #fff;
+      cursor: pointer;
+      transition: transform 180ms ease, background 180ms ease;
+    }
+    .church-hero-embed-play:hover { transform: translate(-50%, -50%) scale(1.08); background: rgba(7, 17, 31, .92); }
+    .church-hero-embed-play svg { width: 28px; height: 28px; fill: currentColor; }
+    .church-hero-embed-link {
+      position: absolute;
+      z-index: 2;
+      top: 18px; left: 18px;
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 999px;
+      background: rgba(5,12,23,.7);
+      color: #fff;
+      font-size: .76rem; font-weight: 750;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+    }
+    .church-hero-embed-link svg { width: 14px; height: 14px; }
+
     .church-hero-video-shell::after {
       content: "";
       position: absolute;
@@ -2190,24 +2808,34 @@
       position: relative;
       z-index: 3;
       align-self: center;
-      width: min(52%, 650px);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: min(58%, 720px);
       margin: 0 auto 0 0;
-      padding: 46px 54px 70px;
+      padding: 32px 42px 96px;
       color: #fff;
     }
 
-    .church-hero-slide--video .church-hero-content-bottom-left {
+    .church-hero-slide--media-left .church-hero-content-bottom-left {
       margin: 0 0 0 auto;
       padding-left: 36px;
       padding-right: 56px;
+      align-items: flex-end;
       text-align: right;
+    }
+
+    .church-hero-slide--media-right .church-hero-content-bottom-left {
+      margin: 0 auto 0 0;
+      align-items: flex-start;
+      text-align: left;
     }
 
     .church-hero-kicker {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      margin: 0 0 14px;
+      margin: 0 0 10px;
       color: #fbbf24;
       font-size: .72rem;
       font-weight: 850;
@@ -2221,7 +2849,7 @@
       max-width: 620px;
       margin: 0;
       color: #fff;
-      font-size: clamp(2rem, 4.3vw, 4.25rem);
+      font-size: clamp(1.9rem, 3.8vw, 3.8rem);
       font-weight: 850;
       line-height: .98;
       letter-spacing: -.055em;
@@ -2231,22 +2859,22 @@
 
     .church-hero-desc {
       max-width: 600px;
-      margin: 19px 0 0;
+      margin: 14px 0 0;
       color: rgba(255, 255, 255, .85);
       font-size: clamp(.9rem, 1.15vw, 1.02rem);
-      line-height: 1.65;
+      line-height: 1.5;
       text-shadow: 0 2px 12px rgba(0, 0, 0, .4);
     }
 
-    .church-hero-slide--video .church-hero-name,
-    .church-hero-slide--video .church-hero-desc { margin-left: auto; }
+    .church-hero-slide--media-left .church-hero-name,
+    .church-hero-slide--media-left .church-hero-desc { margin-left: auto; }
 
     .church-hero-action {
       display: inline-flex;
       align-items: center;
       gap: 9px;
       min-height: 43px;
-      margin-top: 22px;
+      margin-top: 16px;
       padding: 0 18px;
       border: 1px solid rgba(255, 255, 255, .32);
       border-radius: 999px;
@@ -2723,90 +3351,18 @@
       }
     }
 
-    @media (max-width: 1180px) {
-      body[data-page="profile"] .profile-app-header { grid-template-columns: 210px minmax(240px, 1fr) minmax(230px, 0.8fr) auto; }
-      .profile-app-brand { padding-inline: 20px; }
-      .profile-app-account span { display: none; }
-      body[data-page="profile"] .church-profile-grid { grid-template-columns: minmax(0,1fr) 270px; gap: 22px; }
-      body[data-page="profile"] .leadership-grid { grid-template-columns: 240px 1fr; gap: 24px; }
-      .leader-facts { grid-template-columns: 1fr; gap: 9px; }
-      .leader-facts > div { padding: 0; border-right: 0; }
-      body[data-page="profile"] .testimony-card.glass-card { grid-template-columns: 100px 1fr; }
-    }
 
-    @media (max-width: 980px) {
-      body[data-page="profile"] .profile-app-header { grid-template-columns: 1fr auto auto; padding: 0 16px; }
-      .profile-app-brand { align-self: auto; padding: 0; border: 0; }
-      .profile-app-church, .profile-app-search { display: none; }
-      .profile-mobile-menu { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid var(--ai-border); border-radius: 10px; color: var(--ai-navy); background: #ffffff; }
-      .profile-left-rail { transform: translateX(-105%); transition: transform 180ms ease; }
-      body.profile-nav-open .profile-left-rail { transform: translateX(0); }
-      body[data-page="profile"] > main, body[data-page="profile"] > section, body[data-page="profile"] > footer { margin-left: 0; }
-      body[data-page="profile"] .church-profile-grid { grid-template-columns: 1fr; }
-      body[data-page="profile"] .church-sidebar-stack { position: static; display: grid; grid-template-columns: 1fr 1fr; }
-      body[data-page="profile"] .church-tabs-nav { top: 10px; }
-      body[data-page="profile"]:not(.member-shell-embed) .church-tabs-nav { top: 74px; }
-      body[data-page="profile"].member-shell-embed .church-tabs-nav { top: 10px !important; }
-      .church-hero-showcase { height: 420px; min-height: 420px; }
-      .church-hero-content-bottom-left { width: 62%; padding-inline: 34px; }
-    }
-
+    @media (max-width: 980px) { .church-hero-showcase { height: 420px; min-height: 420px; } }
     @media (max-width: 720px) {
-      body[data-page="profile"] > main > .container { width: calc(100% - 28px) !important; }
-      .profile-app-account { padding: 0; }
-      .church-hero-showcase { height: min(72svh, 520px); min-height: 360px; border-radius: 20px; }
-      .church-hero-slide--image::after { background: linear-gradient(0deg, rgba(2,8,15,.92) 0%, rgba(2,8,15,.6) 38%, rgba(2,8,15,.08) 75%); }
-      .church-hero-image-layer { background-position: center; }
-      .church-hero-content-bottom-left,
-      .church-hero-slide--video .church-hero-content-bottom-left {
-        align-self: flex-end;
-        width: 100%;
-        margin: 0;
-        padding: 28px 22px 78px;
-        text-align: left;
-      }
-      .church-hero-kicker,
-      .church-hero-action { display: none; }
-      .church-hero-name { max-width: calc(100% - 54px); font-size: clamp(1.55rem, 8vw, 2.35rem); line-height: 1.04; transition: opacity 220ms ease, transform 260ms ease; }
-      .church-hero-desc { position: absolute; right: 22px; bottom: 78px; left: 22px; margin: 0; font-size: .88rem; line-height: 1.55; opacity: 0; transform: translateY(14px); pointer-events: none; transition: opacity 220ms ease, transform 260ms ease; }
-      .church-hero-slide.details-open .church-hero-name { opacity: 0; transform: translateY(-16px); pointer-events: none; }
-      .church-hero-slide.details-open .church-hero-desc { opacity: 1; transform: translateY(0); pointer-events: auto; }
-      .church-hero-video-visual { width: 100%; max-width: none; height: 100%; aspect-ratio: auto; -webkit-mask-image: none; mask-image: none; }
-      .church-hero-video-shell::after { background: linear-gradient(0deg, rgba(2,8,15,.38), transparent 38%); }
-      .church-hero-slide--video .church-hero-content-bottom-left { display: none; }
-      .church-hero-controls { right: 16px; bottom: 16px; left: 16px; grid-template-columns: auto 1fr auto auto; gap: 10px; }
-      .church-hero-nav button { width: 38px; height: 38px; }
-      .church-hero-count { display: none; }
-      .church-hero-mobile-toggle { display: grid; pointer-events: auto; }
-      .church-hero-showcase.is-video-active .church-hero-mobile-toggle { display: none; }
-      body[data-page="profile"] .church-tabs-nav { position: static; width: 100%; border-radius: 14px; padding: 3px; gap: 4px; overflow-x: auto; }
-      body[data-page="profile"] .church-tab-button { flex: 0 0 auto; min-width: max-content; padding: 9px 14px; font-size: 0.8rem; }
-      body[data-page="profile"] .leadership-grid { grid-template-columns: 1fr; height: auto; gap: 24px; }
-      body[data-page="profile"] .leader-photo-wrap { max-width: 280px; height: 380px; margin: 0 auto; }
-      body[data-page="profile"] .leader-photo { min-height: 0; }
-      body[data-page="profile"] .leader-bio { padding: 26px 22px; }
-      .leader-facts { grid-template-columns: 1fr 1fr; }
-      .leader-actions { grid-template-columns: 1fr; max-width: 100%; }
-      .gathering-card-grid { grid-template-columns: 1fr !important; gap: 18px !important; }
-      .profile-church-story,.profile-visitor-notes { grid-template-columns:1fr; }
-      body[data-page="profile"] .stories-section { padding: 16px; }
-      body[data-page="profile"] .stories-heading a,
-      body[data-page="profile"] .stories-heading .btn-more-stories { display: none; }
-      body[data-page="profile"] .testimony-card.glass-card { grid-template-columns: 112px 1fr; }
-      body[data-page="profile"] .church-sidebar-stack { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 480px) {
-      .church-hero-showcase { height: min(68svh, 470px); min-height: 340px; }
-      .church-hero-dots { gap: 6px; }
-      .profile-app-account span, .profile-app-account > svg { display: none; }
-      body[data-page="profile"] .testimony-card.glass-card { grid-template-columns: 1fr; }
-      body[data-page="profile"] .testimony-scene { max-height: 190px; }
-      body[data-page="profile"] .gathering-thumb-wrap { height: 160px; }
+      .church-hero-showcase { height: min(58svh, 420px); min-height: 320px; }
+      .church-hero-content-bottom-left { width: 100%; padding: 22px 26px 82px; }
+      .church-hero-name { font-size: 1.45rem; }
+      .church-hero-desc { margin-top: 10px; font-size: .84rem; line-height: 1.4; }
+      .church-hero-action { margin-top: 12px; }
+      .church-hero-controls { right: 16px; bottom: 16px; left: 16px; gap: 10px; }
     }
   </style>
-<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" />
-  <link rel="stylesheet" href="simulated-live-badges.css?v=20260930simlive1" /></head>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body data-page="profile">
 
   <header class="profile-app-header" id="sticky-header">
@@ -2815,9 +3371,9 @@
       <strong>My Way</strong>
     </a>
     <div class="profile-app-church">
-      <img src="assets/logo-light-chapel.png" alt="" data-church-logo />
-      <span><strong data-church-name></strong><small data-profile-location></small></span>
-      <div class="profile-review-badge" data-profile-review-badge aria-label="Verified church"><i data-lucide="badge-check"></i><span>Verified</span></div>
+      <img src="assets/logo-light-chapel.png" alt="" />
+      <span><strong data-church-name>River City Church</strong><small data-profile-location>Edmonton, Alberta</small></span>
+      <i data-lucide="badge-check" aria-label="Verified church"></i>
     </div>
     <label class="profile-app-search site-search">
       <i data-lucide="search"></i>
@@ -2825,7 +3381,9 @@
     </label>
     <div class="profile-app-account">
       <button type="button" aria-label="Notifications"><i data-lucide="bell"></i></button>
-      <button type="button" class="profile-account-link" aria-label="Open your account" onclick="location.href='member-home.html'"><i data-lucide="user-round"></i><span>Account</span><i data-lucide="chevron-right"></i></button>
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=80&h=80&q=80" alt="Sarah Johnson" />
+      <span>Sarah Johnson</span>
+      <i data-lucide="chevron-down"></i>
     </div>
     <button class="profile-mobile-menu" type="button" aria-label="Open navigation" onclick="document.body.classList.toggle('profile-nav-open')"><i data-lucide="menu"></i></button>
   </header>
@@ -2858,7 +3416,7 @@
     <div class="container">
       <!-- Creator-configured mixed-media hero carousel -->
       <section class="church-hero-showcase" id="church-hero-showcase" data-profile-hero aria-label="Church introduction" aria-roledescription="carousel" tabindex="0">
-        <div class="church-hero-track" id="church-hero-track" aria-live="polite"></div>
+        <div class="church-hero-track" id="church-hero-track" aria-live="polite"><article class="church-hero-slide church-hero-slide--image church-hero-slide--media-right is-active" data-hero-slide="0" data-hero-kind="image" aria-roledescription="slide" aria-label="1 of 1" aria-hidden="false"><div class="church-hero-image-layer" style="--hero-image:url(&quot;assets/hero-global-church.png&quot;)"></div><div class="church-hero-content-bottom-left"><span class="church-hero-kicker">About us</span><h1 class="church-hero-name" data-church-name>Welcome to our church</h1><p class="church-hero-desc" data-church-tagline>Join our welcoming community to grow in faith through worship, biblical teaching, prayer, friendship, service, and outreach. Discover weekly gatherings and ways to connect, grow, and take part in our church.</p><a class="church-hero-action" href="#tab-pane-overview">Explore our church</a></div></article></div>
         <div class="church-hero-overlay"></div>
         <div class="church-hero-controls" id="church-hero-controls">
           <div class="church-hero-nav">
@@ -2901,22 +3459,22 @@
             <!-- Leadership / Speaker Section -->
             <div class="leadership-grid mb-8">
               <div class="leader-photo-wrap">
-                <img class="leader-photo" id="leader-profile-img" src="assets/pastor-light-chapel.png" alt="Church leader" />
-                <button type="button" class="message-card" aria-label="Play the pastor's welcome message">
+                <img class="leader-photo" id="leader-profile-img" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80" alt="Pastor John" />
+                <button type="button" class="message-card" aria-label="Play the pastor's welcome message" onclick="MWE.playTestimonyVideo('Pastor Welcome Message', 'https://www.youtube.com/embed/jiSyB8QZzk8')">
                   <div class="message-card-icon"><i data-lucide="play"></i></div>
                   <div class="message-card-info">
                     <h4>Listen to Welcome Message</h4>
-                    <span>Play welcome video</span>
+                    <span>Play Video • 2 Mins</span>
                   </div>
                 </button>
               </div>
               <div class="leader-bio">
-                <span class="kicker"><i data-lucide="user"></i> <span data-profile-pastor-title></span></span>
-                <h2 class="leader-name" data-profile-pastor></h2>
-                <p class="leader-bio-text" data-profile-pastor-bio></p>
+                <span class="kicker"><i data-lucide="user"></i> Senior Pastor</span>
+                <h2 class="leader-name" data-profile-pastor>Pastor John</h2>
+                <p class="leader-bio-text" data-profile-pastor-bio>Welcome to our church profile! We believe in sharing the covenant grace and love of Jesus Christ within our community. Connect with us to begin your spiritual renewal pathway.</p>
                 <div class="leader-facts">
-                  <div><i data-lucide="clock-3"></i><span><strong>Sunday Service</strong><small data-profile-sunday></small></span></div>
-                  <div><i data-lucide="map-pin"></i><span><strong>Sanctuary</strong><small data-profile-location></small></span></div>
+                  <div><i data-lucide="clock-3"></i><span><strong>Sunday Service</strong><small data-profile-sunday>10:00 AM</small></span></div>
+                  <div><i data-lucide="map-pin"></i><span><strong>Sanctuary</strong><small data-profile-location>Edmonton, AB</small></span></div>
                   <div><i data-lucide="users"></i><span><strong>Everyone Welcome</strong><small>Come as you are</small></span></div>
                 </div>
                 <div class="leader-actions">
@@ -2927,13 +3485,20 @@
             </div>
 
             <!-- Testimonials Quote Section -->
-            <div class="stories-section mt-8 mb-8">
+            <div class="stories-section mt-8 mb-8" id="church-stories-section">
               <div class="stories-heading">
-                <span>Lives transformed</span>
-                <h3>Stories of Transformation</h3>
-                <button type="button" class="btn-more-stories" onclick="MWE.openStoriesModal()">View More Stories <i data-lucide="arrow-right"></i></button>
+                <div>
+                  <span>Lives transformed</span>
+                  <h3>Stories of Transformation</h3>
+                </div>
+                <div class="stories-heading-actions" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" class="btn-share-story" onclick="MWE.openSubmitTestimonyModal()"><i data-lucide="message-square-plus"></i> Share Your Story</button>
+                  <button type="button" class="btn-more-stories" id="btn-view-all-stories" onclick="MWE.openStoriesModal()">View All Stories <i data-lucide="arrow-right"></i></button>
+                </div>
               </div>
-              <div class="testimonials-grid" id="profile-testimonials-grid"></div>
+              <div class="testimonials-grid" id="church-testimonials-container">
+                <!-- Dynamically populated via MWE.renderChurchProfileTestimonies -->
+              </div>
             </div>
 
             <!-- Church Photo Slide Gallery Section -->
@@ -2941,7 +3506,7 @@
               <div class="church-gallery-heading">
                 <div>
                   <span class="church-gallery-kicker">Church Life &amp; Fellowship</span>
-                  <h3 class="church-gallery-title">Life at <span data-church-name></span></h3>
+                  <h3 class="church-gallery-title">Life at <span data-church-name>River City Church</span></h3>
                 </div>
                 <div class="church-gallery-nav">
                   <button type="button" class="church-gallery-arrow-btn gallery-prev-btn" aria-label="Previous photos" onclick="MWE.scrollChurchGallery(-1)">
@@ -2955,12 +3520,83 @@
 
               <!-- Slide Gallery Track -->
               <div class="church-gallery-track-container">
-                <div class="church-gallery-track" id="church-gallery-track" role="region" aria-label="Church image gallery"></div>
+                <div class="church-gallery-track" id="church-gallery-track" role="region" aria-label="Church image gallery">
+                  <!-- Fallback static slide items for River City Church -->
+                  <div class="church-gallery-card" onclick="MWE.openGalleryLightbox(0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();MWE.openGalleryLightbox(0);}" tabindex="0" role="button" aria-label="Sunday Worship &amp; Praise">
+                    <div class="church-gallery-thumb-wrap">
+                      <img src="https://images.unsplash.com/photo-1510590337019-5ef8d3d32116?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" alt="Sunday Worship &amp; Praise" class="church-gallery-thumb" loading="lazy" />
+                      <div class="church-gallery-overlay">
+                        <span class="gallery-zoom-badge"><i data-lucide="maximize-2"></i></span>
+                        <div class="gallery-overlay-text">
+                          <span class="gallery-overlay-tag">Worship</span>
+                          <h4 class="gallery-overlay-title">Sunday Worship &amp; Praise</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="church-gallery-card" onclick="MWE.openGalleryLightbox(1)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();MWE.openGalleryLightbox(1);}" tabindex="0" role="button" aria-label="Sanctuary &amp; Gathering Space">
+                    <div class="church-gallery-thumb-wrap">
+                      <img src="https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" alt="Sanctuary &amp; Gathering Space" class="church-gallery-thumb" loading="lazy" />
+                      <div class="church-gallery-overlay">
+                        <span class="gallery-zoom-badge"><i data-lucide="maximize-2"></i></span>
+                        <div class="gallery-overlay-text">
+                          <span class="gallery-overlay-tag">Sanctuary</span>
+                          <h4 class="gallery-overlay-title">Sanctuary &amp; Gathering Space</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="church-gallery-card" onclick="MWE.openGalleryLightbox(2)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();MWE.openGalleryLightbox(2);}" tabindex="0" role="button" aria-label="Youth &amp; Young Adults">
+                    <div class="church-gallery-thumb-wrap">
+                      <img src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" alt="Youth &amp; Young Adults" class="church-gallery-thumb" loading="lazy" />
+                      <div class="church-gallery-overlay">
+                        <span class="gallery-zoom-badge"><i data-lucide="maximize-2"></i></span>
+                        <div class="gallery-overlay-text">
+                          <span class="gallery-overlay-tag">Youth</span>
+                          <h4 class="gallery-overlay-title">Youth &amp; Young Adults</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="church-gallery-card" onclick="MWE.openGalleryLightbox(3)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();MWE.openGalleryLightbox(3);}" tabindex="0" role="button" aria-label="Corporate Prayer Night">
+                    <div class="church-gallery-thumb-wrap">
+                      <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" alt="Corporate Prayer Night" class="church-gallery-thumb" loading="lazy" />
+                      <div class="church-gallery-overlay">
+                        <span class="gallery-zoom-badge"><i data-lucide="maximize-2"></i></span>
+                        <div class="gallery-overlay-text">
+                          <span class="gallery-overlay-tag">Prayer</span>
+                          <h4 class="gallery-overlay-title">Corporate Prayer Night</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="church-gallery-card" onclick="MWE.openGalleryLightbox(4)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();MWE.openGalleryLightbox(4);}" tabindex="0" role="button" aria-label="Children's Ministry">
+                    <div class="church-gallery-thumb-wrap">
+                      <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" alt="Children's Ministry" class="church-gallery-thumb" loading="lazy" />
+                      <div class="church-gallery-overlay">
+                        <span class="gallery-zoom-badge"><i data-lucide="maximize-2"></i></span>
+                        <div class="gallery-overlay-text">
+                          <span class="gallery-overlay-tag">Kids</span>
+                          <h4 class="gallery-overlay-title">Children's Ministry</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="church-gallery-card" onclick="MWE.openGalleryLightbox(5)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();MWE.openGalleryLightbox(5);}" tabindex="0" role="button" aria-label="Community Outreach &amp; Care">
+                    <div class="church-gallery-thumb-wrap">
+                      <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" alt="Community Outreach &amp; Care" class="church-gallery-thumb" loading="lazy" />
+                      <div class="church-gallery-overlay">
+                        <span class="gallery-zoom-badge"><i data-lucide="maximize-2"></i></span>
+                        <div class="gallery-overlay-text">
+                          <span class="gallery-overlay-tag">Outreach</span>
+                          <h4 class="gallery-overlay-title">Community Outreach &amp; Care</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <!-- Creator-managed church story cards intentionally follow the gallery. -->
-            <section class="profile-church-story" id="profile-church-story" aria-label="Our church story" hidden></section>
 
             <!-- Salvation Card -->
             <div class="glass-card mt-8" style="padding: 32px; background: var(--surface-glass);">
@@ -2976,7 +3612,91 @@
           <!-- TAB PANE 2: SERVICES & SCHEDULE -->
           <div class="church-tab-pane" id="tab-pane-services" role="tabpanel" hidden>
             <h3 class="text-xl font-extrabold text-slate-900 mb-5">Weekly Gathering Times</h3>
-            <div class="gathering-card-grid mb-8" id="profile-schedules-grid"></div>
+            <div class="gathering-card-grid mb-8" id="profile-schedules-grid">
+              <!-- Card 1: Sunday Service -->
+              <div class="gathering-modern-card">
+                <div class="gathering-thumb-wrap">
+                  <img src="https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=700&q=80" alt="Main Sunday Service & Worship" class="gathering-thumb" />
+                  <div class="gathering-time-pill">
+                    <i data-lucide="clock"></i> <span data-profile-sunday>Sunday 10:00 AM</span>
+                  </div>
+                </div>
+                <div class="gathering-card-body">
+                  <div class="gathering-title-row">
+                    <h4 class="gathering-title">Main Sunday Service & Worship</h4>
+                  </div>
+                  <p class="gathering-desc">Dynamic worship, covenant teaching, children's ministry, and community fellowship.</p>
+                </div>
+                <div class="gathering-card-footer">
+                  <button type="button" class="gathering-cal-btn" onclick="MWE.openCalendarModal('Main Sunday Service & Worship', 'Sunday 10:00 AM', 'Main Sanctuary')">
+                    <i data-lucide="calendar-plus"></i> Add to Calendar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card 2: Midweek Service -->
+              <div class="gathering-modern-card">
+                <div class="gathering-thumb-wrap">
+                  <img src="https://images.unsplash.com/photo-1519491058846-2679d63c5e8f?auto=format&fit=crop&w=700&q=80" alt="Midweek Bible Study & Prayer" class="gathering-thumb" />
+                  <div class="gathering-time-pill">
+                    <i data-lucide="clock"></i> <span data-profile-midweek>Wednesday 7:00 PM</span>
+                  </div>
+                </div>
+                <div class="gathering-card-body">
+                  <div class="gathering-title-row">
+                    <h4 class="gathering-title">Midweek Bible Study & Prayer</h4>
+                  </div>
+                  <p class="gathering-desc">Deep scriptural exposition, interactive Q&A, and corporate intercessory prayer night.</p>
+                </div>
+                <div class="gathering-card-footer">
+                  <button type="button" class="gathering-cal-btn" onclick="MWE.openCalendarModal('Midweek Bible Study & Prayer', 'Wednesday 7:00 PM', 'Fellowship Hall')">
+                    <i data-lucide="calendar-plus"></i> Add to Calendar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card 3: Youth Gathering -->
+              <div class="gathering-modern-card">
+                <div class="gathering-thumb-wrap">
+                  <img src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=700&q=80" alt="Youth & Young Adults Friday" class="gathering-thumb" />
+                  <div class="gathering-time-pill">
+                    <i data-lucide="clock"></i> <span>Friday 7:00 PM</span>
+                  </div>
+                </div>
+                <div class="gathering-card-body">
+                  <div class="gathering-title-row">
+                    <h4 class="gathering-title">Youth & Young Adults Friday</h4>
+                  </div>
+                  <p class="gathering-desc">High-energy youth worship, real talk dispatches, music, games, and fellowship.</p>
+                </div>
+                <div class="gathering-card-footer">
+                  <button type="button" class="gathering-cal-btn" onclick="MWE.openCalendarModal('Youth & Young Adults Friday', 'Friday 7:00 PM', 'Youth Center')">
+                    <i data-lucide="calendar-plus"></i> Add to Calendar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card 4: Dawn Prayer & Intercession -->
+              <div class="gathering-modern-card">
+                <div class="gathering-thumb-wrap">
+                  <img src="https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=700&q=80" alt="Dawn Prayer & Intercession" class="gathering-thumb" />
+                  <div class="gathering-time-pill">
+                    <i data-lucide="clock"></i> <span>Saturday 8:00 AM</span>
+                  </div>
+                </div>
+                <div class="gathering-card-body">
+                  <div class="gathering-title-row">
+                    <h4 class="gathering-title">Dawn Prayer & Intercession</h4>
+                  </div>
+                  <p class="gathering-desc">Early morning corporate prayer, interceding for families, our community, and the nations.</p>
+                </div>
+                <div class="gathering-card-footer">
+                  <button type="button" class="gathering-cal-btn" onclick="MWE.openCalendarModal('Dawn Prayer & Intercession', 'Saturday 8:00 AM', 'Prayer Chapel')">
+                    <i data-lucide="calendar-plus"></i> Add to Calendar
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- TAB PANE 3: UPCOMING EVENTS -->
@@ -3015,14 +3735,13 @@
                 <div class="profile-on-map-card">
                   <img id="profile-on-map-thumb" data-profile-map-photo src="assets/hero-global-church.png" alt="Sanctuary" class="profile-on-map-thumb" />
                   <div class="profile-on-map-info">
-                    <strong class="profile-on-map-name" data-church-name></strong>
-                    <span class="profile-on-map-address" data-profile-location></span>
+                    <strong class="profile-on-map-name" data-church-name>Church Sanctuary</strong>
+                    <span class="profile-on-map-address" data-profile-location>Location details</span>
                     <span class="profile-on-map-badge"><i data-lucide="check-circle-2"></i> Verified Location</span>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="profile-visitor-notes" id="profile-visitor-notes"></div>
           </div>
         </div>
 
@@ -3030,18 +3749,18 @@
         <div class="church-sidebar-stack">
           <section class="profile-next-service" aria-labelledby="next-service-title">
             <div class="profile-side-heading"><span><i data-lucide="calendar-days"></i></span><h3 id="next-service-title">Next Service</h3></div>
-            <h4 data-profile-next-title></h4>
-            <p data-profile-next-time></p>
-            <div class="profile-service-location"><i data-lucide="map-pin"></i><span><strong data-profile-next-location></strong><small data-profile-location></small></span></div>
-            <p class="profile-service-note" data-profile-next-description></p>
-            <button type="button" class="profile-calendar-action" id="profile-next-calendar"><i data-lucide="calendar-plus"></i> Add to Calendar</button>
+            <h4>Sunday Worship</h4>
+            <p data-profile-sunday>Sunday • 10:00 AM</p>
+            <div class="profile-service-location"><i data-lucide="map-pin"></i><span><strong>Auditorium</strong><small data-profile-location>River City Church</small></span></div>
+            <p class="profile-service-note">Modern worship • Inspiring message</p>
+            <button type="button" class="profile-calendar-action" onclick="MWE.openCalendarModal('Sunday Worship', 'Sunday 10:00 AM', 'Main Auditorium')"><i data-lucide="calendar-plus"></i> Add to Calendar</button>
             <button type="button" class="profile-side-link" onclick="MWE.switchProfileTab('services')">View All Services <i data-lucide="arrow-right"></i></button>
           </section>
 
           <section class="profile-next-step" aria-labelledby="next-step-title">
             <div class="profile-next-step-label"><i data-lucide="sparkles"></i><strong id="next-step-title">Recommended Next Step</strong><span>For You</span></div>
             <h4>New Here?</h4>
-            <p data-profile-first-visit hidden></p>
+            <p>We'd love to help you take your next step in getting connected.</p>
             <button type="button" onclick="MWE.toggleVisitPanel(true)"><i data-lucide="map-pinned"></i><span><strong>Plan Your Visit</strong><small>What to expect on Sunday</small></span><i data-lucide="chevron-right"></i></button>
             <button type="button" onclick="MWE.toggleVisitPanel(true)"><i data-lucide="users"></i><span><strong>Join a Group</strong><small>Find community</small></span><i data-lucide="chevron-right"></i></button>
             <button type="button" onclick="location.href='churches.html'"><i data-lucide="book-open"></i><span><strong>Explore Ministries</strong><small>Discover where you can serve</small></span><i data-lucide="chevron-right"></i></button>
@@ -3114,7 +3833,7 @@
                 <div class="success-check-circle"><i data-lucide="check"></i></div>
                 <h3 class="text-lg font-extrabold text-slate-900">RSVP Registered!</h3>
                 <p class="text-xs text-slate-600 mt-2">Your visitor pass code has been generated. Share this pass with your friends or family.</p>
-                <input type="text" class="share-link-input mt-3" id="share-link-field" value="" readonly onclick="this.select()" />
+                <input type="text" class="share-link-input mt-3" id="share-link-field" value="https://myway.evangelism/pass/CE82847" readonly onclick="this.select()" />
               </div>
             </div>
           </div>
@@ -3125,27 +3844,19 @@
             <div class="flex flex-col gap-3 text-xs text-slate-600">
               <div class="flex items-center gap-2">
                 <i data-lucide="map-pin" style="width: 16px; height: 16px; color: var(--color-primary-gold);"></i>
-                <span data-profile-location></span>
+                <span data-profile-location>Address Details</span>
               </div>
               <div class="flex items-center gap-2">
                 <i data-lucide="clock" style="width: 16px; height: 16px; color: var(--color-primary-gold);"></i>
-                <span data-profile-sunday></span>
-              </div>
-              <div class="flex items-center gap-2">
-                <i data-lucide="calendar-clock" style="width: 16px; height: 16px; color: var(--color-primary-gold);"></i>
-                <span data-profile-midweek></span>
+                <span data-profile-sunday>Sunday 10:00 AM</span>
               </div>
               <div class="flex items-center gap-2">
                 <i data-lucide="phone" style="width: 16px; height: 16px; color: var(--color-primary-gold);"></i>
-                <span data-profile-phone></span>
+                <span>(780) 555-0199</span>
               </div>
               <div class="flex items-center gap-2">
                 <i data-lucide="mail" style="width: 16px; height: 16px; color: var(--color-primary-gold);"></i>
-                <span data-profile-email></span>
-              </div>
-              <div class="flex items-center gap-2">
-                <i data-lucide="globe-2" style="width: 16px; height: 16px; color: var(--color-primary-gold);"></i>
-                <a data-profile-website target="_blank" rel="noopener noreferrer"></a>
+                <span>info@churchfamily.org</span>
               </div>
             </div>
           </div>
@@ -3290,7 +4001,7 @@
       <div class="church-lightbox-topbar">
         <div class="church-lightbox-meta">
           <span class="church-lightbox-counter" id="lightbox-counter">Photo 1 of 6</span>
-          <span class="church-lightbox-church-name" data-church-name></span>
+          <span class="church-lightbox-church-name" data-church-name>River City Church</span>
         </div>
         <button type="button" class="church-lightbox-close-btn" aria-label="Close photo lightbox" onclick="MWE.closeGalleryLightbox()">
           <i data-lucide="x"></i>
@@ -3322,7 +4033,7 @@
   </div>
 
   <!-- Import core platform application script -->
-  <script defer src="platform-client.js?v=20260929churchhero1"></script><script src="app.js?v=20260929churchfull1"></script><script defer src="auth-client.js?v=20260915security1"></script><script defer src="simulated-live-badges.js?v=20260930simlive1"></script>
+  <script defer src="platform-client.js?v=20261007carousel1"></script><script src="app.js?v=20261007ytpreview1"></script><script defer src="auth-client.js?v=20260915security1"></script>
 
 </body>
 </html>

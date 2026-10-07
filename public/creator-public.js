@@ -1,7 +1,7 @@
 (function () {
   const esc = value => window.MWE.escapeHtml(value);
   const safe = value => window.MWECreator.safeLiveUrl(value);
-  const broadcastLink = (type, id) => "broadcast.html?type=" + encodeURIComponent(type || "church") + "&id=" + encodeURIComponent(id);
+  const broadcastLink = (type, id) => type==='channel'?'channel-live.html?id='+encodeURIComponent(id):"broadcast.html?type=" + encodeURIComponent(type || "church") + "&id=" + encodeURIComponent(id);
   function image(url, alt) { return safe(url) ? '<img src="' + esc(url) + '" alt="' + esc(alt) + '" loading="lazy">' : ""; }
   function thumbnail(stream) {
     const liveUrl = safe(stream.url);
@@ -31,9 +31,8 @@
       card.setAttribute("aria-label", "Play " + stream.name);
       card.innerHTML = '<span class="livestream-showcase-shade" aria-hidden="true"></span>' +
         '<span class="livestream-showcase-badge"><span class="livestream-showcase-badge-dot"></span> LIVE</span>' +
-        '<div class="livestream-showcase-copy"><h3>' + esc(stream.name) + '</h3>' + (window.MWEPlatform?.pendingBadge(stream) || '') + '<p><i data-lucide="map-pin"></i> ' + esc(stream.description || "Live broadcast") + '</p></div>' +
-        '<span class="livestream-showcase-play"><i data-lucide="play"></i><b>Play</b></span>' +
-        '<button class="content-love-button content-love-overlay" type="button" data-love-type="livestream" data-love-id="' + esc(stream.type + ':' + stream.id) + '" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>';
+        '<div class="livestream-showcase-copy"><h3>' + esc(stream.name) + '</h3><p><i data-lucide="map-pin"></i> ' + esc(stream.description || "Live broadcast") + '</p></div>' +
+        '<span class="livestream-showcase-play"><i data-lucide="play"></i><b>Play</b></span>';
       target.append(card);
     });
     const empty = document.getElementById("streams-empty-state");
@@ -45,10 +44,10 @@
   }
   function renderStores() {
     const stores = window.MWECreator.getStores();
-    const grid = '<div class="creator-store-cards">' + stores.map(store => '<a class="creator-store-card" href="storefront.html?id=' + encodeURIComponent(store.id) + '">' + image(store.image, store.name) + '<div><h3>' + esc(store.name) + '</h3>' + (window.MWEPlatform?.pendingBadge(store) || '') + '<p>' + esc(store.category) + '</p><small>' + (store.live ? "● Live shopping" : "Visit store →") + '</small></div></a>').join("") + '</div>';
+    const grid = '<div class="creator-store-cards">' + stores.map(store => '<a class="creator-store-card" href="storefront.html?id=' + encodeURIComponent(store.id) + '">' + image(store.image, store.name) + '<div><h3>' + esc(store.name) + '</h3><p>' + esc(store.category) + '</p><small>' + (store.live ? "● Live shopping" : "Visit store →") + '</small></div></a>').join("") + '</div>';
     return grid;
   }
-  function publicPage() {
+  async function publicPage() {
     const target = document.getElementById("creator-public");
     if (!target) return;
     const params = new URLSearchParams(location.search);
@@ -57,13 +56,15 @@
       const store = window.MWECreator.getStores().find(s => s.id === id);
       if (!store) { target.innerHTML = '<h1>Store not found</h1><a href="store.html">Return to store directory</a>'; return; }
       document.title = store.name + " | My Way Store";
-      const products = window.FaithLinkModules.getProducts().filter(p => p.storeId === id && ((p.publicationState || p.state) ? ["published", "pending"].includes(p.publicationState || p.state) : p.status === "Active"));
-      target.innerHTML = '<a href="store.html">← All stores</a><h1>' + esc(store.name) + '</h1>' + (window.MWEPlatform?.isPending(store) ? '<div class="platform-pending-notice"><span class="platform-pending-badge">Pending review</span><p>This store is live while it awaits owner approval.</p></div>' : '') + '<p>' + esc(store.description) + '</p><div class="creator-store-actions">' + (store.live && safe(store.liveUrl) ? '<a class="button primary" href="' + broadcastLink("store", store.id) + '">Watch live shopping</a>' : "") + '</div><h2>Products</h2>' + (products.length ? '<div class="creator-store-cards">' + products.map(p => '<a class="creator-store-card" href="product-detail.html?id=' + encodeURIComponent(p.id) + '">' + image(p.image, p.title) + '<div><h3>' + esc(p.title) + '</h3>' + (window.MWEPlatform?.pendingBadge(p) || '') + '<p>' + esc(window.FaithLinkModules.money(p.price)) + '</p></div></a>').join("") + '</div>' : '<p>No published products yet.</p>');
+      const products = window.FaithLinkModules.getProducts().filter(p => p.storeId === id && p.status === "Active");
+      target.innerHTML = '<a href="store.html">← All stores</a><h1>' + esc(store.name) + '</h1><p>' + esc(store.description) + '</p><div class="creator-store-actions">' + (store.live && safe(store.liveUrl) ? '<a class="button primary" href="' + broadcastLink("store", store.id) + '">Watch live shopping</a>' : "") + '</div><h2>Products</h2>' + (products.length ? '<div class="creator-store-cards">' + products.map(p => '<a class="creator-store-card" href="product-detail.html?id=' + encodeURIComponent(p.id) + '">' + image(p.image, p.title) + '<div><h3>' + esc(p.title) + '</h3><p>' + esc(window.FaithLinkModules.money(p.price)) + '</p></div></a>').join("") + '</div>' : '<p>No published products yet.</p>');
       return;
     }
     const requestedType = params.get("type");
+    if(requestedType==='channel'){location.replace('channel-live.html?id='+encodeURIComponent(id||''));return;}
     const stream = window.MWECreator.broadcasts().find(s => s.id === id && (!requestedType || s.type === requestedType));
     if (!stream) { target.innerHTML = '<h1>This broadcast is offline</h1><p>The creator may have ended their broadcast.</p><a href="livestream.html">Explore live broadcasts</a>'; return; }
+    if(stream.type==='channel'){location.replace('channel-live.html?id='+encodeURIComponent(stream.id));return;}
     document.title = stream.name + " · Live | My Way";
     const url = new URL(safe(stream.url));
     let embed = "";
@@ -86,12 +87,13 @@
       : '<div class="broadcast-player-fallback" style="background-image:url(&quot;' + esc(thumbnail(stream)) + '&quot;)"><span aria-hidden="true"></span><a href="' + profile.url + '"><i data-lucide="' + profile.icon + '"></i><b>' + profile.label + '</b></a></div>';
     target.innerHTML = '<a class="broadcast-back-link" href="livestream.html"><i data-lucide="arrow-left"></i> All live broadcasts</a>' +
       '<div class="broadcast-watch-layout"><section class="broadcast-main-column"><div class="broadcast-player-shell">' + player + '<button class="broadcast-share-overlay" type="button" id="broadcast-share" aria-label="Share this livestream"><i data-lucide="share-2"></i><span>Share</span></button></div>' +
-      '<div class="broadcast-details"><div><span class="broadcast-live-label"><i data-lucide="radio"></i> Live now</span><h1>' + esc(stream.name) + '</h1>' + (window.MWEPlatform?.pendingBadge(stream) || '') + '<p>' + esc(description) + '</p></div><button class="content-love-button content-love-detail" type="button" data-love-type="livestream" data-love-id="' + esc(stream.type + ':' + stream.id) + '" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>' +
+      '<div class="broadcast-details"><div><span class="broadcast-live-label"><i data-lucide="radio"></i> Live now</span><h1>' + esc(stream.name) + '</h1><p>' + esc(description) + '</p></div><button class="content-love-button content-love-detail" type="button" data-love-type="livestream" data-love-id="' + esc(stream.type + ':' + stream.id) + '" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>' +
       (embed ? '<div class="creator-store-actions">' + profileAction + '</div>' : '') + '</div></section>' +
       '<aside class="broadcast-chat" aria-label="Livestream chat"><header><div><span class="broadcast-live-dot"></span><strong>Live chat</strong></div><small>Live community conversation</small></header>' +
       '<div class="broadcast-chat-messages" id="broadcast-chat-messages" aria-live="polite"><p class="broadcast-chat-status" data-chat-status>Loading live conversation…</p></div>' +
       '<form class="broadcast-chat-form" id="broadcast-chat-form"><label class="sr-only" for="broadcast-chat-input">Chat message</label><input id="broadcast-chat-input" maxlength="300" required placeholder="Write a message…"><button type="submit" aria-label="Send message"><i data-lucide="send"></i></button></form></aside></div>';
     const chatForm = target.querySelector("#broadcast-chat-form");
+    if(window.MWELivePlayer){const shell=target.querySelector('.broadcast-player-shell');const overlay=shell.querySelector('button');const surface=document.createElement('div');surface.className='broadcast-video-surface';shell.replaceChildren(surface,overlay);const cleanup=await window.MWELivePlayer.mount(surface,stream.url,stream.name);window.addEventListener('pagehide',cleanup,{once:true});}
     window.MWELivestreamChat?.mount({
       streamType: stream.type,
       entityId: stream.id,

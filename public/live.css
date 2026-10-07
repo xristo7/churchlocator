@@ -1,0 +1,13 @@
+.live-shell { width:min(1100px,calc(100% - 40px)); margin:32px auto; }
+.live-panel { border:1px solid var(--border); border-radius:22px; padding:24px; margin:20px 0; background:var(--surface); }
+.live-panel h1,.live-panel h2 { margin:0 0 16px; }
+.live-panel label { display:block; margin:16px 0; }
+.live-panel input:not([type=checkbox]),.live-panel select { width:100%; padding:12px; margin-top:8px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text-primary); }
+.live-panel button,.live-panel .live-link { display:inline-block; padding:12px 18px; margin:8px 8px 8px 0; border:1px solid var(--border); border-radius:10px; background:var(--primary-gradient); color:white; cursor:pointer; }
+.live-panel [role=status],.live-panel p { line-height:1.6; }
+.live-publishing { display:block; width:100%; padding:16px; white-space:pre-wrap; overflow-wrap:anywhere; background:var(--surface-soft); }
+rtk-meeting { display:block; min-height:70dvh; height:75dvh; border-radius:20px; overflow:hidden; }
+rtk-meeting[hidden],.live-panel [hidden] { display:none; }
+.creator-live-player { width:100%; min-height:360px; background:#080d1a; }
+.live-directory-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+@media(max-width:760px){.live-panel{padding:18px}.creator-live-player{min-height:240px}rtk-meeting{height:80dvh}}

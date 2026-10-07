@@ -46,7 +46,7 @@
         '<div class="channel-profile-body">' +
           '<div class="channel-profile-identity">' +
             '<div>' +
-              '<h3><a href="channel-detail.html?id=' + encodeURIComponent(c.id) + '">' + data().escapeHtml(c.name) + '</a>' + (c.verified ? '<i data-lucide="badge-check" aria-label="Verified"></i>' : '') + '</h3>' + (window.MWEPlatform?.pendingBadge(c) || '') +
+              '<h3><a href="channel-detail.html?id=' + encodeURIComponent(c.id) + '">' + data().escapeHtml(c.name) + '</a>' + (c.verified ? '<i data-lucide="badge-check" aria-label="Verified"></i>' : '') + '</h3>' +
               '<span>' + data().escapeHtml(c.owner) + ' · ' + data().escapeHtml(c.topic) + '</span>' +
             '</div>' +
             '<span class="channel-online"><i></i>' + (c.live ? "Live now" : "Active") + '</span>' +
@@ -80,7 +80,7 @@
         '<div class="resource-card-body">' +
           '<div class="resource-identity">' +
             '<span class="resource-topic">' + data().escapeHtml(r.topic) + '</span>' +
-            '<h3><a href="resource-detail.html?id=' + encodeURIComponent(r.id) + '">' + data().escapeHtml(r.title) + '</a></h3>' + (window.MWEPlatform?.pendingBadge(r) || '') +
+            '<h3><a href="resource-detail.html?id=' + encodeURIComponent(r.id) + '">' + data().escapeHtml(r.title) + '</a></h3>' +
             '<span class="resource-creator">By ' + data().escapeHtml(r.creator) + '</span>' +
           '</div>' +
           '<p class="resource-desc">' + data().escapeHtml(r.description) + '</p>' +
@@ -105,7 +105,7 @@
         '</a>' +
         '<div class="product-card-body">' +
           '<span class="product-seller">Sold by ' + data().escapeHtml(p.seller) + '</span>' +
-          '<h3><a href="product-detail.html?id=' + encodeURIComponent(p.id) + '">' + data().escapeHtml(p.title) + '</a></h3>' + (window.MWEPlatform?.pendingBadge(p) || '') +
+          '<h3><a href="product-detail.html?id=' + encodeURIComponent(p.id) + '">' + data().escapeHtml(p.title) + '</a></h3>' +
           '<span class="product-rating"><i data-lucide="star"></i>' + Number(p.rating).toFixed(1) + ' · ' + Number(p.inventory) + ' in stock</span>' +
           '<div class="product-price-row">' +
             '<div><span class="product-price">' + data().money(p.price) + '</span>' + (p.compareAt ? '<span class="product-compare">' + data().money(p.compareAt) + '</span>' : '') + '</div>' +
@@ -118,8 +118,6 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
   await window.MWEPlatform?.ready;
-    const sessionName = window.MWEPlatform?.session?.name || localStorage.getItem("mwe.username") || "there";
-    document.querySelectorAll("[data-member-home-name]").forEach(node => { node.textContent = sessionName; });
     renderStreams();
     renderChannels();
     renderResources();

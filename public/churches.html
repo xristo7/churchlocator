@@ -7,12 +7,10 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>My Way of Evangelism | Find a Church Family</title>
-    <link rel="stylesheet" href="styles.css?v=20260929directorybadges1" />
+    <link rel="stylesheet" href="styles.css?v=20261005regions3" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260928churchapproval1"></script><script defer src="app.js?v=20260928churchapproval1"></script><script defer src="auth-client.js?v=20260915security1"></script>
-<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" />
-  <link rel="stylesheet" href="simulated-live-badges.css?v=20260930simlive1" />
-  <script defer src="simulated-live-badges.js?v=20260930simlive1"></script></head>
+  <script defer src="daily-scripture.js?v=20261001scripture1"></script><script defer src="platform-client.js?v=20260916taxonomy1"></script><script defer src="app.js?v=20261005regions4"></script><script defer src="auth-client.js?v=20260915security1"></script>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
 <body data-page="public">
   <header class="topbar">
     <div class="container topbar-inner">
@@ -39,13 +37,14 @@
 
   <main>
     <section class="module-hero module-directory-hero" id="find">
+      <aside class="daily-scripture" data-daily-scripture aria-label="Scripture of the Day"></aside>
       <div class="module-shell module-hero-inner">
         <div class="module-hero-copy">
           <p class="module-kicker"><i data-lucide="church"></i> Church Directory</p>
           <h2>Find Your Church Family</h2>
-          <p class="lead">Search church fellowships by location, denomination, or pastor. Profiles still under review are clearly marked.</p>
+          <p class="lead">Search verified fellowships by location, denomination, or pastor.</p>
         </div>
-        <button class="module-primary-action module-creator-action" type="button" data-creator-action data-creator-href="app.html?view=create&amp;kind=churches" disabled aria-disabled="true"><i data-lucide="plus"></i> Add a Church</button>
+        <button class="module-primary-action module-creator-action" type="button" data-creator-action data-creator-href="creator-workspace.html#church" disabled aria-disabled="true"><i data-lucide="plus"></i> Add a Church</button>
       </div>
     </section>
 
@@ -69,7 +68,7 @@
               <div class="filter-dropdown-panel">
                 <span class="dropdown-panel-title">Filter by Region</span>
                 <div class="dropdown-options-list" id="church-country-options-list">
-                  <!-- Dynamically populated from published church records. -->
+                  <!-- Canada, US and UK are always available. -->
                 </div>
               </div>
             </div>
@@ -83,9 +82,13 @@
               </button>
               <div class="filter-dropdown-panel">
                 <span class="dropdown-panel-title">Filter by City</span>
+                <input type="search" id="church-city-option-search" class="field" placeholder="Search cities and towns..." aria-label="Search city options" autocomplete="off" />
                 <div class="dropdown-options-list" id="church-city-options-list">
                   <!-- Dynamically populated -->
                 </div>
+                <p id="church-city-options-status" class="church-city-options-status" role="status"></p>
+                <button type="button" id="church-city-show-more" class="filter-pill-reset-btn" hidden>Show more cities</button>
+                <small class="church-city-source">Locations: <a href="https://www.geonames.org/" target="_blank" rel="noopener">GeoNames</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></small>
               </div>
             </div>
 
@@ -104,12 +107,12 @@
               </div>
             </div>
 
-            <!-- Reset Button -->
-            <button type="button" class="filter-pill-reset-btn module-filter-trigger module-filter-overflow-only" onclick="MWE.resetChurchPillFilters()">
-              <i data-lucide="rotate-ccw"></i> Reset
-            </button>
           </div>
         </div>
+
+        <button type="button" class="filter-pill-reset-btn church-directory-reset" onclick="MWE.resetChurchPillFilters()">
+          <i data-lucide="rotate-ccw"></i> Reset
+        </button>
 
         <div class="cards-grid" data-church-grid></div>
     </section>

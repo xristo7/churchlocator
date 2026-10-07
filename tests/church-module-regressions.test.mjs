@@ -41,7 +41,7 @@ test("church records reject unsafe media, normalize schedules, and do not substi
     name: "Safe Church",
     schedule: [["Sunday", "10:00"], null, ["Incomplete"]]
   });
-  assert.deepEqual(JSON.parse(JSON.stringify(normalized.schedule)), [{ id: "gathering-1", title: "Sunday", time: "10:00", description: "", location: "", image: "" }]);
+  assert.deepEqual(Array.from(normalized.schedule, entry => Array.from(entry)), [["Sunday", "10:00"]]);
   assert.equal(MWE.safeImageUrl("javascript:alert(1)", "/assets/fallback.png"), "https://example.test/assets/fallback.png");
   assert.equal(MWE.safeImageUrl("https://user:pass@example.test/private.png", ""), "");
 });

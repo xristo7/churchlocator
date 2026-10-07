@@ -7,10 +7,10 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>My Way of Evangelism | Find a Church Family Near You</title>
-    <link rel="stylesheet" href="styles.css?v=20260929allpublication1" />
+    <link rel="stylesheet" href="styles.css?v=20261006discovery2" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260929allpublication1"></script><script defer src="app.js?v=20260929allpublication1"></script><script defer src="auth-client.js?v=20260915security1"></script>
-<link rel="stylesheet" href="responsive.css?v=20260919drawer1" /></head>
+  <script defer src="platform-client.js?v=20260918nav1"></script><script defer src="app.js?v=20260919drawer1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+<link rel="stylesheet" href="responsive.css?v=20260919drawer1" /><link rel="stylesheet" href="home-spotlight.css?v=20261006discovery2" /><script defer src="home-spotlight.js?v=20261007live2"></script></head>
 <body class="hero-only-page" data-page="home">
   <!-- Topbar Header -->
   <header class="topbar">
@@ -86,18 +86,17 @@
 
                 <!-- Auth Credentials Form -->
                 <form id="nav-dropdown-auth-form" onsubmit="MWE.handleNavDropdownAuthSubmit(event)">
-                  <p class="member-auth-error" id="nav-auth-error" hidden></p>
                   <div class="form-group mb-2" id="nav-auth-name-group" style="display: none;">
                     <label for="nav-auth-name">Full Name</label>
-                    <input type="text" id="nav-auth-name" name="name" class="field small-field" placeholder="e.g. John Doe" autocomplete="name" />
+                    <input type="text" id="nav-auth-name" name="name" class="field small-field" placeholder="e.g. John Doe" />
                   </div>
                   <div class="form-group mb-2">
                     <label for="nav-auth-email" id="nav-auth-email-label">Username or Email</label>
-                    <input type="email" id="nav-auth-email" name="email" class="field small-field" placeholder="you@example.com" autocomplete="email" required />
+                    <input type="text" id="nav-auth-email" name="email" class="field small-field" placeholder="you@example.com" required />
                   </div>
                   <div class="form-group mb-3">
                     <label for="nav-auth-password">Password</label>
-                    <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" minlength="15" maxlength="128" title="Use 15 to 128 characters." autocomplete="current-password" required />
+                    <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required />
                   </div>
                   <button type="submit" class="button primary small" id="nav-auth-submit-btn" style="width: 100%;">
                     <i data-lucide="log-in"></i> <span>Sign In</span>
@@ -698,7 +697,7 @@
         </div>
       </div>
     </section>
-  </main>
+  <section class="home-spotlight" aria-labelledby="home-spotlight-heading"><header><h2 id="home-spotlight-heading">My Way Spotlight</h2><a href="app.html?view=spotlight">Explore Spotlight</a></header><div class="home-spotlight-posts" id="home-spotlight-posts" aria-live="polite"><p>Loading Spotlight stories…</p></div></section></main>
 
   <!-- Platform Footer -->
   <footer class="platform-footer">

@@ -74,7 +74,7 @@ test("directory, event, livestream, and detail views reuse the existing pages", 
   assert.match(shell, /event:\s*\{ source: "event-profile\.html"/);
 });
 
-test("Channels, Store, creator management, and Resources are independent modules", async () => {
+test("Channels, Store, seller management, and Resources are independent modules", async () => {
   const shell = await readProjectFile("public/app-shell.js");
   const channels = await readProjectFile("public/channels.html");
   const store = await readProjectFile("public/store.html");
@@ -86,14 +86,14 @@ test("Channels, Store, creator management, and Resources are independent modules
   assert.match(shell, /channels:\s*\{ source: "channels\.html"/);
   assert.match(shell, /store:\s*\{ source: "store\.html"/);
   assert.match(shell, /product:\s*\{ source: "product-detail\.html"/);
-  assert.match(shell, /"store-manager":\s*\{ source: "creator-studio\.html\?kind=store"/);
+  assert.match(shell, /"store-manager":\s*\{ source: "seller-dashboard\.html"/);
   assert.match(shell, /resources:\s*\{ source: "resources\.html"/);
   assert.match(shell, /"resource-detail":\s*\{ source: "resource-detail\.html"/);
   assert.match(channels, /Create a Channel/);
   assert.match(store, /Add a Product or Service/);
   assert.match(store, /id="store-cart-drawer"/);
   assert.match(product, /id="product-detail"/);
-  assert.match(seller, /app\.html\?view=create&kind=store/);
+  assert.match(seller, /Products and inventory/);
   assert.match(resources, /Christian Resource Library/);
   assert.match(resources, /<option>PDF<\/option>/);
   assert.match(resources, /<option>MP4<\/option>/);
@@ -169,23 +169,16 @@ test("checkout login and express payment controls have working destinations", as
   assert.match(checkoutJs, /payment\.dispatchEvent\(new Event\("change"/);
 });
 
-test("Channels use open and follow card actions while detail pages connect to messaging", async () => {
+test("Channels use creator profile cards and connect to member messaging", async () => {
   const app = await readProjectFile("public/app.html");
   const shell = await readProjectFile("public/app-shell.js");
   const channels = await readProjectFile("public/channels.js");
-  const channelDetail = await readProjectFile("public/channel-detail.js");
   const messages = await readProjectFile("public/messages.html");
   const messageScript = await readProjectFile("public/messages.js");
 
   assert.match(channels, /class="channel-profile-card"/);
   assert.match(channels, /channel-detail\.html\?id=/);
-  assert.match(channels, /class="channel-open-button"[^>]*>[\s\S]*?Open channel/);
-  assert.match(channels, /channel-card-follow/);
-  assert.doesNotMatch(channels, /Get in touch/);
-  assert.match(channelDetail, /channel-cover-follow/);
-  assert.match(channelDetail, /channel-detail-title-actions/);
-  assert.match(channelDetail, /class="channel-detail-contact"[^>]*messages\.html\?compose=channel/);
-  assert.match(channelDetail, /> Get in touch<\/a>/);
+  assert.match(channels, /Get in touch/);
   assert.match(shell, /"channel-detail":\s*\{ source: "channel-detail\.html"/);
   assert.match(shell, /messages:\s*\{ source: "messages\.html"/);
   assert.match(app, /data-shell-view="messages"/);
@@ -310,8 +303,6 @@ test("protected cards use the shared member login gate", async () => {
   assert.match(app, /isProtectedDetail/);
   assert.match(app, /MWE\.openMemberLogin\(MWE\.buildMemberShellUrl\(route\)\)/);
   assert.match(app, /localStorage\.setItem\("mwe\.userLoggedIn", "true"\)/);
-  assert.doesNotMatch(app, /isProtectedDetail = [^;]*route\.view === "event"/);
-  assert.doesNotMatch(app, /isProtectedDetail = [^;]*currentRoute\.view === "event"/);
 });
 
 test("messages and event inquiries use activated server recipients without demo threads", async () => {
@@ -392,45 +383,70 @@ test("two-pillar theme system supports rainbow primary palette, gold accents, an
   assert.match(shell, /mwe-primary-color/);
 });
 
-test("creation studio stays inside the member app and supports device image uploads", async () => {
+test("Creator Hub keeps SPA registration and opens the user workspace separately", async () => {
   const html = await readProjectFile("public/app.html");
   const shell = await readProjectFile("public/app-shell.js");
   const app = await readProjectFile("public/app.js");
-  const studioHtml = await readProjectFile("public/creator-studio.html");
-  const studioJs = await readProjectFile("public/creator-studio.js");
-  const legacyWorkspace = await readProjectFile("public/creator-workspace.html");
+  const portalHtml = await readProjectFile("public/church-portal.html");
   const worker = await readProjectFile("src/worker.js");
 
-  assert.match(html, /data-shell-view="create"/);
-  assert.match(html, />Create</);
-  assert.match(html, /data-lucide="plus-circle"/);
-  assert.match(shell, /create:\s*\{\s*source:\s*"creator-studio\.html",\s*title:\s*"Create"\s*\}/);
-  assert.match(shell, /portal:\s*\{\s*source:\s*"creator-studio\.html",\s*title:\s*"Create"\s*\}/);
-  assert.match(shell, /"store-manager":\s*\{\s*source:\s*"creator-studio\.html\?kind=store"/);
-  assert.doesNotMatch(shell, /window\.open\("creator-workspace\.html"/);
-  assert.doesNotMatch(shell, /hasMatchingCreatorIdentity/);
-  assert.match(app, /"church-portal":\s*"create"/);
-  assert.match(app, /portal:\s*"create"/);
-  assert.match(app, /create:\s*"create"/);
-  assert.match(app, /currentRoute\.view === "create"/);
+  // SPA navigation rail in app.html
+  assert.match(html, /data-shell-view="portal"/);
+  assert.match(html, /Creator Hub/);
+  assert.match(html, /data-lucide="rocket"/);
+
+  // Router in app-shell.js
+  assert.match(shell, /portal:\s*\{\s*source:\s*"church-portal\.html",\s*title:\s*"Creator & Ministry Hub"\s*\}/);
+  assert.match(shell, /window\.open\("creator-workspace\.html"/);
+  assert.match(shell, /hasMatchingCreatorIdentity/);
+  assert.match(shell, /mwe\.userEmail/);
+  assert.match(shell, /creator\?\.email/);
+
+  // Route map and top-level redirection to SPA shell in app.js
+  assert.match(app, /"church-portal":\s*"portal"/);
+  assert.match(app, /portal:\s*"portal"/);
+  assert.match(app, /currentRoute\.view === "portal"/);
+  assert.match(app, /body\[data-page="portal"\]\.member-shell-embed/);
   assert.match(shell, /isProtectedView\(safeRoute\.view\)/);
-  assert.match(worker, /\["\/portal",\s*"\/creator-studio\.html"\]/);
-  assert.match(worker, /\["\/creator-hub",\s*"\/creator-studio\.html"\]/);
-  assert.match(worker, /\/api\/media\/upload/);
-  assert.match(worker, /MAX_IMAGE_UPLOAD_BYTES/);
-  assert.match(studioHtml, /creator-studio\.js/);
-  assert.match(studioJs, /churches:/);
-  assert.match(studioJs, /events:/);
-  assert.match(studioJs, /products:/);
-  assert.match(studioJs, /channels:/);
-  assert.match(studioJs, /resources:/);
-  assert.match(studioJs, /publicationState/);
-  assert.match(studioJs, /Submit for review/);
-  assert.match(studioJs, /required details complete/);
-  assert.match(studioJs, /Choose a picture from your device/);
-  assert.match(studioJs, /data-image-picker/);
-  assert.doesNotMatch(studioJs, /Cover image URL/);
-  assert.match(legacyWorkspace, /location\.replace\("app\.html\?view=create"\)/);
+
+  // Worker routes
+  assert.match(worker, /\["\/portal",\s*"\/church-portal\.html"\]/);
+  assert.match(worker, /\["\/creator-hub",\s*"\/church-portal\.html"\]/);
+
+  // Original 3-step creator registration remains available for unauthenticated visitors.
+  assert.match(portalHtml, /Create Creator Account/);
+  assert.match(portalHtml, /data-register-form/);
+  assert.match(portalHtml, /data-step="1"/);
+  assert.match(portalHtml, /data-step="2"/);
+  assert.match(portalHtml, /data-step="3"/);
+  assert.match(portalHtml, /name="launchGoal"/);
+
+  // Frictionless member-to-creator upgrade flow for logged-in members
+  assert.match(portalHtml, /id="upgrade-tab-content"/);
+  assert.match(portalHtml, /data-upgrade-creator-form/);
+  assert.match(portalHtml, /creator-upgrade-profile-badge/);
+  assert.match(portalHtml, /id="btn-creator-upgrade"/);
+  assert.match(app, /setupCreatorUpgradeView/);
+  assert.match(app, /data-upgrade-creator-form/);
+  assert.match(app, /window\.MWEAuth\.creatorUpgrade\(\)/);
+
+  const creatorAccountJs = await readProjectFile("public/creator-account.js");
+  assert.match(creatorAccountJs, /creatorUpgrade/);
+  assert.match(creatorAccountJs, /creator-upgrade-profile-badge/);
+
+  const creator = await readProjectFile("public/creator-workspace.html");
+  assert.match(creator, /data-creator-account-form/);
+  assert.match(app, /window\.open\(`creator-workspace\.html#\$\{module\}`/);
+  assert.match(app, /creatorIdentityMatches/);
+  assert.match(app, /if \(!creatorIdentityMatches\) localStorage\.removeItem\(key\)/);
+
+  // Launchpad overview and workspace cards in church-portal.html
+  assert.match(portalHtml, /id="launchpad-grid-container"/);
+  assert.match(portalHtml, /data-launch-target="church"/);
+  assert.match(portalHtml, /data-launch-target="channels"/);
+  assert.match(portalHtml, /data-launch-target="events"/);
+  assert.match(portalHtml, /data-launch-target="store"/);
+  assert.match(portalHtml, /data-launch-target="resources"/);
 });
 
 test("dark mode adapts background surfaces and subtle borders to primary theme and homepage overlay adjusts dynamically", async () => {
@@ -499,7 +515,6 @@ test("directory modules share the standardized atmospheric hero and filter tray"
   for (const page of ["churches", "meditation", "events", "store", "livestream", "resources", "channels"]) {
     const html = await readProjectFile(`public/${page}.html`);
     assert.match(html, /module-directory-hero/, `${page} needs the shared hero`);
-    assert.match(html, /module-directory-hero[\s\S]*?class="[^"]*(?:module-kicker|kicker)/, `${page} needs a shared badge above its main title`);
     assert.match(html, /site-search-bar/, `${page} needs the shared filter tray`);
   }
   assert.doesNotMatch(styles, /module-hero-blob\.png/);
@@ -508,8 +523,6 @@ test("directory modules share the standardized atmospheric hero and filter tray"
   assert.match(styles, /\.module-directory-hero::before[\s\S]*hsla\(var\(--primary-h\), var\(--primary-s\), var\(--primary-l\)/);
   assert.match(styles, /--module-control-height:\s*56px/);
   assert.match(styles, /--module-control-radius:\s*14px/);
-  assert.match(styles, /\.module-directory-hero \.module-kicker,[\s\S]*?padding:\s*7px 13px;[\s\S]*?border-radius:\s*999px;/);
-  assert.match(styles, /\.module-directory-hero \.module-kicker,[\s\S]*?border:\s*1px solid color-mix\(in srgb, var\(--primary\) 42%/);
   assert.match(styles, /\.site-search-bar \{[\s\S]*flex-wrap:\s*nowrap !important/);
   assert.match(styles, /\.site-search-bar \.site-search[\s\S]*min-width:\s*360px !important/);
   assert.match(styles, /@media\(max-width:700px\)[\s\S]*\.site-search-bar > \.module-filter-group \{ display: none !important; \}/);

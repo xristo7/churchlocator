@@ -5,18 +5,30 @@ import path from "node:path";
 
 const projectRoot = path.resolve(".");
 
-test("Church Profile: creator-configured mixed-media hero carousel", async () => {
+test("Church Profile: Hero carousel structure and navigation", async () => {
   const html = await fs.readFile(path.join(projectRoot, "public", "church-profile.html"), "utf8");
 
-  // The hero is a single layered carousel rather than a video popup or split-column card.
+  // Hero carousel provides its track, overlay, copy, and accessible controls.
   assert.match(html, /class="church-hero-showcase"/, "should have church-hero-showcase section");
-  assert.match(html, /id="church-hero-track"/, "should have a slide track");
+  assert.match(html, /id="church-hero-track"/, "should have a dynamic hero slide track");
   assert.match(html, /class="church-hero-overlay"/, "should have church-hero-overlay");
-  assert.match(html, /id="church-hero-dots"/, "should have slide indicators");
-  assert.match(html, /onclick="MWE\.stepChurchHero\(-1\)"/, "should navigate to the previous slide");
-  assert.match(html, /onclick="MWE\.stepChurchHero\(1\)"/, "should navigate to the next slide");
-  assert.match(html, /id="church-hero-mobile-toggle"[^>]*aria-expanded="false"/, "should expose the mobile title/description toggle");
-  assert.doesNotMatch(html, /id="church-hero-play-trigger"/, "hero video must not use the old popup trigger");
+  assert.match(html, /class="church-hero-content-bottom-left"/, "should have church-hero-content-bottom-left container");
+  assert.match(html, /aria-label="Church introduction" aria-roledescription="carousel"/, "hero should expose carousel semantics");
+  assert.match(html, /aria-label="Previous hero slide"/, "should provide previous slide control");
+  assert.match(html, /aria-label="Next hero slide"/, "should provide next slide control");
+  assert.match(html, /id="church-hero-dots"/, "should provide slide selection dots");
+  assert.match(html, /class="church-hero-name" data-church-name/, "should display church name in hero");
+  assert.match(html, /class="church-hero-desc" data-church-tagline/, "should display church tagline/short description");
+});
+
+test("Church Profile: YouTube hero uses a click-to-play preview and provider fallback", async () => {
+  const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
+
+  assert.match(appJs, /provider:\s*"youtube"/, "YouTube hero videos should be identified as YouTube embeds");
+  assert.match(appJs, /data-defer-until-play/, "YouTube iframe should not load until requested");
+  assert.match(appJs, /MWE\.playChurchHeroEmbed\s*=\s*function/, "hero preview should have a click-to-play handler");
+  assert.match(appJs, /watchUrl:\s*`https:\/\/www\.youtube\.com\/watch\?v=/, "preview should offer a direct YouTube fallback");
+  assert.match(appJs, /searchParams\.set\("rel", "0"\)/, "related videos should be limited to the same channel where supported");
 });
 
 test("Church Profile: Sticky tab navigation bar in left column with reinstated Location tab", async () => {
@@ -45,13 +57,12 @@ test("Church Profile: Sticky tab navigation bar in left column with reinstated L
 
 test("Church Profile: Schedule weekly gathering time pills hover over thumbnails", async () => {
   const html = await fs.readFile(path.join(projectRoot, "public", "church-profile.html"), "utf8");
-  const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
 
-  // Creator-provided cards are rendered dynamically, with the time pill inside the thumbnail.
-  assert.match(appJs, /class="gathering-thumb-wrap"[\s\S]*?class="gathering-time-pill"/, "gathering-time-pill must be inside gathering-thumb-wrap");
+  // Time pill must be inside .gathering-thumb-wrap
+  assert.match(html, /<div class="gathering-thumb-wrap">[\s\S]*?<div class="gathering-time-pill">/, "gathering-time-pill must be inside gathering-thumb-wrap");
 
   // Time pill must NOT be in gathering-title-row
-  assert.doesNotMatch(appJs, /class="gathering-title-row"(?:(?!<\/div>)[\s\S])*class="gathering-time-pill"/, "gathering-time-pill must not be inside gathering-title-row");
+  assert.doesNotMatch(html, /<div class="gathering-title-row">(?:(?!<\/div>)[\s\S])*<div class="gathering-time-pill">/, "gathering-time-pill must not be inside gathering-title-row");
 
   // CSS positioning and theming
   assert.match(html, /\.gathering-time-pill\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?top:\s*12px;[\s\S]*?right:\s*12px;/, "gathering-time-pill must be positioned absolute top-right");
@@ -59,35 +70,12 @@ test("Church Profile: Schedule weekly gathering time pills hover over thumbnails
   assert.match(html, /color:\s*#f8fafc/, "dark mode should use bright text");
 });
 
-test("Church Profile: inline hero video and responsive slide behaviors", async () => {
+test("Church Profile: MWE.playChurchMainMedia handles video and audio", async () => {
   const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
-  const html = await fs.readFile(path.join(projectRoot, "public", "church-profile.html"), "utf8");
 
-  assert.match(appJs, /MWE\.renderChurchHero\s*=\s*function/, "app.js must render the creator-configured hero");
-  assert.match(appJs, /church-hero-slide--video/, "hero should include an inline video slide");
-  assert.match(appJs, /data-hero-video/, "inline video should be activated inside the slide");
-  assert.match(appJs, /MWE\.toggleChurchHeroDetails\s*=\s*function/, "mobile copy toggle should be interactive");
-  assert.match(html, /\.church-hero-video-visual[\s\S]*?mask-image:/, "desktop video should blend into the hero surface");
-  assert.match(html, /\.church-hero-slide--video \.church-hero-content-bottom-left[\s\S]*?text-align:\s*right/, "desktop video copy should sit on the right");
-  assert.match(html, /@media \(max-width: 720px\)[\s\S]*?\.church-hero-slide--video \.church-hero-content-bottom-left \{ display: none;/, "mobile video slides should hide copy");
-  assert.match(html, /\.church-hero-slide\.details-open \.church-hero-desc/, "mobile image slides should reveal descriptions on demand");
-});
-
-test("Church Profile: section rhythm uses 50px gaps and keeps gallery scrolling without a visible scrollbar", async () => {
-  const html = await fs.readFile(path.join(projectRoot, "public", "church-profile.html"), "utf8");
-
-  assert.match(html, /\.church-profile-grid\s*\{[\s\S]*?margin-top:\s*50px;/, "content should begin 50px below the hero");
-  assert.match(html, /body\[data-page="profile"\] \.leadership-grid\s*\{[\s\S]*?margin-bottom:\s*50px\s*!important;/, "pastor section should have a 50px lower gap");
-  assert.match(html, /body\[data-page="profile"\] \.stories-section\s*\{[^}]*margin-bottom:\s*50px\s*!important;/, "testimonies should have a 50px lower gap");
-  assert.match(html, /\.church-gallery-section\s*\{[^}]*margin-bottom:\s*50px\s*!important;/, "gallery should have a 50px lower gap");
-  assert.match(html, /\.church-gallery-track\s*\{[\s\S]*?overflow-x:\s*auto;[\s\S]*?scrollbar-width:\s*none;/, "gallery must remain horizontally scrollable while hiding Firefox's scrollbar");
-  assert.match(html, /\.church-gallery-track::\-webkit-scrollbar\s*\{[^}]*display:\s*none;/, "gallery must hide the WebKit scrollbar");
-});
-
-test("Church Profile: pastor section does not render ministry badges", async () => {
-  const html = await fs.readFile(path.join(projectRoot, "public", "church-profile.html"), "utf8");
-
-  assert.doesNotMatch(html, /profile-ministry-chips|id="profile-ministries"/, "the public pastor section must not show ministry badges");
+  assert.match(appJs, /MWE\.playChurchMainMedia\s*=\s*function/, "app.js must define MWE.playChurchMainMedia");
+  assert.match(appJs, /MWE\.openAudioModal/, "MWE.playChurchMainMedia should delegate audio to openAudioModal");
+  assert.match(appJs, /church-video-modal/, "MWE.playChurchMainMedia should open church-video-modal for video");
 });
 
 test("Church Profile: Hero description is longer, about 30 words", async () => {
@@ -103,76 +91,10 @@ test("Church Profile: Hero description is longer, about 30 words", async () => {
   const beulahWords = beulahMatch[1].split(/\s+/).filter(Boolean);
   assert.ok(beulahWords.length >= 26 && beulahWords.length <= 36, `Beulah tagline should be about 30 words, got ${beulahWords.length}`);
 
-  // The runtime carousel binds its first slide description to the church tagline.
-  assert.match(appJs, /class="church-hero-desc"[^`]*data-church-tagline/, "the primary runtime slide should bind the church description");
-  assert.match(html, /id="church-hero-track"/, "the static shell should provide the runtime slide target");
-});
-
-test("Church creator can configure hero images and inline video", async () => {
-  const portal = await fs.readFile(path.join(projectRoot, "public", "church-portal.html"), "utf8");
-  const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
-  const platform = await fs.readFile(path.join(projectRoot, "src", "trusted-platform.js"), "utf8");
-
-  assert.match(portal, /name="welcomeMedia"/, "creator editor should save a welcome video URL");
-  assert.match(portal, /name="heroImages"/, "creator editor should save multiple hero images");
-  assert.match(appJs, /data\.get\("heroImages"\)/, "creator form should parse hero image rows");
-  assert.match(appJs, /heroImages:\s*normalized\.gallery/, "creator form should be populated when reopened");
-  assert.match(platform, /'welcomeMedia'/, "trusted platform should persist the inline welcome video");
-  assert.match(platform, /'gallery'/, "trusted platform should persist creator hero images");
-});
-
-test("Church Studio owns hero order and all church-specific page content", async () => {
-  const studio = await fs.readFile(path.join(projectRoot, "public", "creator-studio.js"), "utf8");
-  const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
-  const platformClient = await fs.readFile(path.join(projectRoot, "public", "platform-client.js"), "utf8");
-  const trustedPlatform = await fs.readFile(path.join(projectRoot, "src", "trusted-platform.js"), "utf8");
-
-  assert.match(studio, /\["heroSlides","Hero slides","hero"/, "Studio should expose the visual hero builder");
-  assert.match(studio, /data-hero-first/, "Studio should let the creator choose the first slide");
-  assert.match(studio, /data-hero-up/, "Studio should allow slide reordering");
-  assert.match(studio, /value\.heroOrder=/, "Studio should persist the chosen order");
-  assert.match(studio, /data-schedule-list/, "Studio should provide a gathering builder");
-  assert.match(studio, /data-testimony-list/, "Studio should provide a testimony builder");
-  assert.match(studio, /\["ministries","Ministries","list"/, "Studio should provide editable ministries");
-  assert.match(appJs, /MWE\.getChurchHeroSlides/, "the public hero should consume the saved slide order");
-  assert.match(appJs, /requestedOrder\.map/, "the saved first slide should be honored on the public page");
-  assert.match(appJs, /MWE\.renderChurchSchedule/, "the public page should render creator gatherings");
-  assert.match(appJs, /MWE\.renderChurchTestimonials/, "the public page should render creator testimonies");
-  assert.match(platformClient, /preview'\)===\s*'studio'/, "Studio preview should load the creator's managed draft");
-  assert.match(trustedPlatform, /'heroOrder'/, "the platform should persist hero ordering");
-  assert.match(trustedPlatform, /'testimonies'/, "the platform should persist testimonies");
-});
-
-test("Church Studio covers the remaining public profile content", async () => {
-  const studio = await fs.readFile(path.join(projectRoot, "public", "creator-studio.js"), "utf8");
-  const html = await fs.readFile(path.join(projectRoot, "public", "church-profile.html"), "utf8");
-  const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
-  const trustedPlatform = await fs.readFile(path.join(projectRoot, "src", "trusted-platform.js"), "utf8");
-
-  assert.match(studio, /\["logo","Church logo","image"\]/, "Studio should provide a church logo uploader");
-  assert.match(studio, /\["livestreamSettings","Livestream settings","livestream"/, "Studio should provide livestream settings");
-  assert.match(studio, /value\.livestream=\{/, "Studio should persist livestream settings as one record field");
-  assert.match(studio, /\["churchId","Church profile","church"/, "Event Studio should associate an event with a church");
-  assert.match(trustedPlatform, /'postal','area','denomination'/, "the platform should persist the creator's neighborhood or area");
-  assert.match(html, /data-church-logo/, "the public header logo should be data-bound");
-  assert.match(html, /data-profile-pastor-title/, "the public profile should expose the creator's leadership title");
-  assert.match(html, /data-profile-midweek/, "the public profile should expose the midweek summary");
-  assert.match(html, /data-profile-website/, "the public profile should expose the church website");
-  assert.match(appJs, /document\.querySelectorAll\("\[data-church-logo\]"\)/, "the public renderer should bind the creator's logo");
-  assert.match(appJs, /MWE\.safeLinkUrl\(church\.website/, "the public renderer should bind a safe website link");
-});
-
-test("Church profile does not ship fake testimony, gallery, or schedule content", async () => {
-  const html = await fs.readFile(path.join(projectRoot, "public", "church-profile.html"), "utf8");
-  const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
-
-  assert.match(html, /id="profile-testimonials-grid"><\/div>/, "testimony grid should start empty");
-  assert.match(html, /id="church-gallery-track"[^>]*><\/div>/, "gallery should start empty");
-  assert.match(html, /id="profile-schedules-grid"><\/div>/, "schedule should start empty");
-  assert.doesNotMatch(html, /Sarah M\.|Jason L\.|Sunday Worship &amp; Praise/, "profile HTML should not contain fake church stories");
-  assert.doesNotMatch(html, /Sarah Johnson|CE82847|River City Church/, "profile HTML should not expose fabricated church or member content");
-  assert.doesNotMatch(appJs, /church\.welcomeMedia \|\| "https:\/\/www\.youtube\.com\/embed\/jiSyB8QZzk8"/, "missing creator video must not fall back to a demo recording");
-  assert.doesNotMatch(appJs, /Gathering details coming soon/, "missing creator schedules should not render substitute gathering copy");
-  assert.match(appJs, /MWE\.getDefaultGalleryImages\s*=\s*function\([^)]*\)\s*\{\s*return \[\];/, "missing gallery content should stay empty");
+  // Check default HTML placeholder tagline word count
+  const htmlMatch = html.match(/class="church-hero-desc" data-church-tagline>([^<]+)<\/p>/);
+  assert.ok(htmlMatch, "HTML must have placeholder description");
+  const htmlWords = htmlMatch[1].trim().split(/\s+/).filter(Boolean);
+  assert.ok(htmlWords.length >= 26 && htmlWords.length <= 36, `HTML placeholder description should be about 30 words, got ${htmlWords.length}`);
 });
 

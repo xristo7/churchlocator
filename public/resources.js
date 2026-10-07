@@ -46,7 +46,7 @@
         <button class="content-love-button content-love-overlay" type="button" data-love-type="resource" data-love-id="${data().escapeHtml(resource.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
         <div class="resource-card-body">
           <div class="resource-format-row"><span class="resource-format">${data().escapeHtml(resource.type)} · ${data().escapeHtml(resource.topic)}</span><span class="resource-access ${resource.access === "Paid" ? "paid" : ""}">${resource.access === "Free" ? "Free" : data().money(resource.price)}</span></div>
-          <h3><a href="resource-detail.html?id=${encodeURIComponent(resource.id)}">${data().escapeHtml(resource.title)}</a></h3>${window.MWEPlatform?.pendingBadge(resource) || ""}
+          <h3><a href="resource-detail.html?id=${encodeURIComponent(resource.id)}">${data().escapeHtml(resource.title)}</a></h3>
           <span class="resource-creator">By ${data().escapeHtml(resource.creator)}</span>
           <p>${data().escapeHtml(resource.description)}</p>
           <div class="resource-footer"><span class="resource-meta"><i data-lucide="star"></i> ${Number(resource.rating).toFixed(1)} <span>·</span> ${data().escapeHtml(resource.duration)}</span><button class="resource-action" type="button" data-resource-action="${data().escapeHtml(resource.id)}">${resource.access === "Free" ? "Add to library" : "Get resource"}</button></div>

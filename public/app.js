@@ -726,10 +726,53 @@ const MWE = (() => {
 
   function normalizeCountry(value = "") {
     const country = String(value).trim();
+    const alias = country.toLowerCase().replace(/[.]/g, "").replace(/\s+/g, " ");
+    if (["ca", "can", "canada"].includes(alias)) return "Canada";
+    if (["us", "usa", "united states", "united states of america"].includes(alias)) return "United States";
+    if (["gb", "gbr", "uk", "united kingdom", "great britain", "england", "scotland", "wales", "northern ireland"].includes(alias)) return "United Kingdom";
     if (/^[a-z]{2}$/i.test(country) && typeof Intl?.DisplayNames === "function") {
       try { return new Intl.DisplayNames(["en"], { type: "region" }).of(country.toUpperCase()) || country.toUpperCase(); } catch {}
     }
     return titleCase(country);
+  }
+
+  let churchGeography = {};
+  let churchGeographyRequest;
+  const churchCityCollator = new Intl.Collator('en');
+  function loadChurchGeography() {
+    return churchGeographyRequest ||= fetch('/data/church-cities.json?v=20261005regions1', { cache: 'no-cache' })
+      .then(response => {
+        if (!response.ok) throw new Error('City catalog could not be loaded.');
+        return response.json();
+      }).then(data => {
+        if (!["Canada", "United States", "United Kingdom"].every(country => Array.isArray(data.countries?.[country]) && data.countries[country].length)) {
+          throw new Error('City catalog is incomplete.');
+        }
+        churchGeography = data.countries;
+      });
+  }
+
+  function citySearchKey(value) {
+    return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  }
+
+  function churchLocationFacets(churches, selectedCountries = [], geography = churchGeography) {
+    const regions = [
+      { value: "Canada", label: "CANADA" },
+      { value: "United States", label: "US" },
+      { value: "United Kingdom", label: "UK" }
+    ];
+    const selected = new Set(selectedCountries.map(normalizeCountry));
+    const locations = churches.map(church => ({ country: normalizeCountry(church.country), city: String(church.city || "").trim() }));
+    const otherCountries = [...new Set(locations.map(item => item.country).filter(Boolean))]
+      .filter(country => !regions.some(region => region.value === country)).sort();
+    return {
+      regions: [...regions, ...otherCountries.map(value => ({ value, label: value }))],
+      cities: [...new Map([
+        ...Object.entries(geography).filter(([country]) => !selected.size || selected.has(country)).flatMap(([, cities]) => cities),
+        ...locations.filter(item => !selected.size || selected.has(item.country)).map(item => item.city)
+      ].filter(Boolean).map(city => [citySearchKey(city), city])).values()].sort(churchCityCollator.compare)
+    };
   }
 
   function normalizeChurch(church) {
@@ -739,32 +782,6 @@ const MWE = (() => {
     const streamPaid = Boolean(livestream.paid || church.streamPaid);
     const phone = church.phone || "";
     const email = church.email || "";
-    const gallery = Array.isArray(church.gallery)
-      ? church.gallery
-        .filter(item => item && (typeof item === "string" || item.src))
-        .slice(0, 8)
-        .map((item, index) => {
-          if (typeof item === "string") {
-            return { id: `gallery-${index + 1}`, src: item, title: `Church life ${index + 1}`, caption: "", tag: "Our church" };
-          }
-          return {
-            id: String(item.id || `gallery-${index + 1}`).replace(/[^a-z0-9_-]/gi, "-").slice(0, 64),
-            src: item.src || "",
-            title: item.title || `Church life ${index + 1}`,
-            caption: item.caption || item.description || "",
-            tag: item.tag || "Our church"
-          };
-        })
-      : [];
-    const testimonies = Array.isArray(church.testimonies)
-      ? church.testimonies.filter(item => item && item.quote).slice(0, 12).map((item, index) => ({
-          id: String(item.id || `testimony-${index + 1}`).replace(/[^a-z0-9_-]/gi, "-").slice(0, 64),
-          name: item.name || "Church member",
-          tenure: item.tenure || "",
-          quote: item.quote || "",
-          photo: item.photo || ""
-        }))
-      : [];
 
     return {
       createdBy: church.createdBy || "",
@@ -780,49 +797,32 @@ const MWE = (() => {
       worship: church.worship || "Contemporary",
       area: church.area || church.city || "Local Area",
       distance: church.distance || "Local listing",
-      sunday: church.sunday || "",
-      midweek: church.midweek || "",
-      location: church.location || church.address || "",
-      website: church.website || "",
+      sunday: church.sunday || "Sunday service",
+      midweek: church.midweek || "Midweek gathering",
+      location: church.location || church.address || "Location pending",
+      website: church.website || "#",
       phone,
       phoneLabel: church.phoneLabel || phone,
       email,
       emailHref: church.emailHref || (email && email.includes("@") ? `mailto:${email}` : church.website || "#"),
       photo: church.photo || church.image || defaultImage,
-      logo: church.logo || church.photo || church.image || defaultImage,
-      pastorPhoto: church.pastorPhoto || "",
-      pastor: church.pastor || "",
-      pastorTitle: church.pastorTitle || "",
-      pastorBio: church.pastorBio || "",
-      welcomeMedia: church.welcomeMedia || church.videoUrl || church.video || "",
-      tagline: church.tagline || church.about || church.description || "",
-      about: church.about || church.description || "",
-      history: church.history || "",
-      vision: church.vision || "",
-      mission: church.mission || "",
-      statementOfFaith: church.statementOfFaith || "",
-      firstVisit: church.firstVisit || "",
-      parkingInformation: church.parkingInformation || "",
-      childrenInformation: church.childrenInformation || "",
+      logo: church.logo || "assets/logo-light-chapel.png",
+      pastorPhoto: church.pastorPhoto || "assets/pastor-light-chapel.png",
+      pastor: church.pastor || "Pastoral Team",
+      pastorTitle: church.pastorTitle || "Church Leadership",
+      pastorBio: church.pastorBio || "A welcoming church leadership team ready to help visitors connect.",
+      welcomeMedia: church.welcomeMedia || "",
+      heroOrder: Array.isArray(church.heroOrder) ? church.heroOrder.filter(key => typeof key === "string").slice(0, 10) : [],
+      gallery: Array.isArray(church.gallery) ? church.gallery.slice(0, 8).map(item => typeof item === "string" ? { src: item } : ({ id: item?.id || "", src: item?.src || "", title: item?.title || "", caption: item?.caption || "", tag: item?.tag || "" })) : [],
+      tagline: church.tagline || "A welcoming Christ-centered community dedicated to vibrant worship, biblical teaching, loving discipleship, and joining together in corporate prayer to impact our city and nurture families.",
+      about: church.about || church.description || "This church profile is ready for more details from the church team.",
       ministries,
       features: Array.isArray(church.features) ? church.features : [],
-      gallery,
-      heroOrder: Array.isArray(church.heroOrder)
-        ? [...new Set(church.heroOrder.map(value => String(value || "").trim()).filter(Boolean))].slice(0, 10)
-        : [],
       schedule: Array.isArray(church.schedule)
-        ? church.schedule.filter(item => item && (!Array.isArray(item) || item.length >= 2)).slice(0, 12).map((item, index) => Array.isArray(item)
-          ? { id: `gathering-${index + 1}`, title: String(item[0] || "Gathering"), time: String(item[1] || ""), description: "", location: "", image: "" }
-          : {
-              id: String(item.id || `gathering-${index + 1}`).replace(/[^a-z0-9_-]/gi, "-").slice(0, 64),
-              title: String(item.title || item.name || "Gathering"),
-              time: String(item.time || ""),
-              description: String(item.description || ""),
-              location: String(item.location || ""),
-              image: String(item.image || item.photo || "")
-            })
+        ? church.schedule
+          .filter(item => Array.isArray(item) && item.length >= 2)
+          .map(item => [String(item[0] || "Gathering"), String(item[1] || "Time to be announced")])
         : [],
-      testimonies,
       livestream: {
         enabled: streamEnabled,
         paid: streamPaid,
@@ -909,22 +909,6 @@ const MWE = (() => {
     const phone = String(data.get("phone") || "").trim();
     const email = String(data.get("email") || "").trim();
     const name = String(data.get("name") || "").trim();
-    const gallery = String(data.get("heroImages") || "")
-      .split(/\r?\n/)
-      .map(line => line.trim())
-      .filter(Boolean)
-      .slice(0, 8)
-      .map((line, index) => {
-        const [src = "", title = "", caption = ""] = line.split("|").map(value => value.trim());
-        return {
-          id: `gallery-${index + 1}`,
-          src,
-          title: title || `Church life ${index + 1}`,
-          caption,
-          tag: "Our church"
-        };
-      })
-      .filter(item => item.src);
 
     return normalizeChurch({
       id: uniqueId(name, currentId),
@@ -949,14 +933,8 @@ const MWE = (() => {
       pastor: data.get("pastor"),
       pastorTitle: data.get("pastorTitle"),
       pastorBio: data.get("pastorBio"),
-      welcomeMedia: String(data.get("welcomeMedia") || "").trim(),
-      heroOrder: String(data.get("heroOrder") || "")
-        .split(",")
-        .map(value => value.trim())
-        .filter(Boolean),
       tagline: data.get("tagline"),
       about: data.get("about"),
-      gallery,
       ministries,
       features: [
         ministries.some(item => item.toLowerCase().includes("kids") || item.toLowerCase().includes("children")) ? "Children's Ministry" : "",
@@ -998,11 +976,8 @@ const MWE = (() => {
       pastor: normalized.pastor,
       pastorTitle: normalized.pastorTitle,
       pastorBio: normalized.pastorBio,
-      welcomeMedia: normalized.welcomeMedia,
       tagline: normalized.tagline,
       about: normalized.about,
-      heroImages: normalized.gallery.map(item => [item.src, item.title, item.caption].filter(Boolean).join(" | ")).join("\n"),
-      heroOrder: normalized.heroOrder.join(","),
       ministries: normalized.ministries.join(", "),
       streamEnabled: String(normalized.livestream.enabled),
       streamPaid: String(normalized.livestream.paid),
@@ -1299,13 +1274,7 @@ const MWE = (() => {
   function loadEvents() {
     try {
       const saved = JSON.parse(localStorage.getItem(eventsStorageKey) || "null");
-      if (Array.isArray(saved) && saved.length > 0) {
-        const merged = new Map(seedEvents.map(evt => [evt.id, evt]));
-        saved.forEach(evt => {
-          if (evt && evt.id) merged.set(evt.id, evt);
-        });
-        return Array.from(merged.values());
-      }
+      if (Array.isArray(saved) && saved.length > 0) return saved;
     } catch {
       localStorage.removeItem(eventsStorageKey);
     }
@@ -1411,7 +1380,7 @@ const MWE = (() => {
           <div class="cpc-modal-photo-overlay"></div>
           <div class="cpc-modal-photo-badges">
             <span class="cpc-modal-photo-badge"><i data-lucide="camera"></i> Sanctuary Photo</span>
-            <span class="cpc-modal-verified-badge${church.verified ? '' : ' pending-review'}"><i data-lucide="${church.verified ? 'badge-check' : 'clock-3'}"></i> ${church.verified ? 'Verified Church' : 'Pending review'}</span>
+            <span class="cpc-modal-verified-badge"><i data-lucide="badge-check"></i> Verified Church</span>
           </div>
           <button onclick="MWE.closeMapModal()" class="cpc-modal-close" aria-label="Close modal">
             <i data-lucide="x" style="width: 18px; height: 18px;"></i>
@@ -1540,6 +1509,10 @@ const MWE = (() => {
     safeImageUrl,
     titleCase,
     slugify,
+    normalizeCountry,
+    loadChurchGeography,
+    citySearchKey,
+    churchLocationFacets,
     normalizeChurch,
     getChurches,
     getChurch,
@@ -1596,6 +1569,10 @@ MWE.getMemberShellRoute = function(input) {
     "channel-detail": "channel-detail",
     "channel-content": "channel-content",
     messages: "messages",
+    profile: "profile",
+    "account-profile": "profile",
+    security: "security",
+    "account-security": "security",
     livestream: "livestream",
     "church-profile": "church",
     church: "church",
@@ -1609,12 +1586,11 @@ MWE.getMemberShellRoute = function(input) {
     resources: "resources",
     "resource-detail": "resource-detail",
     "resource-reader": "resource-reader",
-    "church-portal": "create",
-    portal: "create",
-    create: "create",
-    "register-church": "create",
-    creator: "create",
-    "creator-hub": "create"
+    "church-portal": "portal",
+    portal: "portal",
+    "register-church": "portal",
+    creator: "portal",
+    "creator-hub": "portal"
   };
   const view = routeMap[file];
   if (!view) return null;
@@ -1857,7 +1833,7 @@ MWE.initMemberExperience = function() {
       }
 
       if (!route) return;
-      const isProtectedDetail = route.view === "church" || route.view === "channel-detail" || route.view === "channel-content" || route.view === "messages" || route.view === "store-manager" || route.view === "cart" || route.view === "checkout" || (route.view === "livestream" && Boolean(route.id));
+      const isProtectedDetail = route.view === "church" || route.view === "event" || route.view === "channel-detail" || route.view === "channel-content" || route.view === "messages" || route.view === "store-manager" || route.view === "cart" || route.view === "checkout" || route.view === "profile" || route.view === "security" || (route.view === "livestream" && Boolean(route.id));
       if (!MWE.isMemberAuthenticated() && isProtectedDetail) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -1878,12 +1854,12 @@ MWE.initMemberExperience = function() {
   const currentRoute = MWE.getMemberShellRoute(window.location.href);
   if (!currentRoute) return "public";
 
-  if (MWE.isMemberAuthenticated() || currentRoute.view === "portal" || currentRoute.view === "create") {
+  if (MWE.isMemberAuthenticated() || currentRoute.view === "portal") {
     window.location.replace(MWE.buildMemberShellUrl(currentRoute));
     return "redirecting";
   }
 
-  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "channel-detail" || currentRoute.view === "channel-content" || currentRoute.view === "messages" || currentRoute.view === "store-manager" || currentRoute.view === "cart" || currentRoute.view === "checkout" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
+  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "event" || currentRoute.view === "channel-detail" || currentRoute.view === "channel-content" || currentRoute.view === "messages" || currentRoute.view === "store-manager" || currentRoute.view === "cart" || currentRoute.view === "checkout" || currentRoute.view === "profile" || currentRoute.view === "security" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
   if (isProtectedDetail) {
     MWE.openMemberLogin(MWE.buildMemberShellUrl(currentRoute), { locked: true });
     return "locked";
@@ -1964,7 +1940,15 @@ function initPrivateAppAuth() {
   localStorage.removeItem(key);
   if (app === "church" && window.MWEAuth) {
     window.MWEAuth.session().then(result => {
-      document.body.classList.toggle("is-authenticated", !!result.ok && !!result.user?.isCreator);
+      const user = result?.ok ? result.user : null;
+      if (user?.isCreator) {
+        document.body.classList.add("is-authenticated");
+        return;
+      }
+      document.body.classList.remove("is-authenticated");
+      if (user) {
+        setupCreatorUpgradeView(user);
+      }
     });
   }
 
@@ -2033,24 +2017,6 @@ function initPrivateAppAuth() {
     if (!result.ok) { showToast(result.error || "Sign-in failed."); return; }
     form.reset();
     signIn("overview", result.user);
-  });
-
-  document.querySelector("[data-open-password-reset]")?.addEventListener("click", event => {
-    const form = document.querySelector("[data-password-reset-form]");
-    if (form) { form.hidden = !form.hidden; if (!form.hidden) form.querySelector("input")?.focus(); }
-    event.currentTarget.setAttribute("aria-expanded", String(!form?.hidden));
-  });
-  document.querySelector("[data-password-reset-form]")?.addEventListener("submit", async event => {
-    event.preventDefault();
-    const form = event.currentTarget, button = form.querySelector("button"), message = form.querySelector("[data-password-reset-message]"), email = form.querySelector("input")?.value.trim().toLowerCase();
-    if (!form.reportValidity()) return;
-    button.disabled = true; message.textContent = "Sending recovery instructions...";
-    try {
-      const response = await fetch("/api/auth/password/request", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) });
-      const result = await response.json().catch(() => ({}));
-      message.textContent = response.ok ? "If that account exists, recovery instructions have been emailed." : (result.error || "We could not send recovery instructions.");
-    } catch { message.textContent = "We could not reach the server. Check your connection and try again."; }
-    button.disabled = false;
   });
 
   // Launch Goal selection cards
@@ -2187,8 +2153,7 @@ function initPrivateAppAuth() {
     const result = await window.MWEAuth.creatorRegister(registrantNameInput?.value || nameInput?.value || "Creator", emailInput?.value || "", passInput?.value || "");
     if (!result.ok) { showToast(result.error || "Registration failed."); return; }
 
-    const launchGoal = event.target.querySelector("input[name='launchGoal']:checked")?.value || "overview";
-    if (nameInput && cityInput && ["church", "all"].includes(launchGoal)) {
+    if (nameInput && cityInput) {
       const newId = nameInput.value.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       
       let finalRole = registrantRoleSelect ? registrantRoleSelect.value : "Lead Pastor";
@@ -2202,7 +2167,7 @@ function initPrivateAppAuth() {
         city: cityInput.value,
         country: countrySelect ? countrySelect.value : "CA",
         area: "Downtown",
-        denomination: "Pentecostal",
+        denomination: "Christian Ministry",
         language: "English",
         worship: "Contemporary",
         tagline: "A vibrant faith community sharing God's love.",
@@ -2224,20 +2189,13 @@ function initPrivateAppAuth() {
         livestream: { enabled: false, status: "Offline", player: "", paid: false }
       };
       
-      let savedChurch;
-      try {
-        savedChurch = await MWE.upsertChurch(newChurch);
-      } catch (error) {
-        showToast(error.message || "Your account was created, but the church profile could not be submitted. Open Church Profile and try again.");
-        signIn("church", result.user);
-        return;
-      }
+      const list = MWE.getChurches();
+      list.push(newChurch);
       
       const portalSelect = document.querySelector("[data-portal-select]");
       if (portalSelect) {
-        const list = MWE.getChurches();
         portalSelect.innerHTML = list.map(c => `<option value="${MWE.escapeHtml(c.id)}">${MWE.escapeHtml(c.name)}</option>`).join("");
-        portalSelect.value = savedChurch.id;
+        portalSelect.value = newId;
         portalSelect.dispatchEvent(new Event("change"));
       }
 
@@ -2247,12 +2205,177 @@ function initPrivateAppAuth() {
       }
     }
     
-    showToast(["church", "all"].includes(launchGoal) ? "Creator account created. Your church is pending owner review." : "Creator account created successfully!");
+    showToast("Creator account created successfully!");
+    const launchGoal = event.target.querySelector("input[name='launchGoal']:checked")?.value || "overview";
     signIn(launchGoal, {
       name: registrantNameInput?.value || nameInput?.value || "Creator",
       email: emailInput?.value || ""
     });
   });
+
+  function setupCreatorUpgradeView(user) {
+    if (!user) return;
+    const portalTitle = document.getElementById("portal-active-title");
+    const portalTabs = document.querySelector(".portal-tabs");
+    const loginTab = document.getElementById("login-tab-content");
+    const registerTab = document.getElementById("register-tab-content");
+    const upgradeTab = document.getElementById("upgrade-tab-content");
+
+    if (!upgradeTab) return;
+
+    if (portalTitle) portalTitle.textContent = "Upgrade to Creator";
+    if (portalTabs) portalTabs.style.display = "none";
+    if (loginTab) { loginTab.style.display = "none"; loginTab.classList.remove("active"); }
+    if (registerTab) { registerTab.style.display = "none"; registerTab.classList.remove("active"); }
+
+    upgradeTab.style.display = "block";
+    upgradeTab.classList.add("active");
+
+    const displayName = user.name || (user.email ? user.email.split("@")[0] : "Member");
+    const userNameEl = document.getElementById("upgrade-user-name");
+    const userEmailEl = document.getElementById("upgrade-user-email");
+    const userAvatarEl = document.getElementById("upgrade-user-avatar");
+    const orgNameInput = document.getElementById("upgrade-org-name");
+
+    if (userNameEl) userNameEl.textContent = displayName;
+    if (userEmailEl) userEmailEl.textContent = user.email || "";
+    if (userAvatarEl) {
+      const initials = displayName.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase() || "MW";
+      userAvatarEl.textContent = initials;
+    }
+    if (orgNameInput && !orgNameInput.value) {
+      orgNameInput.placeholder = `e.g. ${displayName}'s Ministry`;
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  // Handle member to creator upgrade form
+  const upgradeForm = document.querySelector("[data-upgrade-creator-form]");
+  if (upgradeForm) {
+    upgradeForm.querySelectorAll(".launch-goal-card").forEach(card => {
+      card.addEventListener("click", () => {
+        upgradeForm.querySelectorAll(".launch-goal-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        const radio = card.querySelector("input[type='radio']");
+        if (radio) radio.checked = true;
+
+        const orgLabel = document.getElementById("upgrade-org-label");
+        const orgInput = document.getElementById("upgrade-org-name");
+        const goal = radio?.value;
+        const currentName = document.getElementById("upgrade-user-name")?.textContent || "Ministry";
+        if (orgLabel && orgInput) {
+          if (goal === "channel") {
+            orgLabel.textContent = "Channel / Podcast Name";
+            orgInput.placeholder = `e.g. ${currentName} Broadcast / Media`;
+          } else if (goal === "event") {
+            orgLabel.textContent = "Event Organizer / Ministry Name";
+            orgInput.placeholder = `e.g. ${currentName} Events`;
+          } else if (goal === "store") {
+            orgLabel.textContent = "Store / Brand Name";
+            orgInput.placeholder = `e.g. ${currentName} Store`;
+          } else if (goal === "resource") {
+            orgLabel.textContent = "Author / Ministry Publisher Name";
+            orgInput.placeholder = `e.g. ${currentName} Publications`;
+          } else {
+            orgLabel.textContent = "Ministry / Organization Name";
+            orgInput.placeholder = `e.g. ${currentName} Fellowship`;
+          }
+        }
+      });
+    });
+
+    upgradeForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      const submitBtn = document.getElementById("btn-creator-upgrade");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i data-lucide="loader-2" class="spin"></i> Upgrading account...`;
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      try {
+        if (!window.MWEAuth) throw new Error("Authentication services unavailable.");
+        const result = await window.MWEAuth.creatorUpgrade();
+        if (!result.ok) {
+          showToast(result.error || "Upgrade failed.");
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i data-lucide="sparkles"></i> Upgrade to Creator &amp; Enter`;
+            if (window.lucide) window.lucide.createIcons();
+          }
+          return;
+        }
+
+        const goalRadio = upgradeForm.querySelector("input[name='upgradeLaunchGoal']:checked");
+        const launchGoal = goalRadio?.value || "overview";
+        const orgNameInput = document.getElementById("upgrade-org-name");
+        const roleSelect = document.getElementById("upgrade-role");
+        const cityInput = document.getElementById("upgrade-city");
+
+        const user = result.user || {};
+        const orgName = orgNameInput?.value.trim() || `${user.name || "My"} Ministry`;
+        const city = cityInput?.value.trim() || "Edmonton";
+        const role = roleSelect?.value || "Ministry Leader";
+        const newId = orgName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+        localStorage.setItem("mwe.orgName", orgName);
+        if (user.name) localStorage.setItem("mwe.username", user.name);
+        if (user.email) localStorage.setItem("mwe.userEmail", user.email);
+
+        const newChurch = {
+          id: newId,
+          name: orgName,
+          city: city,
+          country: "CA",
+          area: "Downtown",
+          denomination: "Christian Ministry",
+          language: "English",
+          worship: "Contemporary",
+          tagline: "A vibrant faith community sharing God's love.",
+          sunday: "10:00 AM",
+          midweek: "Wednesday 7:00 PM",
+          phone: "780-555-0199",
+          email: user.email || `info@${newId}.org`,
+          website: `https://${newId}.org`,
+          location: `10120 100 St NW, ${city}`,
+          verified: false,
+          photo: "assets/church-audience.jpg",
+          logo: "",
+          pastor: user.name || "Pastor",
+          pastorTitle: role,
+          pastorPhoto: user.avatarUrl || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300",
+          pastorBio: "Welcome to our ministry fellowship! We would love to connect with you.",
+          about: "We are committed to sharing God's love and reaching communities globally.",
+          ministries: ["worship", "community", "prayer", "youth"],
+          livestream: { enabled: false, status: "Offline", player: "", paid: false }
+        };
+
+        const list = MWE.getChurches();
+        list.push(newChurch);
+
+        const portalSelect = document.querySelector("[data-portal-select]");
+        if (portalSelect) {
+          portalSelect.innerHTML = list.map(c => `<option value="${MWE.escapeHtml(c.id)}">${MWE.escapeHtml(c.name)}</option>`).join("");
+          portalSelect.value = newId;
+          portalSelect.dispatchEvent(new Event("change"));
+        }
+
+        showToast("Account upgraded to Creator successfully!");
+        signIn(launchGoal, {
+          name: user.name || orgName,
+          email: user.email || ""
+        });
+      } catch (err) {
+        showToast(err.message || "Something went wrong.");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<i data-lucide="sparkles"></i> Upgrade to Creator &amp; Enter`;
+          if (window.lucide) window.lucide.createIcons();
+        }
+      }
+    });
+  }
 
   // Setup Launchpad Quick Actions and Tabs
   function switchCreatorWorkspace(target) {
@@ -2371,7 +2494,7 @@ function churchCard(church) {
     <article class="church-card-immersive" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=' + encodeURIComponent('${MWE.escapeJsAttribute(church.id)}'); }" style="background-image: url(&quot;${MWE.escapeHtml(bgPhoto)}&quot;); cursor: pointer;">
       <div class="church-card-immersive-overlay">
         <div class="church-card-top-bar">
-          ${church.verified ? '<span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>' : '<span class="immersive-badge pending-review"><i data-lucide="clock-3"></i> Pending review</span>'}
+          ${church.verified ? '<span class="immersive-badge"><i data-lucide="badge-check"></i> Verified</span>' : ''}
         </div>
         
         <div class="church-card-bottom-info">
@@ -2396,15 +2519,19 @@ function churchCard(church) {
   `;
 }
 
-function initPublicSite() {
+async function initPublicSite() {
   const grid = document.querySelector("[data-church-grid]");
   const search = document.querySelector("[data-search]");
+  let geographyError = false;
+  if (document.getElementById("church-city-options-list")) {
+    try { await MWE.loadChurchGeography(); } catch { geographyError = true; }
+  }
 
-  const churches = MWE.getChurches();
-  const searchableChurches = churches.map(church => ({
+  let churches = MWE.getChurches();
+  const indexChurches = () => churches.map(church => ({
     church,
-    country: String(church.country || "").toLowerCase(),
-    city: String(church.city || "").toLowerCase(),
+    country: MWE.normalizeCountry(church.country).toLowerCase(),
+    city: MWE.citySearchKey(church.city),
     denomination: String(church.denomination || "").toLowerCase(),
     haystack: [
       church.name, church.city, church.area, church.country, church.denomination,
@@ -2413,32 +2540,61 @@ function initPublicSite() {
       ...(Array.isArray(church.features) ? church.features : [])
     ].filter(Boolean).join(" ").toLowerCase()
   }));
+  let searchableChurches = indexChurches();
 
   const countryOptionsContainer = document.getElementById("church-country-options-list");
   if (countryOptionsContainer) {
-    const countries = [...new Set(churches.map(church => church.country).filter(Boolean))].sort();
+    const countries = MWE.churchLocationFacets(churches, [], {}).regions;
     countryOptionsContainer.innerHTML = countries.map(item => `
       <label class="custom-checkbox-row">
-        <input type="checkbox" value="${MWE.escapeHtml(item)}" onchange="MWE.onChurchPillChange()" />
+        <input type="checkbox" value="${MWE.escapeHtml(item.value)}" onchange="MWE.onChurchPillChange()" />
         <span class="checkbox-box"><i data-lucide="check"></i></span>
-        <span class="checkbox-label">${MWE.escapeHtml(item)}</span>
+        <span class="checkbox-label">${MWE.escapeHtml(item.label)}</span>
       </label>
     `).join("");
   }
 
   // Populate dynamic City pill checkboxes
   const cityOptionsContainer = document.getElementById("church-city-options-list");
-  if (cityOptionsContainer) {
-    const cities = [...new Set(churches.map(church => church.city).filter(Boolean))].sort();
+  const cityOptionSearch = document.getElementById("church-city-option-search");
+  const cityOptionsStatus = document.getElementById("church-city-options-status");
+  const cityShowMore = document.getElementById("church-city-show-more");
+  let citySourceKey = null;
+  let availableCities = [];
+  let cityOptionLimit = 100;
+  let cityOptionsKey = "";
+  function updateCityOptions(selectedCountries) {
+    if (!cityOptionsContainer) return;
+    const sourceKey = JSON.stringify([...selectedCountries].sort());
+    const regionChanged = citySourceKey !== null && sourceKey !== citySourceKey;
+    if (sourceKey !== citySourceKey) {
+      availableCities = MWE.churchLocationFacets(churches, selectedCountries).cities;
+      citySourceKey = sourceKey;
+      cityOptionLimit = 100;
+      if (cityOptionSearch) cityOptionSearch.value = "";
+    }
+    const query = MWE.citySearchKey(cityOptionSearch?.value);
+    const matchingCities = availableCities.filter(city => MWE.citySearchKey(city).includes(query));
+    const selectedCities = regionChanged ? new Set() : new Set(Array.from(cityOptionsContainer.querySelectorAll("input:checked"), input => input.value));
+    const cities = [...new Set([...availableCities.filter(city => selectedCities.has(city)), ...matchingCities.slice(0, cityOptionLimit)])];
+    const key = JSON.stringify([cities, [...selectedCities]]);
+    if (cityOptionsStatus) cityOptionsStatus.textContent = geographyError
+      ? "City catalog unavailable. Showing locations from listed churches; reload to retry."
+      : `${matchingCities.length.toLocaleString()} ${matchingCities.length === 1 ? "city or town" : "cities and towns"}${query ? " match" : " available"}. ${matchingCities.length > cityOptionLimit ? "Search by name or show more." : ""}`;
+    if (cityShowMore) cityShowMore.hidden = matchingCities.length <= cityOptionLimit;
+    if (key === cityOptionsKey) return;
+    cityOptionsKey = key;
     cityOptionsContainer.innerHTML = cities.map(item => `
       <label class="custom-checkbox-row">
-        <input type="checkbox" value="${MWE.escapeHtml(item)}" onchange="MWE.onChurchPillChange()" />
+        <input type="checkbox" value="${MWE.escapeHtml(item)}" ${selectedCities.has(item) ? "checked" : ""} onchange="MWE.onChurchPillChange()" />
         <span class="checkbox-box"><i data-lucide="check"></i></span>
         <span class="checkbox-label">${MWE.escapeHtml(item)}</span>
       </label>
-    `).join("");
+    `).join("") || `<p class="empty" role="status">No cities match this search.</p>`;
+    MWE.updatePillState("church-city-pill", "City");
     if (window.lucide) window.lucide.createIcons();
   }
+  updateCityOptions([]);
 
   const denominationOptionsContainer = document.getElementById("church-denomination-options-list");
   if (denominationOptionsContainer) {
@@ -2458,11 +2614,12 @@ function initPublicSite() {
     const q = (search?.value || "").toLowerCase().trim();
     
     const selectedCountries = Array.from(document.querySelectorAll("#church-country-pill input:checked")).map(cb => cb.value.toLowerCase());
-    const selectedCities = Array.from(document.querySelectorAll("#church-city-pill input:checked")).map(cb => cb.value.toLowerCase());
+    updateCityOptions(selectedCountries);
+    const selectedCities = Array.from(document.querySelectorAll("#church-city-pill input:checked")).map(cb => MWE.citySearchKey(cb.value));
     const selectedDenoms = Array.from(document.querySelectorAll("#church-denom-pill input:checked")).map(cb => cb.value.toLowerCase());
 
     const filtered = searchableChurches.filter(item => {
-      const countryMatch = selectedCountries.length === 0 || selectedCountries.some(country => item.country.includes(country));
+      const countryMatch = selectedCountries.length === 0 || selectedCountries.includes(item.country);
       const cityMatch = selectedCities.length === 0 || selectedCities.includes(item.city);
       const denomMatch = selectedDenoms.length === 0 || selectedDenoms.includes(item.denomination);
       return (!q || item.haystack.includes(q)) && countryMatch && cityMatch && denomMatch;
@@ -2482,6 +2639,22 @@ function initPublicSite() {
   };
 
   MWE.triggerChurchSearch = scheduleRender;
+  if (cityOptionSearch) cityOptionSearch.addEventListener("input", () => {
+    cityOptionLimit = 100;
+    scheduleRender();
+  });
+  if (cityShowMore) cityShowMore.addEventListener("click", () => {
+    cityOptionLimit += 100;
+    scheduleRender();
+  });
+
+  // A newly published church must become discoverable without reloading the page.
+  window.addEventListener("mwe-platform-ready", () => {
+    churches = MWE.getChurches();
+    searchableChurches = indexChurches();
+    citySourceKey = null;
+    scheduleRender();
+  });
 
   if (search) {
     search.addEventListener("input", scheduleRender);
@@ -2606,18 +2779,37 @@ MWE.getChurchHeroVideo = function(church) {
       return src ? { type: "native", src } : null;
     }
 
-    if (["youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"].includes(url.hostname)) {
+    if (["youtube.com", "www.youtube.com", "m.youtube.com", "youtube-nocookie.com", "www.youtube-nocookie.com", "youtu.be"].includes(url.hostname)) {
       let id = "";
       if (url.hostname === "youtu.be") id = url.pathname.split("/").filter(Boolean)[0] || "";
       else if (url.pathname.startsWith("/embed/")) id = url.pathname.split("/")[2] || "";
       else id = url.searchParams.get("v") || "";
-      if (id) url.href = `https://www.youtube.com/embed/${encodeURIComponent(id)}`;
-      url.searchParams.set("autoplay", "1");
-      url.searchParams.set("mute", "1");
+      if (!/^[a-zA-Z0-9_-]{6,20}$/.test(id)) return null;
+      if (id) url.href = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}`;
+      url.hostname = "www.youtube-nocookie.com";
+      url.searchParams.set("autoplay", "0");
       url.searchParams.set("playsinline", "1");
       url.searchParams.set("controls", "1");
       url.searchParams.set("rel", "0");
-    } else if (url.hostname === "player.vimeo.com") {
+      url.searchParams.set("modestbranding", "1");
+      url.searchParams.set("iv_load_policy", "3");
+      const src = MWE.safeEmbedUrl(url.href);
+      return src !== "about:blank" ? {
+        type: "embed",
+        provider: "youtube",
+        src,
+        preview: `https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefault.jpg`,
+        watchUrl: `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`
+      } : null;
+    } else if (["vimeo.com", "www.vimeo.com"].includes(url.hostname)) {
+      const videoId = url.pathname.split("/").filter(Boolean).find(part => /^\d+$/.test(part));
+      if (!videoId) return null;
+      url.hostname = "player.vimeo.com";
+      url.pathname = `/video/${videoId}`;
+      url.search = "";
+    }
+
+    if (url.hostname === "player.vimeo.com") {
       url.searchParams.set("autoplay", "1");
       url.searchParams.set("muted", "1");
       url.searchParams.set("playsinline", "1");
@@ -2694,11 +2886,13 @@ MWE.renderChurchHero = function(church) {
     if (slide.type === "video") {
       const media = slide.video.type === "native"
         ? `<video data-hero-video data-src="${MWE.escapeHtml(slide.video.src)}" muted loop playsinline controls preload="metadata" aria-label="${MWE.escapeHtml(church.name)} welcome video"></video>`
-        : `<iframe data-hero-video data-src="${MWE.escapeHtml(slide.video.src)}" title="${MWE.escapeHtml(church.name)} welcome video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
-      return `<article class="church-hero-slide church-hero-slide--video" data-hero-slide="${index}" data-hero-kind="video" aria-roledescription="slide" aria-label="${index + 1} of ${slides.length}" aria-hidden="true"><div class="church-hero-video-shell"><div class="church-hero-video-visual">${media}</div></div>${copy}</article>`;
+        : slide.video.provider === "youtube"
+          ? `<div class="church-hero-embed-preview" data-hero-embed-preview><img src="${MWE.escapeHtml(slide.video.preview)}" alt="" loading="eager"><button type="button" class="church-hero-embed-play" aria-label="Play ${MWE.escapeHtml(church.name)} welcome video" onclick="MWE.playChurchHeroEmbed(this)"><i data-lucide="play"></i></button></div><a class="church-hero-embed-link" href="${MWE.escapeHtml(slide.video.watchUrl)}" target="_blank" rel="noopener noreferrer">Watch on YouTube <i data-lucide="external-link"></i></a><iframe data-hero-video data-defer-until-play="true" data-src="${MWE.escapeHtml(slide.video.src)}" title="${MWE.escapeHtml(church.name)} welcome video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen hidden></iframe>`
+          : `<iframe data-hero-video data-src="${MWE.escapeHtml(slide.video.src)}" title="${MWE.escapeHtml(church.name)} welcome video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+      return `<article class="church-hero-slide church-hero-slide--video church-hero-slide--media-left" data-hero-slide="${index}" data-hero-kind="video" aria-roledescription="slide" aria-label="${index + 1} of ${slides.length}" aria-hidden="true"><div class="church-hero-video-shell"><div class="church-hero-video-visual">${media}</div></div>${copy}</article>`;
     }
 
-    return `<article class="church-hero-slide church-hero-slide--image${index === 0 ? " is-active" : ""}" data-hero-slide="${index}" data-hero-kind="image" aria-roledescription="slide" aria-label="${index + 1} of ${slides.length}" aria-hidden="${index === 0 ? "false" : "true"}"><div class="church-hero-image-layer" style="--hero-image:url(&quot;${MWE.escapeHtml(slide.src)}&quot;)"></div>${copy}</article>`;
+    return `<article class="church-hero-slide church-hero-slide--image church-hero-slide--media-right${index === 0 ? " is-active" : ""}" data-hero-slide="${index}" data-hero-kind="image" aria-roledescription="slide" aria-label="${index + 1} of ${slides.length}" aria-hidden="${index === 0 ? "false" : "true"}"><div class="church-hero-image-layer" style="--hero-image:url(&quot;${MWE.escapeHtml(slide.src)}&quot;)"></div>${copy}</article>`;
   }).join("");
 
   dots.innerHTML = slides.map((slide, index) => `<button type="button" class="church-hero-dot${index === 0 ? " is-active" : ""}" aria-label="Show slide ${index + 1}: ${MWE.escapeHtml(slide.title)}" aria-current="${index === 0 ? "true" : "false"}" onclick="MWE.setChurchHeroSlide(${index}, true)"></button>`).join("");
@@ -2728,6 +2922,7 @@ MWE.scheduleChurchHero = function() {
   const root = document.getElementById("church-hero-showcase");
   const active = root?.querySelector(".church-hero-slide.is-active");
   if (active?.classList.contains("details-open")) return;
+  if (active?.querySelector('iframe[data-hero-video][src]')) return;
   const delay = active?.dataset.heroKind === "video" ? 12000 : 7000;
   MWE.churchHeroState.timer = setTimeout(() => MWE.stepChurchHero(1), delay);
 };
@@ -2747,12 +2942,15 @@ MWE.setChurchHeroSlide = function(index, userInitiated = false) {
     const media = slide.querySelector("[data-hero-video]");
     if (media) {
       if (active) {
-        if (!media.src) media.src = media.dataset.src || "";
+        if (!media.src && !media.dataset.deferUntilPlay) media.src = media.dataset.src || "";
         if (media.tagName === "VIDEO") media.play().catch(() => {});
       } else {
         if (media.tagName === "VIDEO") media.pause();
         media.removeAttribute("src");
         if (media.tagName === "VIDEO") media.load();
+        const preview = slide.querySelector("[data-hero-embed-preview]");
+        if (preview) preview.hidden = false;
+        if (media.dataset.deferUntilPlay) media.hidden = true;
       }
     }
   });
@@ -2777,6 +2975,21 @@ MWE.setChurchHeroSlide = function(index, userInitiated = false) {
 
 MWE.stepChurchHero = function(direction) {
   MWE.setChurchHeroSlide(MWE.churchHeroState.index + Number(direction || 1), true);
+};
+
+MWE.playChurchHeroEmbed = function(button) {
+  const slide = button?.closest("[data-hero-slide]");
+  const media = slide?.querySelector("iframe[data-hero-video][data-defer-until-play]");
+  const preview = slide?.querySelector("[data-hero-embed-preview]");
+  if (!media || !preview || !slide.classList.contains("is-active")) return;
+  try {
+    const src = new URL(media.dataset.src);
+    clearTimeout(MWE.churchHeroState.timer);
+    src.searchParams.set("autoplay", "1");
+    media.src = src.href;
+    media.hidden = false;
+    preview.hidden = true;
+  } catch {}
 };
 
 MWE.toggleChurchHeroDetails = function() {
@@ -2847,6 +3060,7 @@ MWE.renderChurchCreatorDetails = function(church) {
   if(firstVisit){firstVisit.textContent=church.firstVisit||"";firstVisit.hidden=!church.firstVisit;}
 };
 
+
 function renderProfile(church) {
   if (!church) return;
   document.title = `${church.name} | My Way of Evangelism`;
@@ -2854,11 +3068,6 @@ function renderProfile(church) {
   MWE.activeChurchProfile = church;
   
   document.querySelectorAll("[data-church-name]").forEach(el => { el.textContent = church.name; });
-  document.querySelectorAll("[data-profile-review-badge]").forEach(el => {
-    el.classList.toggle("pending-review", !church.verified);
-    el.innerHTML = church.verified ? '<i data-lucide="badge-check"></i><span>Verified</span>' : '<i data-lucide="clock-3"></i><span>Pending review</span>';
-    el.setAttribute("aria-label", church.verified ? "Verified church" : "Church pending review");
-  });
   document.querySelectorAll("[data-church-tagline]").forEach(el => {
     el.textContent = MWE.formatHeroDescription(church);
   });
@@ -2871,44 +3080,16 @@ function renderProfile(church) {
   setVal("[data-profile-sunday]", church.sunday);
   setVal("[data-profile-midweek]", church.midweek);
   setVal("[data-profile-pastor]", church.pastor);
-  setVal("[data-profile-pastor-title]", church.pastorTitle);
+  setVal("[data-profile-pastor-title]", church.pastorTitle || "Lead Pastor");
   setVal("[data-profile-pastor-bio]", church.pastorBio || church.about);
-  setVal("[data-profile-phone]", church.phoneLabel || church.phone);
-  setVal("[data-profile-email]", church.email);
-  const pastorTitle=document.querySelector("[data-profile-pastor-title]");
-  if(pastorTitle) pastorTitle.closest(".kicker")?.toggleAttribute("hidden",!church.pastorTitle);
-  document.querySelectorAll("[data-profile-website]").forEach(link=>{
-    const href=MWE.safeLinkUrl(church.website||"");
-    link.textContent=church.website||"";
-    link.href=href==="#"?"":href;
-  });
-  [
-    ["[data-profile-sunday]", church.sunday],
-    ["[data-profile-midweek]", church.midweek],
-    ["[data-profile-location]", church.location],
-    ["[data-profile-phone]", church.phoneLabel || church.phone],
-    ["[data-profile-email]", church.email],
-    ["[data-profile-website]", church.website]
-  ].forEach(([selector, value]) => {
-    document.querySelectorAll(selector).forEach(element => {
-      const row = element.closest(".leader-facts > div, .church-quick-contact-card .flex.items-center");
-      if (row) row.hidden = !value;
-    });
-  });
-  document.querySelectorAll("[data-church-logo]").forEach(image=>{
-    image.src=MWE.safeImageUrl(church.logo||church.photo,MWE.defaultImage);
-    image.alt=`${church.name} logo`;
-    image.referrerPolicy="no-referrer";
-  });
   
   const leaderPhoto = document.getElementById("leader-profile-img");
+  const defaultPastorPhoto = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
   if (leaderPhoto) {
-    leaderPhoto.src = MWE.safeImageUrl(church.pastorPhoto || church.photo, MWE.defaultImage);
+    leaderPhoto.src = MWE.safeImageUrl(church.pastorPhoto, defaultPastorPhoto);
     leaderPhoto.referrerPolicy = "no-referrer";
   }
-  const churchBg = MWE.safeImageUrl(church.photo || church.coverImage || church.image, "assets/hero-global-church.png");
   MWE.renderChurchHero(church);
-  document.querySelector("[data-profile-hero]")?.style.setProperty("--profile-image", `url("${churchBg}")`);
 
   // Bind church photo to location & map preview elements
   const churchPhoto = MWE.safeImageUrl(church.photo || church.coverImage, MWE.defaultImage);
@@ -2924,19 +3105,18 @@ function renderProfile(church) {
   
   const msgCard = document.querySelector(".message-card");
   if (msgCard) {
-    msgCard.hidden = !church.welcomeMedia;
     msgCard.removeAttribute("onclick");
-    msgCard.onclick = church.welcomeMedia ? (e) => {
+    msgCard.onclick = (e) => {
       e.preventDefault();
       MWE.playPastorWelcomeMedia(church);
-    } : null;
+    };
   }
   
   const gatheringSelect = document.getElementById("rsvp-gathering-select");
   if (gatheringSelect) {
-    const schedule = MWE.getChurchScheduleItems(church);
-    gatheringSelect.innerHTML = schedule.map(item => `
-      <option value="${MWE.escapeHtml(item.title)} (${MWE.escapeHtml(item.time)})">${MWE.escapeHtml(item.title)} - ${MWE.escapeHtml(item.time)}</option>
+    const schedule = church.schedule.length ? church.schedule : [["Sunday Service", church.sunday || "Time to be announced"]];
+    gatheringSelect.innerHTML = schedule.map(([label, time]) => `
+      <option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>
     `).join("");
     gatheringSelect.dispatchEvent(new Event("change", { bubbles: true }));
   }
@@ -2949,10 +3129,102 @@ function renderProfile(church) {
   MWE.renderRelatedChurches(church.id);
   MWE.renderChurchProfileEvents(church.id);
   MWE.renderChurchGallery(church);
-  MWE.renderChurchSchedule(church);
-  MWE.renderChurchTestimonials(church);
-  MWE.renderChurchCreatorDetails(church);
+  MWE.renderChurchProfileTestimonies(church.id);
 }
+
+MWE.renderChurchProfileTestimonies = async function(churchId) {
+  const container = document.getElementById("church-testimonials-container");
+  if (!container) return;
+
+  const targetId = churchId || MWE.currentProfileChurch?.id;
+  if (!targetId) return;
+
+  if (!container.children.length) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 32px 16px; color: var(--muted, #64748b);">
+        <i data-lucide="loader" class="spin" style="width: 28px; height: 28px; margin-bottom: 8px; display: inline-block;"></i>
+        <p style="font-size: 0.88rem; margin: 0;">Loading church stories...</p>
+      </div>
+    `;
+    if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+  }
+
+  let testimonies = [];
+  try {
+    const res = await fetch(`/api/churches/${encodeURIComponent(targetId)}/testimonies`, { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.ok && Array.isArray(data.testimonies)) {
+        testimonies = data.testimonies;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not load church testimonies from API:", err);
+  }
+
+  MWE.currentChurchTestimonies = testimonies;
+
+  const viewAllBtn = document.getElementById("btn-view-all-stories");
+  if (viewAllBtn) {
+    viewAllBtn.innerHTML = `View All Stories (${testimonies.length}) <i data-lucide="arrow-right"></i>`;
+    viewAllBtn.style.display = testimonies.length > 0 ? "inline-flex" : "none";
+  }
+
+  if (testimonies.length === 0) {
+    const churchName = MWE.currentProfileChurch?.name || "this fellowship";
+    container.innerHTML = `
+      <div class="testimony-empty-card" style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; background: var(--surface-card, #ffffff); border-radius: 20px; border: 1px dashed var(--line, #e2e8f0); margin: 8px 0;">
+        <i data-lucide="sparkles" style="width: 38px; height: 38px; color: var(--gold, #e5a93c); margin-bottom: 12px; display: inline-block;"></i>
+        <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--ink, #0f172a); margin: 0 0 6px 0;">Be the First to Share a Story</h4>
+        <p style="font-size: 0.88rem; color: var(--muted, #64748b); max-width: 440px; margin: 0 auto 16px auto; line-height: 1.5;">
+          Has your life been touched, encouraged, or blessed through ${MWE.escapeHtml(churchName)}? Share your testimony to inspire others in their walk of faith.
+        </p>
+        <button type="button" class="button primary" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 9999px; padding: 10px 22px; font-weight: 700;" onclick="MWE.openSubmitTestimonyModal('${MWE.escapeHtml(targetId)}')">
+          <i data-lucide="message-square-plus"></i> Share Your Story
+        </button>
+      </div>
+    `;
+    if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+    return;
+  }
+
+  const defaultScenes = [
+    "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1602030028438-4cf153cbae9e?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80"
+  ];
+
+  container.innerHTML = testimonies.slice(0, 3).map((t, idx) => {
+    const scene = t.scenePhotoUrl || defaultScenes[idx % defaultScenes.length];
+    const rating = Math.max(1, Math.min(5, Number(t.rating || 5)));
+    const starsHtml = Array.from({ length: 5 }, (_, i) => `
+      <i class="fa-solid fa-star" style="font-size: 11px; ${i < rating ? '' : 'opacity: 0.25;'}"></i>
+    `).join("");
+
+    return `
+      <div class="glass-card testimony-card">
+        <img class="testimony-scene" src="${MWE.escapeHtml(scene)}" alt="${MWE.escapeHtml(t.authorName)}" />
+        <div class="testimony-content">
+          <div class="testimony-stars">
+            <i data-lucide="quote" style="width: 16px; height: 16px; color: var(--primary, #db2777); margin-right: 4px;"></i>
+            ${starsHtml}
+          </div>
+          <p class="testimony-text">"${MWE.escapeHtml(t.quote)}"</p>
+          <div class="testimony-user">
+            ${t.authorPhotoUrl ? `<img class="testimony-user-img" src="${MWE.escapeHtml(t.authorPhotoUrl)}" alt="${MWE.escapeHtml(t.authorName)}" />` : ''}
+            <div class="testimony-user-info">
+              <h4>${MWE.escapeHtml(t.authorName)}</h4>
+              <span>${MWE.escapeHtml(t.authorTitle || 'Member')}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  if (typeof createIcons === "function") createIcons();
+  if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+};
 
 MWE.renderChurchProfileEvents = function(churchId) {
   const container = document.getElementById("church-events-container");
@@ -2993,7 +3265,7 @@ MWE.renderRelatedChurches = function(currentChurchId) {
   container.innerHTML = otherChurches.map(c => `
     <article class="church-card-split" onclick="if (!event.target.closest('button, a')) { window.location.href = 'church-profile.html?id=' + encodeURIComponent('${MWE.escapeJsAttribute(c.id)}'); }" style="cursor: pointer;">
       <div class="church-card-split-media" style="background-image: url(&quot;${MWE.escapeHtml(MWE.safeImageUrl(c.coverImage || c.photo, MWE.defaultImage))}&quot;); cursor: pointer;">
-        ${c.verified ? '<span class="immersive-badge" style="position: absolute; top: 14px; left: 14px;"><i data-lucide="badge-check"></i> Verified</span>' : '<span class="immersive-badge pending-review" style="position: absolute; top: 14px; left: 14px;"><i data-lucide="clock-3"></i> Pending review</span>'}
+        ${c.verified ? '<span class="immersive-badge" style="position: absolute; top: 14px; left: 14px;"><i data-lucide="badge-check"></i> Verified</span>' : ''}
       </div>
       <div class="church-card-split-body">
         <h3 class="split-card-title">${MWE.escapeHtml(c.name)}</h3>
@@ -3021,17 +3293,54 @@ MWE.activeChurchGallery = [];
 MWE.currentLightboxIndex = 0;
 
 MWE.getDefaultGalleryImages = function(church) {
-  return [];
+  const name = church?.name || "Church";
+  const mainPhoto = church?.photo || church?.coverImage || "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1200&q=80";
+  return [
+    {
+      src: "https://images.unsplash.com/photo-1510590337019-5ef8d3d32116?auto=format&fit=crop&w=1200&q=80",
+      title: "Sunday Worship & Praise",
+      caption: `Dynamic praise and worship celebration in the main sanctuary at ${name}.`,
+      tag: "Worship"
+    },
+    {
+      src: mainPhoto,
+      title: "Sanctuary & Gathering Space",
+      caption: `A warm, welcoming auditorium designed for fellowship and encountering God.`,
+      tag: "Sanctuary"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1200&q=80",
+      title: "Youth & Young Adults",
+      caption: `Building life-giving relationships rooted in scripture, discipleship, and community.`,
+      tag: "Youth"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80",
+      title: "Corporate Prayer Night",
+      caption: `United in fervent prayer and spiritual renewal for families and our city.`,
+      tag: "Prayer"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1200&q=80",
+      title: "Children's Ministry",
+      caption: `Nurturing the next generation with joyful Bible lessons, crafts, and games.`,
+      tag: "Kids"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80",
+      title: "Community Outreach & Care",
+      caption: `Sharing the compassion and love of Christ through practical food drives and care.`,
+      tag: "Outreach"
+    }
+  ];
 };
 
 MWE.renderChurchGallery = function(church) {
   const track = document.getElementById("church-gallery-track");
   if (!track) return;
-  const section = document.getElementById("church-gallery-section");
   const images = (church && church.gallery && Array.isArray(church.gallery) && church.gallery.length > 0)
     ? church.gallery
     : MWE.getDefaultGalleryImages(church);
-  if (section) section.hidden = images.length === 0;
   MWE.activeChurchGallery = images;
   
   track.innerHTML = images.map((img, idx) => `
@@ -3463,11 +3772,7 @@ MWE.closeVideoModal = function() {
 };
 
 MWE.playPastorWelcomeMedia = function(church) {
-  const mediaUrl = church.welcomeMedia || "";
-  if (!mediaUrl) {
-    showToast("This church has not published a welcome recording yet.");
-    return;
-  }
+  const mediaUrl = church.welcomeMedia || "https://www.youtube.com/embed/jiSyB8QZzk8";
   const isAudio = mediaUrl.endsWith(".mp3") || mediaUrl.includes(".mp3?");
   
   if (isAudio) {
@@ -3486,10 +3791,10 @@ MWE.openAudioModal = function(church, audioUrl) {
   
   if (!modal || !audioEl) return;
   
-  pastorImg.src = MWE.safeImageUrl(church.pastorPhoto || church.photo, MWE.defaultImage);
+  pastorImg.src = MWE.safeImageUrl(church.pastorPhoto, "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80");
   pastorImg.referrerPolicy = "no-referrer";
-  playerTitle.textContent = `${church.pastor || church.name} Welcome`;
-  playerSubtitle.textContent = [church.pastorTitle, church.name].filter(Boolean).join(", ");
+  playerTitle.textContent = `${church.pastor || 'Pastor'}'s Welcome`;
+  playerSubtitle.textContent = `Senior Pastor, ${church.name}`;
   
   const safeAudioUrl = MWE.safeImageUrl(audioUrl, "");
   if (!safeAudioUrl) {
@@ -4055,8 +4360,6 @@ function initChurchPortal() {
     set("about", church.about);
     set("photo", church.photo === MWE.defaultImage ? "Default platform cover image" : church.photo);
     set("logo", church.logo);
-    set("welcomeMedia", church.welcomeMedia, "No welcome video added yet");
-    set("heroImages", church.gallery?.length ? `${church.gallery.length} image${church.gallery.length === 1 ? "" : "s"} configured` : "Cover image only");
     set("streamEnabled", stream.enabled ? "Enabled" : "Not enabled");
     set("streamPaid", stream.paid ? "Premium paid feature" : "Free / inactive");
     set("streamUrl", stream.url === "#" ? "" : stream.url);
@@ -4237,21 +4540,14 @@ function initChurchPortal() {
   form?.addEventListener("change", renderDraft);
   form?.addEventListener("submit", async event => {
     event.preventDefault();
-    const submitter = event.submitter;
-    if (submitter) submitter.disabled = true;
-    try {
-      const church = await MWE.upsertChurch(MWE.churchFromForm(form));
-      refreshSelect(church.id);
-      MWE.fillChurchForm(form, church);
-      renderReadableProfile(church);
-      renderPreview(church);
-      closeEditors();
-      showToast(church.verified ? "Church profile saved" : "Church submitted for owner review");
-    } catch (error) {
-      showToast(error.message || "The church profile could not be saved.");
-    } finally {
-      if (submitter) submitter.disabled = false;
-    }
+    const church = MWE.upsertChurch(MWE.churchFromForm(form));
+    await MWE.syncAdminChurch(church);
+    refreshSelect(church.id);
+    MWE.fillChurchForm(form, church);
+    renderReadableProfile(church);
+    renderPreview(church);
+    closeEditors();
+    showToast("Church portal profile saved");
   });
 }
 
@@ -4857,7 +5153,7 @@ async function initHeroPage() {
   // 4. Update slider with detected city matches if any
   try {
     if (detectedCity) {
-      const cityFiltered = churches.filter(c => c.city && c.city.toLowerCase() === detectedCity.toLowerCase());
+      const cityFiltered = churches.filter(c => c.city && c.city.toLowerCase() === detectedCity.toLowerCase() && c.verified);
       if (cityFiltered.length > 0) {
         renderSlider(cityFiltered);
       }
@@ -4957,7 +5253,7 @@ function renderHomepageSections() {
             <div class="channel-profile-body">
               <div class="channel-profile-identity">
                 <div>
-                  <h3><a href="channel-detail.html?id=${encodeURIComponent(c.id)}">${MWE.escapeHtml(c.name)}</a>${c.verified ? '<i data-lucide="badge-check" aria-label="Verified"></i>' : ''}</h3>${window.MWEPlatform?.pendingBadge(c) || ''}
+                  <h3><a href="channel-detail.html?id=${encodeURIComponent(c.id)}">${MWE.escapeHtml(c.name)}</a>${c.verified ? '<i data-lucide="badge-check" aria-label="Verified"></i>' : ''}</h3>
                   <span>${MWE.escapeHtml(c.owner)} · ${MWE.escapeHtml(c.topic)}</span>
                 </div>
                 <span class="channel-online"><i></i>${c.live ? "Live now" : "Active"}</span>
@@ -4997,7 +5293,7 @@ function renderHomepageSections() {
             </a>
             <div class="product-card-body">
               <span class="product-seller">Sold by ${MWE.escapeHtml(p.seller || 'FaithLink')}</span>
-              <h3><a href="product-detail.html?id=${encodeURIComponent(p.id)}">${MWE.escapeHtml(p.title)}</a></h3>${window.MWEPlatform?.pendingBadge(p) || ''}
+              <h3><a href="product-detail.html?id=${encodeURIComponent(p.id)}">${MWE.escapeHtml(p.title)}</a></h3>
               <span class="product-rating"><i data-lucide="star"></i>${Number(p.rating || 4.8).toFixed(1)} · In stock</span>
               <div class="product-price-row">
                 <div><span class="product-price">${priceStr}</span></div>
@@ -5107,7 +5403,7 @@ function updateHomepageAuthUI() {
               </div>
               <div class="form-group mb-3">
                 <label for="nav-auth-password">Password</label>
-                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required minlength="15" maxlength="128" title="Use 15 to 128 characters." autocomplete="current-password" />
+                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Enter your password" required minlength="8" />
               </div>
               <button type="submit" class="button primary small" id="nav-auth-submit-btn" style="width: 100%;">
                 <i data-lucide="log-in"></i> <span>Sign In</span>
@@ -5182,8 +5478,6 @@ MWE.switchAuthDropdownTab = function(tab) {
   const btnRegister = document.getElementById("tab-btn-register");
   const nameGroup = document.getElementById("nav-auth-name-group");
   const emailLabel = document.getElementById("nav-auth-email-label");
-  const nameInput = document.getElementById("nav-auth-name");
-  const passwordInput = document.getElementById("nav-auth-password");
   const submitBtn = document.getElementById("nav-auth-submit-btn");
   const googleLabel = document.getElementById("google-auth-fast-label");
 
@@ -5191,8 +5485,6 @@ MWE.switchAuthDropdownTab = function(tab) {
     btnRegister?.classList.add("active");
     btnSignin?.classList.remove("active");
     if (nameGroup) nameGroup.style.display = "block";
-    if (nameInput) nameInput.required = true;
-    if (passwordInput) passwordInput.autocomplete = "new-password";
     if (emailLabel) emailLabel.textContent = "Email Address";
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="user-plus"></i> <span>Create Account</span>`;
     if (googleLabel) googleLabel.textContent = "Sign up with Google";
@@ -5200,8 +5492,6 @@ MWE.switchAuthDropdownTab = function(tab) {
     btnSignin?.classList.add("active");
     btnRegister?.classList.remove("active");
     if (nameGroup) nameGroup.style.display = "none";
-    if (nameInput) nameInput.required = false;
-    if (passwordInput) passwordInput.autocomplete = "current-password";
     if (emailLabel) emailLabel.textContent = "Email Address";
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="log-in"></i> <span>Sign In</span>`;
     if (googleLabel) googleLabel.textContent = "Continue with Google";
@@ -5220,7 +5510,6 @@ MWE.handleNavDropdownAuthSubmit = async function(event) {
   const errorEl = document.getElementById("nav-auth-error");
   const submitBtn = document.getElementById("nav-auth-submit-btn");
   if (errorEl) { errorEl.hidden = true; errorEl.textContent = ""; }
-  if (!form.reportValidity()) return;
 
   if (!window.MWEAuth) {
     if (errorEl) { errorEl.textContent = "Sign-in is unavailable right now. Please reload and try again."; errorEl.hidden = false; }
@@ -5228,16 +5517,10 @@ MWE.handleNavDropdownAuthSubmit = async function(event) {
   }
 
   if (submitBtn) submitBtn.disabled = true;
-  let result;
-  try {
-    result = isRegister
-      ? await window.MWEAuth.register(name, email, password)
-      : await window.MWEAuth.login(email, password);
-  } catch {
-    result = { ok: false, error: "Account access is temporarily unavailable. Please try again." };
-  } finally {
-    if (submitBtn) submitBtn.disabled = false;
-  }
+  const result = isRegister
+    ? await window.MWEAuth.register(name, email, password)
+    : await window.MWEAuth.login(email, password);
+  if (submitBtn) submitBtn.disabled = false;
 
   if (!result.ok) {
     if (errorEl) { errorEl.textContent = result.error || "Something went wrong. Please try again."; errorEl.hidden = false; }
@@ -5957,22 +6240,10 @@ function initCreatorContentActions() {
 
     if (action.dataset.creatorActionInitialized === "true") return;
     action.dataset.creatorActionInitialized = "true";
-    action.addEventListener("click", event => {
+    action.addEventListener("click", () => {
       if (!window.MWEPlatform?.session?.isCreator) return;
       const href = action.dataset.creatorHref;
-      if (href) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        const target = new URL(href, window.location.href);
-        const route = {
-          view: target.searchParams.get("view") || "create",
-          kind: target.searchParams.get("kind") || ""
-        };
-        const shellTarget = new URL("app.html", window.location.href);
-        shellTarget.searchParams.set("view", route.view);
-        if (route.kind) shellTarget.searchParams.set("kind", route.kind);
-        window.top.location.href = shellTarget.href;
-      }
+      if (href) window.location.href = href;
     });
   });
 }
@@ -6323,7 +6594,6 @@ MWE.createEventCardHtml = function(evt, isFeatured = false) {
   } else if (isPast) {
     badgeHtml = `<span class="event-card-top-badge" style="color: #64748b;">Past</span>`;
   }
-  const pendingBadgeHtml = window.MWEPlatform?.isPending(evt) ? '<span class="platform-pending-badge">Pending review</span>' : '';
 
   if (isFeatured) {
     return `
@@ -6331,7 +6601,7 @@ MWE.createEventCardHtml = function(evt, isFeatured = false) {
         <div class="event-card-banner-wrap is-featured-banner" style="background-image: url('${MWE.escapeHtml(bgPhoto)}');">
           <div class="event-card-featured-overlay"></div>
           
-          <span class="event-card-top-badge" style="top: 15px; left: 15px; background: rgba(255,255,255,0.92); color: #0f172a;"><i data-lucide="sparkles" style="color: var(--color-primary-gold);"></i> Featured</span>${pendingBadgeHtml}
+          <span class="event-card-top-badge" style="top: 15px; left: 15px; background: rgba(255,255,255,0.92); color: #0f172a;"><i data-lucide="sparkles" style="color: var(--color-primary-gold);"></i> Featured</span>
 
           <div class="event-card-bottom-row">
             <!-- Date Badge & Ticket Price Column -->
@@ -6359,7 +6629,7 @@ MWE.createEventCardHtml = function(evt, isFeatured = false) {
     <a href="event-profile.html?id=${evt.id}" class="event-card-modern ${isPast ? 'opacity-75' : ''}">
       <div class="event-card-banner-wrap">
         <img class="event-card-banner-img" src="${MWE.escapeHtml(bgPhoto)}" alt="${MWE.escapeHtml(evt.title)}" loading="lazy" />
-        ${badgeHtml}${pendingBadgeHtml}
+        ${badgeHtml}
       </div>
 
       <div class="event-card-bottom-row">
@@ -6395,25 +6665,12 @@ MWE.openEventModal = function(id) {
   const formattedDate = dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   const price = (evt.ticketPriceCents || 0) === 0 ? "Free / Registration Required" : `$${(evt.ticketPriceCents / 100).toFixed(2)}`;
   const isPast = new Date(evt.startsAt) < new Date();
-  const paymentState = MWE.getEventPaymentState(evt);
 
   const church = MWE.getChurches().find(c => c.id === evt.churchId);
-  const organizerName = church ? church.name : (evt.organizerName || evt.organization || evt.hostName || "Event Host");
+  const organizerName = church ? church.name : "Christian Fellowship";
 
   let actionButton = "";
-  if (!isPast && paymentState.kind === "external") {
-    actionButton = `
-      <a class="button primary block large" href="${MWE.safeLinkUrl(paymentState.externalUrl)}" target="_blank" rel="noopener noreferrer" style="margin-top: 24px; width: 100%; text-align:center;">
-        <i data-lucide="external-link"></i> Continue to Payment
-      </a>
-    `;
-  } else if (!isPast && paymentState.kind !== "free") {
-    actionButton = `
-      <div class="info-alert" style="margin-top: 20px; padding: 12px; background: rgba(245,158,11,0.12); border-radius: 8px; text-align: center; color: var(--muted);">
-        Online payment is not configured for this paid event yet.
-      </div>
-    `;
-  } else if (!isPast) {
+  if (!isPast) {
     actionButton = `
       <button class="button primary block large" onclick="MWE.openRegModal('${MWE.escapeJsAttribute(evt.id)}')" style="margin-top: 24px; width: 100%;">
         <i data-lucide="ticket"></i> Register / Get Tickets
@@ -6444,7 +6701,7 @@ MWE.openEventModal = function(id) {
       <div class="event-meta-info-list" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
         <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="calendar" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Date & Time</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">${formattedDate}</p></div></div>
         ${locationInfo}
-        <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="church" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Hosted By</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">${evt.churchId ? `<a href="church-profile.html?id=${encodeURIComponent(evt.churchId)}">${MWE.escapeHtml(organizerName)}</a>` : MWE.escapeHtml(organizerName)}</p></div></div>
+        <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="church" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Hosted By</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);"><a href="church-profile.html?id=${encodeURIComponent(evt.churchId)}">${MWE.escapeHtml(organizerName)}</a></p></div></div>
         <div class="meta-row" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;"><i data-lucide="banknote" style="color:var(--forest); width:20px; height:20px; flex-shrink:0;"></i><div><strong style="font-size:0.85rem;">Admission Price</strong><p style="margin:0; font-size:0.9rem; color:var(--muted);">${price}</p></div></div>
       </div>
       <div class="event-description-box" style="border-top: 1px solid var(--line); padding-top: 16px;">
@@ -6493,23 +6750,6 @@ MWE.closeRegModal = function() {
   if (modal) modal.classList.remove("open");
 };
 
-MWE.getEventPaymentState = function(evt) {
-  const priceCents = Number(evt?.ticketPriceCents || 0);
-  const externalUrl = String(evt?.registrationUrl || "").trim();
-  const providerConfigured = Boolean(window.MWE_EVENT_PAYMENTS_ENABLED || window.MWE_STRIPE_PUBLIC_KEY);
-  if (priceCents <= 0) return { kind: "free", priceCents, externalUrl, providerConfigured };
-  if (externalUrl) return { kind: "external", priceCents, externalUrl, providerConfigured };
-  if (providerConfigured) return { kind: "provider", priceCents, externalUrl, providerConfigured };
-  return { kind: "unavailable", priceCents, externalUrl, providerConfigured };
-};
-
-MWE.showPaidEventUnavailable = function(evt) {
-  const amount = `$${((Number(evt?.ticketPriceCents || 0)) / 100).toFixed(2)}`;
-  if (typeof showToast === "function") {
-    showToast(`Online payment for this ${amount} event is not configured yet.`);
-  }
-};
-
 MWE.updateCheckoutPrice = function() {
   const eventId = document.getElementById("reg-event-id").value;
   const qty = Number(document.getElementById("reg-quantity").value || 1);
@@ -6527,10 +6767,7 @@ MWE.updateCheckoutPrice = function() {
   } else {
     if (priceBox && priceLabel) {
       priceBox.style.display = "flex";
-      const paymentState = MWE.getEventPaymentState(evt);
-      priceLabel.textContent = paymentState.kind === "unavailable"
-        ? `$${((priceCents * qty) / 100).toFixed(2)} · Payment unavailable`
-        : `$${((priceCents * qty) / 100).toFixed(2)}`;
+      priceLabel.textContent = `$${((priceCents * qty) / 100).toFixed(2)}`;
     }
   }
 };
@@ -6546,15 +6783,6 @@ MWE.handleRegistrationSubmit = async function(e) {
 
   const evt = MWE.getEvent(eventId);
   if (!evt) return;
-  const paymentState = MWE.getEventPaymentState(evt);
-  if (paymentState.kind === "external") {
-    window.location.href = MWE.safeLinkUrl(paymentState.externalUrl);
-    return;
-  }
-  if (paymentState.kind === "unavailable" || paymentState.kind === "provider") {
-    MWE.showPaidEventUnavailable(evt);
-    return;
-  }
 
   let reg;
   try { reg = await MWE.registerForEvent({
@@ -6896,9 +7124,7 @@ MWE.updatePageCheckoutPrice = function() {
   const evt = MWE.getEvent(id);
   if (!evt) return;
 
-  const qtyInput = document.getElementById("page-reg-quantity");
-  if (!qtyInput) return;
-  const qty = Number(qtyInput.value || 1);
+  const qty = Number(document.getElementById("page-reg-quantity").value || 1);
   const priceBox = document.getElementById("page-checkout-price-box");
   const priceLabel = document.getElementById("page-checkout-total-price");
 
@@ -6908,10 +7134,7 @@ MWE.updatePageCheckoutPrice = function() {
   } else {
     if (priceBox && priceLabel) {
       priceBox.style.display = "flex";
-      const paymentState = MWE.getEventPaymentState(evt);
-      priceLabel.textContent = paymentState.kind === "unavailable"
-        ? `$${((priceCents * qty) / 100).toFixed(2)} · Payment unavailable`
-        : `$${((priceCents * qty) / 100).toFixed(2)}`;
+      priceLabel.textContent = `$${((priceCents * qty) / 100).toFixed(2)}`;
     }
   }
 };
@@ -6924,15 +7147,6 @@ MWE.handlePageRegistrationSubmit = async function(e) {
 
   const evt = MWE.getEvent(eventId);
   if (!evt) return;
-  const paymentState = MWE.getEventPaymentState(evt);
-  if (paymentState.kind === "external") {
-    window.location.href = MWE.safeLinkUrl(paymentState.externalUrl);
-    return;
-  }
-  if (paymentState.kind === "unavailable" || paymentState.kind === "provider") {
-    MWE.showPaidEventUnavailable(evt);
-    return;
-  }
 
   const firstName = (document.getElementById("page-reg-first-name")?.value || "").trim();
   const lastName = (document.getElementById("page-reg-last-name")?.value || "").trim();
@@ -7069,8 +7283,6 @@ MWE.showSpeakerDetail = function(idx) {
   const speakers = (MWE.currentEvent && MWE.currentEvent.speakers) ? MWE.currentEvent.speakers : [];
   const sp = speakers[idx];
   if (!sp) return;
-  const channel = MWE.findSpeakerChannel(sp);
-  const followButton = MWE.renderSpeakerFollowButton(sp, idx, "modal");
   const modalBody = `
     <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
       <img src="${MWE.escapeHtml(sp.image)}" alt="${MWE.escapeHtml(sp.name)}" class="w-32 h-32 rounded-2xl object-cover border-4 border-brand-500/20 shadow-md shrink-0" />
@@ -7079,159 +7291,14 @@ MWE.showSpeakerDetail = function(idx) {
         <h3 class="text-2xl font-bold text-slate-900 mt-1">${MWE.escapeHtml(sp.name)}</h3>
         <p class="text-sm font-semibold text-clay-500 mb-4">${MWE.escapeHtml(sp.role)}</p>
         <p class="text-sm text-slate-600 leading-relaxed">${MWE.escapeHtml(sp.bio)}</p>
-        <div class="mt-5 flex flex-wrap items-center gap-3">
-          ${followButton}
-          ${channel ? `<a class="spk-channel-link" href="channel-detail.html?id=${encodeURIComponent(channel.id)}">View Channel</a>` : ""}
-        </div>
       </div>
     </div>
   `;
   openSpeakerModal(modalBody);
-  if (typeof createIcons === "function") createIcons();
-};
-
-MWE.SPEAKER_FOLLOW_KEY = "mwe.followed.channels.v1";
-
-MWE.normalizeSpeakerChannelKey = function(value) {
-  return String(value || "").toLowerCase().replace(/^@/, "").replace(/[^a-z0-9]+/g, "");
-};
-
-MWE.getFollowedChannelIds = function() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(MWE.SPEAKER_FOLLOW_KEY) || "[]");
-    return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
-  } catch {
-    return [];
-  }
-};
-
-MWE.saveFollowedChannelIds = function(ids) {
-  const unique = [...new Set((ids || []).filter(Boolean))];
-  localStorage.setItem(MWE.SPEAKER_FOLLOW_KEY, JSON.stringify(unique));
-  return unique;
-};
-
-MWE.isFollowingChannel = function(channelId) {
-  return Boolean(channelId && MWE.getFollowedChannelIds().includes(channelId));
-};
-
-MWE.getPlatformChannels = function() {
-  try {
-    const moduleChannels = window.FaithLinkModules?.getChannels?.();
-    if (Array.isArray(moduleChannels) && moduleChannels.length) return moduleChannels;
-  } catch {}
-  try {
-    const saved = JSON.parse(localStorage.getItem("faithlink.channels.v1") || "null");
-    if (Array.isArray(saved) && saved.length) return saved;
-  } catch {}
-  return Array.isArray(HERO_CHANNEL_SEEDS) ? HERO_CHANNEL_SEEDS : [];
-};
-
-MWE.findSpeakerChannel = function(speaker) {
-  if (!speaker) return null;
-  const channels = MWE.getPlatformChannels();
-  if (!channels.length) return null;
-
-  const explicitIds = [speaker.channelId, speaker.channelID, speaker.channel_id, speaker.channelHandle, speaker.handle, speaker.channel]
-    .filter(Boolean)
-    .map(MWE.normalizeSpeakerChannelKey);
-  const speakerName = MWE.normalizeSpeakerChannelKey(speaker.name);
-
-  return channels.find(channel => {
-    const channelKeys = [channel.id, channel.handle, channel.name, channel.owner]
-      .filter(Boolean)
-      .map(MWE.normalizeSpeakerChannelKey);
-    return explicitIds.some(id => channelKeys.includes(id)) || (speakerName && channelKeys.includes(speakerName));
-  }) || null;
-};
-
-MWE.getChannelFollowerCount = function(channel) {
-  if (!channel) return 0;
-  const base = Number(channel.followers) || 0;
-  return base + (MWE.isFollowingChannel(channel.id) ? 1 : 0);
-};
-
-MWE.renderSpeakerFollowButton = function(speaker, idx, context = "card") {
-  const channel = MWE.findSpeakerChannel(speaker);
-  const isFollowing = channel ? MWE.isFollowingChannel(channel.id) : false;
-  const countLabel = channel ? ` data-follow-count="${MWE.getChannelFollowerCount(channel)}"` : "";
-  const title = channel ? `Follow ${MWE.escapeHtml(channel.name || speaker.name || "speaker")}` : "This speaker does not have a linked channel yet";
-  const text = channel && isFollowing ? "Following" : "Follow";
-  return `
-    <button
-      type="button"
-      class="spk-follow-btn${isFollowing ? " is-following" : ""}${channel ? "" : " is-unlinked"}"
-      onclick="MWE.toggleSpeakerFollow(event, ${idx}, '${MWE.escapeJsAttribute(context)}')"
-      aria-pressed="${isFollowing ? "true" : "false"}"
-      title="${title}"${countLabel}>
-      ${text}
-    </button>
-  `;
-};
-
-MWE.toggleSpeakerFollow = function(event, idx, context = "card") {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-  const speakers = (MWE.currentEvent && Array.isArray(MWE.currentEvent.speakers)) ? MWE.currentEvent.speakers : [];
-  const speaker = speakers[idx];
-  const channel = MWE.findSpeakerChannel(speaker);
-  if (!channel) {
-    if (typeof showToast === "function") showToast("This speaker does not have a linked channel account yet.");
-    return;
-  }
-
-  const followed = MWE.getFollowedChannelIds();
-  const isFollowing = followed.includes(channel.id);
-  const next = isFollowing ? followed.filter(id => id !== channel.id) : [...followed, channel.id];
-  MWE.saveFollowedChannelIds(next);
-
-  if (typeof showToast === "function") {
-    showToast(isFollowing ? `Unfollowed ${channel.name}.` : `Following ${channel.name}.`);
-  }
-  MWE.refreshSpeakerFollowButtons();
-};
-
-MWE.refreshSpeakerFollowButtons = function() {
-  const speakers = (MWE.currentEvent && Array.isArray(MWE.currentEvent.speakers)) ? MWE.currentEvent.speakers : [];
-  document.querySelectorAll("[data-speaker-follow-slot]").forEach(slot => {
-    const idx = parseInt(slot.getAttribute("data-speaker-follow-slot"), 10);
-    if (!Number.isFinite(idx) || !speakers[idx]) return;
-    slot.innerHTML = MWE.renderSpeakerFollowButton(speakers[idx], idx, slot.getAttribute("data-follow-context") || "card");
-  });
-  if (typeof createIcons === "function") createIcons();
 };
 
 MWE.currentScheduleDay = 1;
 MWE.currentScheduleTrack = "all";
-
-MWE.titleCaseLabel = function(value) {
-  return String(value || "")
-    .replace(/[-_]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-};
-
-MWE.getEventScheduleDays = function() {
-  const schedule = (MWE.currentEvent && Array.isArray(MWE.currentEvent.schedule)) ? MWE.currentEvent.schedule : [];
-  const days = [...new Set(schedule.map(item => parseInt(item.day, 10)).filter(Number.isFinite))].sort((a, b) => a - b);
-  return days.length ? days : [1];
-};
-
-MWE.getEventScheduleTracks = function() {
-  const schedule = (MWE.currentEvent && Array.isArray(MWE.currentEvent.schedule)) ? MWE.currentEvent.schedule : [];
-  const seen = new Set();
-  const tracks = [{ id: "all", label: "All" }];
-  schedule.forEach((item) => {
-    const id = String(item.track || "").trim();
-    if (!id || seen.has(id)) return;
-    seen.add(id);
-    tracks.push({ id, label: item.trackLabel || MWE.titleCaseLabel(id) });
-  });
-  return tracks;
-};
 
 MWE.switchScheduleDay = function(day) {
   MWE.currentScheduleDay = day;
@@ -7252,7 +7319,7 @@ MWE.renderScheduleDays = function() {
   const baseDate = new Date(MWE.currentEvent.startsAt);
   const options = { month: 'short', day: 'numeric', year: 'numeric' };
 
-  const daysData = MWE.getEventScheduleDays().map(d => {
+  const daysData = [1, 2, 3].map(d => {
     const dateObj = new Date(baseDate);
     dateObj.setDate(baseDate.getDate() + (d - 1));
     const dateStr = dateObj.toLocaleDateString(undefined, options);
@@ -7283,10 +7350,12 @@ MWE.renderScheduleTracks = function() {
   const container = document.getElementById("schedule-tracks-container");
   if (!container) return;
 
-  const tracks = MWE.getEventScheduleTracks();
-  if (!tracks.some(track => track.id === MWE.currentScheduleTrack)) {
-    MWE.currentScheduleTrack = "all";
-  }
+  const tracks = [
+    { id: "all", label: "All" },
+    { id: "keynote", label: "Keynote" },
+    { id: "panel", label: "Panel" },
+    { id: "workshop", label: "Workshop" }
+  ];
 
   container.innerHTML = tracks.map(tr => {
     const isActive = MWE.currentScheduleTrack === tr.id;
@@ -7319,15 +7388,14 @@ MWE.renderSchedule = function() {
 
   timelineEl.innerHTML = filtered.map((item) => {
     const isStarred = MWE.isSessionStarred(item.title);
-    const badgeLabel = item.badgeLabel || item.trackLabel || MWE.titleCaseLabel(item.track || "session");
-    const roomLabel = item.room || item.location || "";
-    const presenterLabel = item.presenter || item.host || "";
+    const badgeLabel = item.track === 'keynote' ? 'Keynote Focus' : item.track === 'workshop' ? 'Technical Workshop' : 'Panel Session';
+    const roomLabel = item.track === 'keynote' ? 'Stage Alpha' : item.track === 'workshop' ? 'Workshop Room B' : 'Panel Room C';
     
-    const badgeTrackClass = item.track === 'keynote'
-      ? 'track-keynote'
-      : item.track === 'workshop'
-        ? 'track-workshop'
-        : 'track-panel';
+    const badgeColorClass = item.track === 'keynote' 
+      ? 'bg-clay-100 text-clay-700' 
+      : item.track === 'workshop' 
+        ? 'bg-brand-100 text-brand-700' 
+        : 'bg-slate-100 text-slate-700';
 
     return `
       <div class="relative pl-12 sm:pl-[180px] pb-8 group schedule-item-row">
@@ -7351,30 +7419,26 @@ MWE.renderSchedule = function() {
                 <i class="fa-regular fa-clock"></i> ${item.time} - ${item.endTime || ''}
               </div>
               
-              <span class="event-session-badge ${badgeTrackClass}">
-                ${MWE.escapeHtml(badgeLabel)}
+              <span class="inline-block px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${badgeColorClass} mb-3">
+                ${badgeLabel}
               </span>
-              <h4 class="font-extrabold text-slate-900 text-lg leading-snug group-hover:text-brand-500 transition-colors">${MWE.escapeHtml(item.title || "Session")}</h4>
-              ${item.desc ? `<p class="text-slate-500 text-sm mt-3 leading-relaxed">${MWE.escapeHtml(item.desc)}</p>` : ""}
+              <h4 class="font-extrabold text-slate-900 text-lg leading-snug group-hover:text-brand-500 transition-colors">${item.title}</h4>
+              <p class="text-slate-500 text-sm mt-3 leading-relaxed">${item.desc}</p>
             </div>
             
-            <button onclick="MWE.toggleSessionStar(event, '${MWE.escapeJsAttribute(item.title || "Session")}')" class="p-2.5 rounded-full border border-slate-200 hover:border-brand-200 bg-white hover:bg-brand-50/30 text-slate-400 hover:text-brand-500 transition-colors shrink-0">
+            <button onclick="MWE.toggleSessionStar(event, '${MWE.escapeJsAttribute(item.title)}')" class="p-2.5 rounded-full border border-slate-200 hover:border-brand-200 bg-white hover:bg-brand-50/30 text-slate-400 hover:text-brand-500 transition-colors shrink-0">
               <i class="${isStarred ? 'fa-solid text-clay-500' : 'fa-regular'} fa-star"></i>
             </button>
           </div>
           
           <!-- Presenter and Stage Location Footer -->
           <div class="flex flex-wrap items-center justify-between gap-4 mt-6 pt-4 border-t border-slate-100 text-slate-500 text-xs font-semibold">
-            ${presenterLabel ? `
-              <div class="flex items-center gap-1.5">
-                <i class="fa-solid fa-microphone text-brand-500"></i> Presenter: ${MWE.escapeHtml(presenterLabel)}
-              </div>
-            ` : `<span></span>`}
-            ${roomLabel ? `
-              <div class="flex items-center gap-1.5 text-slate-400">
-                <i class="fa-solid fa-map-pin"></i> ${MWE.escapeHtml(roomLabel)}
-              </div>
-            ` : ""}
+            <div class="flex items-center gap-1.5">
+              <i class="fa-solid fa-microphone text-brand-500"></i> Presenter: ${item.host}
+            </div>
+            <div class="flex items-center gap-1.5 text-slate-400">
+               <i class="fa-solid fa-map-pin"></i> ${roomLabel}
+            </div>
           </div>
         </div>
       </div>
@@ -7404,30 +7468,18 @@ function initEventProfilePage() {
 
   // Populate Hero
   const titleEl = document.getElementById("event-profile-title");
-  if (titleEl) {
-    titleEl.textContent = evt.title;
-    if (window.MWEPlatform?.isPending(evt)) titleEl.insertAdjacentHTML("afterend", '<span class="platform-pending-badge">Pending review</span>');
-  }
+  if (titleEl) titleEl.textContent = evt.title;
 
   const church = MWE.getChurches().find(c => c.id === evt.churchId);
-  const organizerName = church ? church.name : (evt.organizerName || evt.organization || evt.hostName || "Event Host");
+  const organizerName = church ? church.name : "Christian Fellowship";
   const orgLead = document.getElementById("event-profile-organizer-lead");
-  if (orgLead) {
-    const organizerUrl = church && evt.churchId
-      ? `church-profile.html?id=${encodeURIComponent(evt.churchId)}`
-      : (evt.organizerUrl || "");
-    orgLead.innerHTML = organizerUrl
-      ? `Hosted by <a href="${MWE.safeLinkUrl(organizerUrl)}" class="text-clay-500 dark:text-gold-500 hover:underline">${MWE.escapeHtml(organizerName)}</a>`
-      : `Hosted by <span class="text-clay-500 dark:text-gold-500">${MWE.escapeHtml(organizerName)}</span>`;
-  }
+  if (orgLead) orgLead.innerHTML = `Hosted by <a href="church-profile.html?id=${encodeURIComponent(evt.churchId || '')}" class="text-clay-500 dark:text-gold-500 hover:underline">${MWE.escapeHtml(organizerName)}</a>`;
 
   // Populate dynamic badge details
   const dateObj = new Date(evt.startsAt);
   const dateStr = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
-  const displayCity = evt.city || (church ? church.city : "");
-  const venueLabel = evt.venueName || evt.venue || evt.location || "";
-  const formatLabel = evt.eventType === "streamed" ? "ONLINE" : (evt.eventType === "hybrid" ? "HYBRID" : "IN PERSON");
-  const badgeText = evt.heroBadgeText || [dateStr, displayCity ? displayCity.toUpperCase() : "", formatLabel].filter(Boolean).join(" • ");
+  const displayCity = evt.city || (church ? church.city : "Local");
+  const badgeText = `${dateStr} • ${displayCity.toUpperCase()} CONVENTION CENTER & ONLINE`;
   const badgeTextEl = document.getElementById("hero-badge-text");
   if (badgeTextEl) badgeTextEl.textContent = badgeText;
 
@@ -7446,48 +7498,38 @@ function initEventProfilePage() {
   const descEl = document.getElementById("event-profile-description");
   if (descEl) descEl.textContent = evt.description || "No description details provided.";
 
-  const aboutEyebrowEl = document.getElementById("event-about-eyebrow");
-  if (aboutEyebrowEl) aboutEyebrowEl.textContent = evt.aboutEyebrow || "WHAT TO EXPECT";
-  const aboutTitleEl = document.getElementById("event-about-title");
-  if (aboutTitleEl) aboutTitleEl.textContent = evt.aboutTitle || `What to expect at ${evt.title}`;
-  const aboutIntroEl = document.getElementById("event-about-intro");
-  if (aboutIntroEl) aboutIntroEl.textContent = evt.aboutIntro || evt.description || "Event details will be updated by the organizer.";
-
   // Populate Church Host Details
   const churchAboutEl = document.getElementById("event-profile-church-about");
   if (churchAboutEl && church) {
     churchAboutEl.textContent = church.about || `Join regular worship services and community groups hosted by ${organizerName}. Discover local fellowship groups, Sunday school sessions, and regular Bible study streams.`;
-  } else if (churchAboutEl) {
-    churchAboutEl.textContent = evt.organizerAbout || evt.aboutIntro || evt.description || "";
   }
 
   const churchLink = document.getElementById("event-profile-church-link");
   if (churchLink && evt.churchId) churchLink.href = `church-profile.html?id=${evt.churchId}`;
 
   // Populate Location Details
-  const venueLoc = [venueLabel, displayCity].filter(Boolean).join(", ") || "Location to be announced";
+  const venueLoc = `${evt.venueName || 'Main Sanctuary'}, ${displayCity}`;
   const locEl = document.getElementById("event-profile-location");
   if (locEl) locEl.textContent = venueLoc;
 
-  // Extract arrays. Seed events keep their sample content; hosted events only show what the creator saved.
-  const useSeedFallback = !evt.isHosted;
-  const speakers = Array.isArray(evt.speakers) ? evt.speakers : [];
-  const schedule = Array.isArray(evt.schedule) ? evt.schedule : [];
-  const highlights = Array.isArray(evt.highlights) ? evt.highlights : (useSeedFallback ? [
+  // Extract arrays (fallback to defaults if undefined)
+  const speakers = evt.speakers || [];
+  const schedule = evt.schedule || [];
+  const highlights = evt.highlights || [
     { title: "Community Fellowship", desc: "Meet leaders and network over refreshments.", icon: "fa-users", color: "brand" },
     { title: "Live Worship Session", desc: "Contemporary hymns led by worship choirs.", icon: "fa-music", color: "clay" },
     { title: "Family & Kids Activities", desc: "Dedicated playground and Sunday school support.", icon: "fa-child", color: "gold" }
-  ] : []);
-  const expectations = Array.isArray(evt.expectations) ? evt.expectations : (useSeedFallback ? [
+  ];
+  const expectations = evt.expectations || [
     { title: "Deep Biblical Sermons", desc: "Join custom seminars exploring scriptures, history context reviews, and dynamic modern application models.", icon: "fa-book-bible", color: "brand" },
     { title: "Worship & Praise Choirs", desc: "Experience powerful contemporary hymns, worship team bands, and inspirational spiritual choir sessions.", icon: "fa-guitar", color: "clay" },
     { title: "Community Outreach", desc: "Participate in charity events, networking forums, and local missionary support plans.", icon: "fa-hands-holding-heart", color: "gold" }
-  ] : []);
-  const faqs = Array.isArray(evt.faqs) ? evt.faqs : (useSeedFallback ? [
+  ];
+  const faqs = evt.faqs || [
     { question: "Are tickets refundable or required?", answer: "Most registrations are free and simply help our church hospitality team prepare refreshments and seating. For ticketed events, bookings are refundable up to 7 days prior." },
     { question: "Is child care or Sunday school available?", answer: "Yes! For family-friendly events, children aged 2-12 have access to child supervision programs and child assemblies in Sunday School Room B." },
     { question: "Are snacks and refreshments provided?", answer: "Yes, complimentary beverages (coffee, tea) and snack platters are served during the fellowship intervals at the dining desk." }
-  ] : []);
+  ];
 
   // Populate Stats
   const statSpeakersEl = document.getElementById("stat-speakers");
@@ -7498,7 +7540,7 @@ function initEventProfilePage() {
 
   const statCapacityEl = document.getElementById("stat-capacity");
   if (statCapacityEl) {
-    statCapacityEl.textContent = evt.totalTickets ? `${evt.totalTickets}` : (evt.capacity ? `${evt.capacity}` : "Open");
+    statCapacityEl.textContent = evt.totalTickets ? `${evt.totalTickets}` : "500+";
   }
 
   // Populate Map Directions
@@ -7517,34 +7559,12 @@ function initEventProfilePage() {
   // Handle register / tickets card visibility for past events
   const isPast = new Date(evt.startsAt) < new Date();
   const regPanel = document.getElementById("event-register-panel");
-  const paymentState = MWE.getEventPaymentState(evt);
   if (isPast && regPanel) {
     regPanel.innerHTML = `
       <div class="text-center py-6">
         <span class="text-[10px] font-bold uppercase tracking-widest text-clay-500"><i class="fa-solid fa-circle-info"></i> Event Concluded</span>
         <h3 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Admission Closed</h3>
         <p class="text-xs text-slate-500 mt-2">This event has already concluded. Keep checking for upcoming evangelism channels!</p>
-      </div>
-    `;
-  } else if (regPanel && paymentState.kind === "external") {
-    const amount = `$${(paymentState.priceCents / 100).toFixed(2)}`;
-    regPanel.innerHTML = `
-      <div class="text-center py-6">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600"><i class="fa-solid fa-lock"></i> Secure Checkout</span>
-        <h3 class="text-xl font-bold text-slate-900 dark:text-white mt-1">${amount} Admission</h3>
-        <p class="text-xs text-slate-500 mt-2 mb-5">This event uses the organizer's verified external checkout.</p>
-        <a class="w-full py-3.5 rounded-xl bg-clay-500 hover:bg-clay-600 text-white font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-1.5" href="${MWE.safeLinkUrl(paymentState.externalUrl)}" target="_blank" rel="noopener noreferrer">
-          Continue to Payment <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
-        </a>
-      </div>
-    `;
-  } else if (regPanel && paymentState.kind !== "free") {
-    const amount = `$${(paymentState.priceCents / 100).toFixed(2)}`;
-    regPanel.innerHTML = `
-      <div class="text-center py-6">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-clay-500"><i class="fa-solid fa-triangle-exclamation"></i> Payment Not Available</span>
-        <h3 class="text-xl font-bold text-slate-900 dark:text-white mt-1">${amount} Admission</h3>
-        <p class="text-xs text-slate-500 mt-2">Online payment has not been configured for this event yet. Registration will open after a verified payment provider is connected.</p>
       </div>
     `;
   }
@@ -7582,13 +7602,13 @@ function initEventProfilePage() {
       if (hl.color === "clay") iconColorClass = "text-clay-500 bg-clay-500/10";
       if (hl.color === "gold") iconColorClass = "text-gold-600 bg-gold-500/10";
       return `
-        <div class="event-highlight-row flex gap-3.5 items-start">
+        <div class="flex gap-3.5 items-start">
           <div class="w-7 h-7 rounded-lg ${iconColorClass} flex items-center justify-center shrink-0">
-            <i class="fa-solid ${MWE.escapeHtml(hl.icon || "fa-circle-check")} text-xs"></i>
+            <i class="fa-solid ${hl.icon} text-xs"></i>
           </div>
           <div>
             <h4 class="text-xs sm:text-sm font-bold text-slate-900">${MWE.escapeHtml(hl.title)}</h4>
-            ${hl.desc ? `<p class="text-[11px] text-slate-500 mt-0.5">${MWE.escapeHtml(hl.desc)}</p>` : ""}
+            <p class="text-[11px] text-slate-500 mt-0.5">${MWE.escapeHtml(hl.desc)}</p>
           </div>
         </div>
       `;
@@ -7607,8 +7627,8 @@ function initEventProfilePage() {
           <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${gradientClass} flex items-center justify-center text-white text-xl shadow-md mb-6">
             <i class="fa-solid ${exp.icon}"></i>
           </div>
-          <h3 class="text-lg font-bold text-slate-900 mb-2">${MWE.escapeHtml(exp.title || "Event Detail")}</h3>
-          ${exp.desc ? `<p class="text-sm text-slate-600 leading-relaxed">${MWE.escapeHtml(exp.desc)}</p>` : ""}
+          <h3 class="text-lg font-bold text-slate-900 mb-2">${MWE.escapeHtml(exp.title)}</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">${MWE.escapeHtml(exp.desc)}</p>
         </div>
       `;
     }).join("");
@@ -7623,29 +7643,25 @@ function initEventProfilePage() {
     gridEl.style.setProperty('--spk-cols-desktop', desktopCols);
     gridEl.innerHTML = speakers.map((sp, idx) => {
       const sessions = (evt.schedule || []).filter(s => s.host === sp.name).length;
-      const channel = MWE.findSpeakerChannel(sp);
-      const audienceCount = channel ? MWE.getChannelFollowerCount(channel) : (sp.followers || sp.attendees || sp.audience || "");
       return `
       <div class="spk-card" onclick="MWE.showSpeakerDetail(${idx})">
         <div class="spk-photo-wrap">
-          <img src="${MWE.escapeHtml(sp.image || evt.coverImageUrl || "")}" alt="${MWE.escapeHtml(sp.name || "Speaker")}" class="spk-photo" />
+          <img src="${MWE.escapeHtml(sp.image)}" alt="${MWE.escapeHtml(sp.name)}" class="spk-photo" />
         </div>
         <div class="spk-info">
-          <h4 class="spk-name">${MWE.escapeHtml(sp.name || "Speaker")}</h4>
-          ${sp.role ? `<p class="spk-role">${MWE.escapeHtml(sp.role)}</p>` : ""}
+          <h4 class="spk-name">${MWE.escapeHtml(sp.name)}</h4>
+          <p class="spk-role">${MWE.escapeHtml(sp.role)}</p>
         </div>
         <div class="spk-footer">
           <div class="spk-stats">
             <span class="spk-stat"><i data-lucide="mic" style="width:13px;height:13px;"></i> ${sessions}</span>
-            ${audienceCount ? `<span class="spk-stat"><i data-lucide="users" style="width:13px;height:13px;"></i> ${MWE.escapeHtml(audienceCount)}</span>` : ""}
+            <span class="spk-stat"><i data-lucide="users" style="width:13px;height:13px;"></i> ${Math.floor(40 + Math.random() * 160)}</span>
           </div>
-          <span data-speaker-follow-slot="${idx}" data-follow-context="card">${MWE.renderSpeakerFollowButton(sp, idx, "card")}</span>
+          <span class="spk-follow-btn">Follow</span>
         </div>
       </div>
     `;
     }).join("");
-    const noSpeakersMsg = document.getElementById("no-speakers-msg");
-    if (noSpeakersMsg) noSpeakersMsg.classList.toggle("hidden", speakers.length > 0);
     createIcons();
   }
 
@@ -7667,7 +7683,7 @@ function initEventProfilePage() {
     `).join("");
   }
 
-  MWE.currentScheduleDay = MWE.getEventScheduleDays()[0] || 1;
+  MWE.currentScheduleDay = 1;
   MWE.currentScheduleTrack = "all";
   MWE.renderScheduleDays();
   MWE.renderScheduleTracks();
@@ -8404,7 +8420,7 @@ MWE.openPlanVisitModal = function(targetChurchId = "") {
           </label>
           <label class="form-field mb-2"><span>Preferred Gathering Time *</span>
             <select name="gathering" id="modal-gathering-select" class="field" required>
-              ${MWE.getChurchScheduleItems(church).map(item => `<option value="${MWE.escapeHtml(item.title)} (${MWE.escapeHtml(item.time)})">${MWE.escapeHtml(item.title)} - ${MWE.escapeHtml(item.time)}</option>`).join("")}
+              ${(church.schedule || [["Sunday Service", church.sunday || "10:00 AM"]]).map(([label, time]) => `<option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>`).join("")}
             </select>
           </label>
           <div class="compact-grid">
@@ -8441,8 +8457,8 @@ MWE.onVisitChurchChange = function(churchId) {
   const church = churches.find(c => c.id === churchId);
   const select = document.getElementById("modal-gathering-select");
   if (select && church) {
-    const schedules = MWE.getChurchScheduleItems(church);
-    select.innerHTML = schedules.map(item => `<option value="${MWE.escapeHtml(item.title)} (${MWE.escapeHtml(item.time)})">${MWE.escapeHtml(item.title)} - ${MWE.escapeHtml(item.time)}</option>`).join("");
+    const schedules = church.schedule || [["Sunday Service", church.sunday || "10:00 AM"]];
+    select.innerHTML = schedules.map(([label, time]) => `<option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>`).join("");
   }
 };
 
@@ -9000,63 +9016,252 @@ MWE.openCalendarModal = function(title, timeStr = "Sunday 10:00 AM", location = 
   if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
 };
 
-MWE.openStoriesModal = function() {
+MWE.openStoriesModal = async function(churchId) {
   document.getElementById("stories-modal-backdrop")?.remove();
 
-  const stories = Array.isArray(MWE.activeChurchProfile?.testimonies)
-    ? MWE.activeChurchProfile.testimonies.filter(story => story.quote)
-    : [];
-  if (!stories.length) {
-    showToast("This church has not published any testimonies yet.");
-    return;
+  const targetId = churchId || MWE.currentProfileChurch?.id;
+  let stories = MWE.currentChurchTestimonies;
+
+  if (!stories && targetId) {
+    try {
+      const res = await fetch(`/api/churches/${encodeURIComponent(targetId)}/testimonies`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.testimonies)) stories = data.testimonies;
+      }
+    } catch (err) {
+      console.warn("Could not fetch testimonies for modal:", err);
+    }
   }
+
+  stories = stories || [];
+
+  const churchName = MWE.currentProfileChurch?.name || "Church";
+  const defaultScenes = [
+    "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1602030028438-4cf153cbae9e?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=500&q=80"
+  ];
 
   const backdrop = document.createElement("div");
   backdrop.className = "alert-modal-backdrop open";
   backdrop.id = "stories-modal-backdrop";
   backdrop.style.zIndex = "2500";
   backdrop.innerHTML = `
-    <div class="dash-panel dash-panel-pad" style="max-width: 780px; width: 92%; max-height: 88vh; margin: 24px auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); background: var(--surface, #ffffff); border: 1px solid var(--border, #e2e8f0); display: flex; flex-direction: column; overflow: hidden;">
+    <div class="dash-panel dash-panel-pad" style="max-width: 820px; width: 92%; max-height: 88vh; margin: 24px auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); background: var(--surface, #ffffff); border: 1px solid var(--border, #e2e8f0); display: flex; flex-direction: column; overflow: hidden;">
       <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--border, #e2e8f0); flex-shrink: 0;">
         <div>
           <span style="font-size: 0.7rem; font-weight: 850; text-transform: uppercase; color: var(--primary, #db2777); letter-spacing: 0.06em;">Lives Transformed</span>
-          <h3 style="margin: 2px 0 0; font-size: 1.35rem; font-weight: 850; color: var(--text-primary, #0f172a);">Stories of Transformation</h3>
+          <h3 style="margin: 2px 0 0; font-size: 1.35rem; font-weight: 850; color: var(--text-primary, #0f172a);">Stories from ${MWE.escapeHtml(churchName)}</h3>
         </div>
-        <button type="button" style="width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border, #e2e8f0); background: transparent; color: var(--text-muted, #64748b); display: grid; place-items: center; cursor: pointer;" onclick="document.getElementById('stories-modal-backdrop').remove()">
-          <i data-lucide="x"></i>
-        </button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="button primary sm" style="font-size: 0.8rem; padding: 6px 14px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px;" onclick="document.getElementById('stories-modal-backdrop')?.remove(); MWE.openSubmitTestimonyModal('${MWE.escapeHtml(targetId || '')}')">
+            <i data-lucide="message-square-plus" style="width: 14px; height: 14px;"></i> Share Story
+          </button>
+          <button type="button" style="width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border, #e2e8f0); background: transparent; color: var(--text-muted, #64748b); display: grid; place-items: center; cursor: pointer;" onclick="document.getElementById('stories-modal-backdrop').remove()">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
       </div>
 
       <div style="overflow-y: auto; padding: 20px 4px 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
-        ${stories.map(s => `
-          <div class="glass-card testimony-card${s.photo ? "" : " testimony-card--text-only"}" style="display: grid; grid-template-columns: ${s.photo ? "120px minmax(0,1fr)" : "1fr"}; min-height: 190px; padding: 12px; border-radius: 16px; border: 1px solid var(--border, #e2e8f0); background: var(--surface-card, #ffffff); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
-            ${s.photo ? `<img class="testimony-scene" src="${MWE.escapeHtml(MWE.safeImageUrl(s.photo, ""))}" alt="${MWE.escapeHtml(s.name)}" style="width: 100%; height: 100%; min-height: 160px; object-fit: cover; border-radius: 12px;" referrerpolicy="no-referrer" />` : ""}
-            <div class="testimony-content" style="display: flex; flex-direction: column; padding: 4px 6px 4px 12px;">
-              <div class="testimony-stars" style="display: flex; align-items: center; gap: 3px; margin-bottom: 8px; color: var(--gold, #e5a93c);">
-                <i data-lucide="quote" style="width: 16px; height: 16px; color: var(--primary, #db2777); margin-right: 4px;"></i>
-                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
-                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
-                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
-                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
-                <i class="fa-solid fa-star" style="font-size: 11px;"></i>
-              </div>
-              <p class="testimony-text" style="font-size: 0.8rem; line-height: 1.5; color: var(--text-secondary, #475569); margin: 0 0 12px 0;">"${MWE.escapeHtml(s.quote)}"</p>
-              <div class="testimony-user" style="margin-top: auto;">
-                <div class="testimony-user-info">
-                  <h4 style="font-size: 0.82rem; font-weight: 800; color: var(--text-primary, #0f172a); margin: 0;">${MWE.escapeHtml(s.name)}</h4>
-                  <span style="font-size: 0.7rem; color: var(--text-muted, #64748b);">${MWE.escapeHtml(s.tenure)}</span>
+        ${stories.length === 0 ? `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--text-muted, #64748b);">
+            <i data-lucide="sparkles" style="width: 36px; height: 36px; color: var(--gold, #e5a93c); margin-bottom: 10px; display: inline-block;"></i>
+            <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary, #0f172a); margin: 0 0 6px 0;">No stories shared yet</h4>
+            <p style="font-size: 0.88rem; max-width: 360px; margin: 0 auto 16px auto;">Be the first person to share how God touched your life here.</p>
+            <button type="button" class="button primary" onclick="document.getElementById('stories-modal-backdrop')?.remove(); MWE.openSubmitTestimonyModal('${MWE.escapeHtml(targetId || '')}')">
+              <i data-lucide="message-square-plus"></i> Share Your Testimony
+            </button>
+          </div>
+        ` : stories.map((s, idx) => {
+          const scene = s.scenePhotoUrl || defaultScenes[idx % defaultScenes.length];
+          const rating = Math.max(1, Math.min(5, Number(s.rating || 5)));
+          const starsHtml = Array.from({ length: 5 }, (_, i) => `
+            <i class="fa-solid fa-star" style="font-size: 11px; ${i < rating ? '' : 'opacity: 0.25;'}"></i>
+          `).join("");
+
+          return `
+            <div class="glass-card testimony-card" style="display: grid; grid-template-columns: 120px minmax(0,1fr); min-height: 190px; padding: 12px; border-radius: 16px; border: 1px solid var(--border, #e2e8f0); background: var(--surface-card, #ffffff); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
+              <img class="testimony-scene" src="${MWE.escapeHtml(scene)}" alt="${MWE.escapeHtml(s.authorName)}" style="width: 100%; height: 100%; min-height: 160px; object-fit: cover; border-radius: 12px;" />
+              <div class="testimony-content" style="display: flex; flex-direction: column; padding: 4px 6px 4px 12px;">
+                <div class="testimony-stars" style="display: flex; align-items: center; gap: 3px; margin-bottom: 8px; color: var(--gold, #e5a93c);">
+                  <i data-lucide="quote" style="width: 16px; height: 16px; color: var(--primary, #db2777); margin-right: 4px;"></i>
+                  ${starsHtml}
+                </div>
+                <p class="testimony-text" style="font-size: 0.8rem; line-height: 1.5; color: var(--text-secondary, #475569); margin: 0 0 12px 0;">"${MWE.escapeHtml(s.quote)}"</p>
+                <div class="testimony-user" style="margin-top: auto;">
+                  <div class="testimony-user-info">
+                    <h4 style="font-size: 0.82rem; font-weight: 800; color: var(--text-primary, #0f172a); margin: 0;">${MWE.escapeHtml(s.authorName)}</h4>
+                    <span style="font-size: 0.7rem; color: var(--text-muted, #64748b);">${MWE.escapeHtml(s.authorTitle || 'Member')}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        `).join("")}
+          `;
+        }).join("")}
       </div>
 
-      <div style="padding-top: 14px; border-top: 1px solid var(--border, #e2e8f0); display: flex; justify-content: flex-end; flex-shrink: 0;">
+      <div style="padding-top: 14px; border-top: 1px solid var(--border, #e2e8f0); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+        <span style="font-size: 0.78rem; color: var(--text-muted, #64748b);">${stories.length} verified ${stories.length === 1 ? 'story' : 'stories'}</span>
         <button type="button" class="button ghost" onclick="document.getElementById('stories-modal-backdrop').remove()">Close</button>
       </div>
     </div>
   `;
+
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) backdrop.remove();
+  });
+
+  document.body.appendChild(backdrop);
+  if (typeof createIcons === "function") createIcons();
+  if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+};
+
+MWE.openSubmitTestimonyModal = function(churchId) {
+  document.getElementById("submit-testimony-modal-backdrop")?.remove();
+
+  const targetId = churchId || MWE.currentProfileChurch?.id;
+  const churchName = MWE.currentProfileChurch?.name || "this church";
+
+  const memberName = window.MWEPlatform?.session?.name || (typeof localStorage !== "undefined" && localStorage.getItem("mwe.username")) || "";
+  let selectedRating = 5;
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "alert-modal-backdrop open";
+  backdrop.id = "submit-testimony-modal-backdrop";
+  backdrop.style.zIndex = "2600";
+  backdrop.innerHTML = `
+    <div class="dash-panel dash-panel-pad" style="max-width: 540px; width: 92%; max-height: 90vh; margin: 24px auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.28); background: var(--surface, #ffffff); border: 1px solid var(--border, #e2e8f0); display: flex; flex-direction: column; overflow: hidden;">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid var(--border, #e2e8f0); flex-shrink: 0;">
+        <div>
+          <span style="font-size: 0.7rem; font-weight: 850; text-transform: uppercase; color: var(--primary, #db2777); letter-spacing: 0.06em;">Share Your Experience</span>
+          <h3 style="margin: 2px 0 0; font-size: 1.25rem; font-weight: 850; color: var(--text-primary, #0f172a);">Testimony for ${MWE.escapeHtml(churchName)}</h3>
+        </div>
+        <button type="button" style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border, #e2e8f0); background: transparent; color: var(--text-muted, #64748b); display: grid; place-items: center; cursor: pointer;" onclick="document.getElementById('submit-testimony-modal-backdrop').remove()">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <form id="testimony-submission-form" style="overflow-y: auto; padding: 16px 2px; display: flex; flex-direction: column; gap: 14px;">
+        <div id="testimony-form-error" style="display: none; padding: 10px 14px; border-radius: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #dc2626; font-size: 0.82rem; font-weight: 600;"></div>
+
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Your Rating</label>
+          <div id="testimony-rating-selector" style="display: flex; gap: 8px; color: var(--gold, #e5a93c); font-size: 1.5rem; cursor: pointer;">
+            <i class="fa-solid fa-star star-btn" data-star="1"></i>
+            <i class="fa-solid fa-star star-btn" data-star="2"></i>
+            <i class="fa-solid fa-star star-btn" data-star="3"></i>
+            <i class="fa-solid fa-star star-btn" data-star="4"></i>
+            <i class="fa-solid fa-star star-btn" data-star="5"></i>
+          </div>
+        </div>
+
+        <div>
+          <label for="testimony-name-input" style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Your Name *</label>
+          <input type="text" id="testimony-name-input" required value="${MWE.escapeHtml(memberName)}" placeholder="e.g. Sarah M. or David K." style="width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border, #cbd5e1); background: var(--surface-card, #ffffff); color: var(--text-primary, #0f172a); font-size: 0.9rem; box-sizing: border-box;" />
+        </div>
+
+        <div>
+          <label for="testimony-title-input" style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Relationship / Role</label>
+          <input type="text" id="testimony-title-input" placeholder="e.g. Attending since 2022, Youth member, First-time visitor" style="width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border, #cbd5e1); background: var(--surface-card, #ffffff); color: var(--text-primary, #0f172a); font-size: 0.9rem; box-sizing: border-box;" />
+        </div>
+
+        <div>
+          <label for="testimony-quote-input" style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Your Testimony Story *</label>
+          <textarea id="testimony-quote-input" required rows="4" minlength="10" maxlength="2000" placeholder="Describe how God touched your life, the fellowship you found, or how this church community encouraged you..." style="width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border, #cbd5e1); background: var(--surface-card, #ffffff); color: var(--text-primary, #0f172a); font-size: 0.9rem; line-height: 1.5; resize: vertical; box-sizing: border-box;"></textarea>
+          <div style="text-align: right; font-size: 0.72rem; color: var(--text-muted, #64748b); margin-top: 4px;">Min 10 characters</div>
+        </div>
+
+        <div>
+          <label for="testimony-photo-input" style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Photo URL <span style="font-weight: 400; color: var(--text-muted, #64748b);">(Optional)</span></label>
+          <input type="url" id="testimony-photo-input" placeholder="https://example.com/photo.jpg" style="width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border, #cbd5e1); background: var(--surface-card, #ffffff); color: var(--text-primary, #0f172a); font-size: 0.9rem; box-sizing: border-box;" />
+        </div>
+
+        <div style="padding-top: 12px; border-top: 1px solid var(--border, #e2e8f0); display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px;">
+          <button type="button" class="button ghost" onclick="document.getElementById('submit-testimony-modal-backdrop').remove()">Cancel</button>
+          <button type="submit" class="button primary" id="testimony-submit-btn" style="display: inline-flex; align-items: center; gap: 6px;">
+            <i data-lucide="send" style="width: 14px; height: 14px;"></i> Post Testimony
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  const updateStars = (val) => {
+    selectedRating = val;
+    backdrop.querySelectorAll(".star-btn").forEach(star => {
+      const sVal = Number(star.dataset.star);
+      if (sVal <= selectedRating) {
+        star.className = "fa-solid fa-star star-btn";
+        star.style.opacity = "1";
+      } else {
+        star.className = "fa-regular fa-star star-btn";
+        star.style.opacity = "0.4";
+      }
+    });
+  };
+
+  backdrop.querySelectorAll(".star-btn").forEach(star => {
+    star.addEventListener("click", () => updateStars(Number(star.dataset.star)));
+  });
+
+  const form = backdrop.querySelector("#testimony-submission-form");
+  const errorBox = backdrop.querySelector("#testimony-form-error");
+  const submitBtn = backdrop.querySelector("#testimony-submit-btn");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorBox.style.display = "none";
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<i data-lucide="loader" class="spin" style="width: 14px; height: 14px;"></i> Posting...`;
+    if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+
+    const authorName = document.getElementById("testimony-name-input").value.trim();
+    const authorTitle = document.getElementById("testimony-title-input").value.trim();
+    const quote = document.getElementById("testimony-quote-input").value.trim();
+    const authorPhotoUrl = document.getElementById("testimony-photo-input").value.trim();
+
+    try {
+      const res = await fetch(`/api/churches/${encodeURIComponent(targetId)}/testimonies`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          authorName,
+          authorTitle,
+          quote,
+          rating: selectedRating,
+          authorPhotoUrl: authorPhotoUrl || undefined
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Failed to submit testimony.");
+      }
+
+      backdrop.remove();
+
+      if (typeof MWE.showToast === "function") {
+        MWE.showToast("Your testimony has been published! Thank you for sharing.", "success");
+      } else {
+        alert("Your testimony has been published! Thank you for sharing.");
+      }
+
+      if (typeof MWE.renderChurchProfileTestimonies === "function") {
+        await MWE.renderChurchProfileTestimonies(targetId);
+      }
+    } catch (err) {
+      errorBox.textContent = err.message || "An error occurred while posting your testimony.";
+      errorBox.style.display = "block";
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<i data-lucide="send" style="width: 14px; height: 14px;"></i> Post Testimony`;
+      if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+    }
+  });
 
   backdrop.addEventListener("click", (e) => {
     if (e.target === backdrop) backdrop.remove();
@@ -9076,6 +9281,39 @@ MWE.toggleDirectoryMapView = function() {
 
 MWE.submitVerificationDocs = function() {
   showToast("Church verification documents submitted to owner dashboard for approval!");
+};
+
+MWE.cachedTestimonies = [];
+MWE.getTestimonies = function() {
+  return MWE.cachedTestimonies;
+};
+MWE.upsertTestimony = async function(testimony) {
+  const isNew = !testimony.id;
+  const churchId = testimony.churchId;
+  const endpoint = isNew ? `/api/churches/${encodeURIComponent(churchId)}/testimonies` : `/api/creator/testimonies/${encodeURIComponent(testimony.id)}`;
+  const method = isNew ? "POST" : "PUT";
+  const res = await fetch(endpoint, {
+    method,
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(testimony)
+  });
+  const data = await res.json();
+  if (!res.ok || !data.ok) throw new Error(data.error || "Failed to save testimony");
+  await MWE.refreshTestimonies();
+  return data.testimony || testimony;
+};
+MWE.refreshTestimonies = async function() {
+  try {
+    const res = await fetch("/api/creator/testimonies", { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.ok && Array.isArray(data.testimonies)) {
+        MWE.cachedTestimonies = data.testimonies;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not load creator testimonies:", err);
+  }
 };
 
 function renderFoundationPage() {
@@ -9442,6 +9680,8 @@ MWE.onChurchPillChange = function() {
 
 MWE.resetChurchPillFilters = function() {
   document.querySelectorAll("#church-country-pill input, #church-city-pill input, #church-denom-pill input").forEach(cb => cb.checked = false);
+  const cityOptionSearch = document.getElementById("church-city-option-search");
+  if (cityOptionSearch) cityOptionSearch.value = "";
   const searchInput = document.querySelector("[data-search]");
   if (searchInput) searchInput.value = "";
   
@@ -9489,11 +9729,7 @@ MWE.openChurchVideoModal = function() {
 
   const currentChurch = MWE.activeChurchProfile || {};
   const churchName = currentChurch.name || "Church Intro Video";
-  const videoUrl = currentChurch.videoUrl || currentChurch.welcomeMedia || "";
-  if (!videoUrl) {
-    showToast("This church has not published a welcome video yet.");
-    return;
-  }
+  const videoUrl = currentChurch.videoUrl || "https://www.youtube.com/embed/jiSyB8QZzk8";
   const embedUrl = videoUrl.includes("autoplay=1") ? videoUrl : `${videoUrl}${videoUrl.includes("?") ? "&" : "?"}autoplay=1&enablejsapi=1`;
 
   const titleEl = modal.querySelector("[data-church-name-video]");
@@ -9507,11 +9743,7 @@ MWE.openChurchVideoModal = function() {
 
 MWE.playChurchMainMedia = function() {
   const church = MWE.currentProfileChurch || MWE.activeChurchProfile || (typeof getRouteChurch === "function" ? getRouteChurch() : null) || {};
-  const mediaUrl = church.videoUrl || church.welcomeMedia || church.video || church.audioUrl || "";
-  if (!mediaUrl) {
-    showToast("This church has not published welcome media yet.");
-    return;
-  }
+  const mediaUrl = church.videoUrl || church.welcomeMedia || church.video || church.audioUrl || "https://www.youtube.com/embed/jiSyB8QZzk8";
   const isAudio = mediaUrl.endsWith(".mp3") || mediaUrl.includes(".mp3?") || church.mediaType === "audio";
 
   if (isAudio) {
@@ -9836,61 +10068,6 @@ MWE.openHostEventStudio = function(eventId = null) {
 
   const defaultStartsAt = new Date(Date.now() + 86400000 * 7).toISOString().slice(0, 16);
   const defaultEndsAt = new Date(Date.now() + 86400000 * 7 + 7200000).toISOString().slice(0, 16);
-  const defaultSpeakers = editingEvent?.speakers || [
-    {
-      name: editingEvent?.speakerName || editingEvent?.hostName || host.name,
-      role: host.role || "Event Host",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
-      specialty: "Teaching",
-      bio: host.bio || "Serving the community through practical teaching, discipleship, and fellowship."
-    }
-  ];
-  const defaultSchedule = editingEvent?.schedule || [
-    {
-      day: 1,
-      time: "09:30 AM",
-      endTime: "11:00 AM",
-      title: "Opening Session",
-      track: "keynote",
-      host: editingEvent?.speakerName || editingEvent?.hostName || host.name,
-      desc: "Welcome, worship, and opening teaching."
-    }
-  ];
-  const defaultExpectations = editingEvent?.expectations || [
-    {
-      title: "Biblical Teaching",
-      desc: "Practical sessions designed to equip attendees for faith, service, and community impact.",
-      icon: "fa-book-bible",
-      color: "brand"
-    }
-  ];
-  const defaultFaqs = editingEvent?.faqs || [
-    {
-      question: "Do I need to register?",
-      answer: "Registration helps the host prepare seating, materials, and hospitality."
-    }
-  ];
-  const defaultHighlights = editingEvent?.highlights || [
-    {
-      title: "Community Fellowship",
-      desc: "Meet leaders and connect with attendees.",
-      icon: "fa-users",
-      color: "brand"
-    },
-    {
-      title: "Guided Session",
-      desc: "Follow a focused agenda shaped by the organizer.",
-      icon: "fa-microphone",
-      color: "clay"
-    },
-    {
-      title: "Practical Takeaways",
-      desc: "Leave with next steps for your ministry or community.",
-      icon: "fa-circle-check",
-      color: "gold"
-    }
-  ];
-  const jsonFieldValue = (value) => MWE.escapeHtml(JSON.stringify(value, null, 2));
 
   modal.innerHTML = `
     <div class="dash-panel dash-panel-pad host-studio-panel" style="max-width: 720px; width: 94%; margin: 20px auto; max-height: 92vh; overflow-y: auto; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.35);">
@@ -9978,7 +10155,7 @@ MWE.openHostEventStudio = function(eventId = null) {
 
         <label class="form-field mb-3" id="studio-stream-link-field" style="display: ${(editingEvent && (editingEvent.eventType === 'streamed' || editingEvent.eventType === 'hybrid')) ? 'block' : 'none'};">
           <span>Live Broadcast / Webinar URL</span>
-          <input type="url" name="streamUrl" class="field" placeholder="https://zoom.us/j/... or YouTube/Vimeo stream URL" value="${MWE.escapeHtml(editingEvent ? (editingEvent.streamUrl || editingEvent.livestreamUrl || '') : '')}" />
+          <input type="url" name="streamUrl" class="field" placeholder="https://zoom.us/j/... or YouTube/Vimeo stream URL" value="${MWE.escapeHtml(editingEvent ? (editingEvent.streamUrl || '') : '')}" />
         </label>
 
         <!-- Host & Speaker details -->
@@ -9988,24 +10165,6 @@ MWE.openHostEventStudio = function(eventId = null) {
           </label>
           <label class="form-field"><span>Hosting Ministry / Group *</span>
             <input required name="organization" class="field" value="${MWE.escapeHtml(editingEvent ? (editingEvent.organization || host.organization) : host.organization)}" />
-          </label>
-        </div>
-
-        <div class="compact-grid mb-3">
-          <label class="form-field"><span>Organizer Display Name</span>
-            <input name="organizerName" class="field" placeholder="Name shown after Hosted by" value="${MWE.escapeHtml(editingEvent ? (editingEvent.organizerName || editingEvent.organization || host.organization) : host.organization)}" />
-          </label>
-          <label class="form-field"><span>Organizer / Church Link</span>
-            <input type="url" name="organizerUrl" class="field" placeholder="https://..." value="${MWE.escapeHtml(editingEvent ? (editingEvent.organizerUrl || '') : '')}" />
-          </label>
-        </div>
-
-        <div class="compact-grid mb-3">
-          <label class="form-field"><span>Linked Church ID</span>
-            <input name="churchId" class="field" placeholder="Optional existing church id" value="${MWE.escapeHtml(editingEvent ? (editingEvent.churchId || '') : '')}" />
-          </label>
-          <label class="form-field"><span>Directions URL</span>
-            <input type="url" name="directionsUrl" class="field" placeholder="https://maps.google.com/..." value="${MWE.escapeHtml(editingEvent ? (editingEvent.directionsUrl || '') : '')}" />
           </label>
         </div>
 
@@ -10060,20 +10219,6 @@ MWE.openHostEventStudio = function(eventId = null) {
           <textarea required name="description" rows="4" class="field" placeholder="Provide a detailed curriculum breakdown, what attendees will learn, prerequisites, and workshop schedule...">${MWE.escapeHtml(editingEvent ? (editingEvent.description || '') : '')}</textarea>
         </label>
 
-        <div class="compact-grid mb-3">
-          <label class="form-field"><span>Hero Badge Text</span>
-            <input name="heroBadgeText" class="field" placeholder="Optional short label above the hero details" value="${MWE.escapeHtml(editingEvent ? (editingEvent.heroBadgeText || '') : '')}" />
-          </label>
-          <label class="form-field"><span>About Section Title</span>
-            <input name="aboutTitle" class="field" placeholder="What to expect at this event" value="${MWE.escapeHtml(editingEvent ? (editingEvent.aboutTitle || '') : '')}" />
-          </label>
-        </div>
-
-        <label class="form-field mb-3">
-          <span>About Section Intro</span>
-          <textarea name="aboutIntro" rows="3" class="field" placeholder="Short intro that appears above the What To Expect cards">${MWE.escapeHtml(editingEvent ? (editingEvent.aboutIntro || '') : '')}</textarea>
-        </label>
-
         <!-- Highlights / Bullet points -->
         <div class="form-field mb-3">
           <span>Key Workshop Takeaways</span>
@@ -10082,32 +10227,6 @@ MWE.openHostEventStudio = function(eventId = null) {
             <input name="highlight2" class="field" placeholder="Key takeaway 2 (e.g. Free Workbook & Study Materials)" value="${MWE.escapeHtml(editingEvent?.highlights?.[1]?.title || '')}" />
             <input name="highlight3" class="field" placeholder="Key takeaway 3 (e.g. Certificate of Participation)" value="${MWE.escapeHtml(editingEvent?.highlights?.[2]?.title || '')}" />
           </div>
-        </div>
-
-        <!-- Dynamic Single-Event Page Sections -->
-        <div class="form-field mb-3">
-          <span>Speakers / Hosts JSON</span>
-          <textarea name="speakersJson" rows="7" class="field" spellcheck="false">${jsonFieldValue(defaultSpeakers)}</textarea>
-        </div>
-
-        <div class="form-field mb-3">
-          <span>Hero Highlight Cards JSON</span>
-          <textarea name="highlightsJson" rows="7" class="field" spellcheck="false">${jsonFieldValue(defaultHighlights)}</textarea>
-        </div>
-
-        <div class="form-field mb-3">
-          <span>Agenda / Schedule JSON</span>
-          <textarea name="scheduleJson" rows="8" class="field" spellcheck="false">${jsonFieldValue(defaultSchedule)}</textarea>
-        </div>
-
-        <div class="form-field mb-3">
-          <span>What To Expect JSON</span>
-          <textarea name="expectationsJson" rows="7" class="field" spellcheck="false">${jsonFieldValue(defaultExpectations)}</textarea>
-        </div>
-
-        <div class="form-field mb-3">
-          <span>FAQs JSON</span>
-          <textarea name="faqsJson" rows="7" class="field" spellcheck="false">${jsonFieldValue(defaultFaqs)}</textarea>
         </div>
 
         <!-- Actions -->
@@ -10178,43 +10297,11 @@ MWE.handleHostEventSubmit = function(e) {
   const eventId = data.id || "evt-host-" + Date.now();
   const priceDollars = parseFloat(data.priceDollars) || 0;
   const priceCents = data.admissionType === "paid" ? Math.round(priceDollars * 100) : 0;
-  const creatorStudioFields = Object.fromEntries(
-    Object.entries(data).map(([key, value]) => [key, typeof value === "string" ? value.trim() : value])
-  );
 
-  const parseStudioArray = (fieldName, label) => {
-    const raw = (data[fieldName] || "").trim();
-    if (!raw) return [];
-    try {
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) throw new Error("Expected an array");
-      return parsed;
-    } catch {
-      if (typeof showToast === "function") showToast(`${label} must be a valid JSON array.`);
-      throw new Error(`Invalid ${fieldName}`);
-    }
-  };
-
-  let speakers = [];
-  let highlights = [];
-  let schedule = [];
-  let expectations = [];
-  let faqs = [];
-  try {
-    speakers = parseStudioArray("speakersJson", "Speakers / Hosts");
-    highlights = parseStudioArray("highlightsJson", "Hero Highlight Cards");
-    schedule = parseStudioArray("scheduleJson", "Agenda / Schedule");
-    expectations = parseStudioArray("expectationsJson", "What To Expect");
-    faqs = parseStudioArray("faqsJson", "FAQs");
-  } catch {
-    return;
-  }
-
-  if (!highlights.length) {
-    if (data.highlight1) highlights.push({ title: data.highlight1.trim(), desc: "" });
-    if (data.highlight2) highlights.push({ title: data.highlight2.trim(), desc: "" });
-    if (data.highlight3) highlights.push({ title: data.highlight3.trim(), desc: "" });
-  }
+  const highlights = [];
+  if (data.highlight1) highlights.push({ title: data.highlight1, desc: "Interactive session module" });
+  if (data.highlight2) highlights.push({ title: data.highlight2, desc: "Materials provided" });
+  if (data.highlight3) highlights.push({ title: data.highlight3, desc: "Q&A and practical application" });
 
   const eventObj = {
     id: eventId,
@@ -10227,37 +10314,20 @@ MWE.handleHostEventSubmit = function(e) {
     hostName: (data.speakerName || host.name).trim(),
     hostEmail: host.email,
     organization: (data.organization || host.organization).trim(),
-    organizerName: (data.organizerName || data.organization || host.organization || "").trim(),
-    organizerUrl: data.organizerUrl ? data.organizerUrl.trim() : "",
-    churchId: data.churchId ? data.churchId.trim() : "",
     speakerName: (data.speakerName || host.name).trim(),
     speakerRole: host.role,
     startsAt: startsAt.toISOString(),
     endsAt: endsAt.toISOString(),
     location: (data.venue || "").trim(),
     venue: (data.venue || "").trim(),
-    venueName: (data.venue || "").trim(),
     city: (data.city || "Edmonton, AB").trim(),
     streamUrl: data.streamUrl ? data.streamUrl.trim() : "",
-    livestreamUrl: data.streamUrl ? data.streamUrl.trim() : "",
-    directionsUrl: data.directionsUrl ? data.directionsUrl.trim() : "",
-    heroBadgeText: data.heroBadgeText ? data.heroBadgeText.trim() : "",
-    aboutTitle: data.aboutTitle ? data.aboutTitle.trim() : "",
-    aboutIntro: data.aboutIntro ? data.aboutIntro.trim() : "",
-    admissionType: data.admissionType || "free",
-    priceDollars: data.admissionType === "paid" ? priceDollars : 0,
     ticketPriceCents: priceCents,
     capacity: data.capacity ? parseInt(data.capacity, 10) : 100,
-    totalTickets: data.capacity ? parseInt(data.capacity, 10) : 100,
     ticketsSold: isEditing ? (MWE.getEvent(eventId)?.ticketsSold || 0) : 0,
     coverImageUrl: data.coverImageUrl ? data.coverImageUrl.trim() : "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
     description: (data.description || "").trim(),
     highlights,
-    speakers,
-    schedule,
-    expectations,
-    faqs,
-    creatorStudioFields,
     createdAt: isEditing ? (MWE.getEvent(eventId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };

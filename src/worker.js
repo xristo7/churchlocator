@@ -1,12 +1,13 @@
 import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityHeaders } from "./security.js";
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
-import { getChurchPublicationSettings, getPublicationSettings, handlePlatformApi, isOwner } from './trusted-platform.js';
-import { handleSpotlightApi } from './spotlight.js';
+import { handlePlatformApi, isOwner } from './trusted-platform.js';
+import { handleSpotlightApi, deliverSpotlightNotifications } from './spotlight.js';
+import { handleLiveApi, closeExpiredLiveSessions, deliverLiveNotifications } from './live.js';
 import { handleContentEngagementApi } from './content-engagements.js';
 import { handleSimulatedLiveApi } from './simulated-live.js';
 
 const apiHeaders = {
-  "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+  "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, authorization",
   "cache-control": "no-store",
   "x-content-type-options": "nosniff"
@@ -27,6 +28,7 @@ const storageUnavailable = () => json({
   error: "storage unavailable",
   message: "The database binding is not configured for this environment."
 }, 503);
+
 const mediaUnavailable = () => json({
   ok: false,
   error: "media storage unavailable",
@@ -161,6 +163,7 @@ async function handleMediaRequest(request, env) {
   if (object.size !== undefined) headers.set("content-length", String(object.size));
   return new Response(request.method === "HEAD" ? null : object.body, { headers });
 }
+
 
 function constantTimeEqual(left, right) {
   const encoder = new TextEncoder();
@@ -653,11 +656,8 @@ async function handleGoogleAuthCallback(request, env) {
   }
 
   const token = await createSession(env, user.id);
-  // Keep the successful cross-site callback to a single Set-Cookie header.
-  // Some mobile in-app browsers drop the session cookie when it shares the
-  // redirect response with the OAuth-state deletion cookie. The state cookie
-  // is path-scoped and expires after ten minutes, and the next login replaces it.
   return redirectWithCookies(savedState.returnPath, [
+    clearStateCookie,
     sessionCookieHeader(request, token, SESSION_TTL_SECONDS)
   ]);
 }
@@ -700,6 +700,7 @@ async function handleOwnerAccessLink(request, env) {
   ]);
 }
 
+
 async function handleCreatorUpgrade(request, env) {
   if (!env.DB) return storageUnavailable();
   const user = await getSessionUser(request, env);
@@ -735,26 +736,19 @@ async function handlePublicChurches(request, env) {
   if (!env.DB) return storageUnavailable();
   if (request.method !== "GET") return json({ ok: false, error: "method not allowed; submit new churches through the church application" }, 405);
 
-  const publication = await getChurchPublicationSettings(env);
-  const visibility = publication.autoPublishPendingChurches ? "c.is_verified in (0, 1)" : "c.is_verified = 1";
-
   const { results } = await env.DB.prepare(`
     select
       c.id, c.name, c.city, c.country, c.postal_code, c.denomination,
       c.language, c.website, c.phone, c.email, c.cover_image_url,
       c.livestream_enabled, c.livestream_paid, c.livestream_url,
-      c.is_verified, p.pastor_name, p.pastor_title, p.pastor_bio, p.about
+      p.pastor_name, p.pastor_title, p.pastor_bio, p.about
     from churches c
     left join church_profiles p on p.church_id = c.id
-    where ${visibility}
+    where c.is_verified = 1
     order by c.name
   `).all();
 
-  return json({ ok: true, churches: results.map(church => ({
-    ...church,
-    verified: Boolean(church.is_verified),
-    reviewStatus: church.is_verified ? "verified" : "pending-review"
-  })) });
+  return json({ ok: true, churches: results });
 }
 
 async function handleAdminChurches(request, env) {
@@ -791,6 +785,7 @@ async function handleAdminChurches(request, env) {
     if (env.DB) {
       await env.DB.batch([
         env.DB.prepare("delete from event_registrations where event_id in (select id from events where church_id = ?)").bind(id),
+        env.DB.prepare("delete from church_testimonies where church_id = ?").bind(id),
         env.DB.prepare("delete from ride_followups where ride_request_id in (select id from ride_requests where church_id = ?)").bind(id),
         env.DB.prepare("delete from service_schedules where church_id = ?").bind(id),
         env.DB.prepare("delete from ministries where church_id = ?").bind(id),
@@ -999,15 +994,17 @@ function assetRequest(request) {
   const url = new URL(request.url);
   const routes = new Map([
     ["/", "/index.html"],
-    ["/church-portal", "/creator-studio.html"],
-    ["/portal", "/creator-studio.html"],
-    ["/creator-hub", "/creator-studio.html"],
-    ["/register-church", "/creator-studio.html"],
+    ["/church-portal", "/church-portal.html"],
+    ["/portal", "/church-portal.html"],
+    ["/creator-hub", "/church-portal.html"],
+    ["/register-church", "/church-portal.html"],
     ["/owner-dashboard", "/owner-dashboard.html"],
     ["/admin", "/owner-dashboard.html"],
     ["/app", "/app.html"],
     ["/member", "/app.html"],
     ["/spotlight", "/spotlight.html"],
+    ["/channel-live", "/channel-live.html"],
+    ["/live-setup", "/live-setup.html"],
     ["/livestream", "/livestream.html"],
     ["/live", "/livestream.html"],
     ["/broadcast", "/broadcast.html"],
@@ -1052,7 +1049,6 @@ async function handleEvents(request, env) {
   if (!env.DB) return storageUnavailable();
 
   if (request.method === "GET") {
-    const publication = await getPublicationSettings(env, 'events');
     const url = new URL(request.url);
     const city = url.searchParams.get("city");
     const churchId = url.searchParams.get("churchId");
@@ -1063,10 +1059,9 @@ async function handleEvents(request, env) {
       select e.*, c.name as church_name, c.city as church_city, c.country as church_country
       from events e
       left join churches c on c.id = e.church_id
-      left join platform_entities pe on pe.id = e.id and pe.kind = 'events'
-      where (pe.id is null or pe.state = 'published' or (pe.state = 'pending' and ? = 1))
+      where 1=1
     `;
-    const params = [Number(publication.autoPublishPendingEvents)];
+    const params = [];
 
     if (city) {
       query += ` and (e.city = ? or c.city = ?)`;
@@ -1173,10 +1168,7 @@ async function handleEventRegister(request, env) {
   const qty = Number(payload.ticketQuantity ?? 1);
   if (!Number.isSafeInteger(qty) || qty < 1 || qty > 20) return json({ ok: false, error: "ticketQuantity must be a whole number from 1 to 20" }, 400);
   if (!isValidEmail(normalizeEmail(payload.email))) return json({ ok: false, error: "valid email required" }, 400);
-  const publication = await getPublicationSettings(env, 'events');
-  const event = await env.DB.prepare(`select e.id,e.ticket_price_cents,e.total_tickets,e.tickets_sold
-    from events e left join platform_entities pe on pe.id=e.id and pe.kind='events'
-    where e.id=? and (pe.id is null or pe.state='published' or (pe.state='pending' and ?=1))`).bind(payload.eventId,Number(publication.autoPublishPendingEvents)).first();
+  const event = await env.DB.prepare("select id, ticket_price_cents, total_tickets, tickets_sold from events where id = ?").bind(payload.eventId).first();
   if (!event) return json({ ok: false, error: "event not found" }, 404);
   // Payment must be verified by a trusted provider webhook. Never accept a client claim of payment.
   if (event.ticket_price_cents > 0) return json({ ok: false, error: "Paid registration requires a verified payment provider." }, 409);
@@ -1187,10 +1179,8 @@ async function handleEventRegister(request, env) {
       (id, event_id, full_name, email, ticket_quantity, amount_paid_cents, registration_code, created_at)
     select ?, id, ?, ?, ?, 0, ?, ? from events
     where id = ? and ticket_price_cents = 0
-      and (not exists(select 1 from platform_entities pe where pe.id=events.id and pe.kind='events')
-        or exists(select 1 from platform_entities pe where pe.id=events.id and pe.kind='events' and (pe.state='published' or (pe.state='pending' and ?=1))))
       and (total_tickets is null or total_tickets = 0 or coalesce(tickets_sold, 0) + ? <= total_tickets)
-  `).bind(id, payload.fullName, normalizeEmail(payload.email), qty, regCode, createdAt, payload.eventId, Number(publication.autoPublishPendingEvents), qty).run();
+  `).bind(id, payload.fullName, normalizeEmail(payload.email), qty, regCode, createdAt, payload.eventId, qty).run();
   // D1 includes writes performed by reservation triggers in the changes count.
   if (!(result.meta?.changes > 0)) return json({ ok: false, error: "Registration unavailable or event full." }, 409);
   return json({ ok: true, id, registrationCode: regCode, amountPaidCents: amountPaid, status: "registered" }, 201);
@@ -1295,6 +1285,269 @@ async function handleGetServiceBookings(request, env) {
   return json({ ok: true, bookings: results || [] });
 }
 
+async function handleGetChurchTestimonies(churchId, request, env) {
+  if (!env.DB) return storageUnavailable();
+  if (!churchId) return json({ ok: false, error: "churchId is required" }, 400);
+
+  const { results } = await env.DB.prepare(`
+    select
+      id, church_id, user_id, author_name, author_title,
+      author_photo_url, scene_photo_url, quote, rating,
+      status, is_featured, created_at, updated_at
+    from church_testimonies
+    where church_id = ? and status = 'approved'
+    order by is_featured desc, created_at desc
+    limit 50
+  `).bind(churchId).all();
+
+  const testimonies = (results || []).map(r => ({
+    id: r.id,
+    churchId: r.church_id,
+    userId: r.user_id,
+    authorName: r.author_name,
+    authorTitle: r.author_title || "Member",
+    authorPhotoUrl: r.author_photo_url || "",
+    scenePhotoUrl: r.scene_photo_url || "",
+    quote: r.quote,
+    rating: Number(r.rating || 5),
+    status: r.status,
+    isFeatured: Boolean(r.is_featured),
+    createdAt: r.created_at
+  }));
+
+  return json({ ok: true, churchId, testimonies });
+}
+
+async function handleSubmitChurchTestimony(churchId, request, env, context) {
+  if (!env.DB) return storageUnavailable();
+  if (!churchId) return json({ ok: false, error: "churchId is required" }, 400);
+
+  const church = await env.DB.prepare(
+    "select id from churches where id = ? union select id from platform_entities where id = ? and kind = 'churches'"
+  ).bind(churchId, churchId).first();
+  if (!church) return json({ ok: false, error: "church not found" }, 404);
+
+  const payload = await readJson(request);
+  if (!payload || typeof payload !== "object") return json({ ok: false, error: "invalid payload" }, 400);
+
+  const user = await context.getSessionUser(request, env);
+
+  const quote = String(payload.quote || "").trim();
+  if (!quote || quote.length < 10) {
+    return json({ ok: false, error: "Please share a testimony of at least 10 characters." }, 400);
+  }
+  if (quote.length > 2000) {
+    return json({ ok: false, error: "Testimony must not exceed 2,000 characters." }, 400);
+  }
+
+  const rawAuthorName = String(payload.authorName || user?.name || "").trim();
+  if (!rawAuthorName || rawAuthorName.length < 2) {
+    return json({ ok: false, error: "Please provide your name (at least 2 characters)." }, 400);
+  }
+  const authorName = rawAuthorName.slice(0, 100);
+
+  const rawAuthorTitle = String(payload.authorTitle || (user ? "Member" : "Visitor")).trim();
+  const authorTitle = rawAuthorTitle.slice(0, 80);
+
+  let rating = Number(payload.rating ?? 5);
+  if (!Number.isSafeInteger(rating) || rating < 1 || rating > 5) {
+    rating = 5;
+  }
+
+  let authorPhotoUrl = String(payload.authorPhotoUrl || "").trim().slice(0, 500);
+  let scenePhotoUrl = String(payload.scenePhotoUrl || "").trim().slice(0, 500);
+
+  for (const urlStr of [authorPhotoUrl, scenePhotoUrl]) {
+    if (urlStr && urlStr !== "#") {
+      try {
+        const parsed = new URL(urlStr, "https://assets.invalid/");
+        if (!["http:", "https:"].includes(parsed.protocol) && !urlStr.startsWith("/")) {
+          return json({ ok: false, error: "Please provide a valid image URL." }, 400);
+        }
+      } catch {
+        return json({ ok: false, error: "Please provide a valid image URL." }, 400);
+      }
+    }
+  }
+
+  const id = `testimony-${crypto.randomUUID()}`;
+  const now = new Date().toISOString();
+  const status = "approved";
+  const isFeatured = 0;
+  const userId = user?.id || null;
+
+  await env.DB.prepare(`
+    insert into church_testimonies
+      (id, church_id, user_id, author_name, author_title, author_photo_url, scene_photo_url, quote, rating, status, is_featured, created_at, updated_at)
+    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    id, churchId, userId, authorName, authorTitle,
+    authorPhotoUrl, scenePhotoUrl, quote, rating,
+    status, isFeatured, now, now
+  ).run();
+
+  const testimony = {
+    id,
+    churchId,
+    userId,
+    authorName,
+    authorTitle,
+    authorPhotoUrl,
+    scenePhotoUrl,
+    quote,
+    rating,
+    status,
+    isFeatured: false,
+    createdAt: now
+  };
+
+  return json({
+    ok: true,
+    message: "Thank you for sharing your testimony! Your story will inspire and encourage others.",
+    testimony
+  }, 201);
+}
+
+async function handleCreatorGetTestimonies(request, env, context) {
+  if (!env.DB) return storageUnavailable();
+  const user = await context.getSessionUser(request, env);
+  if (!user) return unauthorized();
+
+  const url = new URL(request.url);
+  const churchId = url.searchParams.get("churchId");
+  const status = url.searchParams.get("status");
+
+  let query = `
+    select
+      t.id, t.church_id, t.user_id, t.author_name, t.author_title,
+      t.author_photo_url, t.scene_photo_url, t.quote, t.rating,
+      t.status, t.is_featured, t.created_at, t.updated_at,
+      c.name as church_name
+    from church_testimonies t
+    left join churches c on c.id = t.church_id
+    where 1=1
+  `;
+  const params = [];
+
+  if (churchId) {
+    query += " and t.church_id = ?";
+    params.push(churchId);
+  }
+  if (status && ["pending", "approved", "rejected"].includes(status)) {
+    query += " and t.status = ?";
+    params.push(status);
+  }
+
+  query += " order by t.created_at desc limit 200";
+
+  const { results } = await env.DB.prepare(query).bind(...params).all();
+
+  const testimonies = (results || []).map(r => ({
+    id: r.id,
+    churchId: r.church_id,
+    churchName: r.church_name || r.church_id,
+    userId: r.user_id,
+    authorName: r.author_name,
+    authorTitle: r.author_title || "Member",
+    authorPhotoUrl: r.author_photo_url || "",
+    scenePhotoUrl: r.scene_photo_url || "",
+    quote: r.quote,
+    rating: Number(r.rating || 5),
+    status: r.status,
+    isFeatured: Boolean(r.is_featured),
+    createdAt: r.created_at,
+    updatedAt: r.updated_at
+  }));
+
+  return json({ ok: true, testimonies });
+}
+
+async function handleCreatorUpdateTestimony(testimonyId, request, env, context) {
+  if (!env.DB) return storageUnavailable();
+  const user = await context.getSessionUser(request, env);
+  if (!user) return unauthorized();
+
+  const existing = await env.DB.prepare("select * from church_testimonies where id = ?").bind(testimonyId).first();
+  if (!existing) return json({ ok: false, error: "testimony not found" }, 404);
+
+  const payload = await readJson(request);
+  if (!payload || typeof payload !== "object") return json({ ok: false, error: "invalid payload" }, 400);
+
+  const now = new Date().toISOString();
+  let status = existing.status;
+  if (payload.status && ["pending", "approved", "rejected"].includes(payload.status)) {
+    status = payload.status;
+  }
+
+  let isFeatured = existing.is_featured;
+  if (payload.isFeatured !== undefined) {
+    isFeatured = Number(Boolean(payload.isFeatured));
+  }
+
+  let quote = existing.quote;
+  if (payload.quote) {
+    const q = String(payload.quote).trim();
+    if (q.length >= 10 && q.length <= 2000) quote = q;
+  }
+
+  let authorName = existing.author_name;
+  if (payload.authorName) {
+    const n = String(payload.authorName).trim();
+    if (n.length >= 2 && n.length <= 100) authorName = n;
+  }
+
+  let authorTitle = existing.author_title;
+  if (payload.authorTitle !== undefined) {
+    authorTitle = String(payload.authorTitle).trim().slice(0, 80);
+  }
+
+  let rating = existing.rating;
+  if (payload.rating !== undefined) {
+    const r = Number(payload.rating);
+    if (Number.isSafeInteger(r) && r >= 1 && r <= 5) rating = r;
+  }
+
+  await env.DB.prepare(`
+    update church_testimonies set
+      status = ?,
+      is_featured = ?,
+      quote = ?,
+      author_name = ?,
+      author_title = ?,
+      rating = ?,
+      updated_at = ?
+    where id = ?
+  `).bind(status, isFeatured, quote, authorName, authorTitle, rating, now, testimonyId).run();
+
+  return json({
+    ok: true,
+    message: "Testimony updated successfully",
+    testimony: {
+      id: testimonyId,
+      churchId: existing.church_id,
+      authorName,
+      authorTitle,
+      quote,
+      rating,
+      status,
+      isFeatured: Boolean(isFeatured),
+      updatedAt: now
+    }
+  });
+}
+
+async function handleCreatorDeleteTestimony(testimonyId, request, env, context) {
+  if (!env.DB) return storageUnavailable();
+  const user = await context.getSessionUser(request, env);
+  if (!user) return unauthorized();
+
+  const existing = await env.DB.prepare("select id from church_testimonies where id = ?").bind(testimonyId).first();
+  if (!existing) return json({ ok: false, error: "testimony not found" }, 404);
+
+  await env.DB.prepare("delete from church_testimonies where id = ?").bind(testimonyId).run();
+  return json({ ok: true, message: "Testimony deleted" });
+}
+
 async function handleApi(request, env) {
   const requestId = crypto.randomUUID();
 
@@ -1306,6 +1559,8 @@ async function handleApi(request, env) {
     await enforceRateLimit(request, env, path);
     if (request.method === "OPTIONS") return json({ ok: true });
     const context = {json,getSessionUser,createSession,sessionCookieHeader,jsonWithCookie,isAuthorized,publicUser,clearSessionCookieHeader,parseCookies,digestToken};
+    const liveResponse=await handleLiveApi(request,env,context);
+    if(liveResponse)return liveResponse;
     const identityResponse = await handleIdentityApi(request, env, context);
     if (identityResponse) return identityResponse;
     const platformResponse = await handlePlatformApi(request, env, context);
@@ -1333,6 +1588,27 @@ async function handleApi(request, env) {
     if (path === "/api/auth/profile" && request.method === "PUT") return await handleAuthProfileUpdate(request, env);
     if (path === "/api/auth/password" && request.method === "PUT") return await handleAuthPasswordUpdate(request, env);
     if (path === "/api/services/bookings" && request.method === "GET") return await handleGetServiceBookings(request, env);
+
+    // Church-specific testimonies (public GET, visitor/member POST)
+    const churchTestimoniesMatch = path.match(/^\/api\/churches\/([^/]+)\/testimonies$/);
+    if (churchTestimoniesMatch) {
+      const churchId = decodeURIComponent(churchTestimoniesMatch[1]);
+      if (request.method === "GET") return await handleGetChurchTestimonies(churchId, request, env);
+      if (request.method === "POST") return await handleSubmitChurchTestimony(churchId, request, env, context);
+      return json({ ok: false, error: "method not allowed" }, 405);
+    }
+
+    // Creator / Moderator testimonies (GET all/filtered, PUT update, DELETE)
+    if (path === "/api/creator/testimonies" && request.method === "GET") {
+      return await handleCreatorGetTestimonies(request, env, context);
+    }
+    const creatorTestimonyMatch = path.match(/^\/api\/creator\/testimonies\/([^/]+)$/);
+    if (creatorTestimonyMatch) {
+      const testimonyId = decodeURIComponent(creatorTestimonyMatch[1]);
+      if (request.method === "PUT") return await handleCreatorUpdateTestimony(testimonyId, request, env, context);
+      if (request.method === "DELETE") return await handleCreatorDeleteTestimony(testimonyId, request, env, context);
+      return json({ ok: false, error: "method not allowed" }, 405);
+    }
 
     if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
     if (path === "/api/church-application") return await handleChurchApplication(request, env);
@@ -1367,18 +1643,34 @@ async function handleApi(request, env) {
 }
 
 export default {
+  async scheduled(event, env) {
+    await deliverSpotlightNotifications(env);
+    await closeExpiredLiveSessions(env);
+    await deliverLiveNotifications(env);
+  },
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
       return handleApi(request, env);
     }
-    if (url.pathname.startsWith("/media/")) {
-      return handleMediaRequest(request, env);
-    }
+
+    if (url.pathname.startsWith("/media/")) return handleMediaRequest(request, env);
 
     const assetRes = await env.ASSETS.fetch(assetRequest(request));
     const newHeaders = new Headers(assetRes.headers);
     for (const [key, value] of Object.entries(securityHeaders)) newHeaders.set(key, value);
+    const livePath=assetRequest(request).url;
+    if(/\/(?:app|channel-live)\.html(?:\?|$)/.test(livePath))newHeaders.set('permissions-policy','camera=(self), microphone=(self), geolocation=()');
+    if(/\/channel-live\.html(?:\?|$)/.test(livePath))newHeaders.set('content-security-policy',newHeaders.get('content-security-policy').replace("connect-src 'self'","connect-src 'self' https://*.realtime.cloudflare.com wss://*.realtime.cloudflare.com"));
+    if(/\/broadcast\.html(?:\?|$)/.test(livePath)){
+      let policy=newHeaders.get('content-security-policy').replace("frame-src 'self'","frame-src 'self' https://platform.twitter.com https://syndication.twitter.com https://vimeo.com https://www.facebook.com https://iframe.videodelivery.net https://*.cloudflarestream.com https://player.mediadelivery.net https://iframe.mediadelivery.net https://player.cloudinary.com").replace("connect-src 'self'","connect-src 'self' https://*.cloudflarestream.com https://res.cloudinary.com https://*.b-cdn.net https://stream.mux.com").replace("script-src 'self'","script-src 'self' https://platform.twitter.com");
+      if(env.DB&&(!url.searchParams.get('type')||url.searchParams.get('type')==='church')){
+        const source=await env.DB.prepare('select source_url from church_broadcast_sources where church_id=?').bind(url.searchParams.get('id')||'').first();
+        let playbackOrigin;try{const parsed=new URL(source?.source_url);if(parsed.protocol==='https:'&&!parsed.username&&!parsed.password)playbackOrigin=parsed.origin;}catch{}
+        if(playbackOrigin)policy=policy.replace("connect-src 'self'","connect-src 'self' "+playbackOrigin);
+      }
+      newHeaders.set('content-security-policy',policy);
+    }
     const contentType = newHeaders.get("content-type") || "";
     const isHtml = contentType.includes("text/html") || !/\.[a-z0-9]+$/i.test(url.pathname);
     const isLongLivedAsset = /^\/(?:assets|vendor)\//.test(url.pathname) || /\.(?:avif|gif|ico|jpe?g|png|svg|webp|woff2?)$/i.test(url.pathname);
@@ -1401,3 +1693,5 @@ export default {
 };
 
 export { handleMediaRequest, parseByteRange, constantTimeEqual, readJson, registrationCode, handleServiceBooking, handleGetServiceBookings, serviceBookingRef };
+
+

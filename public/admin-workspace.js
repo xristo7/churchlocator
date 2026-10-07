@@ -3,6 +3,7 @@
   document.addEventListener("DOMContentLoaded", async () => {
   await window.MWEPlatform?.ready;
     if (!document.body.hasAttribute("data-admin-workspace")) return;
+    await window.MWE?.refreshTestimonies?.();
     const { modules, filterRows, valuesFromEntries } = window.MWEAdmin;
     const creator = document.body.hasAttribute("data-creator-workspace");
     const mainModules = () => Object.entries(modules).filter(([, mod]) => !mod.auxiliary);
@@ -20,90 +21,20 @@
     const button = (action, text, primary = false) => '<button type="button" class="aw-button' + (primary ? " aw-primary" : "") + '" data-aw-action="' + action + '">' + text + '</button>';
     const link = (href, label, className = "aw-text-link") => '<a class="' + className + '" href="' + esc(href) + '">' + label + '</a>';
     const count = key => modules[key].get().length;
-    const readJson = (key, fallback = []) => {
-      try {
-        const parsed = JSON.parse(localStorage.getItem(key) || "null");
-        return Array.isArray(parsed) ? parsed : fallback;
-      } catch {
-        return fallback;
-      }
-    };
     function notice(message) { window.showToast(message); }
     function panel(title, subtitle, body, action = "") {
       return '<section class="aw-panel"><div class="aw-panel-heading"><div><h2>' + title + '</h2><p>' + subtitle + '</p></div>' + action + '</div>' + body + '</section>';
-    }
-    function creatorEngagementDashboard() {
-      const events = modules.events.get();
-      const eventIds = new Set(events.map(item => item.id));
-      const registrations = readJson("mwe.event_registrations").filter(reg => eventIds.has(reg.eventId));
-      const attendees = registrations.reduce((sum, reg) => sum + (parseInt(reg.ticketQuantity, 10) || 1), 0);
-      const checkedIn = registrations.filter(reg => reg.checkedIn).length;
-      const eventLookup = new Map(events.map(event => [event.id, event]));
-      const eventRows = registrations.map(reg => {
-        const event = eventLookup.get(reg.eventId) || {};
-        return '<tr><td><strong>' + esc(reg.fullName || "Interested attendee") + '</strong><small>' + esc(reg.email || "No email") + '</small></td><td>' + esc(event.title || reg.eventId || "Event") + '</td><td>' + (parseInt(reg.ticketQuantity, 10) || 1) + '</td><td>' + (reg.checkedIn ? badge("Checked in") : badge("Registered")) + '</td></tr>';
-      }).join("");
-
-      const orders = readJson("faithlink.store.orders.v1");
-      const products = modules.products?.get ? modules.products.get() : [];
-      const gross = orders.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
-      const money = window.FaithLinkModules?.money || (value => "$" + (Number(value) || 0).toFixed(2));
-      const orderRows = orders.map(order => '<tr><td><strong>#' + esc(order.id || "order") + '</strong><small>' + esc(order.customer || "Customer") + '</small></td><td>' + (Number(order.items) || 0) + '</td><td>' + money(order.total || 0) + '</td><td>' + badge(order.fulfillment || "Pending") + '</td></tr>').join("");
-
-      const channels = modules.channels.get();
-      const followers = channels.reduce((sum, channel) => sum + (Number(channel.followers) || 0), 0);
-      const channelRows = channels.map(channel => '<tr><td><strong>' + esc(channel.name || "Channel") + '</strong><small>' + esc(channel.owner || channel.handle || "Creator") + '</small></td><td>' + Number(channel.followers || 0).toLocaleString() + '</td><td>' + Number(channel.items || 0).toLocaleString() + '</td><td>' + (channel.live ? badge("Live") : badge(channel.verified ? "Verified" : "Active")) + '</td></tr>').join("");
-
-      const rooms = modules.meditation.get();
-      const reflectionCount = rooms.reduce((sum, room) => sum + readJson("mwe.meditation.reflections." + room.id).length, 0);
-      const roomRows = rooms.map(room => {
-        const roomReflections = readJson("mwe.meditation.reflections." + room.id).length;
-        return '<tr><td><strong>' + esc(room.title || "Meditation room") + '</strong><small>' + esc(room.categoryLabel || room.category || "Room") + '</small></td><td>' + roomReflections + '</td><td>' + (room.commentsEnabled ? badge("Live chat") : badge("Quiet")) + '</td><td>' + esc(room.toneFreq || "432") + ' Hz</td></tr>';
-      }).join("");
-
-      const resources = modules.resources.get();
-      const paidResources = resources.filter(resource => resource.access === "Paid");
-      const resourceRows = resources.map(resource => '<tr><td><strong>' + esc(resource.title || "Resource") + '</strong><small>' + esc(resource.creator || "Creator") + '</small></td><td>' + esc(resource.type || "Material") + '</td><td>' + esc(resource.format || "File") + '</td><td>' + badge(resource.access || "Free") + '</td></tr>').join("");
-
-      const churches = modules.churches.get();
-      const liveChurches = churches.filter(church => church.livestream?.enabled).length;
-      const churchRows = churches.map(church => '<tr><td><strong>' + esc(church.name || "Church") + '</strong><small>' + esc([church.city, church.country].filter(Boolean).join(", ") || "Location pending") + '</small></td><td>' + (church.verified ? badge("Verified") : badge("Pending")) + '</td><td>' + (church.livestream?.enabled ? badge("Live") : badge("Offline")) + '</td><td>' + esc(church.email || "No contact") + '</td></tr>').join("");
-
-      const tab = (key, label, active) => '<button type="button" class="aw-tab-button' + (active ? ' is-active' : '') + '" data-creator-dashboard-tab="' + key + '">' + label + '</button>';
-      const table = (key, headings, rows, empty) => '<div class="aw-tab-panel' + (key === "events" ? ' is-active' : '') + '" data-creator-dashboard-panel="' + key + '"><div class="aw-table-scroll"><table><thead><tr>' + headings.map(h => '<th>' + h + '</th>').join("") + '</tr></thead><tbody>' + (rows || '<tr><td colspan="' + headings.length + '"><div class="aw-empty compact"><h3>' + empty + '</h3><p>Create or publish content to begin seeing live activity here.</p></div></td></tr>') + '</tbody></table></div></div>';
-      const metrics = '<div class="aw-metrics aw-compact-metrics">' + [
-        ["Event attendees", attendees, "users", checkedIn + " checked in"],
-        ["Store orders", orders.length, "shopping-cart", money(gross) + " gross"],
-        ["Channel followers", followers.toLocaleString(), "radio", channels.length + " channels"],
-        ["Room reflections", reflectionCount, "message-circle", rooms.length + " rooms"]
-      ].map(([label, value, symbol, note]) => '<div class="aw-metric"><div class="aw-metric-label">' + label + icon(symbol) + '</div><strong>' + value + '</strong><small>' + note + '</small></div>').join("") + '</div>';
-      const tabs = '<div class="aw-tabs" role="tablist">' + [
-        tab("events", "Events", true),
-        tab("store", "Store", false),
-        tab("channels", "Channels", false),
-        tab("meditation", "Meditation", false),
-        tab("resources", "Resources", false),
-        tab("churches", "Churches", false)
-      ].join("") + '</div>';
-      const panels = table("events", ["Attendee", "Event", "Tickets", "Status"], eventRows, "No event registrations yet") +
-        table("store", ["Order", "Items", "Total", "Fulfillment"], orderRows, "No store orders yet") +
-        table("channels", ["Channel", "Followers", "Posts", "Status"], channelRows, "No channel activity yet") +
-        table("meditation", ["Room", "Reflections", "Chat", "Tone"], roomRows, "No meditation room activity yet") +
-        table("resources", ["Resource", "Type", "Format", "Access"], resourceRows, "No resource activity yet") +
-        table("churches", ["Church", "Verification", "Live", "Contact"], churchRows, "No church profiles yet");
-      const footer = '<div class="aw-dashboard-note"><span>' + products.length + ' products</span><span>' + paidResources.length + ' paid resources</span><span>' + liveChurches + ' live church profiles</span><span>' + registrations.length + ' registration records</span></div>';
-      return panel("Creator dashboard", "One place to review registrations, interested attendees, orders, followers, room participation, resources and church profile activity.", metrics + tabs + panels + footer, '<span class="aw-badge">Unified tabs</span>');
     }
     function nav() {
       const entry = (key, label, symbol, number) => '<a class="aw-nav-link" href="#' + key + '"' + (state.view === key ? ' aria-current="page"' : "") + '>' + icon(symbol) + '<span>' + label + '</span>' + (number === undefined ? "" : '<small>' + number + '</small>') + '</a>';
       $("aw-nav").innerHTML = entry("overview", "Overview", "layout-dashboard") + '<p class="aw-nav-label">MANAGE PLATFORM</p>' +
         mainModules().map(([key, mod]) => entry(key, mod.label, mod.icon, count(key))).join("") +
         entry("spotlight", "Spotlight", "play-square", window.MWESpotlightWorkspace?.count() || 0) +
+        '<a class="aw-nav-link" href="live-setup.html">'+icon('radio')+'<span>Live setup</span></a>' +
         (creator ? "" : '<p class="aw-nav-label">PLATFORM CONTROL</p>' + entry("platform-options", "Platform options", "list-tree") + '<p class="aw-nav-label">OPERATIONS</p>' + entry("locations", "Location coverage", "map-pin") + entry("review", "Needs attention", "list-checks", pending().length));
     }
     function pending() {
-      const reasons = { churches: "Church verification", meditation: "Meditation room approval", events: "Event approval", store: "Store approval", products: "Product approval", channels: "Channel approval", resources: "Resource approval" };
-      return Object.keys(reasons).flatMap(key => (modules[key]?.get?.() || []).filter(r => r.publicationState === "pending").map(record => ({ key, record, reason: reasons[key] })));
+      return ["churches", "channels"].flatMap(key => modules[key].get().filter(r => !r.verified).map(r => ({ key, record: r, reason: key === "churches" ? "Church verification" : "Creator verification" })));
     }
     function overview() {
       if (creator) {
@@ -115,7 +46,7 @@
         const cards = '<div class="aw-module-grid">' + mainModules().map(([key, mod]) => '<button type="button" class="aw-module-card aw-create-card" data-create-module="' + key + '"><div class="aw-module-top"><span class="aw-module-icon">' + icon(mod.icon) + '</span>' + icon("plus") + '</div><h3>' + descriptions[key] + '</h3><p>' + mod.description + '</p><div class="aw-module-count">' + (["churches", "channels", "store"].includes(key) ? badge("Live capable") : "Create and manage") + '<span>' + count(key) + ' created</span></div></button>').join("") + '</div>';
         const recent = mainModules().flatMap(([key, mod]) => mod.get().map(record => ({ key, mod, record }))).sort((a, b) => String(b.record.updatedAt || "").localeCompare(String(a.record.updatedAt || ""))).slice(0, 5);
         const recentHtml = recent.map(({ key, mod, record }) => '<div class="aw-queue-row"><span class="aw-record-icon">' + icon(mod.icon) + '</span><div><strong>' + esc(mod.title(record)) + '</strong><small>' + mod.label + ' · ' + esc(mod.status(record)) + '</small></div><button class="aw-button" data-edit-module="' + key + '" data-edit-id="' + esc(record.id) + '">Manage</button></div>').join("");
-        $("aw-content").innerHTML = metrics + creatorEngagementDashboard() + panel(total ? "Create something new" : "What would you like to create?", "Start with one. You can add all six from the same account, at any time.", cards) + (recent.length ? panel("Recently updated", "Pick up where you left off.", recentHtml) : "") + panel("Churches, channels and stores can go live", "Add your external broadcast URL, then turn on Live in the record editor. My Way displays the broadcast; video hosting remains with your provider.", '<div class="aw-queue-row">' + link("livestream.html", "Explore Live " + icon("arrow-up-right")) + '</div>');
+        $("aw-content").innerHTML = metrics + panel(total ? "Create something new" : "What would you like to create?", "Start with one. You can add all six from the same account, at any time.", cards) + (recent.length ? panel("Recently updated", "Pick up where you left off.", recentHtml) : "") + panel("Church broadcasts and channel stages", "Broadcast a church service through your video provider, or host a channel conversation and bring guests on camera.", '<div class="aw-queue-row">' + link("live-setup.html", "Set up Live " + icon("arrow-up-right")) + '</div>');
         return;
       }
       const churches = modules.churches.get();
@@ -125,11 +56,11 @@
         ["Church network", churches.length, "church", churches.filter(c => c.verified).length + " verified profiles"],
         ["Locations served", locations.size, "map-pin", "City and country combinations"],
         ["Content library", contentCount, "library", "Rooms, channels and resources"],
-        ["Awaiting review", pending().length, "shield-check", "Pending records across every module"]
+        ["Awaiting verification", pending().length, "shield-check", "Church and creator profiles"]
       ];
       const metricsHtml = '<div class="aw-metrics">' + metrics.map(([label, number, symbol, caption]) => '<div class="aw-metric"><div class="aw-metric-label">' + label + icon(symbol) + '</div><strong>' + number + '</strong><small>' + caption + '</small></div>').join("") + '</div>';
       const cards = '<div class="aw-module-grid">' + mainModules().map(([key, mod]) => '<a class="aw-module-card" href="#' + key + '"><div class="aw-module-top"><span class="aw-module-icon">' + icon(mod.icon) + '</span>' + icon("arrow-up-right") + '</div><h3>' + mod.label + '</h3><p>' + mod.description + '</p><div class="aw-module-count"><strong>' + count(key) + '</strong>' + mod.noun + '</div></a>').join("") + '</div>';
-      const queue = pending().slice(0, 3).map(({ key, record, reason }) => '<div class="aw-queue-row"><span class="aw-record-icon">' + icon(modules[key].icon) + '</span><div><strong>' + esc(modules[key].title(record)) + '</strong><small>' + reason + '</small></div><button class="aw-icon-button" type="button" data-edit-module="' + key + '" data-edit-id="' + esc(record.id) + '" aria-label="Review ' + esc(modules[key].title(record)) + '">' + icon("arrow-right") + '</button></div>').join("") || '<div class="aw-empty"><h3>You’re all caught up</h3><p>No content is awaiting review.</p></div>';
+      const queue = pending().slice(0, 3).map(({ key, record, reason }) => '<div class="aw-queue-row"><span class="aw-record-icon">' + icon(modules[key].icon) + '</span><div><strong>' + esc(modules[key].title(record)) + '</strong><small>' + reason + '</small></div><button class="aw-icon-button" type="button" data-edit-module="' + key + '" data-edit-id="' + esc(record.id) + '" aria-label="Review ' + esc(modules[key].title(record)) + '">' + icon("arrow-right") + '</button></div>').join("") || '<div class="aw-empty"><h3>You’re all caught up</h3><p>No church or creator profiles are awaiting verification.</p></div>';
       const steps = '<div class="aw-steps">' + [
         ["Find the right module", "Open a collection, then search or filter its records."],
         ["Review the essentials", "Check ownership, content, location and access details."],
@@ -184,7 +115,7 @@
     }
     function review() {
       const rows = pending();
-      $("aw-content").innerHTML = panel("Review queue", rows.length + " records to review · approve only after checking ownership and content details.", rows.length ? rows.map(({ key, record, reason }) => '<div class="aw-queue-row"><span class="aw-record-icon">' + icon(modules[key].icon) + '</span><div><strong>' + esc(modules[key].title(record)) + '</strong><small>' + reason + ' · ' + esc(modules[key].owner(record) || "Owner missing") + '</small></div>' + badge("Pending") + '<button type="button" class="aw-button" data-edit-module="' + key + '" data-edit-id="' + esc(record.id) + '">Review</button></div>').join("") : '<div class="aw-empty"><h3>All records reviewed</h3><p>No content is awaiting review.</p></div>');
+      $("aw-content").innerHTML = panel("Verification queue", rows.length + " profiles to review · verify only after checking ownership and contact details.", rows.length ? rows.map(({ key, record, reason }) => '<div class="aw-queue-row"><span class="aw-record-icon">' + icon(modules[key].icon) + '</span><div><strong>' + esc(modules[key].title(record)) + '</strong><small>' + reason + ' · ' + esc(modules[key].owner(record) || "Owner missing") + '</small></div>' + badge("Pending") + '<button type="button" class="aw-button" data-edit-module="' + key + '" data-edit-id="' + esc(record.id) + '">Review</button></div>').join("") : '<div class="aw-empty"><h3>All profiles reviewed</h3><p>No pending church or channel verification.</p></div>');
     }
     const taxonomyMeta = [
       ["denominations", "Denominations", "Used by church profiles and the public church filter."],
@@ -196,32 +127,18 @@
       ["resource_topics", "Resource topics", "Topics used to organize learning resources."]
     ];
     function platformOptions() {
-      const publicationMeta = [
-        ["churches", "churchPublication", "autoPublishPendingChurches", "Churches", "church", "church profiles"],
-        ["meditation", "meditationPublication", "autoPublishPendingMeditations", "Meditation", "sparkles", "meditation rooms"],
-        ["events", "eventPublication", "autoPublishPendingEvents", "Events", "calendar-days", "events"],
-        ["store", "storePublication", "autoPublishPendingStores", "Stores", "store", "store profiles"],
-        ["products", "productPublication", "autoPublishPendingProducts", "Products & services", "package", "products and services"],
-        ["channels", "channelPublication", "autoPublishPendingChannels", "Channels", "radio-tower", "channels"],
-        ["resources", "resourcePublication", "autoPublishPendingResources", "Resources", "library", "resources"]
-      ];
-      const publicationCards = publicationMeta.map(([kind, responseKey, field, label, symbol, noun]) => {
-        const setting = window.MWEPlatform.settings[responseKey] || {};
-        const enabled = setting[field] === true;
-        return '<form class="aw-panel aw-publication-card" data-publication-form="' + kind + '" data-publication-field="' + field + '"><div class="aw-publication-copy"><span class="aw-record-icon">' + icon(symbol) + '</span><div><p class="aw-eyebrow">' + label.toUpperCase() + ' PUBLICATION</p><h2>Auto approval</h2><p>Publish new ' + noun + ' immediately while they remain in the owner review queue. Public content shows a <strong>Pending review</strong> badge until you approve it.</p></div></div><label class="aw-switch-row"><span><strong>Publish while pending review</strong><small>' + (enabled ? 'On · pending ' + noun + ' are visible publicly' : 'Off · pending ' + noun + ' stay private') + '</small></span><input type="checkbox" name="enabled" role="switch" ' + (enabled ? 'checked' : '') + ' /><span class="aw-switch" aria-hidden="true"></span></label><div class="aw-taxonomy-actions"><span class="aw-setting-status">Manual owner approval is still required to remove the Pending review badge.</span><button class="aw-button aw-primary" type="submit">Save ' + label.toLowerCase() + ' setting</button></div></form>';
-      }).join("");
       const cards = taxonomyMeta.map(([key, title, description]) => {
         const taxonomy = window.MWEPlatform.taxonomies[key];
         const rows = (taxonomy?.items || []).map(item => '<div class="aw-taxonomy-row"><input name="item" value="' + esc(item) + '" aria-label="' + esc(title) + ' option" maxlength="80" required /><button class="aw-icon-button" type="button" data-taxonomy-remove aria-label="Remove ' + esc(item) + '">' + icon("trash-2") + '</button></div>').join("");
         return '<form class="aw-panel aw-taxonomy-card" data-taxonomy-form="' + key + '"><div class="aw-panel-heading"><div><h2>' + title + '</h2><p>' + description + '</p></div><span class="aw-badge">' + (taxonomy?.items.length || 0) + ' options</span></div><div class="aw-taxonomy-list">' + rows + '</div><div class="aw-taxonomy-actions"><button class="aw-button" type="button" data-taxonomy-add>' + icon("plus") + ' Add option</button><button class="aw-button aw-primary" type="submit">Save ' + title.toLowerCase() + '</button></div></form>';
       }).join("");
-      $("aw-content").innerHTML = '<div class="aw-taxonomy-grid aw-publication-grid">' + publicationCards + '</div><div class="aw-notice"><strong>One source of truth</strong><p>Changes apply to public filters and new content forms. Existing records keep their saved value until edited.</p></div><div class="aw-taxonomy-grid">' + cards + '</div>';
+      $("aw-content").innerHTML = '<div class="aw-notice"><strong>One source of truth</strong><p>Changes apply to public filters and new content forms. Existing records keep their saved value until edited.</p></div><div class="aw-taxonomy-grid">' + cards + '</div>';
     }
     function render() {
       try {
         nav();
         const mod = modules[state.view];
-        const labels = { overview: ["Overview", "A clear view of your community and the content that connects it."], spotlight: ["Spotlight", creator ? "Submit channel content and track every moderation decision." : "Curate, review, schedule and publish the stories shown in Spotlight."], "platform-options": ["Platform options", "Manage publication controls and the standard choices used across the platform."], locations: ["Location coverage", "Keep the church directory accurate, connected and easy to discover."], review: ["Needs attention", "A focused queue for pending content across every module."] };
+        const labels = { overview: ["Overview", "A clear view of your community and the content that connects it."], spotlight: ["Spotlight", creator ? "Submit channel content and track every moderation decision." : "Curate, review, schedule and publish the stories shown in Spotlight."], "platform-options": ["Platform options", "Manage the standard choices used across public filters and content forms."], locations: ["Location coverage", "Keep the church directory accurate, connected and easy to discover."], review: ["Needs attention", "A focused queue for church and creator verification."] };
         $("aw-title").textContent = mod?.label || labels[state.view][0];
         if (creator && state.view === "overview") $("aw-title").textContent = "Your creator workspace";
         $("aw-breadcrumb").textContent = $("aw-title").textContent;
@@ -237,7 +154,7 @@
           document.querySelector(".aw-nav-label").textContent = "YOUR MODULES";
         }
         $("aw-heading-actions").innerHTML = mod ? button("new", icon("plus") + " Add " + mod.singular, true) : link(state.view === "overview" ? "#churches" : "#overview", state.view === "overview" ? "Manage churches " + icon("arrow-right") : "Back to overview", "aw-button");
-        if (state.view === "spotlight") $("aw-heading-actions").innerHTML = link("app.html?view=spotlight-studio", "Create in Spotlight Studio " + icon("sparkles"), "aw-button aw-primary") + link("app.html?view=spotlight", "Open Spotlight " + icon("arrow-up-right"), "aw-button");
+        if (state.view === "spotlight") $("aw-heading-actions").innerHTML = link("app.html?view=spotlight", "Open Spotlight " + icon("arrow-up-right"), "aw-button");
         document.title = $("aw-title").textContent + " · Admin | My Way";
         if (creator) document.title = $("aw-title").textContent + " | My Way";
         if (creator && state.view === "overview") $("aw-heading-actions").innerHTML = link("app.html?view=home", "Open member app " + icon("arrow-up-right"), "aw-button");
@@ -264,6 +181,7 @@
       let value = data[f.key] ?? "";
       if (f.type === "url" && value === "#") value = "";
       const common = ' name="' + f.key + '" id="aw-field-' + f.key + '"' + (f.required ? " required" : "") + (f.hint ? ' aria-describedby="aw-hint-' + f.key + '"' : "");
+      if (f.type === "heroSlides") return heroSlidesField(data.heroSlides || "{}", f);
       let control;
       if (f.type === "select") {
         const entries = (f.options || []).map(o => Array.isArray(o) ? o : [o, o]);
@@ -274,6 +192,43 @@
       else control = '<input' + common + ' type="' + (f.type === "url" && String(value).startsWith("assets/") ? "text" : f.type) + '" value="' + esc(value) + '"' + (f.type === "number" ? ' min="0" step="' + (["inventory", "totalTickets", "ticketPriceCents", "toneFreq"].includes(f.key) ? "1" : "0.01") + '"' : "") + ' />';
       return '<label class="aw-field' + (f.type === "textarea" ? " wide" : "") + '" for="aw-field-' + f.key + '"><span>' + esc(f.label) + (f.required ? ' <span aria-hidden="true">*</span>' : "") + '</span>' + control + (f.hint ? '<small id="aw-hint-' + f.key + '">' + esc(f.hint) + '</small>' : "") + '</label>';
     }
+    function heroSlidesField(raw, field) {
+      let config = {};
+      try { config = JSON.parse(raw); } catch { config = {}; }
+      const gallery = Array.isArray(config.gallery) ? config.gallery.slice(0, 8) : [];
+      const welcomeMedia = String(config.welcomeMedia || "");
+      const order = Array.isArray(config.heroOrder) ? config.heroOrder : [];
+      const cards = [{ id: "cover", kind: "cover", title: "Church cover", note: "Uses the Cover image URL above" }];
+      if (welcomeMedia) cards.push({ id: "video", kind: "video", title: "Welcome video", src: welcomeMedia });
+      gallery.forEach((slide, index) => cards.push({ id: "gallery:" + String(slide.id || "gallery-" + (index + 1)), kind: "image", title: slide.title || "Gallery image", src: slide.src || "", caption: slide.caption || "", tag: slide.tag || "" }));
+      const rank = new Map(order.map((id, index) => [id, index]));
+      cards.sort((a, b) => (rank.get(a.id) ?? 999) - (rank.get(b.id) ?? 999));
+      const cardHtml = cards.map((slide, index) => '<article class="aw-hero-slide" data-hero-slide="' + esc(slide.id) + '" data-hero-kind="' + slide.kind + '"><header><strong>' + esc(slide.title) + '</strong><div class="aw-hero-actions"><button type="button" data-hero-action="first" aria-label="Make first slide"' + (index === 0 ? ' disabled' : '') + '>Make first</button><button type="button" data-hero-action="up" aria-label="Move slide up"' + (index === 0 ? ' disabled' : '') + '>↑</button><button type="button" data-hero-action="down" aria-label="Move slide down"' + (index === cards.length - 1 ? ' disabled' : '') + '>↓</button>' + (slide.kind !== "cover" ? '<button type="button" data-hero-action="remove">Remove</button>' : '') + '</div></header>' + (slide.kind === "video" ? '<label>Video link<input data-hero-value="src" type="url" value="' + esc(slide.src) + '" placeholder="https://…" /></label>' : slide.kind === "image" ? '<div class="aw-hero-fields"><label>Image URL<input data-hero-value="src" type="url" value="' + esc(slide.src) + '" required placeholder="https://…" /></label><label>Title<input data-hero-value="title" maxlength="120" value="' + esc(slide.title) + '" /></label><label>Caption<input data-hero-value="caption" maxlength="500" value="' + esc(slide.caption) + '" /></label><label>Tag<input data-hero-value="tag" maxlength="60" value="' + esc(slide.tag) + '" /></label></div>' : '') + '</article>').join("");
+      const encoded = JSON.stringify(config);
+      return '<div class="aw-field wide aw-hero-editor"><span>' + esc(field.label) + '</span><p class="aw-hero-intro">Choose the order visitors see in the profile banner. The cover image is managed above; add a welcome video and up to eight gallery images.</p><input type="hidden" name="heroSlides" id="aw-field-heroSlides" value="' + esc(encoded) + '" /><div class="aw-hero-list">' + cardHtml + '</div><div class="aw-hero-add-actions"><button class="aw-button aw-secondary" type="button" data-hero-action="video"' + (welcomeMedia ? ' hidden' : '') + '>Add welcome video</button><button class="aw-button aw-secondary" type="button" data-hero-action="add">Add gallery image</button></div>' + (field.hint ? '<small>' + esc(field.hint) + '</small>' : '') + '</div>';
+    }
+    function syncHeroSlides() {
+      const list = document.querySelector(".aw-hero-list");
+      const hidden = $("aw-field-heroSlides");
+      if (!list || !hidden) return;
+      const slides = [...list.querySelectorAll("[data-hero-slide]")];
+      const heroOrder = slides.map(card => card.dataset.heroSlide);
+      const video = slides.find(card => card.dataset.heroKind === "video");
+      const gallery = slides.filter(card => card.dataset.heroKind === "image").map(card => ({ id: card.dataset.heroSlide.slice(8), src: card.querySelector('[data-hero-value="src"]').value.trim(), title: card.querySelector('[data-hero-value="title"]').value.trim(), caption: card.querySelector('[data-hero-value="caption"]').value.trim(), tag: card.querySelector('[data-hero-value="tag"]').value.trim() }));
+      hidden.value = JSON.stringify({ heroOrder, welcomeMedia: video?.querySelector('[data-hero-value="src"]').value.trim() || "", gallery });
+    }
+    function refreshHeroSlideButtons() {
+      const cards = [...document.querySelectorAll(".aw-hero-list [data-hero-slide]")];
+      cards.forEach((card, index) => {
+        card.querySelector('[data-hero-action="first"]').disabled = index === 0;
+        card.querySelector('[data-hero-action="up"]').disabled = index === 0;
+        card.querySelector('[data-hero-action="down"]').disabled = index === cards.length - 1;
+      });
+      const add = document.querySelector('[data-hero-action="add"]');
+      if (add) add.disabled = cards.filter(card => card.dataset.heroKind === "image").length >= 8;
+      const hasVideo = cards.some(card => card.dataset.heroKind === "video");
+      document.querySelector('[data-hero-action="video"]')?.toggleAttribute("hidden", hasVideo);
+    }
     function openEditor(key, id) {
       if (!document.body.classList.contains("is-authenticated")) return;
       const mod = modules[key];
@@ -281,7 +236,7 @@
       if (id && !record) { notice("This record is no longer available."); return; }
       editing = { key, record: record ? JSON.parse(JSON.stringify(record)) : null };
       const data = record ? (mod.flatten ? mod.flatten(record) : record) : mod.defaults();
-      data.publicationState = creator ? (record?.publicationState === "archived" ? "archived" : "pending") : record?.publicationState || "draft";
+      data.publicationState = creator && record?.publicationState === "published" ? "pending" : record?.publicationState || "draft";
       if (creator && !record) {
         const profile = window.MWECreator.account();
         Object.assign(data, { ownerName: profile?.name || "", owner: profile?.name || "", creator: profile?.name || "", email: profile?.email || "" });
@@ -304,7 +259,8 @@
       dirty = false;
       if (returnFocus?.isConnected) returnFocus.focus(); else $("aw-main").focus();
     }
-    $("aw-editor-form").addEventListener("input", () => { dirty = true; });
+    $("aw-editor-form").addEventListener("input", event => { dirty = true; if (event.target.closest(".aw-hero-editor")) syncHeroSlides(); });
+    $("aw-editor-form").addEventListener("change", event => { if (event.target.closest(".aw-hero-editor")) syncHeroSlides(); });
     $("aw-editor").addEventListener("cancel", e => { e.preventDefault(); closeEditor(); });
     document.querySelectorAll("[data-editor-close]").forEach(el => el.addEventListener("click", closeEditor));
     $("aw-editor-form").addEventListener("submit", async event => {
@@ -337,19 +293,30 @@
       }
     });
     document.addEventListener("click", event => {
+      const heroAction = event.target.closest("[data-hero-action]")?.dataset.heroAction;
+      if (heroAction) {
+        const list = document.querySelector(".aw-hero-list");
+        if (heroAction === "add") {
+          const id = "gallery:" + crypto.randomUUID();
+          list.insertAdjacentHTML("beforeend", '<article class="aw-hero-slide" data-hero-slide="' + esc(id) + '" data-hero-kind="image"><header><strong>Gallery image</strong><div class="aw-hero-actions"><button type="button" data-hero-action="first">Make first</button><button type="button" data-hero-action="up">↑</button><button type="button" data-hero-action="down">↓</button><button type="button" data-hero-action="remove">Remove</button></div></header><div class="aw-hero-fields"><label>Image URL<input data-hero-value="src" type="url" required placeholder="https://…" /></label><label>Title<input data-hero-value="title" maxlength="120" /></label><label>Caption<input data-hero-value="caption" maxlength="500" /></label><label>Tag<input data-hero-value="tag" maxlength="60" /></label></div></article>');
+          list.lastElementChild.querySelector('[data-hero-value="src"]').focus();
+        } else if (heroAction === "video") {
+          list.insertAdjacentHTML("beforeend", '<article class="aw-hero-slide" data-hero-slide="video" data-hero-kind="video"><header><strong>Welcome video</strong><div class="aw-hero-actions"><button type="button" data-hero-action="first">Make first</button><button type="button" data-hero-action="up">↑</button><button type="button" data-hero-action="down">↓</button><button type="button" data-hero-action="remove">Remove</button></div></header><label>Video link<input data-hero-value="src" type="url" placeholder="https://…" /></label></article>');
+          list.lastElementChild.querySelector('[data-hero-value="src"]').focus();
+        } else if (heroAction !== "add") {
+          const card = event.target.closest("[data-hero-slide]");
+          if (heroAction === "remove") { card.remove(); if (card.dataset.heroKind === "video") document.querySelector('[data-hero-action="video"]')?.removeAttribute("hidden"); }
+          else if (heroAction === "first") list.prepend(card);
+          else if (heroAction === "up" && card.previousElementSibling) list.insertBefore(card, card.previousElementSibling);
+          else if (heroAction === "down" && card.nextElementSibling) list.insertBefore(card.nextElementSibling, card);
+        }
+        syncHeroSlides(); refreshHeroSlideButtons(); dirty = true;
+        return;
+      }
       const create = event.target.closest("[data-create-module]");
       if (create) openEditor(create.dataset.createModule);
       const edit = event.target.closest("[data-edit-module]");
       if (edit) openEditor(edit.dataset.editModule, edit.dataset.editId);
-      const dashboardTab = event.target.closest("[data-creator-dashboard-tab]");
-      if (dashboardTab) {
-        const key = dashboardTab.dataset.creatorDashboardTab;
-        const root = dashboardTab.closest(".aw-panel");
-        root?.querySelectorAll("[data-creator-dashboard-tab]").forEach(button => button.classList.toggle("is-active", button === dashboardTab));
-        root?.querySelectorAll("[data-creator-dashboard-panel]").forEach(panel => panel.classList.toggle("is-active", panel.dataset.creatorDashboardPanel === key));
-        drawIcons();
-        return;
-      }
       const city = event.target.closest("[data-location]");
       if (city) {
         history.pushState(null, "", "#churches");
@@ -377,26 +344,6 @@
       }
     });
     $("aw-content").addEventListener("submit", async event => {
-      const publicationForm = event.target.closest("[data-publication-form]");
-      if (publicationForm) {
-        event.preventDefault();
-        const button = publicationForm.querySelector('[type="submit"]');
-        button.disabled = true;
-        try {
-          const kind = publicationForm.dataset.publicationForm;
-          if (kind === "churches") await window.MWEPlatform.saveChurchPublicationSettings(publicationForm.elements.enabled.checked);
-          else if (kind === "meditation") await window.MWEPlatform.saveMeditationPublicationSettings(publicationForm.elements.enabled.checked);
-          else await window.MWEPlatform.savePublicationSettings(kind, publicationForm.elements.enabled.checked);
-          platformOptions();
-          drawIcons();
-          notice("Publication setting saved.");
-        } catch (error) {
-          notice(error.message || "Unable to save the publication setting.");
-        } finally {
-          if (button.isConnected) button.disabled = false;
-        }
-        return;
-      }
       const form = event.target.closest("[data-taxonomy-form]");
       if (!form) return;
       event.preventDefault();

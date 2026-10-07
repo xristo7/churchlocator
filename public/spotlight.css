@@ -63,7 +63,7 @@ body.spotlight-page { margin: 0; overflow: hidden; background: var(--background)
 .spotlight-action.is-active svg { color: hsl(var(--primary-h), 100%, 72%); fill: var(--primary); }
 .spotlight-feature-card .spotlight-copy { right: 20px; }
 .spotlight-feature-card .spotlight-copy h2 { font-size: clamp(1.55rem,3vw,2rem); }
-.spotlight-feature-card .spotlight-actions { display: none; }
+.spotlight-feature-card .spotlight-actions { display: flex; }
 .spotlight-feature-card .spotlight-primary-cta { width: 100%; margin-top: 10px; border-radius: 14px; }
 .spotlight-member-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: rgba(255,255,255,.72); font-size: .68rem; font-weight: 700; }
 .spotlight-member-faces { display: flex; }
@@ -132,3 +132,12 @@ body.spotlight-page { margin: 0; overflow: hidden; background: var(--background)
   .spotlight-primary-cta { min-height: 44px; }
 }
 @media (prefers-reduced-motion: reduce) { .spotlight-card-media,.spotlight-card.is-active .spotlight-card-media[data-animated="true"] { animation: none !important; transition: none !important; } .spotlight-feed { scroll-behavior: auto; } }
+.spotlight-notifications { padding: 100px 24px 24px; color: var(--text-primary); background: var(--surface); min-height: 100%; }
+.spotlight-notifications article { padding: 18px 0; border-bottom: 1px solid var(--border); }
+.spotlight-notifications small { display: block; margin-top: 8px; }
+.spotlight-inspector input[type="datetime-local"] { width: 100%; padding: 12px; margin: 12px 0; }
+#spotlight-comment-form[hidden] { display: none; }
+.spotlight-card:focus-visible { outline: 3px solid var(--primary); outline-offset: -3px; }
+.channel-follow-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.spotlight-feature-card .spotlight-copy { right: 72px; }
+@media (max-width:760px) { .spotlight-local-header { grid-template-columns: 38px minmax(0,1fr) 38px; gap: 6px; } .spotlight-tabs { max-width:100%; overflow-x:auto; justify-content:flex-start; } .spotlight-tabs button { padding:0 9px; flex-shrink:0; } }
