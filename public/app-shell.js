@@ -267,6 +267,7 @@
   const inviteButton = document.getElementById("member-send-invite");
   const invitePopover = document.getElementById("member-invite-popover");
   const inviteCard = inviteButton?.closest(".profile-invite-card");
+  if (invitePopover && invitePopover.parentElement !== document.body) document.body.append(invitePopover);
   function closeInvitePopover() {
     if (!invitePopover || invitePopover.hidden) return;
     invitePopover.hidden = true;
@@ -305,7 +306,7 @@
       window.MWE?.showMemberToast?.("Could not copy the link. Please try again.");
     }
   });
-  document.addEventListener("click", event => { if (invitePopover && !inviteCard?.contains(event.target)) closeInvitePopover(); });
+  document.addEventListener("click", event => { if (invitePopover && !invitePopover.contains(event.target) && !inviteButton?.contains(event.target)) closeInvitePopover(); });
   document.addEventListener("keydown", event => { if (event.key === "Escape") closeInvitePopover(); });
 
     const flagSvgs = {

@@ -11210,14 +11210,13 @@ body[data-page="home"] .tiny-church-card:hover {
 .member-invite-popover-head > div { display: grid; flex: 1; gap: 4px; }
 .member-invite-popover-head strong { color: var(--text-primary); font-size: 1rem; font-weight: 850; }
 .member-invite-popover-head span { color: var(--text-muted); font-size: .78rem; line-height: 1.45; }
-.profile-invite-card .member-invite-popover-close,
-.profile-invite-card .member-invite-close { width: 34px; min-width: 34px; height: 34px; min-height: 34px; margin: -4px -4px 0 0; padding: 0; border: 1px solid var(--border); border-radius: 10px; color: var(--text-secondary); background: var(--surface-soft); }
+.member-invite-popover .member-invite-close { width: 34px; min-width: 34px; height: 34px; min-height: 34px; margin: -4px -4px 0 0; padding: 0; border: 1px solid var(--border); border-radius: 10px; color: var(--text-secondary); background: var(--surface-soft); }
 .member-invite-close svg { width: 16px; height: 16px; }
-.profile-invite-card .member-invite-share-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.member-invite-share-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
 .member-invite-share-grid > a,
-.profile-invite-card .member-invite-share-grid > button { min-width: 0; min-height: 76px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; margin: 0; padding: 10px 5px; border: 1px solid var(--border); border-radius: 13px; color: var(--text-secondary); background: var(--surface-soft); font-size: .68rem; font-weight: 750; text-align: center; text-decoration: none; cursor: pointer; transition: border-color .16s ease, color .16s ease, background .16s ease, transform .16s ease; }
+.member-invite-share-grid > button { min-width: 0; min-height: 76px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; margin: 0; padding: 10px 5px; border: 1px solid var(--border); border-radius: 13px; color: var(--text-secondary); background: var(--surface-soft); font-size: .68rem; font-weight: 750; text-align: center; text-decoration: none; cursor: pointer; transition: border-color .16s ease, color .16s ease, background .16s ease, transform .16s ease; }
 .member-invite-share-grid > a:hover,
-.profile-invite-card .member-invite-share-grid > button:hover { transform: translateY(-2px); border-color: var(--primary); color: var(--primary); background: var(--primary-surface); }
+.member-invite-share-grid > button:hover { transform: translateY(-2px); border-color: var(--primary); color: var(--primary); background: var(--primary-surface); }
 .member-invite-share-grid svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .member-invite-share-grid [data-share-target="facebook"] svg { fill: currentColor; stroke: none; }
 .member-invite-share-grid [data-share-target="x"] svg,
@@ -11226,7 +11225,7 @@ body[data-page="home"] .tiny-church-card:hover {
 .member-invite-share-grid i svg { width: 22px; height: 22px; }
 html[data-theme="dark"] .member-invite-popover { border-color: var(--border-subtle); background: var(--background-secondary); }
 html[data-theme="dark"] .member-invite-share-grid > a,
-html[data-theme="dark"] .profile-invite-card .member-invite-share-grid > button { border-color: var(--border-subtle); background: var(--surface); }
+html[data-theme="dark"] .member-invite-share-grid > button { border-color: var(--border-subtle); background: var(--surface); }
 
 .profile-rail-utility {
   display: flex;

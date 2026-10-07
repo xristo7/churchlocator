@@ -252,7 +252,7 @@ test("light mode keeps account, message settings, icons, and card text readable"
   assert.doesNotMatch(styles, /\.member-account-menu span\s*\{/);
   assert.doesNotMatch(styles, /html\[data-theme="dark"\] span:not/);
   assert.doesNotMatch(styles, /html:not\(\[data-theme="dark"\]\) \.tiny-(?:church-card|card-name)\s*\{[^}]*color:\s*var\(--background-secondary\)/);
-  assert.match(app, /styles\.css\?v=20261007invitepopup1/);
+  assert.match(app, /styles\.css\?v=20261007invitepopup2/);
   assert.match(messages, /styles\.css\?v=20261007authfields1/);
 });
 
