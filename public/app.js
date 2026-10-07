@@ -1738,6 +1738,9 @@ MWE.applyMemberShellEmbed = function() {
   document.documentElement.classList.add("member-shell-embed");
   document.body.classList.add("member-shell-embed");
 
+  const embedParams = new URLSearchParams(window.location.search);
+  if (embedParams.get("preview") === "studio") document.body.classList.add("studio-hero-preview");
+
   if (!document.getElementById("member-shell-embed-overrides")) {
     const style = document.createElement("style");
     style.id = "member-shell-embed-overrides";
@@ -1766,6 +1769,11 @@ MWE.applyMemberShellEmbed = function() {
       body[data-page="profile"].member-shell-embed > main > .container,
       body[data-page="profile"].member-shell-embed > section > .container { width: min(var(--max), calc(100% - 44px)) !important; }
       body[data-page="profile"].member-shell-embed .church-tabs-nav { top: 10px !important; }
+      body.studio-hero-preview { min-height: 0 !important; overflow: hidden !important; }
+      body.studio-hero-preview > main { min-height: 0 !important; height: auto !important; margin: 0 !important; padding: 0 !important; }
+      body.studio-hero-preview > main > .container { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 16px 30px 0 !important; box-sizing: border-box !important; }
+      body.studio-hero-preview #church-hero-showcase { margin-bottom: 0 !important; }
+      body.studio-hero-preview .church-profile-grid { display: none !important; }
       body[data-page="portal"].member-shell-embed .login-screen {
         height: auto !important;
         min-height: calc(100vh - 40px) !important;

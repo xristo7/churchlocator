@@ -21,6 +21,16 @@ test("Church Profile: Hero carousel structure and navigation", async () => {
   assert.match(html, /class="church-hero-desc" data-church-tagline/, "should display church tagline/short description");
 });
 
+test("Church Profile: Studio hero preview contains only the hero slides", async () => {
+  const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
+  const studioJs = await fs.readFile(path.join(projectRoot, "public", "creator-studio.js"), "utf8");
+
+  assert.match(studioJs, /preview=studio/, "Studio should use the dedicated hero preview mode");
+  assert.match(appJs, /embedParams\.get\("preview"\) === "studio"[\s\S]*?studio-hero-preview/);
+  assert.match(appJs, /body\.studio-hero-preview \.church-profile-grid\s*\{\s*display:\s*none\s*!important;/);
+  assert.match(appJs, /body\.studio-hero-preview #church-hero-showcase\s*\{[\s\S]*?margin-bottom:\s*0\s*!important;/);
+});
+
 test("Church Profile: YouTube hero uses a click-to-play preview and provider fallback", async () => {
   const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
 
