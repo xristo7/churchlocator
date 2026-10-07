@@ -406,7 +406,7 @@ test("two-pillar theme system supports rainbow primary palette, gold accents, an
   assert.match(shell, /mwe-primary-color/);
 });
 
-test("Creator Hub keeps SPA registration and opens the user workspace separately", async () => {
+test("Member app opens the creation Studio while church registration remains available", async () => {
   const html = await readProjectFile("public/app.html");
   const shell = await readProjectFile("public/app-shell.js");
   const app = await readProjectFile("public/app.js");
@@ -415,15 +415,13 @@ test("Creator Hub keeps SPA registration and opens the user workspace separately
 
   // SPA navigation rail in app.html
   assert.match(html, /data-shell-view="portal"/);
-  assert.match(html, /Creator Hub/);
-  assert.match(html, /data-lucide="rocket"/);
+  assert.match(html, /<span>Studio<\/span>/);
+  assert.match(html, /data-lucide="sparkles"/);
 
   // Router in app-shell.js
-  assert.match(shell, /portal:\s*\{\s*source:\s*"church-portal\.html",\s*title:\s*"Creator & Ministry Hub"\s*\}/);
-  assert.match(shell, /window\.open\("creator-workspace\.html"/);
-  assert.match(shell, /hasMatchingCreatorIdentity/);
-  assert.match(shell, /mwe\.userEmail/);
-  assert.match(shell, /creator\?\.email/);
+  assert.match(shell, /portal:\s*\{\s*source:\s*"creator-studio\.html",\s*title:\s*"Studio"\s*\}/);
+  assert.match(shell, /portal: \["Studio", "sparkles"\]/);
+  assert.doesNotMatch(shell, /openCreatorWorkspace|hasMatchingCreatorIdentity/);
 
   // Route map and top-level redirection to SPA shell in app.js
   assert.match(app, /"church-portal":\s*"portal"/);
