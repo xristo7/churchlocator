@@ -266,7 +266,6 @@
 
   const inviteButton = document.getElementById("member-send-invite");
   const invitePopover = document.getElementById("member-invite-popover");
-  const inviteCard = inviteButton?.closest(".profile-invite-card");
   if (invitePopover && invitePopover.parentElement !== document.body) document.body.append(invitePopover);
   function closeInvitePopover() {
     if (!invitePopover || invitePopover.hidden) return;
@@ -286,14 +285,6 @@
     invitePopover.querySelector('[data-share-target="x"]')?.setAttribute("href", `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`);
     invitePopover.querySelector('[data-share-target="telegram"]')?.setAttribute("href", `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`);
     invitePopover.querySelector('[data-share-target="email"]')?.setAttribute("href", `mailto:?subject=${encodeURIComponent("Find a church with My Way")}&body=${encodedText}%20${encodedUrl}`);
-    requestAnimationFrame(() => {
-      const cardRect = inviteCard.getBoundingClientRect();
-      const popoverRect = invitePopover.getBoundingClientRect();
-      const left = Math.max(12, Math.min(cardRect.left, window.innerWidth - popoverRect.width - 12));
-      const top = Math.max(12, Math.min(inviteButton.getBoundingClientRect().top - popoverRect.height - 10, window.innerHeight - popoverRect.height - 12));
-      invitePopover.style.left = `${left}px`;
-      invitePopover.style.top = `${top}px`;
-    });
   }
   inviteButton?.addEventListener("click", () => invitePopover?.hidden ? openInvitePopover() : closeInvitePopover());
   invitePopover?.querySelector(".member-invite-close")?.addEventListener("click", closeInvitePopover);
@@ -306,7 +297,7 @@
       window.MWE?.showMemberToast?.("Could not copy the link. Please try again.");
     }
   });
-  document.addEventListener("click", event => { if (invitePopover && !invitePopover.contains(event.target) && !inviteButton?.contains(event.target)) closeInvitePopover(); });
+  document.addEventListener("click", event => { if (invitePopover && (event.target === invitePopover || (!invitePopover.contains(event.target) && !inviteButton?.contains(event.target)))) closeInvitePopover(); });
   document.addEventListener("keydown", event => { if (event.key === "Escape") closeInvitePopover(); });
 
     const flagSvgs = {
