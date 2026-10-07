@@ -71,7 +71,11 @@
     if (!container || !data()) return;
     const resources = data().getResources().slice(0, 3);
     container.innerHTML = resources.map((r, index) => {
-      const icon = r.type === "Video" ? "video" : r.type === "Audio" ? "headphones" : "file-text";
+      const icon = r.type === "Video"
+        ? '<svg class="resource-type-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="13" height="14" rx="2"></rect><path d="m16 10 5-3v10l-5-3"></path></svg>'
+        : r.type === "Audio"
+          ? '<svg class="resource-type-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3"></path><path d="M5 14h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Zm12 0h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Z"></path></svg>'
+          : '<svg class="resource-type-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M8 13h8M8 17h8"></path></svg>';
       const priceTag = r.access === "Free" ? "Free" : data().money(r.price);
       const creatorName = String(r.creator || "My Way").trim();
       const normalizedCreator = creatorName.toLocaleLowerCase();
@@ -84,7 +88,7 @@
       return '<article class="resource-card editorial-card tone-' + (index % 6) + '">' +
         '<a class="resource-cover" href="resource-detail.html?id=' + encodeURIComponent(r.id) + '" aria-label="View ' + data().escapeHtml(r.title) + '">' +
           '<img class="resource-image" src="' + data().escapeHtml(r.image) + '" alt="" />' +
-          '<span class="resource-cover-icon"><i data-lucide="' + icon + '"></i></span>' +
+          '<span class="resource-cover-icon">' + icon + '</span>' +
           '<span class="resource-type-label">' + data().escapeHtml(r.format) + '</span>' +
         '</a>' +
         '<div class="resource-card-body">' +

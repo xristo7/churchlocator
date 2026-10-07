@@ -530,7 +530,9 @@ test("SPA shell supports member home dashboard and interactive meditation sanctu
   assert.doesNotMatch(memberHomeJs, /Connect with /);
   assert.match(memberHomeJs, /resource-subtitle/);
   assert.match(memberHomeJs, /resource-channel-link/);
+  assert.match(memberHomeJs, /resource-type-icon/);
   assert.match(memberHomeJs, /resource-price-badge.*paid/);
+  assert.match(styles, /\.editorial-card \.resource-type-icon/);
   assert.match(styles, /\.editorial-card \.resource-channel-link/);
   assert.match(styles, /\.editorial-card \.resource-card-footer/);
   assert.match(memberHomeHtml, /Meditation Sanctuary/);
