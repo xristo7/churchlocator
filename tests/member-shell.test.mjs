@@ -590,6 +590,8 @@ test("directory modules share the standardized atmospheric hero and filter tray"
   }
   assert.doesNotMatch(styles, /module-hero-blob\.png/);
   assert.match(styles, /\.module-directory-hero::before/);
+  assert.match(styles, /\.module-directory-hero\s*\{[^}]*min-height:\s*0;[^}]*padding:\s*100px 0 48px;/);
+  assert.match(styles, /@media\s*\(max-width:\s*640px\)[\s\S]*?\.module-directory-hero\s*\{[^}]*padding:\s*100px 0 36px;/);
   assert.match(styles, /@keyframes module-hero-atmosphere/);
   assert.match(styles, /\.module-directory-hero::before[\s\S]*hsla\(var\(--primary-h\), var\(--primary-s\), var\(--primary-l\)/);
   assert.match(styles, /--module-control-height:\s*56px/);

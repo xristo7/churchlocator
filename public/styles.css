@@ -21066,11 +21066,11 @@ html[data-theme="dark"] .template-choice-card {
 /* Standard directory header: Churches, Meditation, Events, Store, Live,
    Resources and Channels share one visual and interaction hierarchy. */
 .module-directory-hero {
-  min-height: 390px;
+  min-height: 0;
   box-sizing: border-box;
   display: flex;
   align-items: flex-end;
-  padding: clamp(72px, 9vw, 118px) 0 clamp(48px, 6vw, 72px);
+  padding: 100px 0 48px;
   border-bottom: 1px solid rgba(167, 139, 250, 0.12);
   background: linear-gradient(145deg, rgba(246,246,254,0.96), rgba(239,246,255,0.92));
 }
@@ -21341,7 +21341,7 @@ html[data-theme="dark"] .module-directory-hero h2 { color: #fff; }
 html[data-theme="dark"] .module-directory-hero p:not(.kicker):not(.module-kicker) { color: #ded6e8; }
 
 @media (max-width: 900px) {
-  .module-directory-hero { min-height: 330px; }
+  .module-directory-hero { min-height: 0; }
   .module-directory-hero .module-hero-inner,
   .module-directory-hero > .module-shell {
     grid-template-columns: minmax(0, 1fr);
@@ -21360,8 +21360,8 @@ html[data-theme="dark"] .module-directory-hero p:not(.kicker):not(.module-kicker
 
 @media (max-width: 640px) {
   .module-directory-hero {
-    min-height: 300px;
-    padding: 54px 0 42px;
+    min-height: 0;
+    padding: 100px 0 36px;
     background-size: cover;
   }
   .module-directory-hero .module-hero-inner,
