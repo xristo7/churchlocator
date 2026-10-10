@@ -329,3 +329,5 @@ html[data-theme="dark"] .mwe-avatar { box-shadow: 0 0 0 1px rgba(148,163,184,.25
 html body header.profile-app-header label.profile-app-search.site-search input[type="search"],
 html[data-theme="dark"] body header.profile-app-header label.profile-app-search.site-search input[type="search"] { background: transparent !important; background-color: transparent !important; border: 0 !important; box-shadow: none !important; outline: 0 !important; }
 html body header.profile-app-header .profile-app-search input:not(#mwe-x):not(#mwe-y) { background: transparent !important; background-color: transparent !important; border: 0 !important; box-shadow: none !important; }
+#nav-auth-submit-btn:not(#mwe-x), .member-auth-submit:not(#mwe-x) { background: var(--primary-gradient, var(--color-primary)) !important; color: #fff !important; border: 0 !important; }
+#nav-auth-submit-btn:not(#mwe-x) svg { color: #fff !important; }
