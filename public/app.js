@@ -2831,7 +2831,7 @@ MWE.getChurchHeroVideo = function(church) {
 };
 
 MWE.getChurchHeroSlides = function(church) {
-  const cover = MWE.safeImageUrl(church.photo || church.coverImage || church.image, "assets/hero-global-church.png");
+  const cover = MWE.safeImageUrl(church.photo || church.coverImage || church.image, "assets/hero-global-church-clean.png");
   const gallery = (Array.isArray(church.gallery) ? church.gallery : [])
     .map((item, index) => ({
       type: "image",

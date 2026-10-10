@@ -3,7 +3,7 @@
   if (window.top !== window.self || document.querySelector(".mwe-tabbar")) return;
   const page = (location.pathname.replace(/\/+$/, "").split("/").pop() || "index").replace(/\.html$/, "") || "index";
   // Immersive full-screen views (short video feed, live/video players) skip the tab bar.
-  const immersive = ["spotlight", "spotlight-studio", "live", "livestream", "watch", "broadcast", "channel-live"];
+  const immersive = ["reset-password", "spotlight", "spotlight-studio", "live", "livestream", "watch", "broadcast", "channel-live"];
   if (immersive.includes(page)) { document.documentElement.classList.add("mwe-immersive"); return; }
   const svg = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + "</svg>";
   const tabs = [
@@ -522,11 +522,48 @@
       });
     });
   };
+  const forgotPanel = (container) => {
+    let panel = container.querySelector(":scope > .mwe-forgot-panel");
+    if (panel) return panel;
+    panel = document.createElement("form");
+    panel.className = "mwe-forgot-panel"; panel.noValidate = true;
+    panel.innerHTML = '<h3>Reset your password</h3><p>Enter the email on your account and we\'ll send you a link to choose a new password.</p>' +
+      '<p class="member-auth-error" role="alert" hidden></p><p class="mwe-reset-success" role="status" hidden></p>' +
+      '<label class="member-auth-field"><span class="member-auth-label">Email</span><input type="email" name="email" autocomplete="email" placeholder="Email address" required /></label>' +
+      '<button class="member-auth-submit" type="submit"><span>Send reset link</span></button>' +
+      '<button type="button" class="mwe-forgot-back">Back to sign in</button>';
+    container.append(panel);
+    const err = panel.querySelector(".member-auth-error"), ok = panel.querySelector(".mwe-reset-success"), btn = panel.querySelector('[type="submit"]'), input = panel.querySelector("input");
+    panel.querySelector(".mwe-forgot-back").addEventListener("click", () => container.classList.remove("mwe-forgot-mode"));
+    panel.addEventListener("submit", async (ev) => {
+      ev.preventDefault(); err.hidden = true; ok.hidden = true;
+      const email = input.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = "Enter a valid email address."; err.hidden = false; input.focus(); return; }
+      btn.disabled = true; btn.setAttribute("aria-busy", "true");
+      try {
+        const res = await fetch("/api/auth/forgot-password", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) });
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 429) throw new Error("Too many requests. Please wait a minute and try again.");
+        if (!res.ok) throw new Error(data.error || "Something went wrong. Please try again.");
+        ok.textContent = data.message || "If an account exists for that email, we've sent a reset link.";
+        ok.hidden = false;
+      } catch (e2) { err.textContent = e2.message; err.hidden = false; }
+      finally { btn.disabled = false; btn.removeAttribute("aria-busy"); }
+    });
+    return panel;
+  };
   document.addEventListener("click", (e) => {
     const f = e.target.closest && e.target.closest("[data-auth-forgot]");
     if (!f) return;
     e.preventDefault();
-    toast("Password reset isn't available online yet. Please contact your church or My Way support to reset it.");
+    const container = f.closest(".member-auth-card, .signin-dropdown-popover");
+    if (!container) return toast("Open sign in to reset your password.");
+    const panel = forgotPanel(container);
+    const typed = container.querySelector('input[type="email"]:not(.mwe-forgot-panel input)');
+    const input = panel.querySelector("input");
+    if (typed && typed.value && !input.value) input.value = typed.value;
+    container.classList.add("mwe-forgot-mode");
+    setTimeout(() => input.focus(), 50);
   });
   const start = () => {
     enhance(document);

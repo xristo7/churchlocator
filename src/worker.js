@@ -5,6 +5,7 @@ import { handleSpotlightApi, deliverSpotlightNotifications } from './spotlight.j
 import { handleLiveApi, closeExpiredLiveSessions, deliverLiveNotifications } from './live.js';
 import { handleContentEngagementApi } from './content-engagements.js';
 import { handleSimulatedLiveApi } from './simulated-live.js';
+import { sendPasswordResetEmail } from './password-email.js';
 
 const apiHeaders = {
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -545,6 +546,67 @@ async function handleAuthPasswordUpdate(request, env) {
   return json({ ok: true, message: "Password updated." });
 }
 
+// --- Password reset -------------------------------------------------------
+const PASSWORD_RESET_TTL_MINUTES = 45;
+const PASSWORD_RESET_MAX_PER_WINDOW = 3; // per account per 15 minutes
+const FORGOT_PASSWORD_MESSAGE = "If an account exists for that email, we've sent a link to reset your password.";
+
+function resetOrigin(request, env) {
+  const configured = String(env.PUBLIC_ORIGIN || "");
+  try { if (configured) return new URL(configured).origin; } catch {}
+  return new URL(request.url).origin;
+}
+
+async function handleForgotPassword(request, env, context) {
+  if (!env.DB) return storageUnavailable();
+  const payload = await readJson(request);
+  const email = normalizeEmail(payload?.email);
+  const generic = json({ ok: true, message: FORGOT_PASSWORD_MESSAGE });
+  if (!isValidEmail(email)) return generic;
+  const user = await env.DB.prepare("select id, email, password_hash from users where email = ?").bind(email).first();
+  if (!user || user.password_hash === "authentication-disabled") return generic;
+  const now = new Date();
+  const windowStart = new Date(now.getTime() - 15 * 60 * 1000).toISOString();
+  const recent = await env.DB.prepare("select count(*) as n from password_reset_tokens where user_id = ? and created_at > ?").bind(user.id, windowStart).first();
+  if (Number(recent?.n || 0) >= PASSWORD_RESET_MAX_PER_WINDOW) return generic;
+  const token = randomToken(32);
+  const digest = await digestToken(token);
+  // Supersede older links (kept, not deleted, so the per-account throttle still counts them).
+  await env.DB.prepare("update password_reset_tokens set used_at = ? where user_id = ? and used_at is null").bind(now.toISOString(), user.id).run();
+  await env.DB.prepare("insert into password_reset_tokens (digest, user_id, expires_at, used_at, created_at) values (?, ?, ?, null, ?)")
+    .bind(digest, user.id, new Date(now.getTime() + PASSWORD_RESET_TTL_MINUTES * 60 * 1000).toISOString(), now.toISOString())
+    .run();
+  const link = `${resetOrigin(request, env)}/reset-password?token=${encodeURIComponent(token)}`;
+  const delivery = sendPasswordResetEmail(env, user.email, link).catch(error => console.error("[password-reset] send failed", error?.message || error));
+  if (context && typeof context.waitUntil === "function") context.waitUntil(delivery); else await delivery;
+  return generic;
+}
+
+async function handleResetPassword(request, env) {
+  if (!env.DB) return storageUnavailable();
+  const payload = await readJson(request);
+  const token = String(payload?.token || "");
+  const newPassword = String(payload?.newPassword || "");
+  const invalid = json({ ok: false, error: "This reset link is invalid or has expired. Request a new one." }, 400);
+  if (!token || token.length > 200) return invalid;
+  if (newPassword.length < 15 || newPassword.length > 128) {
+    return json({ ok: false, error: "Your new password must be between 15 and 128 characters." }, 400);
+  }
+  const digest = await digestToken(token);
+  const row = await env.DB.prepare("select digest, user_id, expires_at, used_at from password_reset_tokens where digest = ?").bind(digest).first();
+  const nowIso = new Date().toISOString();
+  if (!row || row.used_at || String(row.expires_at) <= nowIso) return invalid;
+  const claimed = await env.DB.prepare("update password_reset_tokens set used_at = ? where digest = ? and used_at is null").bind(nowIso, digest).run();
+  if (claimed?.meta && claimed.meta.changes === 0) return invalid;
+  const next = await hashNewPassword(newPassword, env);
+  await env.DB.prepare("update users set password_hash = ?, password_salt = ?, updated_at = ? where id = ?")
+    .bind(next.hash, next.salt, nowIso, row.user_id)
+    .run();
+  await env.DB.prepare("delete from sessions where user_id = ?").bind(row.user_id).run();
+  await env.DB.prepare("update password_reset_tokens set used_at = ? where user_id = ? and used_at is null").bind(nowIso, row.user_id).run();
+  return json({ ok: true, message: "Your password has been reset. Sign in with your new password." });
+}
+
 async function handleGoogleAuthStart(request, env) {
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
     return json({ ok: false, error: "Google sign-in is not configured." }, 503);
@@ -1037,6 +1099,7 @@ function assetRequest(request) {
     ["/donate", "/donate.html"],
     ["/privacy", "/privacy.html"],
     ["/terms", "/privacy.html"],
+    ["/reset-password", "/reset-password.html"],
     ["/safeguarding", "/privacy.html"],
     ["/about", "/index.html"],
     ["/volunteer", "/index.html"],
@@ -1554,7 +1617,7 @@ async function handleCreatorDeleteTestimony(testimonyId, request, env, context) 
   return json({ ok: true, message: "Testimony deleted" });
 }
 
-async function handleApi(request, env) {
+async function handleApi(request, env, executionCtx) {
   const requestId = crypto.randomUUID();
 
   try {
@@ -1625,6 +1688,8 @@ async function handleApi(request, env) {
     if (path === "/api/auth/register") return await handleAuthRegister(request, env);
     if (path === "/api/auth/login") return await handleAuthLogin(request, env);
     if (path === "/api/auth/logout") return await handleAuthLogout(request, env);
+    if (path === "/api/auth/forgot-password") return await handleForgotPassword(request, env, executionCtx);
+    if (path === "/api/auth/reset-password") return await handleResetPassword(request, env);
     if (path === "/api/creator/register") return await handleCreatorRegister(request, env);
     if (path === "/api/creator/upgrade") return await handleCreatorUpgrade(request, env);
     if (path === "/api/services/book") return await handleServiceBooking(request, env);
@@ -1654,10 +1719,10 @@ export default {
     await closeExpiredLiveSessions(env);
     await deliverLiveNotifications(env);
   },
-  async fetch(request, env) {
+  async fetch(request, env, executionCtx) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
-      return handleApi(request, env);
+      return handleApi(request, env, executionCtx);
     }
 
     if (url.pathname.startsWith("/media/")) return handleMediaRequest(request, env);

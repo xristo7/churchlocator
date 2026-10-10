@@ -331,3 +331,45 @@ html[data-theme="dark"] body header.profile-app-header label.profile-app-search.
 html body header.profile-app-header .profile-app-search input:not(#mwe-x):not(#mwe-y) { background: transparent !important; background-color: transparent !important; border: 0 !important; box-shadow: none !important; }
 #nav-auth-submit-btn:not(#mwe-x), .member-auth-submit:not(#mwe-x) { background: var(--primary-gradient, var(--color-primary)) !important; color: #fff !important; border: 0 !important; }
 #nav-auth-submit-btn:not(#mwe-x) svg { color: #fff !important; }
+
+/* ===== Password reset page ===== */
+body.mwe-reset-page { min-height: 100dvh; margin: 0; background: radial-gradient(ellipse at 50% 0%, hsla(var(--primary-h,221), 83%, 60%, .18), transparent 60%), var(--background, #f8fafc); }
+html[data-theme="dark"] body.mwe-reset-page { background: radial-gradient(ellipse at 50% 0%, hsla(var(--primary-h,221), 70%, 40%, .35), transparent 60%), #020617; }
+.mwe-reset-main { min-height: 100dvh; display: grid; place-items: center; padding: calc(var(--safe-top) + var(--space-5)) var(--space-4) calc(var(--safe-bottom) + var(--space-5)); box-sizing: border-box; }
+.mwe-reset-card { width: min(420px, 100%) !important; padding: var(--space-6) !important; border-radius: var(--radius-lg) !important; box-shadow: 0 30px 80px rgba(2,6,23,.14), 0 2px 6px rgba(2,6,23,.06) !important; position: relative !important; }
+.mwe-reset-card .member-auth-icon { text-decoration: none; }
+.mwe-reset-done { display: flex; flex-direction: column; gap: var(--space-4); }
+.mwe-reset-done[hidden] { display: none; }
+.mwe-reset-done .member-auth-submit { text-decoration: none; }
+.mwe-reset-success { margin: 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: rgba(16,185,129,.10); border: 1px solid rgba(16,185,129,.35); color: #047857; font-size: var(--text-sm); line-height: 1.5; }
+html[data-theme="dark"] .mwe-reset-success { color: #6ee7b7; }
+.mwe-strength { display: flex; align-items: center; gap: var(--space-3); }
+.mwe-strength-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--auth-line, #e2e8f0); overflow: hidden; }
+.mwe-strength-bar i { display: block; height: 100%; width: 0; border-radius: 3px; background: #ef4444; transition: width var(--dur-base) var(--ease-standard), background-color var(--dur-base); }
+.mwe-strength-bar i[data-level="ok"] { background: #f59e0b; } .mwe-strength-bar i[data-level="strong"] { background: #10b981; }
+.mwe-strength small { min-width: 96px; text-align: right; color: var(--auth-muted, #64748b); font-size: var(--text-xs); font-weight: 600; }
+@media (max-width: 639.98px) {
+  .mwe-reset-main { place-items: end stretch; padding: 0; }
+  .mwe-reset-card { width: 100% !important; border-radius: 24px 24px 0 0 !important; padding: var(--space-6) var(--space-5) calc(var(--space-6) + var(--safe-bottom)) !important; animation: mwe-sheet-up var(--dur-slow) var(--ease-emphasized); }
+}
+
+/* ===== In-sheet "forgot password" step ===== */
+.mwe-forgot-panel { display: none; flex-direction: column; gap: var(--space-4); }
+.mwe-forgot-mode > :not(.mwe-forgot-panel):not(.member-auth-close):not(.member-auth-icon) { display: none !important; }
+.mwe-forgot-mode > .mwe-forgot-panel { display: flex !important; }
+.mwe-forgot-panel h3 { margin: 0; font-size: var(--text-xl); color: var(--auth-text); }
+.mwe-forgot-panel p { margin: 0; color: var(--auth-muted); font-size: var(--text-sm); line-height: 1.5; }
+.mwe-forgot-back { align-self: center; background: none; border: 0; color: var(--color-primary); font-weight: 700; font-size: var(--text-sm); cursor: pointer; padding: var(--space-2); }
+.mwe-forgot-panel .mwe-reset-success[hidden] { display: none; }
+
+/* ===== Sign-in rough spots ===== */
+/* Mobile: hide the menu drawer behind the sign-in sheet (popover lives inside it) */
+@media (max-width: 959.98px) {
+  .topbar-menu-group:has(#nav-signin-popover:not([hidden])) { visibility: hidden !important; background: transparent !important; box-shadow: none !important; }
+  .topbar-menu-group:has(#nav-signin-popover:not([hidden])) #nav-signin-popover { visibility: visible !important; }
+  body:has(#nav-signin-popover:not([hidden])) .mobile-menu-backdrop,
+  body:has(#nav-signin-popover:not([hidden])) .mobile-menu-toggle { visibility: hidden !important; }
+}
+/* Desktop: backdrop must cover the header too — lift the popover's ancestors above header siblings */
+.topbar:has(#nav-signin-popover:not([hidden])) { z-index: 100000 !important; }
+.topbar:has(#nav-signin-popover:not([hidden])) :is(.topbar-inner, .topbar-menu-group, #nav-auth-slot, .signin-dropdown-container):has(#nav-signin-popover) { position: relative; z-index: 2147483000 !important; }
