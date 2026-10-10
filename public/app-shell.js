@@ -380,7 +380,7 @@
   };
   const languages = { en: "EN", fr: "FR", es: "ES" };
   const shellTranslations = {
-    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", profile: "Profile", security: "Security", portal: "Studio", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Share", loading: "Loading your My Way view…", search: "Search churches, channels, events...", member: "My Way member", signOut: "Sign out" },
+    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", profile: "Profile", security: "Security", portal: "Studio", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Share", loading: "Loading your My Way view…", search: "Search My Way", member: "My Way member", signOut: "Sign out" },
     fr: { home: "Accueil", spotlight: "À la une", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", profile: "Profil", security: "Sécurité", portal: "Studio", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Partager", loading: "Chargement de votre espace My Way…", search: "Rechercher des églises, chaînes, événements…", member: "Membre My Way", signOut: "Se déconnecter" },
     es: { home: "Inicio", spotlight: "Destacados", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", profile: "Perfil", security: "Seguridad", portal: "Estudio", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Compartir", loading: "Cargando tu espacio My Way…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de My Way", signOut: "Cerrar sesión" }
   };
@@ -482,4 +482,90 @@
   syncMemberIdentity();
   loadRoute(getRoute(), { history: false });
   window.lucide?.createIcons();
+})();
+
+/* Auth UI enhancements: password show/hide, forgot link, loading state (logic untouched). */
+(function initMWEAuthEnhance() {
+  const eye = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const eyeOff = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19C5.5 19 2 12 2 12a18.5 18.5 0 0 1 5.1-5.9M9.9 5.2A9.6 9.6 0 0 1 12 5c6.5 0 10 7 10 7a18.6 18.6 0 0 1-2.2 3.2M14.1 14.1a3 3 0 1 1-4.2-4.2M2 2l20 20"/></svg>';
+  const toast = (msg) => (window.MWE && typeof MWE.showMemberToast === "function" ? MWE.showMemberToast(msg) : alert(msg));
+  const enhance = (root) => {
+    root.querySelectorAll('.signin-dropdown-popover input[type="password"], .member-auth-card input[type="password"]').forEach((input) => {
+      if (input.dataset.mweToggle) return;
+      input.dataset.mweToggle = "1";
+      let wrap = input.closest(".mwe-password-wrap");
+      if (!wrap) { wrap = document.createElement("span"); wrap.className = "mwe-password-wrap"; input.parentNode.insertBefore(wrap, input); wrap.append(input); }
+      const btn = document.createElement("button");
+      btn.type = "button"; btn.className = "mwe-password-toggle"; btn.setAttribute("aria-label", "Show password"); btn.innerHTML = eye;
+      btn.addEventListener("click", () => {
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.innerHTML = show ? eyeOff : eye;
+        btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        input.focus();
+      });
+      wrap.append(btn);
+    });
+    root.querySelectorAll("#nav-dropdown-auth-form").forEach((form) => {
+      if (form.querySelector("[data-auth-forgot]")) return;
+      const pw = form.querySelector("#nav-auth-password");
+      const group = pw && pw.closest(".signin-field-group");
+      if (!group) return;
+      const link = document.createElement("a");
+      link.href = "#"; link.className = "member-auth-forgot nav-auth-forgot"; link.dataset.authForgot = ""; link.textContent = "Forgot password?";
+      group.append(link);
+      form.addEventListener("submit", () => {
+        const b = form.querySelector('[type="submit"]');
+        if (!b) return;
+        b.setAttribute("aria-busy", "true");
+        setTimeout(() => b.removeAttribute("aria-busy"), 8000);
+      });
+    });
+  };
+  document.addEventListener("click", (e) => {
+    const f = e.target.closest && e.target.closest("[data-auth-forgot]");
+    if (!f) return;
+    e.preventDefault();
+    toast("Password reset isn't available online yet. Please contact your church or My Way support to reset it.");
+  });
+  const start = () => {
+    enhance(document);
+    new MutationObserver((muts) => { if (muts.some((m) => m.addedNodes.length)) enhance(document); }).observe(document.body, { childList: true, subtree: true });
+  };
+  if (document.body) start(); else document.addEventListener("DOMContentLoaded", start, { once: true });
+})();
+
+/* Account avatar from the real session: photo -> initials -> generic icon. */
+(function initMWEAvatar() {
+  const generic = "assets/avatar-generic.svg";
+  const initials = (n) => String(n || "").trim().split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
+  const paint = () => {
+    const nodes = document.querySelectorAll("[data-mwe-avatar]");
+    if (!nodes.length) return;
+    const s = window.MWEPlatform && window.MWEPlatform.session;
+    const name = (s && (s.name || s.email)) || "";
+    nodes.forEach((el) => {
+      el.textContent = "";
+      const show = (src, label) => { const img = new Image(); img.alt = label; img.referrerPolicy = "no-referrer"; img.src = src; el.append(img); return img; };
+      if (s && s.avatarUrl) {
+        const img = show(s.avatarUrl, name + " profile picture");
+        img.onerror = () => { img.remove(); fallback(); };
+      } else fallback();
+      function fallback() {
+        const ini = initials(s && s.name);
+        if (ini) { const sp = document.createElement("span"); sp.textContent = ini; el.append(sp); }
+        else show(generic, "");
+      }
+    });
+    document.querySelectorAll("[data-mwe-account-name]").forEach((n) => (n.textContent = s ? (s.name || "My account") : "Sign in"));
+  };
+  const header = document.querySelector(".member-shell-header");
+  if (header && !header.querySelector(":scope > [data-mwe-avatar]")) {
+    const a = document.createElement("a");
+    a.className = "mwe-avatar"; a.dataset.mweAvatar = ""; a.href = "app.html?view=profile"; a.setAttribute("aria-label", "Your account");
+    const menu = header.querySelector(".profile-mobile-menu");
+    header.insertBefore(a, menu || null);
+  }
+  const run = async () => { paint(); try { await (window.MWEPlatform && window.MWEPlatform.ready); } catch (e) {} paint(); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once: true }); else run();
 })();

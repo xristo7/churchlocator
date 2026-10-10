@@ -1642,19 +1642,17 @@ MWE.ensureMemberLoginModal = function() {
         </svg>
         <span>Continue with Google</span>
       </button>
-      <div class="auth-divider member-auth-divider"><span>or continue with email</span></div>
-      <form class="member-auth-form" data-member-auth-form>
-        <p class="member-auth-error" data-member-auth-error hidden></p>
-        <label class="member-auth-field"><span class="auth-visually-hidden">Email address</span>
-          <input type="email" name="email" autocomplete="email" placeholder="Email address" required />
-          <small class="auth-field-helper">Use the email on your My Way account.</small>
+      <div class="auth-divider member-auth-divider" role="separator"><span>or</span></div>
+      <form class="member-auth-form" data-member-auth-form novalidate>
+        <p class="member-auth-error" data-member-auth-error role="alert" hidden></p>
+        <label class="member-auth-field"><span class="member-auth-label">Email</span>
+          <input type="email" name="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required />
         </label>
-        <label class="member-auth-field"><span class="auth-visually-hidden">Password</span>
-          <input type="password" name="password" autocomplete="current-password" placeholder="Password" required />
-          <small class="auth-field-helper">Enter your account password.</small>
+        <label class="member-auth-field"><span class="member-auth-label-row"><span class="member-auth-label">Password</span><a href="#" class="member-auth-forgot" data-auth-forgot>Forgot password?</a></span>
+          <span class="mwe-password-wrap"><input type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required /></span>
         </label>
-        <button class="member-auth-submit" type="submit"><i data-lucide="log-in"></i> Sign in</button>
-        <p class="member-auth-hint">No account yet? <a href="index.html#register">Register free</a> first.</p>
+        <button class="member-auth-submit" type="submit"><i data-lucide="log-in"></i> <span>Sign in</span></button>
+        <p class="member-auth-hint">New to My Way? <a href="index.html#register">Create an account</a></p>
       </form>
     </div>
   `;
@@ -1699,9 +1697,9 @@ MWE.ensureMemberLoginModal = function() {
       return;
     }
 
-    if (submitBtn) submitBtn.disabled = true;
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.setAttribute("aria-busy", "true"); }
     const result = await window.MWEAuth.login(email, password);
-    if (submitBtn) submitBtn.disabled = false;
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.removeAttribute("aria-busy"); }
 
     if (!result.ok) {
       if (errorEl) { errorEl.textContent = result.error || "Invalid email or password."; errorEl.hidden = false; }
@@ -2190,9 +2188,9 @@ function initPrivateAppAuth() {
         verified: false,
         photo: "assets/church-audience.jpg",
         logo: "",
-        pastor: registrantNameInput && registrantNameInput.value ? registrantNameInput.value : "Pastor John Doe",
+        pastor: registrantNameInput && registrantNameInput.value ? registrantNameInput.value : "Pastor",
         pastorTitle: finalRole,
-        pastorPhoto: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300",
+        pastorPhoto: "",
         pastorBio: "Welcome to our ministry fellowship! We would love to connect with you.",
         about: "We are committed to sharing God's love and reaching communities globally.",
         ministries: ["worship", "community", "prayer", "youth"],
@@ -3094,7 +3092,7 @@ function renderProfile(church) {
   setVal("[data-profile-pastor-bio]", church.pastorBio || church.about);
   
   const leaderPhoto = document.getElementById("leader-profile-img");
-  const defaultPastorPhoto = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
+  const defaultPastorPhoto = "assets/avatar-generic.svg";
   if (leaderPhoto) {
     leaderPhoto.src = MWE.safeImageUrl(church.pastorPhoto, defaultPastorPhoto);
     leaderPhoto.referrerPolicy = "no-referrer";
@@ -3801,7 +3799,7 @@ MWE.openAudioModal = function(church, audioUrl) {
   
   if (!modal || !audioEl) return;
   
-  pastorImg.src = MWE.safeImageUrl(church.pastorPhoto, "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80");
+  pastorImg.src = MWE.safeImageUrl(church.pastorPhoto, "assets/avatar-generic.svg");
   pastorImg.referrerPolicy = "no-referrer";
   playerTitle.textContent = `${church.pastor || 'Pastor'}'s Welcome`;
   playerSubtitle.textContent = `Senior Pastor, ${church.name}`;
@@ -5398,7 +5396,7 @@ function updateHomepageAuthUI() {
               <span id="google-auth-fast-label">Continue with Google</span>
             </button>
 
-            <div class="auth-divider"><span>or with credentials</span></div>
+            <div class="auth-divider" role="separator"><span>or</span></div>
 
             <!-- Auth Credentials Form -->
             <form id="nav-dropdown-auth-form" onsubmit="MWE.handleNavDropdownAuthSubmit(event)">
