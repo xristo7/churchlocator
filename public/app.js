@@ -1646,10 +1646,10 @@ MWE.ensureMemberLoginModal = function() {
       <form class="member-auth-form" data-member-auth-form novalidate>
         <p class="member-auth-error" data-member-auth-error role="alert" hidden></p>
         <label class="member-auth-field"><span class="member-auth-label">Email</span>
-          <input type="email" name="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required />
+          <input type="email" name="email" autocomplete="email" placeholder="Email address" inputmode="email" required />
         </label>
         <label class="member-auth-field"><span class="member-auth-label-row"><span class="member-auth-label">Password</span><a href="#" class="member-auth-forgot" data-auth-forgot>Forgot password?</a></span>
-          <span class="mwe-password-wrap"><input type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required /></span>
+          <span class="mwe-password-wrap"><input type="password" name="password" autocomplete="current-password" placeholder="Password" required /></span>
         </label>
         <button class="member-auth-submit" type="submit"><i data-lucide="log-in"></i> <span>Sign in</span></button>
         <p class="member-auth-hint">New to My Way? <a href="index.html#register">Create an account</a></p>
