@@ -1,3 +1,28 @@
+/* Shared mobile bottom tab bar (all pages, <960px). */
+(function initMWETabbar() {
+  if (window.top !== window.self || document.querySelector(".mwe-tabbar")) return;
+  const page = (location.pathname.replace(/\/+$/, "").split("/").pop() || "index").replace(/\.html$/, "") || "index";
+  const svg = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + "</svg>";
+  const tabs = [
+    { label: "Home", href: "/", icon: svg('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>'),
+      match: ["index", "about", "volunteer", "prayer", "foundation", "donate", "privacy", "terms", "safeguarding"] },
+    { label: "Discover", href: "/churches", icon: svg('<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>'),
+      match: ["churches", "church", "church-profile", "events", "event", "event-profile", "channels", "channel", "channel-detail", "channel-content", "resources", "resource", "resource-detail", "resource-reader", "store", "storefront", "product", "product-detail", "cart", "checkout", "meditation"] },
+    { label: "Spotlight", href: "/spotlight", icon: svg('<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/>'),
+      match: ["spotlight", "spotlight-studio", "live", "livestream", "watch", "broadcast", "channel-live", "live-setup"] },
+    { label: "Messages", href: "/messages", icon: svg('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.7A8 8 0 1 1 21 12z"/>'),
+      match: ["messages"] },
+    { label: "Me", href: "/app", icon: svg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+      match: ["app", "member", "member-home", "account-profile", "account-security", "creator-studio", "creator-workspace", "church-portal", "portal", "creator-hub", "owner-dashboard", "admin", "seller-dashboard", "store-manager"] }
+  ];
+  const bar = document.createElement("nav");
+  bar.className = "mwe-tabbar";
+  bar.setAttribute("aria-label", "Primary");
+  bar.innerHTML = tabs.map((t) => '<a class="mwe-tab" href="' + t.href + '"' + (t.match.includes(page) ? ' aria-current="page"' : "") + ">" + t.icon + "<span>" + t.label + "</span></a>").join("");
+  const mount = () => { document.body.append(bar); document.body.classList.add("has-mwe-tabbar"); };
+  if (document.body) mount(); else document.addEventListener("DOMContentLoaded", mount, { once: true });
+})();
+
 (async function initFaithLinkMemberShell() {
   await window.MWEPlatform?.ready;
   const frame = document.getElementById("member-shell-frame");
