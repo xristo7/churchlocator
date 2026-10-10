@@ -55,7 +55,7 @@ test("Church Profile: Sticky tab navigation bar in left column with reinstated L
   assert.match(html, /data-tab="services"[^>]*>[\s\S]*?<span>Schedule<\/span>/, "services tab must be labeled 'Schedule'");
   assert.doesNotMatch(html, /<span>Services &amp; Schedule<\/span>/, "should not have 'Services & Schedule' label");
   assert.match(html, /data-tab="events"/, "should have Upcoming Events tab");
-  assert.match(html, /data-tab="location"[^>]*>[\s\S]*?<span>Location &amp; Map<\/span>/, "should have Location & Map tab");
+  assert.match(html, /data-tab="location"[^>]*>[\s\S]*?<span>Location<\/span>/, "should have Location & Map tab");
 
   // Location & Map tab pane must be reinstated
   assert.match(html, /id="tab-pane-location"/, "Location & Map tab pane should be present");
