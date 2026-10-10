@@ -105,3 +105,43 @@ html.mwe-immersive body { padding-bottom: 0 !important; }
   .module-content .filter-pill-reset-btn { margin-block: calc(-1 * var(--space-3)) var(--space-4); }
 }
 @media (min-width: 1440px) { :root { --max: 1200px; } }
+
+/* Home carousel on touch/mobile: swipeable snap row instead of auto-marquee (no cards sliding off-edge mid-text) */
+@media (max-width: 959.98px) {
+  body[data-page="home"] .slider-container-box { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent 100%); mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent 100%); }
+  body[data-page="home"] .slider-container-box::-webkit-scrollbar { display: none; }
+  body[data-page="home"] .slider-track { animation: none !important; transform: none !important; scroll-padding-left: var(--gutter); }
+  body[data-page="home"] .slider-track > * { scroll-snap-align: start; scroll-margin-left: var(--gutter); }
+  body[data-page="home"] .slider-label { justify-content: flex-start; }
+  body[data-page="home"] .tiny-card-info { min-width: 0; }
+  body[data-page="home"] .tiny-card-name, body[data-page="home"] .tiny-card-details { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+}
+
+/* Desktop polish, round 2 */
+@media (min-width: 960px) {
+  /* Hero action vertically centred against the hero copy, never crowding the search card */
+  .module-hero-inner { align-items: center !important; }
+  .module-hero .module-primary-action, .module-hero .module-creator-action { min-height: 48px !important; height: 48px; padding: 0 var(--space-5) !important; margin-bottom: 0 !important; }
+  .module-hero { padding-bottom: calc(36px + var(--space-4)) !important; }
+  /* Search bar: search flexes, filters never truncate; even 16px to the next row */
+  .site-search-bar .site-search, .site-search-bar .pill-search-input-wrapper { flex: 1 1 auto !important; min-width: 0 !important; }
+  .site-search-bar .module-filter-group { flex: 0 0 auto !important; }
+  .site-search-bar .module-filter-trigger, .site-search-bar .module-filter-control, .site-search-bar select { flex: 0 0 auto !important; width: auto !important; min-width: 128px !important; max-width: none !important; }
+  .site-search-bar .module-filter-trigger > span:not(.pill-badge) { overflow: visible !important; text-overflow: clip !important; }
+  .module-directory-hero + .module-content > .site-search-bar { margin-bottom: calc(var(--space-4) - 38px) !important; }
+  .module-content .filter-pill-reset-btn { margin: 0 0 var(--space-4) auto !important; display: flex; }
+  /* Unified section headers */
+  .module-results-head, .section-head.flex-between, .member-section-head { display: flex !important; align-items: center !important; justify-content: space-between; gap: var(--space-4); margin: var(--space-6) 0 var(--space-5) !important; }
+  .module-results-head h2, .section-head h2, .member-section-head h2 { margin: 0 0 var(--space-1) !important; font-size: var(--text-2xl) !important; line-height: var(--leading-tight); letter-spacing: -.01em; }
+  .module-results-head span, .section-head p { color: var(--color-text-muted); font-size: var(--text-sm); }
+  /* Equal-height card grids */
+  .cards-grid, .store-products-grid { align-items: stretch; }
+  .store-products-grid:empty::before { content: "No products yet. Check back soon."; display: block; grid-column: 1 / -1; padding: var(--space-7) var(--space-5);
+    text-align: center; color: var(--color-text-muted); border: 1px dashed var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); }
+  /* Member left rail: consistent rows and active state */
+  .profile-rail-nav a, .profile-rail-nav button { min-height: 40px; display: flex; align-items: center; gap: var(--space-3); border-radius: var(--radius-sm);
+    transition: background-color var(--dur-fast), color var(--dur-fast); }
+  .profile-rail-nav a:hover, .profile-rail-nav button:hover { background: var(--primary-surface, rgba(37,99,235,.06)); }
+  .profile-rail-nav svg { width: 18px; height: 18px; flex: 0 0 18px; }
+}
