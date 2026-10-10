@@ -2,6 +2,9 @@
 (function initMWETabbar() {
   if (window.top !== window.self || document.querySelector(".mwe-tabbar")) return;
   const page = (location.pathname.replace(/\/+$/, "").split("/").pop() || "index").replace(/\.html$/, "") || "index";
+  // Immersive full-screen views (short video feed, live/video players) skip the tab bar.
+  const immersive = ["spotlight", "spotlight-studio", "live", "livestream", "watch", "broadcast", "channel-live"];
+  if (immersive.includes(page)) { document.documentElement.classList.add("mwe-immersive"); return; }
   const svg = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + "</svg>";
   const tabs = [
     { label: "Home", href: "/", icon: svg('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>'),
@@ -12,14 +15,59 @@
       match: ["spotlight", "spotlight-studio", "live", "livestream", "watch", "broadcast", "channel-live", "live-setup"] },
     { label: "Messages", href: "/messages", icon: svg('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.7A8 8 0 1 1 21 12z"/>'),
       match: ["messages"] },
-    { label: "Me", href: "/app", icon: svg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+    { label: "Me", href: "/app?view=profile", icon: svg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
       match: ["app", "member", "member-home", "account-profile", "account-security", "creator-studio", "creator-workspace", "church-portal", "portal", "creator-hub", "owner-dashboard", "admin", "seller-dashboard", "store-manager"] }
   ];
   const bar = document.createElement("nav");
   bar.className = "mwe-tabbar";
   bar.setAttribute("aria-label", "Primary");
-  bar.innerHTML = tabs.map((t) => '<a class="mwe-tab" href="' + t.href + '"' + (t.match.includes(page) ? ' aria-current="page"' : "") + ">" + t.icon + "<span>" + t.label + "</span></a>").join("");
-  const mount = () => { document.body.append(bar); document.body.classList.add("has-mwe-tabbar"); };
+  // /app hosts modules via ?view=; map each view to its tab (default view is the church directory).
+  const viewTab = { home: "Home", directory: "Discover", churches: "Discover", events: "Discover", channels: "Discover", resources: "Discover",
+    store: "Discover", meditation: "Discover", spotlight: "Spotlight", livestream: "Spotlight", live: "Spotlight", messages: "Messages",
+    profile: "Me", portal: "Me", giving: "Me", account: "Me", settings: "Me" };
+  const activeLabel = () => {
+    if (page === "app" || page === "member") {
+      const view = new URLSearchParams(location.search).get("view") || "directory";
+      return viewTab[view] || "Me";
+    }
+    const hit = tabs.find((t) => t.match.includes(page));
+    return hit ? hit.label : "";
+  };
+  bar.innerHTML = tabs.map((t) => '<a class="mwe-tab" href="' + t.href + '" data-tab="' + t.label + '">' + t.icon + "<span>" + t.label + "</span></a>").join("");
+  const syncActive = () => {
+    const label = activeLabel();
+    bar.querySelectorAll(".mwe-tab").forEach((a) => (a.dataset.tab === label ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
+  };
+  syncActive();
+  ["pushState", "replaceState"].forEach((fn) => {
+    const orig = history[fn];
+    history[fn] = function (...args) { const r = orig.apply(this, args); syncActive(); return r; };
+  });
+  window.addEventListener("popstate", syncActive);
+  const adjust = () => {
+    if (!window.matchMedia("(max-width: 959.98px)").matches) return;
+    const vh = window.innerHeight;
+    document.querySelectorAll("body *:not(.mwe-tabbar):not(.mwe-tabbar *)").forEach((el) => {
+      const cs = getComputedStyle(el);
+      if (cs.display === "none" || cs.visibility === "hidden") return;
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      if (cs.position === "fixed") {
+        // Bottom-anchored floating UI (toasts, FABs, sticky action bars) sits above the bar.
+        if (r.height < vh * 0.6 && vh - r.bottom < 40 && !el.closest(".topbar")) el.classList.add("mwe-lift-above-tabbar");
+        // Full-screen fixed panels scrolling internally get bottom room.
+        else if (r.height >= vh * 0.9 && /(auto|scroll)/.test(cs.overflowY)) el.classList.add("mwe-clear-tabbar");
+      } else if (r.height >= vh * 0.9 && /(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 4) {
+        el.classList.add("mwe-clear-tabbar");
+      }
+    });
+  };
+  const mount = () => {
+    document.body.append(bar);
+    document.body.classList.add("has-mwe-tabbar");
+    adjust();
+    window.addEventListener("load", () => setTimeout(adjust, 400), { once: true });
+  };
   if (document.body) mount(); else document.addEventListener("DOMContentLoaded", mount, { once: true });
 })();
 
