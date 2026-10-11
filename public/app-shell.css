@@ -547,3 +547,9 @@ html[data-theme="dark"] .mwe-drawer-donate { color: var(--gold, #e5a93c) !import
 .mwe-rail-donate strong { font-size: .92rem; font-weight: 800; }
 .mwe-rail-donate small { font-size: .74rem; opacity: .9; }
 .mwe-rail-donate > svg:last-child { width: 16px; height: 16px; opacity: .85; }
+/* Public topbar on mobile: compact Spotlight pill next to the menu (desktop uses the nav link). */
+@media (max-width: 959.98px) {
+  html body .topbar .mwe-topbar-spotlight:not(#mwe-x) { display: inline-flex !important; height: 36px !important; min-height: 36px !important; padding: 0 12px !important; margin-left: auto !important; margin-right: var(--space-2) !important; font-size: .8rem !important; }
+}
+@media (max-width: 374.98px) { html body .topbar .mwe-topbar-spotlight:not(#mwe-x) span { display: none; } html body .topbar .mwe-topbar-spotlight:not(#mwe-x) { padding: 0 10px !important; } }
+@media (min-width: 960px) { html body .topbar .mwe-topbar-spotlight:not(#mwe-x) { display: none !important; } }

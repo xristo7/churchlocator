@@ -779,6 +779,15 @@
         nav.append(d);
       }
     });
+    document.querySelectorAll(".topbar .topbar-inner").forEach((inner) => {
+      if (inner.querySelector(":scope > .mwe-topbar-spotlight")) return;
+      const toggle = inner.querySelector(":scope > .mobile-menu-toggle");
+      if (!toggle) return;
+      const a = document.createElement("a");
+      a.href = "spotlight.html"; a.className = "mwe-header-spotlight mwe-topbar-spotlight"; a.setAttribute("aria-label", "Spotlight");
+      a.innerHTML = playIcon + "<span>Spotlight</span>";
+      toggle.before(a);
+    });
     document.querySelectorAll(".mwe-header-spotlight, .mwe-nav-spotlight").forEach((a) => {
       if (page === "spotlight") a.setAttribute("aria-current", "page");
     });
