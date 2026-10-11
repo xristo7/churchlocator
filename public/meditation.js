@@ -587,7 +587,8 @@
   function roomMp3Src(room) { const src = String(room?.audioSrc || ""); return /^\/media\/creator-media\/[\w-]+\.mp3$/.test(src) || /^https:\/\//.test(src) ? src : ""; }
   function setAudioCredit(room, fallbackNote = "") {
     let credit = document.getElementById("mwe-audio-credit");
-    if (!credit) { credit = document.createElement("p"); credit.id = "mwe-audio-credit"; credit.className = "mwe-audio-credit"; document.body.appendChild(credit); }
+    if (!credit) { credit = document.createElement("p"); credit.id = "mwe-audio-credit"; credit.className = "mwe-audio-credit"; }
+    const host = document.getElementById("meditation-room-view") || document.body; if (credit.parentElement !== host) host.appendChild(credit);
     const sc = roomSoundCloud(room);
     credit.replaceChildren();
     if (sc) {
