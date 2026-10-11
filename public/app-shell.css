@@ -517,3 +517,33 @@ body:has(#nav-signin-popover:not([hidden])) main, body:has(#nav-signin-popover:n
   html body[data-page="profile"] .mwe-testimony-carousel > .testimony-card.glass-card:not(#mwe-x) { grid-template-columns: minmax(170px, 32%) minmax(0, 1fr) !important; }
   html body .mwe-testimony-carousel .testimony-scene:not(#mwe-x) { aspect-ratio: auto !important; height: 100% !important; min-height: 190px !important; max-height: 230px !important; }
 }
+
+/* ===== Spotlight header link + Donate in rail/drawer ===== */
+html body .mwe-header-spotlight:not(#mwe-x) { display: inline-flex !important; align-items: center !important; gap: 7px !important; height: 40px !important; min-height: 40px !important;
+  padding: 0 14px !important; border-radius: var(--radius-pill) !important; border: 1px solid var(--primary-border, rgba(37,99,235,.28)) !important;
+  background: var(--primary-soft, rgba(37,99,235,.08)) !important; color: var(--color-primary) !important; box-shadow: none !important;
+  font-size: .82rem !important; font-weight: 750 !important; text-decoration: none !important; white-space: nowrap; flex: none;
+  transition: background var(--dur-fast), transform var(--dur-fast), box-shadow var(--dur-base) !important; }
+html body .mwe-header-spotlight:not(#mwe-x) svg { width: 16px; height: 16px; color: inherit; stroke: currentColor; }
+html body .mwe-header-spotlight:not(#mwe-x):hover { background: color-mix(in srgb, var(--color-primary) 14%, transparent) !important; transform: translateY(-1px); }
+html body .mwe-header-spotlight[aria-current="page"]:not(#mwe-x) { background: var(--primary-gradient, var(--color-primary)) !important; color: #fff !important; border-color: transparent !important; }
+html[data-theme="dark"] body .mwe-header-spotlight:not(#mwe-x) { color: hsl(221 90% 74%) !important; border-color: rgba(96,165,250,.35) !important; background: rgba(59,130,246,.14) !important; }
+.mwe-nav-spotlight[aria-current="page"] { color: var(--color-primary) !important; }
+@media (max-width: 959.98px) {
+  html body .mwe-header-spotlight:not(#mwe-x) { display: none !important; }
+  .topbar .nav-links:has(.mobile-only-link[href*="spotlight"]) .mwe-nav-spotlight { display: none !important; }
+}
+@media (min-width: 960px) { .mwe-drawer-donate { display: none !important; } }
+.mwe-drawer-donate { color: #b0811a !important; font-weight: 700 !important; }
+html[data-theme="dark"] .mwe-drawer-donate { color: var(--gold, #e5a93c) !important; }
+
+.mwe-rail-donate { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+  text-decoration: none; color: #fff; background: var(--gold-gradient, linear-gradient(135deg, #f0bf5a, #d99a2b)); box-shadow: var(--gold-glow, 0 8px 20px rgba(229,169,60,.3));
+  transition: transform var(--dur-fast), box-shadow var(--dur-base); }
+.mwe-rail-donate:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(229,169,60,.42); }
+.mwe-rail-donate-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,.22); flex: none; }
+.mwe-rail-donate-icon svg { width: 18px; height: 18px; }
+.mwe-rail-donate > span:nth-child(2) { display: flex; flex-direction: column; line-height: 1.25; flex: 1; min-width: 0; }
+.mwe-rail-donate strong { font-size: .92rem; font-weight: 800; }
+.mwe-rail-donate small { font-size: .74rem; opacity: .9; }
+.mwe-rail-donate > svg:last-child { width: 16px; height: 16px; opacity: .85; }

@@ -757,3 +757,31 @@
   };
   if (document.body) start(); else document.addEventListener("DOMContentLoaded", start, { once: true });
 })();
+
+/* Public header: Spotlight link (replaces header Donate); Donate kept in the mobile drawer. */
+(function initMWESpotlightLink() {
+  if (window.top !== window.self) return;
+  const run = () => {
+    const page = (location.pathname.replace(/\/+$/, "").split("/").pop() || "index").replace(/\.html$/, "");
+    const playIcon = '<svg class="drawer-nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/></svg>';
+    const heart = '<svg class="drawer-nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/></svg>';
+    document.querySelectorAll(".topbar .nav-links").forEach((nav) => {
+      nav.querySelectorAll('a.highlight-link[href*="donate"]').forEach((a) => a.remove());
+      if (!nav.querySelector(".mwe-nav-spotlight")) {
+        const a = document.createElement("a");
+        a.href = "spotlight.html"; a.className = "mwe-nav-spotlight"; a.innerHTML = playIcon + "<span>Spotlight</span>";
+        const live = nav.querySelector(".live-nav-link");
+        live ? live.after(a) : nav.append(a);
+      }
+      if (!nav.querySelector(".mwe-drawer-donate")) {
+        const d = document.createElement("a");
+        d.href = "donate.html"; d.className = "mwe-drawer-donate"; d.innerHTML = heart + "<span>Donate</span>";
+        nav.append(d);
+      }
+    });
+    document.querySelectorAll(".mwe-header-spotlight, .mwe-nav-spotlight").forEach((a) => {
+      if (page === "spotlight") a.setAttribute("aria-current", "page");
+    });
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once: true }); else run();
+})();
