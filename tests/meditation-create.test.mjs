@@ -34,7 +34,7 @@ test("audio upload cannot get stuck on 'Uploading your audio...'", () => {
   const upload = studio.slice(studio.indexOf("async function uploadAudio"), studio.indexOf("function bindImagePickers"));
   assert.match(upload, /try \{ updateReadiness\(\);/, "readiness refresh must be inside try so the request always runs");
   assert.match(upload, /new AbortController\(\)/);
-  assert.match(upload, /signal:controller\.signal/);
+  assert.match(upload, /controller\.signal\)/);
   assert.match(upload, /finally \{ clearTimeout\(timer\); pendingUploads\.delete\(input\)/);
 });
 
@@ -55,4 +55,15 @@ test("server keeps the uploaded room MP3 and studio style settings", async () =>
   assert.equal(room.audioSrc, "/media/creator-media/a.mp3");
   assert.equal(room.durationMinutes, 15);
   assert.throws(() => validateEntity("meditation", { title: "x", audioSrc: "http://evil.example/a.mp3" }), /safe HTTPS/);
+});
+
+test("studio uploads use the shared XHR progress helper", async () => {
+  const helper = await fs.readFile(new URL("../public/upload-progress.js", import.meta.url), "utf8");
+  assert.match(helper, /new XMLHttpRequest\(\)/);
+  assert.match(helper, /xhr\.upload\.onprogress/);
+  assert.match(helper, /role", "progressbar"/);
+  assert.match(helper, /aria-valuenow/);
+  assert.match(helper, /xhr\.abort\(\)/);
+  assert.doesNotMatch(studio, /fetch\("\/api\/media\/(upload|audio-upload)"/);
+  assert.equal((studio.match(/sendWithProgress\("\/api\/media\/(upload|audio-upload)"/g) || []).length, 2);
 });

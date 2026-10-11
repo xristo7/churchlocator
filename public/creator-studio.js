@@ -256,6 +256,12 @@
     if(activeKind==="resources" && value.access==="Free") value.price=0;
     return value;
   }
+  // All studio uploads go through the shared MWEUpload helper (XHR progress bar, cancel, success/error).
+  function sendWithProgress(url, formData, file, field, label, successMessage, signal) {
+    let host = field.querySelector("[data-upload-progress]");
+    if (!host) { host = document.createElement("div"); host.dataset.uploadProgress = ""; const status = field.querySelector("[data-upload-status]"); if (status) status.before(host); else field.append(host); }
+    return window.MWEUpload.send({ url, formData, file, container: host, label, successMessage, signal });
+  }
   async function uploadImage(input) {
     const image = input.files?.[0];
     if (!image) return;
@@ -275,9 +281,8 @@
     updateReadiness();
     try {
       const form = new FormData(); form.append("image", image);
-      const response = await fetch("/api/media/upload", { method:"POST", body:form, credentials:"same-origin" });
-      const result = await response.json().catch(()=>null);
-      if (!response.ok || !result?.ok || !result.url) throw new Error(result?.error || "We could not upload that picture.");
+      const { ok, data: result } = await sendWithProgress("/api/media/upload", form, image, field, "Uploading picture", "Picture uploaded");
+      if (!ok || !result?.url) throw new Error(result?.error || "We could not upload that picture.");
       value.value = result.url;
       value.dispatchEvent(new Event("change", { bubbles:true }));
       preview.innerHTML = `<img src="${esc(result.url)}" alt="Selected image preview" />`;
@@ -301,7 +306,7 @@
     if(audio.size > 10*1024*1024) { status.textContent="Choose an MP3 smaller than 10 MB."; status.className="error"; input.value=""; return; }
     status.textContent="Uploading your audio..."; status.className="uploading"; pendingUploads.add(input);
     const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),180000);
-    try { updateReadiness(); const body=new FormData(); body.append("audio",audio); const response=await fetch("/api/media/audio-upload",{method:"POST",body,credentials:"same-origin",signal:controller.signal}); const result=await response.json().catch(()=>null); if(!response.ok||!result?.ok||!result.url) throw new Error(result?.error||"We could not upload that audio."); value.value=result.url; field.querySelector("audio")?.remove(); field.insertAdjacentHTML("beforeend",`<audio controls preload="none" src="${esc(result.url)}"></audio>`); status.textContent="Audio ready."; status.className="success"; } catch(error) { input.value=""; status.textContent=error?.name==="AbortError"?"The audio upload took too long. Check your connection and try again.":(error.message||"We could not upload that audio."); status.className="error"; } finally { clearTimeout(timer); pendingUploads.delete(input); updateReadiness(); }
+    try { updateReadiness(); const body=new FormData(); body.append("audio",audio); const { ok, data: result }=await sendWithProgress("/api/media/audio-upload",body,audio,field,"Uploading audio","Audio uploaded",controller.signal); if(!ok||!result?.url) throw new Error(result?.error||"We could not upload that audio."); value.value=result.url; field.querySelector("audio")?.remove(); field.insertAdjacentHTML("beforeend",`<audio controls preload="none" src="${esc(result.url)}"></audio>`); status.textContent="Audio ready."; status.className="success"; } catch(error) { input.value=""; status.textContent=error?.name==="AbortError"?(error.message==="Upload cancelled."?"Upload cancelled.":"The audio upload took too long. Check your connection and try again."):(error.message||"We could not upload that audio."); status.className="error"; } finally { clearTimeout(timer); pendingUploads.delete(input); updateReadiness(); }
   }
   function soundCloudCard(sel) { return `${sel.artworkUrl?`<img src="${esc(sel.artworkUrl)}" alt="" loading="lazy" />`:`<span class="cs-sc-art">${icon("music")}</span>`}<div><strong>${esc(sel.title)}</strong><span>${esc(sel.author||"SoundCloud")} · ${sel.kind==="playlist"?"Playlist":"Track"}</span></div><button type="button" class="cs-remove-repeat" data-sc-remove>Remove</button>`; }
   function bindSoundCloud(form) {
