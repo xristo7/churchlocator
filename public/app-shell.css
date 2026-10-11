@@ -780,3 +780,5 @@ html.member-shell-embed body.has-mwe-tabbar:not(#mwe-x) { padding-bottom: 0 !imp
     html body .church-sidebar-stack:not(#mwe-x) { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
   }
 }
+main:has(.church-profile-grid) { overflow-x: clip; max-width: 100%; }
+html body .church-profile-grid :is(.church-gallery-grid, .church-gallery-track, .church-gallery):not(#mwe-x) { max-width: 100%; min-width: 0; }
