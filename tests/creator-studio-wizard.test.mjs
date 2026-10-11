@@ -21,6 +21,6 @@ test("Creator Studio content types use section-based steps with navigation and a
   assert.match(studio, /renderStepFromHistory\?\.\(activeStep\)/);
   assert.match(studio, /const \[title\]=config\.sections\[activeStep\]/);
   assert.match(styles, /\.cs-form-section\[hidden\]\s*\{\s*display:none !important;/);
-  assert.match(html, /creator-studio\.js\?v=20261011medfix1/);
-  assert.match(html, /creator-studio\.css\?v=20261007creatwizard3/);
+  assert.match(html, /creator-studio\.js\?v=20261011medfix2/);
+  assert.match(html, /creator-studio\.css\?v=20261011medfix2/);
 });

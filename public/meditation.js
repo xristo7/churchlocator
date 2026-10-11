@@ -573,7 +573,42 @@
     }
   }
 
+  // SoundCloud room audio (Widget API). Replaces the synthesized tone when a room has a SoundCloud selection.
+  let scWidget = null, scRoomUrl = "", scApiPromise = null, scWantPlay = false;
+  function loadSoundCloudApi() {
+    if (window.SC?.Widget) return Promise.resolve();
+    if (!scApiPromise) scApiPromise = new Promise((resolve, reject) => { const s = document.createElement("script"); s.src = "https://w.soundcloud.com/player/api.js"; s.onload = resolve; s.onerror = reject; document.head.appendChild(s); });
+    return scApiPromise;
+  }
+  function currentVolume() { return Number(document.getElementById("bottom-volume-slider")?.value || 85); }
+  function setupSoundCloud(room) {
+    let box = document.getElementById("mwe-sc-player");
+    const sel = room?.soundcloud;
+    if (!sel?.url || !/^https:\/\/(on\.)?soundcloud\.com\//.test(sel.url)) { if (box) box.hidden = true; scWidget = null; scRoomUrl = ""; return; }
+    if (!box) { box = document.createElement("div"); box.id = "mwe-sc-player"; box.className = "mwe-sc-player"; document.body.appendChild(box); }
+    box.hidden = false;
+    if (scRoomUrl === sel.url && scWidget) return;
+    scRoomUrl = sel.url; scWidget = null;
+    const src = "https://w.soundcloud.com/player/?url=" + encodeURIComponent(sel.url) + "&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=false";
+    box.innerHTML = '<iframe title="SoundCloud: ' + String(sel.title || "room audio").replace(/[<>"&]/g, "") + '" allow="autoplay" scrolling="no" frameborder="no" src="' + src + '"></iframe>';
+    const frame = box.querySelector("iframe");
+    loadSoundCloudApi().then(() => {
+      if (scRoomUrl !== sel.url) return;
+      const widget = window.SC.Widget(frame);
+      widget.bind(window.SC.Widget.Events.READY, () => {
+        scWidget = widget;
+        widget.setVolume(currentVolume());
+        if (scWantPlay) widget.play();
+        widget.bind(window.SC.Widget.Events.PLAY, () => { if (!isPlaying) { isPlaying = true; startTimerTicker(); updatePlayState(); } });
+        widget.bind(window.SC.Widget.Events.PAUSE, () => { if (isPlaying && !scWantPlay) { isPlaying = false; stopTimerTicker(); updatePlayState(); } });
+      });
+    }).catch(() => console.warn("SoundCloud player unavailable"));
+  }
+  function playSoundCloud() { scWantPlay = true; scWidget?.setVolume(currentVolume()); scWidget?.play(); }
+  function pauseSoundCloud() { scWantPlay = false; scWidget?.pause(); }
+
   function startAudioHarmonics(freq = 432) {
+    if (activeRoom?.soundcloud?.url) { playSoundCloud(); return; }
     if (activeAudioType === "silence") {
       stopAudioHarmonics();
       return;
@@ -607,6 +642,7 @@
   }
 
   function stopAudioHarmonics() {
+    if (scWantPlay) pauseSoundCloud();
     if (synthGain && audioContext) {
       synthGain.gain.cancelScheduledValues(audioContext.currentTime);
       synthGain.gain.setValueAtTime(synthGain.gain.value, audioContext.currentTime);
@@ -1114,6 +1150,7 @@
     if (!room) return;
     enrichRoomWithMedia(room);
     activeRoom = room;
+    setupSoundCloud(room);
     activeVerseIndex = 0;
     activePictureIndex = 0;
     activeTeachingIndex = 0;
@@ -1247,6 +1284,7 @@
   }
 
   function exitToLobby() {
+    pauseSoundCloud(); setupSoundCloud(null);
     isPlaying = false;
     stopAudioHarmonics();
     stopTimerTicker();
@@ -2062,6 +2100,7 @@
         const sunburstNum = document.getElementById("sunburst-vol-num");
         if (sunburstNum) sunburstNum.textContent = val + "%";
 
+        scWidget?.setVolume(val);
         if (synthGain && audioContext) {
           const gainVal = (val / 100) * 0.12;
           synthGain.gain.setValueAtTime(gainVal, audioContext.currentTime);
