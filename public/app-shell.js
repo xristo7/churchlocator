@@ -707,7 +707,8 @@
     sync();
     cards.forEach((card) => {
       const text = card.querySelector(".testimony-text");
-      if (!text || card.querySelector(".mwe-read-more")) return;
+      if (!text || text.dataset.mweClamp) return;
+      text.dataset.mweClamp = "1";
       requestAnimationFrame(() => {
         if (text.scrollHeight <= text.clientHeight + 2) return;
         const b = document.createElement("button");

@@ -457,7 +457,7 @@ html[data-theme="dark"] .church-profile-tabs-wrapper .church-tab-button.active:n
   html body .mwe-testimony-carousel > .testimony-card:not(#mwe-x) {
     scroll-snap-align: start; display: flex !important; flex-direction: column !important; grid-template-columns: none !important; height: auto !important; min-height: 0 !important;
     margin: 0 !important; padding: var(--space-3) !important; gap: var(--space-3) !important; border-radius: var(--radius-lg) !important; box-sizing: border-box; }
-  html body .mwe-testimony-carousel .testimony-scene:not(#mwe-x) { width: 100% !important; height: auto !important; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--radius-md) !important; margin: 0 !important; flex: none; }
+  html body .mwe-testimony-carousel .testimony-scene:not(#mwe-x) { width: 100% !important; height: auto !important; aspect-ratio: 16 / 10 !important; min-height: 0 !important; max-height: none !important; object-fit: cover; border-radius: var(--radius-md) !important; margin: 0 !important; flex: none; }
   html body .mwe-testimony-carousel .testimony-content:not(#mwe-x) { display: flex !important; flex-direction: column !important; gap: var(--space-3) !important; flex: 1 1 auto; padding: 0 var(--space-1) var(--space-1) !important; }
   .mwe-testimony-carousel .testimony-content > * { margin: 0 !important; }
   html body .mwe-testimony-carousel .testimony-text:not(#mwe-x) { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 5; overflow: hidden !important; font-size: var(--text-sm) !important; line-height: 1.6 !important; }
