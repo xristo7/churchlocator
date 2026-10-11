@@ -30,6 +30,7 @@
 
   async function applySession(user) {
     if (!user) { clearSession(); return; }
+    if (typeof root.MWEApplyThemePrefs === "function") Promise.resolve().then(() => root.MWEApplyThemePrefs());
     if ((localStorage.getItem("mwe.userEmail") || "").toLowerCase() !== (user.email || "").toLowerCase()) clearSession();
     if (!user.isCreator) localStorage.removeItem("mwe.creator.account.v1");
     localStorage.setItem("mwe.userLoggedIn", "true");
@@ -57,6 +58,7 @@
 
   function clearSession() {
     root.MWEPlatform?.clear();
+    if (typeof root.MWEApplyThemePrefs === "function") Promise.resolve().then(() => root.MWEApplyThemePrefs());
     ["mwe.creator.account.v1", "mwe.session.owner.v1", "mwe.session.church.v1", "mwe.eventHost.v1"].forEach(key => localStorage.removeItem(key));
     localStorage.removeItem("mwe.userLoggedIn");
     localStorage.removeItem("mwe.username");

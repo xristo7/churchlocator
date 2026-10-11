@@ -794,3 +794,62 @@
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once: true }); else run();
 })();
+
+/* Shared dropdown dismissal: outside pointerdown, Escape (focus back to trigger), one open at a time.
+   Closes through each widget's own trigger where possible so existing toggle logic stays in charge. */
+(function initMWEDropdownDismiss() {
+  if (window.MWEDropdowns) return;
+  const visible = (el) => !!el && !el.hidden && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden";
+  const classPatterns = [
+    { root: ".custom-select-container.open", trigger: ".custom-select-trigger, [aria-haspopup], button" },
+    { root: ".custom-pill-filter.open", trigger: "button" },
+    { root: ".lang-selector-container.open", trigger: ".lang-selector-btn" },
+    { root: ".topbar-menu-group.open", external: ".mobile-menu-toggle", via: "click" }
+  ];
+  const collect = () => {
+    const open = [];
+    classPatterns.forEach((p) => document.querySelectorAll(p.root).forEach((root) => {
+      const trig = p.external ? document.querySelector(p.external) : root.querySelector(p.trigger);
+      open.push({ root, trigger: trig, close: () => {
+        if (p.via === "click" && trig) return trig.click();
+        root.classList.remove("open");
+        root.closest(".site-search-bar, .aw-filters, .module-directory-toolbar")?.classList.remove("has-open-dropdown");
+        trig && trig.hasAttribute("aria-expanded") && trig.setAttribute("aria-expanded", "false");
+      } });
+    }));
+    document.querySelectorAll('[aria-expanded="true"]').forEach((trig) => {
+      if (trig.closest(".mwe-tabbar") || trig.matches(".mobile-menu-toggle")) return;
+      if (open.some((o) => o.trigger === trig || (o.root && o.root.contains(trig)))) return;
+      const id = trig.getAttribute("aria-controls");
+      const panel = id ? document.getElementById(id) : trig.nextElementSibling;
+      if (!panel || !visible(panel)) return;
+      if (!(trig.hasAttribute("aria-haspopup") || id)) return;
+      open.push({ root: panel, trigger: trig, close: () => {
+        trig.click();
+        if (trig.getAttribute("aria-expanded") === "true" && visible(panel)) { panel.hidden = true; trig.setAttribute("aria-expanded", "false"); }
+      } });
+    });
+    // Sign-in popover (trigger without aria-controls on some pages)
+    const sp = document.getElementById("nav-signin-popover");
+    if (visible(sp) && !open.some((o) => o.root === sp)) {
+      const trig = document.getElementById("nav-signin-trigger");
+      open.push({ root: sp, trigger: trig, close: () => { if (window.MWE && MWE.toggleNavSigninDropdown && trig) trig.click(); else sp.hidden = true; } });
+    }
+    return open;
+  };
+  const inside = (o, target) => (o.root && o.root.contains(target)) || (o.trigger && o.trigger.contains(target));
+  document.addEventListener("pointerdown", (e) => {
+    const t = e.target;
+    if (!(t instanceof Node) || t.closest?.(".member-auth-modal, .mwe-tabbar")) return;
+    collect().forEach((o) => { if (!inside(o, t)) o.close(); });
+  }, true);
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const open = collect();
+    if (!open.length) return;
+    const focusBack = open[open.length - 1].trigger;
+    open.forEach((o) => o.close());
+    if (focusBack && typeof focusBack.focus === "function") setTimeout(() => focusBack.focus(), 0);
+  });
+  window.MWEDropdowns = { openList: () => collect().map((o) => o.root) };
+})();

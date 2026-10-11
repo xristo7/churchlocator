@@ -12,13 +12,26 @@ const RAINBOW_PALETTES = [
   { id: "teal", name: "Ocean Cyan", color: "#0d9488", class: "swatch-teal" }
 ];
 
+// Theme personalisation is a signed-in feature; signed-out visitors always get the default light theme.
+function mweThemeSignedIn() {
+  return Boolean(window.MWEPlatform?.session) || localStorage.getItem("mwe.userLoggedIn") === "true";
+}
+
+window.MWEApplyThemePrefs = function() {
+  applyTheme(getPreferredTheme());
+  applyPrimaryColor(getPreferredPrimaryColor());
+  if (!mweThemeSignedIn()) document.querySelectorAll(".theme-palette-container").forEach(el => el.remove());
+};
+
 function getPreferredTheme() {
+  if (!mweThemeSignedIn()) return "light";
   const saved = localStorage.getItem(MWE_THEME_KEY);
   if (saved === "light" || saved === "dark") return saved;
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 function getPreferredPrimaryColor() {
+  if (!mweThemeSignedIn()) return "blue";
   const saved = localStorage.getItem(MWE_PRIMARY_COLOR_KEY);
   if (RAINBOW_PALETTES.some(p => p.id === saved)) return saved;
   return "blue";
@@ -81,7 +94,7 @@ function initThemeControl() {
       : document.querySelector(".member-shell-actions"))
     : document.querySelector(".aw-top-actions, .nav-actions");
 
-  if (target && !target.querySelector(".theme-palette-container")) {
+  if (target && isMemberShell && mweThemeSignedIn() && !target.querySelector(".theme-palette-container")) {
     const currentPrimary = getPreferredPrimaryColor();
     const currentTheme = getPreferredTheme();
     const currentPal = RAINBOW_PALETTES.find(p => p.id === currentPrimary) || RAINBOW_PALETTES[0];
