@@ -782,3 +782,17 @@ html.member-shell-embed body.has-mwe-tabbar:not(#mwe-x) { padding-bottom: 0 !imp
 }
 main:has(.church-profile-grid) { overflow-x: clip; max-width: 100%; }
 html body .church-profile-grid :is(.church-gallery-grid, .church-gallery-track, .church-gallery):not(#mwe-x) { max-width: 100%; min-width: 0; }
+
+/* ===== Guest (signed-out) account area: icon + "Sign in", no fake identity ===== */
+body.member-is-guest .profile-app-account .member-notification-icon,
+body.member-is-guest .profile-app-account .member-account-chevron,
+body.member-is-guest .profile-app-account [data-member-role],
+body.member-is-guest #member-account-menu{display:none!important}
+body.member-is-guest .profile-app-account{gap:8px}
+body.member-is-guest .profile-app-account .member-account-identity strong{font-size:14px;font-weight:700}
+body.member-is-guest [data-member-avatar]{background:color-mix(in srgb,var(--text-primary,#0f172a) 8%,transparent)!important;color:var(--text-primary)!important}
+body.member-is-guest [data-member-avatar-initials]{display:grid;place-items:center}
+body.member-is-guest [data-member-avatar-initials] svg{width:20px;height:20px}
+html body.member-is-guest .profile-app-header .profile-app-account .member-account-identity:not(#mwe-x){display:flex!important;flex-direction:column;justify-content:center}
+html body.member-is-guest .profile-app-header .profile-app-account .member-account-identity small:not(#mwe-x){display:none!important}
+html body.member-is-guest .profile-app-header .profile-app-account:not(#mwe-x){width:auto!important;padding:3px 12px 3px 3px!important;border-radius:999px;flex-direction:row-reverse;border:1px solid color-mix(in srgb,var(--text-primary,#0f172a) 14%,transparent)}

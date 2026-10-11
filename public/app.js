@@ -1626,7 +1626,7 @@ MWE.ensureMemberLoginModal = function() {
       <button class="member-auth-close" type="button" aria-label="Close sign in"><i data-lucide="x"></i></button>
       <div class="member-auth-icon"><i data-lucide="sparkles"></i></div>
       <h2 id="member-auth-title">Sign in to continue</h2>
-      <p>Your selected church, event, or livestream will open inside your My Way member app.</p>
+      <p>Your selected church, event, or livestream will open inside the My Way app.</p>
       <button class="google-auth-fast-btn member-auth-google" type="button" data-member-google-auth>
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -2242,7 +2242,7 @@ function initPrivateAppAuth() {
     if (userNameEl) userNameEl.textContent = displayName;
     if (userEmailEl) userEmailEl.textContent = user.email || "";
     if (userAvatarEl) {
-      const initials = displayName.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase() || "MW";
+      const initials = displayName.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
       userAvatarEl.textContent = initials;
     }
     if (orgNameInput && !orgNameInput.value) {

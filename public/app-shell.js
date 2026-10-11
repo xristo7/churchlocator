@@ -186,20 +186,42 @@
     });
   }
 
+  let platformResolved = false;
   function isAuthenticated() {
-    return Boolean(window.MWEPlatform?.session) || localStorage.getItem("mwe.userLoggedIn") === "true";
+    if (window.MWEPlatform?.session) return true;
+    if (platformResolved) return false;
+    return localStorage.getItem("mwe.userLoggedIn") === "true";
   }
+  const GUEST_ICON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
 
   function memberInitials(name) {
-    const parts = String(name || "My Way").trim().split(/\s+/).filter(Boolean);
-    return (parts.slice(0, 2).map(part => part[0]).join("") || "MW").toUpperCase();
+    const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+    return (parts.slice(0, 2).map(part => part[0]).join("") || "").toUpperCase();
   }
 
   function syncMemberIdentity() {
     const session = window.MWEPlatform?.session;
-    const name = session?.name || localStorage.getItem("mwe.username") || "My Way member";
-    const role = session?.isCreator ? "Creator account" : "My Way member";
-    document.body.classList.toggle("member-is-authenticated", isAuthenticated());
+    const guest = !isAuthenticated();
+    document.body.classList.toggle("member-is-authenticated", !guest);
+    document.body.classList.toggle("member-is-guest", guest);
+    if (accountButton) {
+      accountButton.setAttribute("aria-label", guest ? "Sign in" : "Account menu");
+      accountButton.setAttribute("aria-haspopup", guest ? "dialog" : "menu");
+    }
+    if (guest) {
+      document.querySelectorAll("[data-member-name]").forEach(node => { node.textContent = "Sign in"; });
+      document.querySelectorAll("[data-member-role]").forEach(node => { node.textContent = ""; });
+      document.querySelectorAll("[data-member-avatar]").forEach(container => {
+        const avatar = container.querySelector("[data-member-avatar-image]");
+        const fallback = container.querySelector("[data-member-avatar-initials]");
+        if (avatar) { avatar.hidden = true; avatar.removeAttribute("src"); }
+        if (fallback) { fallback.hidden = false; fallback.innerHTML = GUEST_ICON; }
+      });
+      if (accountMenu) accountMenu.hidden = true;
+      return;
+    }
+    const name = session?.name || localStorage.getItem("mwe.username") || "My account";
+    const role = session?.isCreator ? "Creator account" : "Member";
     document.querySelectorAll("[data-member-name]").forEach(node => { node.textContent = name; });
     document.querySelectorAll("[data-member-role]").forEach(node => { node.textContent = role; });
     document.querySelectorAll("[data-member-avatar]").forEach(container => {
@@ -212,7 +234,7 @@
         }
         if (fallback) fallback.hidden = false;
       };
-      if (fallback) fallback.textContent = memberInitials(name);
+      if (fallback) { const ini = memberInitials(name); if (ini) fallback.textContent = ini; else fallback.innerHTML = GUEST_ICON; }
       if (avatar && session?.avatarUrl) {
         avatar.onload = () => {
           avatar.hidden = false;
@@ -334,6 +356,14 @@
     }
   });
 
+  accountButton?.addEventListener("click", event => {
+    if (isAuthenticated()) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (accountMenu) accountMenu.hidden = true;
+    accountButton.setAttribute("aria-expanded", "false");
+    window.MWE?.openMemberLogin?.(window.location.pathname + window.location.search);
+  }, true);
   accountButton?.addEventListener("click", () => {
     const willOpen = accountMenu.hidden;
     accountMenu.hidden = !willOpen;
@@ -492,6 +522,17 @@
   placeResponsiveActions();
   syncMemberIdentity();
   loadRoute(getRoute(), { history: false });
+  Promise.resolve(window.MWEPlatform?.ready).catch(() => {}).then(() => {
+    platformResolved = Boolean(window.MWEPlatform);
+    if (platformResolved && !window.MWEPlatform.session) { localStorage.removeItem("mwe.userLoggedIn"); localStorage.removeItem("mwe.username"); }
+    syncMemberIdentity();
+    const route = getRoute();
+    if (isProtectedView(route.view) && !isAuthenticated()) {
+      frame.src = "about:blank";
+      loadRoute({ view: "directory", id: "", q: "", compose: "" }, { history: false });
+      window.MWE?.openMemberLogin?.(buildShellUrl(route), { locked: true });
+    }
+  });
   window.lucide?.createIcons();
 })();
 
@@ -592,8 +633,19 @@
     if (!nodes.length) return;
     const s = window.MWEPlatform && window.MWEPlatform.session;
     const name = (s && (s.name || s.email)) || "";
+    document.documentElement.classList.toggle("mwe-guest", !s);
     nodes.forEach((el) => {
       el.textContent = "";
+      el.setAttribute("aria-label", s ? "Your account" : "Sign in");
+      if (!el.dataset.mweGuestBound) {
+        el.dataset.mweGuestBound = "1";
+        el.addEventListener("click", (ev) => {
+          if (window.MWEPlatform && window.MWEPlatform.session) return;
+          ev.preventDefault(); ev.stopImmediatePropagation();
+          if (window.MWE && typeof MWE.openMemberLogin === "function") MWE.openMemberLogin(location.pathname + location.search);
+          else location.href = "index.html?login=required&next=" + encodeURIComponent(location.pathname + location.search);
+        }, true);
+      }
       const show = (src, label) => { const img = new Image(); img.alt = label; img.referrerPolicy = "no-referrer"; img.src = src; el.append(img); return img; };
       if (s && s.avatarUrl) {
         const img = show(s.avatarUrl, name + " profile picture");
