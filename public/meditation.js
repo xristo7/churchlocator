@@ -573,25 +573,46 @@
     }
   }
 
-  // SoundCloud room audio (Widget API). Replaces the synthesized tone when a room has a SoundCloud selection.
-  let scWidget = null, scRoomUrl = "", scApiPromise = null, scWantPlay = false;
+  // Room audio sources, in priority order: SoundCloud (hidden Widget API iframe), uploaded MP3 (audioSrc), synthesized tone.
+  // Everything is driven by the room's own play/pause, volume and timers; no third-party player UI is shown.
+  let scWidget = null, scRoomUrl = "", scApiPromise = null, scWantPlay = false, scStartTimer = null, scStarted = false;
+  let roomMp3 = null;
   function loadSoundCloudApi() {
     if (window.SC?.Widget) return Promise.resolve();
     if (!scApiPromise) scApiPromise = new Promise((resolve, reject) => { const s = document.createElement("script"); s.src = "https://w.soundcloud.com/player/api.js"; s.onload = resolve; s.onerror = reject; document.head.appendChild(s); });
     return scApiPromise;
   }
   function currentVolume() { return Number(document.getElementById("bottom-volume-slider")?.value || 85); }
-  function setupSoundCloud(room) {
+  function roomSoundCloud(room) { const sel = room?.soundcloud; return sel?.url && /^https:\/\/(on\.)?soundcloud\.com\//.test(sel.url) ? sel : null; }
+  function roomMp3Src(room) { const src = String(room?.audioSrc || ""); return /^\/media\/creator-media\/[\w-]+\.mp3$/.test(src) || /^https:\/\//.test(src) ? src : ""; }
+  function setAudioCredit(room, fallbackNote = "") {
+    let credit = document.getElementById("mwe-audio-credit");
+    if (!credit) { credit = document.createElement("p"); credit.id = "mwe-audio-credit"; credit.className = "mwe-audio-credit"; document.body.appendChild(credit); }
+    const sc = roomSoundCloud(room);
+    credit.replaceChildren();
+    if (sc) {
+      const link = document.createElement("a"); link.href = sc.url; link.target = "_blank"; link.rel = "noopener"; link.textContent = "SoundCloud";
+      credit.append("Audio: ", link);
+      if (fallbackNote) credit.append(" · " + fallbackNote);
+    } else if (roomMp3Src(room)) credit.append("Audio: uploaded");
+    credit.hidden = !credit.childNodes.length;
+  }
+  function setupRoomAudio(room) {
+    // Uploaded MP3
+    if (roomMp3) { roomMp3.pause(); roomMp3 = null; }
+    const mp3 = room && !roomSoundCloud(room) ? roomMp3Src(room) : "";
+    if (mp3) { roomMp3 = new Audio(mp3); roomMp3.loop = true; roomMp3.preload = "auto"; roomMp3.volume = currentVolume() / 100; }
+    setAudioCredit(room);
+    // SoundCloud, hidden widget
     let box = document.getElementById("mwe-sc-player");
-    const sel = room?.soundcloud;
-    if (!sel?.url || !/^https:\/\/(on\.)?soundcloud\.com\//.test(sel.url)) { if (box) box.hidden = true; scWidget = null; scRoomUrl = ""; return; }
-    if (!box) { box = document.createElement("div"); box.id = "mwe-sc-player"; box.className = "mwe-sc-player"; document.body.appendChild(box); }
-    box.hidden = false;
+    const sel = roomSoundCloud(room);
+    if (!sel) { box?.remove(); scWidget = null; scRoomUrl = ""; return; }
     if (scRoomUrl === sel.url && scWidget) return;
-    scRoomUrl = sel.url; scWidget = null;
-    const src = "https://w.soundcloud.com/player/?url=" + encodeURIComponent(sel.url) + "&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=false";
-    box.innerHTML = '<iframe title="SoundCloud: ' + String(sel.title || "room audio").replace(/[<>"&]/g, "") + '" allow="autoplay" scrolling="no" frameborder="no" src="' + src + '"></iframe>';
-    const frame = box.querySelector("iframe");
+    box?.remove();
+    box = document.createElement("div"); box.id = "mwe-sc-player"; box.className = "mwe-sc-player"; box.setAttribute("aria-hidden", "true"); document.body.appendChild(box);
+    scRoomUrl = sel.url; scWidget = null; scStarted = false;
+    const src = "https://w.soundcloud.com/player/?url=" + encodeURIComponent(sel.url) + "&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false";
+    const frame = document.createElement("iframe"); frame.title = "Room audio"; frame.tabIndex = -1; frame.allow = "autoplay; encrypted-media"; frame.src = src; box.appendChild(frame);
     loadSoundCloudApi().then(() => {
       if (scRoomUrl !== sel.url) return;
       const widget = window.SC.Widget(frame);
@@ -599,25 +620,47 @@
         scWidget = widget;
         widget.setVolume(currentVolume());
         if (scWantPlay) widget.play();
-        widget.bind(window.SC.Widget.Events.PLAY, () => { if (!isPlaying) { isPlaying = true; startTimerTicker(); updatePlayState(); } });
-        widget.bind(window.SC.Widget.Events.PAUSE, () => { if (isPlaying && !scWantPlay) { isPlaying = false; stopTimerTicker(); updatePlayState(); } });
+        widget.bind(window.SC.Widget.Events.PLAY, () => { scStarted = true; clearTimeout(scStartTimer); setAudioCredit(activeRoom); });
+        widget.bind(window.SC.Widget.Events.FINISH, () => { if (scWantPlay) { widget.seekTo(0); widget.play(); } });
       });
-    }).catch(() => console.warn("SoundCloud player unavailable"));
+    }).catch(() => fallbackFromSoundCloud("SoundCloud unavailable"));
   }
-  function playSoundCloud() { scWantPlay = true; scWidget?.setVolume(currentVolume()); scWidget?.play(); }
-  function pauseSoundCloud() { scWantPlay = false; scWidget?.pause(); }
+  // If the browser refuses to start the hidden widget (mobile autoplay rules), fall back to the MP3 or the tone
+  // so the room never goes silent, and say so in the attribution line.
+  function fallbackFromSoundCloud(note) {
+    if (!activeRoom || !scWantPlay) return;
+    scWantPlay = false; scWidget?.pause();
+    const mp3 = roomMp3Src(activeRoom);
+    if (mp3 && !roomMp3) { roomMp3 = new Audio(mp3); roomMp3.loop = true; }
+    if (roomMp3) { roomMp3.volume = currentVolume() / 100; roomMp3.play().catch(() => {}); }
+    else startToneHarmonics(activeRoom.toneFreq || 432);
+    setAudioCredit(activeRoom, note || "tap the link to listen on SoundCloud");
+  }
+  function playSoundCloud() {
+    scWantPlay = true; scWidget?.setVolume(currentVolume()); scWidget?.play();
+    clearTimeout(scStartTimer);
+    if (!scStarted) scStartTimer = setTimeout(() => { if (!scStarted) fallbackFromSoundCloud(); }, 6000);
+  }
+  function pauseSoundCloud() { scWantPlay = false; clearTimeout(scStartTimer); scWidget?.pause(); }
+  function playMp3() { if (!roomMp3) return false; roomMp3.volume = currentVolume() / 100; roomMp3.play().catch(() => { /* blocked until the user taps play; togglePlay retries inside the tap */ }); return true; }
+  function pauseMp3() { roomMp3?.pause(); }
+  function setRoomAudioVolume(val) { scWidget?.setVolume(val); if (roomMp3) roomMp3.volume = val / 100; }
 
   function startAudioHarmonics(freq = 432) {
-    if (activeRoom?.soundcloud?.url) { playSoundCloud(); return; }
+    if (roomSoundCloud(activeRoom)) { stopToneHarmonics(); playSoundCloud(); return; }
+    if (roomMp3) { stopToneHarmonics(); playMp3(); return; }
+    startToneHarmonics(freq);
+  }
+  function startToneHarmonics(freq = 432) {
     if (activeAudioType === "silence") {
-      stopAudioHarmonics();
+      stopToneHarmonics();
       return;
     }
     initAudioEngine();
     if (!audioContext || !synthGain) return;
     if (audioContext.state === "suspended") audioContext.resume();
 
-    stopAudioHarmonics();
+    stopToneHarmonics();
 
     osc1 = audioContext.createOscillator();
     osc2 = audioContext.createOscillator();
@@ -642,7 +685,10 @@
   }
 
   function stopAudioHarmonics() {
-    if (scWantPlay) pauseSoundCloud();
+    pauseSoundCloud(); pauseMp3();
+    stopToneHarmonics();
+  }
+  function stopToneHarmonics() {
     if (synthGain && audioContext) {
       synthGain.gain.cancelScheduledValues(audioContext.currentTime);
       synthGain.gain.setValueAtTime(synthGain.gain.value, audioContext.currentTime);
@@ -1150,7 +1196,7 @@
     if (!room) return;
     enrichRoomWithMedia(room);
     activeRoom = room;
-    setupSoundCloud(room);
+    setupRoomAudio(room);
     activeVerseIndex = 0;
     activePictureIndex = 0;
     activeTeachingIndex = 0;
@@ -1284,7 +1330,7 @@
   }
 
   function exitToLobby() {
-    pauseSoundCloud(); setupSoundCloud(null);
+    pauseSoundCloud(); setupRoomAudio(null);
     isPlaying = false;
     stopAudioHarmonics();
     stopTimerTicker();
@@ -2100,7 +2146,7 @@
         const sunburstNum = document.getElementById("sunburst-vol-num");
         if (sunburstNum) sunburstNum.textContent = val + "%";
 
-        scWidget?.setVolume(val);
+        setRoomAudioVolume(val);
         if (synthGain && audioContext) {
           const gainVal = (val / 100) * 0.12;
           synthGain.gain.setValueAtTime(gainVal, audioContext.currentTime);

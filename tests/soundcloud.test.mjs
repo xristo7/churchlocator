@@ -34,9 +34,15 @@ test("room stores a sanitized SoundCloud selection and strips unsafe ones", () =
 test("meditation page wires the SoundCloud widget into the room player and fixes double-toggle", async () => {
   const fs = await import("node:fs/promises");
   const js = await fs.readFile(new URL("../public/meditation.js", import.meta.url), "utf8");
-  assert.match(js, /if \(activeRoom\?\.soundcloud\?\.url\) \{ playSoundCloud\(\); return; \}/);
-  assert.match(js, /if \(scWantPlay\) pauseSoundCloud\(\);/);
-  assert.match(js, /scWidget\?\.setVolume\(val\)/);
+  const start = js.slice(js.indexOf("function startAudioHarmonics"), js.indexOf("function startToneHarmonics"));
+  assert.ok(start.indexOf("roomSoundCloud(activeRoom)") < start.indexOf("roomMp3") && start.indexOf("roomMp3") < start.indexOf("startToneHarmonics(freq)"), "priority: SoundCloud, MP3, tone");
+  assert.match(js, /function stopAudioHarmonics\(\) \{\n    pauseSoundCloud\(\); pauseMp3\(\);/);
+  assert.match(js, /setRoomAudioVolume\(val\)/);
+  assert.match(js, /setAttribute\("aria-hidden", "true"\)/);
+  assert.match(js, /credit\.append\("Audio: ", link\)/);
+  assert.match(js, /credit\.append\("Audio: uploaded"\)/);
+  const html = await fs.readFile(new URL("../public/meditation.html", import.meta.url), "utf8");
+  assert.match(html, /\.mwe-sc-player\{[^}]*width:1px;height:1px;opacity:0/);
   assert.match(js, /onDomReady\(\(\) => \{\n    renderLobby\(\);/);
   const list = js.slice(js.indexOf("const allPlayButtons"), js.indexOf("];", js.indexOf("const allPlayButtons")));
   assert.doesNotMatch(list, /bottom-play-btn|btn-timer-primary-toggle/);
