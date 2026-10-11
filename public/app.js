@@ -118,12 +118,12 @@ function initThemeControl() {
     section.innerHTML = `
       <div class="mwe-appearance-title">Appearance</div>
       <div class="mwe-appearance-modes" role="radiogroup" aria-label="Theme">
-        ${[["light", "sun", "Light"], ["dark", "moon", "Dark"], ["system", "monitor", "System"]].map(([id, icon, label]) => `
-          <button type="button" class="mode-toggle-btn ${mode === id ? "active" : ""}" data-mode-toggle-btn="${id}" role="radio" aria-checked="${mode === id}"><i data-lucide="${icon}"></i><span>${label}</span></button>`).join("")}
+        ${[["light", "Light"], ["dark", "Dark"], ["system", "System"]].map(([id, label]) => `
+          <button type="button" class="mode-toggle-btn ${mode === id ? "active" : ""}" data-mode-toggle-btn="${id}" role="radio" aria-checked="${mode === id}"><span>${label}</span></button>`).join("")}
       </div>
       <div class="mwe-appearance-title mwe-appearance-sub">Accent</div>
       <div class="rainbow-swatch-grid mwe-appearance-swatches" role="radiogroup" aria-label="Accent colour">
-        ${RAINBOW_PALETTES.map(p => `<button type="button" class="swatch-btn ${p.class} ${p.id === currentPrimary ? "active" : ""}" style="background:${p.color}" data-palette-swatch="${p.id}" title="${p.name}" aria-label="${p.name}" role="radio" aria-checked="${p.id === currentPrimary}"></button>`).join("")}
+        ${RAINBOW_PALETTES.map(p => `<button type="button" class="swatch-btn ${p.class} ${p.id === currentPrimary ? "active" : ""}" style="--sw:${p.color}" data-palette-swatch="${p.id}" title="${p.name}" aria-label="${p.name}" role="radio" aria-checked="${p.id === currentPrimary}"></button>`).join("")}
       </div>`;
     const profileBlock = accountMenu.querySelector(".member-account-menu-profile");
     profileBlock ? profileBlock.after(section) : accountMenu.prepend(section);

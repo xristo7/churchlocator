@@ -655,3 +655,5 @@ html body .mwe-appearance .mode-toggle-btn:not(#mwe-x) svg { width: 14px; height
 .mwe-appearance { min-width: 0; }
 .mwe-appearance-swatches .swatch-btn { border-radius: 50% !important; border: 2px solid transparent !important; box-shadow: none !important; padding: 0 !important; }
 .mwe-appearance-swatches .swatch-btn.active { box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px currentColor !important; color: var(--color-text); }
+html body .mwe-appearance-swatches .swatch-btn:not(#mwe-x) { background: var(--sw) !important; width: 24px !important; height: 24px !important; min-width: 24px !important; min-height: 24px !important; flex: none; }
+html body .mwe-appearance .mode-toggle-btn:not(#mwe-x) { font-size: .78rem !important; }

@@ -610,6 +610,7 @@
       const accBtn = document.getElementById("member-account-button");
       if (!accBtn) return;
       ev.preventDefault();
+      ev.stopPropagation();
       // Open the drawer that hosts the account menu on mobile, then the menu itself (Appearance lives there).
       const navToggle = document.querySelector(".profile-mobile-menu");
       if (!document.body.classList.contains("member-nav-open") && navToggle) navToggle.click();
