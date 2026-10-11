@@ -228,6 +228,7 @@
       view,
       id: params.get("id") || "",
       q: params.get("q") || "",
+      ministry: params.get("ministry") || "",
       compose: params.get("compose") || "",
       post: params.get("post") || ""
     };
@@ -239,6 +240,7 @@
     source.searchParams.set("embed", "1");
     if (route.id) source.searchParams.set("id", route.id);
     if (route.q) source.searchParams.set("q", route.q);
+    if (route.ministry) source.searchParams.set("ministry", route.ministry);
     if (route.compose) source.searchParams.set("compose", route.compose);
     if (route.view === "channel-content" && route.id) source.searchParams.set("channel", route.id);
     if (route.view === "channel-live" && route.post) source.searchParams.set("session", route.post);
@@ -251,6 +253,8 @@
     target.searchParams.set("view", route.view);
     if (route.id) target.searchParams.set("id", route.id);
     if (route.q) target.searchParams.set("q", route.q);
+    if (route.ministry) target.searchParams.set("ministry", route.ministry);
+  if (route.ministry) target.searchParams.set("ministry", route.ministry);
     if (route.compose) target.searchParams.set("compose", route.compose);
     if (route.post) target.searchParams.set("post", route.post);
     return `${target.pathname.split("/").pop()}${target.search}`;
@@ -852,4 +856,87 @@
     if (focusBack && typeof focusBack.focus === "function") setTimeout(() => focusBack.focus(), 0);
   });
   window.MWEDropdowns = { openList: () => collect().map((o) => o.root) };
+})();
+
+/* Ministries: searchable "Interested in" combobox (home search) + church portal multi-select chip grid. */
+(function initMWEMinistryUI() {
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const check = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  let uid = 0;
+  const combo = (select) => {
+    if (select.dataset.mweCombo) return;
+    const M = window.MWEMinistries;
+    select.dataset.mweCombo = "1";
+    const current = M.normalize(select.value) || "";
+    const allLabel = (select.querySelector('option[value=""]') || {}).textContent || "All ministries";
+    select.innerHTML = `<option value="">${esc(allLabel)}</option>` + M.list.map((m) => `<option value="${m.slug}">${esc(m.label)}</option>`).join("");
+    select.value = current;
+    const id = "mwe-combo-" + (++uid);
+    const wrap = document.createElement("div");
+    wrap.className = "mwe-combo";
+    wrap.innerHTML = `<button type="button" class="field mwe-combo-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="${id}"><span class="mwe-combo-value"></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="mwe-combo-panel" id="${id}" hidden><input type="search" class="mwe-combo-search" placeholder="Search ministries" aria-label="Search ministries" autocomplete="off" />
+      <div class="mwe-combo-list" role="listbox"></div></div>`;
+    select.after(wrap);
+    select.classList.add("mwe-combo-native");
+    select.tabIndex = -1; select.setAttribute("aria-hidden", "true");
+    const btn = wrap.querySelector(".mwe-combo-btn"), panel = wrap.querySelector(".mwe-combo-panel"), list = wrap.querySelector(".mwe-combo-list"), search = wrap.querySelector(".mwe-combo-search");
+    const label = select.id && document.querySelector(`label[for="${select.id}"]`);
+    if (label) { label.removeAttribute("for"); btn.setAttribute("aria-label", label.textContent.trim()); label.addEventListener("click", () => btn.focus()); }
+    const items = [{ slug: "", label: allLabel, description: "" }, ...M.list];
+    const paint = () => {
+      const term = search.value.trim().toLowerCase();
+      list.innerHTML = items.filter((m) => !term || (m.label + " " + m.description).toLowerCase().includes(term)).map((m) =>
+        `<button type="button" role="option" class="mwe-combo-option" data-value="${m.slug}" aria-selected="${select.value === m.slug}"><span><strong>${esc(m.label)}</strong>${m.description ? `<small>${esc(m.description)}</small>` : ""}</span>${select.value === m.slug ? check : ""}</button>`).join("") ||
+        '<p class="mwe-combo-empty">No ministries match.</p>';
+    };
+    const sync = () => { btn.querySelector(".mwe-combo-value").textContent = select.value ? M.label(select.value) : allLabel; btn.classList.toggle("has-value", !!select.value); };
+    const setOpen = (open) => { panel.hidden = !open; btn.setAttribute("aria-expanded", String(open)); wrap.classList.toggle("open", open); if (open) { search.value = ""; paint(); setTimeout(() => search.focus(), 0); } };
+    btn.addEventListener("click", () => setOpen(panel.hidden));
+    search.addEventListener("input", paint);
+    search.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); list.querySelector(".mwe-combo-option")?.click(); } });
+    list.addEventListener("click", (e) => { const o = e.target.closest(".mwe-combo-option"); if (!o) return; select.value = o.dataset.value; select.dispatchEvent(new Event("change", { bubbles: true })); sync(); setOpen(false); btn.focus(); });
+    sync();
+  };
+  const picker = (input) => {
+    if (input.dataset.mwePicker) return;
+    const M = window.MWEMinistries;
+    input.dataset.mwePicker = "1";
+    const field = input.closest(".form-field") || input.parentElement;
+    const box = document.createElement("section");
+    box.className = "mwe-ministry-picker";
+    box.innerHTML = `<div class="mwe-ministry-picker-head"><div><h4>Ministries &amp; Support</h4><p>Choose the ministries your church offers. Visitors can filter the directory by these.</p></div><span class="mwe-ministry-count"></span></div>
+      <input type="search" class="field mwe-ministry-picker-search" placeholder="Search ministries" aria-label="Search ministries" autocomplete="off" />
+      <div class="mwe-ministry-grid" role="group" aria-label="Ministries offered">${M.list.map((m) => `<button type="button" class="mwe-ministry-tile" data-slug="${m.slug}" aria-pressed="false" data-search="${esc((m.label + " " + m.description).toLowerCase())}"><span class="mwe-ministry-tick">${check}</span><span><strong>${esc(m.label)}</strong><small>${esc(m.description)}</small></span></button>`).join("")}</div>
+      <p class="mwe-ministry-extra" hidden></p>`;
+    field.after(box);
+    field.classList.add("mwe-visually-hidden-field");
+    const proto = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+    let extras = [];
+    const selected = () => [...box.querySelectorAll('.mwe-ministry-tile[aria-pressed="true"]')].map((b) => b.dataset.slug);
+    const render = (raw) => {
+      const vals = String(raw || "").split(",").map((v) => v.trim()).filter(Boolean);
+      const slugs = new Set(vals.map(M.normalize).filter(Boolean));
+      extras = vals.filter((v) => !M.normalize(v));
+      box.querySelectorAll(".mwe-ministry-tile").forEach((b) => b.setAttribute("aria-pressed", String(slugs.has(b.dataset.slug))));
+      const ex = box.querySelector(".mwe-ministry-extra");
+      ex.hidden = !extras.length; ex.textContent = extras.length ? "Also listed: " + extras.join(", ") : "";
+      box.querySelector(".mwe-ministry-count").textContent = slugs.size ? slugs.size + " selected" : "None selected";
+    };
+    Object.defineProperty(input, "value", { configurable: true, get() { return proto.get.call(this); }, set(v) { proto.set.call(this, v); render(v); } });
+    const commit = () => { const v = [...selected(), ...extras].join(", "); proto.set.call(input, v); input.dispatchEvent(new Event("input", { bubbles: true })); render(v); };
+    box.querySelector(".mwe-ministry-grid").addEventListener("click", (e) => { const b = e.target.closest(".mwe-ministry-tile"); if (!b) return; b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true")); commit(); });
+    const s = box.querySelector(".mwe-ministry-picker-search");
+    s.addEventListener("input", () => { const t = s.value.trim().toLowerCase(); box.querySelectorAll(".mwe-ministry-tile").forEach((b) => { b.hidden = !!t && !b.dataset.search.includes(t); }); });
+    s.addEventListener("keydown", (e) => { if (e.key === "Enter") e.preventDefault(); });
+    input.form && input.form.addEventListener("reset", () => setTimeout(() => render(proto.get.call(input)), 0));
+    render(proto.get.call(input));
+  };
+  const scan = () => {
+    if (!window.MWEMinistries) return;
+    document.querySelectorAll('#hero-ministry-select, select[data-mwe-ministry-select]').forEach(combo);
+    document.querySelectorAll('input[name="ministries"]:not([type="hidden"])').forEach(picker);
+  };
+  const start = () => { scan(); new MutationObserver(() => scan()).observe(document.body, { childList: true, subtree: true }); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true }); else start();
 })();

@@ -1612,6 +1612,7 @@ MWE.getMemberShellRoute = function(input) {
     view,
     id: url.searchParams.get("id") || url.searchParams.get("channel") || "",
     q: url.searchParams.get("q") || "",
+    ministry: url.searchParams.get("ministry") || "",
     compose: url.searchParams.get("compose") || "",
     post: url.searchParams.get("post") || ""
   };
@@ -1622,8 +1623,32 @@ MWE.buildMemberShellUrl = function(route) {
   target.searchParams.set("view", route.view || "directory");
   if (route.id) target.searchParams.set("id", route.id);
   if (route.q) target.searchParams.set("q", route.q);
+  if (route.ministry) target.searchParams.set("ministry", route.ministry);
   if (route.compose) target.searchParams.set("compose", route.compose);
   return `${target.pathname.split("/").pop()}${target.search}`;
+};
+
+MWE.renderChurchMinistryChips = function(church) {
+  const section = document.getElementById("church-ministries-section");
+  const wrap = document.getElementById("church-ministry-chips");
+  if (!section || !wrap) return;
+  const values = Array.isArray(church?.ministries) ? church.ministries.filter(Boolean) : [];
+  const M = window.MWEMinistries;
+  const seen = new Set();
+  const chips = values.map(v => {
+    const slug = M ? M.normalize(v) : null;
+    const key = slug || String(v).toLowerCase();
+    if (seen.has(key)) return "";
+    seen.add(key);
+    const hit = slug && M.list.find(m => m.slug === slug);
+    return `<span class="mwe-ministry-chip"${hit ? ` title="${MWE.escapeHtml(hit.description)}"` : ""}>${MWE.escapeHtml(hit ? hit.label : v)}</span>`;
+  }).join("");
+  wrap.innerHTML = chips;
+  section.hidden = !chips;
+};
+
+MWE.ministryLabel = function(value) {
+  return window.MWEMinistries ? window.MWEMinistries.label(value) : String(value || "");
 };
 
 MWE.showMemberToast = function(message) {
@@ -2554,6 +2579,7 @@ async function initPublicSite() {
     country: MWE.normalizeCountry(church.country).toLowerCase(),
     city: MWE.citySearchKey(church.city),
     denomination: String(church.denomination || "").toLowerCase(),
+    ministries: window.MWEMinistries ? MWEMinistries.slugs([...(Array.isArray(church.ministries) ? church.ministries : []), ...(Array.isArray(church.features) ? church.features : [])]) : [],
     haystack: [
       church.name, church.city, church.area, church.country, church.denomination,
       church.pastor, church.language, church.sunday,
@@ -2630,9 +2656,28 @@ async function initPublicSite() {
     if (window.lucide) window.lucide.createIcons();
   }
 
+  const ministryOptionsContainer = document.getElementById("church-ministry-options-list");
+  if (ministryOptionsContainer && window.MWEMinistries) {
+    const preset = MWEMinistries.normalize(new URLSearchParams(window.location.search).get("ministry"));
+    ministryOptionsContainer.innerHTML = MWEMinistries.list.map(m => `
+      <label class="custom-checkbox-row mwe-ministry-option" data-search-text="${MWE.escapeHtml((m.label + " " + m.description).toLowerCase())}">
+        <input type="checkbox" value="${m.slug}" ${preset === m.slug ? "checked" : ""} onchange="MWE.onChurchPillChange()" />
+        <span class="checkbox-box"><i data-lucide="check"></i></span>
+        <span class="checkbox-label"><strong>${MWE.escapeHtml(m.label)}</strong><small>${MWE.escapeHtml(m.description)}</small></span>
+      </label>`).join("");
+    const ministrySearch = document.getElementById("church-ministry-option-search");
+    ministrySearch?.addEventListener("input", () => {
+      const term = ministrySearch.value.trim().toLowerCase();
+      ministryOptionsContainer.querySelectorAll(".mwe-ministry-option").forEach(row => { row.hidden = !!term && !row.dataset.searchText.includes(term); });
+    });
+    if (preset) setTimeout(() => MWE.updatePillState("church-ministry-pill", "Interested in"), 0);
+    if (window.lucide) window.lucide.createIcons();
+  }
+
   function render() {
     if (!grid) return;
     const q = (search?.value || "").toLowerCase().trim();
+    const selectedMinistries = Array.from(document.querySelectorAll("#church-ministry-pill input:checked")).map(cb => cb.value);
     
     const selectedCountries = Array.from(document.querySelectorAll("#church-country-pill input:checked")).map(cb => cb.value.toLowerCase());
     updateCityOptions(selectedCountries);
@@ -2643,7 +2688,8 @@ async function initPublicSite() {
       const countryMatch = selectedCountries.length === 0 || selectedCountries.includes(item.country);
       const cityMatch = selectedCities.length === 0 || selectedCities.includes(item.city);
       const denomMatch = selectedDenoms.length === 0 || selectedDenoms.includes(item.denomination);
-      return (!q || item.haystack.includes(q)) && countryMatch && cityMatch && denomMatch;
+      const ministryMatch = selectedMinistries.length === 0 || selectedMinistries.some(slug => item.ministries.includes(slug));
+      return (!q || item.haystack.includes(q)) && countryMatch && cityMatch && denomMatch && ministryMatch;
     }).map(item => item.church);
 
     grid.innerHTML = filtered.length ? filtered.map(churchCard).join("") : `<div class="empty flex-center py-8 text-muted font-bold text-center">No churches match those filter criteria. Click 'Reset' to view all churches.</div>`;
@@ -3072,7 +3118,7 @@ MWE.renderChurchTestimonials = function(church) {
 
 MWE.renderChurchCreatorDetails = function(church) {
   const ministries=document.getElementById("profile-ministries");
-  if(ministries) ministries.innerHTML=(church.ministries||[]).map(item=>`<span>${MWE.escapeHtml(item)}</span>`).join("");
+  if(ministries) ministries.innerHTML=(church.ministries||[]).map(item=>`<span>${MWE.escapeHtml(MWE.ministryLabel(item))}</span>`).join("");
   const story=document.getElementById("profile-church-story");
   if(story){const items=[["Our history",church.history],["Vision",church.vision],["Mission",church.mission],["What we believe",church.statementOfFaith]].filter(([,text])=>text);story.hidden=!items.length;story.innerHTML=items.map(([label,text])=>`<article class="profile-story-card"><span>${MWE.escapeHtml(label)}</span><p>${MWE.escapeHtml(text)}</p></article>`).join("");}
   const notes=document.getElementById("profile-visitor-notes");
@@ -3150,6 +3196,7 @@ function renderProfile(church) {
   MWE.renderRelatedChurches(church.id);
   MWE.renderChurchProfileEvents(church.id);
   MWE.renderChurchGallery(church);
+  MWE.renderChurchMinistryChips(church);
   MWE.renderChurchProfileTestimonies(church.id);
 }
 
@@ -4324,7 +4371,7 @@ function initChurchPortal() {
           <span class="badge"><i data-lucide="${church.livestream.enabled ? "radio" : "lock"}"></i>${MWE.escapeHtml(church.livestream.status)}</span>
           <h3 style="margin-top:14px">${MWE.escapeHtml(church.name)}</h3>
           <p>${MWE.escapeHtml(church.tagline)}</p>
-          <div class="tag-row">${church.ministries.slice(0, 5).map(item => `<span class="tag">${MWE.escapeHtml(item)}</span>`).join("")}</div>
+          <div class="tag-row">${church.ministries.slice(0, 5).map(item => `<span class="tag">${MWE.escapeHtml(MWE.ministryLabel(item))}</span>`).join("")}</div>
           <div class="card-actions">
             <a class="button primary small" href="church-profile.html?id=${encodeURIComponent(church.id)}">Public profile</a>
             <a class="button ghost small" href="broadcast.html?type=church&id=${encodeURIComponent(church.id)}">Livestream</a>
@@ -4391,7 +4438,7 @@ function initChurchPortal() {
     });
     document.querySelectorAll("[data-readable-list='ministries']").forEach(list => {
       list.innerHTML = ministries.length
-        ? ministries.map(item => `<span class="tag">${MWE.escapeHtml(item)}</span>`).join("")
+        ? ministries.map(item => `<span class="tag">${MWE.escapeHtml(MWE.ministryLabel(item))}</span>`).join("")
         : `<span class="tag">No ministries added yet</span>`;
     });
   }
@@ -9723,6 +9770,7 @@ MWE.onChurchPillChange = function() {
   MWE.updatePillState("church-country-pill", "Region");
   MWE.updatePillState("church-city-pill", "City");
   MWE.updatePillState("church-denom-pill", "Denomination");
+  MWE.updatePillState("church-ministry-pill", "Interested in");
   
   if (typeof MWE.triggerChurchSearch === "function") {
     MWE.triggerChurchSearch();
@@ -9730,7 +9778,7 @@ MWE.onChurchPillChange = function() {
 };
 
 MWE.resetChurchPillFilters = function() {
-  document.querySelectorAll("#church-country-pill input, #church-city-pill input, #church-denom-pill input").forEach(cb => cb.checked = false);
+  document.querySelectorAll("#church-country-pill input, #church-city-pill input, #church-denom-pill input, #church-ministry-pill input").forEach(cb => cb.checked = false);
   const cityOptionSearch = document.getElementById("church-city-option-search");
   if (cityOptionSearch) cityOptionSearch.value = "";
   const searchInput = document.querySelector("[data-search]");
@@ -9739,6 +9787,7 @@ MWE.resetChurchPillFilters = function() {
   MWE.updatePillState("church-country-pill", "Region");
   MWE.updatePillState("church-city-pill", "City");
   MWE.updatePillState("church-denom-pill", "Denomination");
+  MWE.updatePillState("church-ministry-pill", "Interested in");
   
   if (typeof MWE.triggerChurchSearch === "function") {
     MWE.triggerChurchSearch();

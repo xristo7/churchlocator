@@ -553,3 +553,70 @@ html[data-theme="dark"] .mwe-drawer-donate { color: var(--gold, #e5a93c) !import
 }
 @media (max-width: 374.98px) { html body .topbar .mwe-topbar-spotlight:not(#mwe-x) span { display: none; } html body .topbar .mwe-topbar-spotlight:not(#mwe-x) { padding: 0 10px !important; } }
 @media (min-width: 960px) { html body .topbar .mwe-topbar-spotlight:not(#mwe-x) { display: none !important; } }
+
+/* ===== Ministries: combobox, directory panel, portal picker, profile chips ===== */
+.mwe-combo-native { position: absolute !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; overflow: hidden; }
+.mwe-combo { position: relative; }
+.mwe-combo-btn { width: 100%; display: flex !important; align-items: center; justify-content: space-between; gap: var(--space-2); text-align: left; cursor: pointer; }
+.mwe-combo-btn .mwe-combo-value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mwe-combo-btn svg { flex: none; transition: transform var(--dur-base) var(--ease-standard); color: var(--color-text-muted); }
+.mwe-combo.open .mwe-combo-btn svg { transform: rotate(180deg); }
+.mwe-combo-panel { position: absolute; z-index: 60; left: 0; right: 0; top: calc(100% + 6px); display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2);
+  background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--elev-3); animation: mwe-pop var(--dur-base) var(--ease-emphasized); }
+.mwe-combo-panel[hidden] { display: none; }
+@keyframes mwe-pop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.mwe-combo-search, .mwe-ministry-picker-search, #church-ministry-option-search { box-sizing: border-box; width: 100%; height: 40px; padding: 0 var(--space-3); border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+  background: var(--background, #f8fafc); color: var(--color-text); font-size: 15px; outline: none; }
+.mwe-combo-search:focus, .mwe-ministry-picker-search:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--primary-soft, rgba(37,99,235,.15)); }
+.mwe-combo-list { max-height: 280px; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 2px; }
+.mwe-combo-option { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; padding: var(--space-2) var(--space-3); border: 0; border-radius: var(--radius-sm);
+  background: transparent; color: var(--color-text); text-align: left; cursor: pointer; }
+.mwe-combo-option > span { display: flex; flex-direction: column; min-width: 0; }
+.mwe-combo-option strong { font-size: .9rem; font-weight: 650; }
+.mwe-combo-option small { font-size: .76rem; color: var(--color-text-muted); line-height: 1.35; }
+.mwe-combo-option:hover, .mwe-combo-option:focus-visible { background: var(--primary-soft, rgba(37,99,235,.08)); outline: none; }
+.mwe-combo-option[aria-selected="true"] { color: var(--color-primary); }
+.mwe-combo-option svg { flex: none; color: var(--color-primary); }
+.mwe-combo-empty { margin: 0; padding: var(--space-3); color: var(--color-text-muted); font-size: .85rem; text-align: center; }
+html[data-theme="dark"] .mwe-combo-panel { background: #0f172a; border-color: rgba(148,163,184,.22); }
+html[data-theme="dark"] .mwe-combo-search, html[data-theme="dark"] .mwe-ministry-picker-search { background: #111c33; border-color: rgba(148,163,184,.22); color: #f1f5f9; }
+/* Directory panel options with descriptions */
+.mwe-ministry-panel { min-width: min(340px, calc(100vw - 32px)); }
+.mwe-ministry-panel .dropdown-options-list { max-height: 300px; overflow-y: auto; overscroll-behavior: contain; }
+.mwe-ministry-option .checkbox-label { display: flex; flex-direction: column; line-height: 1.3; }
+.mwe-ministry-option .checkbox-label small { color: var(--color-text-muted); font-size: .74rem; font-weight: 500; }
+.mwe-ministry-option[hidden] { display: none !important; }
+/* Portal picker */
+.mwe-visually-hidden-field { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip: rect(0 0 0 0) !important; }
+.mwe-ministry-picker { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); }
+.mwe-ministry-picker-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+.mwe-ministry-picker-head h4 { margin: 0; font-size: 1rem; font-weight: 800; color: var(--color-text); }
+.mwe-ministry-picker-head p { margin: 4px 0 0; font-size: .82rem; color: var(--color-text-muted); }
+.mwe-ministry-count { flex: none; font-size: .75rem; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-pill); background: var(--primary-soft, rgba(37,99,235,.1)); color: var(--color-primary); }
+.mwe-ministry-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-2); max-height: 420px; overflow-y: auto; padding: 2px; }
+.mwe-ministry-tile { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3); text-align: left; border-radius: var(--radius-md); border: 1px solid var(--color-border);
+  background: var(--background, #f8fafc); color: var(--color-text); cursor: pointer; transition: border-color var(--dur-fast), background var(--dur-fast), transform var(--dur-fast); }
+.mwe-ministry-tile[hidden] { display: none; }
+.mwe-ministry-tile:hover { border-color: var(--primary-border, rgba(37,99,235,.4)); }
+.mwe-ministry-tile > span:last-child { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mwe-ministry-tile strong { font-size: .86rem; font-weight: 700; }
+.mwe-ministry-tile small { font-size: .75rem; color: var(--color-text-muted); line-height: 1.35; }
+.mwe-ministry-tick { flex: none; width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid var(--color-border); display: grid; place-items: center; color: transparent; margin-top: 1px; }
+.mwe-ministry-tile[aria-pressed="true"] { border-color: var(--color-primary); background: var(--primary-soft, rgba(37,99,235,.08)); }
+.mwe-ministry-tile[aria-pressed="true"] .mwe-ministry-tick { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.mwe-ministry-tile:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.mwe-ministry-extra { margin: 0; font-size: .78rem; color: var(--color-text-muted); }
+html[data-theme="dark"] .mwe-ministry-picker { background: #0f172a; border-color: rgba(148,163,184,.2); }
+html[data-theme="dark"] .mwe-ministry-tile { background: #111c33; border-color: rgba(148,163,184,.2); color: #e2e8f0; }
+html[data-theme="dark"] .mwe-ministry-tile[aria-pressed="true"] { background: rgba(59,130,246,.16); border-color: hsl(221 90% 66%); }
+@media (max-width: 639.98px) { .mwe-ministry-grid { grid-template-columns: 1fr; max-height: 360px; } }
+/* Profile chips */
+.mwe-ministries-section { margin: var(--space-6) 0; padding: var(--space-5); border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-surface); }
+.mwe-ministries-section[hidden] { display: none; }
+.mwe-ministries-head span { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--color-primary); }
+.mwe-ministries-head h3 { margin: 4px 0 var(--space-4); font-size: 1.25rem; font-weight: 800; color: var(--color-text); }
+.mwe-ministry-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.mwe-ministry-chip { display: inline-flex; align-items: center; height: 34px; padding: 0 14px; border-radius: var(--radius-pill); font-size: .84rem; font-weight: 650;
+  background: var(--primary-soft, rgba(37,99,235,.08)); color: var(--color-primary); border: 1px solid var(--primary-border, rgba(37,99,235,.22)); }
+html[data-theme="dark"] .mwe-ministries-section { background: rgba(15,23,42,.7); border-color: rgba(148,163,184,.2); }
+html[data-theme="dark"] .mwe-ministry-chip { background: rgba(59,130,246,.14); color: hsl(221 90% 76%); border-color: rgba(96,165,250,.3); }
