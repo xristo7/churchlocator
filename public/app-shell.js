@@ -176,7 +176,12 @@
     const themeControl = document.querySelector(".theme-palette-container");
     [themeControl, langSelector, givingAction, accountWrap].forEach(action => {
       // Spotlight stays in the header only (bottom tab bar covers it on mobile).
-      if (action === givingAction) { if (desktopActions && action && action.parentElement !== desktopActions) desktopActions.insertBefore(action, accountWrap && accountWrap.parentElement === desktopActions ? accountWrap : null); return; }
+      if (action === givingAction) {
+        if (!action) return;
+        if (mobile) { const anchor = document.querySelector(".profile-app-header .mwe-avatar") || mobileMenu; if (anchor && action.nextElementSibling !== anchor) anchor.before(action); return; }
+        if (desktopActions && action.parentElement !== desktopActions) desktopActions.insertBefore(action, accountWrap && accountWrap.parentElement === desktopActions ? accountWrap : null);
+        return;
+      }
       if (action && action.parentElement !== destination) destination.append(action);
     });
   }
@@ -785,7 +790,7 @@
       nav.querySelectorAll('a.highlight-link[href*="donate"]').forEach((a) => a.remove());
       if (!nav.querySelector(".mwe-nav-spotlight")) {
         const a = document.createElement("a");
-        a.href = "spotlight.html"; a.className = "mwe-nav-spotlight"; a.innerHTML = playIcon + "<span>Spotlight</span>";
+        a.href = "spotlight.html"; a.className = "mwe-nav-spotlight mwe-header-spotlight"; a.innerHTML = playIcon + "<span>Spotlight</span>";
         const live = nav.querySelector(".live-nav-link");
         live ? live.after(a) : nav.append(a);
       }
@@ -808,7 +813,16 @@
       if (page === "spotlight") a.setAttribute("aria-current", "page");
     });
   };
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once: true }); else run();
+  // The shared header is re-rendered after load (topbar-inner gets replaced), so re-apply whenever it changes.
+  const watch = () => {
+    run();
+    let queued = false;
+    new MutationObserver(() => {
+      if (queued) return; queued = true;
+      requestAnimationFrame(() => { queued = false; if (document.querySelector(".topbar .nav-links:not(:has(.mwe-nav-spotlight))") || document.querySelector(".topbar .topbar-inner:not(:has(> .mwe-topbar-spotlight)) > .mobile-menu-toggle")) run(); });
+    }).observe(document.body, { childList: true, subtree: true });
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", watch, { once: true }); else watch();
 })();
 
 /* Shared dropdown dismissal: outside pointerdown, Escape (focus back to trigger), one open at a time.
@@ -1102,4 +1116,55 @@
   form.addEventListener("submit", () => {
     form.querySelectorAll(".location-combined-group input, .location-combined-group select").forEach((el) => { el.disabled = true; });
     try { sessionStorage.setItem("mwe.location.filter", JSON.stringify(state)); } catch {} });
+})();
+
+/* Mobile header search: 40px icon → animated popup with the real search field (moved, so existing behaviour is kept). */
+(function initMWEMobileSearch() {
+  if (window.top !== window.self) return;
+  const mq = window.matchMedia("(max-width: 959.98px)");
+  const icon = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+  const xIcon = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+  const setup = () => {
+    const header = document.querySelector(".profile-app-header");
+    const field = header && header.querySelector(".profile-app-search");
+    if (!field || header.querySelector(".mwe-search-trigger")) return;
+    const trigger = document.createElement("button");
+    trigger.type = "button"; trigger.className = "mwe-search-trigger"; trigger.innerHTML = icon;
+    trigger.setAttribute("aria-label", "Search"); trigger.setAttribute("aria-haspopup", "dialog"); trigger.setAttribute("aria-expanded", "false");
+    field.after(trigger);
+    const placeholder = document.createComment("mwe-search-home");
+    const overlay = document.createElement("div");
+    overlay.className = "mwe-search-overlay"; overlay.hidden = true;
+    overlay.innerHTML = `<div class="mwe-search-backdrop"></div><div class="mwe-search-sheet" role="dialog" aria-modal="true" aria-label="Search My Way">
+      <div class="mwe-search-row"><div class="mwe-search-slot"></div><button type="button" class="mwe-search-close" aria-label="Close search">${xIcon}</button></div>
+      <div class="mwe-search-results" aria-live="polite"><p class="mwe-search-hint">Search churches, channels, events, resources and more.</p></div></div>`;
+    document.body.append(overlay);
+    const slot = overlay.querySelector(".mwe-search-slot"), sheet = overlay.querySelector(".mwe-search-sheet");
+    let open = false;
+    const show = () => {
+      if (open) return; open = true;
+      field.before(placeholder); slot.append(field);
+      overlay.hidden = false; document.documentElement.classList.add("mwe-search-open");
+      const r = trigger.getBoundingClientRect();
+      sheet.style.setProperty("--mwe-origin", `${r.left + r.width / 2}px 0px`);
+      requestAnimationFrame(() => overlay.classList.add("is-open"));
+      trigger.setAttribute("aria-expanded", "true");
+      setTimeout(() => field.querySelector("input")?.focus(), 30);
+    };
+    const hide = (refocus = true) => {
+      if (!open) return; open = false;
+      overlay.classList.remove("is-open"); trigger.setAttribute("aria-expanded", "false");
+      document.documentElement.classList.remove("mwe-search-open");
+      setTimeout(() => { overlay.hidden = true; placeholder.parentNode && placeholder.replaceWith(field); }, 200);
+      if (refocus) trigger.focus();
+    };
+    trigger.addEventListener("click", show);
+    overlay.querySelector(".mwe-search-backdrop").addEventListener("click", () => hide());
+    overlay.querySelector(".mwe-search-close").addEventListener("click", () => hide());
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && open) hide(); });
+    field.addEventListener("submit", () => setTimeout(() => hide(false), 0));
+    mq.addEventListener?.("change", () => { if (!mq.matches) hide(false); });
+    window.MWEMobileSearch = { open: show, close: hide };
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup, { once: true }); else setup();
 })();

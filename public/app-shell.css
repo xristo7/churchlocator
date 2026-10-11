@@ -530,8 +530,14 @@ html body .mwe-header-spotlight[aria-current="page"]:not(#mwe-x) { background: v
 html[data-theme="dark"] body .mwe-header-spotlight:not(#mwe-x) { color: hsl(221 90% 74%) !important; border-color: rgba(96,165,250,.35) !important; background: rgba(59,130,246,.14) !important; }
 .mwe-nav-spotlight[aria-current="page"] { color: var(--color-primary) !important; }
 @media (max-width: 959.98px) {
-  html body .mwe-header-spotlight:not(#mwe-x) { display: none !important; }
-  .topbar .nav-links:has(.mobile-only-link[href*="spotlight"]) .mwe-nav-spotlight { display: none !important; }
+  /* The drawer copy is redundant on mobile: the header pill + tab bar carry Spotlight. */
+  html body .topbar .nav-links .mwe-nav-spotlight:not(#mwe-x) { display: none !important; }
+  /* Member/profile headers: compact 40px icon button, one 56px row down to 360px. */
+  html body .profile-app-header .mwe-header-spotlight:not(#mwe-x), html body .member-shell-header .mwe-header-spotlight:not(#mwe-x) {
+    display: inline-flex !important; width: 40px !important; min-width: 40px !important; height: 40px !important; min-height: 40px !important; padding: 0 !important;
+    justify-content: center !important; border-radius: 999px !important; flex: none !important; margin: 0 !important; }
+  html body .profile-app-header .mwe-header-spotlight:not(#mwe-x) span, html body .member-shell-header .mwe-header-spotlight:not(#mwe-x) span { display: none !important; }
+  html body .profile-app-header .mwe-header-spotlight:not(#mwe-x) svg { width: 18px; height: 18px; }
 }
 @media (min-width: 960px) { .mwe-drawer-donate { display: none !important; } }
 .mwe-drawer-donate { color: #b0811a !important; font-weight: 700 !important; }
@@ -700,3 +706,43 @@ html body [data-hero-search-form]:has(.mwe-loc-grid) .location-combined-group { 
 html body .mwe-locate-sheet:not(#mwe-x) { display: flex; width: 100%; height: 48px; margin: 0 0 var(--space-3); border-radius: var(--radius-md); justify-content: center; gap: 8px;
   border: 1px dashed color-mix(in srgb, var(--primary, #2563eb) 45%, transparent); background: color-mix(in srgb, var(--primary, #2563eb) 6%, transparent); color: var(--primary, #2563eb); font-weight: 700; }
 @media (min-width: 960px) { html body .mwe-locate-sheet:not(#mwe-x) { display: none !important; } }
+/* Public nav Spotlight pill sits after Watch Live */
+@media (min-width: 960px) { html body .topbar .nav-links .mwe-nav-spotlight:not(#mwe-x) { display: inline-flex !important; margin-left: 4px; } }
+
+/* ===== Mobile header: logo · spacer · search · Spotlight · avatar · menu (40px each) ===== */
+.mwe-search-trigger, .mwe-search-overlay { display: none; }
+@media (max-width: 959.98px) {
+  html body .profile-app-header > .profile-app-search:not(#mwe-x) { display: none !important; }
+  html body .profile-app-header .mwe-search-trigger:not(#mwe-x) { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none;
+    margin-left: auto; border-radius: 999px; border: 1px solid var(--color-border, #e2e8f0); background: var(--color-surface, #fff); color: var(--color-text, #0f172a); cursor: pointer; }
+  html[data-theme="dark"] body .profile-app-header .mwe-search-trigger:not(#mwe-x) { background: rgba(255,255,255,.06); border-color: rgba(148,163,184,.25); color: #e2e8f0; }
+  html body .profile-app-header:not(#mwe-x) { gap: 8px !important; }
+  html body .profile-app-header:not(#mwe-x) > * { flex-shrink: 0; }
+  html body .profile-app-header .mwe-avatar:not(#mwe-x), html body .profile-app-header .profile-mobile-menu:not(#mwe-x) { width: 40px !important; height: 40px !important; min-width: 40px !important; }
+  .mwe-search-overlay:not([hidden]) { display: block; position: fixed; inset: 0; z-index: 4000; }
+  .mwe-search-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; transition: opacity .2s ease; }
+  .mwe-search-sheet { position: absolute; left: 12px; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 8px); max-height: 70vh; display: flex; flex-direction: column; gap: 12px;
+    padding: 12px; border-radius: 20px; background: var(--color-surface, #fff); box-shadow: 0 24px 60px rgba(15,23,42,.3); transform-origin: var(--mwe-origin, 50% 0);
+    transform: scale(.4); opacity: 0; transition: transform .22s cubic-bezier(.2,.8,.2,1), opacity .18s ease; }
+  html[data-theme="dark"] .mwe-search-sheet { background: #0f172a; border: 1px solid rgba(148,163,184,.18); }
+  .mwe-search-overlay.is-open .mwe-search-backdrop { opacity: 1; }
+  .mwe-search-overlay.is-open .mwe-search-sheet { transform: none; opacity: 1; }
+  .mwe-search-row { display: flex; align-items: center; gap: 8px; }
+  .mwe-search-slot { flex: 1; min-width: 0; }
+  html body .mwe-search-slot .profile-app-search:not(#mwe-x) { display: flex !important; align-items: center; gap: 8px; width: 100% !important; height: 48px !important; margin: 0 !important;
+    padding: 0 14px !important; border-radius: 14px !important; border: 1px solid var(--color-border, #e2e8f0) !important; background: var(--background, #f8fafc) !important; position: relative; }
+  html[data-theme="dark"] body .mwe-search-slot .profile-app-search:not(#mwe-x) { background: #1e293b !important; border-color: rgba(148,163,184,.25) !important; }
+  html body .mwe-search-slot .profile-app-search input:not(#mwe-x) { flex: 1; min-width: 0; font-size: 16px !important; border: 0 !important; outline: none; background: transparent !important; color: inherit; }
+  .mwe-search-close { width: 40px; height: 40px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; border: 0; background: transparent; color: var(--color-text-muted, #64748b); cursor: pointer; }
+  .mwe-search-results { overflow: auto; }
+  .mwe-search-results:has(+ *), .mwe-search-hint { margin: 0; padding: 4px 6px 6px; font-size: .88rem; color: var(--color-text-muted, #64748b); }
+  html.mwe-search-open, html.mwe-search-open body { overflow: hidden; }
+}
+@media (prefers-reduced-motion: reduce) { .mwe-search-sheet, .mwe-search-backdrop { transition: none !important; } }
+@media (max-width: 959.98px) {
+  html body .profile-app-header:not(#mwe-x) { display: flex !important; align-items: center !important; }
+  html body .profile-app-header .profile-app-brand:not(#mwe-x) { margin-right: auto !important; }
+  html body .topbar .mwe-topbar-spotlight:not(#mwe-x) { height: 40px !important; min-height: 40px !important; }
+  html body .topbar .mobile-menu-toggle:not(#mwe-x) { width: 40px !important; height: 40px !important; min-width: 40px !important; }
+}
+@media (max-width: 374.98px) { html body .topbar .mwe-topbar-spotlight:not(#mwe-x) { width: 40px !important; padding: 0 !important; justify-content: center !important; } }
