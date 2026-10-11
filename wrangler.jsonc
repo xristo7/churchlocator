@@ -102,6 +102,8 @@
         "APP_NAME": "My Way of Evangelism",
         "ENVIRONMENT": "preview",
         "PUBLIC_ORIGIN": "https://my-way-of-evangelism-preview.doxalight-inc.workers.dev",
+        "EMAIL_FROM": "My Way <onboarding@resend.dev>",
+        "REQUIRE_EMAIL_VERIFICATION": "true",
         "GOOGLE_CLIENT_ID": "744058453576-38m5g7h2jafifi44ptv4m5uft11jangi.apps.googleusercontent.com",
         "OWNER_BOOTSTRAP_EMAIL": "xristoinno@gmail.com",
         "LIVE_CF_ACCOUNT_ID": "17e900e2ac8567adf3e60c83fc64589e"

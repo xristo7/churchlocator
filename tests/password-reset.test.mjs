@@ -42,6 +42,10 @@ function createDb() {
             const u = users.get(args[3]); u.password_hash = args[0]; u.password_salt = args[1];
             return { meta: { changes: 1 } };
           }
+          if (q.startsWith("update users set email_verified_at = coalesce")) {
+            const u = users.get(args[1]); if (!u.email_verified_at) u.email_verified_at = args[0];
+            return { meta: { changes: 1 } };
+          }
           if (q.startsWith("delete from sessions where user_id = ?")) {
             for (const [k, s] of sessions) if (s.user_id === args[0]) sessions.delete(k);
             return { meta: { changes: 1 } };

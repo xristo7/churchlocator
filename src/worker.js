@@ -5,7 +5,7 @@ import { handleSpotlightApi, deliverSpotlightNotifications } from './spotlight.j
 import { handleLiveApi, closeExpiredLiveSessions, deliverLiveNotifications } from './live.js';
 import { handleContentEngagementApi } from './content-engagements.js';
 import { handleSimulatedLiveApi } from './simulated-live.js';
-import { sendPasswordResetEmail } from './password-email.js';
+import { sendPasswordResetEmail, sendVerificationEmail } from './password-email.js';
 
 const apiHeaders = {
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -394,6 +394,11 @@ async function registerUser(request, env, { forceCreator = false } = {}) {
     values (?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(id, email, hash, salt, name, Number(isCreator), createdAt, createdAt).run();
 
+  if (emailVerificationRequired(env)) {
+    await issueVerificationCode(env, { id, email }, { force: true });
+    return json({ ok: false, verificationRequired: true, email, error: "We sent a 6-digit code to your email. Enter it to finish creating your account." }, 202);
+  }
+
   const token = await createSession(env, id);
   return jsonWithCookie(
     { ok: true, user: publicUser({ id, name, email, is_creator: Number(isCreator), password_hash: hash }) },
@@ -442,6 +447,10 @@ async function handleAuthLogin(request, env) {
   if (!modern && !versioned) {
     const upgraded = await hashNewPassword(password,env);
     await env.DB.prepare('update users set password_hash=?,password_salt=? where id=? and password_hash=?').bind(upgraded.hash, upgraded.salt, row.id, row.password_hash).run();
+  }
+  if (emailVerificationRequired(env) && !row.email_verified_at) {
+    await issueVerificationCode(env, row);
+    return json({ ok: false, verificationRequired: true, email: row.email, error: "Verify your email to continue. Enter the 6-digit code we sent you." }, 403);
   }
   if (row.totp_secret_encrypted) return json({ok:true,mfaRequired:true,challenge:await mfaChallenge(env,row.id)},202);
 
@@ -546,6 +555,85 @@ async function handleAuthPasswordUpdate(request, env) {
   return json({ ok: true, message: "Password updated." });
 }
 
+// --- Email verification (email/password sign-ups) --------------------------
+const VERIFY_CODE_TTL_MINUTES = 15;
+const VERIFY_MAX_ATTEMPTS = 5;
+const VERIFY_RESEND_COOLDOWN_SECONDS = 60;
+
+function emailVerificationRequired(env) {
+  return String(env.REQUIRE_EMAIL_VERIFICATION || "").toLowerCase() === "true";
+}
+
+function sixDigitCode() {
+  // Rejection sampling for a uniform 000000-999999 code.
+  const buf = new Uint32Array(1);
+  let n;
+  do { crypto.getRandomValues(buf); n = buf[0]; } while (n >= 4294000000);
+  return String(n % 1000000).padStart(6, "0");
+}
+
+async function verificationDigest(userId, code) {
+  return digestToken(`email-verify:${userId}:${code}`);
+}
+
+async function issueVerificationCode(env, user, { force = false } = {}) {
+  const now = new Date();
+  const existing = await env.DB.prepare("select last_sent_at, expires_at from email_verification_codes where user_id = ?").bind(user.id).first();
+  if (!force && existing) {
+    const sinceSent = (now.getTime() - Date.parse(existing.last_sent_at)) / 1000;
+    if (sinceSent < VERIFY_RESEND_COOLDOWN_SECONDS && String(existing.expires_at) > now.toISOString()) {
+      return { sent: false, cooldown: Math.ceil(VERIFY_RESEND_COOLDOWN_SECONDS - sinceSent) };
+    }
+  }
+  const code = sixDigitCode();
+  const nowIso = now.toISOString();
+  await env.DB.prepare(`
+    insert into email_verification_codes (user_id, code_digest, expires_at, attempts, last_sent_at, created_at)
+    values (?, ?, ?, 0, ?, ?)
+    on conflict(user_id) do update set code_digest = excluded.code_digest, expires_at = excluded.expires_at, attempts = 0, last_sent_at = excluded.last_sent_at
+  `).bind(user.id, await verificationDigest(user.id, code), new Date(now.getTime() + VERIFY_CODE_TTL_MINUTES * 60000).toISOString(), nowIso, nowIso).run();
+  try { await sendVerificationEmail(env, user.email, code, VERIFY_CODE_TTL_MINUTES); }
+  catch (error) { console.error("[email-verification] send failed", error?.message || error); }
+  return { sent: true, cooldown: VERIFY_RESEND_COOLDOWN_SECONDS };
+}
+
+async function handleVerifyEmail(request, env) {
+  if (!env.DB) return storageUnavailable();
+  const payload = await readJson(request);
+  const email = normalizeEmail(payload?.email);
+  const code = String(payload?.code || "").replace(/\D/g, "");
+  const invalid = json({ ok: false, error: "That code is incorrect or has expired." }, 400);
+  if (!isValidEmail(email) || code.length !== 6) return invalid;
+  const user = await env.DB.prepare("select id, name, email, password_hash, is_creator, email_verified_at from users where email = ?").bind(email).first();
+  if (!user || user.password_hash === "authentication-disabled") return invalid;
+  if (user.email_verified_at) return json({ ok: false, error: "This email is already verified. Sign in instead." }, 409);
+  const row = await env.DB.prepare("select code_digest, expires_at, attempts from email_verification_codes where user_id = ?").bind(user.id).first();
+  if (!row || String(row.expires_at) <= new Date().toISOString()) return json({ ok: false, error: "That code has expired. Request a new one." }, 400);
+  if (Number(row.attempts) >= VERIFY_MAX_ATTEMPTS) return json({ ok: false, error: "Too many attempts. Request a new code." }, 429);
+  if (!constantTimeEqual(await verificationDigest(user.id, code), row.code_digest)) {
+    await env.DB.prepare("update email_verification_codes set attempts = attempts + 1 where user_id = ?").bind(user.id).run();
+    const left = VERIFY_MAX_ATTEMPTS - Number(row.attempts) - 1;
+    return json({ ok: false, error: left > 0 ? `That code is incorrect. ${left} attempt${left === 1 ? "" : "s"} left.` : "Too many attempts. Request a new code.", attemptsLeft: Math.max(0, left) }, 400);
+  }
+  const nowIso = new Date().toISOString();
+  await env.DB.prepare("update users set email_verified_at = ?, last_login_at = ? where id = ?").bind(nowIso, nowIso, user.id).run();
+  await env.DB.prepare("delete from email_verification_codes where user_id = ?").bind(user.id).run();
+  const token = await createSession(env, user.id);
+  return jsonWithCookie({ ok: true, user: publicUser({ ...user, email_verified_at: nowIso }) }, 200, sessionCookieHeader(request, token, SESSION_TTL_SECONDS));
+}
+
+async function handleResendVerification(request, env) {
+  if (!env.DB) return storageUnavailable();
+  const payload = await readJson(request);
+  const email = normalizeEmail(payload?.email);
+  const generic = { ok: true, message: "If that account needs verification, we've sent a new code.", cooldown: VERIFY_RESEND_COOLDOWN_SECONDS };
+  if (!isValidEmail(email)) return json(generic);
+  const user = await env.DB.prepare("select id, email, password_hash, email_verified_at from users where email = ?").bind(email).first();
+  if (!user || user.email_verified_at || user.password_hash === "authentication-disabled") return json(generic);
+  const result = await issueVerificationCode(env, user);
+  return json({ ...generic, cooldown: result.cooldown || VERIFY_RESEND_COOLDOWN_SECONDS, ...(result.sent ? {} : { message: "Please wait before requesting another code." }) });
+}
+
 // --- Password reset -------------------------------------------------------
 const PASSWORD_RESET_TTL_MINUTES = 45;
 const PASSWORD_RESET_MAX_PER_WINDOW = 3; // per account per 15 minutes
@@ -602,6 +690,8 @@ async function handleResetPassword(request, env) {
   await env.DB.prepare("update users set password_hash = ?, password_salt = ?, updated_at = ? where id = ?")
     .bind(next.hash, next.salt, nowIso, row.user_id)
     .run();
+  // The emailed link proves ownership of the address.
+  await env.DB.prepare("update users set email_verified_at = coalesce(email_verified_at, ?) where id = ?").bind(nowIso, row.user_id).run();
   await env.DB.prepare("delete from sessions where user_id = ?").bind(row.user_id).run();
   await env.DB.prepare("update password_reset_tokens set used_at = ? where user_id = ? and used_at is null").bind(nowIso, row.user_id).run();
   return json({ ok: true, message: "Your password has been reset. Sign in with your new password." });
@@ -1688,6 +1778,8 @@ async function handleApi(request, env, executionCtx) {
     if (path === "/api/auth/register") return await handleAuthRegister(request, env);
     if (path === "/api/auth/login") return await handleAuthLogin(request, env);
     if (path === "/api/auth/logout") return await handleAuthLogout(request, env);
+    if (path === "/api/auth/verify-email") return await handleVerifyEmail(request, env);
+    if (path === "/api/auth/resend-verification") return await handleResendVerification(request, env);
     if (path === "/api/auth/forgot-password") return await handleForgotPassword(request, env, executionCtx);
     if (path === "/api/auth/reset-password") return await handleResetPassword(request, env);
     if (path === "/api/creator/register") return await handleCreatorRegister(request, env);

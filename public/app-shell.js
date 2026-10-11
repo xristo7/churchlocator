@@ -606,3 +606,84 @@
   const run = async () => { paint(); try { await (window.MWEPlatform && window.MWEPlatform.ready); } catch (e) {} paint(); };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once: true }); else run();
 })();
+
+/* Email verification code step (6 boxes, paste, auto-advance, resend timer). */
+(function initMWEVerifyStep() {
+  const findContainer = () => document.querySelector("#nav-signin-popover:not([hidden])") ||
+    document.querySelector(".member-auth-modal.is-open .member-auth-card");
+  const build = (container, email) => {
+    let panel = container.querySelector(":scope > .mwe-verify-panel");
+    if (panel) panel.remove();
+    panel = document.createElement("form");
+    panel.className = "mwe-verify-panel"; panel.noValidate = true;
+    const masked = String(email || "").replace(/^(.{2})[^@]*(@.*)$/, "$1•••$2");
+    panel.innerHTML = '<h3>Check your email</h3><p>Enter the 6-digit code we sent to <strong></strong>. It expires in 15 minutes.</p>' +
+      '<p class="member-auth-error" role="alert" hidden></p>' +
+      '<div class="mwe-code-boxes" role="group" aria-label="Verification code">' +
+      Array.from({ length: 6 }, (_, i) => `<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" ${i === 0 ? 'autocomplete="one-time-code"' : 'autocomplete="off"'} aria-label="Digit ${i + 1}" />`).join("") +
+      '</div><button class="member-auth-submit" type="submit"><span>Verify email</span></button>' +
+      '<div class="mwe-verify-row"><button type="button" class="mwe-resend" disabled>Resend code</button><button type="button" class="mwe-forgot-back">Use a different email</button></div>';
+    panel.querySelector("strong").textContent = masked;
+    container.append(panel);
+    const boxes = [...panel.querySelectorAll(".mwe-code-boxes input")];
+    const err = panel.querySelector(".member-auth-error"), btn = panel.querySelector('[type="submit"]'), resend = panel.querySelector(".mwe-resend");
+    const value = () => boxes.map((b) => b.value).join("");
+    const fill = (digits, start = 0) => { digits.split("").forEach((d, k) => { if (boxes[start + k]) boxes[start + k].value = d; }); const next = boxes.find((b) => !b.value); (next || boxes[5]).focus(); if (value().length === 6) panel.requestSubmit(); };
+    boxes.forEach((box, i) => {
+      box.addEventListener("input", () => {
+        const d = box.value.replace(/\D/g, "");
+        box.value = "";
+        if (d.length > 1) return fill(d.slice(0, 6 - i), i);
+        if (d) { box.value = d; if (boxes[i + 1]) boxes[i + 1].focus(); else if (value().length === 6) panel.requestSubmit(); }
+        box.classList.toggle("filled", !!box.value);
+      });
+      box.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !box.value && boxes[i - 1]) { boxes[i - 1].value = ""; boxes[i - 1].focus(); e.preventDefault(); }
+        if (e.key === "ArrowLeft" && boxes[i - 1]) boxes[i - 1].focus();
+        if (e.key === "ArrowRight" && boxes[i + 1]) boxes[i + 1].focus();
+      });
+      box.addEventListener("paste", (e) => { const t = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g, ""); if (t) { e.preventDefault(); fill(t.slice(0, 6), 0); } });
+    });
+    let timer;
+    const countdown = (secs) => {
+      clearInterval(timer); let left = secs; resend.disabled = true;
+      const tick = () => { if (left <= 0) { clearInterval(timer); resend.disabled = false; resend.textContent = "Resend code"; return; } resend.textContent = `Resend in 0:${String(left).padStart(2, "0")}`; left -= 1; };
+      tick(); timer = setInterval(tick, 1000);
+    };
+    countdown(60);
+    resend.addEventListener("click", async () => {
+      err.hidden = true; resend.disabled = true;
+      const r = await (window.MWEAuth ? MWEAuth.resendVerification(email) : Promise.resolve({ ok: false }));
+      countdown(Number(r.cooldown) || 60);
+      if (!r.ok) { err.textContent = r.error || "Couldn't resend right now."; err.hidden = false; }
+    });
+    panel.querySelector(".mwe-forgot-back").addEventListener("click", () => { clearInterval(timer); container.classList.remove("mwe-verify-mode"); panel.remove(); });
+    panel.addEventListener("submit", async (e) => {
+      e.preventDefault(); err.hidden = true;
+      const code = value();
+      if (code.length !== 6) { err.textContent = "Enter all 6 digits."; err.hidden = false; (boxes.find((b) => !b.value) || boxes[0]).focus(); return; }
+      btn.disabled = true; btn.setAttribute("aria-busy", "true");
+      const r = await (window.MWEAuth ? MWEAuth.verifyEmail(email, code) : Promise.resolve({ ok: false, error: "Sign-in is unavailable." }));
+      btn.disabled = false; btn.removeAttribute("aria-busy");
+      if (!r.ok) {
+        err.textContent = r.error || "That code is incorrect."; err.hidden = false;
+        panel.querySelector(".mwe-code-boxes").classList.add("shake"); setTimeout(() => panel.querySelector(".mwe-code-boxes").classList.remove("shake"), 400);
+        boxes.forEach((b) => { b.value = ""; b.classList.remove("filled"); }); boxes[0].focus();
+        return;
+      }
+      clearInterval(timer);
+      panel.innerHTML = '<h3>Email verified</h3><p class="mwe-reset-success" role="status">You\'re all set. Signing you in…</p>';
+      setTimeout(() => window.location.reload(), 900);
+    });
+    container.classList.remove("mwe-forgot-mode");
+    container.classList.add("mwe-verify-mode");
+    setTimeout(() => boxes[0].focus(), 60);
+  };
+  window.addEventListener("mwe-verification-required", (e) => {
+    const email = e.detail && e.detail.email;
+    let container = findContainer();
+    if (!container && window.MWE && typeof MWE.openMemberLogin === "function") { MWE.openMemberLogin(location.pathname + location.search); container = findContainer(); }
+    if (container) build(container, email);
+  });
+  window.MWEShowVerifyStep = (email) => window.dispatchEvent(new CustomEvent("mwe-verification-required", { detail: { email } }));
+})();
