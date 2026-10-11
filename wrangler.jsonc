@@ -27,6 +27,7 @@
     }
   ],
   "vars": {
+    "EMAIL_FROM": "My Way <onboarding@resend.dev>",
     "APP_NAME": "My Way of Evangelism",
     "ENVIRONMENT": "production",
     "PUBLIC_ORIGIN": "https://my-way-of-evangelism.doxalight-inc.workers.dev",
