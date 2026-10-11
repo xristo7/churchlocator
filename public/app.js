@@ -37,7 +37,16 @@ function getPreferredPrimaryColor() {
   return "blue";
 }
 
+function mweSystemTheme() {
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
 function applyTheme(theme, persist = false) {
+  if (theme === "system") {
+    if (persist) localStorage.removeItem(MWE_THEME_KEY);
+    theme = mweSystemTheme();
+    persist = false;
+  }
   const resolved = theme === "dark" ? "dark" : "light";
   document.documentElement.dataset.theme = resolved;
   document.documentElement.style.colorScheme = resolved;
@@ -51,8 +60,10 @@ function applyTheme(theme, persist = false) {
     button.innerHTML = `<i data-lucide="${isDark ? "sun" : "moon"}"></i><span>${isDark ? "Light" : "Dark"}</span>`;
   });
 
+  const storedMode = localStorage.getItem(MWE_THEME_KEY);
+  const mode = storedMode === "light" || storedMode === "dark" ? storedMode : "system";
   document.querySelectorAll("[data-mode-toggle-btn]").forEach(btn => {
-    const active = btn.dataset.modeToggleBtn === resolved;
+    const active = btn.closest(".mwe-appearance") ? btn.dataset.modeToggleBtn === mode : btn.dataset.modeToggleBtn === resolved;
     btn.classList.toggle("active", active);
     btn.setAttribute("aria-pressed", String(active));
   });
@@ -94,103 +105,44 @@ function initThemeControl() {
       : document.querySelector(".member-shell-actions"))
     : document.querySelector(".aw-top-actions, .nav-actions");
 
-  if (target && isMemberShell && mweThemeSignedIn() && !target.querySelector(".theme-palette-container")) {
+  // Appearance lives inside the signed-in account menu (no header Theme button).
+  const accountMenu = document.getElementById("member-account-menu");
+  if (isMemberShell && accountMenu && mweThemeSignedIn() && !accountMenu.querySelector(".mwe-appearance")) {
     const currentPrimary = getPreferredPrimaryColor();
-    const currentTheme = getPreferredTheme();
-    const currentPal = RAINBOW_PALETTES.find(p => p.id === currentPrimary) || RAINBOW_PALETTES[0];
-
-    const container = document.createElement("div");
-    container.className = "theme-palette-container";
-    container.innerHTML = `
-      <button type="button" class="theme-palette-btn" id="theme-palette-trigger" aria-haspopup="dialog" aria-expanded="false" title="Theme & Color Palette">
-        <span class="theme-palette-indicator" data-primary-indicator style="background: ${currentPal.color};"></span>
-        <i data-lucide="palette"></i>
-        <span>Theme</span>
-      </button>
-      <div class="theme-palette-popover" id="theme-palette-menu" hidden role="dialog" aria-label="Theme and color palette settings">
-        <div class="theme-palette-header">
-          <strong><i data-lucide="palette"></i> Appearance & Colors</strong>
-        </div>
-        
-        <div class="mode-toggle-group">
-          <button type="button" class="mode-toggle-btn ${currentTheme === 'light' ? 'active' : ''}" data-mode-toggle-btn="light">
-            <i data-lucide="sun"></i> Light
-          </button>
-          <button type="button" class="mode-toggle-btn ${currentTheme === 'dark' ? 'active' : ''}" data-mode-toggle-btn="dark">
-            <i data-lucide="moon"></i> Dark
-          </button>
-        </div>
-
-        <div>
-          <div class="palette-section-title">Primary Color Accent</div>
-          <div class="rainbow-swatch-grid" role="radiogroup" aria-label="Primary color options">
-            ${RAINBOW_PALETTES.map(p => `
-              <button
-                type="button"
-                class="swatch-btn ${p.class} ${p.id === currentPrimary ? 'active' : ''}"
-                data-palette-swatch="${p.id}"
-                title="${p.name}"
-                aria-label="${p.name}"
-                role="radio"
-                aria-checked="${p.id === currentPrimary}"
-              ></button>
-            `).join('')}
-          </div>
-        </div>
-
-        <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; padding-top: 4px; border-top: 1px solid var(--border-subtle);">
-          <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--gold); box-shadow:0 0 6px var(--gold);"></span>
-          <span>Gold accents are standard across all themes.</span>
-        </div>
+    const stored = localStorage.getItem(MWE_THEME_KEY);
+    const mode = stored === "light" || stored === "dark" ? stored : "system";
+    const section = document.createElement("div");
+    section.className = "mwe-appearance";
+    section.setAttribute("role", "group");
+    section.setAttribute("aria-label", "Appearance");
+    section.innerHTML = `
+      <div class="mwe-appearance-title">Appearance</div>
+      <div class="mwe-appearance-modes" role="radiogroup" aria-label="Theme">
+        ${[["light", "sun", "Light"], ["dark", "moon", "Dark"], ["system", "monitor", "System"]].map(([id, icon, label]) => `
+          <button type="button" class="mode-toggle-btn ${mode === id ? "active" : ""}" data-mode-toggle-btn="${id}" role="radio" aria-checked="${mode === id}"><i data-lucide="${icon}"></i><span>${label}</span></button>`).join("")}
       </div>
-    `;
-
-    const langContainer = target.querySelector(".lang-selector-container");
-    const authSlot = target.querySelector("#nav-auth-slot, #nav-signin-dropdown-container, .signin-dropdown-container");
-    if (authSlot) {
-      target.insertBefore(container, authSlot);
-    } else if (langContainer && langContainer.nextSibling) {
-      target.insertBefore(container, langContainer.nextSibling);
-    } else {
-      target.appendChild(container);
-    }
-
-    const trigger = container.querySelector("#theme-palette-trigger");
-    const popover = container.querySelector("#theme-palette-menu");
-
-    trigger?.addEventListener("click", event => {
-      event.stopPropagation();
-      const isHidden = popover.hidden;
-      popover.hidden = !isHidden;
-      trigger.setAttribute("aria-expanded", String(isHidden));
-      container.classList.toggle("has-active-popover", !isHidden);
-      container.closest(".topbar, .aw-topbar, .dash-topbar, header, .member-shell-header")?.classList.toggle("has-active-popover", !isHidden);
-    });
-
-    popover?.addEventListener("click", event => {
+      <div class="mwe-appearance-title mwe-appearance-sub">Accent</div>
+      <div class="rainbow-swatch-grid mwe-appearance-swatches" role="radiogroup" aria-label="Accent colour">
+        ${RAINBOW_PALETTES.map(p => `<button type="button" class="swatch-btn ${p.class} ${p.id === currentPrimary ? "active" : ""}" data-palette-swatch="${p.id}" title="${p.name}" aria-label="${p.name}" role="radio" aria-checked="${p.id === currentPrimary}"></button>`).join("")}
+      </div>`;
+    const profileBlock = accountMenu.querySelector(".member-account-menu-profile");
+    profileBlock ? profileBlock.after(section) : accountMenu.prepend(section);
+    section.addEventListener("click", event => {
       event.stopPropagation();
       const modeBtn = event.target.closest("[data-mode-toggle-btn]");
       if (modeBtn) {
         applyTheme(modeBtn.dataset.modeToggleBtn, true);
+        section.querySelectorAll("[data-mode-toggle-btn]").forEach(b => b.setAttribute("aria-checked", String(b === modeBtn)));
         return;
       }
-
       const swatchBtn = event.target.closest("[data-palette-swatch]");
-      if (swatchBtn) {
-        applyPrimaryColor(swatchBtn.dataset.paletteSwatch, true);
-        return;
-      }
+      if (swatchBtn) applyPrimaryColor(swatchBtn.dataset.paletteSwatch, true);
     });
-
-    document.addEventListener("click", () => {
-      if (popover && !popover.hidden) {
-        popover.hidden = true;
-        trigger?.setAttribute("aria-expanded", "false");
-        container.classList.remove("has-active-popover");
-        container.closest(".topbar, .aw-topbar, .dash-topbar, header, .member-shell-header")?.classList.remove("has-active-popover");
-      }
+    window.matchMedia?.("(prefers-color-scheme: dark)").addEventListener?.("change", () => {
+      if (!localStorage.getItem(MWE_THEME_KEY)) applyTheme("system");
     });
   }
+  document.querySelectorAll(".theme-palette-container").forEach(el => el.remove());
 
   // Also maintain existing data-theme-toggle compatibility
   document.querySelectorAll("[data-theme-toggle]").forEach(button => {

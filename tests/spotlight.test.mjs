@@ -9,7 +9,8 @@ test('Spotlight is a first-class responsive member route', async () => {
     read('public/app.html'), read('public/app-shell.js'), read('public/spotlight.html'),
     read('public/spotlight.js'), read('public/spotlight.css')
   ]);
-  assert.match(app, /data-shell-view="spotlight"/);
+  assert.match(app, /mwe-header-spotlight" href="spotlight\.html"/);
+  assert.doesNotMatch(app.match(/<aside class="profile-left-rail[\s\S]*?<\/aside>/)?.[0] || "", />Spotlight</);
   assert.match(shell, /spotlight:\s*\{ source: "spotlight\.html"/);
   assert.match(page, /id="spotlight-feed"/);
   assert.match(page, /id="spotlight-inspector"/);

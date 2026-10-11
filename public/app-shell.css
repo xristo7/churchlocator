@@ -620,3 +620,24 @@ html[data-theme="dark"] .mwe-ministry-tile[aria-pressed="true"] { background: rg
   background: var(--primary-soft, rgba(37,99,235,.08)); color: var(--color-primary); border: 1px solid var(--primary-border, rgba(37,99,235,.22)); }
 html[data-theme="dark"] .mwe-ministries-section { background: rgba(15,23,42,.7); border-color: rgba(148,163,184,.2); }
 html[data-theme="dark"] .mwe-ministry-chip { background: rgba(59,130,246,.14); color: hsl(221 90% 76%); border-color: rgba(96,165,250,.3); }
+
+/* Donate card: one-line, intentional compact layout */
+.mwe-rail-donate { padding: var(--space-3) !important; gap: 10px !important; }
+.mwe-rail-donate-icon { width: 32px !important; height: 32px !important; }
+.mwe-rail-donate strong, .mwe-rail-donate small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mwe-rail-donate > svg:last-child { flex: none; }
+
+/* Appearance section inside the account menu */
+.mwe-appearance { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3) var(--space-3) var(--space-3); margin: var(--space-1) 0; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
+.mwe-appearance-title { font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-muted); }
+.mwe-appearance-sub { margin-top: var(--space-1); }
+.mwe-appearance-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--background, #f1f5f9); border: 1px solid var(--color-border); }
+html body .mwe-appearance .mode-toggle-btn:not(#mwe-x) { display: flex !important; align-items: center; justify-content: center; gap: 6px; height: 34px; min-height: 34px; padding: 0 6px !important; margin: 0 !important;
+  border: 0 !important; border-radius: var(--radius-sm) !important; background: transparent !important; color: var(--color-text-muted) !important; font-size: .78rem !important; font-weight: 700 !important; box-shadow: none !important; cursor: pointer; width: auto !important; }
+html body .mwe-appearance .mode-toggle-btn:not(#mwe-x) svg { width: 15px; height: 15px; }
+html body .mwe-appearance .mode-toggle-btn.active:not(#mwe-x) { background: var(--color-surface) !important; color: var(--color-text) !important; box-shadow: var(--elev-1) !important; }
+.mwe-appearance-swatches { display: flex !important; flex-wrap: wrap; gap: 8px !important; }
+.mwe-appearance-swatches .swatch-btn { width: 24px !important; height: 24px !important; }
+html[data-theme="dark"] .mwe-appearance-modes { background: #0b1220; border-color: rgba(148,163,184,.2); }
+html[data-theme="dark"] body .mwe-appearance .mode-toggle-btn.active:not(#mwe-x) { background: #1e293b !important; color: #f1f5f9 !important; }
+html[data-theme="dark"] .mwe-appearance { border-color: rgba(148,163,184,.18); }
