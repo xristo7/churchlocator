@@ -12,19 +12,41 @@ const RAINBOW_PALETTES = [
   { id: "teal", name: "Ocean Cyan", color: "#0d9488", class: "swatch-teal" }
 ];
 
+// Theme personalisation is a signed-in feature; signed-out visitors always get the default light theme.
+function mweThemeSignedIn() {
+  return Boolean(window.MWEPlatform?.session) || localStorage.getItem("mwe.userLoggedIn") === "true";
+}
+
+window.MWEApplyThemePrefs = function() {
+  applyTheme(getPreferredTheme());
+  applyPrimaryColor(getPreferredPrimaryColor());
+  if (!mweThemeSignedIn()) document.querySelectorAll(".theme-palette-container").forEach(el => el.remove());
+};
+
 function getPreferredTheme() {
+  if (!mweThemeSignedIn()) return "light";
   const saved = localStorage.getItem(MWE_THEME_KEY);
   if (saved === "light" || saved === "dark") return saved;
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 function getPreferredPrimaryColor() {
+  if (!mweThemeSignedIn()) return "blue";
   const saved = localStorage.getItem(MWE_PRIMARY_COLOR_KEY);
   if (RAINBOW_PALETTES.some(p => p.id === saved)) return saved;
   return "blue";
 }
 
+function mweSystemTheme() {
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
 function applyTheme(theme, persist = false) {
+  if (theme === "system") {
+    if (persist) localStorage.removeItem(MWE_THEME_KEY);
+    theme = mweSystemTheme();
+    persist = false;
+  }
   const resolved = theme === "dark" ? "dark" : "light";
   document.documentElement.dataset.theme = resolved;
   document.documentElement.style.colorScheme = resolved;
@@ -38,8 +60,10 @@ function applyTheme(theme, persist = false) {
     button.innerHTML = `<i data-lucide="${isDark ? "sun" : "moon"}"></i><span>${isDark ? "Light" : "Dark"}</span>`;
   });
 
+  const storedMode = localStorage.getItem(MWE_THEME_KEY);
+  const mode = storedMode === "light" || storedMode === "dark" ? storedMode : "system";
   document.querySelectorAll("[data-mode-toggle-btn]").forEach(btn => {
-    const active = btn.dataset.modeToggleBtn === resolved;
+    const active = btn.closest(".mwe-appearance") ? btn.dataset.modeToggleBtn === mode : btn.dataset.modeToggleBtn === resolved;
     btn.classList.toggle("active", active);
     btn.setAttribute("aria-pressed", String(active));
   });
@@ -81,103 +105,45 @@ function initThemeControl() {
       : document.querySelector(".member-shell-actions"))
     : document.querySelector(".aw-top-actions, .nav-actions");
 
-  if (target && !target.querySelector(".theme-palette-container")) {
+  // Appearance lives inside the signed-in account menu (no header Theme button).
+  const accountMenu = document.getElementById("member-account-menu");
+  if (isMemberShell && accountMenu && mweThemeSignedIn() && !accountMenu.querySelector(".mwe-appearance")) {
     const currentPrimary = getPreferredPrimaryColor();
-    const currentTheme = getPreferredTheme();
-    const currentPal = RAINBOW_PALETTES.find(p => p.id === currentPrimary) || RAINBOW_PALETTES[0];
-
-    const container = document.createElement("div");
-    container.className = "theme-palette-container";
-    container.innerHTML = `
-      <button type="button" class="theme-palette-btn" id="theme-palette-trigger" aria-haspopup="dialog" aria-expanded="false" title="Theme & Color Palette">
-        <span class="theme-palette-indicator" data-primary-indicator style="background: ${currentPal.color};"></span>
-        <i data-lucide="palette"></i>
-        <span>Theme</span>
-      </button>
-      <div class="theme-palette-popover" id="theme-palette-menu" hidden role="dialog" aria-label="Theme and color palette settings">
-        <div class="theme-palette-header">
-          <strong><i data-lucide="palette"></i> Appearance & Colors</strong>
-        </div>
-        
-        <div class="mode-toggle-group">
-          <button type="button" class="mode-toggle-btn ${currentTheme === 'light' ? 'active' : ''}" data-mode-toggle-btn="light">
-            <i data-lucide="sun"></i> Light
-          </button>
-          <button type="button" class="mode-toggle-btn ${currentTheme === 'dark' ? 'active' : ''}" data-mode-toggle-btn="dark">
-            <i data-lucide="moon"></i> Dark
-          </button>
-        </div>
-
-        <div>
-          <div class="palette-section-title">Primary Color Accent</div>
-          <div class="rainbow-swatch-grid" role="radiogroup" aria-label="Primary color options">
-            ${RAINBOW_PALETTES.map(p => `
-              <button
-                type="button"
-                class="swatch-btn ${p.class} ${p.id === currentPrimary ? 'active' : ''}"
-                data-palette-swatch="${p.id}"
-                title="${p.name}"
-                aria-label="${p.name}"
-                role="radio"
-                aria-checked="${p.id === currentPrimary}"
-              ></button>
-            `).join('')}
-          </div>
-        </div>
-
-        <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; padding-top: 4px; border-top: 1px solid var(--border-subtle);">
-          <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--gold); box-shadow:0 0 6px var(--gold);"></span>
-          <span>Gold accents are standard across all themes.</span>
-        </div>
+    const stored = localStorage.getItem(MWE_THEME_KEY);
+    const mode = stored === "light" || stored === "dark" ? stored : "system";
+    const section = document.createElement("div");
+    section.className = "mwe-appearance";
+    section.setAttribute("role", "group");
+    section.setAttribute("aria-label", "Appearance");
+    section.innerHTML = `
+      <div class="mwe-appearance-title">Appearance</div>
+      <div class="mwe-appearance-modes" role="radiogroup" aria-label="Theme">
+        ${[["light", "Light"], ["dark", "Dark"], ["system", "System"]].map(([id, label]) => `
+          <button type="button" class="mode-toggle-btn ${mode === id ? "active" : ""}" data-mode-toggle-btn="${id}" role="radio" aria-checked="${mode === id}"><span>${label}</span></button>`).join("")}
       </div>
-    `;
-
-    const langContainer = target.querySelector(".lang-selector-container");
-    const authSlot = target.querySelector("#nav-auth-slot, #nav-signin-dropdown-container, .signin-dropdown-container");
-    if (authSlot) {
-      target.insertBefore(container, authSlot);
-    } else if (langContainer && langContainer.nextSibling) {
-      target.insertBefore(container, langContainer.nextSibling);
-    } else {
-      target.appendChild(container);
-    }
-
-    const trigger = container.querySelector("#theme-palette-trigger");
-    const popover = container.querySelector("#theme-palette-menu");
-
-    trigger?.addEventListener("click", event => {
-      event.stopPropagation();
-      const isHidden = popover.hidden;
-      popover.hidden = !isHidden;
-      trigger.setAttribute("aria-expanded", String(isHidden));
-      container.classList.toggle("has-active-popover", !isHidden);
-      container.closest(".topbar, .aw-topbar, .dash-topbar, header, .member-shell-header")?.classList.toggle("has-active-popover", !isHidden);
-    });
-
-    popover?.addEventListener("click", event => {
+      <div class="mwe-appearance-title mwe-appearance-sub">Accent</div>
+      <div class="rainbow-swatch-grid mwe-appearance-swatches" role="radiogroup" aria-label="Accent colour">
+        ${RAINBOW_PALETTES.map(p => `<button type="button" class="swatch-btn ${p.class} ${p.id === currentPrimary ? "active" : ""}" style="--sw:${p.color}" data-palette-swatch="${p.id}" title="${p.name}" aria-label="${p.name}" role="radio" aria-checked="${p.id === currentPrimary}"></button>`).join("")}
+      </div>`;
+    // Order: header, Profile, Messages, divider, Appearance, divider, Sign out.
+    const signOut = accountMenu.querySelector("#member-sign-out");
+    signOut ? signOut.before(section) : accountMenu.append(section);
+    section.addEventListener("click", event => {
       event.stopPropagation();
       const modeBtn = event.target.closest("[data-mode-toggle-btn]");
       if (modeBtn) {
         applyTheme(modeBtn.dataset.modeToggleBtn, true);
+        section.querySelectorAll("[data-mode-toggle-btn]").forEach(b => b.setAttribute("aria-checked", String(b === modeBtn)));
         return;
       }
-
       const swatchBtn = event.target.closest("[data-palette-swatch]");
-      if (swatchBtn) {
-        applyPrimaryColor(swatchBtn.dataset.paletteSwatch, true);
-        return;
-      }
+      if (swatchBtn) applyPrimaryColor(swatchBtn.dataset.paletteSwatch, true);
     });
-
-    document.addEventListener("click", () => {
-      if (popover && !popover.hidden) {
-        popover.hidden = true;
-        trigger?.setAttribute("aria-expanded", "false");
-        container.classList.remove("has-active-popover");
-        container.closest(".topbar, .aw-topbar, .dash-topbar, header, .member-shell-header")?.classList.remove("has-active-popover");
-      }
+    window.matchMedia?.("(prefers-color-scheme: dark)").addEventListener?.("change", () => {
+      if (!localStorage.getItem(MWE_THEME_KEY)) applyTheme("system");
     });
   }
+  document.querySelectorAll(".theme-palette-container").forEach(el => el.remove());
 
   // Also maintain existing data-theme-toggle compatibility
   document.querySelectorAll("[data-theme-toggle]").forEach(button => {
@@ -1599,6 +1565,7 @@ MWE.getMemberShellRoute = function(input) {
     view,
     id: url.searchParams.get("id") || url.searchParams.get("channel") || "",
     q: url.searchParams.get("q") || "",
+    ministry: url.searchParams.get("ministry") || "",
     compose: url.searchParams.get("compose") || "",
     post: url.searchParams.get("post") || ""
   };
@@ -1609,8 +1576,32 @@ MWE.buildMemberShellUrl = function(route) {
   target.searchParams.set("view", route.view || "directory");
   if (route.id) target.searchParams.set("id", route.id);
   if (route.q) target.searchParams.set("q", route.q);
+  if (route.ministry) target.searchParams.set("ministry", route.ministry);
   if (route.compose) target.searchParams.set("compose", route.compose);
   return `${target.pathname.split("/").pop()}${target.search}`;
+};
+
+MWE.renderChurchMinistryChips = function(church) {
+  const section = document.getElementById("church-ministries-section");
+  const wrap = document.getElementById("church-ministry-chips");
+  if (!section || !wrap) return;
+  const values = Array.isArray(church?.ministries) ? church.ministries.filter(Boolean) : [];
+  const M = window.MWEMinistries;
+  const seen = new Set();
+  const chips = values.map(v => {
+    const slug = M ? M.normalize(v) : null;
+    const key = slug || String(v).toLowerCase();
+    if (seen.has(key)) return "";
+    seen.add(key);
+    const hit = slug && M.list.find(m => m.slug === slug);
+    return `<span class="mwe-ministry-chip"${hit ? ` title="${MWE.escapeHtml(hit.description)}"` : ""}>${MWE.escapeHtml(hit ? hit.label : v)}</span>`;
+  }).join("");
+  wrap.innerHTML = chips;
+  section.hidden = !chips;
+};
+
+MWE.ministryLabel = function(value) {
+  return window.MWEMinistries ? window.MWEMinistries.label(value) : String(value || "");
 };
 
 MWE.showMemberToast = function(message) {
@@ -1642,19 +1633,17 @@ MWE.ensureMemberLoginModal = function() {
         </svg>
         <span>Continue with Google</span>
       </button>
-      <div class="auth-divider member-auth-divider"><span>or continue with email</span></div>
-      <form class="member-auth-form" data-member-auth-form>
-        <p class="member-auth-error" data-member-auth-error hidden></p>
-        <label class="member-auth-field"><span class="auth-visually-hidden">Email address</span>
-          <input type="email" name="email" autocomplete="email" placeholder="Email address" required />
-          <small class="auth-field-helper">Use the email on your My Way account.</small>
+      <div class="auth-divider member-auth-divider" role="separator"><span>or</span></div>
+      <form class="member-auth-form" data-member-auth-form novalidate>
+        <p class="member-auth-error" data-member-auth-error role="alert" hidden></p>
+        <label class="member-auth-field"><span class="member-auth-label">Email</span>
+          <input type="email" name="email" autocomplete="email" placeholder="Email address" inputmode="email" required />
         </label>
-        <label class="member-auth-field"><span class="auth-visually-hidden">Password</span>
-          <input type="password" name="password" autocomplete="current-password" placeholder="Password" required />
-          <small class="auth-field-helper">Enter your account password.</small>
+        <label class="member-auth-field"><span class="member-auth-label-row"><span class="member-auth-label">Password</span><a href="#" class="member-auth-forgot" data-auth-forgot>Forgot password?</a></span>
+          <span class="mwe-password-wrap"><input type="password" name="password" autocomplete="current-password" placeholder="Password" required /></span>
         </label>
-        <button class="member-auth-submit" type="submit"><i data-lucide="log-in"></i> Sign in</button>
-        <p class="member-auth-hint">No account yet? <a href="index.html#register">Register free</a> first.</p>
+        <button class="member-auth-submit" type="submit"><i data-lucide="log-in"></i> <span>Sign in</span></button>
+        <p class="member-auth-hint">New to My Way? <a href="index.html#register">Create an account</a></p>
       </form>
     </div>
   `;
@@ -1699,9 +1688,9 @@ MWE.ensureMemberLoginModal = function() {
       return;
     }
 
-    if (submitBtn) submitBtn.disabled = true;
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.setAttribute("aria-busy", "true"); }
     const result = await window.MWEAuth.login(email, password);
-    if (submitBtn) submitBtn.disabled = false;
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.removeAttribute("aria-busy"); }
 
     if (!result.ok) {
       if (errorEl) { errorEl.textContent = result.error || "Invalid email or password."; errorEl.hidden = false; }
@@ -2190,9 +2179,9 @@ function initPrivateAppAuth() {
         verified: false,
         photo: "assets/church-audience.jpg",
         logo: "",
-        pastor: registrantNameInput && registrantNameInput.value ? registrantNameInput.value : "Pastor John Doe",
+        pastor: registrantNameInput && registrantNameInput.value ? registrantNameInput.value : "Pastor",
         pastorTitle: finalRole,
-        pastorPhoto: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300",
+        pastorPhoto: "",
         pastorBio: "Welcome to our ministry fellowship! We would love to connect with you.",
         about: "We are committed to sharing God's love and reaching communities globally.",
         ministries: ["worship", "community", "prayer", "youth"],
@@ -2543,6 +2532,7 @@ async function initPublicSite() {
     country: MWE.normalizeCountry(church.country).toLowerCase(),
     city: MWE.citySearchKey(church.city),
     denomination: String(church.denomination || "").toLowerCase(),
+    ministries: window.MWEMinistries ? MWEMinistries.slugs([...(Array.isArray(church.ministries) ? church.ministries : []), ...(Array.isArray(church.features) ? church.features : [])]) : [],
     haystack: [
       church.name, church.city, church.area, church.country, church.denomination,
       church.pastor, church.language, church.sunday,
@@ -2619,9 +2609,28 @@ async function initPublicSite() {
     if (window.lucide) window.lucide.createIcons();
   }
 
+  const ministryOptionsContainer = document.getElementById("church-ministry-options-list");
+  if (ministryOptionsContainer && window.MWEMinistries) {
+    const preset = MWEMinistries.normalize(new URLSearchParams(window.location.search).get("ministry"));
+    ministryOptionsContainer.innerHTML = MWEMinistries.list.map(m => `
+      <label class="custom-checkbox-row mwe-ministry-option" data-search-text="${MWE.escapeHtml((m.label + " " + m.description).toLowerCase())}">
+        <input type="checkbox" value="${m.slug}" ${preset === m.slug ? "checked" : ""} onchange="MWE.onChurchPillChange()" />
+        <span class="checkbox-box"><i data-lucide="check"></i></span>
+        <span class="checkbox-label"><strong>${MWE.escapeHtml(m.label)}</strong><small>${MWE.escapeHtml(m.description)}</small></span>
+      </label>`).join("");
+    const ministrySearch = document.getElementById("church-ministry-option-search");
+    ministrySearch?.addEventListener("input", () => {
+      const term = ministrySearch.value.trim().toLowerCase();
+      ministryOptionsContainer.querySelectorAll(".mwe-ministry-option").forEach(row => { row.hidden = !!term && !row.dataset.searchText.includes(term); });
+    });
+    if (preset) setTimeout(() => MWE.updatePillState("church-ministry-pill", "Interested in"), 0);
+    if (window.lucide) window.lucide.createIcons();
+  }
+
   function render() {
     if (!grid) return;
     const q = (search?.value || "").toLowerCase().trim();
+    const selectedMinistries = Array.from(document.querySelectorAll("#church-ministry-pill input:checked")).map(cb => cb.value);
     
     const selectedCountries = Array.from(document.querySelectorAll("#church-country-pill input:checked")).map(cb => cb.value.toLowerCase());
     updateCityOptions(selectedCountries);
@@ -2632,7 +2641,8 @@ async function initPublicSite() {
       const countryMatch = selectedCountries.length === 0 || selectedCountries.includes(item.country);
       const cityMatch = selectedCities.length === 0 || selectedCities.includes(item.city);
       const denomMatch = selectedDenoms.length === 0 || selectedDenoms.includes(item.denomination);
-      return (!q || item.haystack.includes(q)) && countryMatch && cityMatch && denomMatch;
+      const ministryMatch = selectedMinistries.length === 0 || selectedMinistries.some(slug => item.ministries.includes(slug));
+      return (!q || item.haystack.includes(q)) && countryMatch && cityMatch && denomMatch && ministryMatch;
     }).map(item => item.church);
 
     grid.innerHTML = filtered.length ? filtered.map(churchCard).join("") : `<div class="empty flex-center py-8 text-muted font-bold text-center">No churches match those filter criteria. Click 'Reset' to view all churches.</div>`;
@@ -2833,7 +2843,7 @@ MWE.getChurchHeroVideo = function(church) {
 };
 
 MWE.getChurchHeroSlides = function(church) {
-  const cover = MWE.safeImageUrl(church.photo || church.coverImage || church.image, "assets/hero-global-church.png");
+  const cover = MWE.safeImageUrl(church.photo || church.coverImage || church.image, "assets/hero-global-church-clean.png");
   const gallery = (Array.isArray(church.gallery) ? church.gallery : [])
     .map((item, index) => ({
       type: "image",
@@ -3061,7 +3071,7 @@ MWE.renderChurchTestimonials = function(church) {
 
 MWE.renderChurchCreatorDetails = function(church) {
   const ministries=document.getElementById("profile-ministries");
-  if(ministries) ministries.innerHTML=(church.ministries||[]).map(item=>`<span>${MWE.escapeHtml(item)}</span>`).join("");
+  if(ministries) ministries.innerHTML=(church.ministries||[]).map(item=>`<span>${MWE.escapeHtml(MWE.ministryLabel(item))}</span>`).join("");
   const story=document.getElementById("profile-church-story");
   if(story){const items=[["Our history",church.history],["Vision",church.vision],["Mission",church.mission],["What we believe",church.statementOfFaith]].filter(([,text])=>text);story.hidden=!items.length;story.innerHTML=items.map(([label,text])=>`<article class="profile-story-card"><span>${MWE.escapeHtml(label)}</span><p>${MWE.escapeHtml(text)}</p></article>`).join("");}
   const notes=document.getElementById("profile-visitor-notes");
@@ -3094,7 +3104,7 @@ function renderProfile(church) {
   setVal("[data-profile-pastor-bio]", church.pastorBio || church.about);
   
   const leaderPhoto = document.getElementById("leader-profile-img");
-  const defaultPastorPhoto = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
+  const defaultPastorPhoto = "assets/avatar-generic.svg";
   if (leaderPhoto) {
     leaderPhoto.src = MWE.safeImageUrl(church.pastorPhoto, defaultPastorPhoto);
     leaderPhoto.referrerPolicy = "no-referrer";
@@ -3139,6 +3149,7 @@ function renderProfile(church) {
   MWE.renderRelatedChurches(church.id);
   MWE.renderChurchProfileEvents(church.id);
   MWE.renderChurchGallery(church);
+  MWE.renderChurchMinistryChips(church);
   MWE.renderChurchProfileTestimonies(church.id);
 }
 
@@ -3204,7 +3215,7 @@ MWE.renderChurchProfileTestimonies = async function(churchId) {
     "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80"
   ];
 
-  container.innerHTML = testimonies.slice(0, 3).map((t, idx) => {
+  container.innerHTML = testimonies.slice(0, 12).map((t, idx) => {
     const scene = t.scenePhotoUrl || defaultScenes[idx % defaultScenes.length];
     const rating = Math.max(1, Math.min(5, Number(t.rating || 5)));
     const starsHtml = Array.from({ length: 5 }, (_, i) => `
@@ -3801,7 +3812,7 @@ MWE.openAudioModal = function(church, audioUrl) {
   
   if (!modal || !audioEl) return;
   
-  pastorImg.src = MWE.safeImageUrl(church.pastorPhoto, "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80");
+  pastorImg.src = MWE.safeImageUrl(church.pastorPhoto, "assets/avatar-generic.svg");
   pastorImg.referrerPolicy = "no-referrer";
   playerTitle.textContent = `${church.pastor || 'Pastor'}'s Welcome`;
   playerSubtitle.textContent = `Senior Pastor, ${church.name}`;
@@ -4313,7 +4324,7 @@ function initChurchPortal() {
           <span class="badge"><i data-lucide="${church.livestream.enabled ? "radio" : "lock"}"></i>${MWE.escapeHtml(church.livestream.status)}</span>
           <h3 style="margin-top:14px">${MWE.escapeHtml(church.name)}</h3>
           <p>${MWE.escapeHtml(church.tagline)}</p>
-          <div class="tag-row">${church.ministries.slice(0, 5).map(item => `<span class="tag">${MWE.escapeHtml(item)}</span>`).join("")}</div>
+          <div class="tag-row">${church.ministries.slice(0, 5).map(item => `<span class="tag">${MWE.escapeHtml(MWE.ministryLabel(item))}</span>`).join("")}</div>
           <div class="card-actions">
             <a class="button primary small" href="church-profile.html?id=${encodeURIComponent(church.id)}">Public profile</a>
             <a class="button ghost small" href="broadcast.html?type=church&id=${encodeURIComponent(church.id)}">Livestream</a>
@@ -4380,7 +4391,7 @@ function initChurchPortal() {
     });
     document.querySelectorAll("[data-readable-list='ministries']").forEach(list => {
       list.innerHTML = ministries.length
-        ? ministries.map(item => `<span class="tag">${MWE.escapeHtml(item)}</span>`).join("")
+        ? ministries.map(item => `<span class="tag">${MWE.escapeHtml(MWE.ministryLabel(item))}</span>`).join("")
         : `<span class="tag">No ministries added yet</span>`;
     });
   }
@@ -5398,7 +5409,7 @@ function updateHomepageAuthUI() {
               <span id="google-auth-fast-label">Continue with Google</span>
             </button>
 
-            <div class="auth-divider"><span>or with credentials</span></div>
+            <div class="auth-divider" role="separator"><span>or</span></div>
 
             <!-- Auth Credentials Form -->
             <form id="nav-dropdown-auth-form" onsubmit="MWE.handleNavDropdownAuthSubmit(event)">
@@ -9691,7 +9702,8 @@ MWE.updatePillState = function(pillId, defaultTitle) {
   if (count > 0) {
     pill.classList.add("is-active");
     if (count === 1) {
-      const valLabel = checkedBoxes[0].closest(".custom-checkbox-row")?.querySelector(".checkbox-label")?.textContent;
+      const labelEl = checkedBoxes[0].closest(".custom-checkbox-row")?.querySelector(".checkbox-label");
+      const valLabel = (labelEl?.querySelector("strong") || labelEl)?.textContent;
       if (titleSpan) titleSpan.textContent = valLabel || defaultTitle;
       if (badgeSpan) badgeSpan.style.display = "none";
     } else {
@@ -9712,6 +9724,7 @@ MWE.onChurchPillChange = function() {
   MWE.updatePillState("church-country-pill", "Region");
   MWE.updatePillState("church-city-pill", "City");
   MWE.updatePillState("church-denom-pill", "Denomination");
+  MWE.updatePillState("church-ministry-pill", "Interested in");
   
   if (typeof MWE.triggerChurchSearch === "function") {
     MWE.triggerChurchSearch();
@@ -9719,7 +9732,7 @@ MWE.onChurchPillChange = function() {
 };
 
 MWE.resetChurchPillFilters = function() {
-  document.querySelectorAll("#church-country-pill input, #church-city-pill input, #church-denom-pill input").forEach(cb => cb.checked = false);
+  document.querySelectorAll("#church-country-pill input, #church-city-pill input, #church-denom-pill input, #church-ministry-pill input").forEach(cb => cb.checked = false);
   const cityOptionSearch = document.getElementById("church-city-option-search");
   if (cityOptionSearch) cityOptionSearch.value = "";
   const searchInput = document.querySelector("[data-search]");
@@ -9728,6 +9741,7 @@ MWE.resetChurchPillFilters = function() {
   MWE.updatePillState("church-country-pill", "Region");
   MWE.updatePillState("church-city-pill", "City");
   MWE.updatePillState("church-denom-pill", "Denomination");
+  MWE.updatePillState("church-ministry-pill", "Interested in");
   
   if (typeof MWE.triggerChurchSearch === "function") {
     MWE.triggerChurchSearch();

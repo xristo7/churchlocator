@@ -2,7 +2,7 @@
 <html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261011appshell1" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -2067,7 +2067,7 @@
       justify-content: flex-end;
       align-items: flex-start;
       background-color: #0f172a;
-      background-image: url('assets/hero-global-church.png');
+      background-image: url('assets/hero-global-church-clean.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -3362,7 +3362,7 @@
       .church-hero-controls { right: 16px; bottom: 16px; left: 16px; gap: 10px; }
     }
   </style>
-<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /><script defer src="app-shell.js?v=20261011appshell14"></script><link rel="stylesheet" href="app-shell.css?v=20261011appshell14" /></head>
 <body data-page="profile">
 
   <header class="profile-app-header" id="sticky-header">
@@ -3377,12 +3377,13 @@
     </div>
     <label class="profile-app-search site-search">
       <i data-lucide="search"></i>
-      <input type="search" placeholder="Search churches, events, groups..." aria-label="Search My Way" />
+      <input type="search" placeholder="Search" aria-label="Search My Way" />
     </label>
     <div class="profile-app-account">
+      <a class="mwe-header-spotlight" href="spotlight.html"><i data-lucide="play-square"></i><span>Spotlight</span></a>
       <button type="button" aria-label="Notifications"><i data-lucide="bell"></i></button>
-      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=80&h=80&q=80" alt="Sarah Johnson" />
-      <span>Sarah Johnson</span>
+      <a class="mwe-avatar" data-mwe-avatar href="app.html?view=profile" aria-label="Your account"></a>
+      <span data-mwe-account-name>Sign in</span>
       <i data-lucide="chevron-down"></i>
     </div>
     <button class="profile-mobile-menu" type="button" aria-label="Open navigation" onclick="document.body.classList.toggle('profile-nav-open')"><i data-lucide="menu"></i></button>
@@ -3405,6 +3406,7 @@
         <p>Help others find their church home.</p>
         <button type="button" onclick="navigator.clipboard?.writeText(location.href)">Send Invite <i data-lucide="arrow-right"></i></button>
       </div>
+      <a class="mwe-rail-donate" href="donate.html"><span class="mwe-rail-donate-icon"><i data-lucide="heart-handshake"></i></span><span><strong>Donate</strong><small>Give today</small></span><i data-lucide="chevron-right"></i></a>
       <nav class="profile-rail-nav profile-rail-utility">
         <a href="church-portal.html"><i data-lucide="rocket"></i><span>Creator Hub</span></a>
         <a href="mailto:support@mywayofevangelism.org"><i data-lucide="circle-help"></i><span>Help & Support</span></a>
@@ -3416,7 +3418,7 @@
     <div class="container">
       <!-- Creator-configured mixed-media hero carousel -->
       <section class="church-hero-showcase" id="church-hero-showcase" data-profile-hero aria-label="Church introduction" aria-roledescription="carousel" tabindex="0">
-        <div class="church-hero-track" id="church-hero-track" aria-live="polite"><article class="church-hero-slide church-hero-slide--image church-hero-slide--media-right is-active" data-hero-slide="0" data-hero-kind="image" aria-roledescription="slide" aria-label="1 of 1" aria-hidden="false"><div class="church-hero-image-layer" style="--hero-image:url(&quot;assets/hero-global-church.png&quot;)"></div><div class="church-hero-content-bottom-left"><span class="church-hero-kicker">About us</span><h1 class="church-hero-name" data-church-name>Welcome to our church</h1><p class="church-hero-desc" data-church-tagline>Join our welcoming community to grow in faith through worship, biblical teaching, prayer, friendship, service, and outreach. Discover weekly gatherings and ways to connect, grow, and take part in our church.</p><a class="church-hero-action" href="#tab-pane-overview">Explore our church</a></div></article></div>
+        <div class="church-hero-track" id="church-hero-track" aria-live="polite"><article class="church-hero-slide church-hero-slide--image church-hero-slide--media-right is-active" data-hero-slide="0" data-hero-kind="image" aria-roledescription="slide" aria-label="1 of 1" aria-hidden="false"><div class="church-hero-image-layer" style="--hero-image:url(&quot;assets/hero-global-church-clean.png&quot;)"></div><div class="church-hero-content-bottom-left"><span class="church-hero-kicker">About us</span><h1 class="church-hero-name" data-church-name>Welcome to our church</h1><p class="church-hero-desc" data-church-tagline>Join our welcoming community to grow in faith through worship, biblical teaching, prayer, friendship, service, and outreach. Discover weekly gatherings and ways to connect, grow, and take part in our church.</p><a class="church-hero-action" href="#tab-pane-overview">Explore our church</a></div></article></div>
         <div class="church-hero-overlay"></div>
         <div class="church-hero-controls" id="church-hero-controls">
           <div class="church-hero-nav">
@@ -3436,21 +3438,21 @@
         <div class="church-profile-tabs-wrapper">
           <!-- Interactive Tab Bar (Larger Top Icons, 120px max-width, Multiline Labels) -->
           <div class="church-tabs-nav" role="tablist" aria-label="Church profile sections">
-            <button type="button" class="church-tab-button active" role="tab" aria-selected="true" aria-controls="tab-pane-overview" data-tab="overview" onclick="MWE.switchProfileTab('overview')">
+            <button type="button" class="church-tab-button active" role="tab" aria-selected="true" aria-controls="tab-pane-overview" aria-label="Overview" data-tab="overview" onclick="MWE.switchProfileTab('overview')">
               <i data-lucide="info"></i>
               <span>Overview</span>
             </button>
-            <button type="button" class="church-tab-button" role="tab" aria-selected="false" aria-controls="tab-pane-services" data-tab="services" onclick="MWE.switchProfileTab('services')">
+            <button type="button" class="church-tab-button" role="tab" aria-selected="false" aria-controls="tab-pane-services" aria-label="Schedule" data-tab="services" onclick="MWE.switchProfileTab('services')">
               <i data-lucide="clock"></i>
               <span>Schedule</span>
             </button>
-            <button type="button" class="church-tab-button" role="tab" aria-selected="false" aria-controls="tab-pane-events" data-tab="events" onclick="MWE.switchProfileTab('events')">
+            <button type="button" class="church-tab-button" role="tab" aria-selected="false" aria-controls="tab-pane-events" aria-label="Events" data-tab="events" onclick="MWE.switchProfileTab('events')">
               <i data-lucide="calendar"></i>
-              <span>Upcoming Events</span>
+              <span>Events</span>
             </button>
-            <button type="button" class="church-tab-button" role="tab" aria-selected="false" aria-controls="tab-pane-location" data-tab="location" onclick="MWE.switchProfileTab('location')">
+            <button type="button" class="church-tab-button" role="tab" aria-selected="false" aria-controls="tab-pane-location" aria-label="Location" data-tab="location" onclick="MWE.switchProfileTab('location')">
               <i data-lucide="map-pin"></i>
-              <span>Location &amp; Map</span>
+              <span>Location</span>
             </button>
           </div>
 
@@ -3483,6 +3485,12 @@
                 </div>
               </div>
             </div>
+
+            <!-- Ministries & Support -->
+            <section class="mwe-ministries-section" id="church-ministries-section" hidden aria-labelledby="church-ministries-title">
+              <div class="mwe-ministries-head"><span>Get connected</span><h3 id="church-ministries-title">Ministries &amp; Support</h3></div>
+              <div class="mwe-ministry-chips" id="church-ministry-chips"></div>
+            </section>
 
             <!-- Testimonials Quote Section -->
             <div class="stories-section mt-8 mb-8" id="church-stories-section">
@@ -3723,7 +3731,7 @@
             <!-- Sanctuary Location Showcase with Actual Photo & Map -->
             <div class="profile-location-showcase">
               <div class="profile-location-photo-card">
-                <img id="profile-location-church-photo" data-profile-map-photo src="assets/hero-global-church.png" alt="Sanctuary Exterior" class="profile-location-church-img" />
+                <img id="profile-location-church-photo" data-profile-map-photo src="assets/hero-global-church-clean.png" alt="Sanctuary Exterior" class="profile-location-church-img" />
                 <div class="profile-location-photo-badge">
                   <i data-lucide="camera"></i> Actual Church Building
                 </div>
@@ -3733,7 +3741,7 @@
                 
                 <!-- On-Map Marker Floating Card with Actual Church Photo -->
                 <div class="profile-on-map-card">
-                  <img id="profile-on-map-thumb" data-profile-map-photo src="assets/hero-global-church.png" alt="Sanctuary" class="profile-on-map-thumb" />
+                  <img id="profile-on-map-thumb" data-profile-map-photo src="assets/hero-global-church-clean.png" alt="Sanctuary" class="profile-on-map-thumb" />
                   <div class="profile-on-map-info">
                     <strong class="profile-on-map-name" data-church-name>Church Sanctuary</strong>
                     <span class="profile-on-map-address" data-profile-location>Location details</span>
@@ -4033,7 +4041,8 @@
   </div>
 
   <!-- Import core platform application script -->
-  <script defer src="platform-client.js?v=20261007carousel1"></script><script src="app.js?v=20261007heroonlypreview1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20261007carousel1"></script><script src="ministries.js?v=1"></script>
+  <script src="app.js?v=20261011m6"></script><script defer src="auth-client.js?v=20261011m1"></script>
 
 </body>
 </html>

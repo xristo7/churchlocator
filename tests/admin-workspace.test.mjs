@@ -255,7 +255,7 @@ test("dropdowns and live popup modals have elevated stacking context to prevent 
   assert.match(stylesCss, /\.custom-select-container\.open[\s\S]*z-index:\s*10000 !important/);
 
   // Verify app.js toggles has-active-popover and has-open-dropdown classes
-  assert.match(appJs, /classList\.toggle\("has-active-popover"/);
+  // Theme options moved into the account menu; no header theme popover remains in app.js.
   assert.match(appJs, /classList\.add\("has-open-dropdown"\)/);
 });
 

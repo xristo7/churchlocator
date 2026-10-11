@@ -12,7 +12,7 @@ test("member app keeps its header and navigation outside the changing content fr
   assert.match(html, /<iframe[\s\S]*id="member-shell-frame"/);
 });
 
-test("member sidebar uses the requested module names and moves Giving to the header", async () => {
+test("member sidebar uses the requested module names with Spotlight in the header and Donate below the invite card", async () => {
   const html = await readProjectFile("public/app.html");
   const rail = html.match(/<aside class="profile-left-rail member-shell-rail"[\s\S]*?<\/aside>/)?.[0] || "";
 
@@ -24,7 +24,9 @@ test("member sidebar uses the requested module names and moves Giving to the hea
   assert.match(rail, />Channels</);
   assert.match(rail, />Live</);
   assert.match(rail, />Store</);
-  assert.match(html, /class="member-header-giving"/);
+  assert.match(html, /mwe-header-spotlight" href="spotlight.html"/);
+  assert.doesNotMatch(html, /view=giving" data-shell-view="giving"><i data-lucide="heart-handshake"><\/i><span>Give/);
+  assert.match(rail, /profile-invite-card[\s\S]*class="mwe-rail-donate" href="donate.html"/);
   assert.match(rail, /data-shell-view="directory"/);
   assert.match(rail, /data-shell-view="events"/);
 });

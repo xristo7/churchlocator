@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261011appshell1" />
   <title>Livestream | My Way of Evangelism</title>
   <script src="livestream-canonical.js?v=20260930simlive1"></script>
     <link rel="stylesheet" href="styles.css?v=20261008archivehero100" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260929allpublication1"></script><script defer src="app.js?v=20261007authfields1"></script><script defer src="auth-client.js?v=20260915security1"></script>
+  <script defer src="platform-client.js?v=20260929allpublication1"></script><script src="ministries.js?v=1"></script>
+  <script defer src="app.js?v=20261011m6"></script><script defer src="auth-client.js?v=20261011m1"></script>
   <script defer src="platform-modules.js?v=20260831"></script>
   <link rel="stylesheet" href="creator-public.css?v=20260907livestreamplayer1" />
   <script defer src="creator-data.js?v=20260929allpublication1"></script>
@@ -16,7 +17,7 @@
   <script defer src="simulated-live-player.js?v=20260930simlive1"></script>
   <script defer src="content-engagements.js?v=20260919engagements1"></script>
   <script defer src="creator-public.js?v=20260929allpublication1"></script>
-<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /></head>
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /><script defer src="app-shell.js?v=20261011appshell14"></script><link rel="stylesheet" href="app-shell.css?v=20261011appshell14" /></head>
 <body class="live-page" data-page="livestream">
   <header class="topbar">
     <div class="container topbar-inner">
@@ -446,7 +447,7 @@
       if (e) e.preventDefault();
       
       const username = localStorage.getItem("mwe.username") || "User";
-      const email = localStorage.getItem("mwe.email") || "user@example.com";
+      const email = localStorage.getItem("mwe.email") || "";
       const customAvatar = localStorage.getItem("mwe.userAvatar");
       
       const nameText = document.getElementById('profile-overview-name');
@@ -558,7 +559,7 @@
           <i class="fa-solid fa-user text-emerald-600" id="profile-overview-icon" style="font-size: 2.2rem; display: block; margin-top: 10px;"></i>
         </div>
         <h3 id="profile-overview-name" style="font-size: 1.2rem; font-weight: 800; margin: 0 0 4px 0; font-family: inherit;">Username</h3>
-        <p id="profile-overview-email" style="font-size: 0.8rem; margin: 0; word-break: break-all; font-family: inherit;">user@example.com</p>
+        <p id="profile-overview-email" style="font-size: 0.8rem; margin: 0; word-break: break-all; font-family: inherit;"></p>
       </div>
       
       <hr />
