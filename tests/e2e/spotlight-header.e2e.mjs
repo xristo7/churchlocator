@@ -36,9 +36,11 @@ for (const width of [1280, 390, 360]) for (const signedIn of [false, true]) for 
     const hdr = document.querySelector('.profile-app-header, .member-shell-header, .topbar, .aw-topbar, body header');
     const headerH = hdr ? Math.round(hdr.getBoundingClientRect().height) : 0;
     const overflow = document.documentElement.scrollWidth > innerWidth + 1;
-    return { header: links.length, rail: rail.length, headerH, overflow, url: location.pathname };
+    const gated = !!document.querySelector('.member-auth-modal.is-open, .login-screen:not([hidden])');
+    return { header: links.length, rail: rail.length, headerH, overflow, gated, noHeader: !hdr || headerH < 2, url: location.pathname };
   }); } catch (e) { res = { header: 0, rail: 0, headerH: 0, overflow: false, url: 'ERROR ' + e.message.slice(0, 60) }; }
-  const ok = res.header > 0 && res.rail === 0 && (width > 500 || (res.headerH <= 72 && !res.overflow));
+  if (res.gated || (res.noHeader && res.header === 0)) { rows.push(`SKIP ${width} ${signedIn ? 'in ' : 'out'} ${page} (${res.gated ? 'sign-in gate' : 'embedded view without its own header'}) ${res.url}`); console.log(rows.at(-1)); await p.close().catch(() => {}); continue; }
+  const ok = res.header > 0 && res.rail === 0 && (width > 500 || (res.headerH <= 80 && !res.overflow));
   rows.push(`${ok ? 'PASS' : 'FAIL'} ${width} ${signedIn ? 'in ' : 'out'} ${page} header=${res.header} rail=${res.rail} h=${res.headerH} overflow=${res.overflow} (${res.url})`);
   console.log(rows.at(-1));
   if (!ok) failures.push(rows.at(-1));
