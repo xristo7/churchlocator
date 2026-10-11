@@ -1,3 +1,4 @@
+import { handleSoundCloudApi } from "./soundcloud.js";
 import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityHeaders } from "./security.js";
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
 import { handlePlatformApi, isOwner } from './trusted-platform.js';
@@ -1733,6 +1734,8 @@ async function handleApi(request, env, executionCtx) {
     if (path === "/api/status" && request.method === "GET") return await handleStatus(env);
     if (path === "/api/media/upload" && request.method === "POST") return await handleImageUpload(request, env);
     if (path === "/api/media/audio-upload" && request.method === "POST") return await handleAudioUpload(request, env);
+    const soundCloudResponse = await handleSoundCloudApi(request, env, path, getSessionUser, json);
+    if (soundCloudResponse) return soundCloudResponse;
     if (path === "/api/auth/google/start" && request.method === "GET") return await handleGoogleAuthStart(request, env);
     if (path === "/api/auth/google/callback" && request.method === "GET") return await handleGoogleAuthCallback(request, env);
     if (path === "/api/auth/owner-access" && request.method === "GET") return await handleOwnerAccessLink(request, env);

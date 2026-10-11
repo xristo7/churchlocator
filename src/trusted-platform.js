@@ -1,3 +1,4 @@
+import { sanitizeSoundCloudSelection } from './soundcloud.js';
 import { normalizeMinistry } from './ministries.js';
 import { ApiError, readJson } from './security.js';
 import { auditStatement, seal, unseal } from './identity-security.js';
@@ -9,7 +10,7 @@ const livestreamKinds={church:'churches',channel:'channels',store:'store'};
 const forbidden=new Set(['createdBy','tenantId','createdAt','updatedAt','revision','verified','ticketsSold','followers','items','rating','orders','amountPaidCents','attachmentData','totpSecret','password','isOwner','role']);
 const fields={
  churches:['name','city','country','postal','denomination','pastor','pastorTitle','pastorBio','pastorPhoto','about','location','email','phone','phoneLabel','emailHref','website','language','worship','ministries','sunday','midweek','photo','logo','tagline','livestream','history','vision','mission','statementOfFaith','firstVisit','parkingInformation','childrenInformation','gallery','heroOrder','welcomeMedia'],
- meditation:['title','subtitle','category','categoryLabel','theme','template','toneFreq','cover','selectedAudio','audioTracks','verses','icon','commentsEnabled'],
+ meditation:['title','subtitle','category','categoryLabel','theme','template','toneFreq','cover','selectedAudio','audioTracks','verses','icon','commentsEnabled','ownerName','purpose','timeMode','durationMinutes','themeColor','allowUserNavigation','autoPlayInterval','ambience','inhaleWord','exhaleWord','journeySteps','audioSrc','soundcloud'],
  events:['title','churchId','eventType','startsAt','endsAt','venueName','city','country','coverImageUrl','registrationRequired','ticketPriceCents','currency','totalTickets','isFeatured','isPromoted','registrationUrl','livestreamUrl','directionsUrl','description','highlights','expectations','speakers','schedule','faqs','ownerName'],
  store:['name','ownerName','category','description','image','email','liveUrl','live'],
  products:['title','storeId','seller','sellerType','category','description','price','compareAt','inventory','status','featured','image','itemType','serviceType','packages'],
@@ -111,7 +112,7 @@ export function validateEntity(kind,input) {
  }
  if(kind==='products') { data.price=number(data.price,'Price',100000); if(!Number.isSafeInteger(Math.round(data.price*100)) || Math.abs(data.price*100-Math.round(data.price*100))>1e-7) throw new ApiError(400,'Use prices in whole minor units.'); data.inventory=whole(data.inventory,'Inventory'); if(!['Draft','Active','Archived'].includes(data.status)) throw new ApiError(400,'Invalid product state.'); }
  if(kind==='resources') { data.price=number(data.price,'Price',100000); if(!['Free','Paid'].includes(data.access) || (data.access==='Paid' && data.price<=0)) throw new ApiError(400,'Invalid resource access or price.'); if(data.access==='Free') data.price=0; }
- if(kind==='meditation') { data.toneFreq=number(data.toneFreq,'Tone',2000); if(data.toneFreq<20 || !Array.isArray(data.verses) || !data.verses.length) throw new ApiError(400,'Add scripture and a tone between 20 and 2000 Hz.'); data.commentsEnabled=boolean(data.commentsEnabled); }
+ if(kind==='meditation') { if(data.toneFreq===undefined || data.toneFreq===null || data.toneFreq==='' || Number(data.toneFreq)===0) data.toneFreq=432; data.toneFreq=number(data.toneFreq,'Tone',2000); if(data.toneFreq<20) throw new ApiError(400,'Use a tone between 20 and 2000 Hz.'); if(data.verses===undefined || data.verses===null) data.verses=[]; if(!Array.isArray(data.verses) || data.verses.length>12) throw new ApiError(400,'Add up to twelve scripture passages.'); data.commentsEnabled=boolean(data.commentsEnabled); if(input.soundcloud!==undefined) data.soundcloud=sanitizeSoundCloudSelection(input.soundcloud); }
  for(const key of ['live','featured','registrationRequired','isFeatured','isPromoted']) if(key in data) data[key]=boolean(data[key]);
  return data;
 }
