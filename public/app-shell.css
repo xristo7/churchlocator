@@ -761,3 +761,9 @@ html body .mwe-generic-spotlight:not(#mwe-x) { margin: 0 8px; align-self: center
   html[data-theme="dark"] body .mwe-tab[aria-current="page"]:not(#mwe-x)::before { background: var(--mwe-accent-dark) !important; }
   html[data-theme="dark"] body .mwe-tabbar:not(#mwe-x) { background: color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 7%, #0b1220) 90%, transparent) !important; }
 }
+
+/* Embedded inside the /app shell: the shell header/rail already provide navigation. Beats the mobile header rules above. */
+html.member-shell-embed body.member-shell-embed > :is(header, .topbar, .profile-app-header, .profile-left-rail, footer, .mini-footer):not(#mwe-x):not(#mwe-y),
+html.member-shell-embed body > .profile-app-header:not(#mwe-x):not(#mwe-y),
+html.member-shell-embed .mwe-search-overlay:not(#mwe-x) { display: none !important; }
+html.member-shell-embed body.has-mwe-tabbar:not(#mwe-x) { padding-bottom: 0 !important; }
