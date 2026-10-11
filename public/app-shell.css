@@ -503,3 +503,4 @@ html body .mwe-forgot-mode:not(#mwe-x) > :not(.mwe-forgot-panel):not(.member-aut
 }
 @media (max-width: 959.98px) { .mwe-carousel-arrow { display: none; } .mwe-carousel-nav { display: flex; justify-content: center; margin-top: var(--space-2); } }
 .topbar:has(#nav-signin-popover:not([hidden])), header:has(#nav-signin-popover:not([hidden])) { z-index: 2147483000 !important; }
+body:has(#nav-signin-popover:not([hidden])) main, body:has(#nav-signin-popover:not([hidden])) main * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
