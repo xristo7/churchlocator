@@ -196,3 +196,12 @@ html body .mwe-side-tabs{background:color-mix(in srgb,var(--text-primary,#0f172a
 .mwe-watch:not(.broadcast-watch-layout){max-width:960px;margin:0 auto}
 @media (max-width:959.98px){.mwe-comment:nth-last-child(n+4){display:none}.mwe-comments{max-width:70%}.mwe-comment{font-size:12.5px}}
 .mwe-watch-page:has(>.mwe-watch:not(.broadcast-watch-layout)) .broadcast-back-link{display:flex;max-width:960px;margin-inline:auto}
+.mwe-prev-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px 16px;border:1px dashed var(--border);border-radius:14px;color:var(--text-secondary);text-align:center}
+.mwe-prev-empty svg{width:28px;height:28px;stroke-width:1.6}
+.mwe-prev-empty b{font-size:14px;font-weight:600}
+button.mwe-upnext-item{width:100%;border:0;background:none;text-align:left;cursor:pointer;font:inherit}
+.mwe-dur{position:absolute;right:6px;bottom:6px;padding:1px 5px;border-radius:4px;background:rgba(0,0,0,.8);color:#fff;font-size:11px;font-weight:700}
+.mwe-follow-btn{white-space:nowrap;flex:0 0 auto}
+.mwe-channel-name{flex:1 1 auto}
+.mwe-channel-name b{max-width:100%}
+@media (max-width:959.98px){.mwe-channel-name b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mwe-channel-name b .mwe-verified{vertical-align:-3px;margin-left:4px}}

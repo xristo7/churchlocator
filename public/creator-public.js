@@ -94,8 +94,9 @@
       : '<div class="broadcast-player-fallback" style="background-image:url(&quot;' + esc(thumbnail(stream)) + '&quot;)"><span aria-hidden="true"></span><a href="' + profile.url + '"><i data-lucide="' + profile.icon + '"></i><b>' + profile.label + '</b></a></div>';
     const church = stream.type === "church" ? (window.MWE.getChurches?.() || []).find(c => c.id === stream.id) : null;
     const verified = church && (church.verified || church.is_verified || church.claimed);
-    const others = window.MWECreator.broadcasts().filter(o => !(o.id === stream.id && o.type === stream.type)).slice(0, 8);
-    const upNext = others.length ? others.map(o => '<a class="mwe-upnext-item" href="' + broadcastLink(o.type, o.id) + '"><span class="mwe-upnext-thumb"><img src="' + esc(thumbnail(o)) + '" alt="" loading="lazy"><span class="mwe-live-badge"><span></span>LIVE</span></span><span class="mwe-upnext-copy"><b>' + esc(o.name) + '</b><small>' + esc(o.description || o.type) + '</small></span></a>').join("") : '<p class="mwe-upnext-empty">No other live churches right now.</p>';
+    // Previous streams of THIS church only. No archive of past broadcasts exists yet, so show a clean empty state.
+    const previous = Array.isArray(stream.previousStreams) ? stream.previousStreams : [];
+    const upNext = previous.length ? previous.map(r => '<button type="button" class="mwe-upnext-item" data-replay="' + esc(r.url) + '"><span class="mwe-upnext-thumb"><img src="' + esc(r.poster || thumbnail(stream)) + '" alt="" loading="lazy">' + (r.duration ? '<span class="mwe-dur">' + esc(r.duration) + '</span>' : '') + '</span><span class="mwe-upnext-copy"><b>' + esc(r.title) + '</b><small>' + esc(r.date || "") + '</small></span></button>').join("") : '<div class="mwe-prev-empty"><i data-lucide="history"></i><b>No previous streams yet</b></div>';
     target.classList.add("mwe-watch-page");
     target.innerHTML = '<a class="broadcast-back-link" href="livestream.html"><i data-lucide="arrow-left"></i> All live broadcasts</a>' +
       '<div class="mwe-watch broadcast-watch-layout"><section class="mwe-watch-main broadcast-main-column"><div class="mwe-player-frame broadcast-player-shell">' + player + '<button class="broadcast-share-overlay" type="button" id="broadcast-share-hidden" hidden aria-hidden="true"></button></div>' +
@@ -107,15 +108,16 @@
       '<button class="mwe-chip content-love-button content-love-detail" type="button" data-love-type="livestream" data-love-id="' + esc(stream.type + ':' + stream.id) + '" aria-pressed="false"><i data-lucide="heart"></i> Save <span data-love-count>0</span></button>' +
       '</div>' +
       '<details class="mwe-desc-card"><summary><b>About this broadcast</b><span class="mwe-desc-more">Show more</span></summary><p>' + esc(church?.about || description) + '</p>' + (church?.pastor_name || church?.pastorName ? '<p><small>' + esc(church.pastor_name || church.pastorName) + '</small></p>' : '') + '</details></div></section>' +
-      '<div class="mwe-watch-side"><div class="mwe-side-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-side-tab="chat">Live chat</button><button type="button" role="tab" aria-selected="false" data-side-tab="next">Up next</button></div>' +
+      '<div class="mwe-watch-side"><div class="mwe-side-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-side-tab="chat">Chat</button><button type="button" role="tab" aria-selected="false" data-side-tab="next">Previous</button></div>' +
       '<aside class="mwe-chat broadcast-chat" data-side-panel="chat" aria-label="Livestream chat"><header><div><span class="broadcast-live-dot"></span><strong>Live chat</strong></div><small>Top messages</small></header>' +
       '<div class="broadcast-chat-messages" id="broadcast-chat-messages" aria-live="polite"><p class="broadcast-chat-status" data-chat-status>Loading live conversation…</p></div>' +
       '<form class="broadcast-chat-form" id="broadcast-chat-form"><label class="sr-only" for="broadcast-chat-input">Chat message</label><input id="broadcast-chat-input" maxlength="300" required placeholder="Chat…"><button type="submit" aria-label="Send message"><i data-lucide="send"></i></button></form></aside>' +
-      '<section class="mwe-upnext" data-side-panel="next" aria-label="Other live churches"><h2>Up next · Live churches</h2>' + upNext + '</section></div></div>';
+      '<section class="mwe-upnext" data-side-panel="next" aria-label="Previous streams"><h2>Previous streams</h2>' + upNext + '</section></div></div>';
     target.querySelectorAll("[data-side-tab]").forEach(tab => tab.addEventListener("click", () => {
       target.querySelectorAll("[data-side-tab]").forEach(t => t.setAttribute("aria-selected", String(t === tab)));
       target.querySelector(".mwe-watch-side").dataset.active = tab.dataset.sideTab;
     }));
+    target.querySelectorAll("[data-replay]").forEach(btn => btn.addEventListener("click", async () => { const surface = target.querySelector(".broadcast-video-surface"); if (surface && window.MWELivePlayer) { await window.MWELivePlayer.mount(surface, btn.dataset.replay, stream.name); surface.scrollIntoView({ behavior: "smooth", block: "start" }); } }));
     target.querySelector(".mwe-desc-card")?.addEventListener("toggle", e => { const m = e.currentTarget.querySelector(".mwe-desc-more"); if (m) m.textContent = e.currentTarget.open ? "Show less" : "Show more"; });
     const chatForm = target.querySelector("#broadcast-chat-form");
     if(window.MWELivePlayer){const shell=target.querySelector('.broadcast-player-shell');const overlay=shell.querySelector('button');const surface=document.createElement('div');surface.className='broadcast-video-surface';shell.replaceChildren(surface,overlay);const cleanup=await window.MWELivePlayer.mount(surface,stream.url,stream.name);window.addEventListener('pagehide',cleanup,{once:true});}
