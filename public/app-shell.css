@@ -767,3 +767,16 @@ html.member-shell-embed body.member-shell-embed > :is(header, .topbar, .profile-
 html.member-shell-embed body > .profile-app-header:not(#mwe-x):not(#mwe-y),
 html.member-shell-embed .mwe-search-overlay:not(#mwe-x) { display: none !important; }
 html.member-shell-embed body.has-mwe-tabbar:not(#mwe-x) { padding-bottom: 0 !important; }
+
+/* Church profile: main + sidebar always fit the content width */
+@media (min-width: 960px) {
+  main:has(> .container > .church-profile-grid) > .container, .container:has(> .church-profile-grid) { container-type: inline-size; container-name: mwe-profile; }
+  html body .church-profile-grid:not(#mwe-x) { grid-template-columns: minmax(0, 1fr) minmax(260px, 300px) !important; gap: var(--space-6, 24px) !important; max-width: 100%; }
+  html body .church-profile-grid:not(#mwe-x) > * { min-width: 0; }
+  html body .church-sidebar-stack:not(#mwe-x) { grid-template-columns: minmax(0, 1fr) !important; gap: var(--space-5, 20px) !important; min-width: 0; }
+  html body .church-sidebar-stack:not(#mwe-x) > * { min-width: 0; max-width: 100%; }
+  @container mwe-profile (max-width: 860px) {
+    html body .church-profile-grid:not(#mwe-x) { grid-template-columns: minmax(0, 1fr) !important; }
+    html body .church-sidebar-stack:not(#mwe-x) { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  }
+}
