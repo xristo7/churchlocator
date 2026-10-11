@@ -125,8 +125,9 @@ function initThemeControl() {
       <div class="rainbow-swatch-grid mwe-appearance-swatches" role="radiogroup" aria-label="Accent colour">
         ${RAINBOW_PALETTES.map(p => `<button type="button" class="swatch-btn ${p.class} ${p.id === currentPrimary ? "active" : ""}" style="--sw:${p.color}" data-palette-swatch="${p.id}" title="${p.name}" aria-label="${p.name}" role="radio" aria-checked="${p.id === currentPrimary}"></button>`).join("")}
       </div>`;
-    const profileBlock = accountMenu.querySelector(".member-account-menu-profile");
-    profileBlock ? profileBlock.after(section) : accountMenu.prepend(section);
+    // Order: header, Profile, Messages, divider, Appearance, divider, Sign out.
+    const signOut = accountMenu.querySelector("#member-sign-out");
+    signOut ? signOut.before(section) : accountMenu.append(section);
     section.addEventListener("click", event => {
       event.stopPropagation();
       const modeBtn = event.target.closest("[data-mode-toggle-btn]");
