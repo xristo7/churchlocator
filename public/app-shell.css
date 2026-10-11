@@ -481,3 +481,17 @@ html[data-theme="dark"] .church-profile-tabs-wrapper .church-tab-button.active:n
 .daily-scripture > :last-child { margin-bottom: 0 !important; }
 html body .mwe-verify-mode:not(#mwe-x) > :not(.mwe-verify-panel):not(.member-auth-close):not(.member-auth-icon),
 html body .mwe-forgot-mode:not(#mwe-x) > :not(.mwe-forgot-panel):not(.member-auth-close):not(.member-auth-icon) { display: none !important; }
+
+/* Testimonies desktop: tidy equal-height 3-column grid */
+@media (min-width: 960px) {
+  html body .testimonials-grid:not(#mwe-x) { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: var(--space-5) !important; align-items: stretch !important; }
+  html body .testimonials-grid > .testimony-card:not(#mwe-x) { display: flex !important; flex-direction: column !important; grid-template-columns: none !important; min-height: 0 !important; height: auto !important;
+    padding: var(--space-3) !important; gap: var(--space-4) !important; border-radius: var(--radius-lg) !important; margin: 0 !important; }
+  html body .testimonials-grid .testimony-scene:not(#mwe-x) { width: 100% !important; height: auto !important; min-height: 0 !important; max-height: none !important; aspect-ratio: 16 / 10 !important; object-fit: cover; border-radius: var(--radius-md) !important; }
+  html body .testimonials-grid .testimony-content:not(#mwe-x) { display: flex !important; flex-direction: column !important; gap: var(--space-3) !important; flex: 1 1 auto; padding: 0 var(--space-2) var(--space-2) !important; }
+  .testimonials-grid .testimony-content > * { margin: 0 !important; }
+  html body .testimonials-grid .testimony-text:not(#mwe-x) { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden !important; line-height: 1.6 !important; }
+  .testimonials-grid .mwe-expanded .testimony-text { -webkit-line-clamp: unset !important; }
+  html body .testimonials-grid .testimony-user:not(#mwe-x) { margin-top: auto !important; display: flex; align-items: center; gap: var(--space-3) !important; }
+  .testimonials-grid .mwe-read-more { align-self: flex-start; margin-top: calc(-1 * var(--space-2)) !important; padding: 0; border: 0; background: none; color: var(--color-primary); font-weight: 700; font-size: var(--text-sm); cursor: pointer; }
+}
