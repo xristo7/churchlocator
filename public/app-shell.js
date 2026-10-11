@@ -808,12 +808,14 @@
     { root: ".custom-select-container.open", trigger: ".custom-select-trigger, [aria-haspopup], button" },
     { root: ".custom-pill-filter.open", trigger: "button" },
     { root: ".lang-selector-container.open", trigger: ".lang-selector-btn" },
-    { root: ".topbar-menu-group.open", external: ".mobile-menu-toggle", via: "click" }
+    { root: ".topbar-menu-group.open", external: ".mobile-menu-toggle", via: "click" },
+    { root: ".module-filter-overflow.open", toolbarTrigger: ".module-mobile-filter-button, .module-overflow-trigger", via: "click" }
   ];
   const collect = () => {
     const open = [];
     classPatterns.forEach((p) => document.querySelectorAll(p.root).forEach((root) => {
-      const trig = p.external ? document.querySelector(p.external) : root.querySelector(p.trigger);
+      const toolbar = p.toolbarTrigger && root.parentElement;
+      const trig = p.toolbarTrigger ? [...(toolbar ? toolbar.querySelectorAll(p.toolbarTrigger) : [])].find((t) => t.offsetParent) : p.external ? document.querySelector(p.external) : root.querySelector(p.trigger);
       open.push({ root, trigger: trig, close: () => {
         if (p.via === "click" && trig) return trig.click();
         root.classList.remove("open");
