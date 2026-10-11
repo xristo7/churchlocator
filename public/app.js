@@ -9749,7 +9749,8 @@ MWE.updatePillState = function(pillId, defaultTitle) {
   if (count > 0) {
     pill.classList.add("is-active");
     if (count === 1) {
-      const valLabel = checkedBoxes[0].closest(".custom-checkbox-row")?.querySelector(".checkbox-label")?.textContent;
+      const labelEl = checkedBoxes[0].closest(".custom-checkbox-row")?.querySelector(".checkbox-label");
+      const valLabel = (labelEl?.querySelector("strong") || labelEl)?.textContent;
       if (titleSpan) titleSpan.textContent = valLabel || defaultTitle;
       if (badgeSpan) badgeSpan.style.display = "none";
     } else {
