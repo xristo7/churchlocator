@@ -37,3 +37,22 @@ test("audio upload cannot get stuck on 'Uploading your audio...'", () => {
   assert.match(upload, /signal:controller\.signal/);
   assert.match(upload, /finally \{ clearTimeout\(timer\); pendingUploads\.delete\(input\)/);
 });
+
+test("server accepts a meditation room without optional scripture or tone, as the studio describes them", async () => {
+  const { validateEntity } = await import("../src/trusted-platform.js");
+  const room = validateEntity("meditation", { title: "Be still", durationMinutes: 20, selectedAudio: "bible" });
+  assert.deepEqual(room.verses, []);
+  assert.equal(room.toneFreq, 432);
+  const withAudio = validateEntity("meditation", { title: "Be still", toneFreq: 528, verses: [{ text: "Be still", ref: "Ps 46:10" }], audioSrc: "/media/creator-media/x.mp3" });
+  assert.equal(withAudio.toneFreq, 528);
+  assert.equal(withAudio.verses.length, 1);
+  assert.throws(() => validateEntity("meditation", { title: "Bad", toneFreq: 5 }), /tone between 20 and 2000/);
+});
+
+test("server keeps the uploaded room MP3 and studio style settings", async () => {
+  const { validateEntity } = await import("../src/trusted-platform.js");
+  const room = validateEntity("meditation", { title: "Be still", audioSrc: "/media/creator-media/a.mp3", durationMinutes: 15, themeColor: "#4a5d3f", purpose: "prayer" });
+  assert.equal(room.audioSrc, "/media/creator-media/a.mp3");
+  assert.equal(room.durationMinutes, 15);
+  assert.throws(() => validateEntity("meditation", { title: "x", audioSrc: "http://evil.example/a.mp3" }), /safe HTTPS/);
+});
