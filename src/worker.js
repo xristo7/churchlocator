@@ -1740,6 +1740,7 @@ async function handleApi(request, env, executionCtx) {
       // Return only the requesting visitor's coarse edge location; never forward IPs.
       return json({ city: String(request.cf?.city || "Edmonton"), countryCode: String(request.cf?.country || "CA") });
     }
+    if (path === "/api/geo" && request.method === "GET") return await handleGeo(request);
     if (path === "/api/churches") return await handlePublicChurches(request, env);
     if (path === "/api/admin/churches") return await handleAdminChurches(request, env);
     if (path === "/api/events") return await handleEvents(request, env);
@@ -1823,7 +1824,7 @@ export default {
     const newHeaders = new Headers(assetRes.headers);
     for (const [key, value] of Object.entries(securityHeaders)) newHeaders.set(key, value);
     const livePath=assetRequest(request).url;
-    if(/\/(?:app|channel-live)\.html(?:\?|$)/.test(livePath))newHeaders.set('permissions-policy','camera=(self), microphone=(self), geolocation=()');
+    if(/\/(?:app|channel-live)\.html(?:\?|$)/.test(livePath))newHeaders.set('permissions-policy','camera=(self), microphone=(self), geolocation=(self)');
     if(/\/channel-live\.html(?:\?|$)/.test(livePath))newHeaders.set('content-security-policy',newHeaders.get('content-security-policy').replace("connect-src 'self'","connect-src 'self' https://*.realtime.cloudflare.com wss://*.realtime.cloudflare.com"));
     if(/\/broadcast\.html(?:\?|$)/.test(livePath)){
       let policy=newHeaders.get('content-security-policy').replace("frame-src 'self'","frame-src 'self' https://platform.twitter.com https://syndication.twitter.com https://vimeo.com https://www.facebook.com https://iframe.videodelivery.net https://*.cloudflarestream.com https://player.mediadelivery.net https://iframe.mediadelivery.net https://player.cloudinary.com").replace("connect-src 'self'","connect-src 'self' https://*.cloudflarestream.com https://res.cloudinary.com https://*.b-cdn.net https://stream.mux.com").replace("script-src 'self'","script-src 'self' https://platform.twitter.com");
@@ -1858,3 +1859,38 @@ export default {
 export { handleMediaRequest, parseByteRange, constantTimeEqual, readJson, registrationCode, handleServiceBooking, handleGetServiceBookings, serviceBookingRef };
 
 
+
+
+/* Visitor location for the directory filters.
+   - With ?lat=&lng= (sent only after the visitor taps "Use my location"), reverse-geocodes
+     via OpenStreetMap Nominatim (free, no key), cached at the edge by ~1 km grid.
+   - Otherwise returns Cloudflare's coarse edge location (request.cf). Never forwards IPs. */
+export async function handleGeo(request, fetchImpl = fetch) {
+  const url = new URL(request.url);
+  const cf = request.cf || {};
+  const edge = { source: "edge", country: String(cf.country || ""), regionCode: String(cf.regionCode || ""), region: String(cf.region || ""), city: String(cf.city || ""),
+    lat: cf.latitude ? Number(cf.latitude) : null, lng: cf.longitude ? Number(cf.longitude) : null };
+  const lat = Number(url.searchParams.get("lat")), lng = Number(url.searchParams.get("lng"));
+  if (!url.searchParams.has("lat") || !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+    return json(edge);
+  }
+  const rl = Math.round(lat * 100) / 100, rg = Math.round(lng * 100) / 100;
+  const upstream = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&addressdetails=1&accept-language=en&lat=${rl}&lon=${rg}`;
+  try {
+    const cache = typeof caches !== "undefined" ? caches.default : null;
+    const cacheKey = new Request(upstream);
+    let res = cache ? await cache.match(cacheKey) : null;
+    if (!res) {
+      res = await fetchImpl(upstream, { headers: { "user-agent": "MyWayOfEvangelism/1.0 (church directory; contact via site)", accept: "application/json" } });
+      if (res.ok && cache) { const copy = new Response(res.clone().body, res); copy.headers.set("cache-control", "public, max-age=86400"); await cache.put(cacheKey, copy); }
+    }
+    if (!res.ok) throw new Error("reverse geocode failed");
+    const data = await res.json();
+    const a = data.address || {};
+    const iso = String(a["ISO3166-2-lvl4"] || a["ISO3166-2-lvl3"] || "");
+    return json({ source: "gps", country: String(a.country_code || "").toUpperCase(), regionCode: iso.includes("-") ? iso.split("-")[1] : "", region: String(a.state || ""),
+      city: String(a.city || a.town || a.village || a.municipality || a.county || ""), lat: rl, lng: rg });
+  } catch {
+    return json({ ...edge, source: "edge", lat: rl, lng: rg });
+  }
+}

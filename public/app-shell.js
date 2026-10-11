@@ -958,3 +958,148 @@
   const start = () => { scan(); new MutationObserver(() => scan()).observe(document.body, { childList: true, subtree: true }); };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true }); else start();
 })();
+
+/* "Use my location" + home search card Region → State → City. Geolocation runs only on tap. */
+(function initMWELocation() {
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const crosshair = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="2"/></svg>';
+  const chevron = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+  const check = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  const toast = (msg) => {
+    let t = document.querySelector(".mwe-geo-toast");
+    if (!t) { t = document.createElement("div"); t.className = "mwe-geo-toast"; t.setAttribute("role", "status"); document.body.append(t); }
+    t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 4200);
+  };
+  const KEY = "mwe.location.detected";
+  const getJSON = async (url) => { const r = await fetch(url, { credentials: "same-origin" }); if (!r.ok) throw new Error("geo"); return r.json(); };
+
+  /** Resolve the visitor's place: GPS (after a tap) → reverse geocode; otherwise the edge location. */
+  async function locate() {
+    const G = window.MWEGeo;
+    let data = null, note = "";
+    const pos = await new Promise((resolve) => {
+      if (!navigator.geolocation) return resolve({ error: "unsupported" });
+      navigator.geolocation.getCurrentPosition((p) => resolve({ p }), (e) => resolve({ error: e && e.code === 1 ? "denied" : "unavailable" }), { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 });
+    });
+    try {
+      if (pos.p) data = await getJSON(`/api/geo?lat=${pos.p.coords.latitude.toFixed(4)}&lng=${pos.p.coords.longitude.toFixed(4)}`);
+      else { note = pos.error === "denied" ? "Location permission is off, so we used your approximate area." : "Couldn't get a precise location, so we used your approximate area."; data = await getJSON("/api/geo"); }
+    } catch { return { ok: false, message: "We couldn't detect your location right now. Pick your region instead." }; }
+    const country = G.countryCode(data.country);
+    if (!country) return { ok: false, message: "The directory covers Canada, the USA and the United Kingdom for now. Pick a region to browse." };
+    const state = G.subdivisionCode(country, data.regionCode) || G.subdivisionCode(country, data.region);
+    const place = { country, state, city: state ? String(data.city || "") : "", coords: Number.isFinite(data.lat) && data.lat !== null ? { lat: data.lat, lng: data.lng } : null, source: data.source };
+    try { sessionStorage.setItem(KEY, JSON.stringify(place)); } catch {}
+    return { ok: true, place, note };
+  }
+  window.MWELocate = locate;
+
+  const busy = (btn, on) => { btn.disabled = on; btn.classList.toggle("is-busy", on); btn.setAttribute("aria-busy", String(on)); };
+  const summary = (p) => { const G = window.MWEGeo; return [p.city, G.subdivisionName(p.country, p.state), G.region(p.country)?.short].filter(Boolean).join(", "); };
+
+  /* Directory filter bar */
+  const row = document.querySelector("#church-country-pill")?.closest(".filter-pills-row");
+  const makeLocate = (extraClass) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "filter-pill-btn mwe-locate-btn " + extraClass; b.innerHTML = crosshair + "<span>Use my location</span>";
+    b.setAttribute("aria-label", "Use my location"); b.title = "Use my location";
+    b.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      busy(b, true);
+      const r = await locate();
+      busy(b, false);
+      if (!r.ok) return toast(r.message);
+      window.MWE.userCoords = r.place.coords;
+      window.MWE.setLocationFilter?.(r.place);
+      document.querySelectorAll(".mwe-locate-btn").forEach((x) => x.classList.add("is-active"));
+      toast((r.note ? r.note + " " : "") + "Showing churches near " + summary(r.place) + ".");
+    });
+    return b;
+  };
+  if (row && !row.querySelector(".mwe-locate-btn")) {
+    row.prepend(makeLocate("mwe-locate-desktop"));
+    // Mobile: the pills live in the Filters sheet, so put a full-width button at its top too.
+    let tries = 0;
+    const addToSheet = () => {
+      const head = document.querySelector(".module-filter-popup .module-filter-popup-head");
+      if (head) { if (!head.parentElement.querySelector(".mwe-locate-sheet")) head.after(makeLocate("mwe-locate-sheet")); return; }
+      if (++tries < 30) setTimeout(addToSheet, 150);
+    };
+    addToSheet();
+  }
+
+  /* Home search card */
+  const form = document.querySelector("[data-hero-search-form]");
+  const group = form && form.querySelector(".location-combined-group");
+  if (!form || !group || group.dataset.mweLoc || !window.MWEGeo) return;
+  const G = window.MWEGeo;
+  group.dataset.mweLoc = "1";
+  const oldLabel = form.querySelector('label[for="hero-city-input"]');
+  if (oldLabel) { oldLabel.removeAttribute("for"); oldLabel.removeAttribute("data-t"); oldLabel.textContent = "Location"; }
+  group.hidden = true; group.style.setProperty("display", "none", "important");
+  group.querySelectorAll("input, select").forEach((el) => { el.disabled = true; el.removeAttribute("name"); });
+  const state = { country: "", state: "", city: "" };
+  const box = document.createElement("div");
+  box.className = "mwe-loc-grid";
+  box.innerHTML = `<input type="hidden" name="country"><input type="hidden" name="state"><input type="hidden" name="city">
+    <div class="mwe-loc-field" data-k="country"></div><div class="mwe-loc-field" data-k="state"></div><div class="mwe-loc-field" data-k="city"></div>
+    <button type="button" class="mwe-locate-btn mwe-locate-inline">${crosshair}<span>Use my location</span></button>`;
+  group.after(box);
+  let uid = 0;
+  const combos = {};
+  const make = (k, cfg) => {
+    const host = box.querySelector(`[data-k="${k}"]`); const id = "mwe-loc-" + k + (++uid);
+    host.innerHTML = `<div class="mwe-combo"><button type="button" class="field mwe-combo-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="${id}"><span class="mwe-combo-value"></span>${chevron}</button>
+      <div class="mwe-combo-panel" id="${id}" hidden><input type="search" class="mwe-combo-search" autocomplete="off"><div class="mwe-combo-list" role="listbox"></div></div></div>`;
+    const wrap = host.firstElementChild, btn = wrap.querySelector("button"), panel = wrap.querySelector(".mwe-combo-panel"), list = wrap.querySelector(".mwe-combo-list"), search = wrap.querySelector("input");
+    const paint = () => {
+      const raw = search.value.trim(), term = G.cityKey(raw);
+      const items = cfg.items().filter((i) => !term || G.cityKey(i.label).includes(term) || G.cityKey(i.value) === term);
+      let html = items.map((i) => `<button type="button" role="option" class="mwe-combo-option" data-value="${esc(i.value)}" aria-selected="${state[k] === i.value}"><span><strong>${i.html || esc(i.label)}</strong></span>${state[k] === i.value ? check : ""}</button>`).join("");
+      if (cfg.free && raw && !cfg.items().some((i) => G.cityKey(i.value) === term)) html += `<button type="button" role="option" class="mwe-combo-option" data-value="${esc(raw)}"><span><strong>Use “${esc(raw)}”</strong></span></button>`;
+      list.innerHTML = html || `<p class="mwe-combo-empty">${cfg.free ? "Type a city name." : "No matches."}</p>`;
+    };
+    const setOpen = (open) => { panel.hidden = !open; btn.setAttribute("aria-expanded", String(open)); wrap.classList.toggle("open", open); if (open) { search.value = ""; paint(); setTimeout(() => search.focus(), 0); } };
+    btn.addEventListener("click", () => !btn.disabled && setOpen(panel.hidden));
+    search.addEventListener("input", paint);
+    search.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); list.querySelector(".mwe-combo-option")?.click(); } });
+    list.addEventListener("click", (e) => { const o = e.target.closest(".mwe-combo-option"); if (!o) return; cfg.pick(o.dataset.value); setOpen(false); btn.focus(); });
+    combos[k] = { btn, search, setOpen, cfg };
+  };
+  const churches = () => (window.MWE && typeof MWE.getChurches === "function" ? MWE.getChurches() : []);
+  const setAll = (next) => {
+    state.country = G.countryCode(next.country) || "";
+    state.state = state.country ? G.subdivisionCode(state.country, next.state) || "" : "";
+    state.city = state.state ? String(next.city || "") : "";
+    paintAll();
+  };
+  const paintAll = () => {
+    const r = G.region(state.country);
+    ["country", "state", "city"].forEach((k) => { box.querySelector(`input[name="${k}"]`).value = state[k]; });
+    const c = combos.country, s = combos.state, ci = combos.city;
+    c.btn.querySelector(".mwe-combo-value").innerHTML = r ? `<span class="mwe-flag">${r.flag}</span> ${esc(r.short)}` : "Any region";
+    s.btn.querySelector(".mwe-combo-value").textContent = state.state ? G.subdivisionName(state.country, state.state) : (r ? `Any ${r.unit.toLowerCase()}` : "State / Province");
+    ci.btn.querySelector(".mwe-combo-value").textContent = state.city || "Any city";
+    s.btn.disabled = !r; ci.btn.disabled = !state.state;
+    s.search.placeholder = r ? `Search ${r.unit.toLowerCase()}s` : ""; ci.search.placeholder = "Search or type a city";
+    c.btn.classList.toggle("has-value", !!r); s.btn.classList.toggle("has-value", !!state.state); ci.btn.classList.toggle("has-value", !!state.city);
+    s.btn.setAttribute("aria-label", r ? r.unit : "State or province"); c.btn.setAttribute("aria-label", "Region"); ci.btn.setAttribute("aria-label", "City");
+  };
+  make("country", { items: () => [{ value: "", label: "Any region" }, ...G.REGIONS.map((r) => ({ value: r.code, label: r.name + " " + r.short, html: `<span class="mwe-flag">${r.flag}</span> ${esc(r.short)}` }))], pick: (v) => setAll({ country: v }) });
+  make("state", { items: () => { const r = G.region(state.country); return r ? [{ value: "", label: "Any " + r.unit.toLowerCase() }, ...r.subdivisions.map((x) => ({ value: x.code, label: x.name }))] : []; }, pick: (v) => setAll({ country: state.country, state: v }) });
+  make("city", { free: true, items: () => [{ value: "", label: "Any city" }, ...G.citiesFor(churches(), state.country, state.state).map((x) => ({ value: x, label: x }))], pick: (v) => setAll({ ...state, city: v }) });
+  try { const saved = JSON.parse(sessionStorage.getItem("mwe.location.filter") || "null"); if (saved) setAll(saved); else paintAll(); } catch { paintAll(); }
+  const inline = box.querySelector(".mwe-locate-inline");
+  inline.addEventListener("click", async () => {
+    busy(inline, true);
+    const r = await locate();
+    busy(inline, false);
+    if (!r.ok) return toast(r.message);
+    setAll(r.place);
+    try { sessionStorage.setItem("mwe.location.filter", JSON.stringify({ country: state.country, state: state.state, city: state.city })); } catch {}
+    toast((r.note ? r.note + " " : "") + "Location set to " + summary(r.place) + ".");
+  });
+  form.addEventListener("submit", () => {
+    form.querySelectorAll(".location-combined-group input, .location-combined-group select").forEach((el) => { el.disabled = true; });
+    try { sessionStorage.setItem("mwe.location.filter", JSON.stringify(state)); } catch {} });
+})();

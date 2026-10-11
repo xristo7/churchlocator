@@ -757,7 +757,10 @@ const MWE = (() => {
       name: church.name || "Unnamed Church",
       city: titleCase(church.city || ""),
       country: normalizeCountry(church.country || ""),
-      postal: church.postal || "",
+      postal: church.postal || church.postal_code || church.postalCode || "",
+      state: church.state || church.province || church.region || church.state_code || "",
+      lat: church.lat ?? church.latitude ?? null,
+      lng: church.lng ?? church.longitude ?? null,
       denomination: church.denomination || "",
       language: church.language || "English",
       worship: church.worship || "Contemporary",
@@ -2521,16 +2524,14 @@ function churchCard(church) {
 async function initPublicSite() {
   const grid = document.querySelector("[data-church-grid]");
   const search = document.querySelector("[data-search]");
-  let geographyError = false;
-  if (document.getElementById("church-city-options-list")) {
-    try { await MWE.loadChurchGeography(); } catch { geographyError = true; }
-  }
 
   let churches = MWE.getChurches();
   const indexChurches = () => churches.map(church => ({
     church,
     country: MWE.normalizeCountry(church.country).toLowerCase(),
     city: MWE.citySearchKey(church.city),
+    place: window.MWEGeo ? MWEGeo.churchLocation(church) : { country: "", state: "", city: church.city || "" },
+    coords: window.MWEGeo ? MWEGeo.coords(church) : null,
     denomination: String(church.denomination || "").toLowerCase(),
     ministries: window.MWEMinistries ? MWEMinistries.slugs([...(Array.isArray(church.ministries) ? church.ministries : []), ...(Array.isArray(church.features) ? church.features : [])]) : [],
     haystack: [
@@ -2542,59 +2543,104 @@ async function initPublicSite() {
   }));
   let searchableChurches = indexChurches();
 
+  // Region -> State/Province/Nation -> City (single choice each; parents reset children).
+  const Geo = window.MWEGeo;
+  const loc = MWE.locationFilter = MWE.locationFilter || { country: "", state: "", city: "" };
+  try {
+    const saved = JSON.parse(sessionStorage.getItem("mwe.location.filter") || "null");
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = { country: Geo?.countryCode(params.get("country")) || "", state: "", city: params.get("city") || "" };
+    if (fromUrl.country) fromUrl.state = Geo.subdivisionCode(fromUrl.country, params.get("state")) || "";
+    Object.assign(loc, fromUrl.country ? fromUrl : (saved || {}));
+    if (loc.city && !loc.state && loc.country) {
+      const hit = churches.map(c => Geo.churchLocation(c)).find(l => l.country === loc.country && Geo.cityKey(l.city) === Geo.cityKey(loc.city));
+      if (hit) loc.state = hit.state;
+    }
+  } catch {}
   const countryOptionsContainer = document.getElementById("church-country-options-list");
-  if (countryOptionsContainer) {
-    const countries = MWE.churchLocationFacets(churches, [], {}).regions;
-    countryOptionsContainer.innerHTML = countries.map(item => `
-      <label class="custom-checkbox-row">
-        <input type="checkbox" value="${MWE.escapeHtml(item.value)}" onchange="MWE.onChurchPillChange()" />
-        <span class="checkbox-box"><i data-lucide="check"></i></span>
-        <span class="checkbox-label">${MWE.escapeHtml(item.label)}</span>
-      </label>
-    `).join("");
-  }
-
-  // Populate dynamic City pill checkboxes
+  const statePill = document.getElementById("church-state-pill");
+  const stateOptionsContainer = document.getElementById("church-state-options-list");
+  const stateSearch = document.getElementById("church-state-option-search");
+  const cityPill = document.getElementById("church-city-pill");
   const cityOptionsContainer = document.getElementById("church-city-options-list");
   const cityOptionSearch = document.getElementById("church-city-option-search");
   const cityOptionsStatus = document.getElementById("church-city-options-status");
   const cityShowMore = document.getElementById("church-city-show-more");
-  let citySourceKey = null;
-  let availableCities = [];
-  let cityOptionLimit = 100;
-  let cityOptionsKey = "";
-  function updateCityOptions(selectedCountries) {
-    if (!cityOptionsContainer) return;
-    const sourceKey = JSON.stringify([...selectedCountries].sort());
-    const regionChanged = citySourceKey !== null && sourceKey !== citySourceKey;
-    if (sourceKey !== citySourceKey) {
-      availableCities = MWE.churchLocationFacets(churches, selectedCountries).cities;
-      citySourceKey = sourceKey;
-      cityOptionLimit = 100;
-      if (cityOptionSearch) cityOptionSearch.value = "";
-    }
-    const query = MWE.citySearchKey(cityOptionSearch?.value);
-    const matchingCities = availableCities.filter(city => MWE.citySearchKey(city).includes(query));
-    const selectedCities = regionChanged ? new Set() : new Set(Array.from(cityOptionsContainer.querySelectorAll("input:checked"), input => input.value));
-    const cities = [...new Set([...availableCities.filter(city => selectedCities.has(city)), ...matchingCities.slice(0, cityOptionLimit)])];
-    const key = JSON.stringify([cities, [...selectedCities]]);
-    if (cityOptionsStatus) cityOptionsStatus.textContent = geographyError
-      ? "City catalog unavailable. Showing locations from listed churches; reload to retry."
-      : `${matchingCities.length.toLocaleString()} ${matchingCities.length === 1 ? "city or town" : "cities and towns"}${query ? " match" : " available"}. ${matchingCities.length > cityOptionLimit ? "Search by name or show more." : ""}`;
-    if (cityShowMore) cityShowMore.hidden = matchingCities.length <= cityOptionLimit;
-    if (key === cityOptionsKey) return;
-    cityOptionsKey = key;
-    cityOptionsContainer.innerHTML = cities.map(item => `
-      <label class="custom-checkbox-row">
-        <input type="checkbox" value="${MWE.escapeHtml(item)}" ${selectedCities.has(item) ? "checked" : ""} onchange="MWE.onChurchPillChange()" />
+  if (cityShowMore) cityShowMore.hidden = true;
+  const row = (name, value, label, checked, extra = "") => `
+      <label class="custom-checkbox-row"${extra}>
+        <input type="radio" name="${name}" value="${MWE.escapeHtml(value)}" ${checked ? "checked" : ""} />
         <span class="checkbox-box"><i data-lucide="check"></i></span>
-        <span class="checkbox-label">${MWE.escapeHtml(item)}</span>
-      </label>
-    `).join("") || `<p class="empty" role="status">No cities match this search.</p>`;
+        <span class="checkbox-label">${label}</span>
+      </label>`;
+  const persist = () => { try { sessionStorage.setItem("mwe.location.filter", JSON.stringify(loc)); } catch {} };
+  const setPillEnabled = (pill, on, hint) => {
+    if (!pill) return;
+    pill.classList.toggle("is-disabled", !on);
+    const btn = pill.querySelector(".filter-pill-btn");
+    if (btn) { btn.disabled = !on; btn.title = on ? "" : hint; btn.setAttribute("aria-disabled", String(!on)); }
+    if (!on) pill.classList.remove("open");
+  };
+  function renderRegions() {
+    if (!countryOptionsContainer || !Geo) return;
+    countryOptionsContainer.innerHTML = Geo.REGIONS.map(r => row("church-region", r.code, `<span class="mwe-flag" aria-hidden="true">${r.flag}</span> ${MWE.escapeHtml(r.short)}`, loc.country === r.code)).join("");
+  }
+  function renderStates() {
+    const region = loc.country && Geo?.region(loc.country);
+    if (statePill) statePill.querySelector(".pill-title").dataset.default = region ? region.unit : "State / Province";
+    setPillEnabled(statePill, !!region, "Choose a region first");
+    if (!stateOptionsContainer) return;
+    const term = Geo ? Geo.cityKey(stateSearch?.value) : "";
+    const subs = region ? region.subdivisions.filter(s => !term || Geo.cityKey(s.name).includes(term) || Geo.cityKey(s.code) === term) : [];
+    stateOptionsContainer.innerHTML = subs.map(s => row("church-state", s.code, MWE.escapeHtml(s.name), loc.state === s.code)).join("")
+      || `<p class="empty" role="status">${region ? "No matches." : "Choose a region first."}</p>`;
+    const title = statePill?.querySelector(".dropdown-panel-title");
+    if (title) title.textContent = region ? `Filter by ${region.unit}` : "Filter by State / Province";
+  }
+  function renderCities() {
+    setPillEnabled(cityPill, !!loc.state, "Choose a state or province first");
+    if (!cityOptionsContainer) return;
+    if (!loc.state) {
+      cityOptionsContainer.innerHTML = `<p class="empty" role="status">Choose a state or province first.</p>`;
+      if (cityOptionsStatus) cityOptionsStatus.textContent = "";
+      return;
+    }
+    const raw = String(cityOptionSearch?.value || "").trim();
+    const term = Geo.cityKey(raw);
+    const all = Geo.citiesFor(churches, loc.country, loc.state);
+    if (loc.city && !all.some(c => Geo.cityKey(c) === Geo.cityKey(loc.city))) all.unshift(loc.city);
+    const list = all.filter(c => !term || Geo.cityKey(c).includes(term));
+    let html = list.map(c => row("church-city", c, MWE.escapeHtml(c), Geo.cityKey(c) === Geo.cityKey(loc.city))).join("");
+    if (raw && !all.some(c => Geo.cityKey(c) === term)) html += row("church-city", raw, `Use “${MWE.escapeHtml(raw)}”`, false, ' data-free-entry="1"');
+    cityOptionsContainer.innerHTML = html || `<p class="empty" role="status">No listed churches in this ${Geo.region(loc.country).unit.toLowerCase()} yet. Type a city to search.</p>`;
+    if (cityOptionsStatus) cityOptionsStatus.textContent = `${all.length} ${all.length === 1 ? "city" : "cities"} with listed churches${raw ? "" : ". Type to enter any city."}`;
+  }
+  function syncPills() {
+    MWE.updatePillState("church-country-pill", "Region");
+    MWE.updatePillState("church-state-pill", statePill?.querySelector(".pill-title")?.dataset.default || "State / Province");
     MWE.updatePillState("church-city-pill", "City");
     if (window.lucide) window.lucide.createIcons();
   }
-  updateCityOptions([]);
+  function renderLocationFilters() { renderRegions(); renderStates(); renderCities(); syncPills(); }
+  MWE.setLocationFilter = (next = {}) => {
+    loc.country = Geo?.countryCode(next.country) || "";
+    loc.state = loc.country ? (Geo.subdivisionCode(loc.country, next.state) || "") : "";
+    loc.city = loc.state ? String(next.city || "").trim() : "";
+    if (stateSearch) stateSearch.value = "";
+    if (cityOptionSearch) cityOptionSearch.value = "";
+    persist(); renderLocationFilters(); MWE.triggerChurchSearch?.();
+  };
+  countryOptionsContainer?.addEventListener("change", e => { if (e.target.name === "church-region") MWE.setLocationFilter({ country: e.target.value }); });
+  stateOptionsContainer?.addEventListener("change", e => { if (e.target.name === "church-state") MWE.setLocationFilter({ country: loc.country, state: e.target.value }); });
+  cityOptionsContainer?.addEventListener("change", e => {
+    if (e.target.name !== "church-city") return;
+    MWE.setLocationFilter({ ...loc, city: e.target.value });
+    cityPill?.classList.remove("open");
+  });
+  stateSearch?.addEventListener("input", renderStates);
+  cityOptionSearch?.addEventListener("input", renderCities);
+  MWE.resetLocationFilter = () => MWE.setLocationFilter({});
+  renderLocationFilters();
 
   const denominationOptionsContainer = document.getElementById("church-denomination-options-list");
   if (denominationOptionsContainer) {
@@ -2632,18 +2678,21 @@ async function initPublicSite() {
     const q = (search?.value || "").toLowerCase().trim();
     const selectedMinistries = Array.from(document.querySelectorAll("#church-ministry-pill input:checked")).map(cb => cb.value);
     
-    const selectedCountries = Array.from(document.querySelectorAll("#church-country-pill input:checked")).map(cb => cb.value.toLowerCase());
-    updateCityOptions(selectedCountries);
-    const selectedCities = Array.from(document.querySelectorAll("#church-city-pill input:checked")).map(cb => MWE.citySearchKey(cb.value));
     const selectedDenoms = Array.from(document.querySelectorAll("#church-denom-pill input:checked")).map(cb => cb.value.toLowerCase());
+    const where = MWE.locationFilter || {};
+    const origin = MWE.userCoords;
 
-    const filtered = searchableChurches.filter(item => {
-      const countryMatch = selectedCountries.length === 0 || selectedCountries.includes(item.country);
-      const cityMatch = selectedCities.length === 0 || selectedCities.includes(item.city);
+    let matches = searchableChurches.filter(item => {
+      const locationMatch = !window.MWEGeo || MWEGeo.matchesLocation(item.place, where);
       const denomMatch = selectedDenoms.length === 0 || selectedDenoms.includes(item.denomination);
       const ministryMatch = selectedMinistries.length === 0 || selectedMinistries.some(slug => item.ministries.includes(slug));
-      return (!q || item.haystack.includes(q)) && countryMatch && cityMatch && denomMatch && ministryMatch;
-    }).map(item => item.church);
+      return (!q || item.haystack.includes(q)) && locationMatch && denomMatch && ministryMatch;
+    });
+    if (origin && window.MWEGeo) {
+      const d = item => item.coords ? MWEGeo.distanceKm(origin, item.coords) : (item.place.state === where.state ? 1e6 : 2e6);
+      matches = matches.map(item => [d(item), item]).sort((a, b) => a[0] - b[0]).map(([, item]) => item);
+    }
+    const filtered = matches.map(item => item.church);
 
     grid.innerHTML = filtered.length ? filtered.map(churchCard).join("") : `<div class="empty flex-center py-8 text-muted font-bold text-center">No churches match those filter criteria. Click 'Reset' to view all churches.</div>`;
     createIcons();
@@ -2659,20 +2708,12 @@ async function initPublicSite() {
   };
 
   MWE.triggerChurchSearch = scheduleRender;
-  if (cityOptionSearch) cityOptionSearch.addEventListener("input", () => {
-    cityOptionLimit = 100;
-    scheduleRender();
-  });
-  if (cityShowMore) cityShowMore.addEventListener("click", () => {
-    cityOptionLimit += 100;
-    scheduleRender();
-  });
 
   // A newly published church must become discoverable without reloading the page.
   window.addEventListener("mwe-platform-ready", () => {
     churches = MWE.getChurches();
     searchableChurches = indexChurches();
-    citySourceKey = null;
+    renderCities();
     scheduleRender();
   });
 
@@ -9721,8 +9762,6 @@ MWE.updatePillState = function(pillId, defaultTitle) {
 };
 
 MWE.onChurchPillChange = function() {
-  MWE.updatePillState("church-country-pill", "Region");
-  MWE.updatePillState("church-city-pill", "City");
   MWE.updatePillState("church-denom-pill", "Denomination");
   MWE.updatePillState("church-ministry-pill", "Interested in");
   
@@ -9732,7 +9771,9 @@ MWE.onChurchPillChange = function() {
 };
 
 MWE.resetChurchPillFilters = function() {
-  document.querySelectorAll("#church-country-pill input, #church-city-pill input, #church-denom-pill input, #church-ministry-pill input").forEach(cb => cb.checked = false);
+  document.querySelectorAll("#church-country-pill input, #church-state-pill input, #church-city-pill input, #church-denom-pill input, #church-ministry-pill input").forEach(cb => cb.checked = false);
+  MWE.userCoords = null;
+  if (typeof MWE.resetLocationFilter === "function") MWE.resetLocationFilter();
   const cityOptionSearch = document.getElementById("church-city-option-search");
   if (cityOptionSearch) cityOptionSearch.value = "";
   const searchInput = document.querySelector("[data-search]");
