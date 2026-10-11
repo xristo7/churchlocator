@@ -809,6 +809,23 @@
       a.innerHTML = playIcon + "<span>Spotlight</span>";
       toggle.before(a);
     });
+    // Any other page header (commerce, dashboards, admin, checkout…): add the pill if it has no Spotlight link.
+    if (!document.documentElement.classList.contains("mwe-immersive")) {
+      const vw = window.innerWidth;
+      document.querySelectorAll("body header, body .aw-topbar, body .admin-topbar, body [data-admin-topbar]").forEach((h) => {
+        if (h.closest("main article, .modal, dialog, [role=dialog], .mwe-search-overlay")) return;
+        if (h.querySelector('a[href*="spotlight"]')) return;
+        const r = h.getBoundingClientRect();
+        if (r.width < vw * 0.6 || r.height < 36 || r.height > 140 || r.top > 12 || r.top < -200) return;
+        if (h.parentElement && h.parentElement.closest("header")) return;
+        const a = document.createElement("a");
+        a.href = "spotlight.html"; a.className = "mwe-header-spotlight mwe-generic-spotlight"; a.setAttribute("aria-label", "Spotlight");
+        a.innerHTML = playIcon + "<span>Spotlight</span>";
+        const host = h.querySelector(".topbar-inner, .aw-topbar-inner, .container") || h;
+        const right = host.querySelector(":scope > .nav-actions, :scope > .topbar-actions, :scope > .aw-topbar-actions, :scope > [class*='actions'], :scope > .mobile-menu-toggle");
+        right ? right.before(a) : host.append(a);
+      });
+    }
     document.querySelectorAll(".mwe-header-spotlight, .mwe-nav-spotlight").forEach((a) => {
       if (page === "spotlight") a.setAttribute("aria-current", "page");
     });
@@ -819,7 +836,7 @@
     let queued = false;
     new MutationObserver(() => {
       if (queued) return; queued = true;
-      requestAnimationFrame(() => { queued = false; if (document.querySelector(".topbar .nav-links:not(:has(.mwe-nav-spotlight))") || document.querySelector(".topbar .topbar-inner:not(:has(> .mwe-topbar-spotlight)) > .mobile-menu-toggle")) run(); });
+      requestAnimationFrame(() => { queued = false; run(); });
     }).observe(document.body, { childList: true, subtree: true });
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", watch, { once: true }); else watch();

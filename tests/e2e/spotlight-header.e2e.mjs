@@ -12,7 +12,7 @@ const SKIP = new Set(['spotlight', 'spotlight-studio', 'channel-live', 'broadcas
 const PAGES = ['index', 'account-profile', 'account-security', 'admin', 'app', 'cart', 'channel-content', 'channel-detail', 'channels', 'checkout', 'church-portal',
   'church-profile', 'churches', 'creator-studio', 'creator-workspace', 'donate', 'event-profile', 'events', 'foundation', 'livestream', 'meditation', 'member-home',
   'messages', 'owner-dashboard', 'privacy', 'product-detail', 'resource-detail', 'resources', 'seller-dashboard', 'store', 'storefront'].filter(p => !SKIP.has(p));
-const browser = await puppeteer.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+const browser = await puppeteer.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'], protocolTimeout: 30000 });
 const failures = []; const rows = [];
 for (const width of [1280, 390, 360]) for (const signedIn of [false, true]) for (const page of PAGES) {
   const p = await browser.newPage();
@@ -24,24 +24,26 @@ for (const width of [1280, 390, 360]) for (const signedIn of [false, true]) for 
       : r.continue());
     await p.evaluateOnNewDocument(() => { localStorage.setItem('mwe.userLoggedIn', 'true'); localStorage.setItem('mwe.userEmail', 'qa@example.com'); });
   }
-  try { await p.goto(`${BASE}/${page === 'index' ? '' : page}?${CB}`, { waitUntil: 'networkidle2', timeout: 45000 }); } catch {}
+  try { await p.goto(`${BASE}/${page === 'index' ? '' : page + '.html'}?${CB}`, { waitUntil: 'networkidle2', timeout: 45000 }); } catch {}
+  await p.waitForFunction(() => document.readyState === 'complete' && document.querySelector('header, .topbar, .aw-topbar'), { timeout: 10000 }).catch(() => {});
   await new Promise(r => setTimeout(r, 1800));
-  const res = await p.evaluate(() => {
+  let res;
+  try { res = await p.evaluate(() => {
     const vis = el => { const r = el.getBoundingClientRect(); const c = getComputedStyle(el); return r.width > 0 && r.height > 0 && c.visibility !== 'hidden' && c.display !== 'none' && r.top < 120; };
-    const links = [...document.querySelectorAll('header a, .topbar a, .profile-app-header a, .member-shell-header a, header button, .topbar button')]
+    const links = [...document.querySelectorAll('header a, .topbar a, .aw-topbar a, .profile-app-header a, .member-shell-header a, header button, .topbar button')]
       .filter(a => /spotlight/i.test((a.getAttribute('href') || '') + ' ' + a.textContent) && vis(a));
     const rail = [...document.querySelectorAll('.profile-left-rail nav a, .member-shell-rail nav a, .profile-rail-nav a')].filter(a => /spotlight/i.test(a.textContent + (a.getAttribute('href') || '')) && a.getBoundingClientRect().width > 0);
-    const hdr = document.querySelector('.profile-app-header, .member-shell-header, .topbar');
+    const hdr = document.querySelector('.profile-app-header, .member-shell-header, .topbar, .aw-topbar, body header');
     const headerH = hdr ? Math.round(hdr.getBoundingClientRect().height) : 0;
     const overflow = document.documentElement.scrollWidth > innerWidth + 1;
     return { header: links.length, rail: rail.length, headerH, overflow, url: location.pathname };
-  });
+  }); } catch (e) { res = { header: 0, rail: 0, headerH: 0, overflow: false, url: 'ERROR ' + e.message.slice(0, 60) }; }
   const ok = res.header > 0 && res.rail === 0 && (width > 500 || (res.headerH <= 72 && !res.overflow));
   rows.push(`${ok ? 'PASS' : 'FAIL'} ${width} ${signedIn ? 'in ' : 'out'} ${page} header=${res.header} rail=${res.rail} h=${res.headerH} overflow=${res.overflow} (${res.url})`);
+  console.log(rows.at(-1));
   if (!ok) failures.push(rows.at(-1));
-  await p.close();
+  await p.close().catch(() => {});
 }
 await browser.close();
-console.log(rows.join('\n'));
 if (failures.length) { console.error(`\n${failures.length} failure(s)`); process.exit(1); }
 console.log('\nAll pages show Spotlight in the header and not in the rail.');
