@@ -409,3 +409,12 @@ html[data-theme="dark"] .church-profile-tabs-wrapper .church-tab-button.active:n
 
 .church-profile-tabs-wrapper .church-tab-button:not(#mwe-x):not(#mwe-y) { border-left: 0 !important; border-right: 0 !important; outline: 0; }
 .church-profile-tabs-wrapper .church-tab-button:not(#mwe-x):not(#mwe-y) svg, .church-profile-tabs-wrapper .church-tab-button:not(#mwe-x):not(#mwe-y) svg * { color: inherit !important; stroke: currentColor !important; }
+/* Header itself joins the dimmed backdrop while the sign-in card is open */
+@media (min-width: 960px) {
+  .topbar:has(#nav-signin-popover:not([hidden])) { background: rgba(2,6,23,.5) !important; border-bottom-color: transparent !important; }
+  .topbar:has(#nav-signin-popover:not([hidden])) .topbar-inner > :not(:has(#nav-signin-popover)),
+  .topbar:has(#nav-signin-popover:not([hidden])) .topbar-menu-group > :not(:has(#nav-signin-popover)),
+  .topbar:has(#nav-signin-popover:not([hidden])) #nav-auth-slot > :not(:has(#nav-signin-popover)),
+  .topbar:has(#nav-signin-popover:not([hidden])) #nav-signin-trigger { opacity: .25 !important; filter: blur(1px); pointer-events: none; transition: opacity var(--dur-base); }
+}
+@media (min-width: 960px) { .topbar:has(#nav-signin-popover:not([hidden])) :is(.theme-palette-container, .lang-selector-container, .theme-palette-btn) { opacity: .25 !important; filter: blur(1px); pointer-events: none; } }
