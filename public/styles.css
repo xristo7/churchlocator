@@ -16309,7 +16309,7 @@ html[data-theme="dark"] .resource-video-main .resource-experience-description p 
 .launch-card.launch-meditation { background-image: url("assets/meditation-lake.png") !important; }
 .launch-churches:hover, .launch-churches:focus-visible { background-image: url("assets/church-river-city.png") !important; }
 .launch-live:hover, .launch-live:focus-visible { background-image: url("assets/church-audience.jpg") !important; }
-.launch-channels:hover, .launch-channels:focus-visible { background-image: url("assets/hero-global-church.png") !important; }
+.launch-channels:hover, .launch-channels:focus-visible { background-image: url("assets/hero-global-church-clean.png") !important; }
 .launch-store:hover, .launch-store:focus-visible { background-image: url("assets/mission-trips.png") !important; }
 .launch-card:hover::before, .launch-card:focus-visible::before { background: linear-gradient(145deg, rgba(12, 31, 87, 0.5), rgba(9, 24, 68, 0.76)); }
 .launch-card.launch-spotlight .launch-icon { background: rgba(255, 255, 255, 0.24) !important; color: #ffffff !important; }

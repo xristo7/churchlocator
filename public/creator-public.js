@@ -17,6 +17,16 @@
     }
     return safe(stream.image) || window.MWE.defaultImage;
   }
+  function liveAvatar(stream, cls) {
+    const church = stream.type === "church" ? (window.MWE.getChurches?.() || []).find(c => c.id === stream.id) : null;
+    const img = safe(church?.logo || church?.logo_url || church?.avatar || "");
+    const initials = String(stream.name || "?").split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+    return '<span class="mwe-live-avatar ' + (cls || "") + '">' + (img ? '<img src="' + esc(img) + '" alt="">' : esc(initials)) + '</span>';
+  }
+  function offlineFrame() {
+    return '<div class="mwe-offline-frame" role="status"><i data-lucide="video-off"></i><span>Offline</span></div>';
+  }
+  window.MWELiveUI = Object.assign(window.MWELiveUI || {}, { offlineFrame });
   function liveDirectory() {
     const target = document.getElementById("active-streams-list");
     if (!target || new URLSearchParams(location.search).has("id")) return;
@@ -25,14 +35,11 @@
     target.style.display = streams.length ? "grid" : "none";
     streams.forEach(stream => {
       const card = document.createElement("a");
-      card.className = "livestream-showcase-card";
+      card.className = "mwe-yt-card";
       card.href = broadcastLink(stream.type, stream.id);
-      card.style.backgroundImage = 'url("' + esc(thumbnail(stream)) + '")';
-      card.setAttribute("aria-label", "Play " + stream.name);
-      card.innerHTML = '<span class="livestream-showcase-shade" aria-hidden="true"></span>' +
-        '<span class="livestream-showcase-badge"><span class="livestream-showcase-badge-dot"></span> LIVE</span>' +
-        '<div class="livestream-showcase-copy"><h3>' + esc(stream.name) + '</h3><p><i data-lucide="map-pin"></i> ' + esc(stream.description || "Live broadcast") + '</p></div>' +
-        '<span class="livestream-showcase-play"><i data-lucide="play"></i><b>Play</b></span>';
+      card.setAttribute("aria-label", "Watch " + stream.name);
+      card.innerHTML = '<span class="mwe-yt-thumb"><img src="' + esc(thumbnail(stream)) + '" alt="" loading="lazy"><span class="mwe-live-badge"><span></span>LIVE</span><span class="mwe-yt-play"><i data-lucide="play"></i></span></span>' +
+        '<span class="mwe-yt-meta">' + liveAvatar(stream) + '<span><b class="mwe-yt-title">' + esc(stream.name) + '</b><small>Live service</small><small>' + esc(stream.description || (stream.type + " broadcast")) + '</small></span></span>';
       target.append(card);
     });
     const empty = document.getElementById("streams-empty-state");
@@ -63,7 +70,7 @@
     const requestedType = params.get("type");
     if(requestedType==='channel'){location.replace('channel-live.html?id='+encodeURIComponent(id||''));return;}
     const stream = window.MWECreator.broadcasts().find(s => s.id === id && (!requestedType || s.type === requestedType));
-    if (!stream) { target.innerHTML = '<h1>This broadcast is offline</h1><p>The creator may have ended their broadcast.</p><a href="livestream.html">Explore live broadcasts</a>'; return; }
+    if (!stream) { target.classList.add("mwe-watch-page"); target.innerHTML = '<a class="broadcast-back-link" href="livestream.html"><i data-lucide="arrow-left"></i> All live broadcasts</a><div class="mwe-watch"><div class="mwe-watch-main"><div class="mwe-player-frame">' + offlineFrame() + '</div></div></div>'; window.lucide?.createIcons(); return; }
     if(stream.type==='channel'){location.replace('channel-live.html?id='+encodeURIComponent(stream.id));return;}
     document.title = stream.name + " · Live | My Way";
     const url = new URL(safe(stream.url));
@@ -85,13 +92,33 @@
     const player = embed
       ? '<iframe class="creator-live-player" title="' + esc(stream.name) + ' broadcast" src="' + esc(embed) + '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>'
       : '<div class="broadcast-player-fallback" style="background-image:url(&quot;' + esc(thumbnail(stream)) + '&quot;)"><span aria-hidden="true"></span><a href="' + profile.url + '"><i data-lucide="' + profile.icon + '"></i><b>' + profile.label + '</b></a></div>';
+    const church = stream.type === "church" ? (window.MWE.getChurches?.() || []).find(c => c.id === stream.id) : null;
+    const verified = church && (church.verified || church.is_verified || church.claimed);
+    // Previous streams of THIS church only. No archive of past broadcasts exists yet, so show a clean empty state.
+    const previous = Array.isArray(stream.previousStreams) ? stream.previousStreams : [];
+    const upNext = previous.length ? previous.map(r => '<button type="button" class="mwe-upnext-item" data-replay="' + esc(r.url) + '"><span class="mwe-upnext-thumb"><img src="' + esc(r.poster || thumbnail(stream)) + '" alt="" loading="lazy">' + (r.duration ? '<span class="mwe-dur">' + esc(r.duration) + '</span>' : '') + '</span><span class="mwe-upnext-copy"><b>' + esc(r.title) + '</b><small>' + esc(r.date || "") + '</small></span></button>').join("") : '<div class="mwe-prev-empty"><i data-lucide="history"></i><b>No previous streams yet</b></div>';
+    target.classList.add("mwe-watch-page");
     target.innerHTML = '<a class="broadcast-back-link" href="livestream.html"><i data-lucide="arrow-left"></i> All live broadcasts</a>' +
-      '<div class="broadcast-watch-layout"><section class="broadcast-main-column"><div class="broadcast-player-shell">' + player + '<button class="broadcast-share-overlay" type="button" id="broadcast-share" aria-label="Share this livestream"><i data-lucide="share-2"></i><span>Share</span></button></div>' +
-      '<div class="broadcast-details"><div><span class="broadcast-live-label"><i data-lucide="radio"></i> Live now</span><h1>' + esc(stream.name) + '</h1><p>' + esc(description) + '</p></div><button class="content-love-button content-love-detail" type="button" data-love-type="livestream" data-love-id="' + esc(stream.type + ':' + stream.id) + '" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>' +
-      (embed ? '<div class="creator-store-actions">' + profileAction + '</div>' : '') + '</div></section>' +
-      '<aside class="broadcast-chat" aria-label="Livestream chat"><header><div><span class="broadcast-live-dot"></span><strong>Live chat</strong></div><small>Live community conversation</small></header>' +
+      '<div class="mwe-watch broadcast-watch-layout"><section class="mwe-watch-main broadcast-main-column"><div class="mwe-player-frame broadcast-player-shell">' + player + '<button class="broadcast-share-overlay" type="button" id="broadcast-share-hidden" hidden aria-hidden="true"></button></div>' +
+      '<div class="mwe-watch-info"><h1 class="mwe-watch-title">' + esc(stream.name) + ' · Live service</h1>' +
+      '<div class="mwe-watch-stats"><span class="mwe-live-badge"><span></span>LIVE</span>' + (stream.viewers ? '<span>' + esc(stream.viewers) + ' watching</span>' : '<span>Streaming now</span>') + '</div>' +
+      '<div class="mwe-channel-row">' + liveAvatar(stream, "lg") + '<div class="mwe-channel-name"><b>' + esc(stream.name) + (verified ? ' <i data-lucide="badge-check" class="mwe-verified" aria-label="Verified"></i>' : '') + '</b><small>' + esc(stream.description || "") + '</small></div>' +
+      '<a class="mwe-follow-btn" href="' + profile.url + '"><i data-lucide="' + profile.icon + '"></i> ' + profile.label + '</a></div>' +
+      '<div class="mwe-chip-row"><button class="mwe-chip" type="button" id="broadcast-share"><i data-lucide="share-2"></i> Share</button>' +
+      '<button class="mwe-chip content-love-button content-love-detail" type="button" data-love-type="livestream" data-love-id="' + esc(stream.type + ':' + stream.id) + '" aria-pressed="false"><i data-lucide="heart"></i> Save <span data-love-count>0</span></button>' +
+      '</div>' +
+      '<details class="mwe-desc-card"><summary><b>About this broadcast</b><span class="mwe-desc-more">Show more</span></summary><p>' + esc(church?.about || description) + '</p>' + (church?.pastor_name || church?.pastorName ? '<p><small>' + esc(church.pastor_name || church.pastorName) + '</small></p>' : '') + '</details></div></section>' +
+      '<div class="mwe-watch-side"><div class="mwe-side-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-side-tab="chat">Chat</button><button type="button" role="tab" aria-selected="false" data-side-tab="next">Previous</button></div>' +
+      '<aside class="mwe-chat broadcast-chat" data-side-panel="chat" aria-label="Livestream chat"><header><div><span class="broadcast-live-dot"></span><strong>Live chat</strong></div><small>Top messages</small></header>' +
       '<div class="broadcast-chat-messages" id="broadcast-chat-messages" aria-live="polite"><p class="broadcast-chat-status" data-chat-status>Loading live conversation…</p></div>' +
-      '<form class="broadcast-chat-form" id="broadcast-chat-form"><label class="sr-only" for="broadcast-chat-input">Chat message</label><input id="broadcast-chat-input" maxlength="300" required placeholder="Write a message…"><button type="submit" aria-label="Send message"><i data-lucide="send"></i></button></form></aside></div>';
+      '<form class="broadcast-chat-form" id="broadcast-chat-form"><label class="sr-only" for="broadcast-chat-input">Chat message</label><input id="broadcast-chat-input" maxlength="300" required placeholder="Chat…"><button type="submit" aria-label="Send message"><i data-lucide="send"></i></button></form></aside>' +
+      '<section class="mwe-upnext" data-side-panel="next" aria-label="Previous streams"><h2>Previous streams</h2>' + upNext + '</section></div></div>';
+    target.querySelectorAll("[data-side-tab]").forEach(tab => tab.addEventListener("click", () => {
+      target.querySelectorAll("[data-side-tab]").forEach(t => t.setAttribute("aria-selected", String(t === tab)));
+      target.querySelector(".mwe-watch-side").dataset.active = tab.dataset.sideTab;
+    }));
+    target.querySelectorAll("[data-replay]").forEach(btn => btn.addEventListener("click", async () => { const surface = target.querySelector(".broadcast-video-surface"); if (surface && window.MWELivePlayer) { await window.MWELivePlayer.mount(surface, btn.dataset.replay, stream.name); surface.scrollIntoView({ behavior: "smooth", block: "start" }); } }));
+    target.querySelector(".mwe-desc-card")?.addEventListener("toggle", e => { const m = e.currentTarget.querySelector(".mwe-desc-more"); if (m) m.textContent = e.currentTarget.open ? "Show less" : "Show more"; });
     const chatForm = target.querySelector("#broadcast-chat-form");
     if(window.MWELivePlayer){const shell=target.querySelector('.broadcast-player-shell');const overlay=shell.querySelector('button');const surface=document.createElement('div');surface.className='broadcast-video-surface';shell.replaceChildren(surface,overlay);const cleanup=await window.MWELivePlayer.mount(surface,stream.url,stream.name);window.addEventListener('pagehide',cleanup,{once:true});}
     window.MWELivestreamChat?.mount({

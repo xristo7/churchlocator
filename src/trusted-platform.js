@@ -1,3 +1,4 @@
+import { normalizeMinistry } from './ministries.js';
 import { ApiError, readJson } from './security.js';
 import { auditStatement, seal, unseal } from './identity-security.js';
 
@@ -86,6 +87,10 @@ export function validateEntity(kind,input) {
  const data=Object.fromEntries(fields[kind].filter(k=>input[k]!==undefined).map(k=>[k,sanitizeValue(input[k],k)]));
  if(!String(data.name||data.title||'').trim()) throw new ApiError(400,'A title or name is required.');
  if(kind==='churches') {
+  if(data.ministries!==undefined) {
+   const list=Array.isArray(data.ministries)?data.ministries:String(data.ministries||'').split(',');
+   data.ministries=[...new Set(list.map(v=>String(v||'').trim()).filter(Boolean).map(v=>normalizeMinistry(v)||v.slice(0,80)))].slice(0,40);
+  }
   if(!data.city || !data.country) throw new ApiError(400,'City and country are required.');
   if(data.gallery!==undefined && (!Array.isArray(data.gallery) || data.gallery.length>8)) throw new ApiError(400,'A church can have up to eight profile gallery slides.');
   if(data.heroOrder!==undefined && (!Array.isArray(data.heroOrder) || data.heroOrder.length>10 || data.heroOrder.some(key=>typeof key!=='string' || key.length>100))) throw new ApiError(400,'Invalid profile slide order.');

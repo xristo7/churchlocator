@@ -83,7 +83,7 @@
         ...form,
         handle: String(form.handle).startsWith("@") ? form.handle : `@${form.handle}`,
         cover: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=82",
-        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=facearea&facepad=2&w=160&q=82"
+        avatar: "assets/avatar-generic.svg"
       });
       event.currentTarget.reset();
       setModal(false);

@@ -39,8 +39,7 @@
         return ()=>{hls.destroy();video.pause();};
       }
       video.src=resolved.url;return ()=>video.pause();
-    }else{const note=document.createElement('p');note.textContent=resolved.provider+' requires playback on its own site for this link.';target.append(note);}
-    const link=document.createElement('a');link.href=resolved.url;link.textContent='Open on '+resolved.provider;link.target='_blank';link.rel='noopener noreferrer';target.append(link);
+    }else{const note=document.createElement('p');note.className='mwe-player-external';note.textContent='This broadcast plays on the broadcaster\'s site. ';const link=document.createElement('a');link.href=resolved.url;link.textContent='Watch the broadcast';link.target='_blank';link.rel='noopener noreferrer';note.append(link);target.append(note);}
     return ()=>target.replaceChildren();
   }
   root.MWELivePlayer={source,mount};

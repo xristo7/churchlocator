@@ -30,6 +30,7 @@
 
   async function applySession(user) {
     if (!user) { clearSession(); return; }
+    if (typeof root.MWEApplyThemePrefs === "function") Promise.resolve().then(() => root.MWEApplyThemePrefs());
     if ((localStorage.getItem("mwe.userEmail") || "").toLowerCase() !== (user.email || "").toLowerCase()) clearSession();
     if (!user.isCreator) localStorage.removeItem("mwe.creator.account.v1");
     localStorage.setItem("mwe.userLoggedIn", "true");
@@ -57,6 +58,7 @@
 
   function clearSession() {
     root.MWEPlatform?.clear();
+    if (typeof root.MWEApplyThemePrefs === "function") Promise.resolve().then(() => root.MWEApplyThemePrefs());
     ["mwe.creator.account.v1", "mwe.session.owner.v1", "mwe.session.church.v1", "mwe.eventHost.v1"].forEach(key => localStorage.removeItem(key));
     localStorage.removeItem("mwe.userLoggedIn");
     localStorage.removeItem("mwe.username");
@@ -65,17 +67,34 @@
     localStorage.removeItem("mwe.active_account_email");
   }
 
+  function announceVerification(result, fallbackEmail) {
+    if (result && result.verificationRequired) {
+      root.dispatchEvent(new CustomEvent("mwe-verification-required", { detail: { email: result.email || fallbackEmail } }));
+    }
+    return result;
+  }
+
   async function register(name, email, password) {
     const result = await callApi("/api/auth/register", { name, email, password });
     if (result.ok) await applySession(result.user);
-    return result;
+    return announceVerification(result, email);
   }
 
   async function login(email, password) {
     let result = await callApi("/api/auth/login", { email, password });
     if (result.mfaRequired) result = await confirmMfa(result.challenge);
     if (result.ok) await applySession(result.user);
+    return announceVerification(result, email);
+  }
+
+  async function verifyEmail(email, code) {
+    const result = await callApi("/api/auth/verify-email", { email, code });
+    if (result.ok) await applySession(result.user);
     return result;
+  }
+
+  async function resendVerification(email) {
+    return callApi("/api/auth/resend-verification", { email });
   }
 
   async function logout() {
@@ -98,6 +117,7 @@
   async function creatorRegister(name, email, password) {
     const result = await callApi("/api/creator/register", { name, email, password });
     if (result.ok) await applySession(result.user);
+    announceVerification(result, email);
     return result;
   }
 
@@ -134,5 +154,5 @@
     if (typeof root.updateHomepageAuthUI === "function") root.updateHomepageAuthUI();
   });
 
-  root.MWEAuth = { register, login, logout, session, updateProfile, changePassword, creatorRegister, creatorUpgrade, applySession, clearSession };
+  root.MWEAuth = { register, login, verifyEmail, resendVerification, logout, session, updateProfile, changePassword, creatorRegister, creatorUpgrade, applySession, clearSession };
 })(window);

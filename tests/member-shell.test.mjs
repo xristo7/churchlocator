@@ -12,7 +12,7 @@ test("member app keeps its header and navigation outside the changing content fr
   assert.match(html, /<iframe[\s\S]*id="member-shell-frame"/);
 });
 
-test("member sidebar uses the requested module names and moves Giving to the header", async () => {
+test("member sidebar uses the requested module names with Spotlight in the header and Donate below the invite card", async () => {
   const html = await readProjectFile("public/app.html");
   const rail = html.match(/<aside class="profile-left-rail member-shell-rail"[\s\S]*?<\/aside>/)?.[0] || "";
 
@@ -24,7 +24,9 @@ test("member sidebar uses the requested module names and moves Giving to the hea
   assert.match(rail, />Channels</);
   assert.match(rail, />Live</);
   assert.match(rail, />Store</);
-  assert.match(html, /class="member-header-giving"/);
+  assert.match(html, /mwe-header-spotlight" href="spotlight.html"/);
+  assert.doesNotMatch(html, /view=giving" data-shell-view="giving"><i data-lucide="heart-handshake"><\/i><span>Give/);
+  assert.match(rail, /profile-invite-card[\s\S]*class="mwe-rail-donate" href="donate.html"/);
   assert.match(rail, /data-shell-view="directory"/);
   assert.match(rail, /data-shell-view="events"/);
 });
@@ -130,14 +132,14 @@ test("active livestreams retain thumbnail cards and open dedicated broadcast pag
   const directory = await readProjectFile("public/creator-public.js");
   const styles = await readProjectFile("public/creator-public.css");
 
-  assert.match(directory, /className = "livestream-showcase-card"/);
+  assert.match(directory, /className = "mwe-yt-card"/);
   assert.match(directory, /broadcastLink\(stream\.type, stream\.id\)/);
   assert.match(directory, /i\.ytimg\.com\/vi/);
   assert.match(directory, /data-lucide="play"/);
   assert.doesNotMatch(directory, /Check Availability/);
-  assert.match(styles, /\.livestream-showcase-card\s*\{[\s\S]*border:\s*3px solid/);
-  assert.match(styles, /\.livestream-showcase-card\s*\{[\s\S]*background-size:\s*cover/);
-  assert.match(styles, /\.livestream-showcase-play/);
+  const live = await readProjectFile("public/live-redesign.css");
+  assert.match(live, /\.mwe-yt-thumb\s*\{[\s\S]*aspect-ratio:\s*16\/9/);
+  assert.match(live, /\.mwe-live-badge/);
 });
 
 test("dedicated livestream pages use a two-to-one player and chat layout", async () => {
