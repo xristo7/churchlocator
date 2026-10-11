@@ -641,3 +641,12 @@ html body .mwe-appearance .mode-toggle-btn.active:not(#mwe-x) { background: var(
 html[data-theme="dark"] .mwe-appearance-modes { background: #0b1220; border-color: rgba(148,163,184,.2); }
 html[data-theme="dark"] body .mwe-appearance .mode-toggle-btn.active:not(#mwe-x) { background: #1e293b !important; color: #f1f5f9 !important; }
 html[data-theme="dark"] .mwe-appearance { border-color: rgba(148,163,184,.18); }
+
+/* Home promo/feature cards: standard card padding on mobile */
+@media (max-width: 639.98px) {
+  html body .member-meditation-showcase:not(#mwe-x), html body .home-impact-banner-card:not(#mwe-x), html body .search-card:not(#mwe-x) {
+    padding: var(--space-5) !important; gap: var(--space-4) !important; }
+  html body .med-showcase-copy:not(#mwe-x) { padding: 0 !important; }
+  html body .med-showcase-visual:not(#mwe-x) { margin: 0 !important; padding: 0 !important; }
+  html body .med-showcase-visual img:not(#mwe-x) { width: 100% !important; max-width: none !important; margin: 0 !important; border-radius: var(--radius-md) !important; }
+}

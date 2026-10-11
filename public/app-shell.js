@@ -175,6 +175,8 @@
     if (!destination) return;
     const themeControl = document.querySelector(".theme-palette-container");
     [themeControl, langSelector, givingAction, accountWrap].forEach(action => {
+      // Spotlight stays in the header only (bottom tab bar covers it on mobile).
+      if (action === givingAction) { if (desktopActions && action && action.parentElement !== desktopActions) desktopActions.insertBefore(action, accountWrap && accountWrap.parentElement === desktopActions ? accountWrap : null); return; }
       if (action && action.parentElement !== destination) destination.append(action);
     });
   }
@@ -857,6 +859,10 @@
     open.forEach((o) => o.close());
     if (focusBack && typeof focusBack.focus === "function") setTimeout(() => focusBack.focus(), 0);
   });
+  // Clicks inside an embedded frame never reach this document; treat frame focus as an outside click.
+  window.addEventListener("blur", () => setTimeout(() => {
+    if (document.activeElement && document.activeElement.tagName === "IFRAME") collect().forEach((o) => o.close());
+  }, 0));
   window.MWEDropdowns = { openList: () => collect().map((o) => o.root) };
 })();
 
