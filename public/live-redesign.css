@@ -195,3 +195,4 @@ html body .mwe-side-tabs{background:color-mix(in srgb,var(--text-primary,#0f172a
 @media (max-width:959.98px){.mwe-channel-row{flex-wrap:nowrap}.mwe-follow-btn{height:36px;padding:0 14px;font-size:13px}.mwe-watch-page .broadcast-back-link{top:calc(env(safe-area-inset-top) + 52px)}}
 .mwe-watch:not(.broadcast-watch-layout){max-width:960px;margin:0 auto}
 @media (max-width:959.98px){.mwe-comment:nth-last-child(n+4){display:none}.mwe-comments{max-width:70%}.mwe-comment{font-size:12.5px}}
+.mwe-watch-page:has(>.mwe-watch:not(.broadcast-watch-layout)) .broadcast-back-link{display:flex;max-width:960px;margin-inline:auto}
