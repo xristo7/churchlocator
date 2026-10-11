@@ -275,7 +275,7 @@
     }
     const localPreview = URL.createObjectURL(image);
     preview.innerHTML = `<img src="${localPreview}" alt="Selected image preview" />`;
-    status.textContent = "Uploading your picture…";
+    status.textContent = "";
     status.className = "uploading";
     pendingUploads.add(input);
     updateReadiness();
@@ -304,7 +304,7 @@
     const field=input.closest(".cs-audio-field"), value=field.querySelector("[data-audio-value]"), status=field.querySelector("[data-upload-status]");
     if(audio.type !== "audio/mpeg" && !audio.name.toLowerCase().endsWith(".mp3")) { status.textContent="Choose an MP3 audio file."; status.className="error"; input.value=""; return; }
     if(audio.size > 10*1024*1024) { status.textContent="Choose an MP3 smaller than 10 MB."; status.className="error"; input.value=""; return; }
-    status.textContent="Uploading your audio..."; status.className="uploading"; pendingUploads.add(input);
+    status.textContent=""; status.className="uploading"; pendingUploads.add(input);
     const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),180000);
     try { updateReadiness(); const body=new FormData(); body.append("audio",audio); const { ok, data: result }=await sendWithProgress("/api/media/audio-upload",body,audio,field,"Uploading audio","Audio uploaded",controller.signal); if(!ok||!result?.url) throw new Error(result?.error||"We could not upload that audio."); value.value=result.url; field.querySelector("audio")?.remove(); field.insertAdjacentHTML("beforeend",`<audio controls preload="none" src="${esc(result.url)}"></audio>`); status.textContent="Audio ready."; status.className="success"; } catch(error) { input.value=""; status.textContent=error?.name==="AbortError"?(error.message==="Upload cancelled."?"Upload cancelled.":"The audio upload took too long. Check your connection and try again."):(error.message||"We could not upload that audio."); status.className="error"; } finally { clearTimeout(timer); pendingUploads.delete(input); updateReadiness(); }
   }
