@@ -6,6 +6,7 @@
     window.top.location.href = `index.html?login=required&next=${next}`;
     return;
   }
+  document.querySelector(".account-profile-member-badge")?.removeAttribute("hidden");
 
   const detailsForm = document.getElementById("profile-details-form");
   const passwordForm = document.getElementById("profile-password-form");
@@ -20,7 +21,7 @@
   let savedEmail = user.email || "";
 
   function initials(name) {
-    return String(name || "My Way").trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase();
+    return String(name || (user.email || "").split("@")[0] || "").trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase();
   }
 
   function drawAvatar() {

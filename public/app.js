@@ -2242,7 +2242,7 @@ function initPrivateAppAuth() {
     if (userNameEl) userNameEl.textContent = displayName;
     if (userEmailEl) userEmailEl.textContent = user.email || "";
     if (userAvatarEl) {
-      const initials = displayName.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase() || "MW";
+      const initials = displayName.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
       userAvatarEl.textContent = initials;
     }
     if (orgNameInput && !orgNameInput.value) {

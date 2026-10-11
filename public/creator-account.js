@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const modeBtn = document.getElementById("creator-account-mode");
       if (modeBtn) modeBtn.style.display = "none";
       const displayName = user.name || (user.email ? user.email.split("@")[0] : "Member");
-      const initials = displayName.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase() || "MW";
+      const initials = displayName.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
 
       form.innerHTML = `
         <div class="creator-upgrade-profile-badge" style="margin-bottom: 16px;">
