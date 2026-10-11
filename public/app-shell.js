@@ -687,3 +687,41 @@
   });
   window.MWEShowVerifyStep = (email) => window.dispatchEvent(new CustomEvent("mwe-verification-required", { detail: { email } }));
 })();
+
+/* Testimonies: mobile swipe carousel with dots + "Read more" clamp. */
+(function initMWETestimonyCarousel() {
+  const SEL = ".testimonials-grid, .testimonies-grid, .testimony-grid";
+  const setup = (grid) => {
+    const cards = [...grid.querySelectorAll(":scope > .testimony-card")];
+    let dots = grid.nextElementSibling && grid.nextElementSibling.classList.contains("mwe-carousel-dots") ? grid.nextElementSibling : null;
+    if (cards.length < 2) { if (dots) dots.remove(); return; }
+    grid.classList.add("mwe-testimony-carousel");
+    if (!dots) { dots = document.createElement("div"); dots.className = "mwe-carousel-dots"; dots.setAttribute("aria-hidden", "true"); grid.after(dots); }
+    if (dots.children.length !== cards.length) dots.innerHTML = cards.map(() => "<span></span>").join("");
+    const sync = () => {
+      const w = cards[0].offsetWidth || 1;
+      const i = Math.min(cards.length - 1, Math.round(grid.scrollLeft / (w + 12)));
+      [...dots.children].forEach((d, k) => d.classList.toggle("on", k === i));
+    };
+    if (!grid.dataset.mweCarousel) { grid.dataset.mweCarousel = "1"; grid.addEventListener("scroll", () => requestAnimationFrame(sync), { passive: true }); }
+    sync();
+    cards.forEach((card) => {
+      const text = card.querySelector(".testimony-text");
+      if (!text || card.querySelector(".mwe-read-more")) return;
+      requestAnimationFrame(() => {
+        if (text.scrollHeight <= text.clientHeight + 2) return;
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "mwe-read-more"; b.textContent = "Read more";
+        b.addEventListener("click", () => { const open = card.classList.toggle("mwe-expanded"); b.textContent = open ? "Show less" : "Read more"; });
+        text.after(b);
+      });
+    });
+  };
+  const scan = () => document.querySelectorAll(SEL).forEach(setup);
+  const start = () => {
+    scan();
+    new MutationObserver((m) => { if (m.some((x) => x.addedNodes.length && !(x.target.classList && x.target.classList.contains("mwe-carousel-dots")))) scan(); })
+      .observe(document.body, { childList: true, subtree: true });
+  };
+  if (document.body) start(); else document.addEventListener("DOMContentLoaded", start, { once: true });
+})();

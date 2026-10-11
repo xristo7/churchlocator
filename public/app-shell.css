@@ -445,3 +445,29 @@ html[data-theme="dark"] .church-profile-tabs-wrapper .church-tab-button.active:n
 .mwe-resend:disabled { color: var(--auth-muted); cursor: default; font-variant-numeric: tabular-nums; }
 .mwe-verify-row .mwe-forgot-back { align-self: auto; padding: var(--space-2) 0; }
 @media (max-width: 359.98px) { .mwe-code-boxes { gap: 6px; } .mwe-code-boxes input:not(#mwe-x) { height: 50px !important; min-height: 50px !important; font-size: 20px !important; } }
+
+/* ===== Testimonies: mobile swipe carousel ===== */
+.mwe-carousel-dots { display: none; }
+@media (max-width: 959.98px) {
+  html body .mwe-testimony-carousel:not(#mwe-x) {
+    display: grid !important; grid-auto-flow: column !important; grid-auto-columns: 85% !important; grid-template-columns: none !important;
+    gap: var(--space-3) !important; overflow-x: auto !important; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter, 16px);
+    margin-inline: calc(-1 * var(--gutter, 16px)) !important; padding: var(--space-1) var(--gutter, 16px) var(--space-3) !important; scrollbar-width: none; align-items: stretch !important; }
+  .mwe-testimony-carousel::-webkit-scrollbar { display: none; }
+  html body .mwe-testimony-carousel > .testimony-card:not(#mwe-x) {
+    scroll-snap-align: start; display: flex !important; flex-direction: column !important; grid-template-columns: none !important; height: auto !important; min-height: 0 !important;
+    margin: 0 !important; padding: var(--space-3) !important; gap: var(--space-3) !important; border-radius: var(--radius-lg) !important; box-sizing: border-box; }
+  html body .mwe-testimony-carousel .testimony-scene:not(#mwe-x) { width: 100% !important; height: auto !important; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--radius-md) !important; margin: 0 !important; flex: none; }
+  html body .mwe-testimony-carousel .testimony-content:not(#mwe-x) { display: flex !important; flex-direction: column !important; gap: var(--space-3) !important; flex: 1 1 auto; padding: 0 var(--space-1) var(--space-1) !important; }
+  .mwe-testimony-carousel .testimony-content > * { margin: 0 !important; }
+  html body .mwe-testimony-carousel .testimony-text:not(#mwe-x) { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 5; overflow: hidden !important; font-size: var(--text-sm) !important; line-height: 1.6 !important; }
+  .mwe-testimony-carousel .mwe-expanded .testimony-text { -webkit-line-clamp: unset !important; }
+  .mwe-read-more { align-self: flex-start; margin-top: calc(-1 * var(--space-2)) !important; padding: 0; border: 0; background: none; color: var(--color-primary); font-weight: 700; font-size: var(--text-sm); cursor: pointer; }
+  [data-theme="dark"] .mwe-read-more { color: hsl(221 90% 72%); }
+  html body .mwe-testimony-carousel .testimony-user:not(#mwe-x) { margin-top: auto !important; display: flex; align-items: center; gap: var(--space-3) !important; }
+  .mwe-testimony-carousel .testimony-user-img { width: 40px !important; height: 40px !important; flex: none; }
+  .mwe-carousel-dots { display: flex; justify-content: center; gap: 6px; margin-top: var(--space-2); }
+  .mwe-carousel-dots span { width: 6px; height: 6px; border-radius: 3px; background: var(--color-border); transition: width var(--dur-base) var(--ease-standard), background var(--dur-base); }
+  .mwe-carousel-dots span.on { width: 20px; background: var(--color-primary); }
+  [data-theme="dark"] .mwe-carousel-dots span { background: rgba(148,163,184,.3); } [data-theme="dark"] .mwe-carousel-dots span.on { background: hsl(221 90% 68%); }
+}
