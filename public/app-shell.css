@@ -502,3 +502,4 @@ html body .mwe-forgot-mode:not(#mwe-x) > :not(.mwe-forgot-panel):not(.member-aut
   [data-theme="dark"] .mwe-carousel-arrow { background: rgba(15,23,42,.8); border-color: rgba(148,163,184,.25); color: #e2e8f0; }
 }
 @media (max-width: 959.98px) { .mwe-carousel-arrow { display: none; } .mwe-carousel-nav { display: flex; justify-content: center; margin-top: var(--space-2); } }
+.topbar:has(#nav-signin-popover:not([hidden])), header:has(#nav-signin-popover:not([hidden])) { z-index: 2147483000 !important; }
