@@ -3202,7 +3202,7 @@ MWE.renderChurchProfileTestimonies = async function(churchId) {
     "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80"
   ];
 
-  container.innerHTML = testimonies.slice(0, 3).map((t, idx) => {
+  container.innerHTML = testimonies.slice(0, 12).map((t, idx) => {
     const scene = t.scenePhotoUrl || defaultScenes[idx % defaultScenes.length];
     const rating = Math.max(1, Math.min(5, Number(t.rating || 5)));
     const starsHtml = Array.from({ length: 5 }, (_, i) => `

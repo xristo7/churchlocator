@@ -688,22 +688,52 @@
   window.MWEShowVerifyStep = (email) => window.dispatchEvent(new CustomEvent("mwe-verification-required", { detail: { email } }));
 })();
 
-/* Testimonies: mobile swipe carousel with dots + "Read more" clamp. */
+/* Testimonies: swipe carousel (mobile 85% cards; desktop keeps its columns) with arrows, dots, drag, Read more. */
 (function initMWETestimonyCarousel() {
   const SEL = ".testimonials-grid, .testimonies-grid, .testimony-grid";
+  const chev = (d) => '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
   const setup = (grid) => {
     const cards = [...grid.querySelectorAll(":scope > .testimony-card")];
-    let dots = grid.nextElementSibling && grid.nextElementSibling.classList.contains("mwe-carousel-dots") ? grid.nextElementSibling : null;
-    if (cards.length < 2) { if (dots) dots.remove(); return; }
-    grid.classList.add("mwe-testimony-carousel");
-    if (!dots) { dots = document.createElement("div"); dots.className = "mwe-carousel-dots"; dots.setAttribute("aria-hidden", "true"); grid.after(dots); }
-    if (dots.children.length !== cards.length) dots.innerHTML = cards.map(() => "<span></span>").join("");
+    let nav = grid.nextElementSibling && grid.nextElementSibling.classList.contains("mwe-carousel-nav") ? grid.nextElementSibling : null;
+    if (cards.length < 2) { if (nav) nav.remove(); grid.classList.remove("mwe-testimony-carousel"); return; }
+    if (!grid.classList.contains("mwe-testimony-carousel")) {
+      const cs = getComputedStyle(grid);
+      const cols = cs.display.includes("grid") ? cs.gridTemplateColumns.split(" ").filter(Boolean).length : 3;
+      grid.style.setProperty("--mwe-tcols", String(Math.max(1, Math.min(4, cols))));
+      grid.style.setProperty("--mwe-tgap", (parseFloat(cs.columnGap) || 20) + "px");
+      grid.classList.add("mwe-testimony-carousel");
+    }
+    if (!nav) {
+      nav = document.createElement("div"); nav.className = "mwe-carousel-nav";
+      nav.innerHTML = '<button type="button" class="mwe-carousel-arrow" data-dir="-1" aria-label="Previous stories">' + chev("m15 18-6-6 6-6") + '</button><div class="mwe-carousel-dots" aria-hidden="true"></div><button type="button" class="mwe-carousel-arrow" data-dir="1" aria-label="Next stories">' + chev("m9 18 6-6-6-6") + "</button>";
+      grid.after(nav);
+      nav.addEventListener("click", (e) => { const b = e.target.closest(".mwe-carousel-arrow"); if (!b) return; const w = cards[0].getBoundingClientRect().width + parseFloat(getComputedStyle(grid).columnGap || 16); grid.scrollBy({ left: Number(b.dataset.dir) * w, behavior: "smooth" }); });
+    }
+    const dots = nav.querySelector(".mwe-carousel-dots");
     const sync = () => {
-      const w = cards[0].offsetWidth || 1;
-      const i = Math.min(cards.length - 1, Math.round(grid.scrollLeft / (w + 12)));
+      const live = [...grid.querySelectorAll(":scope > .testimony-card")];
+      const step = (live[0] ? live[0].getBoundingClientRect().width : 1) + parseFloat(getComputedStyle(grid).columnGap || 16);
+      const perView = Math.max(1, Math.round((grid.clientWidth + 4) / step));
+      const pages = Math.max(1, live.length - perView + 1);
+      if (dots.children.length !== pages) dots.innerHTML = Array.from({ length: pages }, () => "<span></span>").join("");
+      const i = Math.min(pages - 1, Math.round(grid.scrollLeft / step));
       [...dots.children].forEach((d, k) => d.classList.toggle("on", k === i));
+      const max = grid.scrollWidth - grid.clientWidth - 2;
+      nav.querySelector('[data-dir="-1"]').disabled = grid.scrollLeft <= 2;
+      nav.querySelector('[data-dir="1"]').disabled = grid.scrollLeft >= max;
+      nav.hidden = pages < 2;
     };
-    if (!grid.dataset.mweCarousel) { grid.dataset.mweCarousel = "1"; grid.addEventListener("scroll", () => requestAnimationFrame(sync), { passive: true }); }
+    if (!grid.dataset.mweCarousel) {
+      grid.dataset.mweCarousel = "1";
+      grid.addEventListener("scroll", () => requestAnimationFrame(sync), { passive: true });
+      window.addEventListener("resize", () => requestAnimationFrame(sync));
+      let down = null, moved = false;
+      grid.addEventListener("pointerdown", (e) => { if (e.pointerType !== "mouse" || e.button !== 0) return; down = { x: e.clientX, left: grid.scrollLeft }; moved = false; });
+      window.addEventListener("pointermove", (e) => { if (!down) return; const dx = e.clientX - down.x; if (Math.abs(dx) > 5) { moved = true; grid.classList.add("mwe-dragging"); grid.scrollLeft = down.left - dx; } });
+      window.addEventListener("pointerup", () => { if (!down) return; down = null; if (grid.classList.contains("mwe-dragging")) { grid.classList.remove("mwe-dragging"); const step = cards[0].getBoundingClientRect().width + parseFloat(getComputedStyle(grid).columnGap || 16); grid.scrollTo({ left: Math.round(grid.scrollLeft / step) * step, behavior: "smooth" }); } });
+      grid.addEventListener("click", (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+      grid.addEventListener("dragstart", (e) => e.preventDefault());
+    }
     sync();
     cards.forEach((card) => {
       const text = card.querySelector(".testimony-text");
@@ -721,7 +751,7 @@
   const scan = () => document.querySelectorAll(SEL).forEach(setup);
   const start = () => {
     scan();
-    new MutationObserver((m) => { if (m.some((x) => x.addedNodes.length && !(x.target.classList && x.target.classList.contains("mwe-carousel-dots")))) scan(); })
+    new MutationObserver((m) => { if (m.some((x) => x.addedNodes.length && x.target.matches && x.target.matches(SEL))) scan(); })
       .observe(document.body, { childList: true, subtree: true });
   };
   if (document.body) start(); else document.addEventListener("DOMContentLoaded", start, { once: true });

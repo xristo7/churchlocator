@@ -482,16 +482,23 @@ html[data-theme="dark"] .church-profile-tabs-wrapper .church-tab-button.active:n
 html body .mwe-verify-mode:not(#mwe-x) > :not(.mwe-verify-panel):not(.member-auth-close):not(.member-auth-icon),
 html body .mwe-forgot-mode:not(#mwe-x) > :not(.mwe-forgot-panel):not(.member-auth-close):not(.member-auth-icon) { display: none !important; }
 
-/* Testimonies desktop: tidy equal-height 3-column grid */
+/* Testimonies desktop: same cards and columns, row slides as a carousel */
 @media (min-width: 960px) {
-  html body .testimonials-grid:not(#mwe-x) { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: var(--space-5) !important; align-items: stretch !important; }
-  html body .testimonials-grid > .testimony-card:not(#mwe-x) { display: flex !important; flex-direction: column !important; grid-template-columns: none !important; min-height: 0 !important; height: auto !important;
-    padding: var(--space-3) !important; gap: var(--space-4) !important; border-radius: var(--radius-lg) !important; margin: 0 !important; }
-  html body .testimonials-grid .testimony-scene:not(#mwe-x) { width: 100% !important; height: auto !important; min-height: 0 !important; max-height: none !important; aspect-ratio: 16 / 10 !important; object-fit: cover; border-radius: var(--radius-md) !important; }
-  html body .testimonials-grid .testimony-content:not(#mwe-x) { display: flex !important; flex-direction: column !important; gap: var(--space-3) !important; flex: 1 1 auto; padding: 0 var(--space-2) var(--space-2) !important; }
-  .testimonials-grid .testimony-content > * { margin: 0 !important; }
-  html body .testimonials-grid .testimony-text:not(#mwe-x) { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden !important; line-height: 1.6 !important; }
-  .testimonials-grid .mwe-expanded .testimony-text { -webkit-line-clamp: unset !important; }
-  html body .testimonials-grid .testimony-user:not(#mwe-x) { margin-top: auto !important; display: flex; align-items: center; gap: var(--space-3) !important; }
-  .testimonials-grid .mwe-read-more { align-self: flex-start; margin-top: calc(-1 * var(--space-2)) !important; padding: 0; border: 0; background: none; color: var(--color-primary); font-weight: 700; font-size: var(--text-sm); cursor: pointer; }
+  html body .mwe-testimony-carousel:not(#mwe-x) { grid-template-columns: none !important; grid-auto-flow: column !important;
+    grid-auto-columns: calc((100% - (var(--mwe-tcols, 3) - 1) * var(--mwe-tgap, 20px)) / var(--mwe-tcols, 3)) !important; gap: var(--mwe-tgap, 20px) !important; overflow-x: auto !important; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .mwe-testimony-carousel::-webkit-scrollbar { display: none; }
+  .mwe-testimony-carousel > .testimony-card { scroll-snap-align: start; }
+  .mwe-testimony-carousel.mwe-dragging { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+  .mwe-carousel-nav { display: flex; align-items: center; justify-content: center; gap: var(--space-4); margin-top: var(--space-4); }
+  .mwe-carousel-nav .mwe-carousel-dots { display: flex; margin: 0; justify-content: center; gap: 6px; }
+  .mwe-carousel-nav .mwe-carousel-dots span { width: 6px; height: 6px; border-radius: 3px; background: var(--color-border); transition: width var(--dur-base) var(--ease-standard), background var(--dur-base); }
+  .mwe-carousel-nav .mwe-carousel-dots span.on { width: 20px; background: var(--color-primary); }
+  [data-theme="dark"] .mwe-carousel-nav .mwe-carousel-dots span { background: rgba(148,163,184,.3); }
+  [data-theme="dark"] .mwe-carousel-nav .mwe-carousel-dots span.on { background: hsl(221 90% 68%); }
+  .mwe-carousel-arrow { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text);
+    cursor: pointer; box-shadow: var(--elev-1); transition: background var(--dur-fast), opacity var(--dur-fast), transform var(--dur-fast); }
+  .mwe-carousel-arrow:hover:not(:disabled) { background: var(--primary-soft, #eff6ff); transform: translateY(-1px); }
+  .mwe-carousel-arrow:disabled { opacity: .35; cursor: default; box-shadow: none; }
+  [data-theme="dark"] .mwe-carousel-arrow { background: rgba(15,23,42,.8); border-color: rgba(148,163,184,.25); color: #e2e8f0; }
 }
+@media (max-width: 959.98px) { .mwe-carousel-arrow { display: none; } .mwe-carousel-nav { display: flex; justify-content: center; margin-top: var(--space-2); } }
