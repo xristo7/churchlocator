@@ -30,3 +30,16 @@ test("room stores a sanitized SoundCloud selection and strips unsafe ones", () =
   assert.equal(validateEntity("meditation", { title: "Room", soundcloud: "" }).soundcloud, null);
   assert.equal(sanitizeSoundCloudSelection({ url: "https://evil.com/a/b" }), null);
 });
+
+test("meditation page wires the SoundCloud widget into the room player and fixes double-toggle", async () => {
+  const fs = await import("node:fs/promises");
+  const js = await fs.readFile(new URL("../public/meditation.js", import.meta.url), "utf8");
+  assert.match(js, /if \(activeRoom\?\.soundcloud\?\.url\) \{ playSoundCloud\(\); return; \}/);
+  assert.match(js, /if \(scWantPlay\) pauseSoundCloud\(\);/);
+  assert.match(js, /scWidget\?\.setVolume\(val\)/);
+  assert.match(js, /onDomReady\(\(\) => \{\n    renderLobby\(\);/);
+  const list = js.slice(js.indexOf("const allPlayButtons"), js.indexOf("];", js.indexOf("const allPlayButtons")));
+  assert.doesNotMatch(list, /bottom-play-btn|btn-timer-primary-toggle/);
+  const csp = (await import("../src/security.js"));
+  assert.match(JSON.stringify(csp), /w\.soundcloud\.com/);
+});

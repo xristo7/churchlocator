@@ -2109,9 +2109,8 @@
     });
 
     // Play Buttons across all templates
+    // bottom-play-btn and btn-timer-primary-toggle have their own handlers below; binding them here too toggled twice per tap.
     const allPlayButtons = [
-      document.getElementById("bottom-play-btn"),
-      document.getElementById("btn-timer-primary-toggle"),
       document.getElementById("btn-ripple-play"),
       document.getElementById("btn-journey-play"),
       document.getElementById("btn-nature-play"),
@@ -2212,7 +2211,9 @@
   }
 
   // --- INITIALIZATION ---
-  document.addEventListener("DOMContentLoaded", () => {
+  // This script awaits MWEPlatform.ready first, so DOMContentLoaded has usually already fired.
+  const onDomReady = fn => document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", fn) : fn();
+  onDomReady(() => {
     renderLobby();
 
     const params = new URLSearchParams(window.location.search);
