@@ -642,7 +642,7 @@
     if (!scStarted) scStartTimer = setTimeout(() => { if (!scStarted) fallbackFromSoundCloud(); }, 6000);
   }
   function pauseSoundCloud() { scWantPlay = false; clearTimeout(scStartTimer); scWidget?.pause(); }
-  function playMp3() { if (!roomMp3) return false; roomMp3.volume = currentVolume() / 100; roomMp3.play().catch(() => { /* blocked until the user taps play; togglePlay retries inside the tap */ }); return true; }
+  function playMp3() { if (!roomMp3) return false; roomMp3.volume = currentVolume() / 100; roomMp3.play().catch(() => { if (!isPlaying) return; isPlaying = false; stopTimerTicker(); updatePlayState(); }); return true; }
   function pauseMp3() { roomMp3?.pause(); }
   function setRoomAudioVolume(val) { scWidget?.setVolume(val); if (roomMp3) roomMp3.volume = val / 100; }
 
@@ -1197,6 +1197,9 @@
     enrichRoomWithMedia(room);
     activeRoom = room;
     setupRoomAudio(room);
+    // Browsers block sound until the visitor has interacted with the page (e.g. opening a shared ?room= link).
+    // Start such rooms paused so the first tap on Play actually starts the SoundCloud track or uploaded MP3.
+    if (autoStartAudio && (roomSoundCloud(room) || roomMp3) && navigator.userActivation && !navigator.userActivation.hasBeenActive) autoStartAudio = false;
     activeVerseIndex = 0;
     activePictureIndex = 0;
     activeTeachingIndex = 0;
