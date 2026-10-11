@@ -123,7 +123,7 @@ function initThemeControl() {
       </div>
       <div class="mwe-appearance-title mwe-appearance-sub">Accent</div>
       <div class="rainbow-swatch-grid mwe-appearance-swatches" role="radiogroup" aria-label="Accent colour">
-        ${RAINBOW_PALETTES.map(p => `<button type="button" class="swatch-btn ${p.class} ${p.id === currentPrimary ? "active" : ""}" data-palette-swatch="${p.id}" title="${p.name}" aria-label="${p.name}" role="radio" aria-checked="${p.id === currentPrimary}"></button>`).join("")}
+        ${RAINBOW_PALETTES.map(p => `<button type="button" class="swatch-btn ${p.class} ${p.id === currentPrimary ? "active" : ""}" style="background:${p.color}" data-palette-swatch="${p.id}" title="${p.name}" aria-label="${p.name}" role="radio" aria-checked="${p.id === currentPrimary}"></button>`).join("")}
       </div>`;
     const profileBlock = accountMenu.querySelector(".member-account-menu-profile");
     profileBlock ? profileBlock.after(section) : accountMenu.prepend(section);

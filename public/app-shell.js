@@ -606,6 +606,15 @@
   if (header && !header.querySelector(":scope > [data-mwe-avatar]")) {
     const a = document.createElement("a");
     a.className = "mwe-avatar"; a.dataset.mweAvatar = ""; a.href = "app.html?view=profile"; a.setAttribute("aria-label", "Your account");
+    a.addEventListener("click", (ev) => {
+      const accBtn = document.getElementById("member-account-button");
+      if (!accBtn) return;
+      ev.preventDefault();
+      // Open the drawer that hosts the account menu on mobile, then the menu itself (Appearance lives there).
+      const navToggle = document.querySelector(".profile-mobile-menu");
+      if (!document.body.classList.contains("member-nav-open") && navToggle) navToggle.click();
+      setTimeout(() => { if (accBtn.getAttribute("aria-expanded") !== "true") accBtn.click(); }, 60);
+    });
     const menu = header.querySelector(".profile-mobile-menu");
     header.insertBefore(a, menu || null);
   }

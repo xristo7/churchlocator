@@ -650,3 +650,8 @@ html[data-theme="dark"] .mwe-appearance { border-color: rgba(148,163,184,.18); }
   html body .med-showcase-visual:not(#mwe-x) { margin: 0 !important; padding: 0 !important; }
   html body .med-showcase-visual img:not(#mwe-x) { width: 100% !important; max-width: none !important; margin: 0 !important; border-radius: var(--radius-md) !important; }
 }
+html body .mwe-appearance .mode-toggle-btn:not(#mwe-x) { font-size: .74rem !important; gap: 4px; padding: 0 4px !important; min-width: 0; }
+html body .mwe-appearance .mode-toggle-btn:not(#mwe-x) svg { width: 14px; height: 14px; flex: none; }
+.mwe-appearance { min-width: 0; }
+.mwe-appearance-swatches .swatch-btn { border-radius: 50% !important; border: 2px solid transparent !important; box-shadow: none !important; padding: 0 !important; }
+.mwe-appearance-swatches .swatch-btn.active { box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px currentColor !important; color: var(--color-text); }
