@@ -73,6 +73,6 @@ test('Task 5.5: Responsive Grid Containment and Anti-Overlap Video Cards', () =>
   assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*\.streams-hub-grid[\s\S]*minmax\(0,\s*1fr\)/i, 'Streams hub grid adapts to 1 column on mobile');
 
   // Live badge & metadata rendering
-  assert.match(creatorJs, /livestream-showcase-badge/, 'Card markup renders dedicated LIVE badge');
+  assert.match(creatorJs, /mwe-live-badge/, 'Card markup renders dedicated LIVE badge');
   assert.match(creatorCss, /\.livestream-showcase-badge/, 'Live badge styled in creator-public.css');
 });

@@ -132,14 +132,14 @@ test("active livestreams retain thumbnail cards and open dedicated broadcast pag
   const directory = await readProjectFile("public/creator-public.js");
   const styles = await readProjectFile("public/creator-public.css");
 
-  assert.match(directory, /className = "livestream-showcase-card"/);
+  assert.match(directory, /className = "mwe-yt-card"/);
   assert.match(directory, /broadcastLink\(stream\.type, stream\.id\)/);
   assert.match(directory, /i\.ytimg\.com\/vi/);
   assert.match(directory, /data-lucide="play"/);
   assert.doesNotMatch(directory, /Check Availability/);
-  assert.match(styles, /\.livestream-showcase-card\s*\{[\s\S]*border:\s*3px solid/);
-  assert.match(styles, /\.livestream-showcase-card\s*\{[\s\S]*background-size:\s*cover/);
-  assert.match(styles, /\.livestream-showcase-play/);
+  const live = await readProjectFile("public/live-redesign.css");
+  assert.match(live, /\.mwe-yt-thumb\s*\{[\s\S]*aspect-ratio:\s*16\/9/);
+  assert.match(live, /\.mwe-live-badge/);
 });
 
 test("dedicated livestream pages use a two-to-one player and chat layout", async () => {
