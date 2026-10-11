@@ -513,3 +513,7 @@ body:has(#nav-signin-popover:not([hidden])) main, body:has(#nav-signin-popover:n
   html body[data-page="profile"] .mwe-testimony-carousel > .testimony-card.glass-card:not(#mwe-x) { grid-template-columns: minmax(180px, 38%) minmax(0, 1fr) !important; min-height: 0 !important; }
   html body .mwe-testimony-carousel .testimony-scene:not(#mwe-x) { height: 100% !important; min-height: 200px !important; max-height: none !important; }
 }
+@media (min-width: 960px) {
+  html body[data-page="profile"] .mwe-testimony-carousel > .testimony-card.glass-card:not(#mwe-x) { grid-template-columns: minmax(170px, 32%) minmax(0, 1fr) !important; }
+  html body .mwe-testimony-carousel .testimony-scene:not(#mwe-x) { aspect-ratio: auto !important; height: 100% !important; min-height: 190px !important; max-height: 230px !important; }
+}
