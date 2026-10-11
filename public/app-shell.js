@@ -722,6 +722,7 @@
       nav.querySelector('[data-dir="-1"]').disabled = grid.scrollLeft <= 2;
       nav.querySelector('[data-dir="1"]').disabled = grid.scrollLeft >= max;
       nav.hidden = pages < 2;
+      grid.classList.toggle("mwe-at-end", grid.scrollLeft >= max && max > 0);
     };
     if (!grid.dataset.mweCarousel) {
       grid.dataset.mweCarousel = "1";

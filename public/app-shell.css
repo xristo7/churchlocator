@@ -504,3 +504,12 @@ html body .mwe-forgot-mode:not(#mwe-x) > :not(.mwe-forgot-panel):not(.member-aut
 @media (max-width: 959.98px) { .mwe-carousel-arrow { display: none; } .mwe-carousel-nav { display: flex; justify-content: center; margin-top: var(--space-2); } }
 .topbar:has(#nav-signin-popover:not([hidden])), header:has(#nav-signin-popover:not([hidden])) { z-index: 2147483000 !important; }
 body:has(#nav-signin-popover:not([hidden])) main, body:has(#nav-signin-popover:not([hidden])) main * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+
+/* Testimonies desktop v2: one wide card (~72%) + half peek with soft fade */
+@media (min-width: 960px) {
+  html body .mwe-testimony-carousel:not(#mwe-x) { grid-auto-columns: 72% !important;
+    -webkit-mask-image: linear-gradient(90deg, #000 78%, transparent); mask-image: linear-gradient(90deg, #000 78%, transparent); }
+  html body .mwe-testimony-carousel.mwe-at-end:not(#mwe-x) { -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%); mask-image: linear-gradient(90deg, transparent, #000 22%); }
+  html body[data-page="profile"] .mwe-testimony-carousel > .testimony-card.glass-card:not(#mwe-x) { grid-template-columns: minmax(180px, 38%) minmax(0, 1fr) !important; min-height: 0 !important; }
+  html body .mwe-testimony-carousel .testimony-scene:not(#mwe-x) { height: 100% !important; min-height: 200px !important; max-height: none !important; }
+}
