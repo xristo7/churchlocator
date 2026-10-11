@@ -471,3 +471,11 @@ html[data-theme="dark"] .church-profile-tabs-wrapper .church-tab-button.active:n
   .mwe-carousel-dots span.on { width: 20px; background: var(--color-primary); }
   [data-theme="dark"] .mwe-carousel-dots span { background: rgba(148,163,184,.3); } [data-theme="dark"] .mwe-carousel-dots span.on { background: hsl(221 90% 68%); }
 }
+
+/* Scripture of the Day: size to content (flex-basis 510px became a height when the hero stacks). */
+@media (max-width: 959.98px) {
+  html body .daily-scripture.member-home-scripture { flex: 0 0 auto !important; height: auto !important; min-height: 0 !important; align-self: stretch;
+    width: 100% !important; max-width: none !important; padding: var(--space-5) !important; border-radius: var(--radius-lg) !important; }
+}
+.daily-scripture.member-home-scripture { height: auto; align-self: center; }
+.daily-scripture > :last-child { margin-bottom: 0 !important; }
