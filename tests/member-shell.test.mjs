@@ -51,7 +51,8 @@ test("member header uses the saved profile picture with an initials fallback", a
   const styles = await readProjectFile("public/styles.css");
 
   assert.match(html, /data-member-avatar-image/);
-  assert.match(html, /data-member-avatar-initials>MW/);
+  assert.doesNotMatch(html, /data-member-avatar-initials>MW/);
+  assert.doesNotMatch(shell, /\|\| "MW"/);
   assert.equal((html.match(/data-member-avatar(?=[\s>])/g) || []).length, 2);
   assert.match(html, /member-notification-icon[\s\S]*member-account-avatar[\s\S]*member-account-chevron/);
   assert.match(html, /class="member-account-menu-profile"/);
