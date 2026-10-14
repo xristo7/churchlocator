@@ -40,7 +40,7 @@
       const href = `product-detail.html?id=${encodeURIComponent(product.id)}`;
       const sale = product.compareAt > product.price;
       return `<article class="sf-card">
-        <a class="sf-card-media" href="${href}" aria-label="${esc(product.title)}"><img src="${esc(product.image)}" alt="" loading="lazy" />${sale ? `<span class="sf-badge sf-badge-sale">Sale</span>` : isService ? `<span class="sf-badge">Service</span>` : ""}</a>
+        <a class="sf-card-media" href="${href}" aria-label="${esc(product.title)}"><img src="${esc(product.image)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('is-broken')" />${sale ? `<span class="sf-badge sf-badge-sale">Sale</span>` : isService ? `<span class="sf-badge">Service</span>` : ""}</a>
         <button class="content-love-button sf-card-like" type="button" data-love-type="product" data-love-id="${esc(product.id)}" aria-pressed="false" aria-label="Save ${esc(product.title)}"><i data-lucide="heart"></i><span data-love-count hidden>0</span></button>
         <div class="sf-card-body">
           <span class="sf-vendor">${esc(product.seller)}</span>

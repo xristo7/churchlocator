@@ -302,3 +302,28 @@ html[data-theme="dark"] .sf-card-media,html[data-theme="dark"] .sf-media-main{ b
 .sf-info .sf-btn.sf-btn-primary{ border:0 !important; background:var(--primary-gradient,var(--sf-accent)) !important; color:#fff !important; }
 .sf-variant-box{ border-color:var(--border,#cbd5e1) !important; }
 html[data-theme="dark"] .sf-info .sf-btn.sf-btn-outline{ border-color:var(--sf-ink) !important; }
+
+/* QA pass 2 */
+.sf-store-brand{ margin-top:0 !important; align-items:flex-end; padding-top:16px; }
+.sf-store-logo{ margin-top:-60px; }
+@media (max-width:749px){
+  .sf-store-brand{ padding-top:0; }
+  .sf-store-logo{ margin-top:-36px; }
+  .sf-filters{ display:flex !important; flex-wrap:nowrap; overflow-x:auto; gap:8px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .sf-filters::-webkit-scrollbar{ display:none; }
+  .sf-filters .sf-select{ flex:0 0 auto; width:auto !important; }
+}
+.cart-quantity{ display:inline-flex !important; align-items:center; width:max-content !important; height:44px; padding:0 !important; border:1px solid var(--sf-border) !important; border-radius:10px !important; background:var(--sf-surface) !important; overflow:hidden; }
+.cart-quantity button{ width:40px !important; height:42px !important; min-height:0 !important; padding:0 !important; border:0 !important; background:transparent !important; color:var(--sf-ink) !important; font-size:1.1rem; line-height:1; }
+.cart-quantity input{ width:40px !important; height:42px !important; min-height:0 !important; padding:0 !important; border:0 !important; background:transparent !important; text-align:center; font:inherit; font-weight:700; -moz-appearance:textfield; }
+.cart-quantity input::-webkit-inner-spin-button{ -webkit-appearance:none; }
+.cart-page-title{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:16px 0 12px; border-bottom:1px solid var(--sf-border); }
+.cart-page-title h2{ margin:0; font-size:1.15rem; line-height:1.3; }
+.cart-page-product span{ color:var(--sf-muted); font-size:.75rem; letter-spacing:.04em; text-transform:uppercase; }
+.cart-page-product h3{ margin:2px 0; font-size:1rem; line-height:1.35; }
+.cart-page-product button{ margin-top:4px; padding:0; border:0; background:none; color:var(--sf-muted); text-decoration:underline; cursor:pointer; font-size:.8rem; }
+.sf-card-media.is-broken img,.sf-media-main.is-broken img{ display:none; }
+.sf-card-media.is-broken::after,.sf-media-main.is-broken::after{ content:""; position:absolute; inset:0; background:linear-gradient(135deg,var(--sf-soft),color-mix(in srgb,var(--sf-accent) 12%,var(--sf-soft))); }
+/* Creator studio (create product/service): status marks must not sit on select chevrons */
+.cs-field select{ padding-right:56px !important; background-position:right 12px center; }
+.cs-field select ~ .cs-field-mark{ right:34px; }

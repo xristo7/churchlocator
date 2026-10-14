@@ -114,7 +114,7 @@
   function sfCard(p) {
     const esc = data().escapeHtml, isService = p.itemType === "service";
     const href = `product-detail.html?id=${encodeURIComponent(p.id)}`;
-    return `<article class="sf-card"><a class="sf-card-media" href="${href}" aria-label="${esc(p.title)}"><img src="${esc(p.image)}" alt="" loading="lazy" />${p.compareAt > p.price ? `<span class="sf-badge sf-badge-sale">Sale</span>` : isService ? `<span class="sf-badge">Service</span>` : ""}</a><div class="sf-card-body"><span class="sf-vendor">${esc(p.seller)}</span><h3 class="sf-card-title"><a href="${href}">${esc(p.title)}</a></h3><div class="sf-card-price"><span class="sf-price">${isService ? "From " : ""}${data().money(p.price)}</span>${p.compareAt > p.price ? `<s class="sf-compare">${data().money(p.compareAt)}</s>` : ""}</div></div></article>`;
+    return `<article class="sf-card"><a class="sf-card-media" href="${href}" aria-label="${esc(p.title)}"><img src="${esc(p.image)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('is-broken')" />${p.compareAt > p.price ? `<span class="sf-badge sf-badge-sale">Sale</span>` : isService ? `<span class="sf-badge">Service</span>` : ""}</a><div class="sf-card-body"><span class="sf-vendor">${esc(p.seller)}</span><h3 class="sf-card-title"><a href="${href}">${esc(p.title)}</a></h3><div class="sf-card-price"><span class="sf-price">${isService ? "From " : ""}${data().money(p.price)}</span>${p.compareAt > p.price ? `<s class="sf-compare">${data().money(p.compareAt)}</s>` : ""}</div></div></article>`;
   }
 
   function renderProductUI(product, container) {
