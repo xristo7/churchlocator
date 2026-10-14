@@ -327,3 +327,8 @@ html[data-theme="dark"] .sf-info .sf-btn.sf-btn-outline{ border-color:var(--sf-i
 /* Creator studio (create product/service): status marks must not sit on select chevrons */
 .cs-field select{ padding-right:56px !important; background-position:right 12px center; }
 .cs-field select ~ .cs-field-mark{ right:34px; }
+/* Embedded in the signed-in shell: parent tab bar overlays the frame bottom */
+@media (max-width:749px){
+  body.member-shell-embed .sf-sticky-buy{ bottom:calc(var(--tabbar-h,60px) + var(--safe-bottom,0px)); }
+  body.member-shell-embed .product-detail-page{ padding-bottom:200px !important; }
+}
