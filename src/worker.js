@@ -874,6 +874,7 @@ async function handleStatus(env) {
     app: "my-way-of-evangelism-api",
     role: "Shared synchronization API for public website, church portal, and owner dashboard",
     environment: env.ENVIRONMENT || "unknown",
+    features: { autoApproveStudioContent: String(env.AUTO_APPROVE_STUDIO_CONTENT || "").toLowerCase() === "true" },
     storage: {
       d1Bound: Boolean(env.DB),
       binding: "DB"

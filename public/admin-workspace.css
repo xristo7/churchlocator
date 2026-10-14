@@ -317,3 +317,11 @@ html[data-theme="dark"] .admin-workspace .aw-topbar { background:color-mix(in sr
 @media(max-width:800px) { .admin-workspace .aw-taxonomy-grid { grid-template-columns:1fr; } }
 @media(max-width:480px) { .admin-workspace .aw-taxonomy-actions { align-items:stretch; flex-direction:column; } .admin-workspace .aw-publication-copy { padding:20px; } .admin-workspace .aw-switch-row { margin:0 20px 20px; } }
 .aw-login-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:#93a4c4;font-size:.82rem}.aw-login-divider:before,.aw-login-divider:after{content:"";height:1px;flex:1;background:#344b79}.aw-google-login{display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;background:#fff;color:#17284d!important}.aw-google-mark{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;color:#4285f4;font-weight:900}.aw-forgot-link{display:block;margin:14px auto 0;border:0;background:transparent;color:#a9bce5;font:inherit;font-size:.85rem;text-decoration:underline;cursor:pointer}.aw-password-reset{margin-top:16px;padding-top:16px;border-top:1px solid #344b79}.aw-password-reset p{color:#a9d7c4;font-size:.82rem;line-height:1.4}
+
+.aw-billing-card{margin-bottom:16px}
+.aw-segmented{display:inline-flex;gap:4px;padding:4px;border-radius:12px;background:var(--aw-soft,rgba(127,127,127,.12));margin:18px 24px 22px}
+.aw-seg{display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:120px;justify-content:center;padding:0 18px;border:0;border-radius:9px;background:transparent;color:inherit;font:inherit;font-weight:600;cursor:pointer;transition:background .15s,box-shadow .15s}
+.aw-seg svg{width:18px;height:18px}
+.aw-seg.selected{background:var(--aw-surface,#fff);color:var(--accent,inherit);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.aw-seg:disabled{opacity:.6;cursor:progress}
+@media (max-width:600px){.aw-segmented{display:flex;margin:16px 16px 18px}.aw-seg{flex:1;min-width:0}}
