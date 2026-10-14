@@ -125,10 +125,10 @@ test("Product Detail Shell & Scripts: Sleek product view, 5 service templates, a
   assert.match(html, /id="service-booking-confirmation"/);
 
   // Modern product UI logic
-  assert.match(js, /product-sleek-layout/);
-  assert.match(js, /product-thumbnails-sleek/);
-  assert.match(js, /product-guarantee-strip/);
-  assert.match(js, /product-specs-table/);
+  assert.match(js, /sf-pdp-main/); // Shopify (Dawn) PDP
+  assert.match(js, /sf-thumbs/); // Shopify (Dawn) PDP
+  assert.match(js, /sf-trust/); // Shopify (Dawn) PDP
+  assert.match(js, /sf-dl/); // Shopify (Dawn) PDP
   assert.match(js, /product-detail-buynow/);
   assert.match(js, /data-remove-cart/);
 
@@ -145,10 +145,11 @@ test("Product Detail Shell & Scripts: Sleek product view, 5 service templates, a
   assert.match(js, /design-deliverables-grid/);
 
   // Package tiers & booking wiring
-  assert.match(js, /service-tiers-grid/);
-  assert.match(js, /service-tier-card/);
-  assert.match(js, /class="service-book-now-label">Book selected tier/);
-  assert.match(js, /class="service-book-now-price" id="selected-tier-price-display"/);
+  // Shopify-style variant picker replaces the tier card grid
+  assert.match(js, /sf-variants/);
+  assert.match(js, /name="sf-tier"/);
+  assert.match(js, /id="service-book-now-btn"/);
+  assert.match(js, /id="selected-tier-price-display"/);
   assert.doesNotMatch(js, /Inquire & Book Selected Tier \(/);
   assert.match(js, /openBookingModal/);
   assert.match(js, /bookService/);

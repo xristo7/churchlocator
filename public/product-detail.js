@@ -104,231 +104,72 @@
     document.getElementById("service-booking-form")?.removeAttribute("aria-busy");
   }
 
+  function relatedHtml(item) {
+    const all = data().getProducts().filter(p => p.id !== item.id && p.status === "Active");
+    const pick = [...all.filter(p => p.category === item.category || p.seller === item.seller), ...all].filter((p, i, a) => a.indexOf(p) === i).slice(0, 4);
+    if (!pick.length) return "";
+    return `<section class="sf-related" aria-labelledby="sf-related-title"><h2 id="sf-related-title">You may also like</h2><div class="sf-grid">${pick.map(p => sfCard(p)).join("")}</div></section>`;
+  }
+
+  function sfCard(p) {
+    const esc = data().escapeHtml, isService = p.itemType === "service";
+    const href = `product-detail.html?id=${encodeURIComponent(p.id)}`;
+    return `<article class="sf-card"><a class="sf-card-media" href="${href}" aria-label="${esc(p.title)}"><img src="${esc(p.image)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('is-broken')" />${p.compareAt > p.price ? `<span class="sf-badge sf-badge-sale">Sale</span>` : isService ? `<span class="sf-badge">Service</span>` : ""}</a><div class="sf-card-body"><span class="sf-vendor">${esc(p.seller)}</span><h3 class="sf-card-title"><a href="${href}">${esc(p.title)}</a></h3><div class="sf-card-price"><span class="sf-price">${isService ? "From " : ""}${data().money(p.price)}</span>${p.compareAt > p.price ? `<s class="sf-compare">${data().money(p.compareAt)}</s>` : ""}</div></div></article>`;
+  }
+
   function renderProductUI(product, container) {
-    const discountPct = product.compareAt && product.compareAt > product.price
-      ? Math.round(((product.compareAt - product.price) / product.compareAt) * 100)
-      : null;
-
+    const esc = data().escapeHtml;
+    const discountPct = product.compareAt && product.compareAt > product.price ? Math.round(((product.compareAt - product.price) / product.compareAt) * 100) : null;
+    const imgs = [product.image, ...(Array.isArray(product.images) ? product.images : [])].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
+    const stock = Number(product.inventory) || 0;
     container.innerHTML = `
-      <div class="product-sleek-layout">
-        <!-- Left: Image Gallery -->
-        <div class="product-gallery-column">
-          <div class="product-main-card">
-            <div class="product-badge-float">
-              <span class="product-pill category-pill">${data().escapeHtml(product.category)}</span>
-              ${product.inventory > 5 
-                ? `<span class="product-pill in-stock-pill"><span class="pulse-dot"></span> In Stock</span>`
-                : `<span class="product-pill low-stock-pill"><span class="pulse-dot warning"></span> Low Stock (${product.inventory} left)</span>`}
-            </div>
-            <div class="product-main-image-wrap">
-              <img id="product-main-image" src="${data().escapeHtml(product.image)}" alt="${data().escapeHtml(product.title)}" />
-            </div>
+      <div class="sf-pdp">
+        <div class="sf-pdp-main">
+          <div class="sf-media">
+            <div class="sf-media-main"><img id="product-main-image" src="${esc(imgs[0] || "")}" alt="${esc(product.title)}" />${discountPct ? `<span class="sf-badge sf-badge-sale">Save ${discountPct}%</span>` : ""}</div>
+            ${imgs.length > 1 ? `<div class="sf-thumbs" role="tablist" aria-label="Product images">${imgs.map((src, i) => `<button class="sf-thumb ${i === 0 ? "is-active" : ""}" type="button" data-src="${esc(src)}" aria-label="Image ${i + 1}"><img src="${esc(src)}" alt="" /></button>`).join("")}</div>` : ""}
           </div>
-
-          <div class="product-thumbnails-sleek" role="tablist" aria-label="Product image gallery">
-            <button class="thumb-btn active" type="button" aria-label="Primary view" data-src="${data().escapeHtml(product.image)}">
-              <img src="${data().escapeHtml(product.image)}" alt="Thumbnail 1" />
-            </button>
-            <button class="thumb-btn" type="button" aria-label="Detail view" data-src="${data().escapeHtml(product.image)}">
-              <img src="${data().escapeHtml(product.image)}" alt="Thumbnail 2" />
-            </button>
-            <button class="thumb-btn" type="button" aria-label="Packaging view" data-src="${data().escapeHtml(product.image)}">
-              <img src="${data().escapeHtml(product.image)}" alt="Thumbnail 3" />
-            </button>
-          </div>
-
-          <div class="product-guarantee-strip">
-            <div class="guarantee-item">
-              <i data-lucide="shield-check"></i>
-              <div>
-                <strong>Verified Ministry Seller</strong>
-                <span>Vetted ${data().escapeHtml(product.sellerType.toLowerCase())} storefront</span>
-              </div>
+          <div class="sf-info">
+            <span class="sf-vendor">${esc(product.seller)}</span>
+            <h1 class="sf-title">${esc(product.title)}</h1>
+            <div class="sf-price-row"><span class="sf-price sf-price-lg">${data().money(product.price)}</span>${product.compareAt > product.price ? `<s class="sf-compare">${data().money(product.compareAt)}</s>` : ""}${discountPct ? `<span class="sf-pill-sale">Sale</span>` : ""}</div>
+            <p class="sf-note">Taxes included. Shipping calculated at checkout.</p>
+            <div class="sf-meta-row"><span class="sf-rating"><i data-lucide="star"></i>${Number(product.rating || 4.9).toFixed(1)}</span><span class="sf-stock ${stock > 5 ? "" : "is-low"}"><span class="sf-dot"></span>${stock > 5 ? "In stock" : stock > 0 ? `Only ${stock} left` : "Sold out"}</span></div>
+            <div class="sf-field"><label for="product-qty">Quantity</label>
+              <div class="sf-qty"><button type="button" id="qty-minus" aria-label="Decrease quantity"><i data-lucide="minus"></i></button><input type="number" id="product-qty" value="1" min="1" max="${stock || 99}" readonly /><button type="button" id="qty-plus" aria-label="Increase quantity"><i data-lucide="plus"></i></button></div>
             </div>
-            <div class="guarantee-item">
-              <i data-lucide="truck"></i>
-              <div>
-                <strong>Tracked Delivery</strong>
-                <span>Dispatched within 24-48 hours</span>
-              </div>
+            <button class="sf-btn sf-btn-outline" id="product-detail-add" type="button">Add to cart</button>
+            <button class="sf-btn sf-btn-primary" id="product-detail-buynow" type="button">Buy it now</button>
+            <p class="sf-desc">${esc(product.description)}</p>
+            <div class="sf-actions-row">
+              <button class="content-love-button sf-like" type="button" data-love-type="product" data-love-id="${esc(product.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
+              <button class="sf-share" type="button" id="sf-share"><i data-lucide="share-2"></i><span>Share</span></button>
             </div>
-            <div class="guarantee-item">
-              <i data-lucide="rotate-ccw"></i>
-              <div>
-                <strong>30-Day Returns</strong>
-                <span>Hassle-free guarantee on physical items</span>
-              </div>
-            </div>
+            <ul class="sf-trust">
+              <li><span class="sf-ico"><i data-lucide="shield-check"></i></span><span><strong>Verified ${esc(product.sellerType || "seller")}</strong> Sold by ${esc(product.seller)}</span></li>
+              <li><span class="sf-ico"><i data-lucide="truck"></i></span><span><strong>Tracked delivery</strong> Ships in 24–48 hours</span></li>
+              <li><span class="sf-ico"><i data-lucide="rotate-ccw"></i></span><span><strong>30-day returns</strong> On physical items</span></li>
+            </ul>
           </div>
         </div>
-
-        <!-- Right: Details & Purchase -->
-        <div class="product-info-column">
-          <div class="product-header-group">
-            <div class="product-seller-badge">
-              <i data-lucide="${product.sellerType === "Church" ? "church" : "sparkles"}"></i>
-              <span>Sold by <strong>${data().escapeHtml(product.seller)}</strong></span>
-              <span class="seller-type-tag">${data().escapeHtml(product.sellerType)}</span>
-            </div>
-            <h1 class="product-title-sleek">${data().escapeHtml(product.title)}</h1>
-            <button class="content-love-button content-love-detail" type="button" data-love-type="product" data-love-id="${data().escapeHtml(product.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
-            <div class="product-social-proof">
-              <div class="rating-stars">
-                <i data-lucide="star" class="star-filled"></i>
-                <strong>${Number(product.rating || 4.9).toFixed(1)}</strong>
-              </div>
-              <span class="proof-divider">·</span>
-              <span class="verified-reviews-count"><i data-lucide="check-check"></i> Verified Ministry Purchase</span>
-              <span class="proof-divider">·</span>
-              <span class="stock-count">${Number(product.inventory)} units available</span>
-            </div>
-          </div>
-
-          <div class="product-pricing-card">
-            <div class="price-headline">
-              <span class="current-price">${data().money(product.price)}</span>
-              ${product.compareAt ? `<del class="compare-price">${data().money(product.compareAt)}</del>` : ""}
-              ${discountPct ? `<span class="discount-badge">Save ${discountPct}%</span>` : ""}
-            </div>
-            <p class="pricing-subtext"><i data-lucide="badge-percent"></i> Tax calculated at checkout. Free shipping on qualifying ministry orders.</p>
-          </div>
-
-          <p class="product-lead-description">${data().escapeHtml(product.description)}</p>
-
-          <div class="product-action-box">
-            <div class="quantity-control-group">
-              <label for="product-qty" class="qty-label">Quantity</label>
-              <div class="qty-stepper">
-                <button type="button" id="qty-minus" aria-label="Decrease quantity" class="qty-btn"><i data-lucide="minus"></i></button>
-                <input type="number" id="product-qty" value="1" min="1" max="${product.inventory || 99}" readonly />
-                <button type="button" id="qty-plus" aria-label="Increase quantity" class="qty-btn"><i data-lucide="plus"></i></button>
-              </div>
-            </div>
-
-            <div class="purchase-buttons-stack">
-              <button class="product-detail-add" id="product-detail-add" type="button">
-                <i data-lucide="shopping-bag"></i> Add to Cart
-              </button>
-              <button class="product-detail-buynow" id="product-detail-buynow" type="button">
-                <i data-lucide="zap"></i> Buy Now
-              </button>
-            </div>
-          </div>
-
-          <!-- Tabs: Description, Specs, Seller -->
-          <div class="product-tabs-container">
-            <div class="product-tabs-header" role="tablist">
-              <button class="tab-btn active" role="tab" id="tab-btn-desc" aria-selected="true" data-target="tab-panel-desc">
-                <i data-lucide="file-text"></i> Highlights
-              </button>
-              <button class="tab-btn" role="tab" id="tab-btn-specs" aria-selected="false" data-target="tab-panel-specs">
-                <i data-lucide="list-checks"></i> Specifications
-              </button>
-              <button class="tab-btn" role="tab" id="tab-btn-seller" aria-selected="false" data-target="tab-panel-seller">
-                <i data-lucide="store"></i> Ministry Store
-              </button>
-            </div>
-
-            <div class="tab-panel active" id="tab-panel-desc" role="tabpanel">
-              <ul class="sleek-feature-list">
-                <li><i data-lucide="check-circle-2"></i> High-quality ministry resource curated for church and personal faith growth</li>
-                <li><i data-lucide="check-circle-2"></i> Backed by verified ${data().escapeHtml(product.sellerType.toLowerCase())} publisher</li>
-                <li><i data-lucide="check-circle-2"></i> Carefully packed with protective packaging to prevent transit damage</li>
-                <li><i data-lucide="check-circle-2"></i> Direct proceeds support Kingdom outreach and local gospel initiatives</li>
-              </ul>
-            </div>
-
-            <div class="tab-panel" id="tab-panel-specs" role="tabpanel" hidden>
-              <table class="product-specs-table">
-                <tbody>
-                  <tr><th>Category</th><td>${data().escapeHtml(product.category)}</td></tr>
-                  <tr><th>Item Type</th><td>Physical / Digital Media</td></tr>
-                  <tr><th>SKU Reference</th><td>${data().escapeHtml(product.id.toUpperCase())}</td></tr>
-                  <tr><th>Seller Type</th><td>${data().escapeHtml(product.sellerType)}</td></tr>
-                  <tr><th>Availability</th><td>${product.inventory > 0 ? "Ready to ship" : "Backorder"}</td></tr>
-                  <tr><th>Return Policy</th><td>30-Day Guarantee</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="tab-panel" id="tab-panel-seller" role="tabpanel" hidden>
-              <div class="seller-profile-card">
-                <div class="seller-profile-avatar"><i data-lucide="${product.sellerType === "Church" ? "church" : "user"}"></i></div>
-                <div class="seller-profile-meta">
-                  <strong>${data().escapeHtml(product.seller)}</strong>
-                  <span>Verified ${data().escapeHtml(product.sellerType)} on My Way of Evangelism</span>
-                  <p>Committed to uplifting the body of Christ with inspiring resources, gospel materials, and community care.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <section class="sf-below">
+          <details class="sf-acc" open><summary>Description</summary><div><p>${esc(product.description)}</p><p>Proceeds support the ministry of ${esc(product.seller)}.</p></div></details>
+          <details class="sf-acc"><summary>Details</summary><div><dl class="sf-dl"><dt>Category</dt><dd>${esc(product.category)}</dd><dt>SKU</dt><dd>${esc(String(product.id).toUpperCase())}</dd><dt>Seller</dt><dd>${esc(product.seller)} · ${esc(product.sellerType)}</dd><dt>Availability</dt><dd>${stock > 0 ? "Ready to ship" : "Backorder"}</dd></dl></div></details>
+          <details class="sf-acc"><summary>Shipping &amp; returns</summary><div><p>Dispatched within 24–48 hours. Returns accepted within 30 days on unused physical items.</p></div></details>
+        </section>
+        ${relatedHtml(product)}
       </div>
-    `;
+      <div class="sf-sticky-buy"><div class="sf-sticky-price"><strong>${data().money(product.price)}</strong><span>${esc(product.title)}</span></div><button type="button" id="sf-sticky-add">Add to cart</button></div>`;
 
-    // Hook quantity buttons
     const qtyInput = document.getElementById("product-qty");
-    document.getElementById("qty-minus")?.addEventListener("click", () => {
-      const val = parseInt(qtyInput.value, 10) || 1;
-      if (val > 1) qtyInput.value = val - 1;
-    });
-    document.getElementById("qty-plus")?.addEventListener("click", () => {
-      const val = parseInt(qtyInput.value, 10) || 1;
-      if (val < (product.inventory || 99)) qtyInput.value = val + 1;
-    });
-
-    // Add to Cart handler
-    document.getElementById("product-detail-add")?.addEventListener("click", () => {
-      const qty = parseInt(qtyInput?.value, 10) || 1;
-      for (let i = 0; i < qty; i++) {
-        data().addToCart(product.id);
-      }
-      renderCart();
-      setCartOpen(true);
-      window.MWE?.showMemberToast?.(`Added ${qty} × "${product.title}" to cart`);
-    });
-
-    // Buy Now handler
-    document.getElementById("product-detail-buynow")?.addEventListener("click", () => {
-      const qty = parseInt(qtyInput?.value, 10) || 1;
-      for (let i = 0; i < qty; i++) {
-        data().addToCart(product.id);
-      }
-      location.href = "checkout.html";
-    });
-
-    // Thumbnails
-    document.querySelectorAll(".thumb-btn").forEach(button => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll(".thumb-btn").forEach(btn => btn.classList.remove("active"));
-        button.classList.add("active");
-        const mainImg = document.getElementById("product-main-image");
-        if (mainImg) mainImg.src = button.dataset.src || button.querySelector("img").src;
-      });
-    });
-
-    // Tab switcher
-    document.querySelectorAll(".product-tabs-header .tab-btn").forEach(tabBtn => {
-      tabBtn.addEventListener("click", () => {
-        document.querySelectorAll(".product-tabs-header .tab-btn").forEach(b => {
-          b.classList.remove("active");
-          b.setAttribute("aria-selected", "false");
-        });
-        document.querySelectorAll(".tab-panel").forEach(p => {
-          p.classList.remove("active");
-          p.hidden = true;
-        });
-
-        tabBtn.classList.add("active");
-        tabBtn.setAttribute("aria-selected", "true");
-        const targetId = tabBtn.dataset.target;
-        const panel = document.getElementById(targetId);
-        if (panel) {
-          panel.classList.add("active");
-          panel.hidden = false;
-        }
-      });
-    });
+    document.getElementById("qty-minus")?.addEventListener("click", () => { const v = parseInt(qtyInput.value, 10) || 1; if (v > 1) qtyInput.value = v - 1; });
+    document.getElementById("qty-plus")?.addEventListener("click", () => { const v = parseInt(qtyInput.value, 10) || 1; if (v < (stock || 99)) qtyInput.value = v + 1; });
+    const add = () => { const q = parseInt(qtyInput?.value, 10) || 1; for (let i = 0; i < q; i++) data().addToCart(product.id); renderCart(); setCartOpen(true); window.MWE?.showMemberToast?.(`Added ${q} × "${product.title}" to cart`); };
+    document.getElementById("product-detail-add")?.addEventListener("click", add);
+    document.getElementById("sf-sticky-add")?.addEventListener("click", add);
+    document.getElementById("product-detail-buynow")?.addEventListener("click", () => { const q = parseInt(qtyInput?.value, 10) || 1; for (let i = 0; i < q; i++) data().addToCart(product.id); location.href = "checkout.html"; });
+    document.getElementById("sf-share")?.addEventListener("click", () => { if (navigator.share) navigator.share({ title: product.title, url: location.href }).catch(() => {}); else navigator.clipboard?.writeText(location.href).then(() => window.MWE?.showMemberToast?.("Link copied")); });
+    document.querySelectorAll(".sf-thumb").forEach(b => b.addEventListener("click", () => { document.querySelectorAll(".sf-thumb").forEach(x => x.classList.remove("is-active")); b.classList.add("is-active"); document.getElementById("product-main-image").src = b.dataset.src; }));
   }
 
   function renderServiceUI(service, container) {
@@ -605,150 +446,43 @@
       `;
     }
 
+    const esc = data().escapeHtml;
     container.innerHTML = `
-      <div class="service-detail-shell">
-        <!-- Service Hero Banner -->
-        <div class="service-hero-card">
-          <div class="service-hero-media">
-            <img src="${data().escapeHtml(service.image)}" alt="${data().escapeHtml(service.title)}" />
-            <div class="service-hero-overlay"></div>
-            <div class="service-type-badge-pill">
-              <i data-lucide="sparkles"></i>
-              <span>Church & Channel Service</span>
+      <div class="sf-pdp">
+        <div class="sf-pdp-main">
+          <div class="sf-media"><div class="sf-media-main"><img src="${esc(service.image)}" alt="${esc(service.title)}" /><span class="sf-badge">Service</span></div></div>
+          <div class="sf-info">
+            <span class="sf-vendor">${esc(service.seller)}</span>
+            <h1 class="sf-title">${esc(service.title)}</h1>
+            <div class="sf-price-row"><span class="sf-price sf-price-lg" id="selected-tier-price-display">${data().money(tiers[selectedTierIndex]?.price || service.price)}</span><span class="sf-unit" id="sf-tier-unit">${esc(tiers[selectedTierIndex]?.duration || service.pricingUnit || "")}</span></div>
+            <div class="sf-meta-row"><span class="sf-rating"><i data-lucide="star"></i>${Number(service.rating || 4.9).toFixed(1)}</span><span class="sf-stock"><span class="sf-dot"></span>Replies within 24h</span></div>
+            <fieldset class="sf-variants"><legend>Package</legend>
+              ${tiers.map((t, i) => `<label class="sf-variant"><input type="radio" name="sf-tier" value="${i}" ${i === selectedTierIndex ? "checked" : ""} /><span class="sf-variant-box"><span class="sf-variant-name">${esc(t.name)}</span><span class="sf-variant-price">${data().money(t.price)}</span></span></label>`).join("")}
+            </fieldset>
+            <button class="sf-btn sf-btn-primary" id="service-book-now-btn" type="button">Request booking</button>
+            <p class="sf-desc">${esc(service.description)}</p>
+            <div class="sf-actions-row">
+              <button class="content-love-button sf-like" type="button" data-love-type="product" data-love-id="${esc(service.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
             </div>
-          </div>
-
-          <div class="service-hero-content">
-            <div class="service-provider-strip">
-              <div class="provider-avatar">
-                <i data-lucide="${service.sellerType === "Church" ? "church" : "users"}"></i>
-              </div>
-              <div>
-                <span class="provider-type-label">${data().escapeHtml(service.sellerType)} Offering</span>
-                <strong class="provider-name-text">${data().escapeHtml(service.seller)}</strong>
-              </div>
-              <span class="verified-partner-tag"><i data-lucide="check-circle-2"></i> Verified</span>
-            </div>
-
-            <h1 class="service-main-title">${data().escapeHtml(service.title)}</h1>
-            <p class="service-main-desc">${data().escapeHtml(service.description)}</p>
-            <button class="content-love-button content-love-detail" type="button" data-love-type="product" data-love-id="${data().escapeHtml(service.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
-
-            <div class="service-highlights-row">
-              <div class="highlight-stat">
-                <span class="stat-label">Starting From</span>
-                <strong class="stat-value">${data().money(service.price)} <small>${data().escapeHtml(service.pricingUnit || "")}</small></strong>
-              </div>
-              <div class="highlight-stat">
-                <span class="stat-label">Rating</span>
-                <strong class="stat-value rating-gold"><i data-lucide="star"></i> ${Number(service.rating || 4.9).toFixed(1)}</strong>
-              </div>
-              <div class="highlight-stat">
-                <span class="stat-label">Response Time</span>
-                <strong class="stat-value"><i data-lucide="clock"></i> Within 24h</strong>
-              </div>
-            </div>
-
-            <div class="service-hero-cta-row">
-              <button type="button" class="button primary service-book-direct-btn" id="service-book-hero-btn">
-                <i data-lucide="calendar-check"></i> Book This Service
-              </button>
-              <a href="#service-tiers-anchor" class="button ghost service-view-tiers-btn">
-                <i data-lucide="layers"></i> View Package Tiers
-              </a>
-            </div>
+            <div class="sf-included" id="sf-included"></div>
           </div>
         </div>
-
-        <!-- Specialized Template Component -->
-        ${specializedContentHtml}
-
-        <!-- Package Tiers Section -->
-        <section class="service-tiers-section" id="service-tiers-anchor">
-          <div class="section-title-wrap">
-            <span class="service-kicker"><i data-lucide="tag"></i> Transparent Ministry Pricing</span>
-            <h2>Select a Service Package Tier</h2>
-            <p>Choose the tier that best matches your church schedule, gathering size, or production scope.</p>
-          </div>
-
-          <div class="service-tiers-grid">
-            ${tiers.map((tier, idx) => `
-              <div class="service-tier-card ${idx === selectedTierIndex ? "selected" : ""}" data-tier-index="${idx}">
-                ${idx === 1 ? `<div class="tier-popular-ribbon"><i data-lucide="star"></i> Most Requested</div>` : ""}
-                <div class="tier-card-head">
-                  <span class="tier-name">${data().escapeHtml(tier.name)}</span>
-                  <div class="tier-price-row">
-                    <span class="tier-price">${data().money(tier.price)}</span>
-                    <span class="tier-duration">${data().escapeHtml(tier.duration || service.pricingUnit || "")}</span>
-                  </div>
-                </div>
-
-                <div class="tier-card-body">
-                  <ul class="tier-highlights-list">
-                    ${(tier.highlights || []).map(h => `
-                      <li><i data-lucide="check"></i> <span>${data().escapeHtml(h)}</span></li>
-                    `).join("")}
-                  </ul>
-                </div>
-
-                <div class="tier-card-footer">
-                  <button type="button" class="button ${idx === selectedTierIndex ? "primary" : "secondary"} tier-select-btn" data-tier-index="${idx}">
-                    <i data-lucide="${idx === selectedTierIndex ? "check-circle" : "arrow-right"}"></i>
-                    ${idx === selectedTierIndex ? "Selected Tier" : "Select Tier"}
-                  </button>
-                </div>
-              </div>
-            `).join("")}
-          </div>
-
-          <!-- Bottom Action Bar -->
-          <div class="service-bottom-cta-banner">
-            <div>
-              <strong>Ready to reserve with ${data().escapeHtml(service.seller)}?</strong>
-              <p>Submit your preferred date and requirements. No upfront obligation—the ministry will confirm availability.</p>
-            </div>
-            <button type="button" class="button primary service-book-now-btn" id="service-book-now-btn">
-              <i data-lucide="calendar-plus"></i>
-              <span class="service-book-now-label">Book selected tier</span>
-              <span class="service-book-now-price" id="selected-tier-price-display">${data().money(tiers[selectedTierIndex]?.price || service.price)}</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- Provider Trust Card -->
-        <div class="service-provider-full-card">
-          <div class="provider-avatar-lg"><i data-lucide="${service.sellerType === "Church" ? "church" : "users"}"></i></div>
-          <div class="provider-info-lg">
-            <span class="provider-subhead">Provided by verified Kingdom Partner</span>
-            <h3>${data().escapeHtml(service.seller)}</h3>
-            <p>Dedicated to serving other churches, ministries, and disciples with excellence, integrity, and biblical stewardship.</p>
-            <div class="provider-meta-tags">
-              <span><i data-lucide="map-pin"></i> Verified Partner Location</span>
-              <span><i data-lucide="shield-check"></i> Identity & Background Verified</span>
-              <span><i data-lucide="message-circle"></i> Direct Messaging Available</span>
-            </div>
-          </div>
-        </div>
+        <section class="sf-below">${specializedContentHtml}</section>
+        ${relatedHtml(service)}
       </div>
-    `;
-
-    // Hook Tier Card Selection
-    document.querySelectorAll(".service-tier-card").forEach(card => {
-      card.addEventListener("click", () => {
-        const idx = parseInt(card.dataset.tierIndex, 10);
-        if (isNaN(idx)) return;
-        selectedTierIndex = idx;
-        updateSelectedTierUI(tiers);
-      });
-    });
-
-    // Direct booking buttons
-    document.getElementById("service-book-hero-btn")?.addEventListener("click", () => {
-      openBookingModal(service, tiers[selectedTierIndex]);
-    });
-    document.getElementById("service-book-now-btn")?.addEventListener("click", () => {
-      openBookingModal(service, tiers[selectedTierIndex]);
-    });
+      <div class="sf-sticky-buy"><div class="sf-sticky-price"><strong id="sf-sticky-service-price">${data().money(tiers[selectedTierIndex]?.price || service.price)}</strong><span>${esc(service.title)}</span></div><button type="button" id="sf-sticky-book">Book now</button></div>`;
+    const syncTier = () => {
+      const t = tiers[selectedTierIndex] || {};
+      document.getElementById("selected-tier-price-display").textContent = data().money(t.price ?? service.price);
+      document.getElementById("sf-sticky-service-price").textContent = data().money(t.price ?? service.price);
+      document.getElementById("sf-tier-unit").textContent = t.duration || service.pricingUnit || "";
+      document.getElementById("sf-included").innerHTML = (t.highlights || []).length ? `<strong>Included</strong><ul>${t.highlights.map(h => `<li><span class="sf-ico sf-ico-sm"><i data-lucide="check"></i></span><span>${esc(h)}</span></li>`).join("")}</ul>` : "";
+      window.lucide?.createIcons();
+    };
+    document.querySelectorAll('input[name="sf-tier"]').forEach(r => r.addEventListener("change", () => { selectedTierIndex = Number(r.value); syncTier(); }));
+    syncTier();
+    document.getElementById("service-book-now-btn")?.addEventListener("click", () => openBookingModal(service, tiers[selectedTierIndex]));
+    document.getElementById("sf-sticky-book")?.addEventListener("click", () => openBookingModal(service, tiers[selectedTierIndex]));
 
     // Audio preview player logic (if singing service)
     const playBtn = document.getElementById("audio-play-btn");
