@@ -288,3 +288,9 @@ body[data-page="store"] .creator-store-card small{ margin-top:4px; font-size:.78
 /* Dark theme */
 html[data-theme="dark"] .sf-badge,html[data-theme="dark"] .sf-card-like{ box-shadow:0 1px 3px rgba(0,0,0,.5) !important; }
 html[data-theme="dark"] .sf-card-media,html[data-theme="dark"] .sf-media-main{ background:#1e293b; }
+
+/* Guard circles against global mobile touch-target min-height rules */
+.sf-circle-btn,.sf-card-like,.sf-cart-btn,.sf-qty button,.cart-page-delete,.store-cart-drawer .drawer-close,.store-cart-drawer .cart-remove,#product-editor-modal .module-modal-close{ min-height:0 !important; min-width:0 !important; }
+.sf-circle-btn{ height:36px !important; width:36px !important; }
+.cart-page-delete{ height:40px !important; width:40px !important; }
+@media (max-width:749px){ .sf-circle-btn{ width:40px !important; height:40px !important; } }
