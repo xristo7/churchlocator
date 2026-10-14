@@ -30,44 +30,27 @@
       resultCountEl.textContent = `${products.length} offering${products.length === 1 ? "" : "s"}`;
     }
     if (!products.length) {
-      grid.innerHTML = `<div class="module-empty"><i data-lucide="package-search"></i><strong>No items match your search.</strong><p>Try another category, seller type, or keyword.</p></div>`;
+      grid.innerHTML = `<div class="module-empty sf-empty"><i data-lucide="package-search"></i><strong>No items match your search.</strong><p>Try another category, seller type, or keyword.</p></div>`;
       window.lucide?.createIcons();
       return;
     }
+    const esc = data().escapeHtml;
     grid.innerHTML = products.map(product => {
       const isService = product.itemType === "service";
-      return `
-      <article class="product-card ${isService ? "service-card-item" : ""}">
-        <a class="product-image-wrap" href="product-detail.html?id=${encodeURIComponent(product.id)}" aria-label="View ${data().escapeHtml(product.title)}">
-          <img class="product-image" src="${data().escapeHtml(product.image)}" alt="${data().escapeHtml(product.title)}" />
-          <span class="product-badge ${isService ? "service-badge-pill" : ""}">${isService ? `<i data-lucide="sparkles"></i> Service · ` : ""}${data().escapeHtml(product.sellerType)} · ${data().escapeHtml(product.category)}</span>
-        </a>
-        <button class="content-love-button content-love-overlay" type="button" data-love-type="product" data-love-id="${data().escapeHtml(product.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
-        <div class="product-card-body">
-          <span class="product-seller">${data().escapeHtml(product.sellerType)}: <strong>${data().escapeHtml(product.seller)}</strong></span>
-          <h3><a href="product-detail.html?id=${encodeURIComponent(product.id)}">${data().escapeHtml(product.title)}</a></h3>
-          <span class="product-rating">
-            <i data-lucide="star"></i>${Number(product.rating).toFixed(1)} · ${isService ? "Verified Service" : `${Number(product.inventory)} in stock`}
-          </span>
-          <div class="product-price-row">
-            <div>
-              <span class="product-price">${data().money(product.price)}</span>
-              ${product.pricingUnit ? `<small class="product-unit"> ${data().escapeHtml(product.pricingUnit)}</small>` : ""}
-              ${product.compareAt ? `<span class="product-compare">${data().money(product.compareAt)}</span>` : ""}
-            </div>
-            ${isService ? `
-              <a class="service-book-mini-btn" href="product-detail.html?id=${encodeURIComponent(product.id)}" aria-label="Book ${data().escapeHtml(product.title)}">
-                <i data-lucide="calendar-check"></i> Book
-              </a>
-            ` : `
-              <button class="product-add" type="button" data-add-product="${data().escapeHtml(product.id)}" aria-label="Add ${data().escapeHtml(product.title)} to cart">
-                <i data-lucide="plus"></i>
-              </button>
-            `}
+      const href = `product-detail.html?id=${encodeURIComponent(product.id)}`;
+      const sale = product.compareAt > product.price;
+      return `<article class="sf-card">
+        <a class="sf-card-media" href="${href}" aria-label="${esc(product.title)}"><img src="${esc(product.image)}" alt="" loading="lazy" />${sale ? `<span class="sf-badge sf-badge-sale">Sale</span>` : isService ? `<span class="sf-badge">Service</span>` : ""}</a>
+        <button class="content-love-button sf-card-like" type="button" data-love-type="product" data-love-id="${esc(product.id)}" aria-pressed="false" aria-label="Save ${esc(product.title)}"><i data-lucide="heart"></i><span data-love-count hidden>0</span></button>
+        <div class="sf-card-body">
+          <span class="sf-vendor">${esc(product.seller)}</span>
+          <h3 class="sf-card-title"><a href="${href}">${esc(product.title)}</a></h3>
+          <div class="sf-card-foot">
+            <div class="sf-card-price"><span class="sf-price">${isService ? "From " : ""}${data().money(product.price)}</span>${sale ? `<s class="sf-compare">${data().money(product.compareAt)}</s>` : ""}</div>
+            ${isService ? `<a class="sf-circle-btn" href="${href}" aria-label="Book ${esc(product.title)}"><i data-lucide="calendar-check"></i></a>` : `<button class="sf-circle-btn" type="button" data-add-product="${esc(product.id)}" aria-label="Add ${esc(product.title)} to cart"><i data-lucide="plus"></i></button>`}
           </div>
         </div>
-      </article>
-      `;
+      </article>`;
     }).join("");
     window.lucide?.createIcons();
   }
