@@ -125,17 +125,7 @@
             </div>
           </div>
 
-          <div class="product-thumbnails-sleek" role="tablist" aria-label="Product image gallery">
-            <button class="thumb-btn active" type="button" aria-label="Primary view" data-src="${data().escapeHtml(product.image)}">
-              <img src="${data().escapeHtml(product.image)}" alt="Thumbnail 1" />
-            </button>
-            <button class="thumb-btn" type="button" aria-label="Detail view" data-src="${data().escapeHtml(product.image)}">
-              <img src="${data().escapeHtml(product.image)}" alt="Thumbnail 2" />
-            </button>
-            <button class="thumb-btn" type="button" aria-label="Packaging view" data-src="${data().escapeHtml(product.image)}">
-              <img src="${data().escapeHtml(product.image)}" alt="Thumbnail 3" />
-            </button>
-          </div>
+          ${(() => { const imgs = [product.image, ...(Array.isArray(product.images) ? product.images : [])].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i); return imgs.length > 1 ? `<div class="product-thumbnails-sleek" role="tablist" aria-label="Product image gallery">${imgs.map((src, i) => `<button class="thumb-btn ${i === 0 ? "active" : ""}" type="button" aria-label="View image ${i + 1}" data-src="${data().escapeHtml(src)}"><img src="${data().escapeHtml(src)}" alt="" /></button>`).join("")}</div>` : ""; })()}
 
           <div class="product-guarantee-strip">
             <div class="guarantee-item">
@@ -265,6 +255,9 @@
         </div>
       </div>
     `;
+
+    container.insertAdjacentHTML("beforeend", `<div class="sf-sticky-buy" aria-label="Quick add"><div class="sf-sticky-price"><strong>${data().money(product.price)}</strong><span>${data().escapeHtml(product.title)}</span></div><button type="button" id="sf-sticky-add"><i data-lucide="shopping-bag"></i> Add to cart</button></div>`);
+    document.getElementById("sf-sticky-add")?.addEventListener("click", () => document.getElementById("product-detail-add")?.click());
 
     // Hook quantity buttons
     const qtyInput = document.getElementById("product-qty");
@@ -731,6 +724,9 @@
         </div>
       </div>
     `;
+
+    container.insertAdjacentHTML("beforeend", `<div class="sf-sticky-buy" aria-label="Quick book"><div class="sf-sticky-price"><strong id="sf-sticky-service-price">${data().money(tiers[selectedTierIndex]?.price || service.price)}</strong><span>${data().escapeHtml(service.title)}</span></div><button type="button" id="sf-sticky-book"><i data-lucide="calendar-check"></i> Book now</button></div>`);
+    document.getElementById("sf-sticky-book")?.addEventListener("click", () => openBookingModal(service, tiers[selectedTierIndex]));
 
     // Hook Tier Card Selection
     document.querySelectorAll(".service-tier-card").forEach(card => {
