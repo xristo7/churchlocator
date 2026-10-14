@@ -119,6 +119,11 @@ export function validateEntity(kind,input) {
 export async function requireUser(request,env,ctx) {
  const user=await ctx.getSessionUser(request,env); if(!user) throw new ApiError(401,'Sign in required.'); return user;
 }
+export function studioAutoApprove(env,user) { return String(env?.AUTO_APPROVE_STUDIO_CONTENT||'').toLowerCase()==='true' && !!user; }
+export async function livestreamBilling(env) {
+ try { const row=await env.DB.prepare("select value_json from platform_settings where key='livestream_billing'").first(); const mode=row?JSON.parse(row.value_json).mode:'free'; return mode==='paid'?'paid':'free'; } catch { return 'free'; }
+}
+export async function livestreamIsFree(env) { return (await livestreamBilling(env))==='free'; }
 export async function isOwner(env,user) {
  if(!user?.email_verified_at || !user.totp_secret_encrypted || !user.mfa_verified_at) return false;
  return !!await env.DB.prepare("select user_id from platform_roles where user_id=? and role='owner'").bind(user.id).first();
@@ -168,10 +173,13 @@ async function checkTaxonomyValues(env,kind,data,previous={}) {
   if(!allowed.includes(value)) throw new ApiError(400,'Choose a current '+field.replaceAll('_',' ')+'.');
  }
 }
-function projectionStatements(env,kind,id,data,state,updatedAt) {
+function projectionStatements(env,kind,id,data,state,updatedAt,opts={ownerPublished:true,livestreamFree:true}) {
+ // Verified badge and livestream listing are never granted by auto-approval: only an owner publish verifies,
+ // and in Paid livestream mode only an owner publish switches the livestream on.
+ const verifyOk=opts.ownerPublished, streamOk=opts.ownerPublished||opts.livestreamFree;
  if(kind==='churches') return [env.DB.prepare(`insert into churches (id,name,city,country,postal_code,denomination,language,worship_style,website,phone,email,cover_image_url,livestream_enabled,livestream_paid,livestream_url,description,is_verified,created_at)
  select ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? where exists(select 1 from platform_entities where id=? and updated_at=?)
- on conflict(id) do update set name=excluded.name,city=excluded.city,country=excluded.country,postal_code=excluded.postal_code,denomination=excluded.denomination,language=excluded.language,worship_style=excluded.worship_style,website=excluded.website,phone=excluded.phone,email=excluded.email,cover_image_url=excluded.cover_image_url,livestream_enabled=excluded.livestream_enabled,livestream_paid=0,livestream_url=excluded.livestream_url,description=excluded.description,is_verified=excluded.is_verified`).bind(id,data.name,data.city,data.country,data.postal||'',data.denomination||'',data.language||'',data.worship||'',data.website||'',data.phone||'',data.email||'',data.photo||'',Number(state==='published'&&!!data.livestream?.enabled),0,data.livestream?.url||'',data.about||'',Number(state==='published'),updatedAt,id,updatedAt)];
+ on conflict(id) do update set name=excluded.name,city=excluded.city,country=excluded.country,postal_code=excluded.postal_code,denomination=excluded.denomination,language=excluded.language,worship_style=excluded.worship_style,website=excluded.website,phone=excluded.phone,email=excluded.email,cover_image_url=excluded.cover_image_url,livestream_enabled=excluded.livestream_enabled,livestream_paid=0,livestream_url=excluded.livestream_url,description=excluded.description,is_verified=${verifyOk?'excluded.is_verified':'churches.is_verified'}`).bind(id,data.name,data.city,data.country,data.postal||'',data.denomination||'',data.language||'',data.worship||'',data.website||'',data.phone||'',data.email||'',data.photo||'',Number(state==='published'&&streamOk&&!!data.livestream?.enabled),0,data.livestream?.url||'',data.about||'',Number(state==='published'&&verifyOk),updatedAt,id,updatedAt)];
  if(kind==='events') return [env.DB.prepare(`insert into events (id,church_id,title,event_type,starts_at,ends_at,venue_name,city,country,cover_image_url,registration_required,ticket_price_cents,currency,total_tickets,tickets_sold,is_featured,is_promoted,registration_url,livestream_url,directions_url,description)
  select ?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,?,?,?,?,?,? where exists(select 1 from platform_entities where id=? and updated_at=?)
  on conflict(id) do update set church_id=excluded.church_id,title=excluded.title,event_type=excluded.event_type,starts_at=excluded.starts_at,ends_at=excluded.ends_at,venue_name=excluded.venue_name,city=excluded.city,country=excluded.country,cover_image_url=excluded.cover_image_url,registration_required=excluded.registration_required,ticket_price_cents=excluded.ticket_price_cents,currency=excluded.currency,total_tickets=excluded.total_tickets,is_featured=excluded.is_featured,is_promoted=excluded.is_promoted,registration_url=excluded.registration_url,livestream_url=excluded.livestream_url,directions_url=excluded.directions_url,description=excluded.description`).bind(id,data.churchId||null,data.title,data.eventType,data.startsAt,data.endsAt,data.venueName||'',data.city||'',data.country||'',data.coverImageUrl||'',Number(!!data.registrationRequired),data.ticketPriceCents,data.currency,data.totalTickets,Number(!!data.isFeatured),Number(!!data.isPromoted),data.registrationUrl||'',data.livestreamUrl||'',data.directionsUrl||'',data.description||'',id,updatedAt)];
@@ -189,11 +197,14 @@ export async function writeEntity(request,env,ctx,kind,id) {
  await checkRelated(env,user,kind,data,tenantId,owner);
  let state=input.publicationState || (owner?existing?.state:'pending') || 'pending';
  if(!['draft','pending','published','archived'].includes(state)) throw new ApiError(400,'Invalid publication state.');
- if(state==='published' && (!owner || !user.email_verified_at)) throw new ApiError(403,'Platform owner approval is required to publish.');
+ // AUTO_APPROVE_STUDIO_CONTENT: studio submissions publish immediately. Content an admin archived stays with the admin.
+ const autoApproved=!owner && studioAutoApprove(env,user) && existing?.state!=='archived';
+ if(autoApproved && state==='pending') state='published';
+ if(state==='published' && !autoApproved && (!owner || !user.email_verified_at)) throw new ApiError(403,'Platform owner approval is required to publish.');
  if(kind==='events') { const stock=await env.DB.prepare('select tickets_sold from events where id=?').bind(id||'').first(); if(data.totalTickets>0 && data.totalTickets<(stock?.tickets_sold||0)) throw new ApiError(409,'Capacity cannot be below existing reservations.'); }
  const entityId=id||kind+'-'+crypto.randomUUID(), now=new Date().toISOString(), updateStamp=now.replace('Z',String(crypto.getRandomValues(new Uint32Array(1))[0]).padStart(10,'0')+'Z');
  const statement=existing?env.DB.prepare('update platform_entities set data_json=?,state=?,revision=revision+1,updated_at=? where id=? and revision=? returning *').bind(JSON.stringify(data),state,updateStamp,entityId,existing.revision):env.DB.prepare('insert into platform_entities (id,kind,tenant_id,created_by,state,data_json,created_at,updated_at) values (?,?,?,?,?,?,?,?) returning *').bind(entityId,kind,tenantId,user.id,state,JSON.stringify(data),now,updateStamp);
- const results=await env.DB.batch([statement,...projectionStatements(env,kind,entityId,data,state,updateStamp),env.DB.prepare('insert into audit_log select ?,?,?,?,?,? where exists(select 1 from platform_entities where id=? and updated_at=?)').bind(crypto.randomUUID(),user.id,existing?'entity.updated':'entity.created',entityId,tenantId,now,entityId,updateStamp)]);
+ const results=await env.DB.batch([statement,...projectionStatements(env,kind,entityId,data,state,updateStamp,{ownerPublished:owner,livestreamFree:await livestreamIsFree(env)}),env.DB.prepare('insert into audit_log select ?,?,?,?,?,? where exists(select 1 from platform_entities where id=? and updated_at=?)').bind(crypto.randomUUID(),user.id,existing?'entity.updated':'entity.created',entityId,tenantId,now,entityId,updateStamp)]);
  if(!results[0].results?.length) throw new ApiError(409,'Content changed. Reload before saving.');
  return ctx.json({ok:true,record:entityRecord(results[0].results[0])},existing?200:201);
 }

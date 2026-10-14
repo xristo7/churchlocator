@@ -30,6 +30,7 @@
     "EMAIL_FROM": "My Way <onboarding@resend.dev>",
     "APP_NAME": "My Way of Evangelism",
     "ENVIRONMENT": "production",
+    "AUTO_APPROVE_STUDIO_CONTENT": "true",
     "PUBLIC_ORIGIN": "https://my-way-of-evangelism.doxalight-inc.workers.dev",
     "GOOGLE_CLIENT_ID": "744058453576-38m5g7h2jafifi44ptv4m5uft11jangi.apps.googleusercontent.com",
     "OWNER_BOOTSTRAP_EMAIL": "xristoinno@gmail.com",
@@ -102,6 +103,7 @@
       "vars": {
         "APP_NAME": "My Way of Evangelism",
         "ENVIRONMENT": "preview",
+        "AUTO_APPROVE_STUDIO_CONTENT": "true",
         "PUBLIC_ORIGIN": "https://my-way-of-evangelism-preview.doxalight-inc.workers.dev",
         "EMAIL_FROM": "My Way <onboarding@resend.dev>",
         "REQUIRE_EMAIL_VERIFICATION": "true",

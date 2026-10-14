@@ -1,6 +1,6 @@
 import { ApiError, readJson } from './security.js';
 import { auditStatement } from './identity-security.js';
-import { isOwner, membership, ownTenant, requireOwner, requireUser } from './trusted-platform.js';
+import { isOwner, membership, ownTenant, requireOwner, requireUser, studioAutoApprove } from './trusted-platform.js';
 
 const contentTypes = new Set(['short', 'long-preview', 'church', 'channel', 'event', 'live']);
 const states = new Set(['draft', 'pending', 'needs-changes', 'approved', 'scheduled', 'live', 'rejected', 'expired']);
@@ -172,10 +172,11 @@ async function workspace(request, env, ctx, id) {
     if (['short','long-preview','live'].includes(data.contentType) && !/^https:\/\//i.test(data.fullContentUrl||'')) throw new ApiError(400, 'Add the HTTPS full video URL.');
     const now = new Date().toISOString();
     const itemId = 'spotlight-' + crypto.randomUUID();
+    const existingStatus = null;
     const creatorName = data.creatorName || channel?.name || user.name;
     const creatorHandle = data.creatorHandle || channel?.handle || '';
     const creatorAvatarUrl = data.creatorAvatarUrl || channel?.avatar || null;
-    const status = input.saveAsDraft ? 'draft' : 'pending';
+    const status = input.saveAsDraft ? 'draft' : (!owner && studioAutoApprove(env, user) && !['rejected','expired'].includes(existingStatus) ? 'approved' : 'pending');
     await env.DB.batch([
       env.DB.prepare(`insert into spotlight_items
         (id,tenant_id,created_by,channel_entity_id,subject_entity_id,content_type,title,caption,creator_name,creator_handle,creator_avatar_url,media_url,poster_url,full_content_url,preview_source,preview_start_seconds,preview_end_seconds,duration_seconds,cta_label,cta_url,status,comments_enabled,created_at,updated_at)
@@ -191,11 +192,12 @@ async function workspace(request, env, ctx, id) {
     if (!existing) throw new ApiError(404, 'Spotlight submission not found.');
     if (!owner && !['owner', 'editor'].includes((await membership(env, user.id, existing.tenant_id))?.role)) throw new ApiError(403, 'You cannot edit this submission.');
     if (Number(input.revision) !== existing.revision) throw new ApiError(409, 'This submission changed. Reload and try again.');
+    const existingStatus = existing.status;
     const channel = await verifyChannel(env, user, data.channelEntityId, existing.tenant_id, owner);
     if (!data.channelEntityId) throw new ApiError(400, 'Choose the channel submitting this content.');
     if (['short','long-preview','live'].includes(data.contentType) && !/^https:\/\//i.test(data.fullContentUrl||'')) throw new ApiError(400, 'Add the HTTPS full video URL.');
     const now = new Date().toISOString();
-    const status = input.saveAsDraft ? 'draft' : 'pending';
+    const status = input.saveAsDraft ? 'draft' : (!owner && studioAutoApprove(env, user) && !['rejected','expired'].includes(existingStatus) ? 'approved' : 'pending');
     const result = await env.DB.prepare(`update spotlight_items set channel_entity_id=?,subject_entity_id=?,content_type=?,title=?,caption=?,creator_name=?,creator_handle=?,creator_avatar_url=?,media_url=?,poster_url=?,full_content_url=?,preview_source=?,preview_start_seconds=?,preview_end_seconds=?,duration_seconds=?,cta_label=?,cta_url=?,comments_enabled=?,status=?,moderation_note=null,revision=revision+1,updated_at=? where id=? and revision=? returning *`).bind(data.channelEntityId, data.subjectEntityId, data.contentType, data.title, data.caption, data.creatorName || channel?.name || user.name, data.creatorHandle || channel?.handle || '', data.creatorAvatarUrl || channel?.avatar || null, data.mediaUrl, data.posterUrl, data.fullContentUrl, data.previewSource, data.previewStartSeconds, data.previewEndSeconds, data.durationSeconds, data.ctaLabel, data.ctaUrl, Number(data.commentsEnabled), status, now, id, existing.revision).first();
     if (!result) throw new ApiError(409, 'This submission changed. Reload and try again.');
     await auditStatement(env, user.id, 'spotlight.resubmitted', id, existing.tenant_id).run();
