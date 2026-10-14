@@ -91,3 +91,4 @@
 /* status marks must not sit on select chevrons */
 .cs-field select{ padding-right:56px; }
 .cs-field select ~ .cs-field-mark{ right:34px; }
+.cs-image-field .cs-image-drop{ padding-right:44px; }
