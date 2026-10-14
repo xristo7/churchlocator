@@ -106,10 +106,11 @@ test("Channels, Store, seller management, and Resources are independent modules"
   assert.match(resourceDetail, /id="resource-detail"/);
 });
 
-test("donation page shows beneficiary image and video evidence", async () => {
+test("donation page shows real outreach reports or an honest empty state", async () => {
   const donate = await readProjectFile("public/donate.html");
   assert.match(donate, /class="donation-impact-gallery"/);
-  assert.match(donate, /<video controls/);
+  assert.match(donate, /Our first outreach report will appear here\./);
+  assert.doesNotMatch(donate, /Donations do not go to individual local churches/);
   assert.match(donate, /Impact in action/);
 });
 

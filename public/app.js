@@ -4780,7 +4780,7 @@ MWE.heroCarouselSlides = [
     id: "churches",
     name: "Churches",
     title: "Find a Church Family Near You.",
-    description: "We bridge the path from search to local church community—helping seekers find verified fellowships, request free Sunday rides, receive prayer, accept Jesus Christ, and support bi-monthly orphanage outreach.",
+    description: "We bridge the path from search to local church community—helping seekers find verified fellowships, request free Sunday rides, receive prayer, accept Jesus Christ, and support gospel outreach with local churches.",
     btn1: { text: "Find a Church Family", url: "churches.html", icon: "search", className: "button primary lg" },
     btn2: { text: "Register a Church", url: "church-portal.html", icon: "plus-circle", className: "button secondary lg" },
     sliderLabelIcon: "compass",
