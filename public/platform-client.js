@@ -2,7 +2,7 @@
 (function (root) {
  'use strict';
  const disk=root.localStorage, memory=new Map();
- const preferences=/^(mwe\.(theme|language|lang)|mwe\.platform\.(theme|primary)|faithlink\.theme)/i;
+ const preferences=/^(mwe\.(theme|language|lang)|mwe\.platform\.(theme|primary)|faithlink\.theme|faithlink\.store\.(cart|discount)\.v1)/i;
  const catalogKeys={churches:'mwe.platform.churches.v1',events:'mwe.platform.events.v4',meditation:'mwe.meditation.rooms.v1',channels:'faithlink.channels.v1',products:'faithlink.store.products.v1',resources:'faithlink.resources.v1',store:'mwe.storefronts.v1'};
  const privateKeys={prayer:'mwe.prayer_requests',ride:'mwe.ride_requests',visit:'mwe.visit_requests',salvation:'mwe.salvation_decisions',foundation:'mwe.foundation_apps',message:'faithlink.messages.v1',settings:'faithlink.messages.settings.v1'};
  const taxonomyDefaults={
