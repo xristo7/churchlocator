@@ -17,8 +17,8 @@
   <script defer src="simulated-live-player.js?v=20260930simlive1"></script>
   <script defer src="content-engagements.js?v=20260919engagements1"></script>
   <script defer src="creator-public.js?v=20261011live6"></script>
-<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /><script defer src="app-shell.js?v=20261011appshell26"></script><link rel="stylesheet" href="app-shell.css?v=20261011appshell26" /><link rel="stylesheet" href="live-redesign.css?v=6" /></head>
-<body class="live-page" data-page="livestream">
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /><script defer src="app-shell.js?v=20261011appshell26"></script><link rel="stylesheet" href="app-shell.css?v=20261011appshell26" /><link rel="stylesheet" href="live-redesign.css?v=6" /><link rel="stylesheet" href="mw-ui.css?v=3" /><script defer src="mw-ui.js?v=2"></script></head>
+<body class="live-page mwu" data-page="livestream">
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
@@ -47,14 +47,18 @@
     
     <!-- Section 1: Streams Landing Hub (Directory Mode) -->
     <section id="streams-landing-view" style="display: none;">
-      <div class="module-hero module-directory-hero">
-        <div class="module-shell module-hero-inner">
-        <div class="module-hero-copy">
-          <p class="kicker"><i data-lucide="radio"></i> Broadcast Center</p>
-          <h2>Evangelism Live Channels</h2>
-          <p>Tune in to live Sunday services, Bible study broadcasts, and worship events streaming now.</p>
-        </div>
-        <a class="module-primary-action" href="app.html?view=livestream" target="_top"><i data-lucide="radio"></i> Start a Broadcast</a>
+      <nav class="mwu-subnav" aria-label="Media">
+      <a href="channels.html"><i data-lucide="play-square"></i>Videos &amp; Podcasts</a>
+      <a href="livestream.html" class="is-active" aria-current="page"><i data-lucide="radio"></i>Live</a>
+      <a href="meditation.html"><i data-lucide="leaf"></i>Meditation</a>
+    </nav>
+      <div class="mwu-hero module-directory-hero" style="background-image:url('assets/church-audience.jpg')">
+        <div class="mwu-hero-inner">
+          <div class="module-hero-copy">
+            <h2 class="mwu-h1">Church broadcasts, live.</h2>
+            <p>Tune in to Sunday services, Bible studies and worship from churches on the platform.</p>
+            <div class="mwu-actions"><a class="mwu-btn mwu-btn-primary" href="app.html?view=livestream" target="_top"><i data-lucide="radio"></i> Start a Broadcast</a></div>
+          </div>
         </div>
       </div>
 

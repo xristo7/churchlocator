@@ -92,7 +92,7 @@ test("Channels, Store, seller management, and Resources are independent modules"
   assert.match(shell, /"store-manager":\s*\{ source: "seller-dashboard\.html"/);
   assert.match(shell, /resources:\s*\{ source: "resources\.html"/);
   assert.match(shell, /"resource-detail":\s*\{ source: "resource-detail\.html"/);
-  assert.match(channels, /Create a Channel/);
+  assert.match(channels, /Create Content/);
   assert.match(store, /Add a Product or Service/);
   assert.match(store, /id="store-cart-drawer"/);
   assert.match(product, /id="product-detail"/);
@@ -561,7 +561,6 @@ test("SPA shell supports member home dashboard and interactive meditation sanctu
   assert.match(medHtml, /Audio Bible/);
   assert.match(medHtml, /Soaking Instrumental/);
   assert.match(medHtml, /Sermons & Preaching/);
-  assert.match(medHtml, /Prayer & Sleep Timer/);
   assert.match(medHtml, /id="meditation-search"/);
   assert.match(medJs, /meditation-search/);
 

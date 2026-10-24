@@ -775,7 +775,7 @@
     themesGrid.innerHTML = roomsCatalog.filter(r => r.category === "themes").map(cardHtml).join("");
     if (communityGrid) {
       const custom = roomsCatalog.filter(r => r.category === "community" || (r.id && r.id.startsWith("room-custom-")));
-      communityGrid.innerHTML = custom.length ? custom.map(cardHtml).join("") : '<p class="empty-hint">No custom community rooms created yet. Select "Create Room" to start one!</p>';
+      communityGrid.innerHTML = custom.length ? custom.map(cardHtml).join("") : '<p class="empty-hint">No custom community rooms created yet. Select "Create My Meditation" to start one!</p>';
     }
 
     window.lucide?.createIcons();

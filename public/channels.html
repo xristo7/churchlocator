@@ -11,19 +11,25 @@
   <script defer src="platform-modules.js?v=20260826"></script>
   <script defer src="channels.js?v=20261007channelfix1"></script>
   <script defer src="content-engagements.js?v=20260919engagements1"></script>
-<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /><script defer src="app-shell.js?v=20261011appshell26"></script><link rel="stylesheet" href="app-shell.css?v=20261011appshell26" /></head>
-<body class="module-page" data-page="channels">
+<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /><script defer src="app-shell.js?v=20261011appshell26"></script><link rel="stylesheet" href="app-shell.css?v=20261011appshell26" /><link rel="stylesheet" href="mw-ui.css?v=3" /><script defer src="mw-ui.js?v=2"></script></head>
+<body class="mwu module-page" data-page="channels">
   <header class="topbar"></header>
 
   <main>
-    <section class="module-hero module-directory-hero">
-      <div class="module-shell module-hero-inner">
+    <nav class="mwu-subnav" aria-label="Media">
+      <a href="channels.html" class="is-active" aria-current="page"><i data-lucide="play-square"></i>Videos &amp; Podcasts</a>
+      <a href="livestream.html"><i data-lucide="radio"></i>Live</a>
+      <a href="meditation.html"><i data-lucide="leaf"></i>Meditation</a>
+    </nav>
+    <section class="mwu-hero module-directory-hero" style="background-image:url('assets/demo-channel-table-talk.png')">
+      <div class="mwu-hero-inner">
         <div class="module-hero-copy">
-          <span class="module-kicker"><i data-lucide="podcast"></i> Creator Channels</span>
-          <h1>Share the Gospel Worldwide</h1>
-          <p>Discover Christian podcasts, livestreams, teaching, worship, testimonies, and creator-led communities—or start a channel of your own.</p>
+          <h1>Watch. Listen. Join the conversation.</h1>
+          <p>Videos, podcasts and live gatherings that help faith become part of everyday life.</p>
+          <div class="mwu-actions">
+            <button class="mwu-btn mwu-btn-gold module-creator-action" id="create-channel-button" type="button" data-creator-action disabled aria-disabled="true"><i data-lucide="plus"></i> Create Content</button>
+          </div>
         </div>
-        <button class="module-primary-action module-creator-action" id="create-channel-button" type="button" data-creator-action disabled aria-disabled="true"><i data-lucide="plus"></i> Create a Channel</button>
       </div>
     </section>
 
@@ -35,7 +41,7 @@
         </label>
         <select class="module-select" id="channel-topic" data-filter-label="Topic" aria-label="Filter by topic">
           <option value="all">All topics</option>
-          <option>Bible Teaching</option><option>Bible Study</option><option>Worship</option><option>Family</option><option>Leadership</option><option>Youth</option>
+          <option>Bible Teaching</option><option>Bible Study</option><option>Worship</option><option>Family</option><option>Leadership</option><option>Youth</option><option>Testimony</option>
         </select>
         <select class="module-select" id="channel-format" data-filter-label="Format" aria-label="Filter by format">
           <option value="all">All formats</option><option>Podcast</option><option>Livestream</option><option>Video</option>
@@ -45,6 +51,14 @@
         </select>
       </div>
 
+<div class="mwu-chips mwu-chips-row" data-mwu-select="channel-topic" role="group" aria-label="Topics" >
+        <button type="button" class="mwu-chip is-active" data-value="all" aria-pressed="true"><i data-lucide="star"></i>For You</button>
+        <button type="button" class="mwu-chip" data-value="Bible Teaching" aria-pressed="false"><i data-lucide="book-open"></i>Bible Teaching</button>
+        <button type="button" class="mwu-chip" data-value="Worship" aria-pressed="false"><i data-lucide="music"></i>Worship</button>
+        <button type="button" class="mwu-chip" data-value="Testimony" aria-pressed="false"><i data-lucide="users"></i>Testimonies</button>
+        <button type="button" class="mwu-chip" data-value="Family" aria-pressed="false"><i data-lucide="home"></i>Family</button>
+        <button type="button" class="mwu-chip" data-value="Youth" aria-pressed="false"><i data-lucide="sparkles"></i>Youth</button>
+      </div>
       <div class="module-results-head">
         <h2>Channels to explore</h2>
         <span id="channel-result-count">0 channels</span>
