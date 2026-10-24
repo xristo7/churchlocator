@@ -796,3 +796,25 @@ body.member-is-guest [data-member-avatar-initials] svg{width:20px;height:20px}
 html body.member-is-guest .profile-app-header .profile-app-account .member-account-identity:not(#mwe-x){display:flex!important;flex-direction:column;justify-content:center}
 html body.member-is-guest .profile-app-header .profile-app-account .member-account-identity small:not(#mwe-x){display:none!important}
 html body.member-is-guest .profile-app-header .profile-app-account:not(#mwe-x){width:auto!important;padding:3px 12px 3px 3px!important;border-radius:999px;flex-direction:row-reverse;border:1px solid color-mix(in srgb,var(--text-primary,#0f172a) 14%,transparent)}
+
+/* ui-fix3: channel profile header + stats + tab bar clearance */
+body .channel-detail-modern .channel-detail-stats{background:transparent!important;box-shadow:none!important;border:0!important;padding:0!important;gap:12px}
+body .channel-detail-modern .channel-detail-stats span+span{border-left:1px solid var(--border)}
+body .channel-detail-profile .channel-detail-handle{margin:2px 0 0}
+body .channel-detail-profile .channel-detail-owner{margin:2px 0 0}
+@media (max-width:760px){
+  body .channel-detail-modern .channel-cover-type{left:16px!important;right:auto!important;top:14px!important;bottom:auto!important;padding:6px 10px;border-radius:999px;background:rgba(10,18,36,.55);backdrop-filter:blur(6px)}
+  body .channel-detail-modern .channel-detail-profile{display:flex!important;flex-direction:column;align-items:stretch!important;gap:14px!important;margin-top:-48px!important;padding:0 20px!important}
+  body .channel-detail-modern .channel-detail-profile>img{width:96px!important;height:96px!important;border-width:5px!important;align-self:flex-start;flex:0 0 auto}
+  body .channel-detail-modern .channel-detail-identity{padding:0!important;width:100%;min-width:0;text-align:left}
+  body .channel-detail-modern .channel-detail-identity h1{margin:0 0 4px!important;font-size:1.6rem!important;flex-wrap:wrap}
+  body .channel-detail-modern .channel-detail-actions{grid-column:auto!important;display:flex!important;width:100%;justify-content:stretch!important;gap:10px}
+  body .channel-detail-modern .channel-detail-actions .channel-follow-controls{flex:1 1 auto;display:flex}
+  body .channel-detail-modern .channel-detail-actions .channel-follow-controls>*{flex:1 1 auto;width:100%;min-height:48px}
+  body .channel-detail-modern .channel-detail-actions .content-love-detail{flex:0 0 auto;width:auto!important;min-width:72px!important;padding:0 16px!important;border-radius:999px!important}
+  body .channel-detail-modern .channel-detail-stats{gap:8px}
+  body .channel-detail-modern .channel-detail-stats span{padding:14px 6px}
+  body.has-mwe-tabbar:not(#mwe-x) main,body.has-mwe-tabbar:not(#mwe-x) .mwe-page-end{padding-bottom:calc(var(--tabbar-h,60px) + env(safe-area-inset-bottom,0px) + 16px)!important}
+}
+body .channel-detail-modern .channel-detail-summary{padding-bottom:28px}
+@media (max-width:760px){body .channel-detail-modern .channel-cover-type{top:auto!important;bottom:14px!important;left:auto!important;right:16px!important}}
