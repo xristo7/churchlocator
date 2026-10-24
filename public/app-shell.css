@@ -766,7 +766,9 @@ html body .mwe-generic-spotlight:not(#mwe-x) { margin: 0 8px; align-self: center
 html.member-shell-embed body.member-shell-embed > :is(header, .topbar, .profile-app-header, .profile-left-rail, footer, .mini-footer):not(#mwe-x):not(#mwe-y),
 html.member-shell-embed body > .profile-app-header:not(#mwe-x):not(#mwe-y),
 html.member-shell-embed .mwe-search-overlay:not(#mwe-x) { display: none !important; }
-html.member-shell-embed body.has-mwe-tabbar:not(#mwe-x) { padding-bottom: 0 !important; }
+/* ui-fix5: signed-in pages render in app.html's iframe; the parent's tab bar overlays the frame, so the embedded document needs the single end-of-scroll reserve itself */
+@media (max-width:959.98px){html.member-shell-embed body.member-shell-embed:not([data-page="messages"]):not(#mwe-x):not(#mwe-y){padding-bottom:calc(var(--mwe-shell-bar,60px) + 16px)!important}
+html.member-shell-embed body.member-shell-embed:not(#mwe-x):not(#mwe-y) main{padding-bottom:0!important}}
 
 /* Church profile: main + sidebar always fit the content width */
 @media (min-width: 960px) {
@@ -826,3 +828,5 @@ body .channel-detail-modern .channel-detail-summary{padding-bottom:28px}
   html[data-theme="dark"] body .mwe-tabbar:not(#mwe-x){background:color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 7%, #0b1220) 78%, transparent)!important}
   html body.has-mwe-tabbar[data-page="messages"]:not(#mwe-x){padding-bottom:0!important}
 }
+@media (max-width:959.98px){html body.member-app-shell .mwe-tabbar:not(#mwe-x){-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 4%, #ffffff) 80%, transparent)!important}
+html[data-theme="dark"] body.member-app-shell .mwe-tabbar:not(#mwe-x){background:color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 7%, #0b1220) 82%, transparent)!important}}

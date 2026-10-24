@@ -1729,6 +1729,10 @@ MWE.applyMemberShellEmbed = function() {
 
   document.documentElement.classList.add("member-shell-embed");
   document.body.classList.add("member-shell-embed");
+  try {
+    const syncBar = () => { const bar = window.parent.document.querySelector(".mwe-tabbar"); const h = bar && window.parent.getComputedStyle(bar).display !== "none" ? bar.getBoundingClientRect().height : 0; document.documentElement.style.setProperty("--mwe-shell-bar", h + "px"); };
+    syncBar(); window.addEventListener("resize", syncBar);
+  } catch (_) {}
 
   const embedParams = new URLSearchParams(window.location.search);
   if (embedParams.get("preview") === "studio") document.body.classList.add("studio-hero-preview");
