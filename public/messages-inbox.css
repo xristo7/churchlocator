@@ -1,0 +1,59 @@
+/* Email-inbox layout for Messages (two panes; off-canvas sidebar on mobile) */
+body[data-page="messages"]{overflow-x:clip}
+body[data-page="messages"] .messages-page{--inbox-top:64px;position:relative;display:grid;grid-template-columns:340px minmax(0,1fr);height:calc(100dvh - var(--inbox-top));min-height:0!important;overflow:hidden}
+body[data-page="messages"] .messages-sidebar{min-height:0!important;height:100%;display:flex;flex-direction:column;gap:12px;padding:20px 14px 14px;overflow:hidden}
+body[data-page="messages"] .messages-sidebar-head{flex:0 0 auto}
+body[data-page="messages"] .messages-sidebar-head button{width:44px;height:44px;border-radius:12px}
+body[data-page="messages"] .messages-search,body[data-page="messages"] .message-filter-tabs{flex:0 0 auto;margin:0!important}
+body[data-page="messages"] .message-thread-list{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;margin:0!important;display:flex;flex-direction:column;gap:4px;padding-right:2px}
+body[data-page="messages"] .message-thread{flex:0 0 auto;width:100%;display:grid!important;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;text-align:left;position:relative}
+body[data-page="messages"] .message-thread img{width:44px;height:44px;border-radius:50%;object-fit:cover;aspect-ratio:1}
+body[data-page="messages"] .message-thread>span{min-width:0;display:grid;gap:2px}
+body[data-page="messages"] .message-thread strong,body[data-page="messages"] .message-thread small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body[data-page="messages"] .message-thread>i{position:absolute;right:10px;bottom:12px;width:8px;height:8px;border-radius:50%;background:var(--primary)}
+body[data-page="messages"] .message-thread:has(>i) strong{font-weight:800}
+body[data-page="messages"] .email-sync-button{flex:0 0 auto;position:static!important;margin:0!important;width:100%}
+body[data-page="messages"] .message-conversation{min-height:0!important;height:100%;display:flex;flex-direction:column;overflow:hidden;border-top:0!important}
+body[data-page="messages"] .conversation-head{flex:0 0 auto;grid-template-columns:auto 45px minmax(0,1fr) auto;padding:0 18px}
+body[data-page="messages"] .conversation-head>div{min-width:0}
+body[data-page="messages"] .conversation-head strong,body[data-page="messages"] .conversation-head span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body[data-page="messages"] .conversation-head .conversation-menu{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
+body[data-page="messages"] .conversation-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+body[data-page="messages"] .conversation-reply{flex:0 0 auto}
+body[data-page="messages"] .message-welcome,body[data-page="messages"] .message-recipient-picker,body[data-page="messages"] .email-settings-view{overflow-y:auto;min-height:0;flex:1 1 auto}
+body[data-page="messages"] .inbox-back{display:none}
+body[data-page="messages"] .inbox-backdrop{display:none}
+@media (max-width:860px){
+  body[data-page="messages"]{padding-bottom:0!important}
+  body[data-page="messages"] .messages-page{grid-template-columns:minmax(0,1fr);height:calc(100dvh - var(--inbox-top) - var(--tabbar-h,60px) - env(safe-area-inset-bottom,0px))}
+  body[data-page="messages"] .messages-sidebar,body[data-page="messages"] .message-conversation{grid-area:1/1;width:100%}
+  body[data-page="messages"] .messages-sidebar{border-right:0;z-index:3;transition:transform .28s ease,box-shadow .28s ease}
+  body[data-page="messages"] .message-conversation{z-index:1}
+  body[data-page="messages"] .messages-page:not(.is-pane-open) .message-conversation{visibility:hidden}
+  body[data-page="messages"] .messages-page.is-pane-open .messages-sidebar{transform:translateX(-102%);width:min(88vw,340px);box-shadow:none}
+  body[data-page="messages"] .messages-page.is-pane-open.is-drawer-open .messages-sidebar{transform:none;box-shadow:12px 0 32px rgba(0,0,0,.28)}
+  body[data-page="messages"] .inbox-backdrop{display:block;position:absolute;inset:0;z-index:2;background:rgba(5,10,20,.45);opacity:0;pointer-events:none;transition:opacity .28s ease}
+  body[data-page="messages"] .messages-page.is-drawer-open .inbox-backdrop{opacity:1;pointer-events:auto}
+  body[data-page="messages"] .inbox-backdrop[hidden]{display:block}
+  body[data-page="messages"] .inbox-back{display:inline-grid;place-items:center;width:40px;height:40px;margin-left:-8px;border:0;border-radius:50%;background:transparent;color:inherit;cursor:pointer}
+  body[data-page="messages"] .inbox-back svg{width:22px;height:22px}
+  body[data-page="messages"] .inbox-back-inline{display:inline-flex;width:auto;gap:4px;padding:0 10px 0 4px;margin:0 0 12px;border-radius:10px;font:inherit;font-weight:700}
+  body[data-page="messages"] .conversation-head{min-height:64px;gap:10px;padding:0 12px}
+  body[data-page="messages"] .conversation-body{padding:16px}
+  body[data-page="messages"] .conversation-reply{margin:8px 12px 12px}
+}
+@media (prefers-reduced-motion:reduce){body[data-page="messages"] .messages-sidebar,body[data-page="messages"] .inbox-backdrop{transition:none}}
+body[data-page="messages"] .messages-page{grid-template-rows:minmax(0,1fr)}
+body[data-page="messages"] .conversation-head{display:flex!important;align-items:center;gap:12px}
+body[data-page="messages"] .conversation-head>img{flex:0 0 45px}
+body[data-page="messages"] .conversation-head>div{flex:1 1 auto}
+body[data-page="messages"] .conversation-head .mwe-header-spotlight{display:none!important}
+body[data-page="messages"] .conversation-head .conversation-menu{flex:0 0 40px;margin-left:auto}
+html body[data-page="messages"] .messages-page{padding:0!important;margin:0!important}
+html body[data-page="messages"]:not(#x) .conversation-head a.mwe-header-spotlight{display:none!important}
+@media (max-width:760px){html body.has-mwe-tabbar[data-page="messages"]:not(#mwe-x) main.messages-page{padding-bottom:0!important}}
+body[data-page="messages"] .message-welcome{display:flex!important;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:32px 24px!important;margin:0!important;min-height:0!important;height:100%;box-sizing:border-box}
+body[data-page="messages"] .message-welcome>svg{width:44px;height:44px;flex:0 0 auto}
+body[data-page="messages"] .message-welcome h2{font-size:1.5rem!important;line-height:1.2;margin:4px 0 0!important}
+body[data-page="messages"] .message-welcome p{max-width:360px;margin:0!important}
+body[data-page="messages"] .message-welcome{width:100%!important;max-width:none!important;align-self:stretch}

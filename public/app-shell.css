@@ -814,7 +814,15 @@ body .channel-detail-profile .channel-detail-owner{margin:2px 0 0}
   body .channel-detail-modern .channel-detail-actions .content-love-detail{flex:0 0 auto;width:auto!important;min-width:72px!important;padding:0 16px!important;border-radius:999px!important}
   body .channel-detail-modern .channel-detail-stats{gap:8px}
   body .channel-detail-modern .channel-detail-stats span{padding:14px 6px}
-  body.has-mwe-tabbar:not(#mwe-x) main,body.has-mwe-tabbar:not(#mwe-x) .mwe-page-end{padding-bottom:calc(var(--tabbar-h,60px) + env(safe-area-inset-bottom,0px) + 16px)!important}
 }
 body .channel-detail-modern .channel-detail-summary{padding-bottom:28px}
 @media (max-width:760px){body .channel-detail-modern .channel-cover-type{top:auto!important;bottom:14px!important;left:auto!important;right:16px!important}}
+
+/* ui-fix4: single bottom reserve at the end of the scroll; content scrolls visibly under the translucent tab bar */
+@media (max-width:959.98px){
+  html body.has-mwe-tabbar:not(#mwe-x){padding-bottom:calc(var(--tabbar-h,60px) + env(safe-area-inset-bottom,0px) + 16px)!important}
+  html body.has-mwe-tabbar:not(#mwe-x) main{padding-bottom:0!important;overflow:visible}
+  html body .mwe-tabbar:not(#mwe-x){background:color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 4%, #ffffff) 74%, transparent)!important;-webkit-backdrop-filter:saturate(160%) blur(8px);backdrop-filter:saturate(160%) blur(8px);box-shadow:none!important}
+  html[data-theme="dark"] body .mwe-tabbar:not(#mwe-x){background:color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 7%, #0b1220) 78%, transparent)!important}
+  html body.has-mwe-tabbar[data-page="messages"]:not(#mwe-x){padding-bottom:0!important}
+}
