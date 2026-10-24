@@ -38,7 +38,7 @@
       return;
     }
     grid.innerHTML = resources.map((resource, index) => {
-      const creatorName = String(resource.creator || "My Way").trim();
+      const creatorName = String(resource.creator || "RhemaSphere").trim();
       const creatorKey = creatorName.toLocaleLowerCase();
       const channel = (data().getChannels() || []).find(item =>
         [item.name, item.owner, item.handle].some(value => String(value || "").trim().toLocaleLowerCase() === creatorKey)

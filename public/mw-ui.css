@@ -1,4 +1,4 @@
-/* MWoE media UI kit (Oct 2026 mockups: Sanctuary, Videos, Podcasts, Live, Giving) */
+/* RhemaSphere media UI kit (Oct 2026 mockups: Sanctuary, Videos, Podcasts, Live, Giving) */
 @import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap");
 :root{--mwu-blue:#2563eb;--mwu-blue-d:#1d4ed8;--mwu-navy:#0f1f4b;--mwu-ink:#1e293b;--mwu-muted:#5b6b85;--mwu-line:#e3e9f3;--mwu-bg:#f4f7fc;--mwu-card:#fff;--mwu-gold:#c9962b;--mwu-r:14px;--mwu-shadow:0 1px 2px rgba(15,31,75,.05),0 8px 24px rgba(15,31,75,.06);--mwu-serif:"Source Serif 4",Georgia,"Times New Roman",serif}
 html[data-theme="dark"],body.dark-mode{--mwu-navy:#e8eefc;--mwu-ink:#e2e8f0;--mwu-muted:#9fb0cc;--mwu-line:#273450;--mwu-bg:#0b1220;--mwu-card:#121b2e}

@@ -256,7 +256,7 @@
                 <div class="seller-profile-avatar"><i data-lucide="${product.sellerType === "Church" ? "church" : "user"}"></i></div>
                 <div class="seller-profile-meta">
                   <strong>${data().escapeHtml(product.seller)}</strong>
-                  <span>Verified ${data().escapeHtml(product.sellerType)} on My Way of Evangelism</span>
+                  <span>Verified ${data().escapeHtml(product.sellerType)} on RhemaSphere</span>
                   <p>Committed to uplifting the body of Christ with inspiring resources, gospel materials, and community care.</p>
                 </div>
               </div>
@@ -901,7 +901,7 @@
       return;
     }
 
-    document.title = `${item.title} | My Way of Evangelism`;
+    document.title = `${item.title} | RhemaSphere`;
 
     if (item.itemType === "service") {
       container.classList.add("service-detail-host");

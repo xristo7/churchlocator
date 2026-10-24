@@ -33,7 +33,7 @@
   }
   function renderCard(item, index) {
     const feature = ['church','channel','event'].includes(item.contentType);
-    const editorial = item.placementKind === 'sponsored' ? 'Sponsored' : feature ? 'Featured ' + item.contentType[0].toUpperCase() + item.contentType.slice(1) : item.placementKind === 'editorial' ? 'My Way selection' : '';
+    const editorial = item.placementKind === 'sponsored' ? 'Sponsored' : feature ? 'Featured ' + item.contentType[0].toUpperCase() + item.contentType.slice(1) : item.placementKind === 'editorial' ? 'RhemaSphere selection' : '';
     const previewLength = item.previewEndSeconds ? item.previewEndSeconds - (item.previewStartSeconds || 0) : 0;
     const progress = item.durationSeconds ? Math.max(8, Math.min(100, ((item.previewEndSeconds || previewLength || 30) / item.durationSeconds) * 100)) : 38;
     const media = item.mediaUrl && /\.(mp4|webm)(?:\?|$)/i.test(item.mediaUrl)
@@ -46,7 +46,7 @@
       '<div class="spotlight-card-top">' + (editorial ? '<span class="spotlight-editorial-label' + (item.placementKind === 'sponsored' ? ' spotlight-sponsored' : '') + '">' + icon(item.placementKind === 'sponsored' ? 'badge-dollar-sign' : 'sparkles') + esc(editorial) + '</span>' : '<span></span>') + '<button type="button" data-card-menu aria-label="Report this item">' + icon('ellipsis') + '</button></div>' +
       '<div class="spotlight-copy"><div class="spotlight-identity"><span class="spotlight-avatar">' + avatar + '</span><div><strong>' + esc(item.creatorName) + icon('badge-check') + '</strong><span>' + esc(item.creatorHandle) + '</span></div><button type="button" class="spotlight-follow' + (item.following ? ' is-active' : '') + '" data-follow>' + (item.following ? 'Following' : 'Follow') + '</button></div>' +
       '<h2>' + esc(item.title) + '</h2><p>' + esc(item.caption) + '</p>' +
-      (feature ? '<div class="spotlight-member-row"><span class="spotlight-member-faces"><span></span><span></span><span></span></span><span>Growing community on My Way</span></div>' : '') +
+      (feature ? '<div class="spotlight-member-row"><span class="spotlight-member-faces"><span></span><span></span><span></span></span><span>Growing community on RhemaSphere</span></div>' : '') +
       '<div class="spotlight-preview-row">' + (cta ? '<a class="spotlight-primary-cta" href="' + esc(cta) + '" data-spotlight-cta>' + icon(hasFullContent ? 'play' : 'arrow-up-right') + esc(hasFullContent?'Watch full video':'Open Channel') + '</a>' : '') + (!feature && item.contentType === 'long-preview' && hasFullContent ? '<span class="spotlight-preview-meta">Preview · ' + duration(item.durationSeconds) + ' full video</span>' : '') + '</div>' +
       (!feature ? '<div class="spotlight-progress" aria-hidden="true"><span style="--progress:' + progress + '%"></span></div>' : '') + '</div>' +
       '<div class="spotlight-actions">' + actionButton('like','heart',compact(item.likes),'Like',item.liked) + actionButton('comments','message-circle',compact(item.comments),'Open comments',false) + actionButton('save','bookmark',compact(item.saves),'Save',item.saved) + actionButton('share','share-2','Share','Share',false) + actionButton('remind','bell','Remind','Remind me to watch',!!item.reminderAt) + '</div></article>';
@@ -115,7 +115,7 @@
     try { rows = await loadComments(item); }
     catch (error) { if(request!==state.inspectorRequest)return; inspector.innerHTML = '<div class="spotlight-comment-empty">' + icon('wifi-off') + '<strong>Comments are unavailable.</strong><p>' + esc(error.message) + '</p></div>'; window.lucide?.createIcons(); return; }
     if(request!==state.inspectorRequest)return;
-    if (!rows.length) inspector.innerHTML = '<div class="spotlight-comment-empty">' + icon('message-circle') + '<strong>Begin an encouraging conversation.</strong><p>Comments are reviewed under the My Way community standards.</p></div>';
+    if (!rows.length) inspector.innerHTML = '<div class="spotlight-comment-empty">' + icon('message-circle') + '<strong>Begin an encouraging conversation.</strong><p>Comments are reviewed under the RhemaSphere community standards.</p></div>';
     else inspector.innerHTML = rows.map(row => '<article class="spotlight-comment"><span class="spotlight-comment-avatar">' + icon('user') + '</span><div><strong>' + esc(row.author) + '</strong><p>' + esc(row.body) + '</p><small>' + new Date(row.createdAt).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}) + '</small></div></article>').join('');
     window.lucide?.createIcons();
   }

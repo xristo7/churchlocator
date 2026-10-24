@@ -1510,7 +1510,7 @@ MWE.showMapModal = MWE.showMapModal || function(id) { if (typeof window !== "und
 MWE.closeMapModal = MWE.closeMapModal || function() { if (typeof window !== "undefined" && window.MWE && window.MWE.closeMapModal) window.MWE.closeMapModal(); };
 MWE.shareDirections = MWE.shareDirections || function(n, l) { if (typeof window !== "undefined" && window.MWE && window.MWE.shareDirections) window.MWE.shareDirections(n, l); };
 
-/* My Way member experience: public discovery + authenticated SPA shell. */
+/* RhemaSphere member experience: public discovery + authenticated SPA shell. */
 MWE.isMemberAuthenticated = function() {
   return Boolean(window.MWEPlatform?.session) || localStorage.getItem("mwe.userLoggedIn") === "true";
 };
@@ -1626,7 +1626,7 @@ MWE.ensureMemberLoginModal = function() {
       <button class="member-auth-close" type="button" aria-label="Close sign in"><i data-lucide="x"></i></button>
       <div class="member-auth-icon"><i data-lucide="sparkles"></i></div>
       <h2 id="member-auth-title">Sign in to continue</h2>
-      <p>Your selected church, event, or livestream will open inside the My Way app.</p>
+      <p>Your selected church, event, or livestream will open inside the RhemaSphere app.</p>
       <button class="google-auth-fast-btn member-auth-google" type="button" data-member-google-auth>
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -1646,7 +1646,7 @@ MWE.ensureMemberLoginModal = function() {
           <span class="mwe-password-wrap"><input type="password" name="password" autocomplete="current-password" placeholder="Password" required /></span>
         </label>
         <button class="member-auth-submit" type="submit"><i data-lucide="log-in"></i> <span>Sign in</span></button>
-        <p class="member-auth-hint">New to My Way? <a href="index.html#register">Create an account</a></p>
+        <p class="member-auth-hint">New to RhemaSphere? <a href="index.html#register">Create an account</a></p>
       </form>
     </div>
   `;
@@ -3128,7 +3128,7 @@ MWE.renderChurchCreatorDetails = function(church) {
 
 function renderProfile(church) {
   if (!church) return;
-  document.title = `${church.name} | My Way of Evangelism`;
+  document.title = `${church.name} | RhemaSphere`;
   MWE.currentProfileChurch = church;
   MWE.activeChurchProfile = church;
   
@@ -4041,7 +4041,7 @@ MWE.shareTo = function(platform) {
 function initProfilePage() {
   const church = getRouteChurch();
   if (!church) {
-    document.title = "Church not found | My Way of Evangelism";
+    document.title = "Church not found | RhemaSphere";
     const main = document.querySelector("main");
     if (main) {
       main.innerHTML = `
@@ -4748,7 +4748,7 @@ const HERO_MEDITATION_SEEDS = [
 ];
 
 const HERO_PRODUCT_SEEDS = [
-  { id: "study-bible", title: "FaithLink Study Bible", seller: "River City Church", category: "Books", price: 48, image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=82" },
+  { id: "study-bible", title: "RhemaSphere Study Bible", seller: "River City Church", category: "Books", price: 48, image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=82" },
   { id: "prayer-journal", title: "90-Day Prayer Journal", seller: "Daily Word with Amara", category: "Journals", price: 22, image: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=82" },
   { id: "worship-hoodie", title: "Worship Is My Response Hoodie", seller: "The Worship Room", category: "Apparel", price: 54, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&q=82" },
   { id: "communion-set", title: "Home Communion Set", seller: "Grace Community", category: "Church Supplies", price: 38, image: "https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=800&q=82" },
@@ -5358,7 +5358,7 @@ function renderHomepageSections() {
               <span class="product-badge">${MWE.escapeHtml(p.sellerType || 'Store')} · ${MWE.escapeHtml(p.category || 'Books')}</span>
             </a>
             <div class="product-card-body">
-              <span class="product-seller">Sold by ${MWE.escapeHtml(p.seller || 'FaithLink')}</span>
+              <span class="product-seller">Sold by ${MWE.escapeHtml(p.seller || 'RhemaSphere')}</span>
               <h3><a href="product-detail.html?id=${encodeURIComponent(p.id)}">${MWE.escapeHtml(p.title)}</a></h3>
               <span class="product-rating"><i data-lucide="star"></i>${Number(p.rating || 4.8).toFixed(1)} · In stock</span>
               <div class="product-price-row">
@@ -5466,7 +5466,7 @@ function updateHomepageAuthUI() {
               <div class="form-group mb-2 signin-field-group">
                 <label for="nav-auth-email" id="nav-auth-email-label" class="auth-visually-hidden">Email address</label>
                 <input type="email" id="nav-auth-email" name="email" class="field small-field" placeholder="Email address" autocomplete="email" required />
-                <small class="auth-field-helper">Use the email on your My Way account.</small>
+                <small class="auth-field-helper">Use the email on your RhemaSphere account.</small>
               </div>
               <div class="form-group mb-3 signin-field-group">
                 <label for="nav-auth-password" class="auth-visually-hidden">Password</label>
@@ -5617,7 +5617,7 @@ MWE.handleNavDropdownAuthSubmit = async function(event) {
     document.getElementById("nav-signin-dropdown-container")?.classList.remove("is-open");
 
     if (typeof showToast === "function") {
-      showToast((isRegister ? "Welcome to My Way of Evangelism, " : "Welcome back, ") + username);
+      showToast((isRegister ? "Welcome to RhemaSphere, " : "Welcome back, ") + username);
     }
     updateHomepageAuthUI();
   } catch {
@@ -5861,8 +5861,8 @@ MWE.initCustomDropdowns = initCustomDropdowns;
 // Lightweight Dynamic Translation System (EN, FR, ES)
 function initTranslations() {
   const translatedTitles = {
-    fr: { home: "Accueil", public: "Annuaire des églises", profile: "Profil de l’église", events: "Événements", "event-profile": "Détails de l’événement", livestream: "Diffusions en direct", donate: "Faire un don", foundation: "Fondation", channels: "Chaînes chrétiennes", "channel-detail": "Chaîne", "channel-content": "Contenu de la chaîne", store: "Boutique My Way", product: "Détails du produit", "product-detail": "Détails du produit", cart: "Votre panier", checkout: "Paiement", resources: "Ressources chrétiennes", "resource-detail": "Détails de la ressource", "resource-reader": "Lecteur", messages: "Messages", meditation: "Sanctuaire de méditation", portal: "Espace créateur", creator: "Espace créateur", owner: "Administration de la plateforme", "store-manager": "Gestion de la boutique", storefront: "Profil de la boutique", broadcast: "Diffusion en direct", privacy: "Confidentialité et conditions", "member-home": "Accueil membre" },
-    es: { home: "Inicio", public: "Directorio de iglesias", profile: "Perfil de la iglesia", events: "Eventos", "event-profile": "Detalles del evento", livestream: "Transmisiones en vivo", donate: "Donar", foundation: "Fundación", channels: "Canales cristianos", "channel-detail": "Canal", "channel-content": "Contenido del canal", store: "Tienda My Way", product: "Detalles del producto", "product-detail": "Detalles del producto", cart: "Tu carrito", checkout: "Pago", resources: "Recursos cristianos", "resource-detail": "Detalles del recurso", "resource-reader": "Lector", messages: "Mensajes", meditation: "Santuario de meditación", portal: "Centro de creadores", creator: "Espacio del creador", owner: "Administración de la plataforma", "store-manager": "Gestión de la tienda", storefront: "Perfil de la tienda", broadcast: "Transmisión en vivo", privacy: "Privacidad y condiciones", "member-home": "Inicio del miembro" }
+    fr: { home: "Accueil", public: "Annuaire des églises", profile: "Profil de l’église", events: "Événements", "event-profile": "Détails de l’événement", livestream: "Diffusions en direct", donate: "Faire un don", foundation: "Fondation", channels: "Chaînes chrétiennes", "channel-detail": "Chaîne", "channel-content": "Contenu de la chaîne", store: "Boutique RhemaSphere", product: "Détails du produit", "product-detail": "Détails du produit", cart: "Votre panier", checkout: "Paiement", resources: "Ressources chrétiennes", "resource-detail": "Détails de la ressource", "resource-reader": "Lecteur", messages: "Messages", meditation: "Sanctuaire de méditation", portal: "Espace créateur", creator: "Espace créateur", owner: "Administration de la plateforme", "store-manager": "Gestion de la boutique", storefront: "Profil de la boutique", broadcast: "Diffusion en direct", privacy: "Confidentialité et conditions", "member-home": "Accueil membre" },
+    es: { home: "Inicio", public: "Directorio de iglesias", profile: "Perfil de la iglesia", events: "Eventos", "event-profile": "Detalles del evento", livestream: "Transmisiones en vivo", donate: "Donar", foundation: "Fundación", channels: "Canales cristianos", "channel-detail": "Canal", "channel-content": "Contenido del canal", store: "Tienda RhemaSphere", product: "Detalles del producto", "product-detail": "Detalles del producto", cart: "Tu carrito", checkout: "Pago", resources: "Recursos cristianos", "resource-detail": "Detalles del recurso", "resource-reader": "Lector", messages: "Mensajes", meditation: "Santuario de meditación", portal: "Centro de creadores", creator: "Espacio del creador", owner: "Administración de la plataforma", "store-manager": "Gestión de la tienda", storefront: "Perfil de la tienda", broadcast: "Transmisión en vivo", privacy: "Privacidad y condiciones", "member-home": "Inicio del miembro" }
   };
   const translations = {
     en: {
@@ -5958,7 +5958,7 @@ function initTranslations() {
       "Live Now": "En direct maintenant", "Watch Live": "Regarder en direct", "Start watching": "Commencer à regarder", "Meditation Sanctuary": "Sanctuaire de méditation", "Create a Meditation Room": "Créer une salle de méditation", "Join Room": "Rejoindre la salle", "Start Session": "Commencer la séance", "End Session": "Terminer la séance",
       "Shop with churches and Christian creators.": "Achetez auprès d’églises et de créateurs chrétiens.", "Marketplace products": "Produits de la marketplace", "Cart": "Panier", "Your Cart": "Votre panier", "Your cart": "Votre panier", "Shopping cart": "Panier", "Continue shopping": "Continuer vos achats", "Order summary": "Récapitulatif de la commande", "Subtotal": "Sous-total", "Shipping": "Livraison", "Discount": "Réduction", "Total": "Total", "Checkout": "Paiement", "Contact": "Coordonnées", "Delivery": "Livraison", "Ship": "Expédier", "Pick up": "Retirer", "Country/Region": "Pays/région", "First name": "Prénom", "Last name": "Nom", "Address": "Adresse", "City": "Ville", "Postal code": "Code postal", "Shipping method": "Mode de livraison", "Payment": "Paiement", "Credit card": "Carte de crédit", "Card number": "Numéro de carte", "Security code": "Code de sécurité", "Name on card": "Nom sur la carte", "Pay now": "Payer maintenant", "Continue shopping": "Continuer vos achats",
       "Study, grow, teach, and share.": "Étudiez, grandissez, enseignez et partagez.", "Publish resource": "Publier une ressource", "Purchased": "Achats", "Resource library": "Bibliothèque de ressources", "Publish a Christian resource": "Publier une ressource chrétienne", "Title": "Titre", "Content type": "Type de contenu", "Format": "Format", "Access": "Accès", "Price": "Prix", "Summary": "Résumé", "Optional attachment": "Pièce jointe facultative",
-      "Communication": "Communication", "Unread": "Non lus", "Sent": "Envoyés", "New message": "Nouveau message", "Email forwarding": "Transfert d’e-mails", "Not connected": "Non connecté", "Your My Way inbox": "Votre messagerie My Way", "Start a conversation": "Démarrer une conversation",
+      "Communication": "Communication", "Unread": "Non lus", "Sent": "Envoyés", "New message": "Nouveau message", "Email forwarding": "Transfert d’e-mails", "Not connected": "Non connecté", "Your RhemaSphere inbox": "Votre messagerie RhemaSphere", "Start a conversation": "Démarrer une conversation",
       "Create Creator Account": "Créer un compte créateur", "What would you like to launch first?": "Que souhaitez-vous lancer en premier ?", "Church Profile": "Profil d’église", "Channel / Media": "Chaîne / Média", "Events & Tickets": "Événements et billets", "Store & Merch": "Boutique et produits", "Study Resources": "Ressources d’étude", "All-in-One": "Tout-en-un", "Next: Organization Info": "Suivant : informations sur l’organisation"
     },
     es: {
@@ -5971,7 +5971,7 @@ function initTranslations() {
       "Live Now": "En vivo ahora", "Watch Live": "Ver en vivo", "Start watching": "Empezar a ver", "Meditation Sanctuary": "Santuario de meditación", "Create a Meditation Room": "Crear una sala de meditación", "Join Room": "Unirse a la sala", "Start Session": "Iniciar sesión", "End Session": "Finalizar sesión",
       "Shop with churches and Christian creators.": "Compra a iglesias y creadores cristianos.", "Marketplace products": "Productos del mercado", "Cart": "Carrito", "Your Cart": "Tu carrito", "Your cart": "Tu carrito", "Shopping cart": "Carrito", "Continue shopping": "Seguir comprando", "Order summary": "Resumen del pedido", "Subtotal": "Subtotal", "Shipping": "Envío", "Discount": "Descuento", "Total": "Total", "Checkout": "Pago", "Contact": "Contacto", "Delivery": "Entrega", "Ship": "Enviar", "Pick up": "Recoger", "Country/Region": "País/región", "First name": "Nombre", "Last name": "Apellido", "Address": "Dirección", "City": "Ciudad", "Postal code": "Código postal", "Shipping method": "Método de envío", "Payment": "Pago", "Credit card": "Tarjeta de crédito", "Card number": "Número de tarjeta", "Security code": "Código de seguridad", "Name on card": "Nombre en la tarjeta", "Pay now": "Pagar ahora",
       "Study, grow, teach, and share.": "Estudia, crece, enseña y comparte.", "Publish resource": "Publicar recurso", "Purchased": "Comprados", "Resource library": "Biblioteca de recursos", "Publish a Christian resource": "Publicar un recurso cristiano", "Title": "Título", "Content type": "Tipo de contenido", "Format": "Formato", "Access": "Acceso", "Price": "Precio", "Summary": "Resumen", "Optional attachment": "Archivo adjunto opcional",
-      "Communication": "Comunicación", "Unread": "No leídos", "Sent": "Enviados", "New message": "Nuevo mensaje", "Email forwarding": "Reenvío de correo", "Not connected": "No conectado", "Your My Way inbox": "Tu bandeja de entrada de My Way", "Start a conversation": "Iniciar una conversación",
+      "Communication": "Comunicación", "Unread": "No leídos", "Sent": "Enviados", "New message": "Nuevo mensaje", "Email forwarding": "Reenvío de correo", "Not connected": "No conectado", "Your RhemaSphere inbox": "Tu bandeja de entrada de RhemaSphere", "Start a conversation": "Iniciar una conversación",
       "Create Creator Account": "Crear cuenta de creador", "What would you like to launch first?": "¿Qué te gustaría lanzar primero?", "Church Profile": "Perfil de iglesia", "Channel / Media": "Canal / Medios", "Events & Tickets": "Eventos y entradas", "Store & Merch": "Tienda y productos", "Study Resources": "Recursos de estudio", "All-in-One": "Todo en uno", "Next: Organization Info": "Siguiente: información de la organización"
     }
   };
@@ -6022,7 +6022,7 @@ function initTranslations() {
     currentLang = lang;
     document.documentElement.lang = lang;
     const page = document.body?.dataset.page;
-    if (lang !== "en" && translatedTitles[lang]?.[page]) document.title = `${translatedTitles[lang][page]} | My Way`;
+    if (lang !== "en" && translatedTitles[lang]?.[page]) document.title = `${translatedTitles[lang][page]} | RhemaSphere`;
 
     document.querySelectorAll(".lang-selector-btn .lang-flag").forEach(el => {
       el.innerHTML = flags[lang] || flags.en;
@@ -8936,7 +8936,7 @@ MWE.handleDonationSubmit = function(e) {
 
 MWE.downloadCalendarICS = function(title, timeStr, location) {
   const currentChurch = MWE.activeChurchProfile || {};
-  const churchName = currentChurch.name || "My Way of Evangelism Church";
+  const churchName = currentChurch.name || "RhemaSphere Church";
   const finalLocation = location || currentChurch.location || "Church Sanctuary";
   const cleanTitle = `${title} - ${churchName}`;
   const filename = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-event.ics`;
@@ -8949,7 +8949,7 @@ MWE.downloadCalendarICS = function(title, timeStr, location) {
   const icsLines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//My Way of Evangelism//Gathering Calendar//EN",
+    "PRODID:-//RhemaSphere//Gathering Calendar//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
@@ -8988,10 +8988,10 @@ MWE.downloadCalendarICS = function(title, timeStr, location) {
 
 MWE.openCalendarModal = function(title, timeStr = "Sunday 10:00 AM", location = "") {
   const currentChurch = MWE.activeChurchProfile || {};
-  const churchName = currentChurch.name || "My Way of Evangelism Church";
+  const churchName = currentChurch.name || "RhemaSphere Church";
   const finalLocation = location || currentChurch.location || "Church Sanctuary";
   const cleanTitle = `${title} - ${churchName}`;
-  const details = `Join us for ${cleanTitle}.\nService time: ${timeStr}\nLocation: ${finalLocation}\nFind details & community updates on My Way of Evangelism.`;
+  const details = `Join us for ${cleanTitle}.\nService time: ${timeStr}\nLocation: ${finalLocation}\nFind details & community updates on RhemaSphere.`;
 
   // Calculate upcoming date based on day of week in timeStr
   const dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -9528,7 +9528,7 @@ function initGlobalHeaderAndFooter() {
   const headerHTML = `<div class="container topbar-inner">
   <a class="brand" href="index.html">
     <span class="brand-mark"><i data-lucide="church"></i></span>
-    <span><strong>My Way</strong><small>Evangelism & Fellowship</small></span>
+    <span><strong>RhemaSphere</strong><small>Evangelism & Fellowship</small></span>
   </a>
   <button class="mobile-menu-toggle" type="button" aria-label="Toggle Menu">
     <i data-lucide="menu"></i>
@@ -9555,7 +9555,7 @@ function initGlobalHeaderAndFooter() {
     <div class="footer-brand-block">
       <a class="footer-brand" href="index.html">
         <span class="footer-brand-mark"><i data-lucide="church"></i></span>
-        <span>My Way of Evangelism</span>
+        <span>RhemaSphere</span>
       </a>
       <p class="footer-description">A trusted bridge from search to local church connection, helping seekers find verified churches, services, events, and livestreams near them.</p>
       <div class="footer-cta-row">
@@ -9591,7 +9591,7 @@ function initGlobalHeaderAndFooter() {
     </div>
   </div>
   <div class="footer-bottom">
-    <span>&copy; 2026 My Way of Evangelism. All rights reserved.</span>
+    <span>&copy; 2026 RhemaSphere. All rights reserved.</span>
     <span class="footer-status">Platform online</span>
   </div>
 </div>`;
@@ -9601,10 +9601,10 @@ function initGlobalHeaderAndFooter() {
     <div class="footer-minimal-brand" style="display: flex; align-items: center; gap: 12px;">
       <a class="footer-brand" href="index.html" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 800; color: #0f172a; text-decoration: none;">
         <span class="footer-brand-mark" style="width: 28px; height: 28px; border-radius: 8px; background: rgba(176, 129, 26, 0.12); color: #b0811a; display: flex; align-items: center; justify-content: center;"><i data-lucide="church" style="width: 16px; height: 16px;"></i></span>
-        <span>My Way of Evangelism</span>
+        <span>RhemaSphere</span>
       </a>
       <span style="color: #cbd5e1;">|</span>
-      <span style="font-size: 0.85rem; color: #64748b;">&copy; 2026 My Way of Evangelism. All rights reserved.</span>
+      <span style="font-size: 0.85rem; color: #64748b;">&copy; 2026 RhemaSphere. All rights reserved.</span>
     </div>
     <div class="footer-minimal-nav" style="display: flex; align-items: center; gap: 20px; font-size: 0.88rem; font-weight: 600;">
       <a href="churches.html" style="color: #475569; text-decoration: none;">Churches</a>

@@ -190,7 +190,7 @@
     $("aw-subtitle").textContent = "Review church \"play as live\" schedules, pause streams that need attention and lift moderation locks.";
     $("aw-eyebrow").textContent = "OPERATIONS / " + LABEL.toUpperCase();
     $("aw-heading-actions").innerHTML = '<a class="aw-button" href="#overview">Back to overview</a>';
-    document.title = LABEL + " · Admin | My Way";
+    document.title = LABEL + " · Admin | RhemaSphere";
     root = document.createElement("div");
     root.dataset.simliveRoot = KEY;
     content.replaceChildren(root);

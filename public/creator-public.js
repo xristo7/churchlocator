@@ -62,7 +62,7 @@
     if (document.body.dataset.page === "storefront") {
       const store = window.MWECreator.getStores().find(s => s.id === id);
       if (!store) { target.innerHTML = '<h1>Store not found</h1><a href="store.html">Return to store directory</a>'; return; }
-      document.title = store.name + " | My Way Store";
+      document.title = store.name + " | RhemaSphere Store";
       const products = window.FaithLinkModules.getProducts().filter(p => p.storeId === id && p.status === "Active");
       target.innerHTML = '<a href="store.html">← All stores</a><h1>' + esc(store.name) + '</h1><p>' + esc(store.description) + '</p><div class="creator-store-actions">' + (store.live && safe(store.liveUrl) ? '<a class="button primary" href="' + broadcastLink("store", store.id) + '">Watch live shopping</a>' : "") + '</div><h2>Products</h2>' + (products.length ? '<div class="creator-store-cards">' + products.map(p => '<a class="creator-store-card" href="product-detail.html?id=' + encodeURIComponent(p.id) + '">' + image(p.image, p.title) + '<div><h3>' + esc(p.title) + '</h3><p>' + esc(window.FaithLinkModules.money(p.price)) + '</p></div></a>').join("") + '</div>' : '<p>No published products yet.</p>');
       return;
@@ -72,7 +72,7 @@
     const stream = window.MWECreator.broadcasts().find(s => s.id === id && (!requestedType || s.type === requestedType));
     if (!stream) { target.classList.add("mwe-watch-page"); target.innerHTML = '<a class="broadcast-back-link" href="livestream.html"><i data-lucide="arrow-left"></i> All live broadcasts</a><div class="mwe-watch"><div class="mwe-watch-main"><div class="mwe-player-frame">' + offlineFrame() + '</div></div></div>'; window.lucide?.createIcons(); return; }
     if(stream.type==='channel'){location.replace('channel-live.html?id='+encodeURIComponent(stream.id));return;}
-    document.title = stream.name + " · Live | My Way";
+    document.title = stream.name + " · Live | RhemaSphere";
     const url = new URL(safe(stream.url));
     let embed = "";
     const host = url.hostname.replace(/^www\./, "");

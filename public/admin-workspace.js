@@ -155,8 +155,8 @@
         }
         $("aw-heading-actions").innerHTML = mod ? button("new", icon("plus") + " Add " + mod.singular, true) : link(state.view === "overview" ? "#churches" : "#overview", state.view === "overview" ? "Manage churches " + icon("arrow-right") : "Back to overview", "aw-button");
         if (state.view === "spotlight") $("aw-heading-actions").innerHTML = link("app.html?view=spotlight", "Open Spotlight " + icon("arrow-up-right"), "aw-button");
-        document.title = $("aw-title").textContent + " · Admin | My Way";
-        if (creator) document.title = $("aw-title").textContent + " | My Way";
+        document.title = $("aw-title").textContent + " · Admin | RhemaSphere";
+        if (creator) document.title = $("aw-title").textContent + " | RhemaSphere";
         if (creator && state.view === "overview") $("aw-heading-actions").innerHTML = link("app.html?view=home", "Open member app " + icon("arrow-up-right"), "aw-button");
         if (state.view === "store") $("aw-heading-actions").insertAdjacentHTML("afterbegin", link("#products", "Manage products", "aw-button") + " ");
         if (state.view === "products") $("aw-heading-actions").insertAdjacentHTML("afterbegin", link("#store", "Store profiles", "aw-button") + " ");

@@ -13,7 +13,7 @@
     const channelPosts = Array.isArray(channel.posts) ? channel.posts : [];
     const posts = channelPosts.map(post=>post.title);
     const listedPostCount = Number(channel.items ?? (Array.isArray(channel.posts) ? channel.posts.length : channel.posts)) || 0;
-    document.title = `${channel.name} | My Way`;
+    document.title = `${channel.name} | RhemaSphere`;
     const liveStatus=await fetch('/api/live/channels/'+encodeURIComponent(channel.id),{credentials:'same-origin',cache:'no-store'}).then(response=>response.json()).catch(()=>null);
     root.innerHTML = `<article class="channel-detail-hero channel-detail-modern">
       <div class="channel-detail-cover"><img src="${data().escapeHtml(channel.cover)}" alt="${data().escapeHtml(channel.name)} cover" /><span class="channel-cover-type"><i data-lucide="${channel.format === "Podcast" ? "headphones" : "radio"}"></i>${data().escapeHtml(channel.format)} · ${data().escapeHtml(channel.topic)}</span><a class="channel-contact-button" href="messages.html?compose=channel&id=${encodeURIComponent(channel.id)}"><i data-lucide="message-circle"></i> Get in touch</a></div>

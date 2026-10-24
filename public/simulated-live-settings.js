@@ -185,7 +185,7 @@
   function friendlyError(status, data, fallback) {
     data = data || {};
     if (data.code === "moderation_locked") {
-      return "This stream was paused by platform moderation, so it can't be resumed from here. Please contact the My Way team if you think this is a mistake.";
+      return "This stream was paused by platform moderation, so it can't be resumed from here. Please contact the RhemaSphere team if you think this is a mistake.";
     }
     if (isMediaUnavailable(status, data)) return MEDIA_UNAVAILABLE;
     if (status === 403) return data.error || "You don't have permission to manage scheduled streams for this church.";
@@ -454,7 +454,7 @@
       var locked = isLocked(stream);
       var notice = "";
       if (stream.status === "paused" && locked) {
-        notice = moderationNotice(stream, tz, "This stream won't play and can't be resumed from here. Contact the My Way team if you have questions.");
+        notice = moderationNotice(stream, tz, "This stream won't play and can't be resumed from here. Contact the RhemaSphere team if you have questions.");
       } else if (stream.status === "paused") {
         notice = '<p class="sl-muted sl-small">Paused' + (stream.pausedAt ? " since " + esc(formatInstant(stream.pausedAt, tz)) : "") + ". Resume to play on schedule again.</p>";
       }

@@ -134,7 +134,7 @@
     church: { source: "church-profile.html", title: "Church Profile" },
     event: { source: "event-profile.html", title: "Event Details" },
     giving: { source: "donate.html", title: "Giving" },
-    store: { source: "store.html", title: "My Way Store" },
+    store: { source: "store.html", title: "RhemaSphere Store" },
     product: { source: "product-detail.html", title: "Product Details" },
     cart: { source: "cart.html", title: "Your Cart" },
     checkout: { source: "checkout.html", title: "Checkout" },
@@ -319,7 +319,7 @@
     frame.classList.remove("is-ready");
     frame.src = buildSource(safeRoute);
     frame.title = views[safeRoute.view].title;
-    document.title = `${views[safeRoute.view].title} | My Way`;
+    document.title = `${views[safeRoute.view].title} | RhemaSphere`;
     setActiveNavigation(safeRoute.view);
     updateSectionContext(safeRoute.view);
 
@@ -402,14 +402,14 @@
     invitePopover.hidden = false;
     inviteButton.setAttribute("aria-expanded", "true");
     const inviteUrl = new URL("/churches.html", window.location.origin).href;
-    const shareText = "Find a church community with My Way.";
+    const shareText = "Find a church community with RhemaSphere.";
     const encodedUrl = encodeURIComponent(inviteUrl);
     const encodedText = encodeURIComponent(shareText);
     invitePopover.querySelector('[data-share-target="whatsapp"]')?.setAttribute("href", `https://wa.me/?text=${encodedText}%20${encodedUrl}`);
     invitePopover.querySelector('[data-share-target="facebook"]')?.setAttribute("href", `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`);
     invitePopover.querySelector('[data-share-target="x"]')?.setAttribute("href", `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`);
     invitePopover.querySelector('[data-share-target="telegram"]')?.setAttribute("href", `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`);
-    invitePopover.querySelector('[data-share-target="email"]')?.setAttribute("href", `mailto:?subject=${encodeURIComponent("Find a church with My Way")}&body=${encodedText}%20${encodedUrl}`);
+    invitePopover.querySelector('[data-share-target="email"]')?.setAttribute("href", `mailto:?subject=${encodeURIComponent("Find a church with RhemaSphere")}&body=${encodedText}%20${encodedUrl}`);
   }
   inviteButton?.addEventListener("click", () => invitePopover?.hidden ? openInvitePopover() : closeInvitePopover());
   invitePopover?.querySelector(".member-invite-close")?.addEventListener("click", closeInvitePopover);
@@ -432,9 +432,9 @@
   };
   const languages = { en: "EN", fr: "FR", es: "ES" };
   const shellTranslations = {
-    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", profile: "Profile", security: "Security", portal: "Studio", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Share", loading: "Loading your My Way view…", search: "Search My Way", member: "My Way member", signOut: "Sign out" },
-    fr: { home: "Accueil", spotlight: "À la une", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", profile: "Profil", security: "Sécurité", portal: "Studio", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Partager", loading: "Chargement de votre espace My Way…", search: "Rechercher des églises, chaînes, événements…", member: "Membre My Way", signOut: "Se déconnecter" },
-    es: { home: "Inicio", spotlight: "Destacados", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", profile: "Perfil", security: "Seguridad", portal: "Estudio", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Compartir", loading: "Cargando tu espacio My Way…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de My Way", signOut: "Cerrar sesión" }
+    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", profile: "Profile", security: "Security", portal: "Studio", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Share", loading: "Loading your RhemaSphere view…", search: "Search RhemaSphere", member: "RhemaSphere member", signOut: "Sign out" },
+    fr: { home: "Accueil", spotlight: "À la une", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", profile: "Profil", security: "Sécurité", portal: "Studio", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Partager", loading: "Chargement de votre espace RhemaSphere…", search: "Rechercher des églises, chaînes, événements…", member: "Membre RhemaSphere", signOut: "Se déconnecter" },
+    es: { home: "Inicio", spotlight: "Destacados", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", profile: "Perfil", security: "Seguridad", portal: "Estudio", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Compartir", loading: "Cargando tu espacio RhemaSphere…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de RhemaSphere", signOut: "Cerrar sesión" }
   };
   let currentMemberLanguage = localStorage.getItem("mwe.lang") || "en";
   if (!shellTranslations[currentMemberLanguage]) currentMemberLanguage = "en";
@@ -1215,7 +1215,7 @@
     const placeholder = document.createComment("mwe-search-home");
     const overlay = document.createElement("div");
     overlay.className = "mwe-search-overlay"; overlay.hidden = true;
-    overlay.innerHTML = `<div class="mwe-search-backdrop"></div><div class="mwe-search-sheet" role="dialog" aria-modal="true" aria-label="Search My Way">
+    overlay.innerHTML = `<div class="mwe-search-backdrop"></div><div class="mwe-search-sheet" role="dialog" aria-modal="true" aria-label="Search RhemaSphere">
       <div class="mwe-search-row"><div class="mwe-search-slot"></div><button type="button" class="mwe-search-close" aria-label="Close search">${xIcon}</button></div>
       <div class="mwe-search-results" aria-live="polite"><p class="mwe-search-hint">Search churches, channels, events, resources and more.</p></div></div>`;
     document.body.append(overlay);

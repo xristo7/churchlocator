@@ -24,7 +24,7 @@
       selectedAudio: "bible",
       ambience: { rain: 20, stream: 25, fire: 0, breeze: 10 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "Be Still", text: "“The Lord is in His holy temple; let all the earth keep silence before Him.”", ref: "— Habakkuk 2:20" },
         { topic: "Perfect Peace", text: "“Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid.”", ref: "— John 14:27" },
@@ -63,7 +63,7 @@
       selectedAudio: "instrumental",
       ambience: { rain: 0, stream: 40, fire: 0, breeze: 15 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "Give Me Peace", text: "“Peace I leave with you; My peace I give you.”", ref: "— John 14:27" },
         { topic: "Restoration", text: "“For I will restore health to you, and your wounds I will heal, declares the Lord.”", ref: "— Jeremiah 30:17" },
@@ -106,7 +106,7 @@
       selectedAudio: "worship",
       ambience: { rain: 0, stream: 0, fire: 30, breeze: 10 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "The Secret Place", text: "“Whoever dwells in the shelter of the Most High will rest in the shadow of the Almighty. I will say of the Lord, ‘He is my refuge and my fortress, my God, in whom I trust.’”", ref: "— Psalm 91:1-2" },
         { topic: "Surrender", text: "“Your will be done.”", ref: "— Matthew 6:10" },
@@ -133,7 +133,7 @@
       selectedAudio: "bible",
       ambience: { rain: 15, stream: 0, fire: 0, breeze: 35 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "Rest in Safety", text: "“In peace I will lie down and sleep, for you alone, Lord, make me dwell in safety.”", ref: "— Psalm 4:8" },
         { topic: "The Keeper", text: "“He who watches over you will not slumber; indeed, he who watches over Israel will neither slumber nor sleep.”", ref: "— Psalm 121:3-4" }
@@ -170,7 +170,7 @@
       selectedAudio: "sermon",
       ambience: { rain: 0, stream: 30, fire: 0, breeze: 20 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "Quiet Waters", text: "“He leads me beside quiet waters.”", ref: "— Psalm 23:2" },
         { topic: "The Lord is My Strength", text: "“The Lord is my light and my salvation—whom shall I fear? The Lord is the stronghold of my life—of whom shall I be afraid?”", ref: "— Psalm 27:1" },
@@ -197,7 +197,7 @@
       selectedAudio: "bible",
       ambience: { rain: 0, stream: 0, fire: 20, breeze: 10 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "Trust in the Lord", text: "“Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.”", ref: "— Proverbs 3:5-6" },
         { topic: "Guarding Your Heart", text: "“Above all else, guard your heart, for everything you do flows from it.”", ref: "— Proverbs 4:23" }
@@ -223,7 +223,7 @@
       selectedAudio: "bible",
       ambience: { rain: 0, stream: 20, fire: 0, breeze: 15 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "The Bread of Life", text: "“Jesus declared, ‘I am the bread of life. Whoever comes to me will never go hungry, and whoever believes in me will never be thirsty.’”", ref: "— John 6:35" },
         { topic: "The Good Shepherd", text: "“I am the good shepherd. The good shepherd lays down his life for the sheep.”", ref: "— John 10:11" }
@@ -249,7 +249,7 @@
       selectedAudio: "bible",
       ambience: { rain: 10, stream: 0, fire: 15, breeze: 10 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "More than Conquerors", text: "“No, in all these things we are more than conquerors through him who loved us.”", ref: "— Romans 8:37" },
         { topic: "New Creation", text: "“Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!”", ref: "— 2 Corinthians 5:17" }
@@ -277,7 +277,7 @@
       selectedAudio: "instrumental",
       ambience: { rain: 0, stream: 0, fire: 0, breeze: 35 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "The Nature of Faith", text: "“Now faith is confidence in what we hope for and assurance about what we do not see.”", ref: "— Hebrews 11:1" },
         { topic: "Mountain Moving Faith", text: "“Truly I tell you, if you have faith as small as a mustard seed, you can say to this mountain, ‘Move from here to there,’ and it will move. Nothing will be impossible for you.”", ref: "— Matthew 17:20" }
@@ -303,7 +303,7 @@
       selectedAudio: "worship",
       ambience: { rain: 0, stream: 20, fire: 20, breeze: 0 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "Agape Love", text: "“Love is patient, love is kind. It does not envy, it does not boast, it is not proud. It does not dishonor others, it is not self-seeking, it is not easily angered, it keeps no record of wrongs.”", ref: "— 1 Corinthians 13:4-5" },
         { topic: "God is Love", text: "“Dear friends, let us love one another, for love comes from God. Everyone who loves has been born of God and knows God. Whoever does not love does not know God, because God is love.”", ref: "— 1 John 4:7-8" }
@@ -329,7 +329,7 @@
       selectedAudio: "bible",
       ambience: { rain: 15, stream: 0, fire: 15, breeze: 10 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "Saved by Grace", text: "“For it is by grace you have been saved, through faith—and this is not from yourselves, it is the gift of God—not by works, so that no one can boast.”", ref: "— Ephesians 2:8-9" },
         { topic: "Eternal Life", text: "“For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.”", ref: "— John 3:16" }
@@ -364,7 +364,7 @@
       selectedAudio: "worship",
       ambience: { rain: 0, stream: 0, fire: 0, breeze: 40 },
       commentsEnabled: false,
-      ownerName: "My Way",
+      ownerName: "RhemaSphere",
       verses: [
         { topic: "Joy of the Lord", text: "“The joy of the Lord is your strength.”", ref: "— Nehemiah 8:10" },
         { topic: "Joy in the Morning", text: "“Weeping may stay for the night, but rejoicing comes in the morning.”", ref: "— Psalm 30:5" },
@@ -751,7 +751,7 @@
 
     function cardHtml(room) {
       const safe = { ...room, ...Object.fromEntries(["id", "cover", "title", "subtitle", "categoryLabel", "icon"].map(key => [key, escape(room[key])])) };
-      const creatorName = escape(room.ownerName || "My Way");
+      const creatorName = escape(room.ownerName || "RhemaSphere");
       const audioName = ({ bible: "Audio Bible", instrumental: "Soaking Instrumental", worship: "Worship Stream", sermon: "Sermon", silence: "Silence / Ambient" })[room.selectedAudio] || "Curated Audio";
       return '<div class="sanctuary-room-card" data-enter-room="' + safe.id + '">' +
         '<div class="room-card-cover">' +
@@ -1230,7 +1230,7 @@
 
     const ownerEl = document.getElementById("room-badge-owner");
     if (ownerEl) {
-      const owner = room.ownerName || room.creator || "My Way";
+      const owner = room.ownerName || room.creator || "RhemaSphere";
       ownerEl.textContent = "By " + owner;
     }
     
@@ -1676,7 +1676,7 @@
     shareInput.value = shareUrl;
 
     const shareTitle = activeRoom.title || "Meditation Sanctuary";
-    const shareText = `Join me in this meditation sanctuary: "${shareTitle}" on My Way`;
+    const shareText = `Join me in this meditation sanctuary: "${shareTitle}" on RhemaSphere`;
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedText = encodeURIComponent(shareText);
 
