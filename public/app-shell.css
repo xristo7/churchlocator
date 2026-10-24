@@ -914,3 +914,14 @@ html body:not(#mwe-x) .master-kpi-info>span,html body:not(#mwe-x) .master-pay-ra
 html body:not(#mwe-x) .spotlight-action>span,html body:not(#mwe-x) .spotlight-editorial-label,html body:not(#mwe-x) .spotlight-member-row>span{font-size:12px!important}
 html body:not(#mwe-x) .spotlight-copy>p,html body:not(#mwe-x) .spotlight-follow,html body:not(#mwe-x) .spotlight-primary-cta{font-size:14px!important}
 html body:not(#mwe-x) .spotlight-follow,html body:not(#mwe-x) .spotlight-primary-cta{min-height:40px}
+
+/* ui-fix9: Creator Studio as a Give-style button in the account dropdown */
+#member-account-menu a.mwe-menu-studio:not(#mwe-x) { display: flex !important; align-items: center !important; gap: 10px !important; width: auto !important; margin: 4px 0 6px !important; padding: var(--space-3) !important; min-height: 56px; border-radius: var(--radius-md) !important;
+  text-decoration: none !important; color: #fff !important; background: var(--gold-gradient, linear-gradient(135deg, #f0bf5a, #d99a2b)) !important; box-shadow: var(--gold-glow, 0 8px 20px rgba(229,169,60,.3)) !important; border: 0 !important;
+  transition: transform var(--dur-fast), box-shadow var(--dur-base); }
+#member-account-menu a.mwe-menu-studio:not(#mwe-x):hover, #member-account-menu a.mwe-menu-studio:not(#mwe-x):focus-visible { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(229,169,60,.42) !important; color: #fff !important; background: var(--gold-gradient, linear-gradient(135deg, #f0bf5a, #d99a2b)) !important; }
+#member-account-menu a.mwe-menu-studio .mwe-menu-studio-icon { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,.22); flex: none; font-style: normal; }
+#member-account-menu a.mwe-menu-studio .mwe-menu-studio-icon svg { width: 18px !important; height: 18px !important; color: #fff !important; }
+#member-account-menu a.mwe-menu-studio strong { display: flex; flex-direction: column; flex: 1; min-width: 0; line-height: 1.25; font-size: .92rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#member-account-menu a.mwe-menu-studio small { font-size: .74rem; font-weight: 500; opacity: .9; overflow: hidden; text-overflow: ellipsis; }
+#member-account-menu a.mwe-menu-studio > svg:last-child { width: 16px !important; height: 16px !important; opacity: .85; flex: none; color: #fff !important; }

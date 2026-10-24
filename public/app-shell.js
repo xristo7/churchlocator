@@ -364,6 +364,17 @@
     accountButton.setAttribute("aria-expanded", "false");
     window.MWE?.openMemberLogin?.(window.location.pathname + window.location.search);
   }, true);
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Escape" || !accountMenu || accountMenu.hidden) return;
+    accountMenu.hidden = true;
+    accountButton?.setAttribute("aria-expanded", "false");
+    accountButton?.focus();
+  });
+  accountMenu?.querySelector(".mwe-menu-studio")?.addEventListener("click", () => {
+    accountMenu.hidden = true;
+    accountButton?.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("member-nav-open");
+  });
   accountButton?.addEventListener("click", () => {
     const willOpen = accountMenu.hidden;
     accountMenu.hidden = !willOpen;
@@ -438,8 +449,8 @@
     });
     const search = shellSearch?.querySelector('input[name="q"]');
     if (search) { search.placeholder = dict.search; search.setAttribute("aria-label", dict.search); }
-    const utility = document.querySelectorAll(".profile-rail-utility a span");
-    if (utility[1]) utility[1].textContent = dict.help;
+    const helpLabel = document.querySelector('.profile-rail-utility a[href^="mailto:"] span');
+    if (helpLabel) helpLabel.textContent = dict.help;
     const invite = document.querySelector(".profile-invite-card");
     if (invite) {
       const strong = invite.querySelector("strong");
