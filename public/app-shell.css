@@ -830,3 +830,10 @@ body .channel-detail-modern .channel-detail-summary{padding-bottom:28px}
 }
 @media (max-width:959.98px){html body.member-app-shell .mwe-tabbar:not(#mwe-x){-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 4%, #ffffff) 80%, transparent)!important}
 html[data-theme="dark"] body.member-app-shell .mwe-tabbar:not(#mwe-x){background:color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 7%, #0b1220) 82%, transparent)!important}}
+/* ui-fix6: post/episode card body spacing */
+html body .channel-content-grid article:not(#mwe-x){padding:12px 12px 16px}
+html body .channel-content-grid article:not(#mwe-x) > .channel-content-cover + *{margin-top:15px!important}
+html body .channel-content-grid article:not(#mwe-x) > small{margin:15px 4px 6px!important}
+html body .channel-content-grid article:not(#mwe-x) > h3{margin:0 4px 8px!important}
+html body .channel-content-grid article:not(#mwe-x) > .channel-content-cover + h3{margin-top:15px!important}
+html body .channel-content-grid article:not(#mwe-x) > p{margin:0 4px!important}
