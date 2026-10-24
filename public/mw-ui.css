@@ -109,3 +109,21 @@ body.mwu .mwu-chips-row{margin-top:18px}
 @media (max-width:760px){body.mwu .mwu-hero-inner{padding:28px 16px 72px}}
 @media (max-width:480px){.mwu-subnav{justify-content:space-between;gap:0;padding:0 4px}.mwu-subnav a{padding:0 10px;font-size:13.5px;gap:6px}.mwu-subnav svg{width:16px;height:16px;flex-basis:16px}}
 body.mwu .slider-arrow-btn{width:40px!important;height:40px!important;min-height:40px!important;min-width:40px!important;padding:0!important;border-radius:50%!important;flex:0 0 40px!important}
+/* ui-fix2: hero, search, chips, image fallbacks */
+body.mwu{overflow-x:clip}
+body.mwu .mwu-hero{width:100%;max-width:100%;box-sizing:border-box;background-size:cover;background-position:center;isolation:isolate}
+body.mwu .mwu-hero .module-hero-copy{background:none!important;box-shadow:none!important;backdrop-filter:none!important;border:0!important;padding:0!important}
+body.mwu .mwu-chips-row{margin:18px -16px 0;padding:2px 16px 6px;scroll-padding-inline:16px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+body.mwu .mwu-chips-row .mwu-chip{flex:0 0 auto;scroll-snap-align:start}
+@media (max-width:760px){
+ body.mwu .mwu-hero::before{background:linear-gradient(180deg,rgba(244,247,252,.96) 0%,rgba(244,247,252,.93) 100%)!important}
+ html[data-theme="dark"] body.mwu .mwu-hero::before,body.mwu.dark-mode .mwu-hero::before{background:rgba(11,18,32,.92)!important}
+ 
+}
+.mwu-img-fallback{position:relative;background:linear-gradient(135deg,var(--mwu-blue,#2563eb),var(--mwu-navy,#0f2a5c))!important}
+.mwu-img-fallback>img.mwu-img-broken{display:none!important}
+.mwu-img-fallback>.mwu-initials{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:2.2rem;letter-spacing:.04em;pointer-events:none}
+img.mwu-avatar-fallback{background:linear-gradient(135deg,var(--mwu-gold,#c9962b),var(--mwu-blue,#2563eb));color:transparent;font-size:0}
+body.mwu .mwu-hero.module-directory-hero::before{animation:none!important;transform:none!important;inset:0!important;border:0!important;z-index:0}
+body.mwu .mwu-hero.module-directory-hero{border-bottom:0!important}
+body.mwu .mwu-hero .mwu-hero-inner{z-index:1}
