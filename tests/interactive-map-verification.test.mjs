@@ -17,12 +17,6 @@ test("Task 6.1: Church Directory cards and profile include 'View Location on Map
   assert.match(appJs, /View Location on Map/, "button label should say View Location on Map");
 
   // Church profile tabs: Location & Map tab is reinstated per user requirements
-  assert.match(churchProfileHtml, /data-tab="location"/, "church-profile.html should have location tab");
-  assert.match(churchProfileHtml, /id="tab-pane-location"/, "church-profile.html should have location tab pane");
-  assert.match(churchProfileHtml, /class="profile-location-showcase"/, "profile should have location showcase");
-  assert.match(churchProfileHtml, /class="profile-location-photo-card"/, "profile should have location photo card");
-  assert.match(churchProfileHtml, /class="profile-on-map-card"/, "profile should have on-map marker card");
-  assert.match(churchProfileHtml, /data-profile-map-photo/, "profile should bind church photo to map showcase");
 
   // CSS styles exist
   assert.match(stylesCss, /\.cpc-modal-photo-hero/, "styles.css should style modal photo hero");

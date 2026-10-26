@@ -16,13 +16,14 @@ test('churches have no favorite control while approved content has persisted lov
   assert.match(resources, /data-love-type="resource"/);
   assert.match(creator, /data-love-type="livestream"/);
   assert.match(worker, /handleContentEngagementApi/);
-  assert.match(api, /new Set\(\['channel', 'product', 'resource', 'livestream'\]\)/);
+  assert.match(api, /new Set\(\['channel', 'product', 'resource', 'livestream', 'church'\]\)/);
   assert.match(migration, /primary key\(content_type, content_id, user_id, reaction\)/i);
-  assert.doesNotMatch(api + migration, /church/);
+  // Churches use Follow/Save (not love/favorite) through the same engagement API.
+  assert.doesNotMatch(migration, /church/);
 });
 
 test('directory hero titles and descriptions stay within editorial limits', async () => {
-  const pages = await Promise.all(['churches', 'channels', 'events', 'livestream', 'resources', 'store', 'meditation'].map(name => read(`public/${name}.html`)));
+  const pages = await Promise.all(['channels', 'events', 'livestream', 'resources', 'store', 'meditation'].map(name => read(`public/${name}.html`)));
   for (const html of pages) {
     const hero = html.match(/<div class="module-hero-copy">([\s\S]*?)<\/div>/)?.[1] || '';
     const title = hero.match(/<h[12][^>]*>(.*?)<\/h[12]>/)?.[1]?.replace(/<[^>]+>/g, '').trim();
@@ -30,4 +31,13 @@ test('directory hero titles and descriptions stay within editorial limits', asyn
     assert.ok(title && title.split(/\s+/).length <= 6, `Hero title exceeds six words: ${title}`);
     assert.ok(description && description.split(/\s+/).length <= 25, `Hero description exceeds twenty-five words: ${description}`);
   }
+});
+
+test('church directory hero copy stays within editorial limits', async () => {
+  const html = await read('public/churches.html');
+  const hero = html.match(/<section class="rsc-dir-hero">([\s\S]*?)<\/section>/)?.[1] || '';
+  const title = hero.match(/<h1[^>]*>(.*?)<\/h1>/)?.[1]?.replace(/<[^>]+>/g, '').trim();
+  const description = hero.match(/<p>(.*?)<\/p>/)?.[1]?.replace(/<[^>]+>/g, '').trim();
+  assert.ok(title && title.split(/\s+/).length <= 6, `Hero title exceeds six words: ${title}`);
+  assert.ok(description && description.split(/\s+/).length <= 25, `Hero description exceeds twenty-five words: ${description}`);
 });

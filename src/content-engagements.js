@@ -1,6 +1,6 @@
 import { ApiError, readJson } from './security.js';
 
-const allowedTypes = new Set(['channel', 'product', 'resource', 'livestream']);
+const allowedTypes = new Set(['channel', 'product', 'resource', 'livestream', 'church']);
 const validId = value => /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}$/.test(String(value || ''));
 
 function validatedType(value) {
