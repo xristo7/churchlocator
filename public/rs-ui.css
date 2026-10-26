@@ -206,3 +206,4 @@ aside [data-shell-view].active svg{color:var(--rs-accent)!important}
 .rsc-avatar,.rsc-channel-avatar{box-shadow:0 0 0 3px var(--rs-card),0 0 0 5px color-mix(in srgb,var(--rs-accent) 45%,transparent)!important}
 :is(.rsc-filter-panel,.rsc-more-panel) .rsc-opt{border-radius:12px;min-height:44px}
 .rsc-page{--rsc-ink:var(--rs-text);--rsc-muted:var(--rs-muted);--rsc-line:var(--rs-line);--rsc-card:var(--rs-card);--rsc-accent:var(--rs-gold);--rsc-primary:var(--rs-accent);--rsc-r:var(--rs-radius)}
+.rsc-page .rsc-search input[type],.rsc-page .rsc-search input[type]:focus{background:transparent!important;border:0!important;box-shadow:none!important}
