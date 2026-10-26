@@ -586,7 +586,8 @@ test("resource cards present a clear creator link, duration, price, and action h
 test("directory modules share the standardized atmospheric hero and filter tray", async () => {
   const styles = await readProjectFile("public/styles.css");
   const appJs = await readProjectFile("public/app.js");
-  for (const page of ["churches", "meditation", "events", "store", "livestream", "resources", "channels"]) {
+  // store uses the Shopify-style collection header (sf-coll-hero) instead of the shared directory hero
+  for (const page of ["churches", "meditation", "events", "livestream", "resources", "channels"]) {
     const html = await readProjectFile(`public/${page}.html`);
     assert.match(html, /module-directory-hero/, `${page} needs the shared hero`);
     assert.match(html, /site-search-bar/, `${page} needs the shared filter tray`);

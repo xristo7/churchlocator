@@ -64,7 +64,12 @@
       if (!store) { target.innerHTML = '<h1>Store not found</h1><a href="store.html">Return to store directory</a>'; return; }
       document.title = store.name + " | RhemaSphere Store";
       const products = window.FaithLinkModules.getProducts().filter(p => p.storeId === id && p.status === "Active");
-      target.innerHTML = '<a href="store.html">← All stores</a><h1>' + esc(store.name) + '</h1><p>' + esc(store.description) + '</p><div class="creator-store-actions">' + (store.live && safe(store.liveUrl) ? '<a class="button primary" href="' + broadcastLink("store", store.id) + '">Watch live shopping</a>' : "") + '</div><h2>Products</h2>' + (products.length ? '<div class="creator-store-cards">' + products.map(p => '<a class="creator-store-card" href="product-detail.html?id=' + encodeURIComponent(p.id) + '">' + image(p.image, p.title) + '<div><h3>' + esc(p.title) + '</h3><p>' + esc(window.FaithLinkModules.money(p.price)) + '</p></div></a>').join("") + '</div>' : '<p>No published products yet.</p>');
+      target.classList.add("sf-storefront");
+      const cartCount = (window.FaithLinkModules.getCart?.() || []).reduce((n, i) => n + (Number(i.quantity) || 0), 0);
+      const card = p => { const sale = p.compareAt > p.price, href = 'product-detail.html?id=' + encodeURIComponent(p.id); return '<article class="sf-card"><a class="sf-card-media" href="' + href + '" aria-label="' + esc(p.title) + '">' + image(p.image, "").replace("<img", "<img onerror=\"this.parentNode.classList.add('is-broken')\"") + (sale ? '<span class="sf-badge sf-badge-sale">Sale</span>' : p.itemType === "service" ? '<span class="sf-badge">Service</span>' : '') + '</a><div class="sf-card-body"><span class="sf-vendor">' + esc(p.seller || store.name) + '</span><h3 class="sf-card-title"><a href="' + href + '">' + esc(p.title) + '</a></h3><div class="sf-card-price"><span class="sf-price">' + (p.itemType === "service" ? "From " : "") + esc(window.FaithLinkModules.money(p.price)) + '</span>' + (sale ? '<s class="sf-compare">' + esc(window.FaithLinkModules.money(p.compareAt)) + '</s>' : '') + '</div></div></article>'; };
+      const goods = products.filter(p => p.itemType !== "service"), services = products.filter(p => p.itemType === "service");
+      target.innerHTML = '<header class="sf-store-header"><div class="sf-store-banner">' + image(store.image, "") + '</div><div class="sf-store-header-inner"><div class="sf-store-brand">' + image(store.image, store.name).replace("<img", '<img class="sf-store-logo"') + '<div><h1>' + esc(store.name) + '</h1><p>' + esc(store.description || store.category || "") + '</p></div></div><nav class="sf-store-nav" aria-label="Store"><a href="store.html"><i data-lucide="layout-grid"></i> All stores</a>' + (store.live && safe(store.liveUrl) ? '<a href="' + broadcastLink("store", store.id) + '"><i data-lucide="radio"></i> Live shopping</a>' : "") + '<a class="primary" href="cart.html"><i data-lucide="shopping-bag"></i> Cart (' + cartCount + ')</a></nav></div></header><div class="sf-store-body">' + (goods.length ? '<div class="sf-coll-head"><h2>Products</h2><span>' + goods.length + ' items</span></div><div class="sf-grid">' + goods.map(card).join("") + '</div>' : "") + (services.length ? '<div class="sf-coll-head"><h2>Services</h2><span>' + services.length + ' items</span></div><div class="sf-grid">' + services.map(card).join("") + '</div>' : "") + (!products.length ? '<div class="sf-store-empty">No published products yet.</div>' : "") + '</div>';
+      window.lucide?.createIcons();
       return;
     }
     const requestedType = params.get("type");
@@ -151,7 +156,7 @@
         const section = document.createElement("section");
         section.className = "creator-stores-section";
         section.innerHTML = '<h2>Community stores</h2><p>Explore independent stores and live shopping.</p>' + renderStores();
-        destination.querySelector(".module-results-head")?.before(section);
+        if (window.MWECreator.getStores().length) destination.querySelector(".sf-toolbar")?.before(section);
       }
     }
     if (document.body.dataset.page === "channel-detail") {

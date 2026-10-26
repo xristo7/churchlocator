@@ -87,3 +87,8 @@
 .cs-sc-card:empty{display:none}.cs-sc-card img,.cs-sc-art{width:56px;height:56px;border-radius:10px;object-fit:cover;flex:none;display:grid;place-items:center;background:#ff5500;color:#fff}
 .cs-sc-card div{flex:1;min-width:0;display:grid}.cs-sc-card strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cs-sc-card span{font-size:.85em;opacity:.7}
 .cs-sc-search{margin-top:10px}.cs-sc-search input{width:100%}
+
+/* status marks must not sit on select chevrons */
+.cs-field select{ padding-right:56px; }
+.cs-field select ~ .cs-field-mark{ right:34px; }
+.cs-image-field .cs-image-drop{ padding-right:44px; }

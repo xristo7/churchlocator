@@ -14,35 +14,36 @@
   <link rel="stylesheet" href="creator-public.css?v=20261024rs1" />
   <script defer src="creator-data.js?v=20261024rs1"></script>
   <script defer src="creator-public.js?v=20261024rs1"></script>
-<link rel="stylesheet" href="responsive.css?v=20261024rs1" /><script defer src="app-shell.js?v=20261024rs1"></script><link rel="stylesheet" href="app-shell.css?v=20261024rs1" /></head>
+<link rel="stylesheet" href="responsive.css?v=20261024rs1" /><script defer src="app-shell.js?v=20261024rs1"></script><link rel="stylesheet" href="app-shell.css?v=20261024rs1" /><link rel="stylesheet" href="shopify-storefront.css?v=20261024rs1" /></head>
 <body class="module-page" data-page="store">
   <header class="topbar"></header>
   <main>
-    <section class="module-hero module-directory-hero">
-      <div class="module-shell module-hero-inner">
+    <section class="sf-coll-hero">
+      <div class="sf-container">
         <div class="module-hero-copy">
-          <span class="module-kicker"><i data-lucide="shopping-bag"></i> Christian Marketplace</span>
+          <span class="sf-eyebrow">Christian Marketplace</span>
           <h1>Shop Christian Community Stores</h1>
-          <p>Discover books, music, apparel, ministry tools, church supplies, and meaningful gifts from verified churches and Christian creators.</p>
+          <p>Books, music, apparel, ministry tools and services from verified churches and Christian creators.</p>
         </div>
-        <button class="module-primary-action module-creator-action" type="button" data-creator-action data-creator-href="creator-workspace.html#store" disabled aria-disabled="true"><i data-lucide="plus"></i> Add a Product or Service</button>
+        <button class="sf-btn sf-btn-outline sf-btn-auto module-creator-action" type="button" data-creator-action data-creator-href="creator-workspace.html#store" disabled aria-disabled="true"><i data-lucide="plus"></i> Add a Product or Service</button>
       </div>
     </section>
 
-    <section class="module-shell module-content">
-      <div class="site-search-bar">
-        <label class="module-search site-search"><i data-lucide="search"></i><input id="store-search" type="search" placeholder="Search products or stores" /></label>
-        <select class="module-select" id="store-type" data-filter-label="Type" aria-label="Offering type"><option value="all">All offerings</option><option value="products">Physical Products</option><option value="services">Church & Channel Services</option></select>
-        <select class="module-select" id="store-category" data-filter-label="Category" aria-label="Product category"><option value="all">All categories</option></select>
-        <select class="module-select" id="store-seller" data-filter-label="Seller" aria-label="Seller type"><option value="all">All sellers</option><option>Church</option><option>Channel</option></select>
-        <select class="module-select" id="store-sort" data-filter-label="Sort" aria-label="Sort products"><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="rating">Highest rated</option></select>
+    <section class="sf-container module-content sf-collection">
+      <div class="sf-toolbar">
+        <label class="sf-search"><i data-lucide="search"></i><input id="store-search" type="search" placeholder="Search products or stores" aria-label="Search products or stores" /></label>
+        <div class="sf-filters">
+          <select class="sf-select" id="store-type" aria-label="Offering type"><option value="all">All types</option><option value="products">Products</option><option value="services">Services</option></select>
+          <select class="sf-select" id="store-category" aria-label="Category"><option value="all">All categories</option></select>
+          <select class="sf-select" id="store-seller" aria-label="Seller type"><option value="all">All sellers</option><option>Church</option><option>Channel</option></select>
+        </div>
+        <div class="sf-toolbar-end">
+          <span class="sf-count" id="store-result-count">0 products</span>
+          <label class="sf-sort"><span>Sort by</span><select class="sf-select" id="store-sort" aria-label="Sort products"><option value="featured">Featured</option><option value="price-low">Price, low to high</option><option value="price-high">Price, high to low</option><option value="rating">Best rated</option></select></label>
+          <button class="sf-cart-btn" id="cart-trigger" type="button" aria-controls="store-cart-drawer" aria-expanded="false" aria-label="Open cart"><i data-lucide="shopping-bag"></i><span class="sf-cart-count" id="cart-count">0</span></button>
+        </div>
       </div>
-
-      <div class="module-results-head">
-        <div><h2>Marketplace products</h2><span id="store-result-count">0 products</span></div>
-        <button class="store-cart-trigger" id="cart-trigger" type="button" aria-controls="store-cart-drawer" aria-expanded="false"><i data-lucide="shopping-cart"></i> Cart <span class="cart-count" id="cart-count">0</span></button>
-      </div>
-      <div class="store-products-grid" id="store-products-grid"></div>
+      <div class="sf-grid" id="store-products-grid"></div>
     </section>
   </main>
   <footer class="platform-footer"></footer>
