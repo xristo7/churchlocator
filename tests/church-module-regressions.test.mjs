@@ -32,7 +32,7 @@ test("church records reject unsafe media, normalize schedules, and do not substi
     clearTimeout
   });
   context.window.localStorage = context.localStorage;
-  vm.runInContext(source.slice(source.indexOf("const MWE = (() => {"), source.indexOf("/* My Way member experience")), context);
+  vm.runInContext(source.slice(source.indexOf("const MWE = (() => {"), source.indexOf("/* RhemaSphere member experience")), context);
   const MWE = context.window.MWE;
 
   assert.equal(MWE.getChurch("does-not-exist"), undefined);
