@@ -302,11 +302,11 @@ test("single pages share spacing and content uses media-specific readers", async
 
   assert.match(styles, /main\.product-detail-page[\s\S]*main\.channel-detail-page[\s\S]*main\.channel-content-page/);
   assert.match(styles, /width: min\(var\(--max\), calc\(100% - 44px\)\)/);
-  assert.match(resourceDetail, /resource-video-experience/);
-  assert.match(resourceDetail, /resource-audio-experience/);
-  assert.match(resourceDetail, /resource-article-experience/);
-  assert.match(resourceDetail, /Read online/);
-  assert.match(resourceDetail, /Download/);
+  assert.match(resourceDetail, /\/api\/resources\//);
+  assert.match(resourceDetail, /data-rv-player/);
+  assert.match(resourceDetail, /data-rv-pdf/);
+  assert.match(resourceDetail, /data-rv-epub/);
+  assert.match(resourceDetail, /Open full reader/);
   assert.match(channelContent, /channel-audio-view/);
   assert.match(channelContent, /channel-video-view/);
   assert.match(channelContent, /channel-article-view/);
@@ -322,9 +322,9 @@ test("cart removal, dedicated reader, and compact audio notes are wired", async 
 
   assert.match(cart, /cart-page-delete/);
   assert.match(product, /data-remove-cart/);
-  assert.match(detail, /resource-reader\.html\?id=/);
-  assert.match(reader, /requestFullscreen/);
-  assert.match(reader, /data-reader-page/);
+  assert.match(detail, /\/read`/);
+  assert.match(detail, /requestFullscreen/);
+  assert.match(reader, /resource-detail\.js/);
   assert.match(shell, /"resource-reader":\s*\{ source: "resource-reader\.html"/);
   assert.match(channelContent, /channel-episode-about/);
 });

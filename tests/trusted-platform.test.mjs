@@ -79,7 +79,7 @@ test('paid resource material never appears in public catalog and access requires
 test('video resource comments are public to read and require sign-in to post',async()=>{
  const s=setup();s.as('owner');const {record:video}=await (await s.call('workspace/resources','POST',{title:'Video lesson',type:'Video',access:'Free',publicationState:'published'})).json();
  const {record:audio}=await (await s.call('workspace/resources','POST',{title:'Audio lesson',type:'Audio',access:'Free',publicationState:'published'})).json();
- s.as('viewer');await assert.rejects(s.call('resource-comments/'+audio.id),{status:404});
+ s.as('viewer');assert.equal((await (await s.call('resource-comments/'+audio.id)).json()).comments.length,0);await assert.rejects(s.call('resource-comments/missing-resource'),{status:404});
  const first=await s.call('resource-comments/'+video.id);assert.equal((await first.json()).comments.length,0);
  s.as('guest');await assert.rejects(s.call('resource-comments/'+video.id,'POST',{body:'Not signed in'}),{status:401});
  s.as('alice');const posted=await s.call('resource-comments/'+video.id,'POST',{body:'A helpful lesson.'});assert.equal(posted.status,201);assert.equal((await posted.json()).comment.name,'alice');

@@ -5,6 +5,7 @@ import { handlePlatformApi, isOwner, visitorRequestRecord } from './trusted-plat
 import { handleSpotlightApi, deliverSpotlightNotifications } from './spotlight.js';
 import { handleLiveApi, closeExpiredLiveSessions, deliverLiveNotifications } from './live.js';
 import { handleContentEngagementApi } from './content-engagements.js';
+import { handleResourcesApi } from './resources.js';
 import { handleSimulatedLiveApi } from './simulated-live.js';
 import { sendPasswordResetEmail, sendVerificationEmail } from './password-email.js';
 
@@ -1270,6 +1271,12 @@ function assetRequest(request) {
     ["/prayer", "/index.html"]
   ]);
 
+  const resourcePath = url.pathname.match(/^\/resources\/([^/]+)(\/read)?\/?$/);
+  if (resourcePath) {
+    url.pathname = resourcePath[2] ? "/resource-reader.html" : "/resource-detail.html";
+    return new Request(url.toString(), request);
+  }
+
   const nested = url.pathname.match(/^\/(churches|channels)\/([^/]+)\/?$/);
   if (nested) {
     url.pathname = nested[1] === "churches" ? "/church-profile.html" : "/church-channel.html";
@@ -1808,6 +1815,8 @@ async function handleApi(request, env, executionCtx) {
     if (simulatedLiveResponse) return simulatedLiveResponse;
     const spotlightResponse = await handleSpotlightApi(request, env, context);
     if (spotlightResponse) return spotlightResponse;
+    const resourcesResponse = await handleResourcesApi(request, env, context);
+    if (resourcesResponse) return resourcesResponse;
     const engagementResponse = await handleContentEngagementApi(request, env, context);
     if (engagementResponse) return engagementResponse;
     if (path === "/api/status" && request.method === "GET") return await handleStatus(env);
