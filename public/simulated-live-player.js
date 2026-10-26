@@ -820,7 +820,7 @@
         const stream = update.model?.stream;
         if (stream?.title) {
           setText("player-stream-title", stream.title);
-          doc.title = stream.title + " | My Way of Evangelism";
+          doc.title = stream.title + " | RhemaSphere";
         }
         options.onUpdate?.(update);
       }

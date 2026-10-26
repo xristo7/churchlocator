@@ -118,7 +118,8 @@
   });
 
   const views = {
-    home: { source: "member-home.html", title: "Member Home" },
+    home: { source: "member-home.html", title: "Find your church home" },
+    storefront: { source: "storefront.html", title: "Community Store" },
     spotlight: { source: "spotlight.html", title: "Spotlight" },
     meditation: { source: "meditation.html", title: "Meditation Sanctuary" },
     directory: { source: "churches.html", title: "Church Directory" },
@@ -134,7 +135,7 @@
     church: { source: "church-profile.html", title: "Church Profile" },
     event: { source: "event-profile.html", title: "Event Details" },
     giving: { source: "donate.html", title: "Giving" },
-    store: { source: "store.html", title: "My Way Store" },
+    store: { source: "store.html", title: "RhemaSphere Store" },
     product: { source: "product-detail.html", title: "Product Details" },
     cart: { source: "cart.html", title: "Your Cart" },
     checkout: { source: "checkout.html", title: "Checkout" },
@@ -153,7 +154,7 @@
     channels: ["Channels", "podcast"], "channel-detail": ["Channels", "podcast"], "channel-content": ["Channels", "podcast"],
     events: ["Events", "calendar-days"], event: ["Events", "calendar-days"],
     livestream: ["Live", "radio"],
-    store: ["Store", "shopping-bag"], product: ["Store", "shopping-bag"], cart: ["Store", "shopping-bag"], checkout: ["Store", "shopping-bag"], "store-manager": ["Store", "shopping-bag"],
+    store: ["Store", "shopping-bag"], storefront: ["Store", "shopping-bag"], product: ["Store", "shopping-bag"], cart: ["Store", "shopping-bag"], checkout: ["Store", "shopping-bag"], "store-manager": ["Store", "shopping-bag"],
     resources: ["Resources", "book-open"], "resource-detail": ["Resources", "book-open"], "resource-reader": ["Resources", "book-open"],
     giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"], profile: ["Profile", "user-round"], security: ["Security", "shield-check"],
     portal: ["Studio", "sparkles"]
@@ -251,7 +252,8 @@
 
   function getRoute() {
     const params = new URLSearchParams(window.location.search);
-    const requested = params.get("view") || "directory";
+    const atRoot = /^\/(?:index(?:\.html)?)?$/.test(window.location.pathname);
+    const requested = params.get("view") || (atRoot ? "home" : "directory");
     const view = views[requested] ? requested : "directory";
     return {
       view,
@@ -272,12 +274,14 @@
     if (route.ministry) source.searchParams.set("ministry", route.ministry);
     if (route.compose) source.searchParams.set("compose", route.compose);
     if (route.view === "channel-content" && route.id) source.searchParams.set("channel", route.id);
+    if (route.view === "meditation" && route.id) source.searchParams.set("room", route.id);
     if (route.view === "channel-live" && route.post) source.searchParams.set("session", route.post);
     if (route.post) source.searchParams.set("post", route.post);
     return source.toString();
   }
 
   function buildShellUrl(route) {
+    if (route.view === "home" && !route.id && !route.q) return "/";
     const target = new URL("app.html", window.location.href);
     target.searchParams.set("view", route.view);
     if (route.id) target.searchParams.set("id", route.id);
@@ -319,7 +323,7 @@
     frame.classList.remove("is-ready");
     frame.src = buildSource(safeRoute);
     frame.title = views[safeRoute.view].title;
-    document.title = `${views[safeRoute.view].title} | My Way`;
+    document.title = `${views[safeRoute.view].title} | RhemaSphere`;
     setActiveNavigation(safeRoute.view);
     updateSectionContext(safeRoute.view);
 
@@ -364,6 +368,17 @@
     accountButton.setAttribute("aria-expanded", "false");
     window.MWE?.openMemberLogin?.(window.location.pathname + window.location.search);
   }, true);
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Escape" || !accountMenu || accountMenu.hidden) return;
+    accountMenu.hidden = true;
+    accountButton?.setAttribute("aria-expanded", "false");
+    accountButton?.focus();
+  });
+  accountMenu?.querySelector(".mwe-menu-studio")?.addEventListener("click", () => {
+    accountMenu.hidden = true;
+    accountButton?.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("member-nav-open");
+  });
   accountButton?.addEventListener("click", () => {
     const willOpen = accountMenu.hidden;
     accountMenu.hidden = !willOpen;
@@ -391,14 +406,14 @@
     invitePopover.hidden = false;
     inviteButton.setAttribute("aria-expanded", "true");
     const inviteUrl = new URL("/churches.html", window.location.origin).href;
-    const shareText = "Find a church community with My Way.";
+    const shareText = "Find a church community with RhemaSphere.";
     const encodedUrl = encodeURIComponent(inviteUrl);
     const encodedText = encodeURIComponent(shareText);
     invitePopover.querySelector('[data-share-target="whatsapp"]')?.setAttribute("href", `https://wa.me/?text=${encodedText}%20${encodedUrl}`);
     invitePopover.querySelector('[data-share-target="facebook"]')?.setAttribute("href", `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`);
     invitePopover.querySelector('[data-share-target="x"]')?.setAttribute("href", `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`);
     invitePopover.querySelector('[data-share-target="telegram"]')?.setAttribute("href", `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`);
-    invitePopover.querySelector('[data-share-target="email"]')?.setAttribute("href", `mailto:?subject=${encodeURIComponent("Find a church with My Way")}&body=${encodedText}%20${encodedUrl}`);
+    invitePopover.querySelector('[data-share-target="email"]')?.setAttribute("href", `mailto:?subject=${encodeURIComponent("Find a church with RhemaSphere")}&body=${encodedText}%20${encodedUrl}`);
   }
   inviteButton?.addEventListener("click", () => invitePopover?.hidden ? openInvitePopover() : closeInvitePopover());
   invitePopover?.querySelector(".member-invite-close")?.addEventListener("click", closeInvitePopover);
@@ -421,9 +436,9 @@
   };
   const languages = { en: "EN", fr: "FR", es: "ES" };
   const shellTranslations = {
-    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", profile: "Profile", security: "Security", portal: "Studio", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Share", loading: "Loading your My Way view…", search: "Search My Way", member: "My Way member", signOut: "Sign out" },
-    fr: { home: "Accueil", spotlight: "À la une", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", profile: "Profil", security: "Sécurité", portal: "Studio", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Partager", loading: "Chargement de votre espace My Way…", search: "Rechercher des églises, chaînes, événements…", member: "Membre My Way", signOut: "Se déconnecter" },
-    es: { home: "Inicio", spotlight: "Destacados", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", profile: "Perfil", security: "Seguridad", portal: "Estudio", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Compartir", loading: "Cargando tu espacio My Way…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de My Way", signOut: "Cerrar sesión" }
+    en: { home: "Home", spotlight: "Spotlight", meditation: "Meditation", directory: "Churches", channels: "Channels", events: "Events", livestream: "Live", store: "Store", resources: "Resources", giving: "Give", messages: "Messages", profile: "Profile", security: "Security", portal: "Studio", help: "Help & Support", invite: "Invite a friend", inviteBody: "Help others find their church home.", inviteAction: "Share", loading: "Loading your RhemaSphere view…", search: "Search RhemaSphere", member: "RhemaSphere member", signOut: "Sign out" },
+    fr: { home: "Accueil", spotlight: "À la une", meditation: "Méditation", directory: "Églises", channels: "Chaînes", events: "Événements", livestream: "En direct", store: "Boutique", resources: "Ressources", giving: "Faire un don", messages: "Messages", profile: "Profil", security: "Sécurité", portal: "Studio", help: "Aide et assistance", invite: "Inviter un proche", inviteBody: "Aidez d’autres personnes à trouver leur communauté.", inviteAction: "Partager", loading: "Chargement de votre espace RhemaSphere…", search: "Rechercher des églises, chaînes, événements…", member: "Membre RhemaSphere", signOut: "Se déconnecter" },
+    es: { home: "Inicio", spotlight: "Destacados", meditation: "Meditación", directory: "Iglesias", channels: "Canales", events: "Eventos", livestream: "En vivo", store: "Tienda", resources: "Recursos", giving: "Donar", messages: "Mensajes", profile: "Perfil", security: "Seguridad", portal: "Estudio", help: "Ayuda y soporte", invite: "Invitar a alguien", inviteBody: "Ayuda a otras personas a encontrar su comunidad.", inviteAction: "Compartir", loading: "Cargando tu espacio RhemaSphere…", search: "Buscar iglesias, canales y eventos…", member: "Miembro de RhemaSphere", signOut: "Cerrar sesión" }
   };
   let currentMemberLanguage = localStorage.getItem("mwe.lang") || "en";
   if (!shellTranslations[currentMemberLanguage]) currentMemberLanguage = "en";
@@ -438,8 +453,8 @@
     });
     const search = shellSearch?.querySelector('input[name="q"]');
     if (search) { search.placeholder = dict.search; search.setAttribute("aria-label", dict.search); }
-    const utility = document.querySelectorAll(".profile-rail-utility a span");
-    if (utility[1]) utility[1].textContent = dict.help;
+    const helpLabel = document.querySelector('.profile-rail-utility a[href^="mailto:"] span');
+    if (helpLabel) helpLabel.textContent = dict.help;
     const invite = document.querySelector(".profile-invite-card");
     if (invite) {
       const strong = invite.querySelector("strong");
@@ -473,14 +488,61 @@
   langButton?.addEventListener("click", event => { event.stopPropagation(); const open = langSelector.classList.toggle("open"); langButton.setAttribute("aria-expanded", String(open)); });
   langSelector?.querySelectorAll("[data-member-lang]").forEach(button => button.addEventListener("click", () => setMemberLanguage(button.dataset.memberLang)));
 
-  shellSearch?.addEventListener("submit", event => {
+  // Unified "Search RhemaSphere": churches, meditation rooms, channels, events, stores and resources from the published catalog.
+  const searchInput = shellSearch?.querySelector('input[name="q"]');
+  const searchPanel = document.getElementById("rs-search-results");
+  let searchSeq = 0, searchTimer = 0, activeIndex = -1;
+  const closeSearch = () => { if (!searchPanel) return; searchPanel.hidden = true; searchInput?.setAttribute("aria-expanded", "false"); shellSearch?.classList.remove("has-results"); activeIndex = -1; };
+  const searchItems = () => [...(searchPanel?.querySelectorAll(".rs-search-item") || [])];
+  function openResult(anchor) {
+    if (!anchor) return;
+    closeSearch();
+    const href = anchor.getAttribute("href");
+    const route = window.MWE?.getMemberShellRoute?.(href);
+    if (route && views[route.view]) { if (searchInput) searchInput.value = ""; loadRoute({ view: route.view, id: route.id || "", q: "" }); }
+    else window.location.href = href;
+  }
+  async function runSearch() {
+    const C = window.RSCatalog;
+    const q = searchInput?.value.trim() || "";
+    if (!C || !searchPanel || q.length < 2) { closeSearch(); return; }
+    const seq = ++searchSeq;
+    searchPanel.hidden = false; searchInput.setAttribute("aria-expanded", "true"); shellSearch.classList.add("has-results");
+    searchPanel.innerHTML = '<p class="rs-search-note">Searching…</p>';
+    let groups;
+    try { groups = await C.search(q); } catch { if (seq === searchSeq) searchPanel.innerHTML = '<p class="rs-search-note">Search is unavailable right now. Please try again.</p>'; return; }
+    if (seq !== searchSeq) return;
+    const total = groups.reduce((n, g) => n + g.items.length, 0);
+    const e = C.esc;
+    searchPanel.innerHTML = '<p class="rs-search-summary">' + (total ? total + ' result' + (total === 1 ? '' : 's') + ' for “' + e(q) + '”' : 'No results for “' + e(q) + '”') + '</p>' +
+      groups.map(g => '<section class="rs-search-group" aria-label="' + e(g.label) + '"><h3><i data-lucide="' + g.icon + '"></i>' + e(g.label) + '<span>' + g.items.length + '</span></h3>' +
+        (g.items.length ? g.items.slice(0, 4).map(r => { const img = C.image(r); return '<a class="rs-search-item" role="option" href="' + e(C.href(r)) + '">' +
+          (img ? '<img src="' + e(img) + '" alt="" loading="lazy" />' : '<span class="rs-search-thumb"><i data-lucide="' + g.icon + '"></i></span>') +
+          '<span><strong>' + e(C.title(r)) + '</strong><small>' + e(C.subtitle(r)) + '</small></span></a>'; }).join('')
+          : '<p class="rs-search-empty">No ' + e(g.label.toLowerCase()) + ' match.</p>') + '</section>').join('');
+    activeIndex = -1;
+    window.lucide?.createIcons();
+  }
+  searchInput?.addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 160); });
+  searchInput?.addEventListener("focus", () => { if ((searchInput.value || "").trim().length >= 2) runSearch(); });
+  searchInput?.addEventListener("keydown", event => {
+    const items = searchItems();
+    if (event.key === "Escape") { closeSearch(); return; }
+    if (!items.length || !["ArrowDown", "ArrowUp"].includes(event.key)) return;
     event.preventDefault();
-    const q = new FormData(shellSearch).get("q")?.toString().trim() || "";
-    const current = getRoute();
-    const searchViewMap = { church: "directory", "channel-detail": "channels", "channel-content": "channels", event: "events", "store-manager": "store", product: "store", cart: "store", checkout: "store", "resource-detail": "resources", "resource-reader": "resources" };
-    const searchableViews = ["directory", "channels", "events", "store", "resources"];
-    const candidate = searchViewMap[current.view] || current.view;
-    loadRoute({ view: searchableViews.includes(candidate) ? candidate : "directory", id: "", q });
+    activeIndex = (activeIndex + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+    items.forEach((item, i) => item.classList.toggle("is-active", i === activeIndex));
+    items[activeIndex].scrollIntoView({ block: "nearest" });
+  });
+  searchPanel?.addEventListener("click", event => { const a = event.target.closest(".rs-search-item"); if (!a) return; event.preventDefault(); openResult(a); });
+  searchPanel?.addEventListener("error", event => { const img = event.target; if (img.tagName !== "IMG") return; const s = document.createElement("span"); s.className = "rs-search-thumb"; s.textContent = "•"; img.replaceWith(s); }, true);
+  document.addEventListener("click", event => { if (searchPanel && !searchPanel.hidden && !shellSearch.contains(event.target)) closeSearch(); });
+  document.addEventListener("keydown", event => { if (event.key === "Escape" && searchPanel && !searchPanel.hidden) closeSearch(); });
+  shellSearch?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const items = searchItems();
+    if (items.length) { openResult(items[Math.max(activeIndex, 0)]); return; }
+    await runSearch();
   });
 
   frame.addEventListener("load", () => {
@@ -1204,7 +1266,7 @@
     const placeholder = document.createComment("mwe-search-home");
     const overlay = document.createElement("div");
     overlay.className = "mwe-search-overlay"; overlay.hidden = true;
-    overlay.innerHTML = `<div class="mwe-search-backdrop"></div><div class="mwe-search-sheet" role="dialog" aria-modal="true" aria-label="Search My Way">
+    overlay.innerHTML = `<div class="mwe-search-backdrop"></div><div class="mwe-search-sheet" role="dialog" aria-modal="true" aria-label="Search RhemaSphere">
       <div class="mwe-search-row"><div class="mwe-search-slot"></div><button type="button" class="mwe-search-close" aria-label="Close search">${xIcon}</button></div>
       <div class="mwe-search-results" aria-live="polite"><p class="mwe-search-hint">Search churches, channels, events, resources and more.</p></div></div>`;
     document.body.append(overlay);

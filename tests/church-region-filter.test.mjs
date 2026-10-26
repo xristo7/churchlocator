@@ -45,7 +45,7 @@ function setup(countries = catalog.countries, failGeography = false) {
     requestAnimationFrame: callback => { frame = callback; return 1; }, cancelAnimationFrame() {},
     createIcons() {}, churchCard: church => `<article>${church.name}</article>`
   });
-  vm.runInContext(source.slice(source.indexOf('const MWE = (() => {'), source.indexOf('/* My Way member experience')), context);
+  vm.runInContext(source.slice(source.indexOf('const MWE = (() => {'), source.indexOf('/* RhemaSphere member experience')), context);
   const mwe = context.window.MWE;
   const seeds = mwe.getChurches();
   mwe.updatePillState = () => {};

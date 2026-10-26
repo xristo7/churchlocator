@@ -21,7 +21,7 @@
     preview: r => "storefront.html?id=" + encodeURIComponent(r.id),
     groups: () => [
       { title: "01 · Store profile", fields: [f("name", "Store name", "text", true), f("ownerName", "Store owner", "text", true), f("category", "Category", "select", true, root.MWEPlatform?.options?.("store_categories") || ["Books & Resources", "Apparel", "Music", "Gifts", "Church Supplies", "General"]), f("description", "About your store", "textarea", true), f("image", "Cover image URL", "url"), f("email", "Contact email", "email", true)] },
-      { title: "02 · Live shopping", fields: [f("liveUrl", "Broadcast URL", "url", false, null, "Add the HTTPS link to your external broadcast. My Way does not capture your camera or host video."), f("live", "Broadcast status", "select", true, booleanOptions)] }
+      { title: "02 · Live shopping", fields: [f("liveUrl", "Broadcast URL", "url", false, null, "Add the HTTPS link to your external broadcast. RhemaSphere does not capture your camera or host video."), f("live", "Broadcast status", "select", true, booleanOptions)] }
     ],
     defaults: () => ({ category: root.MWEPlatform?.options?.("store_categories")?.[0] || "General", live: "false" }),
     save(r, v) {

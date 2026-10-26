@@ -2,172 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261011appshell1" />
-  <title>Member Home | My Way</title>
-  <link rel="stylesheet" href="styles.css?v=20261007homescripture2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261024rs1" />
+  <title>Home | RhemaSphere</title>
+  <link rel="stylesheet" href="styles.css?v=20261024rs1" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="daily-scripture.js?v=20261001scripture1"></script>
-  <script defer src="platform-client.js?v=20261007memberhome1"></script><script src="ministries.js?v=1"></script>
-  <script defer src="app.js?v=20261011g1"></script><script defer src="auth-client.js?v=20261011m1"></script>
-  <script defer src="platform-modules.js?v=20260831"></script>
-  <script defer src="member-home.js?v=20261007memberhome5"></script>
-<link rel="stylesheet" href="responsive.css?v=20260907headerclean1" /><script defer src="app-shell.js?v=20261011appshell26"></script><link rel="stylesheet" href="app-shell.css?v=20261011appshell26" /></head>
-<body class="module-page member-home-body" data-page="member-home">
-  <main class="module-shell member-home-shell">
-    
-    <!-- Member Welcome Hero Banner -->
-    <section class="member-hero-banner">
-      <div class="member-hero-content">
-        <div class="member-hero-greeting">
-          <span class="member-hero-badge"><i data-lucide="sparkles"></i> Spiritual Hub</span>
-          <h1>Welcome to Your Fellowship, <span class="member-name-highlight" data-member-home-name>there</span></h1>
-          <p>Explore today's Scripture devotion, active church livestreams, study resources, and Christian creator channels.</p>
+    <script defer src="platform-client.js?v=20261024rs1"></script><script src="ministries.js?v=20261024rs1"></script>
+  <script defer src="app.js?v=20261024rs1"></script><script defer src="auth-client.js?v=20261024rs1"></script>
+  <script defer src="platform-modules.js?v=20261024rs1"></script>
+  <script defer src="rs-catalog.js?v=20261026home1"></script><script defer src="home-public.js?v=20261026home1"></script>
+<link rel="stylesheet" href="responsive.css?v=20261024rs1" /><script defer src="app-shell.js?v=20261024rs1"></script><link rel="stylesheet" href="app-shell.css?v=20261024rs1" /><link rel="stylesheet" href="home-public.css?v=20261026home2" /></head>
+<body class="module-page member-home-body rs-home-body" data-page="member-home">
+  <main class="module-shell rs-home">
+    <section class="rs-home-hero" aria-labelledby="rs-home-hero-title">
+      <div class="rs-home-hero-copy">
+        <span class="rs-home-badge"><i data-lucide="sparkles"></i> Welcome to RhemaSphere</span>
+        <h1 id="rs-home-hero-title">Find your church home.</h1>
+        <p>Discover verified churches near you, quiet your heart in a meditation room, join live worship and grow with trusted Christian resources.</p>
+        <div class="rs-home-hero-actions">
+          <a class="rs-btn rs-btn-primary" href="churches.html"><i data-lucide="church"></i> Find a church</a>
+          <a class="rs-btn rs-btn-ghost" href="meditation.html"><i data-lucide="sparkles"></i> Enter a meditation room</a>
         </div>
-
-        <aside class="daily-scripture member-home-scripture" data-daily-scripture aria-label="Scripture of the Day"></aside>
       </div>
-
-      <!-- Quick Launchpad Action Grid -->
-      <div class="member-quick-launchpad">
-        <a href="spotlight.html" class="launch-card launch-spotlight" data-navigate-view="spotlight">
-          <div class="launch-icon"><i data-lucide="play-square"></i></div>
-          <div class="launch-text"><strong>Spotlight</strong><span>Stories, creators & ministries</span></div>
-          <i data-lucide="arrow-right" class="launch-arrow"></i>
-        </a>
-
-        <a href="meditation.html" class="launch-card launch-meditation" data-navigate-view="meditation">
-          <div class="launch-icon"><i data-lucide="sparkles"></i></div>
-          <div class="launch-text">
-            <strong>Meditation Sanctuary</strong>
-            <span>Worship, Audio Bible & Soaking</span>
-          </div>
-          <i data-lucide="arrow-right" class="launch-arrow"></i>
-        </a>
-
-        <a href="churches.html" class="launch-card launch-churches" data-navigate-view="directory">
-          <div class="launch-icon"><i data-lucide="church"></i></div>
-          <div class="launch-text">
-            <strong>Find Churches</strong>
-            <span>150+ Verified Fellowships</span>
-          </div>
-          <i data-lucide="arrow-right" class="launch-arrow"></i>
-        </a>
-
-        <a href="livestream.html" class="launch-card launch-live" data-navigate-view="livestream">
-          <div class="launch-icon"><i data-lucide="radio"></i></div>
-          <div class="launch-text">
-            <strong>Live Broadcasts</strong>
-            <span>Join Active Sunday Worship</span>
-          </div>
-          <i data-lucide="arrow-right" class="launch-arrow"></i>
-        </a>
-
-        <a href="channels.html" class="launch-card launch-channels" data-navigate-view="channels">
-          <div class="launch-icon"><i data-lucide="podcast"></i></div>
-          <div class="launch-text">
-            <strong>Creator Channels</strong>
-            <span>Daily Word, Podcasts & Sermons</span>
-          </div>
-          <i data-lucide="arrow-right" class="launch-arrow"></i>
-        </a>
-
-        <a href="store.html" class="launch-card launch-store" data-navigate-view="store">
-          <div class="launch-icon"><i data-lucide="shopping-bag"></i></div>
-          <div class="launch-text">
-            <strong>My Way Store</strong>
-            <span>Bibles, Communion & Apparel</span>
-          </div>
-          <i data-lucide="arrow-right" class="launch-arrow"></i>
-        </a>
-      </div>
+      <div class="rs-home-hero-art" aria-hidden="true"><img src="assets/church-audience.jpg" alt="" /></div>
     </section>
 
-    <!-- Section 1: Active Livestreams & Fellowship Highlights -->
-    <section class="member-section">
-      <div class="member-section-head">
-        <div>
-          <span class="section-kicker"><i data-lucide="radio"></i> Live Now & Upcoming</span>
-          <h2>Virtual Sanctuary Streams</h2>
-        </div>
-        <a href="livestream.html" class="member-see-all" data-navigate-view="livestream">View all streams <i data-lucide="arrow-right"></i></a>
+    <section class="rs-home-section" id="home-churches" aria-labelledby="home-churches-title">
+      <div class="rs-home-head">
+        <div><span class="rs-home-kicker"><i data-lucide="church"></i> Featured Churches</span><h2 id="home-churches-title">Featured Churches</h2></div>
+        <a class="rs-home-more" href="churches.html">Explore directory <i data-lucide="arrow-right"></i></a>
       </div>
-
-      <div class="member-streams-grid" id="member-streams-grid"></div>
+      <div class="rs-home-grid" id="home-churches-grid" data-home-grid="churches" aria-live="polite"><p class="rs-home-loading">Loading…</p></div>
     </section>
-
-    <!-- Section 2: Meditation Room Showcase Card -->
-    <section class="member-section">
-      <div class="member-meditation-showcase">
-        <div class="med-showcase-copy">
-          <span class="med-showcase-tag"><i data-lucide="sparkles"></i> Spiritual Wellness</span>
-          <h2>Enter the Meditation Sanctuary</h2>
-          <p>Quiet your soul with peace-filled Christian worship, spoken Audio Bibles, soaking instrumental strings, and pastoral preachings.</p>
-          <div class="med-showcase-features">
-            <span><i data-lucide="check"></i> 4 Audio Channels</span>
-            <span><i data-lucide="check"></i> Prayer & Sleep Timers</span>
-            <span><i data-lucide="check"></i> Ambient Sound Mixer</span>
-          </div>
-          <a href="meditation.html" class="button primary lg" data-navigate-view="meditation">
-            <i data-lucide="sparkles"></i> Open Meditation Room
-          </a>
-        </div>
-        <div class="med-showcase-visual">
-          <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=700&q=80" alt="Meditation Sanctuary" />
-        </div>
+    <section class="rs-home-section" id="home-meditation" aria-labelledby="home-meditation-title">
+      <div class="rs-home-head">
+        <div><span class="rs-home-kicker"><i data-lucide="sparkles"></i> Meditation Rooms</span><h2 id="home-meditation-title">Meditation Rooms</h2></div>
+        <a class="rs-home-more" href="meditation.html">All rooms <i data-lucide="arrow-right"></i></a>
       </div>
+      <div class="rs-home-grid" id="home-meditation-grid" data-home-grid="meditation" aria-live="polite"><p class="rs-home-loading">Loading…</p></div>
     </section>
-
-    <!-- Section 3: Featured Christian Channels -->
-    <section class="member-section">
-      <div class="member-section-head">
-        <div>
-          <span class="section-kicker"><i data-lucide="podcast"></i> Verified Creators</span>
-          <h2>Inspiring Channels & Podcasts</h2>
-        </div>
-        <a href="channels.html" class="member-see-all" data-navigate-view="channels">Explore all channels <i data-lucide="arrow-right"></i></a>
+    <section class="rs-home-section" id="home-live" aria-labelledby="home-live-title">
+      <div class="rs-home-head">
+        <div><span class="rs-home-kicker"><i data-lucide="radio"></i> Live Now</span><h2 id="home-live-title">Live Now</h2></div>
+        <a class="rs-home-more" href="livestream.html">All livestreams <i data-lucide="arrow-right"></i></a>
       </div>
-
-      <div class="channels-grid" id="member-channels-grid"></div>
+      <div class="rs-home-grid" id="home-live-grid" data-home-grid="live" aria-live="polite"><p class="rs-home-loading">Loading…</p></div>
     </section>
-
-    <!-- Section 4: Study Library & Resources -->
-    <section class="member-section">
-      <div class="member-section-head">
-        <div>
-          <span class="section-kicker"><i data-lucide="book-open"></i> Discipleship Tools</span>
-          <h2>Study Guides & E-Books</h2>
-        </div>
-        <a href="resources.html" class="member-see-all" data-navigate-view="resources">Browse library <i data-lucide="arrow-right"></i></a>
+    <section class="rs-home-section" id="home-stores" aria-labelledby="home-stores-title">
+      <div class="rs-home-head">
+        <div><span class="rs-home-kicker"><i data-lucide="shopping-bag"></i> Community Stores</span><h2 id="home-stores-title">Community Stores</h2></div>
+        <a class="rs-home-more" href="store.html">Visit store <i data-lucide="arrow-right"></i></a>
       </div>
-
-      <div class="resources-grid" id="member-resources-grid"></div>
+      <div class="rs-home-grid" id="home-stores-grid" data-home-grid="store" aria-live="polite"><p class="rs-home-loading">Loading…</p></div>
     </section>
-
-    <!-- Section 5: My Way Store Highlights -->
-    <section class="member-section">
-      <div class="member-section-head">
-        <div>
-          <span class="section-kicker"><i data-lucide="shopping-bag"></i> Kingdom Marketplace</span>
-          <h2>Featured Ministry Essentials</h2>
-        </div>
-        <a href="store.html" class="member-see-all" data-navigate-view="store">Visit Store <i data-lucide="arrow-right"></i></a>
+    <section class="rs-home-section" id="home-resources" aria-labelledby="home-resources-title">
+      <div class="rs-home-head">
+        <div><span class="rs-home-kicker"><i data-lucide="book-open"></i> Latest Resources</span><h2 id="home-resources-title">Latest Resources</h2></div>
+        <a class="rs-home-more" href="resources.html">Browse library <i data-lucide="arrow-right"></i></a>
       </div>
-
-      <div class="store-products-grid" id="member-store-grid"></div>
+      <div class="rs-home-grid" id="home-resources-grid" data-home-grid="resources" aria-live="polite"><p class="rs-home-loading">Loading…</p></div>
     </section>
-
-    <!-- Section 6: Humanitarian Outreach Impact -->
-    <section class="member-section">
-      <div class="member-impact-box">
-        <div>
-          <span class="section-kicker" style="color: var(--primary);"><i data-lucide="heart"></i> Love in Action</span>
-          <h2>Bi-Monthly Humanitarian Relief</h2>
-          <p>Every contribution supports partner orphanages, food drives, and emergency aid with verified video proof.</p>
+    <section class="rs-home-section" id="home-giving">
+      <div class="rs-home-give">
+        <div class="rs-home-give-icon" aria-hidden="true"><i data-lucide="heart-handshake"></i></div>
+        <div class="rs-home-give-copy">
+          <span class="rs-home-kicker"><i data-lucide="heart"></i> Love in action</span>
+          <h2>Giving for Gospel Outreach</h2>
+          <p>Your gift funds a joint outreach with a church on RhemaSphere: gospel tracts, practical help and follow-up for new believers.</p>
         </div>
-        <a href="donate.html" class="button primary" data-navigate-view="giving"><i data-lucide="heart"></i> Support Outreach</a>
+        <a class="rs-btn rs-btn-give" href="donate.html"><i data-lucide="heart"></i> Give to outreach</a>
       </div>
     </section>
-
   </main>
   <div class="toast" data-toast role="status" aria-live="polite"></div>
 </body>

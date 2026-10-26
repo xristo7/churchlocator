@@ -47,7 +47,7 @@
   function sheet(people,canManage){const body=root.querySelector('[data-sheet-body]');body.innerHTML=people.map(p=>'<div class="mwe-sheet-row" data-pid="'+esc(p.id)+'"><span class="mwe-live-avatar" style="background:linear-gradient(135deg,'+p.a+','+p.b+')">'+esc(initials(p.name))+'</span><span class="mwe-sheet-name"><b>'+esc(p.name)+'</b><small>'+(p.host?'Host':p.request?'Requested to join':'Guest')+'</small></span>'+(canManage&&!p.host?(p.request?'<button type="button" class="mwe-mini primary" data-act="approve">Approve</button>':'<button type="button" class="mwe-mini" data-act="mute" aria-label="Mute">'+icon(p.muted?'mic-off':'mic')+'</button><button type="button" class="mwe-mini danger" data-act="remove">Remove</button>'):'')+'</div>').join('');root.querySelector('[data-sheet]').hidden=false;window.lucide?.createIcons();return body;}
 
   function runDemo(){
-    document.title='Demo stage · Channel Live | My Way';
+    document.title='Demo stage · Channel Live | RhemaSphere';
     const people=[
       {id:'h',name:'Pastor Grace Mwangi',host:true,speaking:true,muted:false,a:'#1e3a8a',b:'#3b82f6'},
       {id:'g1',name:'Daniel Okello',muted:false,a:'#7c2d12',b:'#f59e0b'},
@@ -81,7 +81,7 @@
     try{
       const current=await api('channels/'+encodeURIComponent(channelId||''));sessionId=sessionId||current.session?.id;
       if(!sessionId){offline(current.canManage);window.lucide?.createIcons();return;}
-      const title=current.session?.title||'Channel Live';document.title=title+' · Live | My Way';
+      const title=current.session?.title||'Channel Live';document.title=title+' · Live | RhemaSphere';
       setHeader(title,current.channel?.name||'',current.session?.viewerCount??null);
       renderTiles([{id:'host',name:current.channel?.name||current.session?.hostName||'Host',host:true,muted:false,speaking:true,a:'#1e3a8a',b:'#3b82f6'}]);
       const nav=controls([{id:'mic',icon:'mic-off',label:'Microphone',short:'Mic'},{id:'cam',icon:'video-off',label:'Camera',short:'Cam'},{id:'join',icon:current.canManage?'radio':'hand',label:current.canManage?'Open stage':'Join live stage',short:current.canManage?'Stage':'Join'},{id:'react',icon:'heart',label:'React',short:'React'},{id:'share',icon:'share-2',label:'Copy stage invitation',short:'Share'},...(current.canManage?[{id:'end',icon:'square',label:'End stage for everyone',short:'End',cls:'danger'}]:[]),{id:'leave',icon:'phone-off',label:'Leave stage',short:'Leave',cls:'danger',hidden:true}]);

@@ -11,5 +11,5 @@
   }
   document.addEventListener("fullscreenchange", () => document.body.classList.toggle("reader-is-fullscreen", Boolean(document.fullscreenElement)));
   document.addEventListener("DOMContentLoaded", async () => {
-  await window.MWEPlatform?.ready; const resource = data().getResources().find(item => item.id === resourceId); const root = document.getElementById("dedicated-reader"); if (!resource) { root.innerHTML = `<div class="module-empty"><strong>Resource not found.</strong><a href="resources.html">Return to Resources</a></div>`; return; } document.title = `${resource.title} Reader | My Way`; document.getElementById("reader-back").href = `resource-detail.html?id=${encodeURIComponent(resource.id)}`; draw(resource); });
+  await window.MWEPlatform?.ready; const resource = data().getResources().find(item => item.id === resourceId); const root = document.getElementById("dedicated-reader"); if (!resource) { root.innerHTML = `<div class="module-empty"><strong>Resource not found.</strong><a href="resources.html">Return to Resources</a></div>`; return; } document.title = `${resource.title} Reader | RhemaSphere`; document.getElementById("reader-back").href = `resource-detail.html?id=${encodeURIComponent(resource.id)}`; draw(resource); });
 })();

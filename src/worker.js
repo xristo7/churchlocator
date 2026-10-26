@@ -874,6 +874,7 @@ async function handleStatus(env) {
     app: "my-way-of-evangelism-api",
     role: "Shared synchronization API for public website, church portal, and owner dashboard",
     environment: env.ENVIRONMENT || "unknown",
+    features: { autoApproveStudioContent: String(env.AUTO_APPROVE_STUDIO_CONTENT || "").toLowerCase() === "true" },
     storage: {
       d1Bound: Boolean(env.DB),
       binding: "DB"
@@ -1152,7 +1153,10 @@ async function handlePrayer(request, env) {
 function assetRequest(request) {
   const url = new URL(request.url);
   const routes = new Map([
-    ["/", "/index.html"],
+    ["/", "/app.html"],
+    ["/index.html", "/app.html"],
+    ["/home", "/app.html"],
+    ["/creator", "/creator-workspace.html"],
     ["/church-portal", "/church-portal.html"],
     ["/portal", "/church-portal.html"],
     ["/creator-hub", "/church-portal.html"],

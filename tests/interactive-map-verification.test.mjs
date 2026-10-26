@@ -112,7 +112,7 @@ test("Task 6.2: MWE.showMapModal displays the actual church photo in modal hero 
   sandbox.window.document = documentMock;
 
   vm.createContext(sandbox);
-  vm.runInContext(appJs.slice(appJs.indexOf("const MWE = (() => {"), appJs.indexOf("/* My Way member experience")), sandbox);
+  vm.runInContext(appJs.slice(appJs.indexOf("const MWE = (() => {"), appJs.indexOf("/* RhemaSphere member experience")), sandbox);
 
   const MWE = sandbox.window.MWE;
   assert.ok(MWE, "window.MWE should be defined");
@@ -205,7 +205,7 @@ test("Task 6.3: Fallback and directions sharing integration", async () => {
   sandbox.window.document = documentMock;
 
   vm.createContext(sandbox);
-  vm.runInContext(appJs.slice(appJs.indexOf("const MWE = (() => {"), appJs.indexOf("/* My Way member experience")), sandbox);
+  vm.runInContext(appJs.slice(appJs.indexOf("const MWE = (() => {"), appJs.indexOf("/* RhemaSphere member experience")), sandbox);
 
   const MWE = sandbox.window.MWE;
   assert.equal(typeof MWE.fallbackCopyDirections, "function");

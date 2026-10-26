@@ -77,7 +77,7 @@
           ? '<svg class="resource-type-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3"></path><path d="M5 14h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Zm12 0h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Z"></path></svg>'
           : '<svg class="resource-type-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M8 13h8M8 17h8"></path></svg>';
       const priceTag = r.access === "Free" ? "Free" : data().money(r.price);
-      const creatorName = String(r.creator || "My Way").trim();
+      const creatorName = String(r.creator || "RhemaSphere").trim();
       const normalizedCreator = creatorName.toLocaleLowerCase();
       const channel = (data().getChannels() || []).find(c =>
         [c.name, c.owner, c.handle].some(value => String(value || "").trim().toLocaleLowerCase() === normalizedCreator)

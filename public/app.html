@@ -2,22 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261011appshell1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261024rs1" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>My Way Member App</title>
-  <link rel="stylesheet" href="styles.css?v=20261007invitepopup3" />
+  <title>RhemaSphere</title>
+  <link rel="stylesheet" href="styles.css?v=20261024rs1" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20260918nav1"></script><script src="ministries.js?v=1"></script><script src="geo-regions.js?v=1"></script>
-  <script defer src="app.js?v=20261011g1"></script><script defer src="auth-client.js?v=20261011m1"></script>
-  <script defer src="app-shell.js?v=20261011appshell26"></script>
-<link rel="stylesheet" href="responsive.css?v=20260918nav1" /><link rel="stylesheet" href="app-shell.css?v=20261011appshell26" /></head>
+  <script defer src="platform-client.js?v=20261024rs1"></script><script src="ministries.js?v=20261024rs1"></script><script src="geo-regions.js?v=20261024rs1"></script>
+  <script defer src="app.js?v=20261024rs1"></script><script defer src="auth-client.js?v=20261024rs1"></script>
+  <script defer src="rs-catalog.js?v=20261026home1"></script><script defer src="app-shell.js?v=20261026home1"></script>
+<link rel="stylesheet" href="responsive.css?v=20261024rs1" /><link rel="stylesheet" href="app-shell.css?v=20261026home1" /><link rel="stylesheet" href="rs-search.css?v=20261026home1" /></head>
 <body class="member-app-shell" data-page="app-shell">
   <header class="profile-app-header member-shell-header" id="member-shell-header">
-    <a class="profile-app-brand" href="index.html" aria-label="My Way home">
+    <a class="profile-app-brand" href="/" aria-label="RhemaSphere home">
       <span class="profile-app-brand-mark"><i data-lucide="sparkles"></i></span>
-      <strong>My Way</strong>
+      <strong>RhemaSphere</strong>
     </a>
 
     <div class="profile-app-church member-section-context" id="member-section-context" aria-label="Current section">
@@ -27,7 +27,8 @@
 
     <form class="profile-app-search site-search" id="member-shell-search" role="search">
       <i data-lucide="search"></i>
-      <input type="search" name="q" placeholder="Search My Way" aria-label="Search My Way" />
+      <input type="search" name="q" placeholder="Search RhemaSphere" aria-label="Search RhemaSphere" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="rs-search-results" aria-autocomplete="list" />
+      <div class="rs-search-panel" id="rs-search-results" role="listbox" aria-label="Search results" hidden></div>
     </form>
 
     <div class="member-shell-actions">
@@ -60,6 +61,7 @@
               <span data-member-role></span>
             </span>
           </div>
+          <a class="mwe-menu-studio" href="app.html?view=portal" data-shell-view="portal"><i class="mwe-menu-studio-icon" aria-hidden="true"><i data-lucide="sparkles"></i></i><strong>Creator Studio<small>Create &amp; publish</small></strong><i class="mwe-menu-studio-chevron" data-lucide="chevron-right" aria-hidden="true"></i></a>
           <a href="app.html?view=profile" data-shell-view="profile"><i data-lucide="user-round"></i><span>Profile &amp; account</span></a>
           <a href="app.html?view=messages" data-shell-view="messages"><i data-lucide="messages-square"></i><span>Messages</span><b id="member-message-count">1</b></a>
           <button type="button" id="member-sign-out"><i data-lucide="log-out"></i> Sign out</button>
@@ -75,7 +77,7 @@
   <aside class="profile-left-rail member-shell-rail" id="member-shell-rail" aria-label="Main navigation">
     <div class="member-mobile-actions" id="member-mobile-actions" aria-label="Account actions"></div>
     <nav class="profile-rail-nav">
-      <a href="app.html?view=home" data-shell-view="home"><i data-lucide="layout-grid"></i><span>Home</span></a>
+      <a href="/" data-shell-view="home"><i data-lucide="layout-grid"></i><span>Home</span></a>
       <a href="app.html?view=meditation" data-shell-view="meditation"><i data-lucide="sparkles"></i><span>Meditation</span></a>
       <a href="app.html?view=directory" data-shell-view="directory"><i data-lucide="church"></i><span>Churches</span></a>
       <a href="app.html?view=channels" data-shell-view="channels"><i data-lucide="podcast"></i><span>Channels</span></a>
@@ -90,9 +92,9 @@
         <strong><i data-lucide="sparkles"></i> Invite a friend</strong>
         <p>Help others find their church home.</p>
         <button type="button" id="member-send-invite" aria-haspopup="dialog" aria-expanded="false" aria-controls="member-invite-popover">Share <i data-lucide="share-2"></i></button>
-        <div class="member-invite-popover" id="member-invite-popover" role="dialog" aria-modal="true" aria-label="Share My Way" hidden>
+        <div class="member-invite-popover" id="member-invite-popover" role="dialog" aria-modal="true" aria-label="Share RhemaSphere" hidden>
           <div class="member-invite-popover-card">
-          <div class="member-invite-popover-head"><div><strong>Share My Way</strong><span>Invite someone to find a church community.</span></div><button type="button" class="member-invite-close" aria-label="Close share options"><i data-lucide="x"></i></button></div>
+          <div class="member-invite-popover-head"><div><strong>Share RhemaSphere</strong><span>Invite someone to find a church community.</span></div><button type="button" class="member-invite-close" aria-label="Close share options"><i data-lucide="x"></i></button></div>
           <div class="member-invite-share-grid">
             <a data-share-target="whatsapp" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.8a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.3-4.7A8.5 8.5 0 1 1 20.5 11.8Z"/><path d="M8.2 7.7c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.4l.7 1.6c.1.2.1.4-.1.6l-.5.6c-.2.2-.2.3 0 .6.4.7 1 1.3 1.7 1.7.3.2.4.2.6 0l.7-.8c.2-.2.4-.2.6-.1l1.5.7c.3.1.4.3.4.5 0 .3-.2 1-.6 1.4-.4.4-1 .6-1.5.5-.6-.1-1.4-.4-2.4-1-1.5-.9-2.5-2.1-3.1-3.2-.6-1.1-.6-2-.4-2.6.2-.5.5-.9.7-1.1Z"/></svg><span>WhatsApp</span></a>
             <a data-share-target="facebook" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 21v-8h2.7l.4-3H14V8.1c0-.9.3-1.5 1.6-1.5h1.7V4a22 22 0 0 0-2.4-.1c-2.4 0-4 1.5-4 4.1V10H8.2v3h2.7v8H14Z"/></svg><span>Facebook</span></a>
@@ -106,7 +108,6 @@
       </div>
       <a class="mwe-rail-donate" href="donate.html"><span class="mwe-rail-donate-icon"><i data-lucide="heart-handshake"></i></span><span><strong>Donate</strong><small>Give today</small></span><i data-lucide="chevron-right"></i></a>
       <nav class="profile-rail-nav profile-rail-utility">
-        <a href="app.html?view=portal" data-shell-view="portal"><i data-lucide="sparkles"></i><span>Studio</span></a>
         <a href="mailto:support@mywayofevangelism.org"><i data-lucide="circle-help"></i><span>Help & Support</span></a>
       </nav>
     </div>
@@ -115,12 +116,12 @@
   <main class="member-shell-main" id="member-shell-main">
     <div class="member-shell-loading" id="member-shell-loading" role="status" aria-live="polite">
       <span></span>
-      <p>Loading your My Way view…</p>
+      <p>Loading your RhemaSphere view…</p>
     </div>
     <iframe
       class="member-shell-frame"
       id="member-shell-frame"
-      title="My Way content"
+      title="RhemaSphere content"
       src="about:blank"
       allow="autoplay; encrypted-media; clipboard-write; camera; microphone; geolocation"
       allowfullscreen

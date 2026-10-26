@@ -132,7 +132,18 @@
         const rows = (taxonomy?.items || []).map(item => '<div class="aw-taxonomy-row"><input name="item" value="' + esc(item) + '" aria-label="' + esc(title) + ' option" maxlength="80" required /><button class="aw-icon-button" type="button" data-taxonomy-remove aria-label="Remove ' + esc(item) + '">' + icon("trash-2") + '</button></div>').join("");
         return '<form class="aw-panel aw-taxonomy-card" data-taxonomy-form="' + key + '"><div class="aw-panel-heading"><div><h2>' + title + '</h2><p>' + description + '</p></div><span class="aw-badge">' + (taxonomy?.items.length || 0) + ' options</span></div><div class="aw-taxonomy-list">' + rows + '</div><div class="aw-taxonomy-actions"><button class="aw-button" type="button" data-taxonomy-add>' + icon("plus") + ' Add option</button><button class="aw-button aw-primary" type="submit">Save ' + title.toLowerCase() + '</button></div></form>';
       }).join("");
-      $("aw-content").innerHTML = '<div class="aw-notice"><strong>One source of truth</strong><p>Changes apply to public filters and new content forms. Existing records keep their saved value until edited.</p></div><div class="aw-taxonomy-grid">' + cards + '</div>';
+      const billing = '<section class="aw-panel aw-billing-card" id="aw-billing"><div class="aw-panel-heading"><div><h2>Livestream billing</h2><p>Free lets every church and channel go live without payment. Paid requires a paid livestream activation before going live.</p></div><span class="aw-badge" id="aw-billing-badge">Loading…</span></div><div class="aw-segmented" role="radiogroup" aria-label="Livestream billing"><button type="button" role="radio" class="aw-seg" data-billing="free" aria-checked="false">' + icon("gift") + '<span>Free</span></button><button type="button" role="radio" class="aw-seg" data-billing="paid" aria-checked="false">' + icon("credit-card") + '<span>Paid</span></button></div></section>';
+      $("aw-content").innerHTML = billing + '<div class="aw-notice"><strong>One source of truth</strong><p>Changes apply to public filters and new content forms. Existing records keep their saved value until edited.</p></div><div class="aw-taxonomy-grid">' + cards + '</div>';
+    }
+    async function bindBilling() {
+      const host = document.getElementById("aw-billing"); if (!host) return;
+      const paint = mode => { host.querySelectorAll("[data-billing]").forEach(b => { const on = b.dataset.billing === mode; b.setAttribute("aria-checked", String(on)); b.classList.toggle("selected", on); }); const badge = $("aw-billing-badge"); badge.textContent = mode === "paid" ? "Paid" : "Free"; badge.className = "aw-badge " + (mode === "paid" ? "warn" : "good"); };
+      try { const r = await fetch("/api/live/billing", { credentials: "same-origin", cache: "no-store" }).then(x => x.json()); paint(r.mode || "free"); } catch { paint("free"); }
+      host.querySelectorAll("[data-billing]").forEach(b => b.addEventListener("click", async () => {
+        const mode = b.dataset.billing; host.querySelectorAll("[data-billing]").forEach(x => x.disabled = true);
+        try { const res = await fetch("/api/live/billing", { method: "PUT", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ mode }) }); const d = await res.json(); if (!res.ok || !d.ok) throw new Error(d.error || "Could not update billing."); paint(d.mode); notice(d.mode === "paid" ? "Livestreams now require payment." : "Livestreams are now free."); }
+        catch (e) { notice(e.message); } finally { host.querySelectorAll("[data-billing]").forEach(x => x.disabled = false); }
+      }));
     }
     function render() {
       try {
@@ -155,12 +166,12 @@
         }
         $("aw-heading-actions").innerHTML = mod ? button("new", icon("plus") + " Add " + mod.singular, true) : link(state.view === "overview" ? "#churches" : "#overview", state.view === "overview" ? "Manage churches " + icon("arrow-right") : "Back to overview", "aw-button");
         if (state.view === "spotlight") $("aw-heading-actions").innerHTML = link("app.html?view=spotlight", "Open Spotlight " + icon("arrow-up-right"), "aw-button");
-        document.title = $("aw-title").textContent + " · Admin | My Way";
-        if (creator) document.title = $("aw-title").textContent + " | My Way";
+        document.title = $("aw-title").textContent + " · Admin | RhemaSphere";
+        if (creator) document.title = $("aw-title").textContent + " | RhemaSphere";
         if (creator && state.view === "overview") $("aw-heading-actions").innerHTML = link("app.html?view=home", "Open member app " + icon("arrow-up-right"), "aw-button");
         if (state.view === "store") $("aw-heading-actions").insertAdjacentHTML("afterbegin", link("#products", "Manage products", "aw-button") + " ");
         if (state.view === "products") $("aw-heading-actions").insertAdjacentHTML("afterbegin", link("#store", "Store profiles", "aw-button") + " ");
-        if (mod) list(); else if (state.view === "overview") overview(); else if (state.view === "spotlight") window.MWESpotlightWorkspace?.render({ target: $("aw-content"), creator }); else if (state.view === "platform-options") platformOptions(); else if (state.view === "locations") coverage(); else review();
+        if (mod) list(); else if (state.view === "overview") overview(); else if (state.view === "spotlight") window.MWESpotlightWorkspace?.render({ target: $("aw-content"), creator }); else if (state.view === "platform-options") { platformOptions(); bindBilling(); } else if (state.view === "locations") coverage(); else review();
         drawIcons();
       } catch (error) {
         $("aw-content").innerHTML = '<section class="aw-panel aw-empty"><h3>We couldn’t load the workspace</h3><p>Your existing records have not been reset. Check browser storage availability and reload.</p>' + button("retry", "Try again") + '</section>';

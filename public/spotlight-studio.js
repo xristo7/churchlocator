@@ -12,7 +12,7 @@
   function accessScreen() {
     const user = platform?.session;
     if (!user) {
-      root.innerHTML = `<section class="cs-upgrade"><div class="cs-card-icon">${icon("log-in")}</div><p class="cs-eyebrow">Spotlight Studio</p><h1>Sign in to create for Spotlight.</h1><p>Use your My Way account to prepare vertical stories, save drafts, and submit them for review.</p><a class="cs-primary" href="${signInUrl}" target="_top">Sign in or create an account ${icon("arrow-right")}</a></section>`;
+      root.innerHTML = `<section class="cs-upgrade"><div class="cs-card-icon">${icon("log-in")}</div><p class="cs-eyebrow">Spotlight Studio</p><h1>Sign in to create for Spotlight.</h1><p>Use your RhemaSphere account to prepare vertical stories, save drafts, and submit them for review.</p><a class="cs-primary" href="${signInUrl}" target="_top">Sign in or create an account ${icon("arrow-right")}</a></section>`;
       renderIcons();
       return;
     }

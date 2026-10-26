@@ -766,7 +766,9 @@ html body .mwe-generic-spotlight:not(#mwe-x) { margin: 0 8px; align-self: center
 html.member-shell-embed body.member-shell-embed > :is(header, .topbar, .profile-app-header, .profile-left-rail, footer, .mini-footer):not(#mwe-x):not(#mwe-y),
 html.member-shell-embed body > .profile-app-header:not(#mwe-x):not(#mwe-y),
 html.member-shell-embed .mwe-search-overlay:not(#mwe-x) { display: none !important; }
-html.member-shell-embed body.has-mwe-tabbar:not(#mwe-x) { padding-bottom: 0 !important; }
+/* ui-fix5: signed-in pages render in app.html's iframe; the parent's tab bar overlays the frame, so the embedded document needs the single end-of-scroll reserve itself */
+@media (max-width:959.98px){html.member-shell-embed body.member-shell-embed:not([data-page="messages"]):not(#mwe-x):not(#mwe-y){padding-bottom:calc(var(--mwe-shell-bar,60px) + 16px)!important}
+html.member-shell-embed body.member-shell-embed:not(#mwe-x):not(#mwe-y) main{padding-bottom:0!important}}
 
 /* Church profile: main + sidebar always fit the content width */
 @media (min-width: 960px) {
@@ -796,3 +798,130 @@ body.member-is-guest [data-member-avatar-initials] svg{width:20px;height:20px}
 html body.member-is-guest .profile-app-header .profile-app-account .member-account-identity:not(#mwe-x){display:flex!important;flex-direction:column;justify-content:center}
 html body.member-is-guest .profile-app-header .profile-app-account .member-account-identity small:not(#mwe-x){display:none!important}
 html body.member-is-guest .profile-app-header .profile-app-account:not(#mwe-x){width:auto!important;padding:3px 12px 3px 3px!important;border-radius:999px;flex-direction:row-reverse;border:1px solid color-mix(in srgb,var(--text-primary,#0f172a) 14%,transparent)}
+
+/* ui-fix3: channel profile header + stats + tab bar clearance */
+body .channel-detail-modern .channel-detail-stats{background:transparent!important;box-shadow:none!important;border:0!important;padding:0!important;gap:12px}
+body .channel-detail-modern .channel-detail-stats span+span{border-left:1px solid var(--border)}
+body .channel-detail-profile .channel-detail-handle{margin:2px 0 0}
+body .channel-detail-profile .channel-detail-owner{margin:2px 0 0}
+@media (max-width:760px){
+  body .channel-detail-modern .channel-cover-type{left:16px!important;right:auto!important;top:14px!important;bottom:auto!important;padding:6px 10px;border-radius:999px;background:rgba(10,18,36,.55);backdrop-filter:blur(6px)}
+  body .channel-detail-modern .channel-detail-profile{display:flex!important;flex-direction:column;align-items:stretch!important;gap:14px!important;margin-top:-48px!important;padding:0 20px!important}
+  body .channel-detail-modern .channel-detail-profile>img{width:96px!important;height:96px!important;border-width:5px!important;align-self:flex-start;flex:0 0 auto}
+  body .channel-detail-modern .channel-detail-identity{padding:0!important;width:100%;min-width:0;text-align:left}
+  body .channel-detail-modern .channel-detail-identity h1{margin:0 0 4px!important;font-size:1.6rem!important;flex-wrap:wrap}
+  body .channel-detail-modern .channel-detail-actions{grid-column:auto!important;display:flex!important;width:100%;justify-content:stretch!important;gap:10px}
+  body .channel-detail-modern .channel-detail-actions .channel-follow-controls{flex:1 1 auto;display:flex}
+  body .channel-detail-modern .channel-detail-actions .channel-follow-controls>*{flex:1 1 auto;width:100%;min-height:48px}
+  body .channel-detail-modern .channel-detail-actions .content-love-detail{flex:0 0 auto;width:auto!important;min-width:72px!important;padding:0 16px!important;border-radius:999px!important}
+  body .channel-detail-modern .channel-detail-stats{gap:8px}
+  body .channel-detail-modern .channel-detail-stats span{padding:14px 6px}
+}
+body .channel-detail-modern .channel-detail-summary{padding-bottom:28px}
+@media (max-width:760px){body .channel-detail-modern .channel-cover-type{top:auto!important;bottom:14px!important;left:auto!important;right:16px!important}}
+
+/* ui-fix4: single bottom reserve at the end of the scroll; content scrolls visibly under the translucent tab bar */
+@media (max-width:959.98px){
+  html body.has-mwe-tabbar:not(#mwe-x){padding-bottom:calc(var(--tabbar-h,60px) + env(safe-area-inset-bottom,0px) + 16px)!important}
+  html body.has-mwe-tabbar:not(#mwe-x) main{padding-bottom:0!important;overflow:visible}
+  html body .mwe-tabbar:not(#mwe-x){background:color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 4%, #ffffff) 74%, transparent)!important;-webkit-backdrop-filter:saturate(160%) blur(8px);backdrop-filter:saturate(160%) blur(8px);box-shadow:none!important}
+  html[data-theme="dark"] body .mwe-tabbar:not(#mwe-x){background:color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 7%, #0b1220) 78%, transparent)!important}
+  html body.has-mwe-tabbar[data-page="messages"]:not(#mwe-x){padding-bottom:0!important}
+}
+@media (max-width:959.98px){html body.member-app-shell .mwe-tabbar:not(#mwe-x){-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 4%, #ffffff) 80%, transparent)!important}
+html[data-theme="dark"] body.member-app-shell .mwe-tabbar:not(#mwe-x){background:color-mix(in srgb, color-mix(in srgb, var(--mwe-accent) 7%, #0b1220) 82%, transparent)!important}}
+/* ui-fix6: post/episode card body spacing */
+html body .channel-content-grid article:not(#mwe-x){padding:12px 12px 16px}
+html body .channel-content-grid article:not(#mwe-x) > .channel-content-cover + *{margin-top:15px!important}
+html body .channel-content-grid article:not(#mwe-x) > small{margin:15px 4px 6px!important}
+html body .channel-content-grid article:not(#mwe-x) > h3{margin:0 4px 8px!important}
+html body .channel-content-grid article:not(#mwe-x) > .channel-content-cover + h3{margin-top:15px!important}
+html body .channel-content-grid article:not(#mwe-x) > p{margin:0 4px!important}
+/* ui-fix7: church detail Next Service + Recommended Next Step legibility */
+html body .profile-next-step:not(#mwe-x) .profile-next-step-label{display:flex;align-items:center;gap:8px;font-size:15px!important}
+html body .profile-next-step:not(#mwe-x) .profile-next-step-label strong{font-size:15px!important;line-height:1.3}
+html body .profile-next-step:not(#mwe-x) .profile-next-step-label>svg{width:20px!important;height:20px!important;flex:0 0 auto}
+html body .profile-next-step:not(#mwe-x) .profile-next-step-label>span{font-size:13px!important;padding:4px 10px!important;border-radius:999px;line-height:1.2;margin-left:auto;white-space:nowrap}
+html body .profile-next-step:not(#mwe-x) h4{font-size:22px!important;line-height:1.25}
+html body .profile-next-step:not(#mwe-x)>p{font-size:15px!important;line-height:1.5}
+html body .profile-next-step:not(#mwe-x)>button:not(.profile-new-here){display:flex!important;align-items:center;gap:14px;width:100%;min-height:60px!important;padding:10px 4px!important;text-align:left;border-bottom:1px solid var(--color-border,#e3e9f4)!important;border-radius:0!important}
+html body .profile-next-step:not(#mwe-x)>button:not(.profile-new-here)>svg:first-child{box-sizing:border-box;width:44px!important;height:44px!important;padding:10px;flex:0 0 44px;border-radius:12px;background:color-mix(in srgb,var(--color-primary,#2563eb) 12%,transparent);color:var(--color-primary,#2563eb)}
+html body .profile-next-step:not(#mwe-x)>button:not(.profile-new-here)>span{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+html body .profile-next-step:not(#mwe-x)>button:not(.profile-new-here) strong{font-size:16.5px!important;font-weight:600!important;line-height:1.3}
+html body .profile-next-step:not(#mwe-x)>button:not(.profile-new-here) small{font-size:14px!important;line-height:1.35}
+html body .profile-next-step:not(#mwe-x)>button:not(.profile-new-here)>svg:last-child{width:20px!important;height:20px!important;flex:0 0 20px;opacity:.7}
+html body .profile-next-step:not(#mwe-x) .profile-new-here{font-size:16px!important;min-height:50px;margin-top:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+html body .profile-next-step:not(#mwe-x) .profile-new-here svg{color:#fff!important;stroke:#fff!important;width:20px!important;height:20px!important}
+html body .profile-next-service:not(#mwe-x) .profile-side-heading h3{font-size:18px!important}
+html body .profile-next-service:not(#mwe-x) h4{font-size:20px!important}
+html body .profile-next-service:not(#mwe-x)>p,html body .profile-next-service:not(#mwe-x) .profile-service-location strong{font-size:15px!important}
+html body .profile-next-service:not(#mwe-x) .profile-service-location small,html body .profile-next-service:not(#mwe-x) .profile-service-note{font-size:14px!important}
+html body .profile-next-service:not(#mwe-x) .profile-calendar-action,html body .profile-next-service:not(#mwe-x) .profile-side-link{font-size:15px!important;min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+html body .profile-next-service:not(#mwe-x) .profile-calendar-action svg,html body .profile-next-service:not(#mwe-x) .profile-side-link svg{width:18px!important;height:18px!important}
+/* ui-fix8: site-wide legibility floor (body 14px, titles 15px+, badges 12px+, meta 12-13px, icons 18px, tap 44px) */
+html body .mwe-tab:not(#mwe-x) span{font-size:12px!important}
+html body .mwe-tab:not(#mwe-x) svg{width:24px;height:24px}
+html body:not(#mwe-x) .button>span,html body:not(#mwe-x) a.button,html body:not(#mwe-x) button.button{font-size:max(14px,1em)}
+html body:not(#mwe-x) .mwe-header-spotlight span,html body:not(#mwe-x) .lang-selector-btn .lang-text{font-size:14px!important}
+html body:not(#mwe-x) .mobile-menu-toggle svg,html body:not(#mwe-x) .lang-selector-btn svg,html body:not(#mwe-x) .signin-dropdown-container>button svg{width:20px!important;height:20px!important}
+html body:not(#mwe-x) .mobile-menu-toggle,html body:not(#mwe-x) .signin-dropdown-container>button,html body:not(#mwe-x) .lang-selector-btn{min-height:44px}
+/* footer */
+html body:not(#mwe-x) .footer-column>h2{font-size:15px!important}
+html body:not(#mwe-x) .footer-column a,html body:not(#mwe-x) .footer-button{font-size:14px!important}
+html body:not(#mwe-x) .footer-button{min-height:44px;display:inline-flex;align-items:center;gap:8px}
+html body:not(#mwe-x) .footer-button svg,html body:not(#mwe-x) .footer-contact-row svg{width:18px!important;height:18px!important}
+html body:not(#mwe-x) .footer-bottom span,html body:not(#mwe-x) .mini-footer-links a{font-size:13px!important}
+html body:not(#mwe-x) .mini-footer-links a{min-height:44px;display:inline-flex;align-items:center}
+/* sub-navs, filters, tabs */
+html body:not(#mwe-x) .mwu-subnav>a{font-size:14px!important;min-height:44px}
+html body:not(#mwe-x) .mwu-subnav>a svg{width:18px!important;height:18px!important}
+html body:not(#mwe-x) .message-filter-tabs>button{font-size:13px!important;min-height:36px;padding:0 14px!important}
+html body:not(#mwe-x) .spotlight-tabs>button,html body:not(#mwe-x) .spotlight-inspector-tabs>button,html body:not(#mwe-x) .stories-heading-actions>button,html body:not(#mwe-x) .form-step-tabs>div{font-size:14px!important}
+html body:not(#mwe-x) .module-results-head>span{font-size:13px!important}
+html body:not(#mwe-x) .module-primary-action{font-size:14px!important;min-height:44px}
+/* church cards */
+html body:not(#mwe-x) .immersive-badge,html body:not(#mwe-x) .church-hero-kicker,html body:not(#mwe-x) .church-gallery-kicker,html body:not(#mwe-x) .gallery-overlay-tag,html body:not(#mwe-x) .leader-bio .kicker{font-size:12px!important}
+html body:not(#mwe-x) .immersive-card-subtitle,html body:not(#mwe-x) .immersive-map-btn,html body:not(#mwe-x) .church-hero-desc,html body:not(#mwe-x) .church-hero-action{font-size:14px!important}
+html body:not(#mwe-x) .immersive-card-meta>span{font-size:13px!important}
+html body:not(#mwe-x) .immersive-card-meta svg,html body:not(#mwe-x) .immersive-badge svg,html body:not(#mwe-x) .immersive-map-btn svg,html body:not(#mwe-x) .immersive-pill-btn svg{width:18px!important;height:18px!important}
+html body:not(#mwe-x) .gallery-overlay-title{font-size:16px!important}
+/* church detail sidebar/other */
+html body:not(#mwe-x) .leader-actions>button,html body:not(#mwe-x) .profile-invite-card>button,html body:not(#mwe-x) .profile-invite-card>p{font-size:14px!important}
+html body:not(#mwe-x) .leader-actions>button,html body:not(#mwe-x) .profile-invite-card>button{min-height:44px}
+html body:not(#mwe-x) .profile-invite-card>strong{font-size:16px!important}
+html body:not(#mwe-x) .message-card-info>h4{font-size:15px!important}
+html body:not(#mwe-x) .message-card-info>span,html body:not(#mwe-x) .audio-progress-bar-container>span,html body:not(#mwe-x) .church-hero-controls>span{font-size:12px!important}
+html body:not(#mwe-x) .global-audio-modal-content>p,html body:not(#mwe-x) .profile-app-account>span{font-size:14px!important}
+/* channels */
+html body:not(#mwe-x) .channel-format{font-size:12px!important}
+html body:not(#mwe-x) .channel-format svg{width:16px!important;height:16px!important}
+html body:not(#mwe-x) .channel-online{font-size:12px!important}
+html body:not(#mwe-x) .channel-profile-body>p,html body:not(#mwe-x) .channel-contact-button,html body:not(#mwe-x) .channel-detail-handle,html body:not(#mwe-x) .channel-detail-owner{font-size:14px!important}
+html body:not(#mwe-x) .channel-contact-button{min-height:44px;display:inline-flex;align-items:center;gap:8px}
+html body:not(#mwe-x) .channel-contact-button svg{width:18px!important;height:18px!important}
+html body:not(#mwe-x) .channel-platform-stats small,html body:not(#mwe-x) .channel-detail-description>span{font-size:12px!important}
+/* home tiny cards / streams / products / events */
+html body:not(#mwe-x) .tiny-card-name{font-size:15px!important}
+html body:not(#mwe-x) .tiny-card-details,html body:not(#mwe-x) .viewer-count,html body:not(#mwe-x) .product-seller,html body:not(#mwe-x) .product-rating{font-size:13px!important}
+html body:not(#mwe-x) .tiny-card-tag,html body:not(#mwe-x) .live-pill,html body:not(#mwe-x) .product-badge,html body:not(#mwe-x) .event-card-top-badge,html body:not(#mwe-x) .event-price-tag-sub,html body:not(#mwe-x) .mwe-live-badge{font-size:12px!important}
+html body:not(#mwe-x) .search-card-header>p,html body:not(#mwe-x) .stream-card-body>span,html body:not(#mwe-x) .event-card-desc,html body:not(#mwe-x) .stream-join-btn{font-size:14px!important}
+html body:not(#mwe-x) .stream-join-btn,html body:not(#mwe-x) .product-price-row>a.button{min-height:44px}
+html body:not(#mwe-x) .kicker svg,html body:not(#mwe-x) .section-kicker svg,html body:not(#mwe-x) .hero-cta-row svg,html body:not(#mwe-x) .button svg{min-width:18px;min-height:18px}
+/* meditation, donate */
+html body:not(#mwe-x) .room-card-footer>span{font-size:13px!important}
+html body:not(#mwe-x) .master-kpi-info>span,html body:not(#mwe-x) .master-pay-radio{font-size:14px!important}
+/* spotlight */
+html body:not(#mwe-x) .spotlight-action>span,html body:not(#mwe-x) .spotlight-editorial-label,html body:not(#mwe-x) .spotlight-member-row>span{font-size:12px!important}
+html body:not(#mwe-x) .spotlight-copy>p,html body:not(#mwe-x) .spotlight-follow,html body:not(#mwe-x) .spotlight-primary-cta{font-size:14px!important}
+html body:not(#mwe-x) .spotlight-follow,html body:not(#mwe-x) .spotlight-primary-cta{min-height:40px}
+
+/* ui-fix9: Creator Studio as a Give-style button in the account dropdown */
+#member-account-menu a.mwe-menu-studio:not(#mwe-x) { display: flex !important; align-items: center !important; gap: 10px !important; width: auto !important; margin: 4px 0 6px !important; padding: var(--space-3) !important; min-height: 56px; border-radius: var(--radius-md) !important;
+  text-decoration: none !important; color: #fff !important; background: var(--gold-gradient, linear-gradient(135deg, #f0bf5a, #d99a2b)) !important; box-shadow: var(--gold-glow, 0 8px 20px rgba(229,169,60,.3)) !important; border: 0 !important;
+  transition: transform var(--dur-fast), box-shadow var(--dur-base); }
+#member-account-menu a.mwe-menu-studio:not(#mwe-x):hover, #member-account-menu a.mwe-menu-studio:not(#mwe-x):focus-visible { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(229,169,60,.42) !important; color: #fff !important; background: var(--gold-gradient, linear-gradient(135deg, #f0bf5a, #d99a2b)) !important; }
+#member-account-menu a.mwe-menu-studio .mwe-menu-studio-icon { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,.22); flex: none; font-style: normal; }
+#member-account-menu a.mwe-menu-studio .mwe-menu-studio-icon svg { width: 18px !important; height: 18px !important; color: #fff !important; }
+#member-account-menu a.mwe-menu-studio strong { display: flex; flex-direction: column; flex: 1; min-width: 0; line-height: 1.25; font-size: .92rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#member-account-menu a.mwe-menu-studio small { font-size: .74rem; font-weight: 500; opacity: .9; overflow: hidden; text-overflow: ellipsis; }
+#member-account-menu a.mwe-menu-studio > svg:last-child { width: 16px !important; height: 16px !important; opacity: .85; flex: none; color: #fff !important; }

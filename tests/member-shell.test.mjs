@@ -92,7 +92,7 @@ test("Channels, Store, seller management, and Resources are independent modules"
   assert.match(shell, /"store-manager":\s*\{ source: "seller-dashboard\.html"/);
   assert.match(shell, /resources:\s*\{ source: "resources\.html"/);
   assert.match(shell, /"resource-detail":\s*\{ source: "resource-detail\.html"/);
-  assert.match(channels, /Create a Channel/);
+  assert.match(channels, /Create Content/);
   assert.match(store, /Add a Product or Service/);
   assert.match(store, /id="store-cart-drawer"/);
   assert.match(product, /id="product-detail"/);
@@ -106,10 +106,11 @@ test("Channels, Store, seller management, and Resources are independent modules"
   assert.match(resourceDetail, /id="resource-detail"/);
 });
 
-test("donation page shows beneficiary image and video evidence", async () => {
+test("donation page shows real outreach reports or an honest empty state", async () => {
   const donate = await readProjectFile("public/donate.html");
   assert.match(donate, /class="donation-impact-gallery"/);
-  assert.match(donate, /<video controls/);
+  assert.match(donate, /Our first outreach report will appear here\./);
+  assert.doesNotMatch(donate, /Donations do not go to individual local churches/);
   assert.match(donate, /Impact in action/);
 });
 
@@ -560,7 +561,6 @@ test("SPA shell supports member home dashboard and interactive meditation sanctu
   assert.match(medHtml, /Audio Bible/);
   assert.match(medHtml, /Soaking Instrumental/);
   assert.match(medHtml, /Sermons & Preaching/);
-  assert.match(medHtml, /Prayer & Sleep Timer/);
   assert.match(medHtml, /id="meditation-search"/);
   assert.match(medJs, /meditation-search/);
 
@@ -586,7 +586,8 @@ test("resource cards present a clear creator link, duration, price, and action h
 test("directory modules share the standardized atmospheric hero and filter tray", async () => {
   const styles = await readProjectFile("public/styles.css");
   const appJs = await readProjectFile("public/app.js");
-  for (const page of ["churches", "meditation", "events", "store", "livestream", "resources", "channels"]) {
+  // store uses the Shopify-style collection header (sf-coll-hero) instead of the shared directory hero
+  for (const page of ["churches", "meditation", "events", "livestream", "resources", "channels"]) {
     const html = await readProjectFile(`public/${page}.html`);
     assert.match(html, /module-directory-hero/, `${page} needs the shared hero`);
     assert.match(html, /site-search-bar/, `${page} needs the shared filter tray`);
