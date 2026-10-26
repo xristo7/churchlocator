@@ -38,8 +38,19 @@
         if (input) input.value = value ?? "";
       });
     }
+    updatePreview();
     modal.classList.add("is-open");
     window.setTimeout(() => form.elements.namedItem("title")?.focus(), 50);
+  }
+
+  function updatePreview() {
+    const form = document.getElementById("product-editor-form");
+    const box = document.getElementById("product-editor-preview");
+    const url = form?.elements.namedItem("image")?.value || "";
+    if (!box) return;
+    const ok = /^https:\/\//.test(url);
+    box.classList.toggle("is-visible", ok);
+    if (ok) box.querySelector("img").src = url;
   }
 
   function closeEditor() {
@@ -49,6 +60,8 @@
   document.addEventListener("DOMContentLoaded", async () => {
   await window.MWEPlatform?.ready;
     document.getElementById("seller-product-search")?.addEventListener("input", render);
+    document.getElementById("product-editor-form")?.elements.namedItem("image")?.addEventListener("input", updatePreview);
+    document.addEventListener("keydown", event => { if (event.key === "Escape") closeEditor(); });
     document.getElementById("add-product-button")?.addEventListener("click", () => openEditor());
     document.querySelector("#product-editor-modal .module-modal-close")?.addEventListener("click", closeEditor);
     document.getElementById("product-editor-modal")?.addEventListener("click", event => { if (event.target.id === "product-editor-modal") closeEditor(); });
@@ -71,7 +84,8 @@
         ...values,
         price: Number(values.price),
         inventory: Number(values.inventory),
-        compareAt: Number(existing?.compareAt || 0),
+        compareAt: Number(values.compareAt || existing?.compareAt || 0),
+        itemType: values.itemType || existing?.itemType || "product",
         rating: Number(existing?.rating || 0),
         featured: Boolean(existing?.featured),
         image: values.image || fallbackImage
