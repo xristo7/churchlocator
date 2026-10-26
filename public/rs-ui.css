@@ -188,3 +188,21 @@ aside [data-shell-view].active svg{color:var(--rs-accent)!important}
 
 /* Store directory cards: fix truncated store names */
 .creator-store-card :is(strong,h3,h4){white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+
+/* Churches directory / profile / channel (rsc-*) */
+.rsc-card,.rsc-panel{background:var(--rs-card-bg)!important;border:1px solid var(--rs-line-tint)!important;border-radius:var(--rs-radius)!important;box-shadow:var(--rs-shadow)!important;transition:transform .18s,box-shadow .18s}
+.rsc-card:hover{transform:translateY(-2px);box-shadow:var(--rs-shadow-hover)!important}
+.rsc-card-media{margin:10px 10px 0;border-radius:16px}
+.rsc-toolbar{border-radius:var(--rs-radius)!important;border:1px solid var(--rs-line-tint)!important;box-shadow:var(--rs-shadow)!important}
+.rsc-search{background:color-mix(in srgb,var(--rs-accent) 4%,var(--rs-card))!important;border:1.5px solid color-mix(in srgb,var(--rs-accent) 22%,var(--rs-line))!important}
+.rsc-search:focus-within{border-color:var(--rs-accent)!important;box-shadow:var(--rs-ring)}
+.rsc-search input,.rsc-search input:focus{background:transparent!important;border:0!important;box-shadow:none!important}
+.rsc-btn{border-color:color-mix(in srgb,var(--rs-accent) 22%,var(--rs-line))!important}
+.rsc-btn:not(.rsc-btn-primary) svg{color:var(--rs-accent)}
+.rsc-btn-primary{background:var(--rs-gold-grad)!important;border-color:transparent!important;color:var(--rs-btn-on-gold)!important}
+.rsc-dialog{border-radius:24px!important;background:var(--rs-card-bg)!important;border:1px solid var(--rs-line-tint)!important}
+.rsc-dialog :is(input,textarea){border-radius:16px!important;border:1.5px solid color-mix(in srgb,var(--rs-accent) 22%,var(--rs-line))!important;background:var(--rs-card)!important}
+.rsc-dialog :is(input,textarea):focus{border-color:var(--rs-accent)!important;box-shadow:var(--rs-ring);outline:0}
+.rsc-avatar,.rsc-channel-avatar{box-shadow:0 0 0 3px var(--rs-card),0 0 0 5px color-mix(in srgb,var(--rs-accent) 45%,transparent)!important}
+:is(.rsc-filter-panel,.rsc-more-panel) .rsc-opt{border-radius:12px;min-height:44px}
+.rsc-page{--rsc-ink:var(--rs-text);--rsc-muted:var(--rs-muted);--rsc-line:var(--rs-line);--rsc-card:var(--rs-card);--rsc-accent:var(--rs-gold);--rsc-primary:var(--rs-accent);--rsc-r:var(--rs-radius)}
