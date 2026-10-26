@@ -951,7 +951,7 @@ async function loadPublicChurches(env, id = "") {
   const rows = (await (id ? rowsStmt.bind(id) : rowsStmt).all()).results || [];
   const schedStmt = env.DB.prepare(`select s.* from service_schedules s join churches c on c.id = s.church_id where c.is_verified = 1 ${id ? "and c.id = ?" : ""} order by s.church_id, s.id`);
   const schedules = (await (id ? schedStmt.bind(id) : schedStmt).all()).results || [];
-  const entStmt = env.DB.prepare(`select id, tenant_id, owner_user_id, data_json from platform_entities where kind = 'churches' and state = 'published' ${id ? "and id = ?" : ""}`);
+  const entStmt = env.DB.prepare(`select e.id, e.tenant_id, t.owner_user_id, e.data_json from platform_entities e left join tenants t on t.id = e.tenant_id where e.kind = 'churches' and e.state = 'published' ${id ? "and e.id = ?" : ""}`);
   const entityRows = (await (id ? entStmt.bind(id) : entStmt).all()).results || [];
   const entities = new Map();
   for (const e of entityRows) { try { entities.set(e.id, { ...e, data: JSON.parse(e.data_json) }); } catch {} }
