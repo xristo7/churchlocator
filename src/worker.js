@@ -891,23 +891,83 @@ async function handleStatus(env) {
   });
 }
 
-async function handlePublicChurches(request, env) {
+function churchText(value, max = 2000) {
+  return typeof value === "string" ? value.trim().slice(0, max) : "";
+}
+
+function publicChurchRecord(row, profile, schedules, entity) {
+  const data = entity?.data || {};
+  const pick = (...values) => values.map(v => churchText(v)).find(Boolean) || "";
+  const services = [];
+  for (const s of schedules || []) {
+    const label = pick(s.service_type) || "Service";
+    services.push({ type: label, day: pick(s.day_of_week), time: pick(s.starts_at), notes: pick(s.notes) });
+  }
+  if (!services.length && Array.isArray(data.schedule)) {
+    for (const item of data.schedule) if (Array.isArray(item) && item[0]) services.push({ type: churchText(String(item[0]), 120), day: "", time: churchText(String(item[1] || ""), 120), notes: "" });
+  }
+  if (!services.length) {
+    if (churchText(data.sunday)) services.push({ type: "Sunday service", day: "Sunday", time: churchText(data.sunday, 120), notes: "" });
+    if (churchText(data.midweek)) services.push({ type: "Midweek gathering", day: "", time: churchText(data.midweek, 120), notes: "" });
+  }
+  const verified = row ? Number(row.is_verified) === 1 : data.verified === true;
+  return {
+    id: row?.id || entity.id,
+    name: pick(row?.name, data.name),
+    denomination: pick(row?.denomination, data.denomination),
+    language: pick(row?.language, data.language),
+    worshipStyle: pick(row?.worship_style, data.worship),
+    city: pick(row?.city, data.city),
+    state: pick(data.state, data.province),
+    country: pick(row?.country, data.country),
+    postalCode: pick(row?.postal_code, data.postal),
+    address: pick(data.address, data.location !== data.city ? data.location : ""),
+    about: pick(profile?.about, row?.description, data.about),
+    firstVisit: pick(profile?.first_visit),
+    pastorName: pick(profile?.pastor_name, data.pastor),
+    pastorTitle: pick(profile?.pastor_title, data.pastorTitle),
+    pastorBio: pick(profile?.pastor_bio, data.pastorBio),
+    website: pick(row?.website, data.website),
+    phone: pick(row?.phone, data.phone),
+    email: pick(row?.email, data.email),
+    photo: pick(row?.cover_image_url, data.photo),
+    logo: pick(data.logo),
+    ministries: Array.isArray(data.ministries) ? data.ministries.map(m => churchText(String(m), 120)).filter(Boolean).slice(0, 20) : [],
+    livestreamEnabled: row ? Number(row.livestream_enabled) === 1 : !!data.livestream?.enabled,
+    services,
+    verified,
+    tenantId: entity?.tenant_id || "",
+    canMessage: data.canMessage === true
+  };
+}
+
+async function loadPublicChurches(env, id = "") {
+  const where = id ? "and c.id = ?" : "";
+  const rowsStmt = env.DB.prepare(`
+    select c.*, p.about, p.first_visit, p.pastor_name, p.pastor_title, p.pastor_bio
+    from churches c left join church_profiles p on p.church_id = c.id
+    where c.is_verified = 1 ${where} order by c.name`);
+  const rows = (await (id ? rowsStmt.bind(id) : rowsStmt).all()).results || [];
+  const schedStmt = env.DB.prepare(`select s.* from service_schedules s join churches c on c.id = s.church_id where c.is_verified = 1 ${id ? "and c.id = ?" : ""} order by s.church_id, s.id`);
+  const schedules = (await (id ? schedStmt.bind(id) : schedStmt).all()).results || [];
+  const entStmt = env.DB.prepare(`select id, tenant_id, data_json from platform_entities where kind = 'churches' and state = 'published' ${id ? "and id = ?" : ""}`);
+  const entityRows = (await (id ? entStmt.bind(id) : entStmt).all()).results || [];
+  const entities = new Map();
+  for (const e of entityRows) { try { entities.set(e.id, { ...e, data: JSON.parse(e.data_json) }); } catch {} }
+  const out = rows.map(row => publicChurchRecord(row, row, schedules.filter(s => s.church_id === row.id), entities.get(row.id)));
+  for (const [eid, entity] of entities) if (!rows.some(r => r.id === eid)) out.push(publicChurchRecord(null, null, [], entity));
+  return out.filter(c => c.name).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+async function handlePublicChurches(request, env, id = "") {
   if (!env.DB) return storageUnavailable();
   if (request.method !== "GET") return json({ ok: false, error: "method not allowed; submit new churches through the church application" }, 405);
-
-  const { results } = await env.DB.prepare(`
-    select
-      c.id, c.name, c.city, c.country, c.postal_code, c.denomination,
-      c.language, c.website, c.phone, c.email, c.cover_image_url,
-      c.livestream_enabled, c.livestream_paid, c.livestream_url,
-      p.pastor_name, p.pastor_title, p.pastor_bio, p.about
-    from churches c
-    left join church_profiles p on p.church_id = c.id
-    where c.is_verified = 1
-    order by c.name
-  `).all();
-
-  return json({ ok: true, churches: results });
+  const churches = await loadPublicChurches(env, id);
+  if (id) {
+    if (!churches.length) return json({ ok: false, error: "church not found" }, 404);
+    return json({ ok: true, church: churches[0] });
+  }
+  return json({ ok: true, churches });
 }
 
 async function handleAdminChurches(request, env) {
@@ -1199,6 +1259,12 @@ function assetRequest(request) {
     ["/volunteer", "/index.html"],
     ["/prayer", "/index.html"]
   ]);
+
+  const nested = url.pathname.match(/^\/(churches|channels)\/([^/]+)\/?$/);
+  if (nested) {
+    url.pathname = nested[1] === "churches" ? "/church-profile.html" : "/church-channel.html";
+    return new Request(url.toString(), request);
+  }
 
   if (routes.has(url.pathname)) {
     url.pathname = routes.get(url.pathname);
@@ -1748,6 +1814,13 @@ async function handleApi(request, env, executionCtx) {
     }
     if (path === "/api/geo" && request.method === "GET") return await handleGeo(request);
     if (path === "/api/churches") return await handlePublicChurches(request, env);
+    const publicChurchMatch = path.match(/^\/api\/churches\/([^/]+)$/);
+    if (publicChurchMatch) {
+      let churchId = "";
+      try { churchId = decodeURIComponent(publicChurchMatch[1]); } catch { return json({ ok: false, error: "church not found" }, 404); }
+      if (!churchId || churchId.length > 128) return json({ ok: false, error: "church not found" }, 404);
+      return await handlePublicChurches(request, env, churchId);
+    }
     if (path === "/api/admin/churches") return await handleAdminChurches(request, env);
     if (path === "/api/events") return await handleEvents(request, env);
     if (path === "/api/auth/session" && request.method === "GET") return await handleAuthSession(request, env);
