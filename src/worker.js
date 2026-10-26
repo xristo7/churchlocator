@@ -379,7 +379,7 @@ async function registerUser(request, env, { forceCreator = false } = {}) {
 
   if (!name || name.length > 200) return json({ ok: false, error: "Enter your full name." }, 400);
   if (!isValidEmail(email)) return json({ ok: false, error: "Enter a valid email address." }, 400);
-  if (password.length < 15 || password.length > 128) return json({ ok: false, error: "Password must be between 15 and 128 characters." }, 400);
+  if (password.length < 8 || password.length > 128) return json({ ok: false, error: "Password must be between 8 and 128 characters." }, 400);
 
   const existing = await env.DB.prepare("select id from users where email = ?").bind(email).first();
   if (existing) {
@@ -544,8 +544,8 @@ async function handleAuthPasswordUpdate(request, env) {
   if (!(await verifyUserPassword(user, currentPassword, env))) {
     return json({ ok: false, error: "Your current password is incorrect." }, 401);
   }
-  if (newPassword.length < 15 || newPassword.length > 128) {
-    return json({ ok: false, error: "Your new password must be between 15 and 128 characters." }, 400);
+  if (newPassword.length < 8 || newPassword.length > 128) {
+    return json({ ok: false, error: "Your new password must be between 8 and 128 characters." }, 400);
   }
   if (constantTimeEqual(currentPassword, newPassword)) {
     return json({ ok: false, error: "Choose a new password that is different from your current password." }, 400);
@@ -675,12 +675,12 @@ async function handleForgotPassword(request, env, context) {
 async function handleResetPassword(request, env) {
   if (!env.DB) return storageUnavailable();
   const payload = await readJson(request);
-  const token = String(payload?.token || "");
+  const token = String(payload?.token || "").trim().replace(/[^A-Za-z0-9_-]/g, "");
   const newPassword = String(payload?.newPassword || "");
   const invalid = json({ ok: false, error: "This reset link is invalid or has expired. Request a new one." }, 400);
   if (!token || token.length > 200) return invalid;
-  if (newPassword.length < 15 || newPassword.length > 128) {
-    return json({ ok: false, error: "Your new password must be between 15 and 128 characters." }, 400);
+  if (newPassword.length < 8 || newPassword.length > 128) {
+    return json({ ok: false, error: "Your new password must be between 8 and 128 characters." }, 400);
   }
   const digest = await digestToken(token);
   const row = await env.DB.prepare("select digest, user_id, expires_at, used_at from password_reset_tokens where digest = ?").bind(digest).first();

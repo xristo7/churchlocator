@@ -1,6 +1,15 @@
 (function initResetPassword() {
+  // Read the token from ?token= (or #token= / ?t= from older links). Mail apps sometimes append
+  // punctuation or wrap long links, so keep only URL-safe token characters.
+  const clean = (v) => String(v || "").replace(/[^A-Za-z0-9_-]/g, "");
   const params = new URLSearchParams(window.location.search);
-  const token = params.get("token") || "";
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  let token = clean(params.get("token") || params.get("t") || hash.get("token"));
+  // Keep it for this tab so a reload after a failed attempt still works.
+  try {
+    if (token) sessionStorage.setItem("mwe.resetToken", token);
+    else token = clean(sessionStorage.getItem("mwe.resetToken"));
+  } catch (_) {}
   // Drop the token from the address bar and history once read.
   if (token && window.history.replaceState) window.history.replaceState(null, "", window.location.pathname);
   const form = document.getElementById("reset-password-form");
@@ -14,9 +23,9 @@
   const showError = (msg) => { error.textContent = msg; error.hidden = false; };
 
   function strength(value) {
-    if (value.length < 15) return { score: Math.min(1, value.length / 15) * 0.25, text: `Too short (${value.length}/15)` };
+    if (value.length < 8) return { score: Math.min(1, value.length / 8) * 0.25, text: `Too short (${value.length}/8)` };
     let score = 0.5;
-    if (value.length >= 20) score += 0.2;
+    if (value.length >= 14) score += 0.2;
     if (/[A-Z]/.test(value) && /[a-z]/.test(value)) score += 0.1;
     if (/\d/.test(value)) score += 0.1;
     if (/[^A-Za-z0-9]/.test(value) || /\s/.test(value)) score += 0.1;
@@ -37,7 +46,7 @@
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     error.hidden = true;
-    if (pw.value.length < 15) return showError("Your new password must be at least 15 characters.");
+    if (pw.value.length < 8) return showError("Your new password must be at least 8 characters.");
     if (pw.value !== confirm.value) return showError("The two passwords don't match.");
     submit.disabled = true; submit.setAttribute("aria-busy", "true");
     try {
@@ -48,6 +57,7 @@
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data.error || "We couldn't reset your password. Please try again.");
+      try { sessionStorage.removeItem("mwe.resetToken"); } catch (_) {}
       form.hidden = true;
       document.querySelector("[data-reset-intro]").hidden = true;
       document.getElementById("reset-title").textContent = "Password updated";

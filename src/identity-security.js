@@ -112,7 +112,7 @@ export async function handleIdentityApi(request,env,ctx) {
     if(!token) throw new ApiError(400,'Invalid or expired link.');
     let update;
     if(purpose==='reset') {
-      if(typeof payload.password!=='string' || payload.password.length<15 || payload.password.length>128) throw new ApiError(400,'Use a password between 15 and 128 characters.');
+      if(typeof payload.password!=='string' || payload.password.length<8 || payload.password.length>128) throw new ApiError(400,'Use a password between 8 and 128 characters.');
       const salt=base64(crypto.getRandomValues(new Uint8Array(16))), hash=await environmentPassword(payload.password,salt,env);
       update=env.DB.prepare(`update users set password_hash=?,password_salt=? where id=(select user_id from security_tokens where digest=? and purpose='reset' and expires_at>?) returning id`).bind(hash,salt,digest,now);
     } else update=env.DB.prepare(`update users set email_verified_at=? where id=(select user_id from security_tokens where digest=? and purpose='verify' and expires_at>?) returning id`).bind(now,digest,now);

@@ -1628,7 +1628,7 @@ MWE.ensureMemberLoginModal = function() {
       <button class="member-auth-close" type="button" aria-label="Close sign in"><i data-lucide="x"></i></button>
       <div class="member-auth-icon"><i data-lucide="sparkles"></i></div>
       <h2 id="member-auth-title">Sign in to continue</h2>
-      <p>Your selected church, event, or livestream will open inside the RhemaSphere app.</p>
+      <p>Sign in to your RhemaSphere account to continue.</p>
       <button class="google-auth-fast-btn member-auth-google" type="button" data-member-google-auth>
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -1841,13 +1841,6 @@ MWE.initMemberExperience = function() {
       }
 
       if (!route) return;
-      const isProtectedDetail = route.view === "church" || route.view === "event" || route.view === "messages" || route.view === "store-manager" || route.view === "cart" || route.view === "checkout" || route.view === "profile" || route.view === "security" || (route.view === "livestream" && Boolean(route.id));
-      if (!MWE.isMemberAuthenticated() && isProtectedDetail) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        MWE.openMemberLogin(MWE.buildMemberShellUrl(route));
-        return;
-      }
 
       if (MWE.isMemberAuthenticated()) {
         event.preventDefault();
@@ -1862,15 +1855,12 @@ MWE.initMemberExperience = function() {
   const currentRoute = MWE.getMemberShellRoute(window.location.href);
   if (!currentRoute) return "public";
 
-  if (MWE.isMemberAuthenticated() || currentRoute.view === "portal") {
+  // Private pages (messages, profile, cart, seller tools) open in the shell, which shows a
+  // normal signed-out state. Public detail pages (church, event, livestream) load as-is.
+  const isPrivateView = ["messages", "store-manager", "cart", "checkout", "profile", "security"].includes(currentRoute.view);
+  if (MWE.isMemberAuthenticated() || currentRoute.view === "portal" || isPrivateView) {
     window.location.replace(MWE.buildMemberShellUrl(currentRoute));
     return "redirecting";
-  }
-
-  const isProtectedDetail = currentRoute.view === "church" || currentRoute.view === "event" || currentRoute.view === "messages" || currentRoute.view === "store-manager" || currentRoute.view === "cart" || currentRoute.view === "checkout" || currentRoute.view === "profile" || currentRoute.view === "security" || (currentRoute.view === "livestream" && Boolean(currentRoute.id));
-  if (isProtectedDetail) {
-    MWE.openMemberLogin(MWE.buildMemberShellUrl(currentRoute), { locked: true });
-    return "locked";
   }
 
   return "public";
@@ -5472,7 +5462,7 @@ function updateHomepageAuthUI() {
               </div>
               <div class="form-group mb-3 signin-field-group">
                 <label for="nav-auth-password" class="auth-visually-hidden">Password</label>
-                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Password" autocomplete="current-password" required minlength="8" />
+                <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Password" autocomplete="current-password" required minlength="8" data-no-translate />
                 <small class="auth-field-helper">Enter your account password.</small>
               </div>
               <button type="submit" class="button primary small" id="nav-auth-submit-btn" style="width: 100%;">
@@ -5560,10 +5550,10 @@ MWE.switchAuthDropdownTab = function(tab) {
     if (nameInput) nameInput.required = true;
     if (emailLabel) emailLabel.textContent = "Email Address";
     if (passwordInput) {
-      passwordInput.minLength = 15;
+      passwordInput.minLength = 8;
       passwordInput.maxLength = 128;
       passwordInput.autocomplete = "new-password";
-      passwordInput.placeholder = "At least 15 characters";
+      passwordInput.placeholder = "At least 8 characters";
     }
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="user-plus"></i> <span>Create Account</span>`;
     if (googleLabel) googleLabel.textContent = "Sign up with Google";
@@ -5998,6 +5988,7 @@ function initTranslations() {
       else if (lang === "en") node.nodeValue = source;
     });
     root.querySelectorAll?.("[placeholder], [aria-label], [title]").forEach(el => {
+      if (el.closest("[data-no-translate]")) return;
       if (!originalAttributes.has(el)) originalAttributes.set(el, {});
       const originals = originalAttributes.get(el);
       ["placeholder", "aria-label", "title"].forEach(attribute => {
@@ -10020,7 +10011,7 @@ MWE.openHostAuthModal = function(onSuccessCallback = null) {
         </div>
         <div class="compact-grid mt-2">
           <label class="form-field"><span>Contact Phone *</span><input required type="tel" name="phone" placeholder="(555) 000-1234" class="field" /></label>
-          <label class="form-field"><span>Password *</span><input required type="password" name="password" minlength="6" placeholder="At least 6 characters" class="field" /></label>
+          <label class="form-field"><span>Password *</span><input required type="password" name="password" minlength="8" maxlength="128" placeholder="At least 8 characters" class="field" /></label>
         </div>
         <div class="form-field mt-2">
           <span>Short Bio / Ministry Focus</span>
