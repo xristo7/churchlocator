@@ -1,6 +1,6 @@
 import {ApiError,readJson} from './security.js';
 import {seal,unseal,auditStatement} from './identity-security.js';
-import {requireUser,requireOwner,isOwner,membership} from './trusted-platform.js';
+import {requireUser,requireOwner,isOwner,membership,livestreamBilling} from './trusted-platform.js';
 
 const settingsContext='live-provider-settings';
 const stamp=()=>new Date().toISOString();
@@ -85,6 +85,7 @@ async function church(request,env,ctx,id,action) {
     return ctx.json({ok:true,rtmps:details.rtmps,status:details.status,playback:details.playback});
   }
   if(request.method==='POST'&&action==='managed'){
+    await requireLivestreamAccess(env,user,id);
     const config=await configuration(env);
     if(source?.input_id){const input=await cloudflare(config,'/stream/live_inputs/'+encode(source.input_id));await env.DB.prepare("update church_broadcast_sources set mode='cloudflare',source_url=?,status='ready',enabled=0,revision=revision+1,updated_at=? where church_id=?").bind(broadcastUrl(input.playback.hls),stamp(),id).run();return ctx.json({ok:true});}
     const claim=await env.DB.prepare("insert into church_broadcast_sources(church_id,mode,status,updated_at) values(?,'cloudflare','creating',?) on conflict(church_id) do update set mode='cloudflare',status='creating',revision=revision+1,updated_at=excluded.updated_at where status!='creating' or updated_at<? returning church_id").bind(id,stamp(),new Date(Date.now()-120000).toISOString()).first();
@@ -98,7 +99,7 @@ async function church(request,env,ctx,id,action) {
     }catch(error){await env.DB.prepare("update church_broadcast_sources set status='failed',updated_at=? where church_id=?").bind(stamp(),id).run();throw error;}
   }
   if(request.method==='PUT'&&!action){
-    const input=await readJson(request);if(Number(input.revision)!==(source?.revision||0))throw new ApiError(409,'Broadcast settings changed. Reload before saving.');
+    const input=await readJson(request);if(input.enabled)await requireLivestreamAccess(env,user,id);if(Number(input.revision)!==(source?.revision||0))throw new ApiError(409,'Broadcast settings changed. Reload before saving.');
     const mode=input.mode==='cloudflare'?'cloudflare':'external';
     if(mode==='cloudflare'&&(!source?.input_id||source.status!=='ready'))throw new ApiError(409,'Create the managed broadcast first.');
     const url=mode==='cloudflare'?source.source_url:broadcastUrl(input.url);
@@ -108,6 +109,22 @@ async function church(request,env,ctx,id,action) {
   throw new ApiError(405,'Method not allowed.');
 }
 
+// Livestream billing (admin setting platform_settings.livestream_billing, default free).
+// Paid: non-owners need a paid activation (livestream_activations.payment_status='paid') or churches.livestream_paid=1.
+async function requireLivestreamAccess(env,user,id) {
+  if(await livestreamBilling(env)==='free' || await isOwner(env,user)) return;
+  const paid=await env.DB.prepare("select 1 from livestream_activations where church_id=? and payment_status='paid' union all select 1 from churches where id=? and livestream_paid=1 limit 1").bind(id,id).first();
+  if(!paid) throw new ApiError(402,'Livestreaming is a paid feature. Contact the My Way team to activate it for this profile.');
+}
+async function billingSettings(request,env,ctx) {
+  if(request.method==='GET') return ctx.json({ok:true,mode:await livestreamBilling(env)});
+  if(request.method!=='PUT') throw new ApiError(405,'Method not allowed.');
+  const user=await requireOwner(request,env,ctx), input=await readJson(request);
+  if(!['free','paid'].includes(input.mode)) throw new ApiError(400,'Choose free or paid.');
+  const now=new Date().toISOString();
+  await env.DB.batch([env.DB.prepare("insert into platform_settings(key,value_json,revision,updated_by,updated_at) values('livestream_billing',?,1,?,?) on conflict(key) do update set value_json=excluded.value_json,revision=platform_settings.revision+1,updated_by=excluded.updated_by,updated_at=excluded.updated_at").bind(JSON.stringify({mode:input.mode}),user.id,now),auditStatement(env,user.id,'live.billing.'+input.mode,'livestream_billing',null)]);
+  return ctx.json({ok:true,mode:input.mode});
+}
 async function sessionRow(env,id) {
   const row=await env.DB.prepare('select * from channel_live_sessions where id=?').bind(id).first();if(!row)throw new ApiError(404,'Live stage not found.');return row;
 }
@@ -122,6 +139,7 @@ async function channel(request,env,ctx,id,action) {
   if(request.method==='GET'&&!action){const user=await ctx.getSessionUser(request,env);const canManage=!!user&&await manager(env,user,row);const session=await env.DB.prepare("select id,title,expires_at from channel_live_sessions where channel_id=? and status='live' and expires_at>? order by created_at desc limit 1").bind(id,stamp()).first();const unfinished=canManage&&!session?await env.DB.prepare("select id,title,status,expires_at from channel_live_sessions where channel_id=? and status in ('creating','live','ending') limit 1").bind(id).first():null;return ctx.json({ok:true,canManage,session,unfinishedSession:unfinished});}
   const user=await requireManager(request,env,ctx,row);
   if(request.method!=='POST'||action!=='start')throw new ApiError(405,'Method not allowed.');
+  await requireLivestreamAccess(env,user,id);
   const config=await configuration(env),input=await readJson(request);const title=clean(input.title)||JSON.parse(row.data_json).name+' Live';
   const existing=await env.DB.prepare("select * from channel_live_sessions where channel_id=? and status in ('creating','live','ending') limit 1").bind(id).first();
   if(existing){if(existing.status==='live'&&existing.expires_at>stamp())return ctx.json({ok:true,sessionId:existing.id});throw new ApiError(409,'Finish or end the previous live session first.');}
@@ -173,6 +191,7 @@ export async function handleLiveApi(request,env,ctx) {
   const parts=new URL(request.url).pathname.split('/').filter(Boolean);if(parts[0]!=='api'||parts[1]!=='live')return null;
   if(!env.DB)throw new ApiError(503,'Live storage is unavailable.');
   if(parts[2]==='settings')return providerSettings(request,env,ctx);
+  if(parts[2]==='billing')return billingSettings(request,env,ctx);
   if(parts[2]==='status'&&request.method==='GET')return ctx.json({ok:true,connected:!!await env.DB.prepare('select id from live_provider_settings where id=1').first()});
   if(parts[2]==='directory'&&request.method==='GET'){
     const stages=await env.DB.prepare("select s.id sessionId,s.channel_id channelId,s.title from channel_live_sessions s join platform_entities e on e.id=s.channel_id where s.status='live' and s.expires_at>? and e.state='published' order by s.created_at desc limit 100").bind(stamp()).all();
