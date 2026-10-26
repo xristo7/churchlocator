@@ -224,7 +224,7 @@ html body .mwe-tabbar .mwe-tab span,html body .mwe-tabbar .mwe-tab *{font-size:1
 .channel-online,.channel-format,.sf-badge,.sf-vendor,.channel-card small,.policy-hero span,.mwe-live-badge{font-size:13px!important}
 html body .member-header-giving.mwe-header-spotlight,html body .profile-mobile-menu,html body .slider-arrow-btn,html body .sf-circle-btn,html body .sf-card-like,html body .member-auth-icon,html body .mwe-password-toggle{min-height:44px!important;min-width:44px!important}
 .creator-store-card>div:only-child{grid-column:1/-1}
-.topbar .nav-links a{white-space:nowrap}
+
 .live-shell>a[href]:first-child{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid color-mix(in srgb,var(--rs-accent) 30%,var(--rs-line));color:var(--rs-accent);font-weight:600;text-decoration:none;margin-bottom:12px}
 .live-panel a[href]{display:inline-flex;align-items:center;min-height:44px;padding:0 20px;border-radius:999px;background:var(--rs-grad);color:#fff;font-weight:600;text-decoration:none}
 .creator-studio-page>main{padding-top:24px}
@@ -236,3 +236,4 @@ html body .member-header-giving.mwe-header-spotlight,html body .profile-mobile-m
 .sf-card-title{font-size:15px!important}
 .member-auth-icon,.mwe-password-toggle,.drawer-close{min-width:44px!important;min-height:44px!important}
 html body .profile-app-header .member-header-giving.mwe-header-spotlight:not(#mwe-x){height:44px!important;min-height:44px!important}
+html .rsc-search input:not(#rs-a):not(#rs-b){background:transparent!important;border:0!important;box-shadow:none!important}
