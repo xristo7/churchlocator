@@ -43,7 +43,7 @@
   const badges = (c, live) => `${c.verified ? '<span class="rsc-badge rsc-badge-verified"><i data-lucide="badge-check"></i> Verified</span>' : ''}${live && isLive(c, live) ? '<span class="rsc-badge rsc-badge-live"><span class="rsc-dot"></span> Live</span>' : ''}`;
 
   /* ---------- Dropdown filters (close on outside click / Escape) ---------- */
-  function closeAll(except) { document.querySelectorAll('.rsc-filter.open').forEach(f => { if (f !== except) { f.classList.remove('open'); f.querySelector('button')?.setAttribute('aria-expanded', 'false'); } }); }
+  function closeAll(except) { document.querySelectorAll('.rsc-filter.open').forEach(f => { if (f !== except && !(except && f.contains(except))) { f.classList.remove('open'); f.querySelector('button')?.setAttribute('aria-expanded', 'false'); } }); }
   document.addEventListener('click', e => { if (!e.target.closest('.rsc-filter')) closeAll(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { const open = $('.rsc-filter.open'); closeAll(); open?.querySelector('button')?.focus(); } });
   function filterControl(key, label) {
@@ -59,6 +59,7 @@
         <label class="rsc-search"><i data-lucide="search"></i><input type="search" id="rsc-q" placeholder="Search churches, cities or pastors" aria-label="Search churches" autocomplete="off" /></label>
         <div class="rsc-filters">${filterControl('country', 'Region')}${filterControl('region', 'State / Province')}${filterControl('city', 'City')}${filterControl('denomination', 'Denomination')}${filterControl('service', 'Service')}
           <button type="button" class="rsc-reset" id="rsc-reset" hidden><i data-lucide="rotate-ccw"></i> Reset</button></div>
+        <div class="rsc-filter rsc-more" hidden><button type="button" class="rsc-filter-btn rsc-more-btn" aria-haspopup="true" aria-expanded="false" aria-label="More filters" title="Filters"><i data-lucide="sliders-horizontal"></i><span class="rsc-more-count" hidden></span></button><div class="rsc-filter-panel rsc-more-panel" role="group" aria-label="Filters"></div></div>
       </div>
       <p class="rsc-count" id="rsc-count" role="status" aria-live="polite">Loading churches…</p>
       <div class="rsc-grid" id="rsc-grid"></div>`;
@@ -78,7 +79,7 @@
     };
     const labels = { country: 'Region', region: 'State / Province', city: 'City', denomination: 'Denomination', service: 'Service' };
     function drawFilters() {
-      root.querySelectorAll('.rsc-filter').forEach(f => {
+      root.querySelectorAll('.rsc-filter[data-filter]').forEach(f => {
         const key = f.dataset.filter, opts = options[key]();
         const val = state[key];
         f.querySelector('[data-label]').textContent = val ? (opts.find(o => o[0] === val)?.[1] || val) : labels[key];
@@ -90,10 +91,28 @@
         f.querySelector('.rsc-filter-panel').innerHTML = `<button type="button" class="rsc-opt${!val ? ' is-active' : ''}" data-value="">Any ${esc(labels[key].toLowerCase())}</button>` + opts.map(([v, l]) => `<button type="button" class="rsc-opt${v === val ? ' is-active' : ''}" data-value="${esc(v)}">${esc(l)}</button>`).join('');
       });
       $('#rsc-reset').hidden = !Object.values(state).some(Boolean);
+      fitFilters();
     }
+    /* Keep search + filters on ONE row: filters that don't fit collapse into the sliders button */
+    function fitFilters() {
+      const bar = root.querySelector('.rsc-toolbar'), row = bar.querySelector('.rsc-filters'), more = bar.querySelector('.rsc-more'), panel = more.querySelector('.rsc-more-panel');
+      const items = () => [...row.querySelectorAll(':scope > .rsc-filter, :scope > .rsc-reset'), ...panel.querySelectorAll(':scope > .rsc-filter, :scope > .rsc-reset')];
+      const all = items().sort((a, b) => (+a.dataset.order || 0) - (+b.dataset.order || 0));
+      all.forEach((el, i) => { if (!el.dataset.order) el.dataset.order = i; row.appendChild(el); });
+      more.hidden = true;
+      const needsRoom = () => bar.querySelector('.rsc-search').getBoundingClientRect().width < (innerWidth < 700 ? 150 : 240);
+      let moved = 0; const vis = all.filter(el => !el.hidden || el.id === 'rsc-reset');
+      if (innerWidth < 700) { more.hidden = false; vis.forEach(el => panel.appendChild(el)); moved = vis.length; }
+      while ((bar.scrollWidth > bar.clientWidth + 1 || needsRoom()) && moved < vis.length) {
+        more.hidden = false; panel.prepend(vis[vis.length - 1 - moved]); moved++;
+      }
+      const setCount = Object.entries(state).filter(([k, v]) => k !== 'q' && v && panel.querySelector(`[data-filter="${k}"]`)).length;
+      const c = more.querySelector('.rsc-more-count'); c.hidden = !setCount; c.textContent = setCount; more.classList.toggle('is-set', !!setCount);
+    }
+    let fitT; addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(fitFilters, 80); });
     root.addEventListener('click', e => {
       const btn = e.target.closest('.rsc-filter-btn');
-      if (btn) { const f = btn.parentElement; const open = !f.classList.contains('open'); closeAll(f); f.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open)); return; }
+      if (btn) { const f = btn.parentElement; if (f.hidden) return; const open = !f.classList.contains('open'); closeAll(f); f.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open)); return; }
       const opt = e.target.closest('.rsc-opt');
       if (opt) { const key = opt.closest('.rsc-filter').dataset.filter; state[key] = opt.dataset.value;
         if (key === 'country') { state.region = ''; state.city = ''; } if (key === 'region') state.city = '';
