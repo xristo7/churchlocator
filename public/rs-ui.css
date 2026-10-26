@@ -1,0 +1,190 @@
+/* ==========================================================================
+   rs-ui.css — RhemaSphere shared design layer
+   Layout ideas borrowed from social feeds; look is RhemaSphere's own.
+   Built ONLY on existing theme variables (styles.css / tokens.css):
+   --primary, --primary-gradient, --primary-active, --gold*, --surface-*, --text-*, --border-*
+   Load LAST on every page. No hardcoded brand colours.
+   ========================================================================== */
+:root,body{
+  --rs-accent:var(--primary,#2563eb);
+  --rs-accent-ink:var(--primary-active,var(--rs-accent));
+  --rs-grad:var(--primary-gradient,var(--rs-accent));
+  --rs-gold:var(--gold,#e5a93c);
+  --rs-gold-grad:var(--gold-gradient,var(--rs-gold));
+  --rs-gold-ink:var(--gold-text,#92400e);
+  --rs-gold-surface:var(--gold-surface,color-mix(in srgb,var(--rs-gold) 12%,transparent));
+  --rs-bg:var(--surface-canvas,var(--background,#f8fafc));
+  --rs-card:var(--surface-card,#fff);
+  --rs-text:var(--text-primary,#0f172a);
+  --rs-muted:var(--text-secondary,#475569);
+  --rs-line:var(--border-default,var(--border-subtle,#e2e8f0));
+  --rs-line-tint:color-mix(in srgb,var(--rs-accent) 16%,var(--rs-line));
+  --rs-card-bg:linear-gradient(180deg,color-mix(in srgb,var(--rs-accent) 4%,var(--rs-card)),var(--rs-card) 140px);
+  --rs-shadow:0 1px 0 color-mix(in srgb,var(--rs-accent) 8%,transparent),0 14px 34px -18px color-mix(in srgb,var(--rs-accent) 35%,rgba(15,23,42,.35));
+  --rs-shadow-hover:0 22px 40px -20px color-mix(in srgb,var(--rs-accent) 45%,rgba(15,23,42,.4));
+  --rs-radius:22px;--rs-radius-media:18px;--rs-radius-sm:14px;
+  --rs-ring:0 0 0 4px color-mix(in srgb,var(--rs-accent) 16%,transparent);
+  --rs-btn-on-gold:#1b1305;
+}
+html[data-theme="dark"],html[data-theme="dark"] body{
+  --rs-accent-ink:color-mix(in srgb,var(--rs-accent) 55%,#fff);
+  --rs-line:color-mix(in srgb,var(--text-primary,#fff) 12%,transparent);
+  --rs-gold-ink:var(--gold,#fbbf24);
+  --rs-shadow:0 1px 0 color-mix(in srgb,var(--rs-accent) 14%,transparent),0 16px 36px -18px rgba(0,0,0,.6);
+}
+@media (max-width:640px){:root{--rs-radius:20px;--rs-radius-media:16px}}
+
+/* ---------- 1. Reusable classes ---------- */
+.rs-ui-card{background:var(--rs-card-bg);border:1px solid var(--rs-line-tint);border-radius:var(--rs-radius);box-shadow:var(--rs-shadow);color:var(--rs-text)}
+.rs-ui-card.is-hoverable{transition:transform .18s,box-shadow .18s}.rs-ui-card.is-hoverable:hover{transform:translateY(-2px);box-shadow:var(--rs-shadow-hover)}
+.rs-ui-media{border-radius:var(--rs-radius-media);overflow:hidden;box-shadow:0 0 0 1px color-mix(in srgb,var(--rs-accent) 16%,transparent)}
+.rs-ui-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;font-size:15px;font-weight:600;background:var(--rs-card);color:var(--rs-text);border:1px solid color-mix(in srgb,var(--rs-accent) 22%,var(--rs-line));cursor:pointer;text-decoration:none;transition:background .15s,border-color .15s,transform .15s}
+.rs-ui-btn:hover{border-color:var(--rs-accent);background:color-mix(in srgb,var(--rs-accent) 8%,var(--rs-card))}
+.rs-ui-btn:active{transform:scale(.97)}
+.rs-ui-btn svg{color:var(--rs-accent)}
+.rs-ui-btn-primary{background:var(--rs-grad);border-color:transparent;color:#fff;box-shadow:var(--primary-glow,none)}
+.rs-ui-btn-primary svg{color:#fff}
+.rs-ui-btn-gold{background:var(--rs-gold-grad);border-color:transparent;color:var(--rs-btn-on-gold)}
+.rs-ui-btn-gold svg{color:var(--rs-btn-on-gold)}
+.rs-ui-chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;background:color-mix(in srgb,var(--rs-accent) 7%,var(--rs-card));border:1px solid color-mix(in srgb,var(--rs-accent) 18%,var(--rs-line));color:var(--rs-text);font-size:15px;font-weight:600}
+.rs-ui-chip[aria-pressed="true"],.rs-ui-chip.is-active{background:var(--rs-accent);border-color:var(--rs-accent);color:#fff}
+.rs-ui-chip-count{min-width:26px;padding:2px 8px;border-radius:999px;background:var(--rs-card);color:var(--rs-accent-ink);font-size:14px;font-weight:700;text-align:center}
+.rs-ui-icon-btn{width:44px;height:44px;padding:0;border-radius:999px;display:inline-grid;place-items:center}
+.rs-ui-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:14px;font-weight:700;background:color-mix(in srgb,var(--rs-accent) 12%,var(--rs-card));color:var(--rs-accent-ink);border:1px solid color-mix(in srgb,var(--rs-accent) 30%,transparent)}
+.rs-ui-pill.is-gold{background:var(--rs-gold-surface);color:var(--rs-gold-ink);border-color:var(--gold-border,var(--rs-gold))}
+.rs-ui-frost{background:color-mix(in srgb,var(--rs-card) 86%,transparent);backdrop-filter:blur(10px);border:1px solid color-mix(in srgb,var(--rs-accent) 25%,transparent);border-radius:999px}
+.rs-ui-avatar{border-radius:999px;background:var(--rs-grad);color:#fff;box-shadow:0 0 0 2px var(--rs-card),0 0 0 4px color-mix(in srgb,var(--rs-accent) 45%,transparent)}
+.rs-ui-comment{padding-left:12px;border-left:2px solid color-mix(in srgb,var(--rs-accent) 30%,transparent)}
+.rs-ui-menu{background:var(--rs-card);color:var(--rs-text);border:1px solid color-mix(in srgb,var(--rs-accent) 20%,var(--rs-line));border-radius:18px;box-shadow:0 24px 48px -16px rgba(0,0,0,.4)}
+.rs-ui-input{min-height:48px;border-radius:16px;border:1.5px solid color-mix(in srgb,var(--rs-accent) 22%,var(--rs-line));background:var(--rs-card);color:var(--rs-text);font-size:16px;padding:0 16px}
+.rs-ui-input:focus{outline:0;border-color:var(--rs-accent);box-shadow:var(--rs-ring)}
+
+/* ---------- 2. Site-wide skin (existing markup, restyle only) ---------- */
+/* 2a. content cards: rounded, tinted border + shadow (background left alone so hero/media cards keep their images) */
+:is(.account-profile-card,.account-security-card,.amount-card,.cart-coupon-card,.cart-page-card,.channel-card,.channel-content-card,.channel-detail-card,.channel-profile-card,.checkout-step-card,.checkout-summary-card,.church-card,.church-grid-card,.church-premium-card,.church-quick-contact-card,.creator-store-card,.cs-card,.cs-create-card,.editorial-card,.event-card,.event-card-modern,.event-editor-card,.gathering-card,.gathering-modern-card,.info-card,.kpi-card,.launch-card,.launch-goal-card,.launchpad-card,.live-card,.livestream-card,.message-card,.message-compose-card,.payment-card,.portal-card,.product-card,.product-detail-card,.product-main-card,.product-pricing-card,.profile-invite-card,.resource-card,.room-card,.sanctuary-room-card,.search-card,.seller-profile-card,.service-card,.side-card,.speaker-card,.spotlight-card,.spotlight-detail-card,.store-product-card,.stream-card,.stream-info-card,.summary-card,.testimony-card,.ticket-tier-card,.tier-card,.tiny-church-card,.template-card,.dash-panel,.aw-panel,.aw-module-card,.aw-create-card,.aw-billing-card,.aw-publication-card,.sl-card,.sf-card,.sw-card,.mwu-card,.queue-card,.reflection-card,.story-card,.past-card,.journey-card,.step-card){
+  border-radius:var(--rs-radius)!important;
+  border:1px solid var(--rs-line-tint)!important;
+  box-shadow:var(--rs-shadow)!important;
+}
+/* plain (non-media) surfaces also get the faint accent tint */
+:is(.account-profile-card,.account-security-card,.cart-page-card,.cart-coupon-card,.checkout-step-card,.checkout-summary-card,.church-quick-contact-card,.info-card,.kpi-card,.launch-goal-card,.message-compose-card,.payment-card,.product-pricing-card,.seller-profile-card,.side-card,.summary-card,.ticket-tier-card,.tier-card,.dash-panel,.aw-panel,.aw-module-card,.aw-billing-card,.cs-create-card,.portal-card,.event-editor-card,.step-card){
+  background:var(--rs-card-bg)!important;color:var(--rs-text)
+}
+:is(.channel-card,.church-card,.church-grid-card,.church-premium-card,.event-card,.event-card-modern,.gathering-modern-card,.live-card,.livestream-card,.product-card,.store-product-card,.resource-card,.room-card,.sanctuary-room-card,.spotlight-card,.stream-card,.tiny-church-card,.creator-store-card,.speaker-card){transition:transform .18s,box-shadow .18s;overflow:hidden}
+:is(.channel-card,.church-card,.church-grid-card,.church-premium-card,.event-card,.event-card-modern,.gathering-modern-card,.live-card,.livestream-card,.product-card,.store-product-card,.resource-card,.room-card,.sanctuary-room-card,.spotlight-card,.stream-card,.tiny-church-card,.creator-store-card,.speaker-card):hover{transform:translateY(-2px);box-shadow:var(--rs-shadow-hover)!important}
+
+/* 2b. media frames: rounded inset */
+:is(.product-card,.store-product-card,.resource-card,.event-card,.event-card-modern,.channel-card,.live-card,.livestream-card,.stream-card,.room-card,.spotlight-card) :is(img,video,.resource-cover,.product-image,.event-image,.card-media,.thumb):first-child{border-radius:16px}
+:is(.livestream-player,.stream-player,.video-player,.hero-media-card,.church-gallery-card,.explainer-video-card,.product-gallery-main,.channel-hero-media) {border-radius:var(--rs-radius-media)!important;overflow:hidden}
+
+/* 2c. primary actions: gradient pill */
+:is(.button.primary,.module-primary-action,.auth-submit-btn,.checkout-pay-button,.donation-submit-btn,.journey-primary-btn,.profile-primary-action,.product-add-button,.resource-action,.spotlight-primary-cta,.stream-join-btn,.service-book-now-btn,.service-submit-btn,.nature-primary-btn,.timer-primary-btn,.mwe-follow-btn,.spk-follow-btn,.search-submit-button,.chat-send-btn,.stream-chat-send-btn,.hero-cta,.aw-button.primary,.sf-btn.primary,.mwu-btn.primary){
+  background:var(--rs-grad)!important;border-color:transparent!important;color:#fff!important;border-radius:999px!important;min-height:44px;font-weight:600;
+  box-shadow:var(--primary-glow,0 8px 20px -10px color-mix(in srgb,var(--rs-accent) 60%,transparent))!important;transition:filter .15s,transform .15s
+}
+:is(.button.primary,.module-primary-action,.auth-submit-btn,.checkout-pay-button,.product-add-button,.resource-action,.stream-join-btn,.service-book-now-btn,.mwe-follow-btn):hover{filter:brightness(1.06)}
+:is(.button.primary,.module-primary-action,.auth-submit-btn,.checkout-pay-button,.product-add-button,.resource-action,.stream-join-btn,.service-book-now-btn,.mwe-follow-btn):active{transform:scale(.97)}
+:is(.search-submit-button,.chat-send-btn,.stream-chat-send-btn){border-radius:14px!important}
+/* gold: Open Channel / Give / Donate type */
+:is(.channel-open-button,.faith-hub-cta,.footer-cta,.partner-church-btn,.mwe-menu-studio,.donate-cta,.give-button){background:var(--rs-gold-grad)!important;color:var(--rs-btn-on-gold)!important;border-color:transparent!important;border-radius:999px!important;min-height:44px}
+:is(.channel-open-button,.faith-hub-cta,.footer-cta,.partner-church-btn,.mwe-menu-studio) svg{color:var(--rs-btn-on-gold)!important}
+/* secondary: outlined pill */
+:is(.button.ghost,.module-secondary-action,.profile-secondary-action,.profile-ride-action,.profile-calendar-action,.channel-contact-button,.church-card-action,.church-hero-action,.product-action,.resource-preview-action,.resource-download-action,.social-share-btn,.unified-copy-btn,.email-sync-button,.gathering-cal-btn,.reset-filter-btn,.reset-simple-btn,.filter-pill-reset-btn,.module-creator-action,.aw-button:not(.primary),.sf-btn:not(.primary),.mwu-btn:not(.primary),.store-item-btn,.split-card-action,.stream-action,.spotlight-action){
+  border-radius:999px!important;min-height:44px;background:var(--rs-card);color:var(--rs-text);border:1px solid color-mix(in srgb,var(--rs-accent) 22%,var(--rs-line))!important;transition:background .15s,border-color .15s
+}
+:is(.button.ghost,.module-secondary-action,.profile-secondary-action,.channel-contact-button,.church-card-action,.church-hero-action,.product-action,.social-share-btn,.store-item-btn,.stream-action,.spotlight-action):hover{border-color:var(--rs-accent)!important;background:color-mix(in srgb,var(--rs-accent) 8%,var(--rs-card))}
+:is(.button.ghost,.module-secondary-action,.channel-contact-button,.church-card-action,.church-hero-action,.product-action,.social-share-btn) svg{color:var(--rs-accent)}
+/* reaction / love chips */
+.content-love-button{border-radius:999px!important;min-height:44px;background:color-mix(in srgb,var(--rs-accent) 8%,var(--rs-card))!important;border:1px solid color-mix(in srgb,var(--rs-accent) 20%,var(--rs-line))!important;color:var(--rs-text)!important}
+.content-love-button svg{color:var(--rs-accent)}
+.content-love-button[aria-pressed="true"]{background:var(--rs-accent)!important;color:#fff!important}.content-love-button[aria-pressed="true"] svg{color:#fff}
+/* round icon buttons */
+:is(.chat-icon-btn,.sf-circle-btn,.spotlight-circle-button,.sl-icon-button,.aw-icon-button,.qty-btn,.slider-arrow-btn,.church-gallery-arrow-btn,.scripture-carousel-nav-btn,.close-btn,.dialog-close-btn,.video-modal-close-btn,.church-lightbox-close-btn){border-radius:999px!important;min-width:44px;min-height:44px}
+
+/* 2d. tabs + filters: rounded chips */
+:is(.church-tab-button,.live-tab-button,.live-tab-btn,.lobby-tab-btn,.tab-btn,.aw-tab-button,.filter-pill-btn,.custom-pill-filter,.room-pill-btn,.ambience-pill-btn,.reflection-pill-btn,.immersive-pill-btn,.mwe-pill-btn,.amount-btn,.freq-btn,.frequency-btn){
+  border-radius:999px!important;min-height:44px;font-size:15px;font-weight:600;background:color-mix(in srgb,var(--rs-accent) 6%,var(--rs-card));border:1px solid color-mix(in srgb,var(--rs-accent) 16%,var(--rs-line))!important;color:var(--rs-text);transition:background .15s,border-color .15s
+}
+:is(.church-tab-button,.live-tab-button,.live-tab-btn,.lobby-tab-btn,.tab-btn,.aw-tab-button,.filter-pill-btn,.custom-pill-filter,.room-pill-btn,.mwe-pill-btn,.amount-btn,.freq-btn,.frequency-btn):is(.active,.is-active,[aria-selected="true"],[aria-pressed="true"]){
+  background:var(--rs-accent)!important;border-color:var(--rs-accent)!important;color:#fff!important
+}
+
+/* 2e. menus, dropdowns, popovers, modals */
+:is(.member-account-menu,.signin-dropdown-popover,.lang-selector-panel,.filter-dropdown-panel,.custom-options-panel,.dropdown-panel,.theme-dropdown,.theme-palette-popover,.topbar-menu,.member-invite-popover,.ambience-dropdown-menu,.nature-soundscape-menu,.conversation-menu,.country-dropdown,.aw-menu,.rsc-filter-panel,.rsc-more-panel,.sidebar-subitems-panel,.mwe-combo-panel,.rs-search-panel){
+  border-radius:18px!important;background:var(--rs-card)!important;color:var(--rs-text);border:1px solid color-mix(in srgb,var(--rs-accent) 20%,var(--rs-line))!important;box-shadow:0 24px 48px -16px rgba(0,0,0,.4)!important
+}
+:is(.member-account-menu,.signin-dropdown-popover,.lang-selector-panel,.filter-dropdown-panel,.dropdown-panel,.topbar-menu,.aw-menu,.rsc-filter-panel,.rsc-more-panel,.conversation-menu) :is(a,button):not(.mwe-menu-studio):not(.button.primary){border-radius:12px}
+:is(.modal-card,.member-auth-card,.login-modal-card,.module-modal-card,.profile-modal-card,.mwe-sheet-card,.mwe-reset-card,.mwe-verify-panel,.mwe-forgot-panel,.service-booking-modal .modal-card,.cpc-modal,.alert-modal>div,.login-card){
+  border-radius:24px!important;background:var(--rs-card-bg)!important;color:var(--rs-text);border:1px solid var(--rs-line-tint)!important;box-shadow:0 30px 60px -20px rgba(0,0,0,.45)!important
+}
+@media (max-width:640px){:is(.mwe-sheet-card,.member-auth-card){border-radius:24px 24px 0 0!important}}
+
+/* 2f. form fields */
+:is(.form-field,.checkout-field,.module-select,.field input,.field select,.field textarea,.form-group input,.form-group select,.form-group textarea,.mwe-reset-card input,.member-auth-card input,.login-card input,.modal-card input:not([type=checkbox]):not([type=radio]),.modal-card select,.modal-card textarea){
+  border-radius:16px!important;border:1.5px solid color-mix(in srgb,var(--rs-accent) 22%,var(--rs-line))!important;background:var(--rs-card);color:var(--rs-text);font-size:16px;min-height:48px;transition:border-color .15s,box-shadow .15s
+}
+textarea:is(.form-field,.checkout-field){min-height:96px}
+:is(.form-field,.checkout-field,.module-select,.field input,.field select,.field textarea,.form-group input,.form-group select,.form-group textarea,.mwe-reset-card input,.member-auth-card input,.login-card input,.modal-card input,.modal-card select,.modal-card textarea):focus{outline:0;border-color:var(--rs-accent)!important;box-shadow:var(--rs-ring)!important}
+.form-label,.field label{font-size:15px;font-weight:600;color:var(--rs-text)}
+
+/* 2g. avatars: gradient ring */
+:is(.church-avatar,.channel-avatar,.member-avatar,.account-avatar,.message-avatar,.conversation-avatar,.creator-avatar,.seller-avatar,.speaker-avatar,.account-profile-button .avatar,.member-account-menu-identity .avatar){box-shadow:0 0 0 2px var(--rs-card),0 0 0 4px color-mix(in srgb,var(--rs-accent) 45%,transparent)!important;border-radius:999px}
+
+/* 2h. badges / price pills / type chips */
+:is(.verified-badge,.church-verified-badge,.price-pill,.product-price-pill,.event-price-pill,.card-price){border-radius:999px!important}
+:is(.live-badge,.media-type-chip,.card-type-chip,.event-date-chip){border-radius:999px!important;backdrop-filter:blur(8px)}
+
+/* 2i. shell: header, left nav, bottom tab bar */
+.topbar{border-bottom:1px solid color-mix(in srgb,var(--rs-accent) 12%,var(--rs-line))!important}
+aside [data-shell-view]{border-radius:14px}
+aside [data-shell-view].active{background:color-mix(in srgb,var(--rs-accent) 12%,transparent)!important;color:var(--rs-accent-ink)!important}
+aside [data-shell-view].active svg{color:var(--rs-accent)!important}
+.mwe-tabbar{border-top:1px solid color-mix(in srgb,var(--rs-accent) 14%,var(--rs-line))!important;backdrop-filter:blur(14px)}
+.mwe-tabbar :is(a,button)[aria-current="page"],.mwe-tabbar .active{color:var(--rs-accent)!important}
+
+/* 2j. messages: keep email-style split, just soften */
+:is(.inbox-list,.conversation-list,.message-thread,.conversation-pane,.mi-list,.mi-thread){border-radius:var(--rs-radius)}
+:is(.message-bubble,.mi-bubble){border-radius:18px!important}
+
+/* 2k. focus visibility */
+:is(.button,.rs-ui-btn,.rs-ui-chip,.church-tab-button,.filter-pill-btn,.content-love-button,.module-primary-action,.module-secondary-action):focus-visible{outline:3px solid color-mix(in srgb,var(--rs-accent) 55%,transparent);outline-offset:2px}
+
+@media (prefers-reduced-motion:reduce){.rs-ui-card,.rs-ui-btn,[class*="-card"]{transition:none!important;transform:none!important}}
+
+/* ---------- 3. Page-specific finishing (batch 2) ---------- */
+/* Creator Studio family + signed-out cards (cs-*) */
+.cs-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:999px!important;background:var(--rs-grad)!important;color:#fff!important;border:0!important;font-size:16px;font-weight:600;box-shadow:var(--primary-glow,0 10px 22px -12px color-mix(in srgb,var(--rs-accent) 60%,transparent))}
+.cs-primary:hover{filter:brightness(1.06)}
+.cs-upgrade{border-radius:var(--rs-radius)!important;background:var(--rs-card-bg)!important;border:1px solid var(--rs-line-tint)!important;box-shadow:var(--rs-shadow)!important}
+.cs-upgrade p:not(.cs-eyebrow){font-size:16px}
+.cs-card-icon{border-radius:16px!important;background:color-mix(in srgb,var(--rs-accent) 12%,var(--rs-card))!important;color:var(--rs-accent)!important}
+.cs-eyebrow{color:var(--rs-accent-ink)!important;font-size:14px!important}
+:is(.cs-card,.cs-sc-card,.cs-create-card,.cs-hero-slide-card,.cs-form-section){border-radius:var(--rs-radius)!important}
+.cs-field :is(input,select,textarea){border-radius:16px!important;min-height:48px;font-size:16px}
+.cs-field :is(input,select,textarea):focus{border-color:var(--rs-accent)!important;box-shadow:var(--rs-ring)!important;outline:0}
+.cs-image-drop{border-radius:var(--rs-radius-media)!important;border-color:color-mix(in srgb,var(--rs-accent) 35%,var(--rs-line))!important}
+
+/* Spotlight: our comment rows (avatar ring + accent line), readable sizes */
+.spotlight-comment{border-bottom:0!important;padding:12px 10px!important;margin:0 -10px;border-radius:16px}
+.spotlight-comment:hover{background:color-mix(in srgb,var(--rs-accent) 6%,transparent)}
+.spotlight-comment>div{padding-left:12px;border-left:2px solid color-mix(in srgb,var(--rs-accent) 30%,transparent)}
+.spotlight-comment strong{font-size:15px!important}
+.spotlight-comment p{font-size:16px!important;line-height:1.5!important}
+.spotlight-comment small{font-size:14px!important}
+.spotlight-comment-avatar{border-radius:999px!important;background:var(--rs-grad)!important;color:#fff!important;box-shadow:0 0 0 2px var(--rs-card),0 0 0 4px color-mix(in srgb,var(--rs-accent) 45%,transparent)}
+.spotlight-comment-form{border-radius:18px}
+.spotlight-comment-form :is(input,textarea){border-radius:16px!important;font-size:16px!important;min-height:44px}
+.spotlight-comment-form button{border-radius:14px!important;background:var(--rs-grad)!important;color:#fff!important;min-width:44px;min-height:44px}
+.spotlight-follow{min-height:40px;font-size:15px!important;border-radius:999px!important;background:var(--rs-grad)!important}
+.spotlight-primary-cta{font-size:15px!important}
+.spotlight-editorial-label{font-size:13px!important;border-radius:999px!important;backdrop-filter:blur(8px)}
+
+/* Left rail: readable, rounded nav */
+.profile-rail-nav a,.profile-rail-nav button{min-height:44px!important;font-size:15px!important;border-radius:14px!important}
+.profile-rail-nav a.active{background:color-mix(in srgb,var(--rs-accent) 12%,transparent)!important;color:var(--rs-accent-ink)!important;border-left:0!important;font-weight:700}
+.profile-rail-nav a.active svg{color:var(--rs-accent)!important}
+.mwe-rail-donate{border-radius:18px!important}
+.profile-invite-card{background:var(--rs-card-bg)!important}
+
+/* Store directory cards: fix truncated store names */
+.creator-store-card :is(strong,h3,h4){white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
