@@ -189,7 +189,7 @@
           const missingSeeds = fallback.filter(item => !existingIds.has(item.id));
           if (missingSeeds.length > 0) {
             const merged = [...value, ...missingSeeds];
-            localStorage.setItem(key, JSON.stringify(merged));
+            try { localStorage.setItem(key, JSON.stringify(merged)); } catch { return value; }
             return merged;
           }
         }
@@ -197,7 +197,8 @@
       }
     } catch {}
     const seeded = clone(fallback);
-    localStorage.setItem(key, JSON.stringify(seeded));
+    try { localStorage.setItem(key, JSON.stringify(seeded)); }
+    catch { return Array.isArray(fallback) ? [] : seeded; } // connected workspace owns this record; never show local seed data
     return seeded;
   }
 

@@ -207,3 +207,15 @@ aside [data-shell-view].active svg{color:var(--rs-accent)!important}
 :is(.rsc-filter-panel,.rsc-more-panel) .rsc-opt{border-radius:12px;min-height:44px}
 .rsc-page{--rsc-ink:var(--rs-text);--rsc-muted:var(--rs-muted);--rsc-line:var(--rs-line);--rsc-card:var(--rs-card);--rsc-accent:var(--rs-gold);--rsc-primary:var(--rs-accent);--rsc-r:var(--rs-radius)}
 .rsc-page .rsc-search input[type],.rsc-page .rsc-search input[type]:focus{background:transparent!important;border:0!important;box-shadow:none!important}
+
+/* ===== Readability floor (labels >=13px, body >=15px, taps >=44px) ===== */
+small,.kicker,.eyebrow,.section-kicker,.module-kicker,.sf-eyebrow,.badge,.tag,.impact-card-badge,.room-card-tag,.room-enter-pill,.channel-online,.channel-format,.channel-open-button,.mwe-live-badge,.spotlight-editorial-label,#resource-result-count,#reset-strength-label,.partner-church-eyebrow{font-size:max(13px,1em*.8125)!important}
+.mwe-tab span,.mwe-rail-donate small,.spotlight-wordmark small,.spotlight-identity span,.spotlight-action span,.spotlight-member-row span,.sf-cart-count{font-size:13px!important}
+.spotlight-identity span{font-size:14px!important}
+.rsc-card-body h3 a,.policy-link,.product-back-link,.rv-card-church{display:inline-flex;align-items:center;min-height:44px}
+.rsc-search input{min-height:44px}
+.profile-app-brand,.mwe-header-spotlight,.member-header-giving,.mwe-avatar,.profile-mobile-menu,.mwe-round,.slider-arrow-btn,.spotlight-card-top button,.spotlight-desktop-pager button,.spotlight-inspector-close,.member-auth-icon,.mwe-password-toggle{min-height:44px;min-width:44px}
+.slider-pill-dot{position:relative}.slider-pill-dot::after{content:"";position:absolute;inset:-16px}
+footer a,.site-footer a,.footer-links a{display:inline-flex;align-items:center;min-height:44px}
+.topbar .nav-links a,.topbar-menu-group a{min-height:44px;display:inline-flex;align-items:center}
+html,body{overflow-x:clip}

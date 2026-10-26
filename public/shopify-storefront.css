@@ -300,7 +300,7 @@ html[data-theme="dark"] .sf-card-media,html[data-theme="dark"] .sf-media-main{ b
 .sf-info .sf-btn.sf-btn-outline,#product-detail-add.sf-btn{ background:var(--sf-surface) !important; background-image:none !important; color:var(--sf-ink) !important; border:1.5px solid var(--sf-ink) !important; }
 .sf-info .sf-btn.sf-btn-outline:hover{ background:var(--sf-soft) !important; }
 .sf-info .sf-btn.sf-btn-primary{ border:0 !important; background:var(--primary-gradient,var(--sf-accent)) !important; color:#fff !important; }
-.sf-variant-box{ border-color:var(--border,#cbd5e1) !important; }
+.sf-variant-box{ border-color:var(--border,var(--rs-line,#cbd5e1)) !important; }
 html[data-theme="dark"] .sf-info .sf-btn.sf-btn-outline{ border-color:var(--sf-ink) !important; }
 
 /* QA pass 2 */
