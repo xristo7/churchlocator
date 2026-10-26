@@ -47,20 +47,22 @@
       const channelAction = channel ? "Open Channel" : "Explore Channels";
       const format = resource.format || resource.type;
       const price = resource.access === "Free" ? "Free" : data().money(resource.price);
+      const esc = data().escapeHtml;
+      const initials = creatorName.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase();
       return `
-      <article class="resource-card editorial-card tone-${index % 6}">
-        <a class="resource-cover" href="resource-detail.html?id=${encodeURIComponent(resource.id)}" aria-label="View ${data().escapeHtml(resource.title)}">
-          <img class="resource-image" src="${data().escapeHtml(resource.image)}" alt="" />
-          <span class="resource-cover-icon"><i data-lucide="${iconFor(resource.type)}"></i></span><span class="resource-type-label">${data().escapeHtml(resource.type === "Text" && resource.format === "Article" ? "Article" : resource.format)}</span>
+      <article class="resource-card editorial-card rv-list-card">
+        <a class="resource-cover" href="resource-detail.html?id=${encodeURIComponent(resource.id)}" aria-label="View ${esc(resource.title)}">
+          <img class="resource-image" src="${esc(resource.image)}" alt="" loading="lazy" />
+          <span class="rv-type-chip"><i data-lucide="${iconFor(resource.type)}"></i>${esc(resource.type === "Text" && resource.format === "Article" ? "Article" : format)}</span>
         </a>
-        <button class="content-love-button content-love-overlay" type="button" data-love-type="resource" data-love-id="${data().escapeHtml(resource.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
         <div class="resource-card-body">
-          <h3><a href="resource-detail.html?id=${encodeURIComponent(resource.id)}">${data().escapeHtml(resource.title)}</a></h3>
-          <div class="resource-subtitle"><span>${data().escapeHtml(resource.topic)}</span><span aria-hidden="true">·</span><span>${data().escapeHtml(format)}</span></div>
-          <p>${data().escapeHtml(resource.description)}</p>
-          <a class="resource-channel-link" href="${channelHref}" aria-label="${channelAction}: ${data().escapeHtml(creatorName)}"><i data-lucide="radio-tower" aria-hidden="true"></i><span><small>From</small>${data().escapeHtml(creatorName)}</span><strong>${channelAction}<i data-lucide="arrow-up-right" aria-hidden="true"></i></strong></a>
-          <div class="resource-card-footer"><span class="resource-duration"><i data-lucide="clock" aria-hidden="true"></i>${data().escapeHtml(resource.duration || "On demand")}</span><strong class="resource-price-badge ${resource.access === "Paid" ? "paid" : ""}">${price}</strong></div>
-          <button class="resource-action" type="button" data-resource-action="${data().escapeHtml(resource.id)}">${resource.access === "Free" ? "Add to library" : "Get resource"}</button>
+          <h3><a href="resource-detail.html?id=${encodeURIComponent(resource.id)}">${esc(resource.title)}</a></h3>
+          <a class="rv-card-church resource-channel-link" href="${channelHref}" aria-label="${channelAction}: ${esc(creatorName)}"><span class="rv-mini-avatar" aria-hidden="true">${esc(initials)}</span><span>${esc(creatorName)}</span></a>
+          <div class="rv-card-meta resource-card-footer"><span class="resource-subtitle resource-duration">${esc([resource.topic, resource.duration].filter(Boolean).join(" · "))}</span><strong class="rv-card-price resource-price-badge ${resource.access === "Paid" ? "paid" : ""}">${price}</strong></div>
+          <div class="rv-card-actions">
+            <button class="resource-action" type="button" data-resource-action="${esc(resource.id)}">${resource.access === "Free" ? "Add to library" : "Get resource"}</button>
+            <button class="content-love-button" type="button" data-love-type="resource" data-love-id="${esc(resource.id)}" aria-pressed="false" aria-label="Like"><i data-lucide="heart"></i><span data-love-count>0</span></button>
+          </div>
         </div>
       </article>
     `;

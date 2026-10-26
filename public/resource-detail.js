@@ -50,41 +50,79 @@
       : `<button type="button" class="rv-btn rv-btn-primary" data-rv-library><i data-lucide="bookmark-plus"></i> Add to library</button>`;
   }
 
+  const initials = name => String(name || "R").split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+  const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+
+  function countsLine() {
+    const { counts } = state;
+    return `<div class="rv-counts"><span><span class="rv-like-dot"><i data-lucide="heart"></i></span><b data-rv-like-count>${counts.likes}</b></span><a href="#rv-comments" data-rv-comment-jump><b data-rv-comment-count>${counts.comments}</b> <span data-rv-comment-word>${counts.comments === 1 ? "comment" : "comments"}</span></a></div>`;
+  }
+
   function engagementBar() {
-    const { counts, viewer } = state;
+    const { viewer } = state;
     return `<div class="rv-engage" role="group" aria-label="Engage with this resource">
-      <button type="button" class="rv-chip" data-rv-like aria-pressed="${viewer.liked}"><i data-lucide="heart"></i><span>Like</span><b data-rv-like-count>${counts.likes}</b></button>
-      <a class="rv-chip" href="#rv-comments" data-rv-comment-jump><i data-lucide="message-circle"></i><span>Comment</span><b data-rv-comment-count>${counts.comments}</b></a>
-      <button type="button" class="rv-chip" data-rv-bookmark aria-pressed="${viewer.bookmarked}"><i data-lucide="bookmark"></i><span>${viewer.bookmarked ? "Bookmarked" : "Bookmark"}</span></button>
-      <button type="button" class="rv-chip" data-rv-share><i data-lucide="share-2"></i><span>Share</span></button>
+      <button type="button" class="rv-act" data-rv-like aria-pressed="${viewer.liked}"><i data-lucide="heart"></i><span>Like</span></button>
+      <a class="rv-act" href="#rv-comment-input" data-rv-comment-jump><i data-lucide="message-circle"></i><span>Comment</span></a>
+      <button type="button" class="rv-act" data-rv-bookmark aria-pressed="${viewer.bookmarked}"><i data-lucide="bookmark"></i><span>${viewer.bookmarked ? "Saved" : "Save"}</span></button>
+      <button type="button" class="rv-act" data-rv-share><i data-lucide="share-2"></i><span>Share</span></button>
     </div>`;
   }
 
-  function detailHero() {
+  function postHeader() {
     const { resource: r, church } = state; const k = kindOf(r);
-    const lengthLabel = k === "video" || k === "audio" ? "Duration" : "Length";
-    return `<section class="rv-hero">
-      <div class="rv-cover">${r.image ? `<img src="${esc(r.image)}" alt="" loading="eager" />` : `<div class="rv-cover-empty"><i data-lucide="${kindIcon[k]}"></i></div>`}
-        <span class="rv-badge"><i data-lucide="${kindIcon[k]}"></i>${esc(r.format || kindLabel[k])}</span></div>
-      <div class="rv-info">
-        <p class="rv-kicker">${esc([r.type, r.topic].filter(Boolean).join(" · "))}</p>
-        <h1>${esc(r.title)}</h1>
-        <dl class="rv-facts">
-          <div><dt>Media type</dt><dd><i data-lucide="${kindIcon[k]}"></i>${esc(kindLabel[k])}${r.format ? ` (${esc(r.format)})` : ""}</dd></div>
-          ${r.duration ? `<div><dt>${lengthLabel}</dt><dd><i data-lucide="clock"></i>${esc(r.duration)}</dd></div>` : ""}
-          <div><dt>Creator church</dt><dd><i data-lucide="church"></i>${church ? `<a href="/churches/${encodeURIComponent(church.id)}">${esc(church.name)}</a>` : "Not linked to a church"}</dd></div>
-          ${r.creator ? `<div><dt>By</dt><dd><i data-lucide="user-round"></i>${esc(r.creator)}</dd></div>` : ""}
-          <div><dt>Price</dt><dd class="rv-price">${r.access === "Paid" ? esc(money(r.price)) : "Free"}</dd></div>
-        </dl>
-        ${r.description ? `<p class="rv-desc">${esc(r.description)}</p>` : ""}
-        <div class="rv-actions">${primaryButton()}
-          <a class="rv-btn" href="${page === "detail" ? "#rv-reader" : detailHref(r)}"><i data-lucide="${k === "video" ? "play" : "book-open"}"></i> ${page === "detail" ? (k === "video" ? "Watch now" : "Read now") : "Details"}</a>
-          ${church ? `<a class="rv-btn" href="/channels/${encodeURIComponent(church.id)}"><i data-lucide="radio-tower"></i> Open Channel</a>` : ""}
-        </div>
-        ${engagementBar()}
-        <p class="rv-status" id="rv-status" role="status" aria-live="polite" hidden></p>
-      </div>
-    </section>`;
+    const name = church?.name || r.creator || "RhemaSphere";
+    const nameHtml = church ? `<a href="/churches/${encodeURIComponent(church.id)}">${esc(name)}</a>` : esc(name);
+    const sub = [kindLabel[k] + (r.format ? ` · ${r.format}` : ""), r.duration, r.topic].filter(Boolean).map(esc).join(" · ");
+    return `<header class="rv-post-head"><span class="rv-avatar" aria-hidden="true">${esc(initials(name))}</span>
+      <div><strong>${nameHtml}</strong><span class="rv-sub"><i data-lucide="${kindIcon[k]}"></i>${sub}</span></div>
+      <span class="rv-price-pill ${r.access === "Paid" ? "is-paid" : ""}">${r.access === "Paid" ? esc(money(r.price)) : "Free"}</span></header>`;
+  }
+
+  function ctaRow() {
+    const { resource: r, church } = state; const k = kindOf(r);
+    return `<div class="rv-actions">${primaryButton()}
+      ${page === "detail" && !state.locked ? `<a class="rv-btn" href="${readerHref(r)}"><i data-lucide="${k === "video" ? "play" : "book-open"}"></i> ${k === "video" ? "Watch" : "Open full reader"}</a>` : ""}
+      ${church ? `<a class="rv-btn" href="/channels/${encodeURIComponent(church.id)}"><i data-lucide="radio-tower"></i> Open Channel</a>` : ""}</div>`;
+  }
+
+  function postCard() {
+    const { resource: r } = state; const k = kindOf(r);
+    const media = page === "detail" && k !== "video" && !hasFile() && r.image
+      ? `<div class="rv-cover"><img src="${esc(r.image)}" alt="" loading="eager" /></div>${readerBlock()}`
+      : readerBlock();
+    return `<article class="rv-card rv-post">${postHeader()}
+      <h1 class="rv-title">${esc(r.title)}</h1>
+      ${r.description ? `<p class="rv-desc">${esc(r.description)}</p>` : ""}
+      <div class="rv-media" id="rv-reader">${media}</div>
+      ${r.creator && r.creator !== state.church?.name ? `<p class="rv-by"><i data-lucide="user-round"></i>By ${esc(r.creator)}</p>` : ""}
+      ${countsLine()}
+      ${engagementBar()}
+      ${ctaRow()}
+      <p class="rv-status" id="rv-status" role="status" aria-live="polite" hidden></p>
+    </article>`;
+  }
+  function hasFile() { const m = state.material || {}; return !!(m.fileUrl || m.embedUrl); }
+
+  function rail() {
+    const { church, resource: r } = state;
+    const about = church ? `<section class="rv-card rv-side"><h2>About the creator church</h2>
+        <div class="rv-side-church"><span class="rv-avatar rv-avatar-lg" aria-hidden="true">${esc(initials(church.name))}</span><div><strong>${esc(church.name)}</strong>${[church.city, church.country].filter(Boolean).length ? `<span><i data-lucide="map-pin"></i>${esc([church.city, church.country].filter(Boolean).join(", "))}</span>` : ""}</div></div>
+        <div class="rv-side-actions"><a class="rv-btn rv-btn-primary" href="/channels/${encodeURIComponent(church.id)}"><i data-lucide="radio-tower"></i> Open Channel</a><a class="rv-btn" href="/churches/${encodeURIComponent(church.id)}"><i data-lucide="church"></i> View church</a></div></section>`
+      : `<section class="rv-card rv-side"><h2>About the creator</h2><p class="rv-muted">${esc(r.creator || "This resource")} isn't linked to a church profile yet.</p></section>`;
+    return `<aside class="rv-rail" aria-label="More about this resource">${about}<section class="rv-card rv-side" data-rv-related><h2>More resources</h2><p class="rv-muted">Loading…</p></section></aside>`;
+  }
+
+  async function loadRelated() {
+    const box = document.querySelector("[data-rv-related]"); if (!box) return;
+    try { await window.MWEPlatform?.ready; } catch {}
+    const all = (window.FaithLinkModules?.getResources?.() || []).filter(x => x.id !== state.resource.id);
+    const owner = String(state.church?.name || state.resource.creator || "").toLowerCase();
+    const same = all.filter(x => String(x.creator || "").toLowerCase() === owner);
+    const list = (same.length ? same : all).slice(0, 4);
+    box.innerHTML = `<h2>${same.length ? "More from this church" : "More resources"}</h2>` + (list.length
+      ? `<ul class="rv-related">${list.map(x => `<li><a href="/resources/${encodeURIComponent(x.id)}">${x.image ? `<img src="${esc(x.image)}" alt="" loading="lazy" />` : `<span class="rv-thumb-empty"><i data-lucide="file"></i></span>`}<span><strong>${esc(x.title)}</strong><small>${esc([x.format || x.type, x.access === "Paid" ? money(x.price) : "Free"].filter(Boolean).join(" · "))}</small></span></a></li>`).join("")}</ul>`
+      : `<p class="rv-muted">No other resources published yet.</p>`) + `<a class="rv-link" href="/resources">Browse all resources <i data-lucide="arrow-right"></i></a>`;
+    icons();
   }
 
   function unavailable(title, body) {
@@ -136,12 +174,13 @@
   }
 
   function commentsBlock() {
-    return `<aside class="rv-comments" id="rv-comments" aria-label="Comments">
-      <header><h2>Comments</h2><b data-rv-comment-count>${state.counts.comments}</b></header>
+    return `<section class="rv-card rv-comments" id="rv-comments" aria-label="Comments">
+      <header><h2>Comments</h2><span class="rv-muted"><b data-rv-comment-count>${state.counts.comments}</b></span></header>
       <div class="rv-comment-list" data-rv-comments aria-live="polite"><p class="rv-muted">Loading comments…</p></div>
-      <form class="rv-comment-form" data-rv-comment-form><label for="rv-comment-input">Join the conversation</label>
-        <textarea id="rv-comment-input" rows="3" maxlength="1000" placeholder="Share a thoughtful comment…" required></textarea>
-        <div><span class="rv-muted" data-rv-comment-status>${state.viewer.signedIn ? "" : "Sign in to post a comment."}</span><button type="submit" class="rv-btn rv-btn-primary">Post</button></div></form></aside>`;
+      <form class="rv-comment-form" data-rv-comment-form><span class="rv-avatar rv-avatar-sm" aria-hidden="true"><i data-lucide="user-round"></i></span>
+        <label class="rv-sr" for="rv-comment-input">Write a comment</label>
+        <div class="rv-composer"><textarea id="rv-comment-input" rows="1" maxlength="1000" placeholder="Write a comment…" required></textarea><button type="submit" class="rv-send" aria-label="Post comment"><i data-lucide="send-horizontal"></i></button></div>
+        <span class="rv-muted rv-comment-status" data-rv-comment-status>${state.viewer.signedIn ? "" : "Sign in to post a comment."}</span></form></section>`;
   }
 
   function render() {
@@ -149,14 +188,12 @@
     const { resource: r } = state; const k = kindOf(r);
     document.title = `${r.title}${page === "reader" ? " · Reader" : ""} | RhemaSphere`;
     const back = document.querySelector(".product-back-link, #reader-back");
-    if (back) { back.href = page === "reader" ? detailHref(r) : "/resources"; back.innerHTML = `<i data-lucide="arrow-left"></i> ${page === "reader" ? "Back to resource" : "Back to Resources"}`; }
-    const readerSection = `<section class="rv-reader rv-reader-${k}" id="rv-reader" aria-label="${esc(kindLabel[k])} reader">
-        <header class="rv-reader-head"><h2><i data-lucide="${kindIcon[k]}"></i>${k === "video" ? "Watch" : "Read"}</h2>${page === "detail" && !state.locked ? `<a class="rv-link" href="${readerHref(r)}">Open full reader <i data-lucide="arrow-up-right"></i></a>` : ""}</header>
-        <div class="rv-reader-grid ${k === "video" ? "with-rail" : ""}"><div class="rv-reader-main">${readerBlock()}</div>${k === "video" ? commentsBlock() : ""}</div>
-      </section>${k === "video" ? "" : commentsBlock()}`;
-    root.className = `rv-page rv-${page}`;
-    root.innerHTML = page === "reader" ? `<header class="rv-reader-title"><p class="rv-kicker">${esc(kindLabel[k])}${r.duration ? " · " + esc(r.duration) : ""}</p><h1>${esc(r.title)}</h1>${engagementBar()}<p class="rv-status" id="rv-status" role="status" aria-live="polite" hidden></p></header>${readerSection}` : detailHero() + readerSection;
-    icons(); bind(); loadComments(); startReaders();
+    if (back) { back.href = page === "reader" ? detailHref(r) : "/resources"; back.innerHTML = `<i data-lucide="arrow-left"></i> ${page === "reader" ? "Back to resource" : "Resources"}`; }
+    root.className = `rv-page rv-${page} rv-kind-${k}`;
+    root.innerHTML = page === "reader" && k === "video"
+      ? `<div class="rv-watch"><div class="rv-main">${postCard()}</div><aside class="rv-rail rv-rail-comments">${commentsBlock()}</aside></div>`
+      : `<div class="rv-layout"><div class="rv-main">${postCard()}${commentsBlock()}</div>${page === "detail" ? rail() : ""}</div>`;
+    icons(); bind(); loadComments(); startReaders(); loadRelated();
   }
 
   async function loadComments() {
@@ -165,7 +202,8 @@
     if (!res.ok) { list.innerHTML = `<p class="rv-muted">Comments couldn't be loaded.</p>`; return; }
     const comments = res.data.comments || [];
     document.querySelectorAll("[data-rv-comment-count]").forEach(el => { el.textContent = comments.length; });
-    list.innerHTML = comments.length ? comments.map(c => `<article><strong>${esc(c.name || "Member")}</strong><time>${esc(new Date(c.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }))}</time><p>${esc(c.body)}</p></article>`).join("") : `<p class="rv-muted">No comments yet. Be the first to share.</p>`;
+    document.querySelectorAll("[data-rv-comment-word]").forEach(el => { el.textContent = comments.length === 1 ? "comment" : "comments"; });
+    list.innerHTML = comments.length ? comments.map(c => `<article><span class="rv-avatar rv-avatar-sm" aria-hidden="true">${esc(initials(c.name || "Member"))}</span><div><div class="rv-bubble"><strong>${esc(c.name || "Member")}</strong><p>${esc(c.body)}</p></div><time>${esc(new Date(c.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }))}</time></div></article>`).join("") : `<p class="rv-muted rv-empty">No comments yet. Be the first to share a thought.</p>`;
   }
 
   function needSignIn(what) { say(`Sign in to ${what}.`, true); }
@@ -186,7 +224,7 @@
       const res = await call(`/api/resources/${encodeURIComponent(r.id)}/bookmark`, { method: "POST", body: JSON.stringify({ on }) });
       if (res.status === 401) return needSignIn("bookmark this");
       if (!res.ok) return say(res.data.error || "That didn't save.");
-      state.viewer.bookmarked = on; const b = event.currentTarget; b.setAttribute("aria-pressed", on); b.querySelector("span").textContent = on ? "Bookmarked" : "Bookmark"; say(on ? "Bookmarked." : "Bookmark removed.");
+      state.viewer.bookmarked = on; const b = event.currentTarget; b.setAttribute("aria-pressed", on); b.querySelector("span").textContent = on ? "Saved" : "Save"; say(on ? "Saved to your bookmarks." : "Removed from your bookmarks.");
     });
     document.querySelector("[data-rv-like]")?.addEventListener("click", async event => {
       if (!state.viewer.signedIn) return needSignIn("like this");
@@ -194,8 +232,10 @@
       const res = await call("/api/content-engagements", { method: "POST", body: JSON.stringify({ type: "resource", id: r.id }) });
       if (res.status === 401) return needSignIn("like this");
       if (!res.ok) return say("That didn't save.");
-      state.viewer.liked = !!res.data.loved; b.setAttribute("aria-pressed", state.viewer.liked); b.querySelector("[data-rv-like-count]").textContent = res.data.count;
+      state.viewer.liked = !!res.data.loved; b.setAttribute("aria-pressed", state.viewer.liked); document.querySelectorAll("[data-rv-like-count]").forEach(el => { el.textContent = res.data.count; });
     });
+    document.querySelectorAll("a[data-rv-comment-jump]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); const t = document.getElementById("rv-comment-input"); t?.scrollIntoView({ behavior: "smooth", block: "center" }); t?.focus({ preventScroll: true }); }));
+    document.getElementById("rv-comment-input")?.addEventListener("input", e => { const t = e.currentTarget; t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 180) + "px"; });
     document.querySelector("[data-rv-share]")?.addEventListener("click", async () => {
       const url = new URL(detailHref(r), location.origin).toString();
       try { if (navigator.share) { await navigator.share({ title: r.title, url }); return; } await navigator.clipboard.writeText(url); say("Link copied."); } catch (e) { if (e?.name !== "AbortError") say(url); }
