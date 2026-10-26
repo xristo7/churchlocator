@@ -6,16 +6,16 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>RhemaSphere Member App</title>
+  <title>RhemaSphere</title>
   <link rel="stylesheet" href="styles.css?v=20261024rs1" />
   <script src="vendor/lucide.js"></script>
   <script defer src="platform-client.js?v=20261024rs1"></script><script src="ministries.js?v=20261024rs1"></script><script src="geo-regions.js?v=20261024rs1"></script>
   <script defer src="app.js?v=20261024rs1"></script><script defer src="auth-client.js?v=20261024rs1"></script>
-  <script defer src="app-shell.js?v=20261024rs1"></script>
-<link rel="stylesheet" href="responsive.css?v=20261024rs1" /><link rel="stylesheet" href="app-shell.css?v=20261024rs1" /></head>
+  <script defer src="rs-catalog.js?v=20261026home1"></script><script defer src="app-shell.js?v=20261026home1"></script>
+<link rel="stylesheet" href="responsive.css?v=20261024rs1" /><link rel="stylesheet" href="app-shell.css?v=20261026home1" /><link rel="stylesheet" href="rs-search.css?v=20261026home1" /></head>
 <body class="member-app-shell" data-page="app-shell">
   <header class="profile-app-header member-shell-header" id="member-shell-header">
-    <a class="profile-app-brand" href="index.html" aria-label="RhemaSphere home">
+    <a class="profile-app-brand" href="/" aria-label="RhemaSphere home">
       <span class="profile-app-brand-mark"><i data-lucide="sparkles"></i></span>
       <strong>RhemaSphere</strong>
     </a>
@@ -27,7 +27,8 @@
 
     <form class="profile-app-search site-search" id="member-shell-search" role="search">
       <i data-lucide="search"></i>
-      <input type="search" name="q" placeholder="Search RhemaSphere" aria-label="Search RhemaSphere" />
+      <input type="search" name="q" placeholder="Search RhemaSphere" aria-label="Search RhemaSphere" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="rs-search-results" aria-autocomplete="list" />
+      <div class="rs-search-panel" id="rs-search-results" role="listbox" aria-label="Search results" hidden></div>
     </form>
 
     <div class="member-shell-actions">
@@ -76,7 +77,7 @@
   <aside class="profile-left-rail member-shell-rail" id="member-shell-rail" aria-label="Main navigation">
     <div class="member-mobile-actions" id="member-mobile-actions" aria-label="Account actions"></div>
     <nav class="profile-rail-nav">
-      <a href="app.html?view=home" data-shell-view="home"><i data-lucide="layout-grid"></i><span>Home</span></a>
+      <a href="/" data-shell-view="home"><i data-lucide="layout-grid"></i><span>Home</span></a>
       <a href="app.html?view=meditation" data-shell-view="meditation"><i data-lucide="sparkles"></i><span>Meditation</span></a>
       <a href="app.html?view=directory" data-shell-view="directory"><i data-lucide="church"></i><span>Churches</span></a>
       <a href="app.html?view=channels" data-shell-view="channels"><i data-lucide="podcast"></i><span>Channels</span></a>

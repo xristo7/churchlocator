@@ -1559,14 +1559,16 @@ MWE.getMemberShellRoute = function(input) {
     portal: "portal",
     "register-church": "portal",
     creator: "portal",
-    "creator-hub": "portal"
+    "creator-hub": "portal",
+    meditation: "meditation",
+    storefront: "storefront"
   };
   const view = routeMap[file];
   if (!view) return null;
 
   return {
     view,
-    id: url.searchParams.get("id") || url.searchParams.get("channel") || "",
+    id: url.searchParams.get("id") || url.searchParams.get("channel") || url.searchParams.get("room") || "",
     q: url.searchParams.get("q") || "",
     ministry: url.searchParams.get("ministry") || "",
     compose: url.searchParams.get("compose") || "",

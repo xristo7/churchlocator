@@ -118,7 +118,8 @@
   });
 
   const views = {
-    home: { source: "member-home.html", title: "Member Home" },
+    home: { source: "member-home.html", title: "Find your church home" },
+    storefront: { source: "storefront.html", title: "Community Store" },
     spotlight: { source: "spotlight.html", title: "Spotlight" },
     meditation: { source: "meditation.html", title: "Meditation Sanctuary" },
     directory: { source: "churches.html", title: "Church Directory" },
@@ -153,7 +154,7 @@
     channels: ["Channels", "podcast"], "channel-detail": ["Channels", "podcast"], "channel-content": ["Channels", "podcast"],
     events: ["Events", "calendar-days"], event: ["Events", "calendar-days"],
     livestream: ["Live", "radio"],
-    store: ["Store", "shopping-bag"], product: ["Store", "shopping-bag"], cart: ["Store", "shopping-bag"], checkout: ["Store", "shopping-bag"], "store-manager": ["Store", "shopping-bag"],
+    store: ["Store", "shopping-bag"], storefront: ["Store", "shopping-bag"], product: ["Store", "shopping-bag"], cart: ["Store", "shopping-bag"], checkout: ["Store", "shopping-bag"], "store-manager": ["Store", "shopping-bag"],
     resources: ["Resources", "book-open"], "resource-detail": ["Resources", "book-open"], "resource-reader": ["Resources", "book-open"],
     giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"], profile: ["Profile", "user-round"], security: ["Security", "shield-check"],
     portal: ["Studio", "sparkles"]
@@ -251,7 +252,8 @@
 
   function getRoute() {
     const params = new URLSearchParams(window.location.search);
-    const requested = params.get("view") || "directory";
+    const atRoot = /^\/(?:index(?:\.html)?)?$/.test(window.location.pathname);
+    const requested = params.get("view") || (atRoot ? "home" : "directory");
     const view = views[requested] ? requested : "directory";
     return {
       view,
@@ -272,12 +274,14 @@
     if (route.ministry) source.searchParams.set("ministry", route.ministry);
     if (route.compose) source.searchParams.set("compose", route.compose);
     if (route.view === "channel-content" && route.id) source.searchParams.set("channel", route.id);
+    if (route.view === "meditation" && route.id) source.searchParams.set("room", route.id);
     if (route.view === "channel-live" && route.post) source.searchParams.set("session", route.post);
     if (route.post) source.searchParams.set("post", route.post);
     return source.toString();
   }
 
   function buildShellUrl(route) {
+    if (route.view === "home" && !route.id && !route.q) return "/";
     const target = new URL("app.html", window.location.href);
     target.searchParams.set("view", route.view);
     if (route.id) target.searchParams.set("id", route.id);
@@ -484,14 +488,61 @@
   langButton?.addEventListener("click", event => { event.stopPropagation(); const open = langSelector.classList.toggle("open"); langButton.setAttribute("aria-expanded", String(open)); });
   langSelector?.querySelectorAll("[data-member-lang]").forEach(button => button.addEventListener("click", () => setMemberLanguage(button.dataset.memberLang)));
 
-  shellSearch?.addEventListener("submit", event => {
+  // Unified "Search RhemaSphere": churches, meditation rooms, channels, events, stores and resources from the published catalog.
+  const searchInput = shellSearch?.querySelector('input[name="q"]');
+  const searchPanel = document.getElementById("rs-search-results");
+  let searchSeq = 0, searchTimer = 0, activeIndex = -1;
+  const closeSearch = () => { if (!searchPanel) return; searchPanel.hidden = true; searchInput?.setAttribute("aria-expanded", "false"); shellSearch?.classList.remove("has-results"); activeIndex = -1; };
+  const searchItems = () => [...(searchPanel?.querySelectorAll(".rs-search-item") || [])];
+  function openResult(anchor) {
+    if (!anchor) return;
+    closeSearch();
+    const href = anchor.getAttribute("href");
+    const route = window.MWE?.getMemberShellRoute?.(href);
+    if (route && views[route.view]) { if (searchInput) searchInput.value = ""; loadRoute({ view: route.view, id: route.id || "", q: "" }); }
+    else window.location.href = href;
+  }
+  async function runSearch() {
+    const C = window.RSCatalog;
+    const q = searchInput?.value.trim() || "";
+    if (!C || !searchPanel || q.length < 2) { closeSearch(); return; }
+    const seq = ++searchSeq;
+    searchPanel.hidden = false; searchInput.setAttribute("aria-expanded", "true"); shellSearch.classList.add("has-results");
+    searchPanel.innerHTML = '<p class="rs-search-note">Searching…</p>';
+    let groups;
+    try { groups = await C.search(q); } catch { if (seq === searchSeq) searchPanel.innerHTML = '<p class="rs-search-note">Search is unavailable right now. Please try again.</p>'; return; }
+    if (seq !== searchSeq) return;
+    const total = groups.reduce((n, g) => n + g.items.length, 0);
+    const e = C.esc;
+    searchPanel.innerHTML = '<p class="rs-search-summary">' + (total ? total + ' result' + (total === 1 ? '' : 's') + ' for “' + e(q) + '”' : 'No results for “' + e(q) + '”') + '</p>' +
+      groups.map(g => '<section class="rs-search-group" aria-label="' + e(g.label) + '"><h3><i data-lucide="' + g.icon + '"></i>' + e(g.label) + '<span>' + g.items.length + '</span></h3>' +
+        (g.items.length ? g.items.slice(0, 4).map(r => { const img = C.image(r); return '<a class="rs-search-item" role="option" href="' + e(C.href(r)) + '">' +
+          (img ? '<img src="' + e(img) + '" alt="" loading="lazy" />' : '<span class="rs-search-thumb"><i data-lucide="' + g.icon + '"></i></span>') +
+          '<span><strong>' + e(C.title(r)) + '</strong><small>' + e(C.subtitle(r)) + '</small></span></a>'; }).join('')
+          : '<p class="rs-search-empty">No ' + e(g.label.toLowerCase()) + ' match.</p>') + '</section>').join('');
+    activeIndex = -1;
+    window.lucide?.createIcons();
+  }
+  searchInput?.addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 160); });
+  searchInput?.addEventListener("focus", () => { if ((searchInput.value || "").trim().length >= 2) runSearch(); });
+  searchInput?.addEventListener("keydown", event => {
+    const items = searchItems();
+    if (event.key === "Escape") { closeSearch(); return; }
+    if (!items.length || !["ArrowDown", "ArrowUp"].includes(event.key)) return;
     event.preventDefault();
-    const q = new FormData(shellSearch).get("q")?.toString().trim() || "";
-    const current = getRoute();
-    const searchViewMap = { church: "directory", "channel-detail": "channels", "channel-content": "channels", event: "events", "store-manager": "store", product: "store", cart: "store", checkout: "store", "resource-detail": "resources", "resource-reader": "resources" };
-    const searchableViews = ["directory", "channels", "events", "store", "resources"];
-    const candidate = searchViewMap[current.view] || current.view;
-    loadRoute({ view: searchableViews.includes(candidate) ? candidate : "directory", id: "", q });
+    activeIndex = (activeIndex + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+    items.forEach((item, i) => item.classList.toggle("is-active", i === activeIndex));
+    items[activeIndex].scrollIntoView({ block: "nearest" });
+  });
+  searchPanel?.addEventListener("click", event => { const a = event.target.closest(".rs-search-item"); if (!a) return; event.preventDefault(); openResult(a); });
+  searchPanel?.addEventListener("error", event => { const img = event.target; if (img.tagName !== "IMG") return; const s = document.createElement("span"); s.className = "rs-search-thumb"; s.textContent = "•"; img.replaceWith(s); }, true);
+  document.addEventListener("click", event => { if (searchPanel && !searchPanel.hidden && !shellSearch.contains(event.target)) closeSearch(); });
+  document.addEventListener("keydown", event => { if (event.key === "Escape" && searchPanel && !searchPanel.hidden) closeSearch(); });
+  shellSearch?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const items = searchItems();
+    if (items.length) { openResult(items[Math.max(activeIndex, 0)]); return; }
+    await runSearch();
   });
 
   frame.addEventListener("load", () => {

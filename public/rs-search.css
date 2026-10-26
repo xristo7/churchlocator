@@ -1,0 +1,21 @@
+/* Unified header search dropdown */
+#member-shell-search { position: relative; overflow: visible !important; }
+.rs-search-panel { position: absolute; top: calc(100% + 8px); left: 0; width: min(560px, calc(100vw - 24px)); max-height: min(70vh, 620px); overflow-y: auto; z-index: 1200;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 24px 60px rgba(15,23,42,.18); padding: 10px; text-align: left; }
+.rs-search-panel[hidden] { display: none !important; }
+.rs-search-summary, .rs-search-note { margin: 4px 8px 8px; font-size: 14px; font-weight: 600; color: #475569; }
+.rs-search-group + .rs-search-group { border-top: 1px solid #eef2f7; margin-top: 6px; padding-top: 6px; }
+.rs-search-group h3 { display: flex; align-items: center; gap: 8px; margin: 6px 8px; font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #334155; }
+.rs-search-group h3 svg { width: 16px; height: 16px; color: #2563eb; }
+.rs-search-group h3 span { margin-left: auto; font-size: 13px; font-weight: 700; color: #64748b; }
+.rs-search-item { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px; border-radius: 12px; text-decoration: none; color: inherit; }
+.rs-search-item:hover, .rs-search-item.is-active { background: #f1f5ff; }
+.rs-search-item img, .rs-search-thumb { flex: none; width: 44px; height: 44px; border-radius: 10px; object-fit: cover; background: #eef2ff; display: grid; place-items: center; color: #4f46e5; }
+.rs-search-thumb svg { width: 20px; height: 20px; }
+.rs-search-item > span:last-child { display: grid; gap: 2px; min-width: 0; }
+.rs-search-item strong { font-size: 15px; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rs-search-item small { font-size: 13px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rs-search-empty { margin: 2px 8px 8px; font-size: 14px; color: #94a3b8; }
+@media (max-width: 959.98px) {
+  html body .mwe-search-slot .rs-search-panel { position: absolute; top: calc(100% + 10px); left: 0; right: -48px; width: auto; max-height: calc(70vh - 90px); box-shadow: none; border-color: #eef2f7; }
+}
