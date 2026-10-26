@@ -1,4 +1,4 @@
-:root { --cs-ink:#111a34; --cs-muted:#61708e; --cs-line:#dfe6f3; --cs-soft:#f5f8fe; --cs-blue:#2563eb; --cs-indigo:#4f46e5; --cs-good:#087f5b; --cs-warn:#b45309; }
+:root { --cs-ink:var(--rs-text,#111a34); --cs-muted:var(--rs-muted,#61708e); --cs-line:var(--rs-line,#dfe6f3); --cs-soft:color-mix(in srgb,var(--rs-accent,#2563eb) 5%,var(--rs-card,#fff)); --cs-blue:var(--rs-accent,#2563eb); --cs-indigo:var(--rs-accent,#4f46e5); --cs-good:#087f5b; --cs-warn:#b45309; }
 .creator-studio-page { min-height:100vh; margin:0; color:var(--cs-ink); background:linear-gradient(150deg,var(--rs-card,#f8fbff) 0%,var(--rs-card,#f3f6ff) 52%,var(--rs-card,#fbfcff) 100%); font-family:inherit; }
 .creator-studio-page * { box-sizing:border-box; }
 .creator-studio-loading { min-height:62vh; display:grid; place-content:center; gap:14px; text-align:center; color:var(--cs-muted); font-weight:700; }
@@ -40,7 +40,7 @@
 .cs-upgrade .cs-card-icon { width:56px; height:56px; margin:0 auto 18px; }.cs-upgrade h1 { margin:0 0 10px; font-size:clamp(1.7rem,4vw,2.55rem); letter-spacing:-.045em; }.cs-upgrade p { max-width:600px; margin:0 auto; color:var(--cs-muted); line-height:1.6; }
 .cs-primary,.cs-secondary { display:inline-flex; justify-content:center; align-items:center; gap:8px; min-height:47px; padding:0 17px; border-radius:12px; font:inherit; font-size:.9rem; font-weight:900; cursor:pointer; }
 .cs-primary { border:1px solid #3c43dd; color:#fff; background:linear-gradient(105deg,var(--rs-accent,#2563eb),var(--rs-accent,#4f46e5)); box-shadow:0 10px 20px color-mix(in srgb,var(--rs-accent,#2563eb) 20%,transparent); }.cs-primary:disabled { opacity:.55; cursor:wait; }
-.cs-secondary { border:1px solid var(--cs-line); color:#31415e; background:var(--rs-card,#fff); }.cs-upgrade .cs-primary { margin-top:24px; }
+.cs-secondary { border:1px solid var(--cs-line); color:var(--rs-text,#31415e); background:var(--rs-card,#fff); }.cs-upgrade .cs-primary { margin-top:24px; }
 .cs-editor-shell { display:grid; grid-template-columns:minmax(0,1fr) 260px; gap:18px; align-items:start; }
 .cs-readiness { position:sticky; top:18px; padding:17px; border:1px solid var(--cs-line); border-radius:18px; background:var(--rs-card,#fff); }
 .cs-step-controls { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 18px; padding:14px 18px; border:1px solid var(--cs-line); border-radius:16px; background:var(--rs-card,#fff); }
