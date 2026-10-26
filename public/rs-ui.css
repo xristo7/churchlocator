@@ -110,10 +110,10 @@ html[data-theme="dark"],html[data-theme="dark"] body{
 }
 
 /* 2e. menus, dropdowns, popovers, modals */
-:is(.member-account-menu,.signin-dropdown-popover,.lang-selector-panel,.filter-dropdown-panel,.custom-options-panel,.dropdown-panel,.theme-dropdown,.theme-palette-popover,.topbar-menu,.member-invite-popover,.ambience-dropdown-menu,.nature-soundscape-menu,.conversation-menu,.country-dropdown,.aw-menu,.rsc-filter-panel,.rsc-more-panel,.sidebar-subitems-panel,.mwe-combo-panel,.rs-search-panel){
+:is(.filter-dropdown-panel,.custom-options-panel,.dropdown-panel,.theme-dropdown,.theme-palette-popover,.member-invite-popover,.ambience-dropdown-menu,.nature-soundscape-menu,.conversation-menu,.country-dropdown,.aw-menu,.rsc-filter-panel,.rsc-more-panel,.sidebar-subitems-panel,.mwe-combo-panel,.rs-search-panel){
   border-radius:18px!important;background:var(--rs-card)!important;color:var(--rs-text);border:1px solid color-mix(in srgb,var(--rs-accent) 20%,var(--rs-line))!important;box-shadow:0 24px 48px -16px rgba(0,0,0,.4)!important
 }
-:is(.member-account-menu,.signin-dropdown-popover,.lang-selector-panel,.filter-dropdown-panel,.dropdown-panel,.topbar-menu,.aw-menu,.rsc-filter-panel,.rsc-more-panel,.conversation-menu) :is(a,button):not(.mwe-menu-studio):not(.button.primary){border-radius:12px}
+:is(.filter-dropdown-panel,.dropdown-panel,.aw-menu,.rsc-filter-panel,.rsc-more-panel,.conversation-menu) :is(a,button):not(.mwe-menu-studio):not(.button.primary){border-radius:12px}
 :is(.modal-card,.member-auth-card,.login-modal-card,.module-modal-card,.profile-modal-card,.mwe-sheet-card,.mwe-reset-card,.mwe-verify-panel,.mwe-forgot-panel,.service-booking-modal .modal-card,.cpc-modal,.alert-modal>div,.login-card){
   border-radius:24px!important;background:var(--rs-card-bg)!important;color:var(--rs-text);border:1px solid var(--rs-line-tint)!important;box-shadow:0 30px 60px -20px rgba(0,0,0,.45)!important
 }
@@ -135,7 +135,6 @@ textarea:is(.form-field,.checkout-field){min-height:96px}
 :is(.live-badge,.media-type-chip,.card-type-chip,.event-date-chip){border-radius:999px!important;backdrop-filter:blur(8px)}
 
 /* 2i. shell: header, left nav, bottom tab bar */
-.topbar{border-bottom:1px solid color-mix(in srgb,var(--rs-accent) 12%,var(--rs-line))!important}
 aside [data-shell-view]{border-radius:14px}
 aside [data-shell-view].active{background:color-mix(in srgb,var(--rs-accent) 12%,transparent)!important;color:var(--rs-accent-ink)!important}
 aside [data-shell-view].active svg{color:var(--rs-accent)!important}
@@ -214,15 +213,14 @@ small,.kicker,.eyebrow,.section-kicker,.module-kicker,.sf-eyebrow,.badge,.tag,.i
 .spotlight-identity span{font-size:14px!important}
 .rsc-card-body h3 a,.policy-link,.product-back-link,.rv-card-church{display:inline-flex;align-items:center;min-height:44px}
 .rsc-search input{min-height:44px}
-.profile-app-brand,.mwe-header-spotlight,.member-header-giving,.mwe-avatar,.profile-mobile-menu,.mwe-round,.slider-arrow-btn,.spotlight-card-top button,.spotlight-desktop-pager button,.spotlight-inspector-close,.member-auth-icon,.mwe-password-toggle{min-height:44px;min-width:44px}
+.mwe-round,.slider-arrow-btn,.spotlight-card-top button,.spotlight-desktop-pager button,.spotlight-inspector-close,.member-auth-icon,.mwe-password-toggle{min-height:44px;min-width:44px}
 .slider-pill-dot{position:relative}.slider-pill-dot::after{content:"";position:absolute;inset:-16px}
 footer a,.site-footer a,.footer-links a{display:inline-flex;align-items:center;min-height:44px}
-.topbar .nav-links a,.topbar-menu-group a{min-height:44px;display:inline-flex;align-items:center}
 html,body{overflow-x:clip}
 
 html body .mwe-tabbar .mwe-tab span,html body .mwe-tabbar .mwe-tab *{font-size:13px!important}
 .channel-online,.channel-format,.sf-badge,.sf-vendor,.channel-card small,.policy-hero span,.mwe-live-badge{font-size:13px!important}
-html body .member-header-giving.mwe-header-spotlight,html body .profile-mobile-menu,html body .slider-arrow-btn,html body .sf-circle-btn,html body .sf-card-like,html body .member-auth-icon,html body .mwe-password-toggle{min-height:44px!important;min-width:44px!important}
+html body .slider-arrow-btn,html body .sf-circle-btn,html body .sf-card-like,html body .member-auth-icon,html body .mwe-password-toggle{min-height:44px!important;min-width:44px!important}
 .creator-store-card>div:only-child{grid-column:1/-1}
 
 .live-shell>a[href]:first-child{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid color-mix(in srgb,var(--rs-accent) 30%,var(--rs-line));color:var(--rs-accent);font-weight:600;text-decoration:none;margin-bottom:12px}
@@ -235,10 +233,7 @@ html body .member-header-giving.mwe-header-spotlight,html body .profile-mobile-m
 :is(.channel-profile-identity,.sf-card-body,.resource-card-body,.rsc-card-body) h3>a,.member-auth-hint a{display:inline-block;padding-block:12px;margin-block:-12px}
 .sf-card-title{font-size:15px!important}
 .member-auth-icon,.mwe-password-toggle,.drawer-close{min-width:44px!important;min-height:44px!important}
-html body .profile-app-header .member-header-giving.mwe-header-spotlight:not(#mwe-x){height:44px!important;min-height:44px!important}
 html .rsc-search input:not(#rs-a):not(#rs-b){background:transparent!important;border:0!important;box-shadow:none!important}
-@media (min-width:1025px) and (max-width:1439px){html body .topbar .nav-links:not(#rs-a){gap:2px!important}html body .topbar .nav-links a:not(#rs-a){padding-inline:6px!important;white-space:nowrap}html body .topbar .nav-links a:not(#rs-a) svg,html body .topbar .nav-links a:not(#rs-a) i{display:none}}
-@media (min-width:1025px) and (max-width:1439px){html body .topbar .brand small:not(#rs-a){display:none!important}html body .topbar :is(a,button):not(#rs-a){white-space:nowrap}}
 /* Spotlight video overlay controls: plain line icons, translucent while playing, clear on hover/tap */
 html body :is(.spotlight-actions .spotlight-action,.spotlight-card-top button):not(#rs-a):not(#rs-b){background:transparent!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;color:#fff!important;min-width:44px!important;min-height:44px!important;padding:0!important;opacity:.7;transition:opacity .2s ease,transform .2s ease;text-shadow:0 1px 3px rgba(0,0,0,.6);-webkit-tap-highlight-color:transparent}
 html body :is(.spotlight-actions .spotlight-action,.spotlight-card-top button):not(#rs-a):not(#rs-b) svg{filter:drop-shadow(0 1px 3px rgba(0,0,0,.6));fill:none}
