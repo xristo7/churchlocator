@@ -239,3 +239,11 @@ html body .profile-app-header .member-header-giving.mwe-header-spotlight:not(#mw
 html .rsc-search input:not(#rs-a):not(#rs-b){background:transparent!important;border:0!important;box-shadow:none!important}
 @media (min-width:1025px) and (max-width:1439px){html body .topbar .nav-links:not(#rs-a){gap:2px!important}html body .topbar .nav-links a:not(#rs-a){padding-inline:6px!important;white-space:nowrap}html body .topbar .nav-links a:not(#rs-a) svg,html body .topbar .nav-links a:not(#rs-a) i{display:none}}
 @media (min-width:1025px) and (max-width:1439px){html body .topbar .brand small:not(#rs-a){display:none!important}html body .topbar :is(a,button):not(#rs-a){white-space:nowrap}}
+/* Spotlight video overlay controls: plain line icons, translucent while playing, clear on hover/tap */
+html body :is(.spotlight-actions .spotlight-action,.spotlight-card-top button):not(#rs-a):not(#rs-b){background:transparent!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;color:#fff!important;min-width:44px!important;min-height:44px!important;padding:0!important;opacity:.7;transition:opacity .2s ease,transform .2s ease;text-shadow:0 1px 3px rgba(0,0,0,.6);-webkit-tap-highlight-color:transparent}
+html body :is(.spotlight-actions .spotlight-action,.spotlight-card-top button):not(#rs-a):not(#rs-b) svg{filter:drop-shadow(0 1px 3px rgba(0,0,0,.6));fill:none}
+html body :is(.spotlight-actions .spotlight-action,.spotlight-card-top button):not(#rs-a):not(#rs-b):is(:hover,:focus-visible,:active){opacity:1;background:transparent!important}
+html body .spotlight-actions .spotlight-action:not(#rs-a):not(#rs-b) span{font-size:13px!important;color:#fff!important}
+html body .spotlight-actions .spotlight-action.is-active:not(#rs-a):not(#rs-b){opacity:1}
+html body .spotlight-actions .spotlight-action.is-active:not(#rs-a):not(#rs-b) svg{color:var(--rs-accent)!important;fill:var(--rs-accent)!important}
+html body :is(.spotlight-actions .spotlight-action,.spotlight-card-top button):not(#rs-a):not(#rs-b):focus-visible{outline:2px solid #fff;outline-offset:2px}
