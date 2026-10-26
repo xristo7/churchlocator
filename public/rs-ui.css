@@ -237,3 +237,4 @@ html body .member-header-giving.mwe-header-spotlight,html body .profile-mobile-m
 .member-auth-icon,.mwe-password-toggle,.drawer-close{min-width:44px!important;min-height:44px!important}
 html body .profile-app-header .member-header-giving.mwe-header-spotlight:not(#mwe-x){height:44px!important;min-height:44px!important}
 html .rsc-search input:not(#rs-a):not(#rs-b){background:transparent!important;border:0!important;box-shadow:none!important}
+@media (min-width:1025px) and (max-width:1439px){html body .topbar .nav-links:not(#rs-a){gap:2px!important}html body .topbar .nav-links a:not(#rs-a){padding-inline:6px!important;white-space:nowrap}html body .topbar .nav-links a:not(#rs-a) svg,html body .topbar .nav-links a:not(#rs-a) i{display:none}}
