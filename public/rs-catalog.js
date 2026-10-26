@@ -4,7 +4,12 @@
   let catalogPromise = null, livePromise = null;
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const getJson = url => fetch(url, { credentials: 'same-origin', cache: 'no-store' }).then(r => r.json()).then(d => { if (!d || !d.ok) throw new Error(d?.error || 'Request failed'); return d; });
-  const catalog = () => (catalogPromise ||= getJson('/api/catalog').then(d => d.records || []).catch(e => { catalogPromise = null; throw e; }));
+  /* Churches come from the church database (/api/churches); every other kind stays on the published catalog. */
+  const churchesApi = () => getJson('/api/churches').then(d => (d.churches || []).map(c => ({ ...c, kind: 'churches' })));
+  const catalog = () => (catalogPromise ||= Promise.all([getJson('/api/catalog').then(d => d.records || []), churchesApi()])
+    .then(([records, churches]) => [...records.filter(r => r.kind !== 'churches'), ...churches])
+    .catch(e => { catalogPromise = null; throw e; }));
+  const churches = () => catalog().then(list => list.filter(r => r.kind === 'churches'));
   const live = () => (livePromise ||= getJson('/api/live/directory').catch(() => ({ stages: [], broadcasts: [] })));
   const groups = [
     { key: 'churches', kinds: ['churches'], label: 'Churches', icon: 'church' },
@@ -18,7 +23,7 @@
   const image = r => r.photo || r.cover || r.coverImageUrl || r.image || r.avatar || r.logo || '';
   const href = r => {
     const id = encodeURIComponent(r.id);
-    return ({ churches: 'church-profile.html?id=', meditation: 'meditation.html?room=', channels: 'channel-detail.html?id=', events: 'event-profile.html?id=',
+    return ({ churches: '/churches/', meditation: 'meditation.html?room=', channels: 'channel-detail.html?id=', events: 'event-profile.html?id=',
       store: 'storefront.html?id=', products: 'product-detail.html?id=', resources: 'resource-detail.html?id=' }[r.kind] || '#') + id;
   };
   const subtitle = r => {
@@ -33,7 +38,7 @@
     }
     return '';
   };
-  const haystack = r => [title(r), r.subtitle, r.description, r.about, r.city, r.country, r.denomination, r.topic, r.owner, r.ownerName, r.creator, r.seller, r.category, r.categoryLabel, r.handle, r.pastor, r.venueName].filter(Boolean).join(' ').toLowerCase();
+  const haystack = r => [title(r), r.subtitle, r.description, r.about, r.city, r.country, r.denomination, r.topic, r.owner, r.ownerName, r.creator, r.seller, r.category, r.categoryLabel, r.handle, r.pastor, r.pastorName, r.state, r.venueName].filter(Boolean).join(' ').toLowerCase();
   async function search(query) {
     const q = String(query || '').trim().toLowerCase();
     const records = await catalog();
@@ -43,5 +48,5 @@
       return { ...g, items };
     });
   }
-  root.RSCatalog = { catalog, live, search, groups, title, image, href, subtitle, esc };
+  root.RSCatalog = { catalog, churches, live, search, groups, title, image, href, subtitle, esc };
 })(window);

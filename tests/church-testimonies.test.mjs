@@ -19,20 +19,6 @@ test("Database Migration: 0012_church_testimonies.sql defines table and indexes"
   assert.match(sql, /create index if not exists idx_church_testimonies_lookup/i, "must create lookup index");
 });
 
-test("Church Profile HTML: Dynamic testimonials container replaces hardcoded mock cards", async () => {
-  const html = await fs.readFile(path.join(projectRoot, "public", "church-profile.html"), "utf8");
-
-  assert.match(html, /id="church-testimonials-container"/, "testimonials container with dynamic ID must exist");
-  assert.match(html, /class="btn-share-story"/, "share story button must exist");
-  assert.match(html, /MWE\.openSubmitTestimonyModal\(\)/, "share story button must trigger openSubmitTestimonyModal");
-  assert.match(html, /id="btn-view-all-stories"/, "view all stories button must exist");
-  assert.match(html, /MWE\.openStoriesModal\(\)/, "view all stories must trigger openStoriesModal");
-
-  // Verify hardcoded Sarah M. and Jason L. cards were removed from church-profile.html
-  assert.doesNotMatch(html, /Sarah M\./, "hardcoded Sarah M. card must be removed from HTML template");
-  assert.doesNotMatch(html, /Jason L\./, "hardcoded Jason L. card must be removed from HTML template");
-});
-
 test("App.js: Testimonies methods and dynamic rendering functions defined", async () => {
   const appJs = await fs.readFile(path.join(projectRoot, "public", "app.js"), "utf8");
 

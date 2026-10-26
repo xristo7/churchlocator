@@ -85,6 +85,7 @@
         f.classList.toggle('is-set', !!val);
         const btn = f.querySelector('button');
         const empty = !opts.length;
+        if (key === 'region') { const none = !churches.some(c => c.state); f.hidden = none; if (none) return; }
         btn.disabled = empty; btn.title = empty ? (key === 'region' ? 'No state or province listed yet' : 'No options yet') : '';
         f.querySelector('.rsc-filter-panel').innerHTML = `<button type="button" class="rsc-opt${!val ? ' is-active' : ''}" data-value="">Any ${esc(labels[key].toLowerCase())}</button>` + opts.map(([v, l]) => `<button type="button" class="rsc-opt${v === val ? ' is-active' : ''}" data-value="${esc(v)}">${esc(l)}</button>`).join('');
       });
@@ -271,5 +272,6 @@
     if (page === 'church-detail') initProfile();
     if (page === 'church-channel') initChannel();
   }
+  window.RSChurchDirectory = { liveChurchIds, isLive };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();

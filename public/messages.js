@@ -12,9 +12,12 @@
     sizing() { const m = this.main(); if (!m) return; const tb = document.querySelector("header.topbar"); const tbs = tb && getComputedStyle(tb); const top = tb && (tbs.position === "fixed" || tbs.position === "sticky") ? Math.round(tb.getBoundingClientRect().bottom) : Math.max(0, Math.round(m.getBoundingClientRect().top + window.scrollY)); m.style.setProperty("--inbox-top", top + "px"); }
   };
   const fallbackAvatar = "assets/logo-river-city.png";
+  /* Churches come from the church database, not the built-in or browser-stored list. */
+  let churchDirectory = [];
+  const loadChurchDirectory = () => fetch("/api/churches", { credentials: "same-origin", cache: "no-store" }).then(r => r.json()).then(d => { churchDirectory = d?.ok && Array.isArray(d.churches) ? d.churches : []; }).catch(() => { churchDirectory = []; });
   const recipients = () => {
     const channels = data().getChannels().filter(item => item.canMessage).map(item => ({ id: item.id, name: item.name, type: "Channel", avatar: item.avatar || item.cover || fallbackAvatar }));
-    const churches = (window.MWE?.getChurches?.() || []).filter(item => item.canMessage).map(item => ({ id: item.id, name: item.name, type: "Church", avatar: item.logo || item.photo || fallbackAvatar }));
+    const churches = churchDirectory.filter(item => item.canMessage).map(item => ({ id: item.id, name: item.name, type: "Church", avatar: item.logo || item.photo || fallbackAvatar }));
     const events = (window.MWE?.getEvents?.() || []).filter(item => item.canMessage).map(item => ({ id: item.id, name: item.title, type: "Event Organizer", avatar: item.coverImageUrl || fallbackAvatar }));
     return [...new Map([...channels, ...churches, ...events].map(item => [item.id, item])).values()];
   };
@@ -55,7 +58,7 @@
     const settings = data().getMessageSettings(); document.getElementById("email-sync-status").textContent = settings.forwardingEnabled ? settings.forwardingEmail : "Not connected";
     document.getElementById("message-search").addEventListener("input", renderThreads); document.querySelectorAll("[data-message-filter]").forEach(button => button.addEventListener("click", () => { filter = button.dataset.messageFilter; document.querySelectorAll("[data-message-filter]").forEach(item => item.classList.toggle("active", item === button)); renderThreads(); }));
     document.getElementById("message-thread-list").addEventListener("click", event => { const button = event.target.closest("[data-thread]"); if (!button) return; selectedThread = button.dataset.thread; renderThreads(); renderConversation(); }); document.getElementById("new-message-button").addEventListener("click", renderRecipientPicker); document.getElementById("welcome-compose").addEventListener("click", renderRecipientPicker); document.getElementById("email-sync-button").addEventListener("click", renderEmailSettings);
-    const params = new URLSearchParams(location.search); const requested = params.get("id"); if (params.get("compose") && requested) { const recipient = recipients().find(item => item.id === requested); recipient ? beginDraft(recipient) : renderRecipientPicker(); } else if (params.get("compose")) renderRecipientPicker(); renderThreads(); window.lucide?.createIcons();
+    const params = new URLSearchParams(location.search); const requested = params.get("id"); if (params.get("compose")) await loadChurchDirectory(); else loadChurchDirectory(); if (params.get("compose") && requested) { const recipient = recipients().find(item => item.id === requested); recipient ? beginDraft(recipient) : renderRecipientPicker(); } else if (params.get("compose")) renderRecipientPicker(); renderThreads(); window.lucide?.createIcons();
     window.setInterval(async () => { if (document.hidden || !window.MWEPlatform?.session || document.activeElement?.closest?.("#conversation-reply")) return; try { await data().refreshMessages?.(); renderThreads(); if (selectedThread) renderConversation(false); } catch {} }, 5000);
   });
 })();

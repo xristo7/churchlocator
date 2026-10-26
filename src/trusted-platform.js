@@ -140,6 +140,21 @@ export async function ownTenant(env,user) {
  ]);
  return (await env.DB.prepare('select id from tenants where owner_user_id=?').bind(user.id).first()).id;
 }
+/* Signed-out "Request a visit / ride" forms land in visitor_connections. Church owners, editors and pastors see them
+   alongside member requests, read-only and clearly labelled by type. */
+export function visitorRequestRecord(row) {
+ let needs=[];try{needs=JSON.parse(row.needs||'[]');}catch{}
+ const ride=Array.isArray(needs)&&needs.includes('ride'), name=String(row.full_name||'').trim(), [firstName,...rest]=name.split(/\s+/);
+ return {id:'visitor-'+row.id,kind:ride?'ride':'visit',requestType:ride?'Ride request':'Visit request',source:'public-form',readOnly:true,churchId:row.church_id,
+  fullName:name,firstName:firstName||'',lastName:rest.join(' '),phone:row.phone||'',email:row.email||'',pickupAddress:ride?(row.city||''):'',city:row.city||'',
+  preferredService:row.message||'',message:row.message||'',passengers:1,status:row.status||'new',stage:1,driver:'Unassigned',createdAt:row.created_at,direction:'received'};
+}
+async function publicVisitorRequests(env,userId,kind) {
+ try {
+  const {results}=await env.DB.prepare("select v.* from visitor_connections v join platform_entities e on e.id=v.church_id where exists(select 1 from tenant_memberships m where m.tenant_id=e.tenant_id and m.user_id=? and m.role in ('owner','editor','pastor')) order by v.created_at desc limit 100").bind(userId).all();
+  return (results||[]).map(visitorRequestRecord).filter(r=>!kind||r.kind===kind);
+ } catch { return []; }
+}
 export async function membership(env,userId,tenantId) { return env.DB.prepare('select role from tenant_memberships where tenant_id=? and user_id=?').bind(tenantId,userId).first(); }
 function entityRecord(row,publicView=false) {
  const data=JSON.parse(row.data_json);
@@ -357,6 +372,7 @@ export async function handlePlatformApi(request,env,ctx) {
   if(request.method==='GET') {
    const {results}=await env.DB.prepare(`select p.* from private_records p where (p.user_id=? or (p.visibility='recipient' and p.recipient_user_id=?) or (p.visibility='pastors' and exists(select 1 from tenant_memberships m where m.tenant_id=p.tenant_id and m.user_id=? and m.role in ('owner','editor','pastor')))) ${kind?'and p.kind=?':''} order by p.created_at desc limit 100`).bind(user.id,user.id,user.id,...(kind?[kind]:[])).all();
    const records=await Promise.all((results||[]).map(async row=>({...await unseal(env,row.data_encrypted,'private:'+row.id+':'+row.user_id),id:row.id,kind:row.kind,userId:row.user_id,recipientUserId:row.recipient_user_id,entityId:row.entity_id,status:row.status,revision:row.revision,createdAt:row.created_at,updatedAt:row.updated_at,direction:row.user_id===user.id?'sent':'received'})));
+   if(!kind||kind==='ride'||kind==='visit') records.push(...await publicVisitorRequests(env,user.id,kind));
    return ctx.json({ok:true,records});
   }
   if(request.method==='POST' && kind) {

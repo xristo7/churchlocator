@@ -1,7 +1,7 @@
 import { handleSoundCloudApi } from "./soundcloud.js";
 import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityHeaders } from "./security.js";
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
-import { handlePlatformApi, isOwner } from './trusted-platform.js';
+import { handlePlatformApi, isOwner, visitorRequestRecord } from './trusted-platform.js';
 import { handleSpotlightApi, deliverSpotlightNotifications } from './spotlight.js';
 import { handleLiveApi, closeExpiredLiveSessions, deliverLiveNotifications } from './live.js';
 import { handleContentEngagementApi } from './content-engagements.js';
@@ -938,7 +938,7 @@ function publicChurchRecord(row, profile, schedules, entity) {
     services,
     verified,
     tenantId: entity?.tenant_id || "",
-    canMessage: data.canMessage === true
+    canMessage: !!entity?.owner_user_id && !String(entity.owner_user_id).startsWith("system:")
   };
 }
 
@@ -951,7 +951,7 @@ async function loadPublicChurches(env, id = "") {
   const rows = (await (id ? rowsStmt.bind(id) : rowsStmt).all()).results || [];
   const schedStmt = env.DB.prepare(`select s.* from service_schedules s join churches c on c.id = s.church_id where c.is_verified = 1 ${id ? "and c.id = ?" : ""} order by s.church_id, s.id`);
   const schedules = (await (id ? schedStmt.bind(id) : schedStmt).all()).results || [];
-  const entStmt = env.DB.prepare(`select id, tenant_id, data_json from platform_entities where kind = 'churches' and state = 'published' ${id ? "and id = ?" : ""}`);
+  const entStmt = env.DB.prepare(`select id, tenant_id, owner_user_id, data_json from platform_entities where kind = 'churches' and state = 'published' ${id ? "and id = ?" : ""}`);
   const entityRows = (await (id ? entStmt.bind(id) : entStmt).all()).results || [];
   const entities = new Map();
   for (const e of entityRows) { try { entities.set(e.id, { ...e, data: JSON.parse(e.data_json) }); } catch {} }
@@ -1150,6 +1150,15 @@ async function handleLivestreamActivation(request, env) {
   }
 
   return json({ ok: true, id, status: "requested", paymentStatus: "pending", createdAt }, 201);
+}
+
+async function handleAdminVisitors(request, env) {
+  if (!isAuthorized(request, env)) return unauthorized();
+  if (!env.DB) return storageUnavailable();
+  const type = new URL(request.url).searchParams.get("type") || "";
+  const { results } = await env.DB.prepare(`select v.*, c.name church_name from visitor_connections v left join churches c on c.id = v.church_id order by v.created_at desc limit 500`).all();
+  const requests = (results || []).map(row => ({ ...visitorRequestRecord(row), churchName: row.church_name || "" })).filter(r => !type || r.kind === type);
+  return json({ ok: true, requests });
 }
 
 async function handleVisitor(request, env) {
@@ -1854,6 +1863,7 @@ async function handleApi(request, env, executionCtx) {
     if (path === "/api/church-application") return await handleChurchApplication(request, env);
     if (path === "/api/livestream-activation") return await handleLivestreamActivation(request, env);
     if (path === "/api/visitor") return await handleVisitor(request, env);
+    if (path === "/api/admin/visitors" && request.method === "GET") return await handleAdminVisitors(request, env);
     if (path === "/api/prayer") return await handlePrayer(request, env);
     if (path === "/api/event-register") return await handleEventRegister(request, env);
     if (path === "/api/auth/register") return await handleAuthRegister(request, env);

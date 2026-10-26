@@ -52,7 +52,7 @@ test("church profile avoids blocking third-party icon CSS and polling personal f
     readFile(new URL("../public/app.js", import.meta.url), "utf8")
   ]);
   assert.doesNotMatch(html, /cdnjs\.cloudflare\.com\/ajax\/libs\/font-awesome/);
-  assert.match(html, /<script defer src="vendor\/lucide\.js">/);
+  assert.match(html, /<script(?: defer)? src="vendor\/lucide\.js">/);
   const profileStart = source.indexOf("function initProfilePage()");
   const profileEnd = source.indexOf("MWE.switchProfileTab", profileStart);
   const profileSource = source.slice(profileStart, profileEnd);

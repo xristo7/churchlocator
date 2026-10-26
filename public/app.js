@@ -4462,7 +4462,7 @@ function initChurchPortal() {
 
       return `
         <tr>
-          <td><strong>${MWE.escapeHtml(r.fullName)}</strong><br/><small class="text-muted">${MWE.escapeHtml(r.phone)}</small></td>
+          <td><strong>${MWE.escapeHtml(r.fullName)}</strong>${r.source === 'public-form' ? ' <span class="badge pending"><i data-lucide="car"></i> Ride request · public form</span>' : ''}<br/><small class="text-muted">${MWE.escapeHtml(r.phone || r.email || '')}</small></td>
           <td>${MWE.escapeHtml(r.pickupAddress)}</td>
           <td>${MWE.escapeHtml(r.preferredService)} (${r.passengers || 1} pass)</td>
           <td>${stageBadge}</td>
@@ -4472,10 +4472,10 @@ function initChurchPortal() {
           </td>
           <td>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              ${!isStage1Done ? `
+              ${r.readOnly ? `${r.email ? `<a class="button outline small" href="mailto:${MWE.escapeHtml(r.email)}"><i data-lucide="mail"></i> Email</a>` : ''}${r.phone ? `<a class="button ghost small" href="tel:${MWE.escapeHtml(String(r.phone).replace(/[^+\d]/g, ''))}"><i data-lucide="phone"></i> Call</a>` : ''}` : !isStage1Done ? `
                 <button type="button" class="button primary small" onclick="MWE.confirmRideStage1('${MWE.escapeJsAttribute(r.id)}')"><i data-lucide="phone-check"></i> Confirm Phone/Text</button>
               ` : ''}
-              ${!isStage2Done ? `
+              ${r.readOnly ? '' : !isStage2Done ? `
                 <button type="button" class="button outline small" onclick="MWE.assignDriver('${MWE.escapeJsAttribute(r.id)}')"><i data-lucide="car"></i> Confirm Schedule & Driver</button>
               ` : `
                 <button type="button" class="button ghost small" onclick="MWE.openRideConfirmationModal('${MWE.escapeJsAttribute(r.id)}')"><i data-lucide="eye"></i> View 2-Stage Pass</button>

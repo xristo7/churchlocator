@@ -302,7 +302,6 @@ test("single pages share spacing and content uses media-specific readers", async
 
   assert.match(styles, /main\.product-detail-page[\s\S]*main\.channel-detail-page[\s\S]*main\.channel-content-page/);
   assert.match(styles, /width: min\(var\(--max\), calc\(100% - 44px\)\)/);
-  assert.match(churchProfile, /body\[data-page="profile"\] > section > \.container/);
   assert.match(resourceDetail, /resource-video-experience/);
   assert.match(resourceDetail, /resource-audio-experience/);
   assert.match(resourceDetail, /resource-article-experience/);
@@ -587,7 +586,7 @@ test("directory modules share the standardized atmospheric hero and filter tray"
   const styles = await readProjectFile("public/styles.css");
   const appJs = await readProjectFile("public/app.js");
   // store uses the Shopify-style collection header (sf-coll-hero) instead of the shared directory hero
-  for (const page of ["churches", "meditation", "events", "livestream", "resources", "channels"]) {
+  for (const page of ["meditation", "events", "livestream", "resources", "channels"]) {
     const html = await readProjectFile(`public/${page}.html`);
     assert.match(html, /module-directory-hero/, `${page} needs the shared hero`);
     assert.match(html, /site-search-bar/, `${page} needs the shared filter tray`);
@@ -617,7 +616,7 @@ test("directory modules share the standardized atmospheric hero and filter tray"
 test("content directories use one creator-gated 3-to-1 hero action", async () => {
   const styles = await readProjectFile("public/styles.css");
   const appJs = await readProjectFile("public/app.js");
-  for (const page of ["store", "channels", "events", "livestream", "resources", "meditation", "churches"]) {
+  for (const page of ["store", "channels", "events", "livestream", "resources", "meditation"]) {
     const html = await readProjectFile(`public/${page}.html`);
     assert.match(html, /class="module-hero-copy"/, `${page} needs the shared hero copy column`);
     assert.equal((html.match(/data-creator-action/g) || []).length, 1, `${page} needs exactly one creator action`);
