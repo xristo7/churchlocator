@@ -71,7 +71,7 @@ body[data-page="livestream"] #active-streams-list.streams-hub-grid{display:grid!
 .mwe-upnext-item:hover{background:var(--surface-soft)}
 .mwe-upnext-thumb{position:relative;flex:0 0 168px;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#0b1020}
 .mwe-upnext-thumb img{width:100%;height:100%;object-fit:cover}
-.mwe-upnext-thumb .mwe-live-badge{position:absolute;left:6px;bottom:6px;font-size:10px;padding:2px 6px}
+.mwe-upnext-thumb .mwe-live-badge{position:absolute;left:6px;bottom:6px;font-size:13px;padding:2px 6px}
 .mwe-upnext-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
 .mwe-upnext-copy b{font-size:14px;line-height:1.3}
 .mwe-upnext-copy small,.mwe-upnext-empty{color:var(--text-secondary);font-size:13px}
@@ -108,7 +108,7 @@ html.mwe-stage-page main.live-shell{width:100%;max-width:none;margin:0;padding:0
 .mwe-stage-title{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
 .mwe-stage-title b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mwe-stage-title>span{display:flex;align-items:center;gap:8px}
-.mwe-stage-title small{color:#a1a7b3;font-size:12px;font-weight:600}
+.mwe-stage-title small{color:#a1a7b3;font-size:13px;font-weight:600}
 .mwe-stage-count{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.1);font-size:13px;font-weight:700}
 .mwe-stage-count svg{width:16px;height:16px}
 .mwe-round{display:inline-flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;color:#fff;cursor:pointer;padding:0;margin:0;font:600 11px/1 var(--font-sans,system-ui)}
@@ -131,8 +131,8 @@ html.mwe-stage-page main.live-shell{width:100%;max-width:none;margin:0;padding:0
 .mwe-tile.is-speaking{outline-color:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.25)}
 .mwe-tile-avatar{display:grid;place-items:center;width:clamp(56px,22%,104px);aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(4px);font-weight:700;font-size:clamp(18px,2.4vw,34px);color:#fff;box-shadow:0 8px 30px rgba(0,0,0,.25)}
 .mwe-tile figcaption{position:absolute;left:10px;right:10px;bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.mwe-tile-name{display:inline-flex;align-items:center;gap:6px;max-width:80%;padding:5px 10px;border-radius:999px;background:rgba(0,0,0,.5);font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mwe-tile-name em{font-style:normal;padding:1px 6px;border-radius:4px;background:var(--mwe-accent,#2563eb);font-size:10px;font-weight:800;text-transform:uppercase}
+.mwe-tile-name{display:inline-flex;align-items:center;gap:6px;max-width:80%;padding:5px 10px;border-radius:999px;background:rgba(0,0,0,.5);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mwe-tile-name em{font-style:normal;padding:1px 6px;border-radius:4px;background:var(--mwe-accent,#2563eb);font-size:13px;font-weight:800;text-transform:uppercase}
 .mwe-tile-mic{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.5)}
 .mwe-tile-mic svg{width:15px;height:15px}
 .mwe-tile-mic:not(.on){background:#e11d2a}
@@ -142,7 +142,7 @@ html.mwe-stage-page main.live-shell{width:100%;max-width:none;margin:0;padding:0
 .mwe-comments{display:flex;flex-direction:column;gap:6px;max-width:min(360px,72%)}
 .mwe-comment{display:flex;align-items:center;gap:8px;margin:0;padding:6px 12px 6px 6px;border-radius:999px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);font-size:13px;line-height:1.3;animation:mweCommentIn .35s ease both;width:fit-content}
 .mwe-comment b{font-weight:700;margin-right:4px}
-.mwe-comment-av{flex:0 0 24px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--mwe-accent,#2563eb);font-size:10px;font-weight:800}
+.mwe-comment-av{flex:0 0 24px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--mwe-accent,#2563eb);font-size:13px;font-weight:800}
 @keyframes mweCommentIn{from{opacity:0;transform:translateY(8px)}}
 .mwe-reactions{position:relative;width:80px;height:260px}
 .mwe-float-react{position:absolute;bottom:0;font-size:28px;animation:mweFloat 2.6s ease-out forwards}
@@ -164,7 +164,7 @@ html.mwe-stage-page main.live-shell{width:100%;max-width:none;margin:0;padding:0
 .mwe-sheet-card header{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:16px}
 .mwe-sheet-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.08)}
 .mwe-sheet-name{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
-.mwe-sheet-name small{color:#a1a7b3;font-size:12px}
+.mwe-sheet-name small{color:#a1a7b3;font-size:13px}
 .mwe-mini{display:inline-grid;place-items:center;height:32px;min-width:32px;padding:0 12px;border-radius:999px;border:0;background:rgba(255,255,255,.12);color:#fff;font:700 12.5px/1 var(--font-sans,system-ui);cursor:pointer;margin:0}
 .mwe-mini svg{width:15px;height:15px}
 .mwe-mini.primary{background:var(--mwe-accent,#2563eb)}
@@ -194,13 +194,13 @@ html body .mwe-side-tabs{background:color-mix(in srgb,var(--text-primary,#0f172a
 .mwe-chip [data-love-count]{opacity:.7}
 @media (max-width:959.98px){.mwe-channel-row{flex-wrap:nowrap}.mwe-follow-btn{height:36px;padding:0 14px;font-size:13px}.mwe-watch-page .broadcast-back-link{top:calc(env(safe-area-inset-top) + 52px)}}
 .mwe-watch:not(.broadcast-watch-layout){max-width:960px;margin:0 auto}
-@media (max-width:959.98px){.mwe-comment:nth-last-child(n+4){display:none}.mwe-comments{max-width:70%}.mwe-comment{font-size:12.5px}}
+@media (max-width:959.98px){.mwe-comment:nth-last-child(n+4){display:none}.mwe-comments{max-width:70%}.mwe-comment{font-size:13px}}
 .mwe-watch-page:has(>.mwe-watch:not(.broadcast-watch-layout)) .broadcast-back-link{display:flex;max-width:960px;margin-inline:auto}
 .mwe-prev-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px 16px;border:1px dashed var(--border);border-radius:14px;color:var(--text-secondary);text-align:center}
 .mwe-prev-empty svg{width:28px;height:28px;stroke-width:1.6}
 .mwe-prev-empty b{font-size:14px;font-weight:600}
 button.mwe-upnext-item{width:100%;border:0;background:none;text-align:left;cursor:pointer;font:inherit}
-.mwe-dur{position:absolute;right:6px;bottom:6px;padding:1px 5px;border-radius:4px;background:rgba(0,0,0,.8);color:#fff;font-size:11px;font-weight:700}
+.mwe-dur{position:absolute;right:6px;bottom:6px;padding:1px 5px;border-radius:4px;background:rgba(0,0,0,.8);color:#fff;font-size:13px;font-weight:700}
 .mwe-follow-btn{white-space:nowrap;flex:0 0 auto}
 .mwe-channel-name{flex:1 1 auto}
 .mwe-channel-name b{max-width:100%}

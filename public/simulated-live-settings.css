@@ -46,7 +46,7 @@
 .sl-stream-title h3 { overflow-wrap: anywhere; }
 .sl-next { display: flex; align-items: center; gap: 6px; font-size: .88rem; font-weight: 600; }
 .sl-stream-actions { display: flex; flex-wrap: wrap; gap: 6px; }
-.sl-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: .74rem; font-weight: 800; line-height: 1.4; }
+.sl-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: .8125rem; font-weight: 800; line-height: 1.4; }
 .sl-badge svg { width: 13px; height: 13px; }
 .sl-badge-active { background: #e6f7ef; color: var(--sl-good); }
 .sl-badge-paused { background: var(--sl-warn-bg); color: var(--sl-warn); }
@@ -68,7 +68,7 @@
 .sl-card { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--sl-line); border-radius: 16px; background: var(--sl-surface); }
 .sl-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .sl-root .form-field em { color: var(--sl-bad); font-style: normal; }
-.sl-field-msg { margin: -6px 0 0 4px; min-height: 0; font-size: .8rem; color: var(--sl-muted); }
+.sl-field-msg { margin: -6px 0 0 4px; min-height: 0; font-size: .8125rem; color: var(--sl-muted); }
 .sl-field-msg:empty { display: none; }
 .sl-field-msg.sl-field-error { color: var(--sl-bad); font-weight: 600; }
 .sl-root [aria-invalid="true"] { border-color: #e5a29a !important; background: var(--rs-card,#fffafa); }
@@ -86,7 +86,7 @@
 .sl-drop { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1.5px dashed var(--primary-border, #aac0ee); border-radius: 13px; background: var(--sl-primary-surface); cursor: pointer; }
 .sl-drop:hover, .sl-drop-active { border-color: var(--sl-primary); }
 .sl-drop svg { width: 26px; height: 26px; color: var(--sl-primary); }
-.sl-drop small { display: block; margin-top: 3px; font-size: .8rem; }
+.sl-drop small { display: block; margin-top: 3px; font-size: .8125rem; }
 .sl-file:focus-visible + .sl-drop { outline: 3px solid var(--primary-border, color-mix(in srgb,var(--rs-accent,#2563eb) 35%,transparent)); outline-offset: 2px; border-color: var(--sl-primary); }
 .sl-upload { display: grid; gap: 6px; padding: 12px; border: 1px solid var(--sl-line); border-radius: 12px; }
 .sl-upload[hidden] { display: none; }
@@ -100,17 +100,17 @@
 .sl-player video { display: block; width: 100%; max-height: 320px; border-radius: 12px; background: #000; }
 
 .sl-radios { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; border: 0; }
-.sl-radios legend { margin-bottom: 8px; padding: 0; font-size: .78rem; font-weight: 600; color: #536058; margin-left: 4px; }
+.sl-radios legend { margin-bottom: 8px; padding: 0; font-size: .8125rem; font-weight: 600; color: #536058; margin-left: 4px; }
 .sl-radio { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--sl-line); border-radius: var(--sl-radius); cursor: pointer; }
 .sl-radio:has(input:checked) { border-color: var(--sl-primary); background: var(--sl-primary-surface); }
 .sl-radio input { margin-top: 3px; accent-color: var(--sl-primary); }
-.sl-radio small { display: block; margin-top: 2px; font-size: .8rem; }
+.sl-radio small { display: block; margin-top: 2px; font-size: .8125rem; }
 .sl-loop[hidden] { display: none; }
 .sl-loop { display: grid; gap: 8px; max-width: 280px; }
 
 .sl-slots { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .sl-slot fieldset { margin: 0; padding: 12px; border: 1px solid var(--sl-line); border-radius: 12px; min-width: 0; }
-.sl-slot legend { padding: 0 6px; font-size: .8rem; font-weight: 800; color: var(--sl-muted); }
+.sl-slot legend { padding: 0 6px; font-size: .8125rem; font-weight: 800; color: var(--sl-muted); }
 .sl-slot-error fieldset { border-color: #e5a29a; background: var(--sl-bad-bg); }
 .sl-slot-conflict fieldset { border-color: #f0b35a; background: var(--sl-warn-bg); box-shadow: inset 4px 0 0 var(--sl-warn); }
 .sl-slot-fields { display: grid; grid-template-columns: 130px repeat(4, minmax(0, 1fr)) auto; gap: 10px; align-items: end; }

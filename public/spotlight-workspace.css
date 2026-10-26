@@ -1,17 +1,17 @@
 .sw-shell { display: grid; gap: 18px; }
 .sw-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; }
 .sw-metric { padding: 18px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow-card); }
-.sw-metric span { display: flex; align-items: center; justify-content: space-between; color: var(--text-muted); font-size: .72rem; font-weight: 750; }
+.sw-metric span { display: flex; align-items: center; justify-content: space-between; color: var(--text-muted); font-size: .8125rem; font-weight: 750; }
 .sw-metric svg { width: 17px; color: var(--primary); }
 .sw-metric strong { display: block; margin-top: 8px; color: var(--text-primary); font: 850 1.7rem/1 Manrope,Inter,sans-serif; }
 .sw-layout { display: grid; grid-template-columns: minmax(340px,.8fr) minmax(420px,1.2fr); gap: 18px; align-items: start; }
 .sw-panel { overflow: hidden; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-card); }
 .sw-panel-head { display: flex; justify-content: space-between; gap: 16px; padding: 19px 20px; border-bottom: 1px solid var(--border); }
 .sw-panel-head h2 { margin: 0; color: var(--text-primary); font: 800 1rem/1.2 Manrope,Inter,sans-serif; }
-.sw-panel-head p { margin: 5px 0 0; color: var(--text-muted); font-size: .72rem; }
+.sw-panel-head p { margin: 5px 0 0; color: var(--text-muted); font-size: .8125rem; }
 .sw-panel-body { padding: 20px; }
 .sw-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
-.sw-form label { display: grid; gap: 6px; color: var(--text-secondary); font-size: .7rem; font-weight: 750; }
+.sw-form label { display: grid; gap: 6px; color: var(--text-secondary); font-size: .8125rem; font-weight: 750; }
 .sw-form label.wide { grid-column: 1/-1; }
 .sw-form input,.sw-form select,.sw-form textarea { width: 100%; min-width: 0; padding: 10px 11px; border: 1px solid var(--border); border-radius: 10px; outline: 0; color: var(--text-primary); background: var(--surface-soft); font: inherit; font-weight: 500; }
 .sw-form textarea { min-height: 88px; resize: vertical; }
@@ -37,15 +37,15 @@
 .sw-card-copy { min-width: 0; }
 .sw-card-top { display: flex; justify-content: space-between; gap: 10px; }
 .sw-card h3 { margin: 2px 0 5px; color: var(--text-primary); font: 780 .88rem/1.25 Manrope,Inter,sans-serif; }
-.sw-card p { display: -webkit-box; margin: 0; overflow: hidden; color: var(--text-muted); font-size: .7rem; line-height: 1.45; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.sw-card p { display: -webkit-box; margin: 0; overflow: hidden; color: var(--text-muted); font-size: .8125rem; line-height: 1.45; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .sw-card-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
-.sw-pill { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border: 1px solid var(--border); border-radius: 999px; color: var(--text-muted); background: var(--surface); font-size: .62rem; font-weight: 750; text-transform: capitalize; }
+.sw-pill { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border: 1px solid var(--border); border-radius: 999px; color: var(--text-muted); background: var(--surface); font-size: .8125rem; font-weight: 750; text-transform: capitalize; }
 .sw-pill.pending,.sw-pill.scheduled,.sw-pill.needs-changes { color: var(--gold-text); border-color: var(--gold-border); background: var(--gold-surface); }
 .sw-pill.live,.sw-pill.approved { color: var(--primary); border-color: var(--primary-border); background: var(--primary-surface); }
 .sw-card-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
 .sw-card-actions .aw-button { min-height: 34px; padding: 7px 10px; }
 .sw-moderation { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
-.sw-moderation label { display: grid; gap: 5px; color: var(--text-muted); font-size: .62rem; font-weight: 750; }
+.sw-moderation label { display: grid; gap: 5px; color: var(--text-muted); font-size: .8125rem; font-weight: 750; }
 .sw-moderation .wide { grid-column: 1/-1; }
 .sw-moderation input,.sw-moderation select,.sw-moderation textarea { width: 100%; min-width: 0; padding: 8px 9px; border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); background: var(--surface); font: inherit; }
 .sw-moderation textarea { min-height: 62px; resize: vertical; }

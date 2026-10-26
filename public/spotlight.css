@@ -46,12 +46,12 @@ body.spotlight-page { margin: 0; overflow: hidden; background: var(--background)
 .spotlight-avatar { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; overflow: hidden; border: 2px solid rgba(255,255,255,.88); border-radius: 50%; background: var(--primary-gradient); }
 .spotlight-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .spotlight-identity strong { display: inline-flex; align-items: center; gap: 5px; color: #fff; font-size: .83rem; }
-.spotlight-identity span { display: block; margin-top: 2px; color: var(--spotlight-copy-muted); font-size: .69rem; }
+.spotlight-identity span { display: block; margin-top: 2px; color: var(--spotlight-copy-muted); font-size: .8125rem; }
 .spotlight-identity strong svg { width: 15px; height: 15px; color: hsl(var(--primary-h), 100%, 73%); fill: var(--primary); }
 .spotlight-follow { min-height: 32px; margin-left: auto; padding: 0 13px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; color: white; background: var(--primary-gradient); font: 800 .69rem/1 Inter,sans-serif; cursor: pointer; }
 .spotlight-follow.is-active { color: white; background: rgba(2,6,23,.45); box-shadow: none; }
 .spotlight-copy h2 { margin: 0 0 6px; color: white; font: 820 clamp(1.25rem,2.5vw,1.65rem)/1.12 Manrope,Inter,sans-serif; letter-spacing: -.025em; }
-.spotlight-copy p { display: -webkit-box; max-width: 39ch; margin: 0; overflow: hidden; color: rgba(255,255,255,.82); font-size: .78rem; line-height: 1.5; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.spotlight-copy p { display: -webkit-box; max-width: 39ch; margin: 0; overflow: hidden; color: rgba(255,255,255,.82); font-size: .8125rem; line-height: 1.5; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .spotlight-preview-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
 .spotlight-primary-cta { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; gap: 7px; padding: 0 15px; border: 0; border-radius: 999px; color: white; background: var(--primary-gradient); box-shadow: var(--primary-glow); font: 800 .72rem/1 Inter,sans-serif; text-decoration: none; cursor: pointer; }
 .spotlight-preview-meta { color: rgba(255,255,255,.7); font: 700 .66rem/1 Inter,sans-serif; }
@@ -65,7 +65,7 @@ body.spotlight-page { margin: 0; overflow: hidden; background: var(--background)
 .spotlight-feature-card .spotlight-copy h2 { font-size: clamp(1.55rem,3vw,2rem); }
 .spotlight-feature-card .spotlight-actions { display: flex; }
 .spotlight-feature-card .spotlight-primary-cta { width: 100%; margin-top: 10px; border-radius: 14px; }
-.spotlight-member-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: rgba(255,255,255,.72); font-size: .68rem; font-weight: 700; }
+.spotlight-member-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: rgba(255,255,255,.72); font-size: .8125rem; font-weight: 700; }
 .spotlight-member-faces { display: flex; }
 .spotlight-member-faces span { width: 24px; height: 24px; margin-left: -6px; border: 2px solid rgba(2,6,23,.8); border-radius: 50%; background: var(--primary-gradient); }
 .spotlight-member-faces span:first-child { margin-left: 0; }
@@ -81,16 +81,16 @@ body.spotlight-page { margin: 0; overflow: hidden; background: var(--background)
 .spotlight-inspector-body { min-height: 0; overflow-y: auto; padding: 4px 20px 20px; }
 .spotlight-comment { display: grid; grid-template-columns: 36px minmax(0,1fr); gap: 11px; padding: 17px 0; border-bottom: 1px solid var(--spotlight-line); }
 .spotlight-comment-avatar { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 50%; color: white; background: var(--primary-gradient); }
-.spotlight-comment strong { font-size: .73rem; }
-.spotlight-comment p { margin: 5px 0 7px; color: var(--spotlight-copy-muted); font-size: .73rem; line-height: 1.45; }
-.spotlight-comment small { color: var(--spotlight-copy-muted); font-size: .62rem; }
+.spotlight-comment strong { font-size: .8125rem; }
+.spotlight-comment p { margin: 5px 0 7px; color: var(--spotlight-copy-muted); font-size: .8125rem; line-height: 1.45; }
+.spotlight-comment small { color: var(--spotlight-copy-muted); font-size: .8125rem; }
 .spotlight-comment-empty { display: grid; min-height: 100%; place-content: center; justify-items: center; padding: 40px 10px; text-align: center; color: var(--spotlight-copy-muted); }
 .spotlight-comment-empty svg { width: 30px; height: 30px; margin-bottom: 10px; color: var(--primary); }
 .spotlight-detail-card { margin-top: 16px; padding: 18px; border: 1px solid var(--spotlight-line); border-radius: 16px; background: var(--spotlight-panel-soft); }
 .spotlight-detail-card h3 { margin: 0 0 8px; color: var(--spotlight-copy); font: 800 1rem/1.2 Manrope,sans-serif; }
-.spotlight-detail-card p { color: var(--spotlight-copy-muted); font-size: .76rem; line-height: 1.55; }
+.spotlight-detail-card p { color: var(--spotlight-copy-muted); font-size: .8125rem; line-height: 1.55; }
 .spotlight-detail-list { display: grid; gap: 10px; margin-top: 16px; }
-.spotlight-detail-list span { display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid var(--spotlight-line); color: var(--spotlight-copy-muted); font-size: .68rem; }
+.spotlight-detail-list span { display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid var(--spotlight-line); color: var(--spotlight-copy-muted); font-size: .8125rem; }
 .spotlight-detail-list strong { color: var(--spotlight-copy); }
 .spotlight-comment-form { display: grid; grid-template-columns: 36px minmax(0,1fr) 36px; align-items: center; gap: 9px; padding: 14px 16px; border-top: 1px solid var(--spotlight-line); }
 .spotlight-comment-form[hidden] { display:none; }
@@ -105,7 +105,7 @@ body.spotlight-page { margin: 0; overflow: hidden; background: var(--background)
 .spotlight-about > button { position: absolute; top: 15px; right: 15px; display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid var(--border); border-radius: 50%; color: var(--text-secondary); background: var(--surface-soft); }
 .spotlight-about h2 { margin: 8px 0; font: 820 1.7rem/1.15 Manrope,sans-serif; }
 .spotlight-about p,.spotlight-about li { color: var(--text-secondary); line-height: 1.6; }
-.spotlight-eyebrow { color: var(--primary); font-size: .67rem; font-weight: 850; letter-spacing: .15em; }
+.spotlight-eyebrow { color: var(--primary); font-size: .8125rem; font-weight: 850; letter-spacing: .15em; }
 @media (max-width: 1100px) { .spotlight-layout { grid-template-columns: minmax(350px,450px) minmax(280px,340px); } .spotlight-desktop-pager { display: none; } }
 @media (max-width: 760px) {
   :root { --spotlight-shadow: none; }
