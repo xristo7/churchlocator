@@ -149,3 +149,7 @@
   .rsc-tiles{grid-template-columns:1fr 1fr;gap:12px}
 }
 @media (max-width:380px){.rsc-tiles{grid-template-columns:1fr}}
+.rsc-filter{flex:none}
+.rsc-filter-btn,.rsc-btn{white-space:nowrap;word-break:normal}
+.rsc-dir-hero p,.rsc-hero p,.rsc-hero h1,.rsc-dir-hero h1{color:#fff!important}
+.rsc-dir-hero p,.rsc-hero p{opacity:.9}
