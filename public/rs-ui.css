@@ -231,3 +231,8 @@ html body .member-header-giving.mwe-header-spotlight,html body .profile-mobile-m
 .cs-upgrade{background:var(--rs-card-bg)!important;border-color:var(--rs-line-tint)!important}
 .cs-upgrade p{color:var(--rs-muted)}
 .mwe-live-card :is(p,small,span):not(.mwe-live-badge),.live-card-meta,.live-card :is(p,small){font-size:15px}
+/* Expand hit areas of inline title links without shifting layout */
+:is(.channel-profile-identity,.sf-card-body,.resource-card-body,.rsc-card-body) h3>a,.member-auth-hint a{display:inline-block;padding-block:12px;margin-block:-12px}
+.sf-card-title{font-size:15px!important}
+.member-auth-icon,.mwe-password-toggle,.drawer-close{min-width:44px!important;min-height:44px!important}
+html body .profile-app-header .member-header-giving.mwe-header-spotlight:not(#mwe-x){height:44px!important;min-height:44px!important}
