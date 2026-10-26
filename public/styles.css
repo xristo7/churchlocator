@@ -2056,6 +2056,13 @@ tr:last-child td {
   transform: translateX(-50%) translateY(0);
 }
 
+/* Hidden toasts must not peek out as a dark dot when lifted above the mobile tab bar. */
+.toast:not(.show):not(.visible) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .empty {
   padding: 24px;
   color: var(--muted);
