@@ -307,21 +307,18 @@
     return ["messages", "profile", "security", "store-manager", "cart", "checkout"].includes(view);
   }
 
+  function signedOutSource(route) {
+    return `signed-out.html?view=${encodeURIComponent(route.view)}&next=${encodeURIComponent(buildShellUrl(route))}`;
+  }
+
   function loadRoute(route, options = {}) {
     const safeRoute = views[route.view] ? route : { view: "directory", id: "", q: "", compose: "" };
-    if (isProtectedView(safeRoute.view) && !isAuthenticated()) {
-      const destination = buildShellUrl(safeRoute);
-      if (window.MWE?.openMemberLogin) {
-        window.MWE.openMemberLogin(destination, { locked: true });
-      } else {
-        window.location.href = `index.html?login=required&next=${encodeURIComponent(destination)}`;
-      }
-      return;
-    }
+    // Private views show a normal signed-out state in place; sign-in is offered, never forced.
+    const signedOut = isProtectedView(safeRoute.view) && !isAuthenticated();
 
     loading?.classList.remove("is-hidden");
     frame.classList.remove("is-ready");
-    frame.src = buildSource(safeRoute);
+    frame.src = signedOut ? signedOutSource(safeRoute) : buildSource(safeRoute);
     frame.title = views[safeRoute.view].title;
     document.title = `${views[safeRoute.view].title} | RhemaSphere`;
     setActiveNavigation(safeRoute.view);
@@ -589,10 +586,8 @@
     if (platformResolved && !window.MWEPlatform.session) { localStorage.removeItem("mwe.userLoggedIn"); localStorage.removeItem("mwe.username"); }
     syncMemberIdentity();
     const route = getRoute();
-    if (isProtectedView(route.view) && !isAuthenticated()) {
-      frame.src = "about:blank";
-      loadRoute({ view: "directory", id: "", q: "", compose: "" }, { history: false });
-      window.MWE?.openMemberLogin?.(buildShellUrl(route), { locked: true });
+    if (isProtectedView(route.view) && !isAuthenticated() && !String(frame.src).includes("signed-out.html")) {
+      frame.src = signedOutSource(route);
     }
   });
   window.lucide?.createIcons();

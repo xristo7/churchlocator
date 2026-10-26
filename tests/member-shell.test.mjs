@@ -207,9 +207,11 @@ test("channel cards have two actions and public channel pages do not trigger the
     readProjectFile("public/channel-detail.js"),
     readProjectFile("public/styles.css")
   ]);
-  const guards = app.match(/const isProtectedDetail = ([^;]+);/g) || [];
-  assert.equal(guards.length, 2);
-  for (const guard of guards) assert.doesNotMatch(guard, /channel-detail|channel-content/);
+  // Public detail pages never open a blocking sign-in modal; only private views get a signed-out state.
+  assert.doesNotMatch(app, /isProtectedDetail/);
+  const guard = app.match(/const isPrivateView = ([^;]+);/)?.[1] || "";
+  assert.doesNotMatch(guard, /channel-detail|channel-content|"church"|"event"|livestream/);
+  assert.doesNotMatch(app, /will open inside the RhemaSphere app/);
   assert.match(channels, /Open Channel/);
   assert.match(channels, /Get in touch/);
   assert.match(channels, /Number\.isFinite\(count\) \? count : 0/);
@@ -329,11 +331,14 @@ test("cart removal, dedicated reader, and compact audio notes are wired", async 
   assert.match(channelContent, /channel-episode-about/);
 });
 
-test("protected cards use the shared member login gate", async () => {
+test("private views show a signed-out state instead of a blocking login modal", async () => {
   const app = await readProjectFile("public/app.js");
+  const shell = await readProjectFile("public/app-shell.js");
 
-  assert.match(app, /isProtectedDetail/);
-  assert.match(app, /MWE\.openMemberLogin\(MWE\.buildMemberShellUrl\(route\)\)/);
+  assert.match(app, /isPrivateView/);
+  assert.doesNotMatch(app, /locked: true/);
+  assert.doesNotMatch(shell, /locked: true/);
+  assert.match(shell, /signed-out\.html\?view=/);
   assert.match(app, /localStorage\.setItem\("mwe\.userLoggedIn", "true"\)/);
 });
 
