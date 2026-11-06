@@ -258,6 +258,7 @@
     return {
       view,
       id: params.get("id") || "",
+      session: params.get("session") || "",
       q: params.get("q") || "",
       ministry: params.get("ministry") || "",
       compose: params.get("compose") || "",
@@ -275,6 +276,7 @@
     if (route.compose) source.searchParams.set("compose", route.compose);
     if (route.view === "channel-content" && route.id) source.searchParams.set("channel", route.id);
     if (route.view === "meditation" && route.id) source.searchParams.set("room", route.id);
+    if (route.view === "meditation" && route.session) source.searchParams.set("session", route.session);
     if (route.view === "channel-live" && route.post) source.searchParams.set("session", route.post);
     if (route.post) source.searchParams.set("post", route.post);
     return source.toString();
@@ -290,6 +292,7 @@
   if (route.ministry) target.searchParams.set("ministry", route.ministry);
     if (route.compose) target.searchParams.set("compose", route.compose);
     if (route.post) target.searchParams.set("post", route.post);
+    if (route.view === "meditation" && route.session) target.searchParams.set("session", route.session);
     return `${target.pathname.split("/").pop()}${target.search}`;
   }
 
@@ -558,6 +561,14 @@
   window.addEventListener("message", event => {
     if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
     const message = event.data || {};
+    if (message.type === "faithlink:meditation-session") {
+      const route = getRoute();
+      if (route.view === "meditation" && route.id === message.roomId && /^[\w-]{1,128}$/.test(message.session || "")) {
+        route.session = message.session;
+        history.replaceState({route}, "", buildShellUrl(route));
+      }
+      return;
+    }
     if (message.type === "mwe:profile-updated" && message.user) {
       window.MWEAuth?.applySession(message.user).then(syncMemberIdentity);
       return;
@@ -574,7 +585,7 @@
       return;
     }
     if (!views[message.view]) return;
-    loadRoute({ view: message.view, id: message.id || "", q: message.q || "", post: message.post || "", compose: message.compose || "" });
+    loadRoute({ view: message.view, id: message.id || "", q: message.q || "", post: message.post || "", compose: message.compose || "", session: message.session || "" });
   });
 
   window.addEventListener("popstate", () => loadRoute(getRoute(), { history: false }));

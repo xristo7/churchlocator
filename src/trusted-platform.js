@@ -1,3 +1,4 @@
+import { handleMeditationSession } from './meditation-session.js';
 import { sanitizeSoundCloudSelection } from './soundcloud.js';
 import { normalizeMinistry } from './ministries.js';
 import { ApiError, readJson } from './security.js';
@@ -224,6 +225,8 @@ export async function writeEntity(request,env,ctx,kind,id) {
  return ctx.json({ok:true,record:entityRecord(results[0].results[0])},existing?200:201);
 }
 export async function handlePlatformApi(request,env,ctx) {
+ const sessionResponse=await handleMeditationSession(request,env,ctx);
+ if(sessionResponse) return sessionResponse;
  const url=new URL(request.url), parts=url.pathname.split('/').filter(Boolean), scope=parts[1];
  if(!['catalog','taxonomies','workspace','private','admin-audit','tenant-members','resource-material','resource-comments','livestream-chat','meditation-chat'].includes(scope)) return null;
  if(!env.DB) throw new ApiError(503,'Storage unavailable.');

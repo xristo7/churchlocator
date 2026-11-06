@@ -643,7 +643,7 @@
     if (!scStarted) scStartTimer = setTimeout(() => { if (!scStarted) fallbackFromSoundCloud(); }, 6000);
   }
   function pauseSoundCloud() { scWantPlay = false; clearTimeout(scStartTimer); scWidget?.pause(); }
-  function playMp3() { if (!roomMp3) return false; roomMp3.volume = currentVolume() / 100; roomMp3.play().catch(() => { if (!isPlaying) return; isPlaying = false; stopTimerTicker(); updatePlayState(); }); return true; }
+  function playMp3() { if (!roomMp3) return false; roomMp3.volume = currentVolume() / 100; roomMp3.play().catch(() => { if (!isPlaying) return; isPlaying = false; audioJoined = false; stopTimerTicker(); updatePlayState(); playbackNotice("Tap Play to enable audio in this browser."); }); return true; }
   function pauseMp3() { roomMp3?.pause(); }
   function setRoomAudioVolume(val) { scWidget?.setVolume(val); if (roomMp3) roomMp3.volume = val / 100; }
 
@@ -912,7 +912,7 @@
 
     const primaryLabel = document.getElementById("timer-primary-label");
     const primaryIcon = document.getElementById("timer-primary-icon");
-    if (primaryLabel) primaryLabel.textContent = isPlaying ? "Pause" : "Resume";
+    if (primaryLabel) primaryLabel.textContent = !audioJoined && playbackSession?.state?.playing ? "Join audio" : isPlaying ? "Pause" : "Resume";
     if (primaryIcon) primaryIcon.setAttribute("data-lucide", isPlaying ? "pause" : "play");
     window.lucide?.createIcons();
   }
@@ -1176,10 +1176,11 @@
   }
 
   function prevScripture() {
-    if (!activeRoom) return;
+    if (!activeRoom || (playbackSession?.state && !playbackSession.canControl)) return;
     const len = activeRoom.verses?.length || 1;
     activeVerseIndex = (activeVerseIndex - 1 + len) % len;
     renderActiveMediaContent();
+    publishPlayback();
   }
 
   function isCurrentHost() {
@@ -1193,6 +1194,11 @@
   }
 
   function enterRoom(roomId, autoStartAudio = true, sessionId = null) {
+    stopSharedPlayback();
+    const params = new URLSearchParams(location.search);
+    const invitedSessionId = sessionId || (params.get('room') === roomId ? params.get('session') : null);
+    audioJoined = !invitedSessionId && !!navigator.userActivation?.hasBeenActive;
+    if (invitedSessionId) autoStartAudio = false;
     const room = roomsCatalog.find(r => r.id === roomId) || roomsCatalog[0];
     if (!room) return;
     enrichRoomWithMedia(room);
@@ -1207,7 +1213,7 @@
     activePrayerIndex = 0;
     activeWorshipIndex = 0;
     currentMediaType = "scriptures";
-    currentSessionId = sessionId || new URLSearchParams(window.location.search).get("session") || Math.random().toString(36).slice(2, 9);
+    currentSessionId = invitedSessionId || null;
 
     document.body.classList.add("in-meditation-room");
     
@@ -1318,6 +1324,7 @@
 
     // Initialize Virtual Co-Meditation Session & Live Chat
     initVirtualRoomSession(room.id, currentSessionId);
+    startSharedPlayback(room.id, invitedSessionId);
     setupChatModerationUI();
     renderChatFeed();
     startRoomChat(room.id);
@@ -1326,7 +1333,8 @@
     try {
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.set("room", room.id);
-      newUrl.searchParams.set("session", currentSessionId);
+      if (currentSessionId) newUrl.searchParams.set("session", currentSessionId);
+      else newUrl.searchParams.delete("session");
       window.history.replaceState({}, "", newUrl.toString());
     } catch (e) {}
 
@@ -1334,6 +1342,7 @@
   }
 
   function exitToLobby() {
+    stopSharedPlayback();
     pauseSoundCloud(); setupRoomAudio(null);
     isPlaying = false;
     stopAudioHarmonics();
@@ -1481,6 +1490,7 @@
   }
 
   function switchMediaType(type) {
+    if (playbackSession?.state && !playbackSession.canControl) return;
     currentMediaType = type;
     document.querySelectorAll(".sanctuary-media-tab").forEach(tab => {
       const isActive = tab.dataset.mediaType === type;
@@ -1503,7 +1513,7 @@
   }
 
   function nextVerse() {
-    if (!activeRoom) return;
+    if (!activeRoom || (playbackSession?.state && !playbackSession.canControl)) return;
     if (currentMediaType === "pictures") {
       const len = activeRoom.pictures?.length || 1;
       activePictureIndex = (activePictureIndex + 1) % len;
@@ -1521,9 +1531,11 @@
       activeVerseIndex = (activeVerseIndex + 1) % len;
     }
     renderActiveMediaContent();
+    publishPlayback();
   }
 
   function selectInRoomAudio(type) {
+    if (!applyingPlayback && playbackSession?.state && !playbackSession.canControl) return;
     activeAudioType = type;
 
     if (type === "silence") {
@@ -1545,9 +1557,124 @@
     }
 
     updatePlayState();
+    publishPlayback();
   }
 
+  let playbackSession = null;
+  let applyingPlayback = false;
+  let audioJoined = false;
+  let playbackQueue = Promise.resolve();
+
+  function playbackSnapshot() {
+    return { playing: isPlaying, position: sessionElapsedSeconds, verse: activeVerseIndex, audioType: activeAudioType };
+  }
+  function playbackNotice(message) {
+    let node = document.getElementById('meditation-sync-status');
+    if (!node) {
+      node = document.createElement('p'); node.id = 'meditation-sync-status';
+      node.setAttribute('role', 'status');
+      document.getElementById('meditation-room-view')?.prepend(node);
+    }
+    node.textContent = message;
+  }
+  function seekSharedAudio(position) {
+    if (roomMp3 && Number.isFinite(roomMp3.duration) && roomMp3.duration > 0) {
+      const target = position % roomMp3.duration;
+      if (Math.abs(roomMp3.currentTime - target) > 1.5) roomMp3.currentTime = target;
+    }
+    if (scWidget && scStarted) scWidget.getDuration(duration => {
+      if (duration > 0) scWidget.getPosition(current => {
+        const target = (position * 1000) % duration;
+        if (Math.abs(current - target) > 1500) scWidget.seekTo(target);
+      });
+    });
+  }
+  function applyPlayback(data, session) {
+    if (playbackSession !== session || session.pending || (session.state && data.session.revision < session.state.revision)) return;
+    session.state = data.session; session.canControl = data.canControl;
+    session.clockOffset = data.serverTime - Date.now();
+    const state = data.session;
+    const position = state.position + (state.playing ? Math.max(0, data.serverTime - state.updatedAt) / 1000 : 0);
+    applyingPlayback = true;
+    try {
+      sessionElapsedSeconds = activeRoom.timeMode === 'loop' ? position : Math.min(sessionTotalSeconds, position);
+      sessionRemainingSeconds = Math.max(0, sessionTotalSeconds - sessionElapsedSeconds);
+      activeVerseIndex = state.verse;
+      const wantsPlay = state.playing && (activeRoom.timeMode === 'loop' || sessionRemainingSeconds > 0);
+      const changed = isPlaying !== (wantsPlay && audioJoined) || activeAudioType !== state.audioType;
+      activeAudioType = state.audioType;
+      isPlaying = wantsPlay && audioJoined;
+      if (changed) {
+        if (isPlaying) { selectInRoomAudio(state.audioType); startAudioHarmonics(); startTimerTicker(); }
+        else { stopAudioHarmonics(); stopTimerTicker(); }
+      }
+      seekSharedAudio(position);
+      renderRoomScripture(); updatePlayState(); updateTimerDisplay();
+      playbackNotice(!audioJoined && wantsPlay ? 'Tap Play to join the session audio.' : session.canControl ? 'Shared session: you control playback.' : 'Following the host. Volume and mute stay personal.');
+    } finally { applyingPlayback = false; }
+  }
+  async function readPlayback(session) {
+    if (session.reading || session.pending || playbackSession !== session) return;
+    session.reading = true;
+    try {
+      const data = await window.MWEPlatform.api(session.path);
+      applyPlayback(data, session);
+    } catch (error) {
+      if (playbackSession === session) playbackNotice('Session connection interrupted. ' + error.message);
+    } finally { session.reading = false; }
+  }
+  async function startSharedPlayback(roomId, invitedSessionId) {
+    const session = { pending: 0, canControl: false, state: null, path: 'meditation-session/' + encodeURIComponent(roomId) };
+    playbackSession = session;
+    playbackNotice('Connecting shared session…');
+    try {
+      const data = invitedSessionId
+        ? await window.MWEPlatform.api(session.path + '/' + encodeURIComponent(invitedSessionId))
+        : await window.MWEPlatform.api(session.path, playbackSnapshot());
+      if (playbackSession !== session) return;
+      session.path += '/' + encodeURIComponent(data.session.id);
+      currentSessionId = data.session.id;
+      initVirtualRoomSession(roomId, currentSessionId);
+      const url = new URL(location.href); url.searchParams.set('session', currentSessionId);
+      history.replaceState({}, '', url);
+      window.parent?.postMessage({type:'faithlink:meditation-session', roomId, session:currentSessionId}, location.origin);
+      applyPlayback(data, session);
+      session.timer = setInterval(() => readPlayback(session), 1500);
+    } catch (error) {
+      if (playbackSession === session) { playbackNotice('Shared session unavailable. ' + error.message); session.failed = true; }
+    }
+  }
+  function publishPlayback() {
+    const session = playbackSession;
+    if (applyingPlayback || !session?.state || !session.canControl) return;
+    const snapshot = playbackSnapshot(); session.pending++;
+    playbackQueue = playbackQueue.catch(() => {}).then(async () => {
+      if (playbackSession !== session) return;
+      try {
+        const data = await window.MWEPlatform.api(session.path, {...snapshot, revision:session.state.revision}, 'PUT');
+        session.state = data.session;
+      } catch (error) { if (playbackSession === session) showToast('Playback not shared: ' + error.message); }
+      finally { session.pending--; }
+      if (!session.pending) await readPlayback(session);
+    });
+  }
+  function stopSharedPlayback() {
+    if (playbackSession) clearInterval(playbackSession.timer);
+    playbackSession = null;
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && playbackSession?.state) readPlayback(playbackSession);
+  });
+
   function togglePlay() {
+    if (playbackSession && !playbackSession.state && !playbackSession.failed) { showToast("Connecting to the session. Please try again shortly."); return; }
+    if (playbackSession?.state && (!playbackSession.canControl || (!audioJoined && playbackSession.state.playing))) {
+      audioJoined = !audioJoined || !isPlaying;
+      if (!playbackSession.canControl && isPlaying) audioJoined = false;
+      applyPlayback({session:playbackSession.state,canControl:playbackSession.canControl,serverTime:Date.now() + (playbackSession.clockOffset || 0)}, playbackSession);
+      return;
+    }
+    audioJoined = true;
     isPlaying = !isPlaying;
     if (isPlaying) {
       if (activeAudioType === "silence") activeAudioType = activeRoom?.selectedAudio || "bible";
@@ -1560,6 +1687,7 @@
     }
     updatePlayState();
     updateTimerDisplay();
+    publishPlayback();
   }
 
   function updatePlayState() {
@@ -1570,7 +1698,7 @@
 
     const primaryLabel = document.getElementById("timer-primary-label");
     const primaryIcon = document.getElementById("timer-primary-icon");
-    if (primaryLabel) primaryLabel.textContent = isPlaying ? "Pause" : "Resume";
+    if (primaryLabel) primaryLabel.textContent = !audioJoined && playbackSession?.state?.playing ? "Join audio" : isPlaying ? "Pause" : "Resume";
     if (primaryIcon) primaryIcon.setAttribute("data-lucide", isPlaying ? "pause" : "play");
 
     window.lucide?.createIcons();
@@ -1671,6 +1799,7 @@
     const modal = document.getElementById("modal-invite-friend");
     const shareInput = document.getElementById("invite-share-url");
     if (!modal || !shareInput || !activeRoom) return;
+    if (!playbackSession?.state) { showToast("Wait for the shared session to connect before inviting someone."); return; }
 
     const shareUrl = window.location.origin + window.location.pathname + "?room=" + encodeURIComponent(activeRoom.id) + "&session=" + encodeURIComponent(currentSessionId);
     shareInput.value = shareUrl;
@@ -2005,12 +2134,9 @@
 
     function renderReflectionList() {
       if (!activeRoom || !listEl) return;
-      const key = "mwe.meditation.reflections." + activeRoom.id;
-      let notes = [];
-      try {
-        const raw = localStorage.getItem(key);
-        if (raw) notes = JSON.parse(raw);
-      } catch (e) {}
+      const notes = (window.MWEPrivate?.get("reflection") || [])
+        .filter(note => note.entityId === activeRoom.id)
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
 
       if (!notes.length) {
         listEl.innerHTML = '<p class="empty-hint">No reflection notes written yet for this sanctuary session.</p>';
@@ -2044,6 +2170,10 @@
         if (modalTitle) modalTitle.textContent = isJoy ? "Record a Praise / Reflection" : "Write a Reflection Note";
         if (noteText) noteText.placeholder = isJoy ? "What praise or grateful prayer fills your heart?" : "What scripture, prayer, or revelation is speaking to you right now?";
         renderReflectionList();
+        if (saveBtn) saveBtn.disabled = true;
+        Promise.resolve(window.MWEPrivate?.refresh())
+          .then(renderReflectionList).catch(error => showToast(error.message))
+          .finally(() => { if (saveBtn) saveBtn.disabled = false; });
         modal?.showModal?.();
         window.lucide?.createIcons();
       });
@@ -2054,23 +2184,22 @@
     if (saveBtn) {
       saveBtn.addEventListener("click", async () => {
         if (!activeRoom || !noteText || !noteText.value.trim()) return;
-        const key = "mwe.meditation.reflections." + activeRoom.id;
-        let notes = [];
+        if (saveBtn.disabled) return;
+        const text = noteText.value.trim(), roomId = activeRoom.id;
+        const label = saveBtn.textContent;
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving…";
         try {
-          const raw = localStorage.getItem(key);
-          if (raw) notes = JSON.parse(raw);
-        } catch (e) {}
-
-        notes.unshift({
-          text: noteText.value.trim(),
-          date: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + ", " + new Date().toLocaleDateString(),
-          template: activeRoom.template || "timer"
-        });
-
-        try { await window.MWEPrivate.create("reflection", {...notes[0], entityId:activeRoom.id}); } catch(error) { showToast(error.message); return; }
-        noteText.value = "";
-        renderReflectionList();
-        showToast("Reflection note saved to your sanctuary log!");
+          if (!window.MWEPrivate) throw new Error("Sign in to save your reflection.");
+          await window.MWEPrivate.create("reflection", {
+            text, entityId: roomId, date: new Date().toLocaleString(),
+            template: activeRoom.template || "timer"
+          });
+          if (activeRoom?.id === roomId && noteText.value.trim() === text) noteText.value = "";
+          renderReflectionList();
+          showToast("Reflection saved privately to your account.");
+        } catch (error) { showToast("Reflection not saved: " + error.message); }
+        finally { saveBtn.disabled = false; saveBtn.textContent = label; }
       });
     }
 
@@ -2096,7 +2225,7 @@
     const journeyForward15 = document.getElementById("btn-journey-forward-15");
 
     function skipTime(delta) {
-      if (!activeRoom) return;
+      if (!activeRoom || (playbackSession?.state && !playbackSession.canControl)) return;
       if (activeRoom.timeMode === "loop") {
         sessionElapsedSeconds = Math.max(0, sessionElapsedSeconds + delta);
       } else {
@@ -2104,6 +2233,8 @@
         sessionRemainingSeconds = Math.max(0, sessionTotalSeconds - sessionElapsedSeconds);
       }
       updateTimerDisplay();
+      seekSharedAudio(sessionElapsedSeconds);
+      publishPlayback();
     }
 
     if (replay15) replay15.addEventListener("click", () => skipTime(-15));
@@ -2124,12 +2255,15 @@
       if (!track) return;
       track.addEventListener("click", e => {
         if (!activeRoom || activeRoom.timeMode === "loop" || !sessionTotalSeconds) return;
+        if (playbackSession?.state && !playbackSession.canControl) return;
         const rect = track.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
         const fraction = Math.max(0, Math.min(1, clickX / rect.width));
         sessionElapsedSeconds = Math.floor(fraction * sessionTotalSeconds);
         sessionRemainingSeconds = Math.max(0, sessionTotalSeconds - sessionElapsedSeconds);
         updateTimerDisplay();
+        seekSharedAudio(sessionElapsedSeconds);
+        publishPlayback();
       });
     });
 
@@ -2190,17 +2324,6 @@
           showToast("Interval chime disabled");
         }
         window.lucide?.createIcons();
-      });
-    }
-
-    const endSessionBtn = document.getElementById("btn-timer-end-session");
-    if (endSessionBtn) {
-      endSessionBtn.addEventListener("click", () => {
-        stopTimerTicker();
-        stopAudioHarmonics();
-        isPlaying = false;
-        updatePlayState();
-        exitToLobby();
       });
     }
 
@@ -2372,7 +2495,10 @@
       togglePlay();
     });
 
-    document.getElementById("btn-timer-end-session")?.addEventListener("click", () => {
+    document.getElementById("btn-timer-end-session")?.addEventListener("click", async () => {
+      isPlaying = false; stopTimerTicker(); stopAudioHarmonics();
+      publishPlayback();
+      await playbackQueue;
       playIntervalBell(432);
       exitToLobby();
       showToast("Sanctuary session ended.");
