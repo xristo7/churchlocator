@@ -5,29 +5,39 @@ import vm from 'node:vm';
 
 const read = p => readFile(new URL(`../${p}`, import.meta.url), 'utf8');
 
-test('church list, profile and channel pages are driven by church-directory.js and /api/churches', async () => {
-  const [list, profile, channel, js, worker] = await Promise.all([
-    read('public/churches.html'), read('public/church-profile.html'), read('public/church-channel.html'),
+test('church list and channel pages are driven by church-directory.js and /api/churches', async () => {
+  const [list, channel, js, worker] = await Promise.all([
+    read('public/churches.html'), read('public/church-channel.html'),
     read('public/church-directory.js'), read('src/worker.js')
   ]);
   assert.match(list, /data-page="church-directory"/);
   assert.match(list, /id="rsc-directory"/);
-  assert.match(profile, /data-page="church-detail"/);
-  assert.match(profile, /id="rsc-profile"/);
   assert.match(channel, /data-page="church-channel"/);
   assert.match(channel, /id="rsc-channel"/);
-  for (const html of [list, profile, channel]) assert.match(html, /church-directory\.js/);
+  for (const html of [list, channel]) assert.match(html, /church-directory\.js/);
   assert.match(js, /\/api\/churches/);
-  for (const act of ['visit', 'ride', 'message', 'follow', 'save', 'share']) assert.match(js, new RegExp(`data-act="${act}"`), `profile needs ${act} action`);
-  assert.match(js, /serviceLine/);
   assert.match(js, /\/api\/visitor/);
   assert.match(js, /requireSignIn/);
   assert.match(worker, /canMessage/);
 });
 
-test('State/Province filter is hidden when no church has a state', async () => {
+// Decision (7 Nov 2026): the church profile keeps the standalone page the client reviewed on preview,
+// not the church-directory.js profile from PR #10. It carries the hero slideshow and the four tabs from brief item 06.
+test('church profile is the standalone page with a hero slideshow and Overview, Schedule, Events and Location tabs', async () => {
+  const profile = await read('public/church-profile.html');
+  assert.match(profile, /data-page="profile"/);
+  assert.match(profile, /id="church-hero-showcase"/);
+  assert.match(profile, /church-hero-slide/);
+  for (const tab of ['Overview', 'Schedule', 'Events', 'Location']) assert.match(profile, new RegExp('>' + tab + '<'), `profile needs the ${tab} tab`);
+  assert.doesNotMatch(profile, /id="rsc-profile"/, 'the PR #10 profile mount must not replace the standalone page');
+});
+
+// The region filter is now driven by the full geography list in geo-regions.js (country -> state/province/territory,
+// UK nation -> county). The old "hide when no church lists a state" rule remains only as the fallback without that list.
+test('State/Province filter uses the geography list and hides only in the no-geography fallback', async () => {
   const js = await read('public/church-directory.js');
-  assert.match(js, /key === 'region'[\s\S]{0,80}!churches\.some\(c => c\.state\)/);
+  assert.match(js, /G\.pickList\(r\.code\)/);
+  assert.match(js, /const none = !churches\.some\(c => c\.state\); f\.hidden = none/);
 });
 
 test('Live badge reads the /api/live/directory shape (broadcasts.churchId and stages.channelId -> tenant)', async () => {
