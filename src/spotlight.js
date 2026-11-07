@@ -77,6 +77,8 @@ function itemRecord(row) {
     comments: Number(row.comments || 0),
     liked: Boolean(row.liked),
     saved: Boolean(row.saved)
+    ,disliked: Boolean(row.disliked)
+    ,followers: row.followers == null ? null : Number(row.followers)
     ,following: Boolean(row.following)
     ,reminderAt: row.reminder_at || null
     ,channelUrl: row.channel_entity_id ? 'app.html?view=channel-detail&id=' + encodeURIComponent(row.channel_entity_id) : null
@@ -141,6 +143,7 @@ async function listFeed(request, env, ctx) {
       (select count(*) from spotlight_comments c where c.item_id=s.id and c.status='visible') comments,
       exists(select 1 from spotlight_engagements e where e.item_id=s.id and e.user_id=? and e.action='like') liked,
       exists(select 1 from spotlight_engagements e where e.item_id=s.id and e.user_id=? and e.action='save') saved,
+      exists(select 1 from spotlight_engagements e where e.item_id=s.id and e.user_id=? and e.action='dislike') disliked,
       exists(select 1 from channel_follows f where f.channel_id=s.channel_entity_id and f.user_id=?) following,
       (select due_at from spotlight_reminders r where r.item_id=s.id and r.user_id=? and r.delivered_at is null) reminder_at
     from spotlight_items s
@@ -152,7 +155,7 @@ async function listFeed(request, env, ctx) {
     and exists(select 1 from platform_entities channel where channel.id=s.channel_entity_id and channel.kind='channels' and channel.state='published')
     order by s.priority desc, coalesce(s.published_at,s.scheduled_at,s.updated_at) desc
     limit 100
-  `).bind(user?.id || '', user?.id || '', user?.id || '', user?.id || '', now, now, now).all();
+  `).bind(user?.id || '', user?.id || '', user?.id || '', user?.id || '', user?.id || '', now, now, now).all();
   return ctx.json({ ok: true, items: (results || []).map(itemRecord) });
 }
 
@@ -259,16 +262,20 @@ async function engage(request, env, ctx, itemId) {
     else await env.DB.prepare('delete from channel_follows where user_id=? and channel_id=?').bind(user.id,item.channel_entity_id).run();
     return ctx.json({ok:true,active:input.active});
   }
-  if (['like', 'save'].includes(action)) {
-    if (typeof input.active === 'boolean') {
-      if (input.active) await env.DB.prepare('insert into spotlight_engagements values (?,?,?,?) on conflict do nothing').bind(itemId,user.id,action,now).run();
-      else await env.DB.prepare('delete from spotlight_engagements where item_id=? and user_id=? and action=?').bind(itemId,user.id,action).run();
-      return ctx.json({ok:true,active:input.active,item:await memberItem(env,itemId,user.id)});
-    }
+  if (['like', 'dislike', 'save'].includes(action)) {
+    // A member rates a post either liked or disliked, never both. Dislikes stay private: no public total is exposed.
+    const opposite = action === 'like' ? 'dislike' : action === 'dislike' ? 'like' : null;
     const existing = await env.DB.prepare('select action from spotlight_engagements where item_id=? and user_id=? and action=?').bind(itemId, user.id, action).first();
-    if (existing) await env.DB.prepare('delete from spotlight_engagements where item_id=? and user_id=? and action=?').bind(itemId, user.id, action).run();
-    else await env.DB.prepare('insert into spotlight_engagements values (?,?,?,?)').bind(itemId, user.id, action, now).run();
-    return ctx.json({ ok: true, active: !existing, item:await memberItem(env,itemId,user.id) });
+    const active = typeof input.active === 'boolean' ? input.active : !existing;
+    const statements = [];
+    if (active) {
+      statements.push(env.DB.prepare('insert into spotlight_engagements values (?,?,?,?) on conflict do nothing').bind(itemId, user.id, action, now));
+      if (opposite) statements.push(env.DB.prepare('delete from spotlight_engagements where item_id=? and user_id=? and action=?').bind(itemId, user.id, opposite));
+    } else {
+      statements.push(env.DB.prepare('delete from spotlight_engagements where item_id=? and user_id=? and action=?').bind(itemId, user.id, action));
+    }
+    await env.DB.batch(statements);
+    return ctx.json({ ok: true, active, item: await memberItem(env, itemId, user.id) });
   }
   if (action === 'report') {
     await env.DB.prepare("insert into spotlight_engagements values (?,?,'report',?) on conflict do nothing").bind(itemId, user.id, now).run();
@@ -299,8 +306,10 @@ async function memberItem(env,id,userId='') {
     (select count(*) from spotlight_comments where item_id=? and status='visible') comments,
     exists(select 1 from spotlight_engagements where item_id=? and user_id=? and action='like') liked,
     exists(select 1 from spotlight_engagements where item_id=? and user_id=? and action='save') saved,
+    exists(select 1 from spotlight_engagements where item_id=? and user_id=? and action='dislike') disliked,
+    (select count(*) from channel_follows where channel_id=?) followers,
     exists(select 1 from channel_follows where channel_id=? and user_id=?) following,
-    (select due_at from spotlight_reminders where item_id=? and user_id=? and delivered_at is null) reminder_at`).bind(id,id,id,id,userId,id,userId,row.channel_entity_id,userId,id,userId).first();
+    (select due_at from spotlight_reminders where item_id=? and user_id=? and delivered_at is null) reminder_at`).bind(id,id,id,id,userId,id,userId,id,userId,row.channel_entity_id,row.channel_entity_id,userId,id,userId).first();
   return itemRecord({...row,...stats});
 }
 
@@ -340,7 +349,8 @@ async function discovery(request,env,ctx,scope,id) {
     const input=await readJson(request);if(typeof input.active!=='boolean')throw new ApiError(400,'Choose follow or unfollow.');
     if(input.active)await env.DB.prepare('insert into channel_follows(user_id,channel_id,notifications_enabled,created_at) values (?,?,1,?) on conflict(user_id,channel_id) do update set notifications_enabled=1').bind(user.id,id,new Date().toISOString()).run();
     else await env.DB.prepare('delete from channel_follows where user_id=? and channel_id=?').bind(user.id,id).run();
-    return ctx.json({ok:true,following:input.active,notificationsEnabled:input.active});
+    const total=await env.DB.prepare('select count(*) count from channel_follows where channel_id=?').bind(id).first();
+    return ctx.json({ok:true,following:input.active,notificationsEnabled:input.active,followers:total.count});
   }
   if(scope==='saved' || scope==='following') {
     if(request.method!=='GET') throw new ApiError(405,'Method not allowed.');
