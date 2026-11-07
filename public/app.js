@@ -478,7 +478,7 @@ const MWE = (() => {
       phone: "+17134911200",
       phoneLabel: "713-491-1200",
       email: "contact@lakewoodchurch.com",
-      photo: "https://images.unsplash.com/photo-1548625361-16eb10f845a7?auto=format&fit=crop&w=1500&q=85",
+      photo: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=1500&q=85",
       logo: "assets/logo-river-city.png",
       pastorPhoto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
       pastor: "Pastor Joel",
@@ -665,6 +665,7 @@ const MWE = (() => {
     const baseHref = (typeof window !== "undefined" && window.location?.href) || "https://app.invalid/";
     const baseOrigin = new URL(baseHref).origin;
     const resolve = candidate => {
+      if (candidate && typeof candidate === "object") candidate = candidate.src || candidate.url || candidate.href || "";
       if (!candidate) return null;
       const url = new URL(String(candidate || ""), baseHref);
       const sameOriginHttp = url.protocol === "http:" && url.origin === baseOrigin;
@@ -766,8 +767,8 @@ const MWE = (() => {
       worship: church.worship || "Contemporary",
       area: church.area || church.city || "Local Area",
       distance: church.distance || "Local listing",
-      sunday: church.sunday || "Sunday service",
-      midweek: church.midweek || "Midweek gathering",
+      sunday: church.sunday || "",
+      midweek: church.midweek || "",
       location: church.location || church.address || "Location pending",
       website: church.website || "#",
       phone,
@@ -790,7 +791,8 @@ const MWE = (() => {
       schedule: Array.isArray(church.schedule)
         ? church.schedule
           .filter(item => Array.isArray(item) && item.length >= 2)
-          .map(item => [String(item[0] || "Gathering"), String(item[1] || "Time to be announced")])
+          .filter(item => String(item[1] || "").trim())
+          .map(item => [String(item[0] || "Gathering"), String(item[1])])
         : [],
       livestream: {
         enabled: streamEnabled,
@@ -1362,7 +1364,7 @@ const MWE = (() => {
             <p class="cpc-modal-denomination">${escapeHtml(church.denomination || 'Christian Fellowship')} • ${escapeHtml(church.city)}${church.country ? ', ' + escapeHtml(church.country) : ''}</p>
             <p class="cpc-modal-address"><i data-lucide="map-pin"></i> ${escapeHtml(church.location)}</p>
             <div class="cpc-modal-meta-pills">
-              <span class="cpc-meta-pill"><i data-lucide="clock"></i> ${escapeHtml(church.sunday || 'Sunday 10:00 AM')}</span>
+              <span class="cpc-meta-pill"><i data-lucide="clock"></i> ${escapeHtml(church.sunday || 'No schedule posted yet')}</span>
               ${church.pastor ? `<span class="cpc-meta-pill"><i data-lucide="user"></i> ${escapeHtml(church.pastor)}</span>` : ''}
               ${church.phoneLabel ? `<span class="cpc-meta-pill"><i data-lucide="phone"></i> ${escapeHtml(church.phoneLabel)}</span>` : ''}
             </div>
@@ -1563,8 +1565,10 @@ MWE.getMemberShellRoute = function(input) {
     meditation: "meditation",
     storefront: "storefront"
   };
-  const view = routeMap[file];
+  const slugMatch = url.pathname.match(/^\/churches\/([^/]+)\/?$/);
+  const view = slugMatch ? "church" : routeMap[file];
   if (!view) return null;
+  if (slugMatch && !url.searchParams.get("id")) url.searchParams.set("id", decodeURIComponent(slugMatch[1]));
 
   return {
     view,
@@ -1572,7 +1576,8 @@ MWE.getMemberShellRoute = function(input) {
     q: url.searchParams.get("q") || "",
     ministry: url.searchParams.get("ministry") || "",
     compose: url.searchParams.get("compose") || "",
-    post: url.searchParams.get("post") || ""
+    post: url.searchParams.get("post") || "",
+    session: view === "meditation" ? (url.searchParams.get("session") || "") : ""
   };
 };
 
@@ -1583,6 +1588,7 @@ MWE.buildMemberShellUrl = function(route) {
   if (route.q) target.searchParams.set("q", route.q);
   if (route.ministry) target.searchParams.set("ministry", route.ministry);
   if (route.compose) target.searchParams.set("compose", route.compose);
+  if (route.session) target.searchParams.set("session", route.session);
   return `${target.pathname.split("/").pop()}${target.search}`;
 };
 
@@ -1648,29 +1654,99 @@ MWE.ensureMemberLoginModal = function() {
           <span class="mwe-password-wrap"><input type="password" name="password" autocomplete="current-password" placeholder="Password" required /></span>
         </label>
         <button class="member-auth-submit" type="submit"><i data-lucide="log-in"></i> <span>Sign in</span></button>
-        <p class="member-auth-hint">New to RhemaSphere? <a href="index.html#register">Create an account</a></p>
+        <p class="member-auth-hint">New to RhemaSphere? <a href="#" data-auth-mode="register">Create an account</a></p>
+      </form>
+      <form class="member-auth-form member-auth-register" data-member-register-form novalidate hidden>
+        <p class="member-auth-error" data-member-register-error role="alert" hidden></p>
+        <label class="member-auth-field"><span class="member-auth-label">Full name</span>
+          <input type="text" name="name" autocomplete="name" placeholder="Your full name" required maxlength="200" />
+        </label>
+        <label class="member-auth-field"><span class="member-auth-label">Email</span>
+          <input type="email" name="email" autocomplete="email" placeholder="Email address" inputmode="email" required />
+        </label>
+        <label class="member-auth-field"><span class="member-auth-label">Password</span>
+          <span class="mwe-password-wrap"><input type="password" name="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required /></span>
+        </label>
+        <button class="member-auth-submit" type="submit"><i data-lucide="user-plus"></i> <span>Create account</span></button>
+        <p class="member-auth-hint">Already have an account? <a href="#" data-auth-mode="login">Sign in</a></p>
       </form>
     </div>
   `;
   document.body.appendChild(modal);
 
   const close = () => {
+    const restore = modal._rsAuthFocus && modal._rsAuthFocus.isConnected ? modal._rsAuthFocus : null;
+    modal._rsAuthFocus = null;
     modal.classList.remove("is-open");
+    modal.hidden = true;
+    // CSS alone may animate opacity or display across a rapid click/reopen.
+    // Close is an explicit DOM state, shared by X, backdrop and Escape.
+    modal.style.setProperty("display", "none", "important");
     modal.dataset.locked = "false";
+    modal.setAttribute("aria-hidden", "true");
     document.body.classList.remove("member-auth-open");
+    document.documentElement.classList.remove("rs-modal-open");
     const googleButton = modal.querySelector("[data-member-google-auth]");
     if (googleButton) {
       googleButton.disabled = false;
       googleButton.removeAttribute("aria-busy");
     }
+    if (restore && typeof restore.focus === "function") {
+      window.setTimeout(() => { try { restore.focus({ preventScroll: true }); } catch { try { restore.focus(); } catch { /* ignore */ } } }, 0);
+    }
   };
 
+  modal._rsCloseMemberLogin = close;
   modal.querySelector(".member-auth-close")?.addEventListener("click", close);
   modal.addEventListener("click", event => {
     if (event.target === modal) close();
   });
   modal.addEventListener("keydown", event => {
     if (event.key === "Escape") close();
+  });
+  const setMode = mode => {
+    const reg = mode === "register";
+    modal.dataset.mode = reg ? "register" : "login";
+    const title = modal.querySelector("#member-auth-title");
+    const sub = modal.querySelector(".member-auth-card > p");
+    if (title) title.textContent = reg ? "Create your account" : "Sign in to continue";
+    if (sub) sub.textContent = reg ? "Join RhemaSphere to continue." : "Sign in to your RhemaSphere account to continue.";
+    const lf = modal.querySelector("[data-member-auth-form]"), rf = modal.querySelector("[data-member-register-form]");
+    if (lf) lf.hidden = reg;
+    if (rf) rf.hidden = !reg;
+    const carry = (reg ? lf : rf)?.querySelector("input[name='email']")?.value;
+    const target = (reg ? rf : lf);
+    if (carry && target) { const em = target.querySelector("input[name='email']"); if (em && !em.value) em.value = carry; }
+    window.setTimeout(() => target?.querySelector(reg ? "input[name='name']" : "input[name='email']")?.focus(), 30);
+  };
+  modal._setMode = setMode;
+  modal.addEventListener("click", event => {
+    const sw = event.target.closest("[data-auth-mode]");
+    if (sw) { event.preventDefault(); setMode(sw.dataset.authMode); }
+  });
+  modal.querySelector("[data-member-register-form]")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const formEl = event.currentTarget;
+    const errorEl = formEl.querySelector("[data-member-register-error]");
+    const submitBtn = formEl.querySelector(".member-auth-submit");
+    const form = new FormData(formEl);
+    const name = form.get("name")?.toString().trim() || "";
+    const email = form.get("email")?.toString().trim() || "";
+    const password = form.get("password")?.toString() || "";
+    const showErr = msg => { if (errorEl) { errorEl.textContent = msg; errorEl.hidden = false; } };
+    if (errorEl) { errorEl.hidden = true; errorEl.textContent = ""; }
+    if (!name) return showErr("Enter your full name.");
+    if (!/^\S+@\S+\.\S+$/.test(email)) return showErr("Enter a valid email address.");
+    if (password.length < 8) return showErr("Password must be at least 8 characters.");
+    if (!window.MWEAuth?.register) return showErr("Sign-up is unavailable right now. Please reload and try again.");
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.setAttribute("aria-busy", "true"); }
+    const result = await window.MWEAuth.register(name, email, password);
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.removeAttribute("aria-busy"); }
+    if (result.verificationRequired) return; // verify step takes over this card, then reloads in place
+    if (!result.ok) return showErr(result.error || "Could not create your account.");
+    let destination = modal.dataset.destination || "app.html?view=directory";
+    try { if (new URL(destination, window.location.href).origin !== window.location.origin) destination = "app.html?view=directory"; } catch { destination = "app.html?view=directory"; }
+    window.location.assign(destination);
   });
   modal.querySelector("[data-member-google-auth]")?.addEventListener("click", event => {
     const button = event.currentTarget;
@@ -1718,8 +1794,17 @@ MWE.ensureMemberLoginModal = function() {
 
 MWE.openMemberLogin = function(destination, options = {}) {
   const modal = MWE.ensureMemberLoginModal();
+  const active = document.activeElement;
+  modal._rsAuthFocus = active && active !== document.body && active !== document.documentElement ? active : null;
   modal.dataset.destination = destination || "app.html?view=directory";
   modal.dataset.locked = options.locked ? "true" : "false";
+  if (modal._setMode) modal._setMode(options.mode === "register" ? "register" : "login");
+  modal.hidden = false;
+  modal.removeAttribute("aria-hidden");
+  // Native close and the shared fallback both pin display:none. Reopening
+  // must always release it, not only when the fallback's data flag is set.
+  delete modal.dataset.rsForcedClosed;
+  modal.style.removeProperty("display");
   modal.classList.add("is-open");
   document.body.classList.add("member-auth-open");
   window.setTimeout(() => modal.querySelector("input[name='email']")?.focus(), 50);
@@ -2443,26 +2528,27 @@ function getRouteChurch() {
 }
 
 function getServiceTimes(church) {
-  const defaultTimes = ["10:00 AM"];
-  if (!church.sunday) return defaultTimes;
+  if (!church.sunday) return [];
   
   const matches = church.sunday.match(/\b\d{1,2}:\d{2}\s*(?:AM|PM)\b/gi);
   if (matches && matches.length > 0) {
-    if (church.id === "beulah-alliance-west") {
-      return ["9:00 AM", "11:00 AM"];
-    }
     return matches.slice(0, 2);
   }
   
-  if (church.sunday.toLowerCase().includes("online") || church.sunday.toLowerCase().includes("services")) {
-    return ["9:00 AM", "11:00 AM"];
-  }
   
   return [church.sunday.substring(0, 15)];
 }
 
 function renderServiceTimesBox(church) {
   const times = getServiceTimes(church);
+  if (!times.length) {
+    return `
+      <div class="cpc-service-time-col">
+        <span class="cpc-service-label">Schedule</span>
+        <span class="cpc-service-time-item">No schedule posted yet</span>
+      </div>
+    `;
+  }
   if (times.length === 1) {
     return `
       <div class="cpc-service-time-col">
@@ -2501,7 +2587,7 @@ function churchCard(church) {
           <div class="immersive-card-meta">
             <span><i data-lucide="map-pin"></i> ${MWE.escapeHtml(church.area || church.city)}</span>
             <span>•</span>
-            <span><i data-lucide="clock"></i> ${MWE.escapeHtml(church.sunday || 'Sunday 10:00 AM')}</span>
+            <span><i data-lucide="clock"></i> ${MWE.escapeHtml(church.sunday || 'No schedule posted yet')}</span>
           </div>
           <div class="church-card-action-row">
             <a href="church-profile.html?id=${encodeURIComponent(church.id)}" class="immersive-pill-btn">
@@ -2587,11 +2673,13 @@ async function initPublicSite() {
     setPillEnabled(statePill, !!region, "Choose a region first");
     if (!stateOptionsContainer) return;
     const term = Geo ? Geo.cityKey(stateSearch?.value) : "";
-    const subs = region ? region.subdivisions.filter(s => !term || Geo.cityKey(s.name).includes(term) || Geo.cityKey(s.code) === term) : [];
-    stateOptionsContainer.innerHTML = subs.map(s => row("church-state", s.code, MWE.escapeHtml(s.name), loc.state === s.code)).join("")
+    const subs = region ? Geo.pickList(region.code).filter(s => !term || Geo.cityKey(s.name).includes(term) || Geo.cityKey(s.code) === term || (s.nation && Geo.cityKey(Geo.subdivisionName("GB", s.nation)).includes(term))) : [];
+    stateOptionsContainer.innerHTML = subs.map(s => s.nation
+      ? row("church-state", s.code, `<span class="mwe-geo-area">${MWE.escapeHtml(s.name)}</span>`, loc.state === s.code, ' data-geo-depth="1"')
+      : row("church-state", s.code, region.areas ? `<span class="mwe-geo-nation">${MWE.escapeHtml(s.name)} <small>All of ${MWE.escapeHtml(s.name)}</small></span>` : MWE.escapeHtml(s.name), loc.state === s.code, region.areas ? ' data-geo-depth="0"' : "")).join("")
       || `<p class="empty" role="status">${region ? "No matches." : "Choose a region first."}</p>`;
     const title = statePill?.querySelector(".dropdown-panel-title");
-    if (title) title.textContent = region ? `Filter by ${region.unit}` : "Filter by State / Province";
+    if (title) title.textContent = region ? (region.areas ? "Filter by nation or county" : `Filter by ${region.unit}`) : "Filter by State / Province";
   }
   function renderCities() {
     setPillEnabled(cityPill, !!loc.state, "Choose a state or province first");
@@ -3068,8 +3156,14 @@ MWE.openChurchHeroAbout = function() {
 };
 
 MWE.getChurchScheduleItems = function(church) {
-  if (Array.isArray(church?.schedule) && church.schedule.length) return church.schedule;
-  return church?.sunday ? [{ id:"primary-service", title:"Sunday Service", time:church.sunday, description:"", location:church.location||"", image:church.photo||"" }] : [];
+  // Only the church's own saved gatherings; never invent a default service.
+  let list = Array.isArray(church?.schedule) ? church.schedule : [];
+  const api = window.RS_CHURCH && church && window.RS_CHURCH.id === church.id && Array.isArray(window.RS_CHURCH.services) ? window.RS_CHURCH.services : [];
+  if (!list.length && api.length) list = api.map(s => [s.type || "Gathering", [s.day, s.time].filter(Boolean).join(" ")]);
+  if (!list.length) list = [["Sunday", church?.sunday], ["Midweek", church?.midweek]].filter(item => String(item[1] || "").trim());
+  return list.map((item, index) => Array.isArray(item)
+    ? { id: "schedule-" + index, title: String(item[0] || "Gathering"), time: String(item[1] || ""), description: "", location: church.location || "", image: "" }
+    : item).filter(item => item && String(item.time || "").trim());
 };
 
 MWE.renderChurchSchedule = function(church) {
@@ -3079,7 +3173,7 @@ MWE.renderChurchSchedule = function(church) {
   container.innerHTML=items.length?items.map((item,index)=>{
     const image=MWE.safeImageUrl(item.image||church.photo, MWE.defaultImage);
     return `<article class="gathering-modern-card"><div class="gathering-thumb-wrap"><img src="${MWE.escapeHtml(image)}" alt="${MWE.escapeHtml(item.title)}" class="gathering-thumb" referrerpolicy="no-referrer" /><div class="gathering-time-pill"><i data-lucide="clock"></i> <span>${MWE.escapeHtml(item.time||"Time to be announced")}</span></div></div><div class="gathering-card-body"><div class="gathering-title-row"><h4 class="gathering-title">${MWE.escapeHtml(item.title)}</h4></div>${item.description?`<p class="gathering-desc">${MWE.escapeHtml(item.description)}</p>`:""}</div><div class="gathering-card-footer"><button type="button" class="gathering-cal-btn" data-schedule-calendar="${index}"><i data-lucide="calendar-plus"></i> Add to Calendar</button></div></article>`;
-  }).join(""):`<div class="profile-content-empty"><i data-lucide="calendar-clock"></i><strong>No gathering times published yet</strong><span>The church team can add weekly gatherings in Studio.</span></div>`;
+  }).join(""):`<div class="profile-content-empty"><i data-lucide="calendar-clock"></i><strong>No schedule posted yet</strong><span>This church hasn&rsquo;t published its gathering times.</span></div>`;
   container.querySelectorAll("[data-schedule-calendar]").forEach(button=>button.addEventListener("click",()=>{const item=items[Number(button.dataset.scheduleCalendar)];if(item)MWE.openCalendarModal(item.title,item.time,item.location||church.location);}));
   const next=items[0];
   const nextServicePanel=document.querySelector(".profile-next-service");
@@ -3136,6 +3230,8 @@ function renderProfile(church) {
   setVal("[data-profile-location]", church.location);
   setVal("[data-profile-sunday]", church.sunday);
   setVal("[data-profile-midweek]", church.midweek);
+  document.querySelectorAll("[data-profile-sunday]").forEach(el => { if (!church.sunday) el.textContent = "No schedule posted yet"; });
+  MWE.renderChurchSchedule?.(church);
   setVal("[data-profile-pastor]", church.pastor);
   setVal("[data-profile-pastor-title]", church.pastorTitle || "Lead Pastor");
   setVal("[data-profile-pastor-bio]", church.pastorBio || church.about);
@@ -3171,7 +3267,7 @@ function renderProfile(church) {
   
   const gatheringSelect = document.getElementById("rsvp-gathering-select");
   if (gatheringSelect) {
-    const schedule = church.schedule.length ? church.schedule : [["Sunday Service", church.sunday || "Time to be announced"]];
+    const schedule = church.schedule.length ? church.schedule : [["No schedule posted yet", "contact the church"]];
     gatheringSelect.innerHTML = schedule.map(([label, time]) => `
       <option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>
     `).join("");
@@ -4733,7 +4829,7 @@ const HERO_CHANNEL_SEEDS = [
 ];
 
 const HERO_MEDITATION_SEEDS = [
-  { id: "room-peace", title: "Sanctuary of Peace & Stillness", subtitle: "Calm your soul and release all anxiety into His hands.", cover: "https://images.unsplash.com/photo-1548625361-195fe578ae14?auto=format&fit=crop&w=800&q=80", toneFreq: 432 },
+  { id: "room-peace", title: "Sanctuary of Peace & Stillness", subtitle: "Calm your soul and release all anxiety into His hands.", cover: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=800&q=80", toneFreq: 432 },
   { id: "room-healing", title: "Health & Divine Healing Room", subtitle: "Meditation and promises for physical and spiritual restoration.", cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80", toneFreq: 528 },
   { id: "room-secret-place", title: "The Secret Place & Intimacy", subtitle: "Dwelling in the shadow of the Almighty.", cover: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=800&q=80", toneFreq: 432 },
   { id: "room-worship", title: "Atmosphere of Deep Adoration", subtitle: "Soaking worship pads and heartfelt adoration.", cover: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80", toneFreq: 432 }
@@ -5320,7 +5416,7 @@ function renderHomepageSections() {
               <div class="channel-platform-stats">
                 <span><strong>${followers}</strong><small>Followers</small></span>
                 <span><strong>${Number(c.items || 48).toLocaleString()}</strong><small>${itemsLabel}</small></span>
-                <span><strong>${c.verified ? "4.9" : "4.7"}</strong><small>Rating</small></span>
+                <span><strong>${(Number(c.reviewCount) > 0 && Number(c.rating) > 0) ? Number(c.rating).toFixed(1) : "—"}</strong><small>${(Number(c.reviewCount) > 0 && Number(c.rating) > 0) ? "Rating" : "No ratings yet"}</small></span>
               </div>
               <a class="channel-contact-button" href="messages.html?compose=channel&id=${encodeURIComponent(c.id)}"><i data-lucide="message-circle"></i> Connect with ${MWE.escapeHtml((c.owner || 'Host').split(' ')[0])}</a>
             </div>
@@ -5423,6 +5519,7 @@ function updateHomepageAuthUI() {
           <div class="signin-dropdown-popover" id="nav-signin-popover" hidden role="dialog" aria-label="Sign In and Register">
             <div class="signin-dropdown-header">
               <strong><i data-lucide="shield-check"></i> Account Access</strong>
+              <button type="button" class="signin-dropdown-close" aria-label="Close" onclick="MWE.closeNavSigninDropdown()"><i data-lucide="x"></i></button>
             </div>
 
             <!-- Switch buttons like light/dark mode switch -->
@@ -5532,6 +5629,21 @@ MWE.toggleNavSigninDropdown = function(event) {
   }
   if (window.lucide) window.lucide.createIcons();
 };
+
+MWE.closeNavSigninDropdown = function() {
+  const popover = document.getElementById("nav-signin-popover");
+  if (!popover || popover.hidden) return;
+  popover.hidden = true;
+  document.getElementById("nav-signin-trigger")?.setAttribute("aria-expanded", "false");
+  document.getElementById("nav-signin-dropdown-container")?.classList.remove("is-open");
+};
+document.addEventListener("click", function(e) {
+  const popover = document.getElementById("nav-signin-popover");
+  if (!popover || popover.hidden) return;
+  if (popover.contains(e.target) || e.target.closest?.("#nav-signin-trigger")) return;
+  MWE.closeNavSigninDropdown();
+});
+document.addEventListener("keydown", function(e) { if (e.key === "Escape") MWE.closeNavSigninDropdown(); });
 
 MWE.switchAuthDropdownTab = function(tab) {
   const btnSignin = document.getElementById("tab-btn-signin");
@@ -5967,37 +6079,108 @@ function initTranslations() {
       "Create Creator Account": "Crear cuenta de creador", "What would you like to launch first?": "¿Qué te gustaría lanzar primero?", "Church Profile": "Perfil de iglesia", "Channel / Media": "Canal / Medios", "Events & Tickets": "Eventos y entradas", "Store & Merch": "Tienda y productos", "Study Resources": "Recursos de estudio", "All-in-One": "Todo en uno", "Next: Organization Info": "Siguiente: información de la organización"
     }
   };
+
+  const norm = value => String(value || "").replace(/\s+/g, " ").trim();
+  const phraseCache = {};
+  function getPhraseMap(lang) {
+    if (phraseCache[lang]) return phraseCache[lang];
+    const map = {};
+    Object.entries({ ...(window.MWE_TRANSLATIONS?.[lang] || {}), ...(uiPhrases[lang] || {}) }).forEach(([k, v]) => { map[norm(k)] = v; });
+    return (phraseCache[lang] = map);
+  }
+  const langIndex = { fr: 1, es: 2 };
+  function translatePhrase(text, lang, isAttribute) {
+    const clean = norm(text);
+    if (!clean) return null;
+    const map = getPhraseMap(lang);
+    if (map[clean]) return map[clean];
+    for (const pattern of (window.MWE_TRANSLATION_PATTERNS || [])) {
+      if (pattern[3] === "a" && !isAttribute) continue;
+      const re = new RegExp(pattern[0]);
+      if (re.test(clean)) {
+        const replaced = clean.replace(re, pattern[langIndex[lang]]);
+        // Translate an inner UI phrase captured by a pattern (e.g. "View profile") if known.
+        return replaced;
+      }
+    }
+    return null;
+  }
   const originalText = new WeakMap();
   const originalAttributes = new WeakMap();
+  const SKIP = "script, style, textarea, code, pre, [data-no-translate], [contenteditable='true'], .notranslate";
 
+  function translateTextNode(node, lang) {
+    const record = originalText.get(node);
+    // If the app rewrote this node since we last touched it, treat the new text as the English source.
+    if (!record || node.nodeValue !== record.shown) originalText.set(node, { source: node.nodeValue, shown: node.nodeValue });
+    const entry = originalText.get(node);
+    const source = entry.source;
+    let next = source;
+    if (lang !== "en") {
+      const translated = translatePhrase(source, lang, false);
+      if (translated) next = source.replace(/^(\s*)[\s\S]*?(\s*)$/, (m, lead, trail) => lead + translated + trail);
+    }
+    if (node.nodeValue !== next) node.nodeValue = next;
+    entry.shown = next;
+  }
+  function translateElementAttributes(el, lang) {
+    if (el.closest(SKIP)) return;
+    if (!originalAttributes.has(el)) originalAttributes.set(el, {});
+    const originals = originalAttributes.get(el);
+    ["placeholder", "aria-label", "title", "alt"].forEach(attribute => {
+      if (!el.hasAttribute(attribute)) return;
+      const current = el.getAttribute(attribute);
+      const rec = originals[attribute];
+      if (!rec || current !== rec.shown) originals[attribute] = { source: current, shown: current };
+      const entry = originals[attribute];
+      const next = lang === "en" ? entry.source : (translatePhrase(entry.source, lang, true) || entry.source);
+      if (current !== next) el.setAttribute(attribute, next);
+      entry.shown = next;
+    });
+    if (el.tagName === "INPUT" && ["button", "submit"].includes(el.type) && el.value) {
+      const rec = originals.value;
+      if (!rec || el.value !== rec.shown) originals.value = { source: el.value, shown: el.value };
+      const next = lang === "en" ? originals.value.source : (translatePhrase(originals.value.source, lang, false) || originals.value.source);
+      if (el.value !== next) el.value = next;
+      originals.value.shown = next;
+    }
+  }
   function translateModuleCopy(root, lang) {
-    const phraseMap = { ...(window.MWE_TRANSLATIONS?.[lang] || {}), ...(uiPhrases[lang] || {}) };
+    if (!root) return;
+    if (root.nodeType === 3) { if (!root.parentElement?.closest(SKIP)) translateTextNode(root, lang); return; }
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
-        return node.parentElement?.closest("script, style, textarea, [data-no-translate]") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+        return node.parentElement?.closest(SKIP) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
       }
     });
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(node => {
-      if (!originalText.has(node)) originalText.set(node, node.nodeValue);
-      const source = originalText.get(node);
-      const clean = source.trim();
-      const translated = lang === "en" ? clean : phraseMap[clean];
-      if (translated) node.nodeValue = source.replace(clean, translated);
-      else if (lang === "en") node.nodeValue = source;
-    });
-    root.querySelectorAll?.("[placeholder], [aria-label], [title]").forEach(el => {
-      if (el.closest("[data-no-translate]")) return;
-      if (!originalAttributes.has(el)) originalAttributes.set(el, {});
-      const originals = originalAttributes.get(el);
-      ["placeholder", "aria-label", "title"].forEach(attribute => {
-        if (!el.hasAttribute(attribute)) return;
-        if (!(attribute in originals)) originals[attribute] = el.getAttribute(attribute);
-        const source = originals[attribute];
-        el.setAttribute(attribute, lang === "en" ? source : (phraseMap[source] || source));
+    nodes.forEach(node => translateTextNode(node, lang));
+    if (root.nodeType === 1 && root.matches?.("[placeholder], [aria-label], [title], [alt], input[type=button], input[type=submit]")) translateElementAttributes(root, lang);
+    root.querySelectorAll?.("[placeholder], [aria-label], [title], [alt], input[type=button], input[type=submit]").forEach(el => translateElementAttributes(el, lang));
+  }
+  // Keep dynamically rendered platform UI (cards, modals, toasts, empty states) in the chosen language.
+  let i18nObserver = null, i18nQueue = new Set(), i18nScheduled = false;
+  function flushI18nQueue() {
+    i18nScheduled = false;
+    const lang = currentLang;
+    const items = [...i18nQueue]; i18nQueue.clear();
+    if (lang === "en") return;
+    i18nObserver?.disconnect();
+    items.forEach(n => { if (n.isConnected) translateModuleCopy(n, lang); });
+    i18nObserver?.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["placeholder", "aria-label", "title", "alt"] });
+  }
+  function ensureI18nObserver() {
+    if (i18nObserver || typeof MutationObserver === "undefined") return;
+    i18nObserver = new MutationObserver(mutations => {
+      if (currentLang === "en") return;
+      mutations.forEach(m => {
+        if (m.type === "childList") m.addedNodes.forEach(n => { if (n.nodeType === 1 || n.nodeType === 3) i18nQueue.add(n); });
+        else i18nQueue.add(m.target);
       });
+      if (!i18nScheduled) { i18nScheduled = true; requestAnimationFrame(flushI18nQueue); }
     });
+    i18nObserver.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["placeholder", "aria-label", "title", "alt"] });
   }
 
   const flags = {
@@ -6052,6 +6235,8 @@ function initTranslations() {
       }
     });
     translateModuleCopy(document, lang);
+    if (lang !== "en") ensureI18nObserver();
+    try { if (window.parent !== window && !window.__mweLangFromParent && window.parent.location.origin === window.location.origin) window.parent.postMessage({ type: "mwe-language-change", lang }, window.location.origin); } catch (_) {}
     window.dispatchEvent(new CustomEvent("mwe:languagechange", { detail: { lang } }));
   };
 
@@ -6060,7 +6245,7 @@ function initTranslations() {
     window.__mweLanguageMessageBound = true;
     window.addEventListener("message", event => {
       if (event.origin !== window.location.origin || event.data?.type !== "mwe-language") return;
-      if (translations[event.data.lang]) applyLanguage(event.data.lang);
+      if (translations[event.data.lang] && event.data.lang !== currentLang) { window.__mweLangFromParent = true; applyLanguage(event.data.lang); window.__mweLangFromParent = false; }
     });
   }
 
@@ -6138,21 +6323,7 @@ function initTranslations() {
 
   // Cards and results are rendered after page load. Re-run the exact-copy
   // translator for newly inserted UI without translating published content.
-  if (!window.__mweTranslationObserver) {
-    let translationQueued = false;
-    const observer = new MutationObserver(() => {
-      if (translationQueued) return;
-      translationQueued = true;
-      queueMicrotask(() => {
-        observer.disconnect();
-        translateModuleCopy(document, currentLang);
-        observer.observe(document.body, { childList: true, subtree: true });
-        translationQueued = false;
-      });
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-    window.__mweTranslationObserver = observer;
-  }
+  if (!window.__mweTranslationObserver) { window.__mweTranslationObserver = true; ensureI18nObserver(); }
 }
 
 function initModuleDirectoryToolbars() {
@@ -8509,7 +8680,7 @@ MWE.openPlanVisitModal = function(targetChurchId = "") {
           </label>
           <label class="form-field mb-2"><span>Preferred Gathering Time *</span>
             <select name="gathering" id="modal-gathering-select" class="field" required>
-              ${(church.schedule || [["Sunday Service", church.sunday || "10:00 AM"]]).map(([label, time]) => `<option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>`).join("")}
+              ${((church.schedule && church.schedule.length) ? church.schedule : [["No schedule posted yet", "contact the church"]]).map(([label, time]) => `<option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>`).join("")}
             </select>
           </label>
           <div class="compact-grid">
@@ -8546,7 +8717,7 @@ MWE.onVisitChurchChange = function(churchId) {
   const church = churches.find(c => c.id === churchId);
   const select = document.getElementById("modal-gathering-select");
   if (select && church) {
-    const schedules = church.schedule || [["Sunday Service", church.sunday || "10:00 AM"]];
+    const schedules = (church.schedule && church.schedule.length) ? church.schedule : [["No schedule posted yet", "contact the church"]];
     select.innerHTML = schedules.map(([label, time]) => `<option value="${MWE.escapeHtml(label)} (${MWE.escapeHtml(time)})">${MWE.escapeHtml(label)} - ${MWE.escapeHtml(time)}</option>`).join("");
   }
 };
@@ -8835,7 +9006,7 @@ MWE.openFoundationAppModal = function() {
         <label class="form-field mt-2"><span>Estimated Cost / Urgent Details ($)</span><input name="estimatedCost" placeholder="e.g. $4,500 for winter food packs" class="field" /></label>
         <div class="editor-actions mt-4">
           <button type="button" class="button ghost" onclick="document.getElementById('foundation-modal-backdrop').remove()">Cancel</button>
-          <button type="submit" class="button primary"><i data-lucide="send"></i> Submit Assistance Application</button>
+          <button type="submit" class="button primary"><i data-lucide="send"></i> Submit</button>
         </div>
       </form>
     </div>
@@ -9239,13 +9410,9 @@ MWE.openSubmitTestimonyModal = function(churchId) {
         <div id="testimony-form-error" style="display: none; padding: 10px 14px; border-radius: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #dc2626; font-size: 0.82rem; font-weight: 600;"></div>
 
         <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Your Rating</label>
-          <div id="testimony-rating-selector" style="display: flex; gap: 8px; color: var(--gold, #e5a93c); font-size: 1.5rem; cursor: pointer;">
-            <i class="fa-solid fa-star star-btn" data-star="1"></i>
-            <i class="fa-solid fa-star star-btn" data-star="2"></i>
-            <i class="fa-solid fa-star star-btn" data-star="3"></i>
-            <i class="fa-solid fa-star star-btn" data-star="4"></i>
-            <i class="fa-solid fa-star star-btn" data-star="5"></i>
+          <span id="testimony-rating-label" style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary, #0f172a); display: block; margin-bottom: 6px;">Your Rating</span>
+          <div id="testimony-rating-selector" role="radiogroup" aria-labelledby="testimony-rating-label" style="display: flex; gap: 4px;">
+            ${[1,2,3,4,5].map(n => `<button type="button" class="star-btn" data-star="${n}" role="radio" aria-checked="${n === 5}" aria-label="${n} star${n > 1 ? "s" : ""}" tabindex="${n === 5 ? 0 : -1}" style="width: 36px; height: 36px; padding: 0; border: 0; border-radius: 10px; background: transparent; color: var(--primary); font-size: 1.6rem; line-height: 1; cursor: pointer;">&#9733;</button>`).join("")}
           </div>
         </div>
 
@@ -9284,18 +9451,21 @@ MWE.openSubmitTestimonyModal = function(churchId) {
     selectedRating = val;
     backdrop.querySelectorAll(".star-btn").forEach(star => {
       const sVal = Number(star.dataset.star);
-      if (sVal <= selectedRating) {
-        star.className = "fa-solid fa-star star-btn";
-        star.style.opacity = "1";
-      } else {
-        star.className = "fa-regular fa-star star-btn";
-        star.style.opacity = "0.4";
-      }
+      star.style.opacity = sVal <= selectedRating ? "1" : "0.3";
+      star.setAttribute("aria-checked", String(sVal === selectedRating));
+      star.tabIndex = sVal === selectedRating ? 0 : -1;
     });
   };
 
   backdrop.querySelectorAll(".star-btn").forEach(star => {
     star.addEventListener("click", () => updateStars(Number(star.dataset.star)));
+    star.addEventListener("keydown", (ev) => {
+      const d = ev.key === "ArrowRight" || ev.key === "ArrowUp" ? 1 : ev.key === "ArrowLeft" || ev.key === "ArrowDown" ? -1 : 0;
+      if (!d) return;
+      ev.preventDefault();
+      updateStars(Math.min(5, Math.max(1, selectedRating + d)));
+      backdrop.querySelector(`.star-btn[data-star="${selectedRating}"]`)?.focus();
+    });
   });
 
   const form = backdrop.querySelector("#testimony-submission-form");
@@ -9529,13 +9699,13 @@ function initGlobalHeaderAndFooter() {
   <div class="topbar-menu-group">
     <nav class="nav-links">
       <a href="app.html?view=home" data-nav="home" class="mobile-only-link"><i data-lucide="layout-grid"></i><span>Home</span></a>
-      <a href="app.html?view=spotlight" data-nav="spotlight" class="mobile-only-link"><i data-lucide="play-square"></i><span>Spotlight</span></a>
       <a href="app.html?view=meditation" data-nav="meditation" class="mobile-only-link"><i data-lucide="sparkles"></i><span>Meditation</span></a>
       <a href="churches.html" data-nav="churches"><i class="drawer-nav-icon" data-lucide="church"></i><span>Churches</span></a>
       <a href="channels.html" data-nav="channels"><i class="drawer-nav-icon" data-lucide="podcast"></i><span>Channels</span></a>
       <a href="events.html" data-nav="events"><i class="drawer-nav-icon" data-lucide="calendar-days"></i><span>Events</span></a>
+      <a href="store.html" data-nav="store"><i class="drawer-nav-icon" data-lucide="shopping-bag"></i><span>Shop</span></a>
       <a href="livestream.html" data-nav="livestream"><i class="drawer-nav-icon" data-lucide="radio"></i><span>Watch Live</span></a>
-      <a href="app.html?view=store" data-nav="store" class="mobile-only-link"><i data-lucide="shopping-bag"></i><span>Store</span></a>
+      <a href="spotlight.html" data-nav="spotlight" class="mwe-nav-spotlight mwe-header-spotlight"><i class="drawer-nav-icon" data-lucide="play-square"></i><span>Spotlight</span></a>
       <a href="app.html?view=resources" data-nav="resources" class="mobile-only-link"><i data-lucide="book-open"></i><span>Resources</span></a>
     </nav>
     <div class="nav-actions">
@@ -10175,9 +10345,9 @@ MWE.openHostEventStudio = function(eventId = null) {
       </div>
 
       <!-- Host Identity Header Bar -->
-      <div class="host-identity-bar flex-between" style="background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2); border-radius: 14px; padding: 10px 16px; margin-bottom: 18px;">
+      <div class="host-identity-bar flex-between" style="background: color-mix(in srgb,var(--rs-accent) 6%,transparent); border: 1px solid color-mix(in srgb,var(--rs-accent) 20%,transparent); border-radius: 14px; padding: 10px 16px; margin-bottom: 18px;">
         <div style="display:flex; align-items:center; gap:10px;">
-          <span style="width:34px; height:34px; border-radius:50%; background:#2563eb; color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.9rem; font-weight:800;">
+          <span style="width:34px; height:34px; border-radius:50%; background:var(--rs-accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.9rem; font-weight:800;">
             ${MWE.escapeHtml((host.name || "H").charAt(0))}
           </span>
           <div>
@@ -10478,9 +10648,9 @@ MWE.openHostDashboard = function() {
 
       <!-- Quick Metrics Row -->
       <div class="host-stats-row" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom: 20px;">
-        <div class="host-stat-box" style="padding:14px; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.15); border-radius:14px; text-align:center;">
+        <div class="host-stat-box" style="padding:14px; background:color-mix(in srgb,var(--rs-accent) 6%,transparent); border:1px solid color-mix(in srgb,var(--rs-accent) 15%,transparent); border-radius:14px; text-align:center;">
           <span class="text-xs text-muted" style="text-transform:uppercase; font-weight:700;">Hosted Events</span>
-          <div style="font-size:1.6rem; font-weight:900; color:#2563eb; margin-top:2px;">${hostedEvents.length}</div>
+          <div style="font-size:1.6rem; font-weight:900; color:var(--rs-accent); margin-top:2px;">${hostedEvents.length}</div>
         </div>
         <div class="host-stat-box" style="padding:14px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.15); border-radius:14px; text-align:center;">
           <span class="text-xs text-muted" style="text-transform:uppercase; font-weight:700;">Total Attendees</span>

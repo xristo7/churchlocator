@@ -116,7 +116,13 @@
     catch (error) { if(request!==state.inspectorRequest)return; inspector.innerHTML = '<div class="spotlight-comment-empty">' + icon('wifi-off') + '<strong>Comments are unavailable.</strong><p>' + esc(error.message) + '</p></div>'; window.lucide?.createIcons(); return; }
     if(request!==state.inspectorRequest)return;
     if (!rows.length) inspector.innerHTML = '<div class="spotlight-comment-empty">' + icon('message-circle') + '<strong>Begin an encouraging conversation.</strong><p>Comments are reviewed under the RhemaSphere community standards.</p></div>';
-    else inspector.innerHTML = rows.map(row => '<article class="spotlight-comment"><span class="spotlight-comment-avatar">' + icon('user') + '</span><div><strong>' + esc(row.author) + '</strong><p>' + esc(row.body) + '</p><small>' + new Date(row.createdAt).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}) + '</small></div></article>').join('');
+    else inspector.innerHTML = rows.map(row => '<article class="spotlight-comment"><span class="spotlight-comment-avatar">' + icon('user') + '</span><div><strong>' + esc(row.author) + '</strong><p>' + esc(row.body) + '</p><small>' + new Date(row.createdAt).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}) + (row.canDelete ? ' · <button type="button" class="spotlight-comment-delete" data-comment-delete="' + esc(row.id) + '">Delete</button>' : '') + '</small></div></article>').join('');
+    inspector.querySelectorAll('[data-comment-delete]').forEach(button => button.addEventListener('click', async () => {
+      if (!window.confirm('Delete this comment?')) return;
+      button.disabled = true;
+      try { const result = await api('comments/' + encodeURIComponent(item.id) + '/' + encodeURIComponent(button.dataset.commentDelete), null, 'DELETE'); if (result.item) { Object.assign(item, result.item); syncCard(item); } window.showToast?.('Comment deleted.'); renderInspector(); }
+      catch (error) { button.disabled = false; window.showToast?.(error.message); }
+    }));
     window.lucide?.createIcons();
   }
   async function engage(item, action, button) {

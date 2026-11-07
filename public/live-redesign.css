@@ -1,8 +1,8 @@
 /* ===== Shared live pieces ===== */
-.mwe-live-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:6px;background:#e11d2a;color:#fff;font:700 13px/1.2 var(--font-sans,system-ui);letter-spacing:.06em}
+.mwe-live-badge,.mwe-saved-stream-label{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:6px;background:#e11d2a;color:#fff;font:700 13px/1.2 var(--font-sans,system-ui);letter-spacing:.06em}
 .mwe-live-badge>span{width:6px;height:6px;border-radius:50%;background:#fff;animation:mweLivePulse 1.6s infinite}
 @keyframes mweLivePulse{50%{opacity:.35}}
-.mwe-live-avatar{flex:0 0 auto;display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--mwe-accent,#2563eb),#1e3a8a);color:#fff;font:700 13px/1 var(--font-sans,system-ui)}
+.mwe-live-avatar{flex:0 0 auto;display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--mwe-accent,var(--rs-accent)),#1e3a8a);color:#fff;font:700 13px/1 var(--font-sans,system-ui)}
 .mwe-live-avatar.lg{width:44px;height:44px;font-size:15px}
 .mwe-live-avatar img{width:100%;height:100%;object-fit:cover}
 .mwe-offline-frame{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#000;color:#8b8f98;font:600 15px/1 var(--font-sans,system-ui);letter-spacing:.02em}
@@ -18,7 +18,7 @@ body[data-page="livestream"] #active-streams-list.streams-hub-grid{display:grid!
 .mwe-yt-card{display:flex;flex-direction:column;gap:12px;color:var(--text-primary);text-decoration:none;border-radius:14px}
 .mwe-yt-thumb{position:relative;display:block;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#0b1020}
 .mwe-yt-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .35s var(--ease-out,ease)}
-.mwe-yt-thumb .mwe-live-badge{position:absolute;left:10px;bottom:10px}
+.mwe-yt-thumb .mwe-live-badge,.mwe-saved-stream-label{position:absolute;left:10px;bottom:10px}
 .mwe-yt-play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.28);opacity:0;transition:opacity .2s}
 .mwe-yt-play svg{width:44px;height:44px;padding:10px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;fill:#fff}
 .mwe-yt-card:hover .mwe-yt-thumb img{transform:scale(1.04)}
@@ -44,11 +44,11 @@ body[data-page="livestream"] #active-streams-list.streams-hub-grid{display:grid!
 .mwe-channel-name{display:flex;flex-direction:column;gap:2px;min-width:0;margin-right:auto}
 .mwe-channel-name b{display:inline-flex;align-items:center;gap:6px;font-size:16px}
 .mwe-channel-name small{color:var(--text-secondary);font-size:13px}
-.mwe-verified{width:16px;height:16px;color:var(--mwe-accent,#2563eb)}
+.mwe-verified{width:16px;height:16px;color:var(--mwe-accent,var(--rs-accent))}
 .mwe-follow-btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:999px;background:var(--text-primary,#0f172a);color:var(--surface,#fff)!important;font-weight:700;font-size:14px;text-decoration:none}
 .mwe-follow-btn svg{width:17px;height:17px}
 .mwe-chip-row{display:flex;gap:8px;flex-wrap:wrap}
-.mwe-chip{display:inline-flex!important;align-items:center;gap:8px;height:36px!important;padding:0 16px!important;margin:0!important;border:0!important;border-radius:999px!important;background:var(--surface-soft,#f1f5f9)!important;color:var(--text-primary)!important;font:600 14px/1 var(--font-sans,system-ui)!important;box-shadow:none!important;cursor:pointer;text-decoration:none;min-width:0!important;width:auto!important}
+.mwe-chip{display:inline-flex!important;align-items:center;gap:8px;height:36px!important;padding:0 16px!important;margin:0!important;border:0!important;border-radius:999px!important;white-space:nowrap;background:var(--surface-soft,#f1f5f9)!important;color:var(--text-primary)!important;font:600 14px/1 var(--font-sans,system-ui)!important;box-shadow:none!important;cursor:pointer;text-decoration:none;min-width:0!important;width:auto!important}
 .mwe-chip:hover{background:color-mix(in srgb,var(--text-primary) 12%,transparent)!important}
 .mwe-chip svg{width:17px;height:17px}
 .mwe-chip[aria-pressed="true"] svg{fill:#e11d48;color:#e11d48}
@@ -58,7 +58,9 @@ body[data-page="livestream"] #active-streams-list.streams-hub-grid{display:grid!
 .mwe-desc-more{color:var(--text-secondary);font-weight:700;font-size:13px}
 .mwe-desc-card p{margin:10px 0 0;font-size:14px;line-height:1.6;color:var(--text-primary)}
 .mwe-watch-side{display:flex;flex-direction:column;gap:20px;min-width:0}
-.mwe-side-tabs{display:none}
+.mwe-watch .mwe-side-tabs{display:flex;gap:3px;padding:4px;border-radius:12px;background:var(--surface-soft,#f1f5f9);width:100%;flex-wrap:wrap}
+.mwe-watch .mwe-side-tabs button{min-height:36px;padding:0 10px;border:0;border-radius:8px;color:var(--text-secondary,#5a6472);font:700 12px/1.15 var(--font-sans,system-ui);margin:0;white-space:nowrap;flex:1}
+.mwe-watch .mwe-side-tabs button[aria-selected="true"]{background:var(--surface,#fff);color:var(--text-primary,#0f172a);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .mwe-chat.broadcast-chat{display:flex!important;flex-direction:column;height:min(560px,calc(100vh - 140px));border:1px solid var(--border)!important;border-radius:16px!important;overflow:hidden;background:var(--surface)!important;position:static!important;box-shadow:none!important}
 .mwe-chat header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px!important;border-bottom:1px solid var(--border)}
 .mwe-chat header>div{display:flex;align-items:center;gap:8px}
@@ -71,7 +73,7 @@ body[data-page="livestream"] #active-streams-list.streams-hub-grid{display:grid!
 .mwe-upnext-item:hover{background:var(--surface-soft)}
 .mwe-upnext-thumb{position:relative;flex:0 0 168px;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#0b1020}
 .mwe-upnext-thumb img{width:100%;height:100%;object-fit:cover}
-.mwe-upnext-thumb .mwe-live-badge{position:absolute;left:6px;bottom:6px;font-size:13px;padding:2px 6px}
+.mwe-upnext-thumb .mwe-live-badge,.mwe-saved-stream-label{position:absolute;left:6px;bottom:6px;font-size:13px;padding:2px 6px}
 .mwe-upnext-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
 .mwe-upnext-copy b{font-size:14px;line-height:1.3}
 .mwe-upnext-copy small,.mwe-upnext-empty{color:var(--text-secondary);font-size:13px}
@@ -132,7 +134,7 @@ html.mwe-stage-page main.live-shell{width:100%;max-width:none;margin:0;padding:0
 .mwe-tile-avatar{display:grid;place-items:center;width:clamp(56px,22%,104px);aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(4px);font-weight:700;font-size:clamp(18px,2.4vw,34px);color:#fff;box-shadow:0 8px 30px rgba(0,0,0,.25)}
 .mwe-tile figcaption{position:absolute;left:10px;right:10px;bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .mwe-tile-name{display:inline-flex;align-items:center;gap:6px;max-width:80%;padding:5px 10px;border-radius:999px;background:rgba(0,0,0,.5);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mwe-tile-name em{font-style:normal;padding:1px 6px;border-radius:4px;background:var(--mwe-accent,#2563eb);font-size:13px;font-weight:800;text-transform:uppercase}
+.mwe-tile-name em{font-style:normal;padding:1px 6px;border-radius:4px;background:var(--mwe-accent,var(--rs-accent));font-size:13px;font-weight:800;text-transform:uppercase}
 .mwe-tile-mic{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.5)}
 .mwe-tile-mic svg{width:15px;height:15px}
 .mwe-tile-mic:not(.on){background:#e11d2a}
@@ -142,7 +144,7 @@ html.mwe-stage-page main.live-shell{width:100%;max-width:none;margin:0;padding:0
 .mwe-comments{display:flex;flex-direction:column;gap:6px;max-width:min(360px,72%)}
 .mwe-comment{display:flex;align-items:center;gap:8px;margin:0;padding:6px 12px 6px 6px;border-radius:999px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);font-size:13px;line-height:1.3;animation:mweCommentIn .35s ease both;width:fit-content}
 .mwe-comment b{font-weight:700;margin-right:4px}
-.mwe-comment-av{flex:0 0 24px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--mwe-accent,#2563eb);font-size:13px;font-weight:800}
+.mwe-comment-av{flex:0 0 24px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--mwe-accent,var(--rs-accent));font-size:13px;font-weight:800}
 @keyframes mweCommentIn{from{opacity:0;transform:translateY(8px)}}
 .mwe-reactions{position:relative;width:80px;height:260px}
 .mwe-float-react{position:absolute;bottom:0;font-size:28px;animation:mweFloat 2.6s ease-out forwards}
@@ -167,7 +169,7 @@ html.mwe-stage-page main.live-shell{width:100%;max-width:none;margin:0;padding:0
 .mwe-sheet-name small{color:#a1a7b3;font-size:13px}
 .mwe-mini{display:inline-grid;place-items:center;height:32px;min-width:32px;padding:0 12px;border-radius:999px;border:0;background:rgba(255,255,255,.12);color:#fff;font:700 12.5px/1 var(--font-sans,system-ui);cursor:pointer;margin:0}
 .mwe-mini svg{width:15px;height:15px}
-.mwe-mini.primary{background:var(--mwe-accent,#2563eb)}
+.mwe-mini.primary{background:var(--mwe-accent,var(--rs-accent))}
 .mwe-mini.danger{background:rgba(225,29,42,.2);color:#fca5a5}
 @media (max-width:959.98px){
   .mwe-stage-body{padding:0 8px}
@@ -205,3 +207,208 @@ button.mwe-upnext-item{width:100%;border:0;background:none;text-align:left;curso
 .mwe-channel-name{flex:1 1 auto}
 .mwe-channel-name b{max-width:100%}
 @media (max-width:959.98px){.mwe-channel-name b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mwe-channel-name b .mwe-verified{vertical-align:-3px;margin-left:4px}}
+
+
+/* ===== E2 recorded watch (channel-content) ===== */
+.recorded-watch-page.mwe-watch-page,
+body.mwe-watch-page .channel-content-page.recorded-watch-page{
+  width:min(1360px,calc(100% - 48px));
+  margin:0 auto;
+  padding:20px 0 48px;
+}
+body[data-page="channel-content"].mwe-watch-page .channel-content-page{max-width:none}
+.mwe-watch.recorded-watch-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 360px;
+  gap:24px;
+  align-items:start;
+}
+.mwe-player-frame video,
+.mwe-player-frame audio{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  background:#000;
+}
+.mwe-player-frame audio{
+  height:64px;
+  top:auto;
+  bottom:0;
+  inset:auto 0 0 0;
+}
+.mwe-player-status{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  background:#0b1020;
+  color:#fff;
+  text-align:center;
+}
+.mwe-player-status.is-loading{background:#0b1020}
+.mwe-player-status-copy{max-width:28rem;display:grid;gap:10px;justify-items:center}
+.mwe-player-status-copy strong{font-size:1rem}
+.mwe-player-status-copy p{margin:0;color:rgba(255,255,255,.78);font-size:.92rem;line-height:1.45}
+.mwe-player-poster{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.35;pointer-events:none
+}
+.mwe-player-status .mwe-chip{
+  background:rgba(255,255,255,.12)!important;
+  color:#fff!important;
+  white-space:nowrap;
+}
+.mwe-comments-below{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid var(--border);
+}
+.mwe-comments-below h2{
+  margin:0;
+  font-size:1.05rem;
+  font-weight:750;
+}
+.mwe-comments-below .channel-post-comments{
+  display:grid;
+  gap:12px;
+}
+.mwe-comments-below .channel-post-comments article{
+  padding:12px 14px;
+  border-radius:12px;
+  background:color-mix(in srgb,var(--text-primary,#0f172a) 6%,transparent);
+}
+.mwe-comments-below .channel-post-comments strong{display:block;margin-bottom:4px}
+.mwe-comments-below .channel-post-comments p{margin:0;line-height:1.5}
+.mwe-comment-form .channel-post-comment-compose{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.mwe-comment-form input{
+  flex:1 1 220px;
+  min-height:42px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  padding:0 16px;
+  background:var(--surface);
+  color:var(--text-primary);
+}
+.mwe-comment-form button[type="submit"]{
+  white-space:nowrap;
+  min-height:42px;
+  padding:0 18px;
+  border:0;
+  border-radius:999px;
+  background:var(--primary);
+  color:#fff;
+  font-weight:750;
+  cursor:pointer;
+}
+.mwe-chip-row .mwe-chip span{white-space:nowrap}
+.channel-episode-about{
+  margin-top:4px;
+  padding:14px 16px;
+  border-radius:14px;
+  background:color-mix(in srgb,var(--text-primary,#0f172a) 6%,transparent);
+}
+.channel-episode-about h2{margin:0 0 8px;font-size:1rem}
+.channel-episode-about p{margin:0;line-height:1.55;color:var(--text-secondary)}
+@media (max-width:959.98px){
+  .recorded-watch-page.mwe-watch-page,
+  body.mwe-watch-page .channel-content-page.recorded-watch-page{
+    width:100%;
+    padding:0 0 24px;
+  }
+  .mwe-watch.recorded-watch-layout{display:block}
+  .mwe-watch.recorded-watch-layout .mwe-watch-side{
+    padding:8px var(--gutter,16px) 0;
+  }
+  .mwe-watch.recorded-watch-layout .mwe-watch-info{
+    padding:14px var(--gutter,16px) 4px;
+  }
+}
+
+.mwe-signin-comment{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px 14px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:color-mix(in srgb,var(--text-primary,#0f172a) 6%,transparent);
+}
+.mwe-signin-comment p{margin:0;color:var(--text-secondary);font-size:.92rem;line-height:1.4}
+.mwe-signin-comment .mwe-chip{white-space:nowrap}
+.mwe-comments-disabled{margin:0;color:var(--text-secondary);font-size:.92rem}
+
+/* Real channel subscription, scoped discovery and truthful playback/report states. */
+.mwe-channel-name .mwe-channel-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.mwe-channel-link{background:transparent!important;color:var(--text-primary,#0f172a)!important;border:1px solid var(--border-subtle,rgba(15,23,42,.16))}
+.mwe-follow-btn[aria-pressed="true"]{background:var(--surface-soft,#f1f5f9);color:var(--text-primary,#0f172a)!important;border:1px solid var(--border-subtle,rgba(15,23,42,.18))}
+.mwe-follow-btn[aria-pressed="true"]::before{content:"✓";font-size:16px;line-height:1}
+html[data-theme="dark"] .mwe-channel-link{background:transparent!important;color:#f1f5f9!important}
+.mwe-related-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.mwe-related-heading h2{margin:0}
+.mwe-related-heading a{white-space:nowrap;font-size:12px;font-weight:700;color:var(--text-secondary,#5a6472)}
+.mwe-related-note{font-size:12px;color:var(--text-secondary,#5a6472);line-height:1.45;margin:12px 0 16px}
+.mwe-related-empty{font-size:13px;line-height:1.5;color:var(--text-secondary,#5a6472);padding:12px 0}
+.mwe-report-link{display:inline-flex;align-items:center;gap:6px;background:transparent;color:var(--text-secondary,#5a6472);font:600 13px/1.4 var(--font-sans,system-ui);border:0;padding:8px 0;margin-top:12px;cursor:pointer;white-space:nowrap}
+.mwe-report-link svg{width:15px;height:15px}
+.mwe-report-link:hover{color:var(--accent-primary,#ff5a1f);text-decoration:underline}
+.mwe-report-link:disabled{cursor:default;opacity:.7}
+.mwe-watch-header .mwe-channel-actions .mwe-follow-btn{white-space:nowrap}
+@media(max-width:640px){.mwe-watch-info .mwe-channel-row{align-items:flex-start}.mwe-watch-info .mwe-channel-name .mwe-channel-actions{justify-content:flex-start}.mwe-watch-info .mwe-channel-actions .mwe-follow-btn{min-height:36px}}
+
+/* Real live provider loading and watch-shell channel metadata. */
+.mwe-stage > #mwe-stage-loading,.mwe-stage > #rtk-loading{flex:0 0 auto;margin:8px 16px;min-height:0;padding:8px 0}
+#rtk-loading .mwe-player-status-copy{padding:12px}
+.mwe-stage-subscribe{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;height:28px;padding:0 10px;font:700 12px/1 var(--font-sans,system-ui);white-space:nowrap;cursor:pointer}
+.mwe-stage-subscribe[aria-pressed="true"]{background:#fff;color:#0b0f19}
+.mwe-stage-title[data-channel-state] small{display:flex;gap:8px;flex-wrap:wrap}
+.mwe-stage .mwe-sheet-card:focus-within{scroll-behavior:smooth}
+@media(max-width:640px){.mwe-stage-top{flex-wrap:wrap}.mwe-stage-title{width:min(100%,220px);min-width:min(100%,160px)}.mwe-stage-title>span{flex-wrap:wrap;gap:5px}.mwe-stage-top .mwe-round{width:36px;height:36px}.mwe-stage-count{font-size:11px;padding:0 8px;white-space:nowrap}.mwe-stage-subscribe{font-size:12px}.mwe-stage-controls{overflow-x:auto;justify-content:flex-start;flex-wrap:nowrap;padding-inline:12px;scrollbar-width:none}.mwe-stage-controls .mwe-round{flex:0 0 auto}.mwe-stage-sheet-row b{overflow-wrap:anywhere}}
+/* This room uses the provider's standard joined-room composition. Anchor its stage and controlbars explicitly. */
+.mwe-stage.has-rtk > #channel-stage{flex:1;min-height:0;margin:16px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.mwe-stage.has-rtk rtk-header{flex:none;position:relative}
+.mwe-stage.has-rtk rtk-stage{flex:1;min-height:0;display:flex}
+.mwe-stage.has-rtk rtk-controlbar{flex:none;position:relative;flex-wrap:wrap;overflow:visible;justify-content:center;gap:5px;padding:7px}
+.mwe-stage.has-rtk rtk-sidebar rtk-chat{height:100%;width:100%;min-height:0}
+
+/* The display rail cannot widen its track: grid children and the non-wrapping
+   Open channel control shrink or pad within the allocated side-rail width. */
+.mwe-watch.recorded-watch-layout{grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:24px}
+.mwe-watch.recorded-watch-layout>.mwe-watch-main,.mwe-watch.recorded-watch-layout>.mwe-watch-side{min-width:0;width:100%;box-sizing:border-box}
+.mwe-related-heading{min-width:0;gap:8px}
+.mwe-related-heading h2{min-width:0}
+.mwe-related-heading a{display:inline-block;flex:0 1 auto;max-width:100%;padding:4px 8px;box-sizing:border-box;white-space:nowrap}
+@media(max-width:1099.98px){.mwe-watch.recorded-watch-layout{grid-template-columns:minmax(0,1fr) minmax(0,320px);gap:20px}}
+@media(max-width:959.98px){.mwe-watch.recorded-watch-layout{grid-template-columns:minmax(0,1fr)}.mwe-related-heading a{flex-shrink:0}}
+
+.mwe-saved-stream-label{background:var(--surface-soft,#e2e8f0);color:var(--text-primary,#0f172a);letter-spacing:normal;white-space:normal;line-height:1.25;padding:4px 8px}
+
+.mwe-yt-thumb .mwe-saved-stream-label{position:absolute;left:10px;bottom:10px;max-width:calc(100% - 20px)}
+
+/* Viewer-only Theatre: centered width/layout changes; no player remount. */
+.mwe-watch.is-theatre{grid-template-columns:minmax(0,1fr);width:100%;display:block!important}
+.mwe-watch.is-theatre>.mwe-watch-main{width:100%;min-width:0}
+.mwe-watch.is-theatre .mwe-player-frame{width:100%;position:relative;top:auto;max-height:calc(100dvh - 64px);aspect-ratio:16/9;border-radius:0;background:#000;margin:0 auto}
+.mwe-watch.is-theatre .mwe-watch-info,.mwe-watch.is-theatre>.mwe-watch-side{width:min(1280px,calc(100% - 48px));margin-left:auto;margin-right:auto}
+body:has(.mwe-watch.is-theatre)>.recorded-watch-page,body:has(.mwe-watch.is-theatre)>.creator-public,body:has(.mwe-watch.is-theatre)>.mwe-watch-page{width:100%;max-width:none;margin:0;padding:0 0 48px}
+body:has(.mwe-watch.is-theatre)>.mwe-watch-page>.product-back-link,body:has(.mwe-watch.is-theatre)>.mwe-watch-page>.broadcast-back-link,
+body:has(.mwe-watch.is-theatre)>a.broadcast-back-link{display:flex;position:relative;top:auto;left:auto;inset:auto;width:min(1280px,calc(100% - 48px));margin:16px auto;color:var(--text-secondary);background:transparent;font-size:14px;height:auto;border-radius:0}
+.mwe-theatre-button{white-space:nowrap}
+.mwe-theatre-button span{white-space:nowrap}
+.mwe-stage.is-theatre .mwe-stage-body{position:relative;flex:1;min-height:0;display:flex!important;padding:0 8px}
+.mwe-stage.is-theatre .mwe-tiles,.mwe-stage.is-theatre.has-rtk rtk-meeting{max-width:none;width:100%;height:100%;margin:0;min-height:0}
+.mwe-stage.is-theatre.has-rtk .mwe-stage-body{display:none!important}
+.mwe-stage.is-theatre.is-offline .mwe-offline-frame{width:100%;max-width:none}
+@media(max-width:959.98px){
+  .mwe-watch.is-theatre .mwe-player-frame{border-radius:0;box-sizing:content-box;padding-top:env(safe-area-inset-top)}
+  .mwe-watch.is-theatre .mwe-watch-info,.mwe-watch.is-theatre>.mwe-watch-side,
+  body:has(.mwe-watch.is-theatre)>a.broadcast-back-link,body:has(.mwe-watch.is-theatre)>.mwe-watch-page>.product-back-link,body:has(.mwe-watch.is-theatre)>.mwe-watch-page>.broadcast-back-link{width:calc(100% - 32px)}
+}

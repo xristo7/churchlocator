@@ -44,9 +44,9 @@
           <div class="channel-platform-stats">
             <span><strong>${(Number(channel.followers) || 0) >= 1000 ? `${((Number(channel.followers) || 0) / 1000).toFixed(1)}K` : (Number(channel.followers) || 0).toLocaleString()}</strong><small>Followers</small></span>
             <span><strong>${channelPostCount(channel).toLocaleString()}</strong><small>${channel.format === "Podcast" ? "Episodes" : "Posts"}</small></span>
-            <span><strong>${channel.verified ? "4.9" : "4.7"}</strong><small>Rating</small></span>
+            <span><strong>${(Number(channel.reviewCount) > 0 && Number(channel.rating) > 0) ? Number(channel.rating).toFixed(1) : "—"}</strong><small>${(Number(channel.reviewCount) > 0 && Number(channel.rating) > 0) ? "Rating" : "No ratings yet"}</small></span>
           </div>
-          <div class="channel-card-actions"><a class="channel-open-button" href="channel-detail.html?id=${encodeURIComponent(channel.id)}"><i data-lucide="radio-tower"></i> Open Channel</a><a class="channel-contact-button" href="messages.html?compose=channel&id=${encodeURIComponent(channel.id)}"><i data-lucide="message-circle"></i> Get in touch</a></div>
+          <div class="channel-card-actions"><a class="channel-open-button" href="channel-detail.html?id=${encodeURIComponent(channel.id)}"><i data-lucide="radio-tower"></i> Open Channel</a><a class="channel-contact-button" href="messages.html?compose=channel&id=${encodeURIComponent(channel.id)}" aria-label="Get in touch" title="Get in touch"><i data-lucide="message-circle"></i><span class="rs-sr-only"> Get in touch</span></a></div>
         </div>
       </article>
     `).join("");

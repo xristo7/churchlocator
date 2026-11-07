@@ -2,21 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="author" content="Christo Innocent (christoinno@gmail.com)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261026ui8" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>RhemaSphere | Find a Church Family Near You</title>
-    <link rel="stylesheet" href="styles.css?v=20261026hdr1" />
+    <link rel="stylesheet" href="styles.css?v=20261030ui1" />
   <script src="vendor/lucide.js"></script>
-  <script defer src="platform-client.js?v=20261026ch1"></script><script src="ministries.js?v=20261026ch1"></script><script src="geo-regions.js?v=20261026ch1"></script>
-  <script defer src="app.js?v=20261026au1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
-<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><link rel="stylesheet" href="home-spotlight.css?v=20261026ui9" /><script defer src="home-spotlight.js?v=20261026ch1"></script><script defer src="app-shell.js?v=20261026au1"></script><link rel="stylesheet" href="app-shell.css?v=20261026hdr1" /><link rel="stylesheet" href="rs-ui.css?v=20261026uid" /></head>
+  <script defer src="platform-client.js?v=20261026ch1"></script><script src="ministries.js?v=20261026ch1"></script><script src="geo-regions.js?v=20261101geo1"></script>
+  <script defer src="i18n-ui.js?v=20261103bl1"></script><script defer src="app.js?v=20261103bl1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
+<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><link rel="stylesheet" href="home-spotlight.css?v=20261026ui9" /><script defer src="home-spotlight.js?v=20261030fx1"></script><script defer src="app-shell.js?v=20261103bl1"></script><link rel="stylesheet" href="app-shell.css?v=20261103mc5" /><link rel="stylesheet" href="rs-ui.css?v=20261103bl1" /></head>
 <body class="hero-only-page" data-page="home">
   <!-- Topbar Header -->
   <header class="topbar">
     <div class="container topbar-inner">
-      <a class="brand" href="index.html">
+      <a class="brand" href="/">
         <span class="brand-mark"><i data-lucide="church"></i></span>
         <span><strong>RhemaSphere</strong><small>Evangelism & Fellowship</small></span>
       </a>
@@ -27,13 +28,13 @@
       <div class="topbar-menu-group">
         <nav class="nav-links">
           <a href="app.html?view=home" class="mobile-only-link"><i data-lucide="layout-grid"></i><span>Home</span></a>
-          <a href="app.html?view=spotlight" class="mobile-only-link"><i data-lucide="play-square"></i><span>Spotlight</span></a>
           <a href="app.html?view=meditation" class="mobile-only-link"><i data-lucide="sparkles"></i><span>Meditation</span></a>
           <a href="churches.html"><i class="drawer-nav-icon" data-lucide="church"></i><span>Churches</span></a>
           <a href="channels.html"><i class="drawer-nav-icon" data-lucide="podcast"></i><span>Channels</span></a>
           <a href="events.html"><i class="drawer-nav-icon" data-lucide="calendar-days"></i><span>Events</span></a>
+          <a href="store.html"><i class="drawer-nav-icon" data-lucide="shopping-bag"></i><span>Shop</span></a>
           <a href="livestream.html" class="live-nav-link"><i class="drawer-nav-icon" data-lucide="radio"></i><span>Watch Live</span></a>
-          <a href="app.html?view=store" class="mobile-only-link"><i data-lucide="shopping-bag"></i><span>Store</span></a>
+          <a href="spotlight.html" class="mwe-nav-spotlight mwe-header-spotlight"><i class="drawer-nav-icon" data-lucide="play-square"></i><span>Spotlight</span></a>
           <a href="app.html?view=resources" class="mobile-only-link"><i data-lucide="book-open"></i><span>Resources</span></a>
         </nav>
         <div class="nav-actions" id="homepage-nav-auth">
@@ -707,7 +708,7 @@
     <div class="container">
       <div class="footer-main">
         <div class="footer-brand-block">
-          <a class="footer-brand" href="index.html">
+          <a class="footer-brand" href="/">
             <span class="footer-brand-mark"><i data-lucide="church"></i></span>
             <span>RhemaSphere</span>
           </a>
@@ -720,7 +721,7 @@
         <nav class="footer-column" aria-label="Explore">
           <h2>Explore</h2>
           <ul class="footer-links">
-            <li><a href="index.html">Home</a></li>
+            <li><a href="/home">Home</a></li>
             <li><a href="churches.html">Find a Church</a></li>
             <li><a href="events.html">Events</a></li>
             <li><a href="livestream.html">Livestreams</a></li>
@@ -753,5 +754,6 @@
   </footer>
 
   <div class="toast" data-toast>Done</div>
+<script src="/rs-modal-close.js?v=20261106e2i" defer></script>
 </body>
 </html>

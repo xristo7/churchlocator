@@ -71,7 +71,7 @@
       rating: 4.95,
       status: "Active",
       featured: true,
-      image: "https://images.unsplash.com/photo-1548625361-195973c1f0b0?auto=format&fit=crop&w=1200&q=82",
+      image: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=1200&q=82",
       description: "Host your church conference, wedding ceremony, seminar, worship night, or community fellowship banquet in our climate-controlled, tech-equipped sanctuary and hall.",
       capacity: "350 Sanctuary / 180 Banquet Hall",
       amenities: ["4K Dual Projectors & LED Screens", "Digital 32-Channel Audio Console", "Wireless Microphones & Stage Lighting", "Fully Equipped Kitchenette", "Free On-Site Parking (85 Stalls)", "Wheelchair Accessible Entrance & Restrooms"],

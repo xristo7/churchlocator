@@ -126,7 +126,7 @@
       <div class="sf-pdp">
         <div class="sf-pdp-main">
           <div class="sf-media">
-            <div class="sf-media-main"><img id="product-main-image" src="${esc(imgs[0] || "")}" alt="${esc(product.title)}" />${discountPct ? `<span class="sf-badge sf-badge-sale">Save ${discountPct}%</span>` : ""}</div>
+            <div class="sf-media-main"><img id="product-main-image" src="${esc(imgs[0] || "")}" alt="${esc(product.title)}" /><button class="content-love-button sf-like sf-like-overlay" aria-label="Like" type="button" data-love-type="product" data-love-id="${esc(product.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>${discountPct ? `<span class="sf-badge sf-badge-sale">Save ${discountPct}%</span>` : ""}</div>
             ${imgs.length > 1 ? `<div class="sf-thumbs" role="tablist" aria-label="Product images">${imgs.map((src, i) => `<button class="sf-thumb ${i === 0 ? "is-active" : ""}" type="button" data-src="${esc(src)}" aria-label="Image ${i + 1}"><img src="${esc(src)}" alt="" /></button>`).join("")}</div>` : ""}
           </div>
           <div class="sf-info">
@@ -134,7 +134,7 @@
             <h1 class="sf-title">${esc(product.title)}</h1>
             <div class="sf-price-row"><span class="sf-price sf-price-lg">${data().money(product.price)}</span>${product.compareAt > product.price ? `<s class="sf-compare">${data().money(product.compareAt)}</s>` : ""}${discountPct ? `<span class="sf-pill-sale">Sale</span>` : ""}</div>
             <p class="sf-note">Taxes included. Shipping calculated at checkout.</p>
-            <div class="sf-meta-row"><span class="sf-rating"><i data-lucide="star"></i>${Number(product.rating || 4.9).toFixed(1)}</span><span class="sf-stock ${stock > 5 ? "" : "is-low"}"><span class="sf-dot"></span>${stock > 5 ? "In stock" : stock > 0 ? `Only ${stock} left` : "Sold out"}</span></div>
+            <div class="sf-meta-row">${(Number(product.reviewCount) > 0 && Number(product.rating) > 0) ? `<span class="sf-rating"><i data-lucide="star"></i>${Number(product.rating).toFixed(1)} <small>(${Number(product.reviewCount)})</small></span>` : `<span class="sf-rating is-empty">No reviews yet</span>`}<span class="sf-stock ${stock > 5 ? "" : "is-low"}"><span class="sf-dot"></span>${stock > 5 ? "In stock" : stock > 0 ? `Only ${stock} left` : "Sold out"}</span></div>
             <div class="sf-field"><label for="product-qty">Quantity</label>
               <div class="sf-qty"><button type="button" id="qty-minus" aria-label="Decrease quantity"><i data-lucide="minus"></i></button><input type="number" id="product-qty" value="1" min="1" max="${stock || 99}" readonly /><button type="button" id="qty-plus" aria-label="Increase quantity"><i data-lucide="plus"></i></button></div>
             </div>
@@ -142,7 +142,6 @@
             <button class="sf-btn sf-btn-primary" id="product-detail-buynow" type="button">Buy it now</button>
             <p class="sf-desc">${esc(product.description)}</p>
             <div class="sf-actions-row">
-              <button class="content-love-button sf-like" type="button" data-love-type="product" data-love-id="${esc(product.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
               <button class="sf-share" type="button" id="sf-share"><i data-lucide="share-2"></i><span>Share</span></button>
             </div>
             <ul class="sf-trust">
@@ -450,20 +449,17 @@
     container.innerHTML = `
       <div class="sf-pdp">
         <div class="sf-pdp-main">
-          <div class="sf-media"><div class="sf-media-main"><img src="${esc(service.image)}" alt="${esc(service.title)}" /><span class="sf-badge">Service</span></div></div>
+          <div class="sf-media"><div class="sf-media-main"><img src="${esc(service.image)}" alt="${esc(service.title)}" /><button class="content-love-button sf-like sf-like-overlay" type="button" aria-label="Like" data-love-type="product" data-love-id="${esc(service.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button><span class="sf-badge">Service</span></div></div>
           <div class="sf-info">
             <span class="sf-vendor">${esc(service.seller)}</span>
             <h1 class="sf-title">${esc(service.title)}</h1>
             <div class="sf-price-row"><span class="sf-price sf-price-lg" id="selected-tier-price-display">${data().money(tiers[selectedTierIndex]?.price || service.price)}</span><span class="sf-unit" id="sf-tier-unit">${esc(tiers[selectedTierIndex]?.duration || service.pricingUnit || "")}</span></div>
-            <div class="sf-meta-row"><span class="sf-rating"><i data-lucide="star"></i>${Number(service.rating || 4.9).toFixed(1)}</span><span class="sf-stock"><span class="sf-dot"></span>Replies within 24h</span></div>
+            <div class="sf-meta-row">${(Number(service.reviewCount) > 0 && Number(service.rating) > 0) ? `<span class="sf-rating"><i data-lucide="star"></i>${Number(service.rating).toFixed(1)} <small>(${Number(service.reviewCount)})</small></span>` : `<span class="sf-rating is-empty">No reviews yet</span>`}<span class="sf-stock"><span class="sf-dot"></span>Replies within 24h</span></div>
             <fieldset class="sf-variants"><legend>Package</legend>
               ${tiers.map((t, i) => `<label class="sf-variant"><input type="radio" name="sf-tier" value="${i}" ${i === selectedTierIndex ? "checked" : ""} /><span class="sf-variant-box"><span class="sf-variant-name">${esc(t.name)}</span><span class="sf-variant-price">${data().money(t.price)}</span></span></label>`).join("")}
             </fieldset>
             <button class="sf-btn sf-btn-primary" id="service-book-now-btn" type="button">Request booking</button>
             <p class="sf-desc">${esc(service.description)}</p>
-            <div class="sf-actions-row">
-              <button class="content-love-button sf-like" type="button" data-love-type="product" data-love-id="${esc(service.id)}" aria-pressed="false"><i data-lucide="heart"></i><span data-love-count>0</span></button>
-            </div>
             <div class="sf-included" id="sf-included"></div>
           </div>
         </div>
@@ -586,7 +582,7 @@
         form.removeAttribute("aria-busy");
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = `<i data-lucide="send"></i> Submit Booking Request`;
+          submitBtn.innerHTML = `<i data-lucide="send"></i> Submit`;
           window.lucide?.createIcons();
         }
       }

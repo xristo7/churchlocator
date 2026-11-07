@@ -1,0 +1,30 @@
+/* Spotlight header only: no platform logo, one compact row (back | tabs | mute).
+   Post details stay at the bottom of the video exactly as before. Theme tokens only. */
+html body.spotlight-page .spotlight-back{display:inline-grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:0;background:transparent;color:var(--text-primary);text-decoration:none;opacity:.8;transition:opacity .2s ease,color .2s ease;-webkit-tap-highlight-color:transparent}
+html body.spotlight-page .spotlight-back svg{width:26px;height:26px;stroke-width:2.2}
+html body.spotlight-page .spotlight-back:is(:hover,:focus-visible,:active){opacity:1;color:var(--primary)}
+html body.spotlight-page .spotlight-back:focus-visible{outline:2px solid var(--primary);outline-offset:-4px;border-radius:12px}
+
+@media (max-width:760px){
+  html body.spotlight-page .spotlight-local-header{height:44px!important;grid-template-columns:40px minmax(0,1fr) 40px!important;grid-template-rows:44px;row-gap:0!important;column-gap:0!important;left:4px;right:4px;top:max(6px,env(safe-area-inset-top))}
+  /* light scrim behind the header row only */
+  html body.spotlight-page .spotlight-local-header::before{content:"";position:absolute;z-index:-1;left:-4px;right:-4px;top:calc(-1 * max(6px,env(safe-area-inset-top)));height:calc(max(6px,env(safe-area-inset-top)) + 84px);background:linear-gradient(180deg,rgba(2,6,23,.5),rgba(2,6,23,.22) 55%,transparent);pointer-events:none}
+  html body.spotlight-page .spotlight-back{grid-column:1;grid-row:1;width:40px;color:#fff;opacity:.75;filter:drop-shadow(0 1px 3px rgba(0,0,0,.6))}
+  html body.spotlight-page .spotlight-back:is(:hover,:focus-visible,:active){color:#fff;opacity:1}
+  html body.spotlight-page .spotlight-tabs{grid-column:2;grid-row:1;justify-self:stretch!important;min-width:0;display:flex!important;justify-content:space-between;overflow-x:auto!important;scrollbar-width:none;gap:0!important}
+  html body.spotlight-page .spotlight-tabs::-webkit-scrollbar{display:none}
+  html body.spotlight-page .spotlight-tabs button{flex:0 0 auto;min-height:44px!important;padding:0 5px!important;font-size:14px!important}
+  html body.spotlight-page .spotlight-tabs button::after{bottom:6px}
+  html body.spotlight-page .spotlight-header-actions{grid-column:3;grid-row:1;justify-self:end}
+  html body.spotlight-page .spotlight-header-actions .spotlight-circle-button{width:40px;height:44px;min-width:40px;min-height:44px;border:0!important;border-radius:0!important;background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;color:#fff;opacity:.75;filter:drop-shadow(0 1px 3px rgba(0,0,0,.6));transition:opacity .2s ease}
+  html body.spotlight-page .spotlight-header-actions .spotlight-circle-button:is(:hover,:focus-visible,:active){opacity:1}
+  /* badge + ... menu keep their original place, just under the (now single-row) header */
+  html body.spotlight-page .spotlight-card-top{top:calc(max(6px,env(safe-area-inset-top)) + 50px)!important}
+}
+@media (max-width:389px){
+  html body.spotlight-page:not(#mwe-x) .spotlight-tabs>button{padding:0 3px!important;font-size:13px!important}
+}
+@media (min-width:761px){
+  html body.spotlight-page .spotlight-local-header{grid-template-columns:1fr auto 1fr}
+  html body.spotlight-page .spotlight-back{justify-self:start;margin-left:-8px}
+}

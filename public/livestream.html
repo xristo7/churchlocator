@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261026ui8" />
   <title>Livestream | RhemaSphere</title>
   <script src="livestream-canonical.js?v=20261026ch1"></script>
-    <link rel="stylesheet" href="styles.css?v=20261026hdr1" />
+    <link rel="stylesheet" href="styles.css?v=20261030ui1" />
   <script src="vendor/lucide.js"></script>
   <script defer src="platform-client.js?v=20261026ch1"></script><script src="ministries.js?v=20261026ch1"></script>
-  <script defer src="app.js?v=20261026au1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
+  <script defer src="i18n-ui.js?v=20261103bl1"></script><script defer src="app.js?v=20261103bl1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
   <script defer src="platform-modules.js?v=20261026ui4"></script>
   <link rel="stylesheet" href="creator-public.css?v=20261026ui8" />
   <script defer src="creator-data.js?v=20261026ch1"></script>
@@ -16,8 +16,8 @@
   <link rel="stylesheet" href="simulated-live-player.css?v=20261026ui8" />
   <script defer src="simulated-live-player.js?v=20261026ch1"></script>
   <script defer src="content-engagements.js?v=20261026ch1"></script>
-  <script defer src="creator-public.js?v=20261026ch1"></script>
-<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><script defer src="app-shell.js?v=20261026au1"></script><link rel="stylesheet" href="app-shell.css?v=20261026hdr1" /><link rel="stylesheet" href="live-redesign.css?v=20261026ui9" /><link rel="stylesheet" href="mw-ui.css?v=20261026uia" /><script defer src="mw-ui.js?v=20261026ch1"></script><link rel="stylesheet" href="rs-ui.css?v=20261026uid" /></head>
+  <script defer src="creator-public.js?v=20261026ch1x"></script>
+<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><script defer src="app-shell.js?v=20261103bl1"></script><link rel="stylesheet" href="app-shell.css?v=20261103mc5" /><link rel="stylesheet" href="live-redesign.css?v=20261026ui9" /><link rel="stylesheet" href="mw-ui.css?v=20261026uia" /><script defer src="mw-ui.js?v=20261026ch1"></script><link rel="stylesheet" href="rs-ui.css?v=20261103bl1" /><link rel="stylesheet" href="rs-hero.css?v=20261031f2"></head>
 <body class="live-page mwu" data-page="livestream">
   <header class="topbar">
     <div class="container topbar-inner">
@@ -47,20 +47,18 @@
     
     <!-- Section 1: Streams Landing Hub (Directory Mode) -->
     <section id="streams-landing-view" style="display: none;">
-      <nav class="mwu-subnav" aria-label="Media">
-      <a href="channels.html"><i data-lucide="play-square"></i>Videos &amp; Podcasts</a>
-      <a href="livestream.html" class="is-active" aria-current="page"><i data-lucide="radio"></i>Live</a>
-      <a href="meditation.html"><i data-lucide="leaf"></i>Meditation</a>
-    </nav>
-      <div class="mwu-hero module-directory-hero" style="background-image:url('assets/church-audience.jpg')">
-        <div class="mwu-hero-inner">
-          <div class="module-hero-copy">
-            <h2 class="mwu-h1">Church broadcasts, live.</h2>
-            <p>Tune in to Sunday services, Bible studies and worship from churches on the platform.</p>
-            <div class="mwu-actions"><a class="mwu-btn mwu-btn-primary" href="app.html?view=livestream" target="_top"><i data-lucide="radio"></i> Start a Broadcast</a></div>
-          </div>
+      <div class="rs-hero module-directory-hero" style="--rs-hero-img:url('assets/demo-event-worship-night.png')">
+      <div class="rs-hero-inner">
+        <div class="module-hero-copy">
+          <span class="rs-hero-eyebrow"><i data-lucide="radio"></i> Live Broadcasts</span>
+          <h2 class="mwu-h1">Church broadcasts, live.</h2>
+          <p>Tune in to Sunday services, Bible studies and worship from churches on the platform.</p>
+        </div>
+        <div class="rs-hero-actions">
+          <a class="rs-hero-btn" href="app.html?view=livestream" target="_top"><i data-lucide="radio"></i> Start a Broadcast</a>
         </div>
       </div>
+    </div>
 
       <div class="module-shell module-content">
         <div class="site-search-bar">
@@ -572,5 +570,6 @@
       <button onclick="handleLogout()" style="width: 100%; padding: 10px; border-radius: 10px; background: #ef4444; border: none; color: #ffffff; font-weight: 700; font-size: 0.8rem; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2); transition: all 0.2s; margin-top: 20px;">Log Out</button>
     </div>
   </div>
+<script src="/rs-modal-close.js?v=20261106e2i" defer></script>
 </body>
 </html>

@@ -56,7 +56,7 @@
     const state = { q: '', country: '', region: '', city: '', denomination: '', service: '' };
     root.innerHTML = `
       <div class="rsc-toolbar">
-        <label class="rsc-search"><i data-lucide="search"></i><input type="search" id="rsc-q" placeholder="Search churches, cities or pastors" aria-label="Search churches" autocomplete="off" /></label>
+        <label class="rsc-search"><i data-lucide="search"></i><input type="search" id="rsc-q" placeholder="Search churches" aria-label="Search churches" autocomplete="off" /></label>
         <div class="rsc-filters">${filterControl('country', 'Region')}${filterControl('region', 'State / Province')}${filterControl('city', 'City')}${filterControl('denomination', 'Denomination')}${filterControl('service', 'Service')}
           <button type="button" class="rsc-reset" id="rsc-reset" hidden><i data-lucide="rotate-ccw"></i> Reset</button></div>
         <div class="rsc-filter rsc-more" hidden><button type="button" class="rsc-filter-btn rsc-more-btn" aria-haspopup="true" aria-expanded="false" aria-label="More filters" title="Filters"><i data-lucide="sliders-horizontal"></i><span class="rsc-more-count" hidden></span></button><div class="rsc-filter-panel rsc-more-panel" role="group" aria-label="Filters"></div></div>
@@ -70,10 +70,19 @@
     liveChurchIds().then(l => { live = l; render(); });
     const uniq = arr => [...new Set(arr.filter(Boolean))].sort((a, b) => a.localeCompare(b));
     const serviceKey = s => s.type;
+    /* Location: full country -> state/province/territory (UK: nation -> county) list from geo-regions.js; cities stay data-driven. */
+    const G = window.MWEGeo;
+    const locOf = new WeakMap(); const loc = c => { if (!G) return { country: c.country, state: c.state, city: c.city }; if (!locOf.has(c)) locOf.set(c, G.churchLocation(c)); return locOf.get(c); };
+    const geoRegion = () => G && G.region(state.country);
+    const REGION_LABEL = { CA: 'Province / territory', US: 'State / territory', GB: 'Nation / county' };
+    const inPlace = (c, withRegion) => G ? G.matchesLocation(loc(c), { country: state.country, state: withRegion ? state.region : '' })
+      : (!state.country || c.country === state.country) && (!withRegion || !state.region || c.state === state.region);
     const options = {
-      country: () => uniq(churches.map(c => c.country)).map(v => [v, countryName(v)]),
-      region: () => uniq(churches.filter(c => !state.country || c.country === state.country).map(c => c.state)).map(v => [v, v]),
-      city: () => uniq(churches.filter(c => (!state.country || c.country === state.country) && (!state.region || c.state === state.region)).map(c => c.city)).map(v => [v, v]),
+      country: () => G ? [...G.REGIONS.map(r => [r.code, r.short]), ...uniq(churches.map(c => loc(c).country ? '' : c.country)).map(v => [v, countryName(v)])]
+        : uniq(churches.map(c => c.country)).map(v => [v, countryName(v)]),
+      region: () => { const r = geoRegion(); if (r) return G.pickList(r.code).map(x => [x.code, x.name, x.nation ? 1 : (r.areas ? 0 : -1)]);
+        return G ? [] : uniq(churches.filter(c => !state.country || c.country === state.country).map(c => c.state)).map(v => [v, v]); },
+      city: () => uniq(churches.filter(c => inPlace(c, true)).map(c => c.city)).map(v => [v, v]),
       denomination: () => uniq(churches.map(c => c.denomination)).map(v => [v, v]),
       service: () => uniq(churches.flatMap(c => (c.services || []).map(serviceKey))).map(v => [v, v])
     };
@@ -86,9 +95,15 @@
         f.classList.toggle('is-set', !!val);
         const btn = f.querySelector('button');
         const empty = !opts.length;
-        if (key === 'region') { const none = !churches.some(c => c.state); f.hidden = none; if (none) return; }
-        btn.disabled = empty; btn.title = empty ? (key === 'region' ? 'No state or province listed yet' : 'No options yet') : '';
-        f.querySelector('.rsc-filter-panel').innerHTML = `<button type="button" class="rsc-opt${!val ? ' is-active' : ''}" data-value="">Any ${esc(labels[key].toLowerCase())}</button>` + opts.map(([v, l]) => `<button type="button" class="rsc-opt${v === val ? ' is-active' : ''}" data-value="${esc(v)}">${esc(l)}</button>`).join('');
+        let anyLabel = labels[key];
+        if (key === 'region') {
+          if (G) { const r = geoRegion(); anyLabel = r ? REGION_LABEL[r.code] || r.unit : labels.region; if (!val) f.querySelector('[data-label]').textContent = anyLabel; }
+          else { const none = !churches.some(c => c.state); f.hidden = none; if (none) return; }
+        }
+        btn.disabled = empty; btn.title = empty ? (key === 'region' ? (G ? 'Choose a region first' : 'No state or province listed yet') : 'No options yet') : '';
+        f.querySelector('.rsc-filter-panel').innerHTML = `<button type="button" class="rsc-opt${!val ? ' is-active' : ''}" data-value="">Any ${esc(anyLabel.toLowerCase())}</button>` + opts.map(([v, l, d]) => d === undefined || d < 0
+          ? `<button type="button" class="rsc-opt${v === val ? ' is-active' : ''}" data-value="${esc(v)}">${esc(l)}</button>`
+          : `<button type="button" class="rsc-opt rsc-opt-geo${v === val ? ' is-active' : ''}" data-geo-depth="${d}" data-value="${esc(v)}">${d ? esc(l) : `${esc(l)} <small>All of ${esc(l)}</small>`}</button>`).join('');
       });
       $('#rsc-reset').hidden = !Object.values(state).some(Boolean);
       fitFilters();
@@ -121,22 +136,12 @@
     $('#rsc-reset').addEventListener('click', () => { Object.keys(state).forEach(k => state[k] = ''); $('#rsc-q').value = ''; render(); });
     $('#rsc-q').addEventListener('input', e => { state.q = e.target.value.trim().toLowerCase(); render(); });
     const preset = new URLSearchParams(location.search).get('q'); if (preset) { $('#rsc-q').value = preset; state.q = preset.toLowerCase(); }
-    function card(c) {
-      const svc = (c.services || [])[0];
-      return `<article class="rsc-card" data-church-id="${esc(c.id)}">
-        <a class="rsc-card-media" href="${profileUrl(c.id)}" aria-label="${esc(c.name)}">${cover(c, 'rsc-card-img')}<div class="rsc-card-badges">${badges(c, live)}</div></a>
-        <div class="rsc-card-body">
-          <h3><a href="${profileUrl(c.id)}">${esc(c.name)}</a></h3>
-          <p class="rsc-meta">${[c.denomination, place(c)].filter(Boolean).map(esc).join(' · ')}</p>
-          ${svc ? `<p class="rsc-meta rsc-meta-service"><i data-lucide="clock"></i> ${esc(serviceLine(svc))}</p>` : ''}
-          <div class="rsc-card-actions"><a class="rsc-btn rsc-btn-primary" href="${channelUrl(c.id)}"><i data-lucide="tv"></i> Open Channel</a><a class="rsc-btn rsc-btn-ghost" href="${profileUrl(c.id)}">View profile</a></div>
-        </div></article>`;
-    }
+    const card = c => churchCard(c, live);
     function render() {
       drawFilters();
       const list = churches.filter(c => {
         const hay = [c.name, c.city, c.state, countryName(c.country), c.denomination, c.pastorName, c.language, ...(c.ministries || [])].join(' ').toLowerCase();
-        return (!state.q || state.q.split(/\s+/).every(t => hay.includes(t))) && (!state.country || c.country === state.country) && (!state.region || c.state === state.region)
+        return (!state.q || state.q.split(/\s+/).every(t => hay.includes(t))) && inPlace(c, true)
           && (!state.city || c.city === state.city) && (!state.denomination || c.denomination === state.denomination) && (!state.service || (c.services || []).some(s => serviceKey(s) === state.service));
       });
       $('#rsc-count').textContent = `${list.length} ${list.length === 1 ? 'church' : 'churches'}${list.length !== churches.length ? ` of ${churches.length}` : ''}`;
@@ -201,7 +206,7 @@
           </ul></section>
         </aside>
       </div>
-      <dialog class="rsc-dialog" id="rsc-request"><form method="dialog" id="rsc-request-form"><h2 id="rsc-request-title">Request a visit</h2><p class="rsc-muted" id="rsc-request-sub"></p>
+      <dialog class="rsc-dialog" id="rsc-request"><form method="dialog" id="rsc-request-form"><button type="button" class="rsc-dialog-x" data-close aria-label="Close"><i data-lucide="x"></i></button><h2 id="rsc-request-title">Request a visit</h2><p class="rsc-muted" id="rsc-request-sub"></p>
         <label>Full name<input name="fullName" required autocomplete="name" maxlength="120" /></label>
         <label>Email<input name="email" type="email" required autocomplete="email" maxlength="200" /></label>
         <label>Phone<input name="phone" type="tel" autocomplete="tel" maxlength="40" /></label>
@@ -217,7 +222,7 @@
       getJson('/api/content-engagements?type=church&ids=' + encodeURIComponent(c.id)).then(d => setPressed(saveBtn, (d.loved || []).includes(c.id), 'Save', 'Saved')).catch(() => {});
     });
     const dlg = $('#rsc-request'), form = $('#rsc-request-form'); let mode = 'visit';
-    dlg.querySelector('[data-close]').addEventListener('click', () => dlg.close());
+    dlg.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => dlg.close()));
     dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
     form.addEventListener('submit', async e => {
       e.preventDefault(); const fd = Object.fromEntries(new FormData(form)); const btn = form.querySelector('[type=submit]'); btn.disabled = true;
@@ -233,7 +238,7 @@
         $('#rsc-request-sub').textContent = act === 'ride' ? `${c.name} will contact you to arrange transport to a service.` : `${c.name} will get in touch to welcome you.`;
         $('#rsc-pickup-wrap').firstChild.textContent = act === 'ride' ? 'Pickup area' : 'Your city';
         const u = await session(); if (u) { form.fullName.value ||= u.name || u.displayName || ''; form.email.value ||= u.email || ''; }
-        dlg.showModal(); return; }
+        dlg.showModal(); window.lucide?.createIcons?.(); return; }
       if (act === 'message') { if (!await requireSignIn('Sign in to message this church.')) return; location.href = '/messages.html?compose=1&id=' + encodeURIComponent(c.id); return; }
       if (act === 'follow') { if (!channel) { toast(`${c.name} hasn't opened a channel to follow yet.`); return; } if (!await requireSignIn('Sign in to follow this church.')) return;
         const on = b.getAttribute('aria-pressed') !== 'true'; b.disabled = true;
@@ -275,7 +280,7 @@
       <a class="rsc-back" href="${profileUrl(c.id)}"><i data-lucide="arrow-left"></i> ${esc(c.name)} profile</a>
       <section class="rsc-channel-head">${cover(c, 'rsc-channel-cover')}<div class="rsc-channel-id"><div class="rsc-channel-avatar">${safeImg(c.logo) ? `<img src="${esc(safeImg(c.logo))}" alt="" onerror="this.replaceWith(document.createTextNode('${esc(initials(c.name))}'))" />` : esc(initials(c.name))}</div>
         <div><div class="rsc-hero-badges">${badges(c, live)}</div><h1>${esc(c.name)}</h1><p class="rsc-muted">${[c.denomination, place(c)].filter(Boolean).map(esc).join(' · ')}</p></div>
-        <a class="rsc-btn rsc-btn-ghost rsc-channel-profile" href="${profileUrl(c.id)}"><i data-lucide="church"></i> Church profile</a></div></section>
+        <div class="rsc-channel-cta"><button class="rsc-btn rsc-btn-primary" type="button" data-act="post-about"><i data-lucide="square-pen"></i> Post About</button><a class="rsc-btn rsc-btn-ghost rsc-channel-profile" href="${profileUrl(c.id)}"><i data-lucide="church"></i> Church profile</a></div></div></section>
       <nav class="rsc-jump" aria-label="Channel sections">${[['spotlight', 'Spotlight'], ['live', 'Live'], ['events', 'Events'], ['store', 'Store'], ['resources', 'Resources']].map(([k, l]) => `<a href="#ch-${k}">${l}</a>`).join('')}</nav>
       ${section('spotlight', 'sparkles', 'Spotlight', spotlight.map(i => tile(i.title, i.creatorName, '/spotlight.html?post=' + encodeURIComponent(i.id), img(i), 'Spotlight')), `${esc(c.name)} hasn't shared any Spotlight videos yet.`)}
       ${section('live', 'radio', 'Live', liveNow.map(l => tile(l.title, 'Watch now', l.href, safeImg(c.photo), 'Live')), `${esc(c.name)} isn't live right now.`)}
@@ -283,6 +288,22 @@
       ${section('store', 'shopping-bag', 'Store', stores.map(s => s.kind === 'store' ? tile(s.name, 'Store', '/storefront.html?id=' + encodeURIComponent(s.id), img(s)) : tile(s.name || s.title, Number(s.price) > 0 ? '$' + Number(s.price).toFixed(2) : 'Product', '/product-detail.html?id=' + encodeURIComponent(s.id), img(s))), 'No store items yet.')}
       ${section('resources', 'book-open', 'Resources', resources.map(r => tile(r.title || r.name, [r.type, r.topic].filter(Boolean).join(' · '), '/resource-detail.html?id=' + encodeURIComponent(r.id), img(r))), 'No resources shared yet.')}`;
     icons();
+    root.querySelector('[data-act="post-about"]').addEventListener('click', async () => {
+      if (!await requireSignIn(`Sign in to post about ${c.name}.`)) return;
+      location.href = '/spotlight-studio.html?about=' + encodeURIComponent(c.id) + (channels[0] ? '&channel=' + encodeURIComponent(channels[0].id) : '') + '&name=' + encodeURIComponent(c.name);
+    });
+  }
+
+  function churchCard(c, live) {
+    const svc = (c.services || [])[0];
+    return `<article class="rsc-card" data-church-id="${esc(c.id)}">
+      <a class="rsc-card-media" href="${profileUrl(c.id)}" aria-label="${esc(c.name)}">${cover(c, 'rsc-card-img')}<div class="rsc-card-badges">${badges(c, live)}</div></a>
+      <div class="rsc-card-body">
+        <h3><a href="${profileUrl(c.id)}">${esc(c.name)}</a></h3>
+        <p class="rsc-meta">${[c.denomination, place(c)].filter(Boolean).map(esc).join(' · ')}</p>
+        ${svc ? `<p class="rsc-meta rsc-meta-service"><i data-lucide="clock"></i> ${esc(serviceLine(svc))}</p>` : ''}
+        <div class="rsc-card-actions"><a class="rsc-btn rsc-btn-primary" href="${channelUrl(c.id)}"><i data-lucide="tv"></i> Open Channel</a><a class="rsc-btn rsc-btn-ghost" href="${profileUrl(c.id)}">View profile</a></div>
+      </div></article>`;
   }
 
   function boot() {
@@ -291,6 +312,6 @@
     if (page === 'church-detail') initProfile();
     if (page === 'church-channel') initChannel();
   }
-  window.RSChurchDirectory = { liveChurchIds, isLive };
+  window.RSChurchDirectory = { liveChurchIds, isLive, churchCard };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
