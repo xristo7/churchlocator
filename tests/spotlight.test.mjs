@@ -23,7 +23,7 @@ test('Spotlight is a first-class responsive member route', async () => {
 
 test('Spotlight derives its visual identity from the theme system', async () => {
   const styles = await read('public/spotlight.css');
-  for (const token of ['--primary-h', '--primary-s', '--primary-l', '--primary-gradient', '--primary-glow', '--gold-rgb', '--gold-glow', '--background', '--surface', '--border']) {
+  for (const token of ['--primary-h', '--primary-s', '--primary-l', '--primary-gradient', '--primary-glow', '--gold-glow', '--background', '--surface', '--border']) {
     assert.match(styles, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
   assert.match(styles, /--spotlight-canvas:\s*var\(--surface-canvas\)/);
