@@ -229,9 +229,9 @@ export async function handlePlatformApi(request,env,ctx) {
  if(!env.DB) throw new ApiError(503,'Storage unavailable.');
  if(scope==='resource-comments') {
   const resourceId=parts[2];
-  if(!resourceId || resourceId.length>128) throw new ApiError(404,'Video resource not found.');
-  const resource=await env.DB.prepare("select id from platform_entities where id=? and kind='resources' and state='published' and json_extract(data_json,'$.type')='Video'").bind(resourceId).first();
-  if(!resource) throw new ApiError(404,'Video resource not found.');
+  if(!resourceId || resourceId.length>128) throw new ApiError(404,'Resource not found.');
+  const resource=await env.DB.prepare("select id from platform_entities where id=? and kind='resources' and state='published'").bind(resourceId).first();
+  if(!resource) throw new ApiError(404,'Resource not found.');
   if(request.method==='GET') {
    const {results}=await env.DB.prepare(`select c.id,c.user_id,c.body,c.created_at,u.name
     from resource_comments c join users u on u.id=c.user_id

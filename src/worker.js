@@ -5,6 +5,7 @@ import { handlePlatformApi, isOwner, visitorRequestRecord } from './trusted-plat
 import { handleSpotlightApi, deliverSpotlightNotifications } from './spotlight.js';
 import { handleLiveApi, closeExpiredLiveSessions, deliverLiveNotifications } from './live.js';
 import { handleContentEngagementApi } from './content-engagements.js';
+import { handleResourceApi } from './resources.js';
 import { handleSimulatedLiveApi } from './simulated-live.js';
 import { sendPasswordResetEmail, sendVerificationEmail } from './password-email.js';
 
@@ -1802,6 +1803,8 @@ async function handleApi(request, env, executionCtx) {
     if(liveResponse)return liveResponse;
     const identityResponse = await handleIdentityApi(request, env, context);
     if (identityResponse) return identityResponse;
+    const resourceResponse = await handleResourceApi(request, env, context);
+    if (resourceResponse) return resourceResponse;
     const platformResponse = await handlePlatformApi(request, env, context);
     if (platformResponse) return platformResponse;
     const simulatedLiveResponse = await handleSimulatedLiveApi(request, env, context);
