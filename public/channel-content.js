@@ -87,7 +87,7 @@
   }
 
   function mediaKind(url) {
-    if (!url || !isHttpsUrl(url)) return "none";
+    if (!url || (!isHttpsUrl(url) && !/^\/media\/church-video\/[0-9a-f-]{36}\.(?:mp4|webm)$/i.test(url))) return "none";
     if (youtubeId(url)) return "youtube";
     if (/\.(mp4|webm)(?:\?|$)/i.test(url)) return "video";
     if (/\.(mp3|m4a|ogg)(?:\?|$)/i.test(url)) return "audio";

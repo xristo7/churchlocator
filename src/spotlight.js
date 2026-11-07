@@ -85,6 +85,10 @@ function itemRecord(row) {
   };
 }
 
+export function playableSpotlightSource(value) {
+  return /^https:\/\//i.test(value || '') || /^\/media\/church-video\/[0-9a-f-]{36}\.(?:mp4|webm)$/i.test(value || '');
+}
+
 function validateItem(input) {
   const contentType = cleanText(input.contentType, 30, 'Content type', true);
   if (!contentTypes.has(contentType)) throw new ApiError(400, 'Choose a valid Spotlight content type.');
@@ -172,7 +176,7 @@ async function workspace(request, env, ctx, id) {
     const tenantId = owner && input.tenantId ? cleanText(input.tenantId, 128, 'Tenant', true) : await ownTenant(env, user);
     const channel = await verifyChannel(env, user, data.channelEntityId, tenantId, owner);
     if (!data.channelEntityId) throw new ApiError(400, 'Choose the channel submitting this content.');
-    if (['short','long-preview','live'].includes(data.contentType) && !/^https:\/\//i.test(data.fullContentUrl||'')) throw new ApiError(400, 'Add the HTTPS full video URL.');
+    if (['short','long-preview','live'].includes(data.contentType) && !playableSpotlightSource(data.fullContentUrl)) throw new ApiError(400, 'Add a full video URL or upload a video.');
     const now = new Date().toISOString();
     const itemId = 'spotlight-' + crypto.randomUUID();
     const existingStatus = null;
@@ -198,7 +202,7 @@ async function workspace(request, env, ctx, id) {
     const existingStatus = existing.status;
     const channel = await verifyChannel(env, user, data.channelEntityId, existing.tenant_id, owner);
     if (!data.channelEntityId) throw new ApiError(400, 'Choose the channel submitting this content.');
-    if (['short','long-preview','live'].includes(data.contentType) && !/^https:\/\//i.test(data.fullContentUrl||'')) throw new ApiError(400, 'Add the HTTPS full video URL.');
+    if (['short','long-preview','live'].includes(data.contentType) && !playableSpotlightSource(data.fullContentUrl)) throw new ApiError(400, 'Add a full video URL or upload a video.');
     const now = new Date().toISOString();
     const status = input.saveAsDraft ? 'draft' : (!owner && studioAutoApprove(env, user) && !['rejected','expired'].includes(existingStatus) ? 'approved' : 'pending');
     const result = await env.DB.prepare(`update spotlight_items set channel_entity_id=?,subject_entity_id=?,content_type=?,title=?,caption=?,creator_name=?,creator_handle=?,creator_avatar_url=?,media_url=?,poster_url=?,full_content_url=?,preview_source=?,preview_start_seconds=?,preview_end_seconds=?,duration_seconds=?,cta_label=?,cta_url=?,comments_enabled=?,status=?,moderation_note=null,revision=revision+1,updated_at=? where id=? and revision=? returning *`).bind(data.channelEntityId, data.subjectEntityId, data.contentType, data.title, data.caption, data.creatorName || channel?.name || user.name, data.creatorHandle || channel?.handle || '', data.creatorAvatarUrl || channel?.avatar || null, data.mediaUrl, data.posterUrl, data.fullContentUrl, data.previewSource, data.previewStartSeconds, data.previewEndSeconds, data.durationSeconds, data.ctaLabel, data.ctaUrl, Number(data.commentsEnabled), status, now, id, existing.revision).first();

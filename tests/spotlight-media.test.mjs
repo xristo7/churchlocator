@@ -62,3 +62,15 @@ test('playback counts one view per playback key and ignores unpublished items', 
   await assert.rejects(s.call('playback/live-1', 'GET'), { status: 405 });
   assert.equal(s.db.prepare("select view_count from spotlight_items where id='live-1'").get().view_count, 2);
 });
+
+test('a creator can save and edit an uploaded video as its full content source', async () => {
+  const s=setup();s.as('creator');
+  s.db.exec("insert into tenant_memberships values ('t1','creator','owner')");
+  const upload=await(await s.call('upload','POST',form(MP4,JPEG))).json();
+  const body={channelEntityId:'channel-1',contentType:'long-preview',title:'Uploaded story',posterUrl:upload.posterUrl,mediaUrl:upload.videoUrl,fullContentUrl:upload.videoUrl,previewStartSeconds:1,previewEndSeconds:3,durationSeconds:8};
+  const saved=await(await s.call('workspace','POST',body)).json();
+  assert.equal(saved.item.fullContentUrl,upload.videoUrl);
+  const edited=await(await s.call('workspace/'+saved.item.id,'PUT',{...body,title:'Edited story',revision:saved.item.revision})).json();
+  assert.equal(edited.item.title,'Edited story');assert.equal(edited.item.fullContentUrl,upload.videoUrl);
+  await assert.rejects(s.call('workspace','POST',{...body,fullContentUrl:'/assets/not-a-full-video.mp4'}),{status:400});
+});
