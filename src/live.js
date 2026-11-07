@@ -215,3 +215,6 @@ export async function deliverLiveNotifications(env) {
   where s.status='live' and s.expires_at>? and e.state='published' and f.notifications_enabled=1 and f.created_at<=s.created_at
   and not exists(select 1 from live_notifications n where n.session_id=s.id and n.user_id=f.user_id) limit 500`).bind(stamp()).run();
 }
+
+// Shared provider transport; credentials remain encrypted in the existing Live setup.
+export { configuration as liveConfiguration, cloudflare as liveRequest, kit as liveKitPath };

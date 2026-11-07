@@ -1924,7 +1924,8 @@ export default {
     for (const [key, value] of Object.entries(securityHeaders)) newHeaders.set(key, value);
     const livePath=assetRequest(request).url;
     if(/\/(?:app|channel-live)\.html(?:\?|$)/.test(livePath))newHeaders.set('permissions-policy','camera=(self), microphone=(self), geolocation=(self)');
-    if(/\/channel-live\.html(?:\?|$)/.test(livePath))newHeaders.set('content-security-policy',newHeaders.get('content-security-policy').replace("connect-src 'self'","connect-src 'self' https://*.realtime.cloudflare.com wss://*.realtime.cloudflare.com"));
+    if(/\/meditation\.html(?:\?|$)/.test(livePath))newHeaders.set('permissions-policy','camera=(), microphone=(self), geolocation=(self)');
+    if(/\/(?:channel-live|meditation)\.html(?:\?|$)/.test(livePath))newHeaders.set('content-security-policy',newHeaders.get('content-security-policy').replace("connect-src 'self'","connect-src 'self' https://*.realtime.cloudflare.com wss://*.realtime.cloudflare.com"));
     if(/\/broadcast\.html(?:\?|$)/.test(livePath)){
       let policy=newHeaders.get('content-security-policy').replace("frame-src 'self'","frame-src 'self' https://platform.twitter.com https://syndication.twitter.com https://vimeo.com https://www.facebook.com https://iframe.videodelivery.net https://*.cloudflarestream.com https://player.mediadelivery.net https://iframe.mediadelivery.net https://player.cloudinary.com").replace("connect-src 'self'","connect-src 'self' https://*.cloudflarestream.com https://res.cloudinary.com https://*.b-cdn.net https://stream.mux.com").replace("script-src 'self'","script-src 'self' https://platform.twitter.com");
       if(env.DB&&(!url.searchParams.get('type')||url.searchParams.get('type')==='church')){

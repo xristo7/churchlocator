@@ -262,6 +262,7 @@
     return {
       view,
       id: params.get("id") || "",
+      session: params.get("session") || "",
       q: params.get("q") || "",
       ministry: params.get("ministry") || "",
       compose: params.get("compose") || "",
@@ -569,6 +570,14 @@
     if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
     const message = event.data || {};
     if (message.type === "mwe-language-change" && languages[message.lang] && message.lang !== currentMemberLanguage) { setMemberLanguage(message.lang); return; }
+    if (message.type === "faithlink:meditation-session") {
+      const route = getRoute();
+      if (route.view === "meditation" && route.id === message.roomId && /^[\w-]{1,128}$/.test(message.session || "")) {
+        route.session = message.session;
+        history.replaceState({route}, "", buildShellUrl(route));
+      }
+      return;
+    }
     if (message.type === "mwe:profile-updated" && message.user) {
       window.MWEAuth?.applySession(message.user).then(syncMemberIdentity);
       return;
@@ -585,7 +594,7 @@
       return;
     }
     if (!views[message.view]) return;
-    loadRoute({ view: message.view, id: message.id || "", q: message.q || "", post: message.post || "", compose: message.compose || "" });
+    loadRoute({ view: message.view, id: message.id || "", q: message.q || "", post: message.post || "", compose: message.compose || "", session: message.session || "" });
   });
 
   window.addEventListener("popstate", () => loadRoute(getRoute(), { history: false }));

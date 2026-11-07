@@ -1572,6 +1572,7 @@ MWE.getMemberShellRoute = function(input) {
 
   return {
     view,
+    session: view === "meditation" ? url.searchParams.get("session") || "" : "",
     id: url.searchParams.get("id") || url.searchParams.get("channel") || url.searchParams.get("room") || "",
     q: url.searchParams.get("q") || "",
     ministry: url.searchParams.get("ministry") || "",
@@ -1585,6 +1586,7 @@ MWE.buildMemberShellUrl = function(route) {
   const target = new URL("app.html", window.location.href);
   target.searchParams.set("view", route.view || "directory");
   if (route.id) target.searchParams.set("id", route.id);
+  if (route.view === "meditation" && route.session) target.searchParams.set("session", route.session);
   if (route.q) target.searchParams.set("q", route.q);
   if (route.ministry) target.searchParams.set("ministry", route.ministry);
   if (route.compose) target.searchParams.set("compose", route.compose);
