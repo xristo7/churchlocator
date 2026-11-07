@@ -36,7 +36,8 @@ function materialFor(data, env) {
   const out = { embedUrl: null, fileUrl: null, captions: [] };
   const check = (value, hosts) => { try { const u = new URL(value); return u.protocol === 'https:' && hosts(u.hostname) ? u.toString() : null; } catch { return null; } };
   if (data.embedUrl) out.embedUrl = check(data.embedUrl, h => EMBED_HOSTS.has(h) || allowed.has(h));
-  for (const field of ['sourceUrl', 'fileUrl', 'videoUrl', 'audioSrc']) if (!out.fileUrl && data[field]) out.fileUrl = check(data[field], h => allowed.has(h));
+  if (!out.embedUrl && data.type === 'Video' && data.sourceUrl) out.embedUrl = check(data.sourceUrl, h => EMBED_HOSTS.has(h));
+  for (const field of ['sourceUrl', 'fileUrl', 'videoUrl', 'audioSrc']) if (!out.fileUrl && data[field] && data[field] !== out.embedUrl) out.fileUrl = check(data[field], h => allowed.has(h));
   if (Array.isArray(data.captions)) out.captions = data.captions.map(c => ({ src: check(c?.src, h => allowed.has(h)), label: String(c?.label || 'Captions').slice(0, 40), lang: String(c?.lang || 'en').slice(0, 12) })).filter(c => c.src);
   return out;
 }
@@ -44,6 +45,14 @@ function materialFor(data, env) {
 export async function handleResourcesApi(request, env, ctx) {
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, '');
+  if (path === '/api/resource-library') {
+    if (request.method !== 'GET') throw new ApiError(405, 'Method not allowed.');
+    const user=await ctx.getSessionUser(request,env);
+    if(!user) return ctx.json({ok:true,library:[],bookmarks:[]});
+    if(!env.DB) throw new ApiError(503,'Storage unavailable.');
+    const {results}=await env.DB.prepare('select resource_id,list from resource_library where user_id=?').bind(user.id).all();
+    return ctx.json({ok:true,library:results.filter(row=>row.list==='library').map(row=>row.resource_id),bookmarks:results.filter(row=>row.list==='bookmark').map(row=>row.resource_id)});
+  }
   const match = path.match(/^\/api\/resources\/([^/]+)(?:\/(library|bookmark))?$/);
   if (!match) return null;
   if (!env.DB) return ctx.json({ ok: false, error: 'Storage unavailable.' }, 503);
