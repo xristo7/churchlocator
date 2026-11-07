@@ -134,7 +134,7 @@ async function handleMediaRequest(request, env) {
   if (!env.MEDIA) return new Response("Media storage unavailable", { status: 503, headers: securityHeaders });
   if (request.method !== "GET" && request.method !== "HEAD") return new Response("Method not allowed", { status: 405, headers: { allow: "GET, HEAD", ...securityHeaders } });
   const key = new URL(request.url).pathname.slice("/media/".length);
-  const isChurchVideo = /^church-video\/[0-9a-f-]{36}\.mp4$/.test(key);
+  const isChurchVideo = /^church-video\/[0-9a-f-]{36}\.(mp4|webm)$/.test(key);
   if (!isChurchVideo && !/^(creator-media|member-avatars)\/[0-9a-f-]{36}\.(jpg|png|webp|gif|mp3)$/.test(key)) return new Response("Not found", { status: 404, headers: securityHeaders });
   const rangeHeader = isChurchVideo && request.method === "GET" ? request.headers.get("range") : null;
   let range = null;
