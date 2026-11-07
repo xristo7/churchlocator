@@ -4,6 +4,7 @@
   const page = (location.pathname.replace(/\/+$/, "").split("/").pop() || "index").replace(/\.html$/, "") || "index";
   // Immersive full-screen views (short video feed, live/video players) skip the tab bar.
   const immersive = ["reset-password", "spotlight", "spotlight-studio", "live", "livestream", "watch", "broadcast", "channel-live"];
+  if (page === "owner-dashboard") return; // admin workspace: no member tab bar
   if (immersive.includes(page)) { document.documentElement.classList.add("mwe-immersive"); return; }
   const svg = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + "</svg>";
   const tabs = [
@@ -143,7 +144,9 @@
     resources: { source: "resources.html", title: "Christian Resources" },
     "resource-detail": { source: "resource-detail.html", title: "Resource Details" },
     "resource-reader": { source: "resource-reader.html", title: "Resource Reader" },
-    portal: { source: "creator-studio.html", title: "Studio" }
+    portal: { source: "creator-studio.html", title: "Studio" },
+    create: { source: "creator-studio.html", title: "Studio" },
+    "spotlight-studio": { source: "spotlight-studio.html", title: "Spotlight Studio" }
   };
 
   const sectionContexts = {
@@ -157,7 +160,8 @@
     store: ["Store", "shopping-bag"], storefront: ["Store", "shopping-bag"], product: ["Store", "shopping-bag"], cart: ["Store", "shopping-bag"], checkout: ["Store", "shopping-bag"], "store-manager": ["Store", "shopping-bag"],
     resources: ["Resources", "book-open"], "resource-detail": ["Resources", "book-open"], "resource-reader": ["Resources", "book-open"],
     giving: ["Give", "heart-handshake"], messages: ["Messages", "messages-square"], profile: ["Profile", "user-round"], security: ["Security", "shield-check"],
-    portal: ["Studio", "sparkles"]
+    portal: ["Studio", "sparkles"], create: ["Studio", "sparkles"],
+    "spotlight-studio": ["Spotlight", "play-square"]
   };
 
   function updateSectionContext(view) {
@@ -252,7 +256,7 @@
 
   function getRoute() {
     const params = new URLSearchParams(window.location.search);
-    const atRoot = /^\/(?:index(?:\.html)?)?$/.test(window.location.pathname);
+    const atRoot = /^\/(?:index(?:\.html)?|home)?$/.test(window.location.pathname);
     const requested = params.get("view") || (atRoot ? "home" : "directory");
     const view = views[requested] ? requested : "directory";
     return {
@@ -261,7 +265,8 @@
       q: params.get("q") || "",
       ministry: params.get("ministry") || "",
       compose: params.get("compose") || "",
-      post: params.get("post") || ""
+      post: params.get("post") || "",
+      session: params.get("session") || ""
     };
   }
 
@@ -275,13 +280,14 @@
     if (route.compose) source.searchParams.set("compose", route.compose);
     if (route.view === "channel-content" && route.id) source.searchParams.set("channel", route.id);
     if (route.view === "meditation" && route.id) source.searchParams.set("room", route.id);
+    if (route.view === "meditation" && route.session) source.searchParams.set("session", route.session);
     if (route.view === "channel-live" && route.post) source.searchParams.set("session", route.post);
     if (route.post) source.searchParams.set("post", route.post);
     return source.toString();
   }
 
   function buildShellUrl(route) {
-    if (route.view === "home" && !route.id && !route.q) return "/";
+    if (route.view === "home" && !route.id && !route.q) return "/home";
     const target = new URL("app.html", window.location.href);
     target.searchParams.set("view", route.view);
     if (route.id) target.searchParams.set("id", route.id);
@@ -290,6 +296,7 @@
   if (route.ministry) target.searchParams.set("ministry", route.ministry);
     if (route.compose) target.searchParams.set("compose", route.compose);
     if (route.post) target.searchParams.set("post", route.post);
+    if (route.view === "meditation" && route.session) target.searchParams.set("session", route.session);
     return `${target.pathname.split("/").pop()}${target.search}`;
   }
 
@@ -307,21 +314,18 @@
     return ["messages", "profile", "security", "store-manager", "cart", "checkout"].includes(view);
   }
 
+  function signedOutSource(route) {
+    return `signed-out.html?view=${encodeURIComponent(route.view)}&next=${encodeURIComponent(buildShellUrl(route))}`;
+  }
+
   function loadRoute(route, options = {}) {
     const safeRoute = views[route.view] ? route : { view: "directory", id: "", q: "", compose: "" };
-    if (isProtectedView(safeRoute.view) && !isAuthenticated()) {
-      const destination = buildShellUrl(safeRoute);
-      if (window.MWE?.openMemberLogin) {
-        window.MWE.openMemberLogin(destination, { locked: true });
-      } else {
-        window.location.href = `index.html?login=required&next=${encodeURIComponent(destination)}`;
-      }
-      return;
-    }
+    // Private views show a normal signed-out state in place; sign-in is offered, never forced.
+    const signedOut = isProtectedView(safeRoute.view) && !isAuthenticated();
 
     loading?.classList.remove("is-hidden");
     frame.classList.remove("is-ready");
-    frame.src = buildSource(safeRoute);
+    frame.src = signedOut ? signedOutSource(safeRoute) : buildSource(safeRoute);
     frame.title = views[safeRoute.view].title;
     document.title = `${views[safeRoute.view].title} | RhemaSphere`;
     setActiveNavigation(safeRoute.view);
@@ -426,8 +430,14 @@
       window.MWE?.showMemberToast?.("Could not copy the link. Please try again.");
     }
   });
-  document.addEventListener("click", event => { if (invitePopover && (event.target === invitePopover || (!invitePopover.contains(event.target) && !inviteButton?.contains(event.target)))) closeInvitePopover(); });
-  document.addEventListener("keydown", event => { if (event.key === "Escape") closeInvitePopover(); });
+  invitePopover?.addEventListener("click", event => {
+    if (event.target === invitePopover || event.target.closest(".member-invite-close")) { event.preventDefault(); closeInvitePopover(); return; }
+    const pick = event.target.closest('a[data-share-target]');
+    if (pick) setTimeout(closeInvitePopover, 0);
+  });
+  document.addEventListener("click", event => { if (invitePopover && !invitePopover.hidden && !invitePopover.contains(event.target) && !inviteButton?.contains(event.target)) closeInvitePopover(); }, true);
+  document.addEventListener("keydown", event => { if (event.key === "Escape") closeInvitePopover(); }, true);
+  window.addEventListener("message", event => { if (event.data && event.data.type === "rs-escape") closeInvitePopover(); });
 
     const flagSvgs = {
     en: '<svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg>',
@@ -558,6 +568,7 @@
   window.addEventListener("message", event => {
     if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
     const message = event.data || {};
+    if (message.type === "mwe-language-change" && languages[message.lang] && message.lang !== currentMemberLanguage) { setMemberLanguage(message.lang); return; }
     if (message.type === "mwe:profile-updated" && message.user) {
       window.MWEAuth?.applySession(message.user).then(syncMemberIdentity);
       return;
@@ -589,10 +600,8 @@
     if (platformResolved && !window.MWEPlatform.session) { localStorage.removeItem("mwe.userLoggedIn"); localStorage.removeItem("mwe.username"); }
     syncMemberIdentity();
     const route = getRoute();
-    if (isProtectedView(route.view) && !isAuthenticated()) {
-      frame.src = "about:blank";
-      loadRoute({ view: "directory", id: "", q: "", compose: "" }, { history: false });
-      window.MWE?.openMemberLogin?.(buildShellUrl(route), { locked: true });
+    if (isProtectedView(route.view) && !isAuthenticated() && !String(frame.src).includes("signed-out.html")) {
+      frame.src = signedOutSource(route);
     }
   });
   window.lucide?.createIcons();
@@ -1132,7 +1141,7 @@
     } catch { return { ok: false, message: "We couldn't detect your location right now. Pick your region instead." }; }
     const country = G.countryCode(data.country);
     if (!country) return { ok: false, message: "The directory covers Canada, the USA and the United Kingdom for now. Pick a region to browse." };
-    const state = G.subdivisionCode(country, data.regionCode) || G.subdivisionCode(country, data.region);
+    const state = (country === "GB" && G.areaCode && (G.areaCode(data.county) || G.areaCode(data.city))) || G.subdivisionCode(country, data.regionCode) || G.subdivisionCode(country, data.region);
     const place = { country, state, city: state ? String(data.city || "") : "", coords: Number.isFinite(data.lat) && data.lat !== null ? { lat: data.lat, lng: data.lng } : null, source: data.source };
     try { sessionStorage.setItem(KEY, JSON.stringify(place)); } catch {}
     return { ok: true, place, note };
@@ -1226,12 +1235,12 @@
     s.btn.querySelector(".mwe-combo-value").textContent = state.state ? G.subdivisionName(state.country, state.state) : (r ? `Any ${r.unit.toLowerCase()}` : "State / Province");
     ci.btn.querySelector(".mwe-combo-value").textContent = state.city || "Any city";
     s.btn.disabled = !r; ci.btn.disabled = !state.state;
-    s.search.placeholder = r ? `Search ${r.unit.toLowerCase()}s` : ""; ci.search.placeholder = "Search or type a city";
+    s.search.placeholder = r ? (r.areas ? "Search nations or counties" : `Search ${r.unit.toLowerCase()}s`) : ""; ci.search.placeholder = "Search or type a city";
     c.btn.classList.toggle("has-value", !!r); s.btn.classList.toggle("has-value", !!state.state); ci.btn.classList.toggle("has-value", !!state.city);
     s.btn.setAttribute("aria-label", r ? r.unit : "State or province"); c.btn.setAttribute("aria-label", "Region"); ci.btn.setAttribute("aria-label", "City");
   };
   make("country", { items: () => [{ value: "", label: "Any region" }, ...G.REGIONS.map((r) => ({ value: r.code, label: r.name + " " + r.short, html: `<span class="mwe-flag">${r.flag}</span> ${esc(r.short)}` }))], pick: (v) => setAll({ country: v }) });
-  make("state", { items: () => { const r = G.region(state.country); return r ? [{ value: "", label: "Any " + r.unit.toLowerCase() }, ...r.subdivisions.map((x) => ({ value: x.code, label: x.name }))] : []; }, pick: (v) => setAll({ country: state.country, state: v }) });
+  make("state", { items: () => { const r = G.region(state.country); return r ? [{ value: "", label: "Any " + r.unit.toLowerCase() }, ...G.pickList(r.code).map((x) => ({ value: x.code, label: x.name + (x.nation ? " " + G.subdivisionName("GB", x.nation) : ""), html: x.nation ? `<span class="mwe-geo-area">${esc(x.name)}</span>` : (r.areas ? `<span class="mwe-geo-nation">${esc(x.name)} <small>All of ${esc(x.name)}</small></span>` : esc(x.name)) }))] : []; }, pick: (v) => setAll({ country: state.country, state: v }) });
   make("city", { free: true, items: () => [{ value: "", label: "Any city" }, ...G.citiesFor(churches(), state.country, state.state).map((x) => ({ value: x, label: x }))], pick: (v) => setAll({ ...state, city: v }) });
   try { const saved = JSON.parse(sessionStorage.getItem("mwe.location.filter") || "null"); if (saved) setAll(saved); else paintAll(); } catch { paintAll(); }
   const inline = box.querySelector(".mwe-locate-inline");
@@ -1298,4 +1307,145 @@
     window.MWEMobileSearch = { open: show, close: hide };
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup, { once: true }); else setup();
+})();
+
+/* rs bottom-obstruction: expose --tabbar-h / --stickybar-h / --rs-obstruct so nothing hides behind fixed bars */
+(function () {
+  if (window.__rsObstruct) return; window.__rsObstruct = true;
+  const root = document.documentElement;
+  function visible(el) { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.height > 0 && cs.display !== "none" && cs.visibility !== "hidden" && !el.hidden; }
+  function measure() {
+    const vh = window.innerHeight; let tab = 0, sticky = 0;
+    const tb = document.querySelector(".mwe-tabbar");
+    const navHidden = root.classList.contains("rs-nav-hidden");
+    let full = 0; if (tb && visible(tb)) { full = tb.offsetHeight; tab = navHidden ? 0 : full; }
+    document.querySelectorAll(".sf-sticky-buy, [data-sticky-bottom]").forEach(el => {
+      if (!visible(el)) return; sticky = Math.max(sticky, el.offsetHeight);
+    });
+    if (!tab && window.frameElement) { try { const ptb = window.parent.document.querySelector(".mwe-tabbar"); if (ptb && ptb.getBoundingClientRect().height) { const fr = window.frameElement.getBoundingClientRect(); full = Math.max(0, fr.top + window.frameElement.clientTop + window.innerHeight - (window.parent.innerHeight - ptb.offsetHeight)); tab = window.parent.document.documentElement.classList.contains("rs-nav-hidden") ? 0 : full; } } catch (e) {} }
+    if (!full && window.__rsParentFull) { full = window.__rsParentFull; tab = window.__rsParentTab || 0; }
+    root.style.setProperty("--rs-tabbar-h", Math.round(tab) + "px");
+    if (!window.frameElement) { const fr = document.getElementById("member-shell-frame"); if (fr && fr.contentWindow) { const tf = tb && visible(tb) ? Math.max(0, fr.getBoundingClientRect().top + fr.clientTop + (fr.contentWindow.innerHeight || fr.clientHeight) - (vh - tb.offsetHeight)) : 0; const t = navHidden ? 0 : tf; try { fr.contentWindow.postMessage({ type: "rs-tabbar", h: Math.round(t), full: Math.round(tf) }, location.origin); } catch (e) {} } }
+    root.style.setProperty("--stickybar-h", Math.round(Math.max(0, sticky)) + "px");
+    root.style.setProperty("--rs-obstruct", Math.round(full + Math.max(0, sticky)) + "px");
+    root.classList.toggle("rs-has-bottom-bars", full + sticky > 0);
+  }
+  let raf = 0; const schedule = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(measure); };
+  function init() {
+    measure();
+    if ("ResizeObserver" in window) { const ro = new ResizeObserver(schedule); const watch = () => document.querySelectorAll(".mwe-tabbar, .sf-sticky-buy, [data-sticky-bottom]").forEach(el => ro.observe(el)); watch(); new MutationObserver(() => { watch(); schedule(); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden", "style"] }); }
+    window.addEventListener("resize", schedule); window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("message", e => { if (e.origin === location.origin && e.data && e.data.type === "rs-tabbar") { window.__rsParentTab = +e.data.h || 0; window.__rsParentFull = +e.data.full || 0; schedule(); } });
+    const fr = document.getElementById("member-shell-frame"); if (fr) fr.addEventListener("load", () => setTimeout(schedule, 50));
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+})();
+
+/* rs side-menu brand row */
+(function () {
+  function add() {
+    const src = document.querySelector(".profile-app-brand-mark, .brand-mark, header a[class*=brand] [class*=mark], header a[class*=logo] svg");
+    document.querySelectorAll("#member-shell-rail, .topbar-menu-group").forEach(rail => {
+    if (rail.querySelector(".rs-rail-brand")) return;
+    const a = document.createElement("a"); a.className = "rs-rail-brand"; a.href = "/"; a.setAttribute("aria-label", "RhemaSphere home");
+    a.innerHTML = `<span class="profile-app-brand-mark">${src ? (src.tagName.toLowerCase() === "svg" ? src.outerHTML : src.innerHTML) : '<i data-lucide="sparkles"></i>'}</span><strong>RhemaSphere</strong>`;
+    rail.insertBefore(a, rail.firstChild);
+    });
+    window.lucide?.createIcons?.();
+  }
+  const start = () => { add(); let t = 0; new MutationObserver(() => { clearTimeout(t); t = setTimeout(add, 60); }).observe(document.body, { childList: true, subtree: true }); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
+
+/* task6: shell main starts exactly at header bottom (no double offset) */
+(function(){
+  function fit(){
+    var h=document.getElementById('member-shell-header'),m=document.getElementById('member-shell-main');
+    if(!h||!m)return;var b=Math.round(h.getBoundingClientRect().bottom);
+    if(document.documentElement.classList.contains('rs-frame-modal')){m.style.setProperty('top','0px','important');return;}
+    if(b>0&&b<200)m.style.setProperty('top',b+'px','important');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fit);else fit();
+  addEventListener('resize',fit);addEventListener('load',fit);setTimeout(fit,600);
+})();
+
+/* rs popups above shell header/tabbar: frame tells parent to go full-screen while a modal is open */
+(function(){
+  if(window.__rsModal)return;window.__rsModal=true;
+  var root=document.documentElement,SEL='dialog[open],[aria-modal="true"]:not([hidden]),.modal-overlay.open,.modal-overlay.is-open,.modal.open,.modal.is-open';
+  function vis(el){var r=el.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(el).visibility!=='hidden';}
+  var last=null;
+  function check(){
+    var open=[].some.call(document.querySelectorAll(SEL),vis);
+    if(open===last)return;last=open;
+    root.classList.toggle('rs-modal-open',open);
+    if(window.frameElement||window.parent!==window){try{window.parent.postMessage({type:'rs-modal',open:open},location.origin)}catch(e){}}
+  }
+  var t=0;function sch(){clearTimeout(t);t=setTimeout(check,30);}
+  function init(){new MutationObserver(sch).observe(document.body,{subtree:true,attributes:true,childList:true,attributeFilter:['open','class','hidden','aria-modal','style']});document.addEventListener('close',sch,true);check();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  if(!window.frameElement){window.addEventListener('message',function(e){if(e.origin===location.origin&&e.data&&e.data.type==='rs-modal'){root.classList.toggle('rs-frame-modal',!!e.data.open);window.dispatchEvent(new Event('resize'));}});}
+})();
+
+/* studio pages (no app.js): follow saved theme + accent */
+(function(){
+  if (typeof window.MWEApplyThemePrefs === "function") return;
+  if (!document.body || !document.body.classList.contains("creator-studio-page")) return;
+  var d = document.documentElement, ids = ["blue","indigo","purple","pink","red","orange","green","teal"];
+  function apply(theme, primary){
+    if (theme === "light" || theme === "dark") { d.dataset.theme = theme; d.style.colorScheme = theme; }
+    if (ids.indexOf(primary) >= 0) d.dataset.primary = primary;
+  }
+  var t = null, p = null;
+  try { t = localStorage.getItem("mwe.platform.theme.v1"); p = localStorage.getItem("mwe.platform.primary.v1"); } catch (e) {}
+  if (t !== "light" && t !== "dark") t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  apply(t, p || "blue");
+  window.addEventListener("message", function(e){
+    if (e.origin !== location.origin || !e.data) return;
+    if (e.data.type === "mwe-theme") apply(e.data.theme, null);
+    if (e.data.type === "mwe-primary-color") apply(null, e.data.primaryColor);
+  });
+})();
+
+/* studio pages opened directly (not inside the app shell): brand row with logo + wordmark */
+(function(){
+  if (!document.body || !document.body.classList.contains("creator-studio-page")) return;
+  if (window.top !== window) return;
+  if (document.querySelector(".rs-studio-brandbar")) return;
+  var bar = document.createElement("header"); bar.className = "rs-studio-brandbar";
+  bar.innerHTML = '<a class="rs-room-brand" href="/" aria-label="RhemaSphere home"><span class="rs-room-brand-mark"><i data-lucide="sparkles"></i></span><strong>RhemaSphere</strong></a>';
+  document.body.insertBefore(bar, document.body.firstChild);
+  window.lucide && window.lucide.createIcons && window.lucide.createIcons();
+})();
+
+/* framed pages already sit under the shell header: mark them so inner brand rows hide */
+(function(){ try { if (window.top !== window) document.documentElement.classList.add("rs-in-frame"); } catch (e) {} })();
+
+/* mobile bottom nav: show on scroll DOWN, hide on scroll UP (pt139u); iframes report direction to the shell */
+(function () {
+  if (window.__rsNavDir) return; window.__rsNavDir = true;
+  const root = document.documentElement; const framed = window.top !== window.self;
+  const mobile = () => window.matchMedia("(max-width:959.98px)").matches;
+  const apply = (hidden) => {
+    if (root.classList.contains("rs-nav-hidden") === hidden) return;
+    root.classList.toggle("rs-nav-hidden", hidden);
+    window.dispatchEvent(new Event("resize"));
+    const fr = document.getElementById("member-shell-frame");
+    if (fr && fr.contentWindow) try { fr.contentWindow.postMessage({ type: "rs-nav-state", hidden }, location.origin); } catch (e) {}
+  };
+  const set = (hidden) => { if (framed) { try { window.parent.postMessage({ type: "rs-navdir", hidden }, location.origin); } catch (e) {} } else apply(hidden); };
+  let last = window.scrollY, acc = 0;
+  window.addEventListener("scroll", () => {
+    const y = window.scrollY, d = y - last; last = y;
+    if (!mobile()) return;
+    if (y < 40) { acc = 0; set(false); return; }
+    if ((d > 0) !== (acc > 0)) acc = 0; acc += d;
+    if (acc > 8) set(false); else if (acc < -8) set(true);
+  }, { passive: true });
+  window.addEventListener("message", (e) => {
+    if (e.origin !== location.origin || !e.data) return;
+    if (!framed && e.data.type === "rs-navdir") apply(!!e.data.hidden);
+    if (framed && e.data.type === "rs-nav-state") { root.classList.toggle("rs-nav-hidden", !!e.data.hidden); window.dispatchEvent(new Event("resize")); }
+  });
+  window.addEventListener("resize", () => { if (!mobile() && !framed) apply(false); });
 })();

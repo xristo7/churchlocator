@@ -2,33 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261026ch1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261026ui8" />
   <title>Christian Channels | RhemaSphere</title>
-    <link rel="stylesheet" href="styles.css?v=20261026ch2" />
+    <link rel="stylesheet" href="styles.css?v=20261030ui1" />
   <script src="vendor/lucide.js"></script>
   <script defer src="platform-client.js?v=20261026ch1"></script><script src="ministries.js?v=20261026ch1"></script>
-  <script defer src="app.js?v=20261026ch1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
-  <script defer src="platform-modules.js?v=20261026ch1"></script>
-  <script defer src="channels.js?v=20261026ch1"></script>
+  <script defer src="i18n-ui.js?v=20261103bl1"></script><script defer src="app.js?v=20261103bl1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
+  <script defer src="platform-modules.js?v=20261026ui4"></script>
+  <script defer src="channels.js?v=20261031cc1"></script>
   <script defer src="content-engagements.js?v=20261026ch1"></script>
-<link rel="stylesheet" href="responsive.css?v=20261026ch1" /><script defer src="app-shell.js?v=20261026ch1"></script><link rel="stylesheet" href="app-shell.css?v=20261026ch1" /><link rel="stylesheet" href="mw-ui.css?v=20261026ch1" /><script defer src="mw-ui.js?v=20261026ch1"></script></head>
+<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><script defer src="app-shell.js?v=20261103bl1"></script><link rel="stylesheet" href="app-shell.css?v=20261103mc5" /><link rel="stylesheet" href="mw-ui.css?v=20261026uia" /><script defer src="mw-ui.js?v=20261026ch1"></script><link rel="stylesheet" href="rs-ui.css?v=20261103bl1" /><link rel="stylesheet" href="rs-hero.css?v=20261031f2"></head>
 <body class="mwu module-page" data-page="channels">
   <header class="topbar"></header>
 
   <main>
-    <nav class="mwu-subnav" aria-label="Media">
-      <a href="channels.html" class="is-active" aria-current="page"><i data-lucide="play-square"></i>Videos &amp; Podcasts</a>
-      <a href="livestream.html"><i data-lucide="radio"></i>Live</a>
-      <a href="meditation.html"><i data-lucide="leaf"></i>Meditation</a>
-    </nav>
-    <section class="mwu-hero module-directory-hero" style="background-image:url('assets/demo-channel-table-talk.png')">
-      <div class="mwu-hero-inner">
+    <section class="rs-hero module-directory-hero" style="--rs-hero-img:url('assets/demo-channel-table-talk.png')">
+      <div class="rs-hero-inner">
         <div class="module-hero-copy">
+          <span class="rs-hero-eyebrow"><i data-lucide="play-square"></i> Videos &amp; Podcasts</span>
           <h1>Watch. Listen. Join the conversation.</h1>
           <p>Videos, podcasts and live gatherings that help faith become part of everyday life.</p>
-          <div class="mwu-actions">
-            <button class="mwu-btn mwu-btn-gold module-creator-action" id="create-channel-button" type="button" data-creator-action disabled aria-disabled="true"><i data-lucide="plus"></i> Create Content</button>
-          </div>
+        </div>
+        <div class="rs-hero-actions">
+          <button class="rs-hero-btn module-creator-action" id="create-channel-button" type="button" data-creator-action disabled aria-disabled="true"><i data-lucide="plus"></i> Create Content</button>
         </div>
       </div>
     </section>
@@ -40,7 +36,7 @@
           <input id="channel-search" type="search" placeholder="Search channels or creators" />
         </label>
         <select class="module-select" id="channel-topic" data-filter-label="Topic" aria-label="Filter by topic">
-          <option value="all">All topics</option>
+          <option value="all">For You (all topics)</option>
           <option>Bible Teaching</option><option>Bible Study</option><option>Worship</option><option>Family</option><option>Leadership</option><option>Youth</option><option>Testimony</option>
         </select>
         <select class="module-select" id="channel-format" data-filter-label="Format" aria-label="Filter by format">
@@ -51,14 +47,6 @@
         </select>
       </div>
 
-<div class="mwu-chips mwu-chips-row" data-mwu-select="channel-topic" role="group" aria-label="Topics" >
-        <button type="button" class="mwu-chip is-active" data-value="all" aria-pressed="true"><i data-lucide="star"></i>For You</button>
-        <button type="button" class="mwu-chip" data-value="Bible Teaching" aria-pressed="false"><i data-lucide="book-open"></i>Bible Teaching</button>
-        <button type="button" class="mwu-chip" data-value="Worship" aria-pressed="false"><i data-lucide="music"></i>Worship</button>
-        <button type="button" class="mwu-chip" data-value="Testimony" aria-pressed="false"><i data-lucide="users"></i>Testimonies</button>
-        <button type="button" class="mwu-chip" data-value="Family" aria-pressed="false"><i data-lucide="home"></i>Family</button>
-        <button type="button" class="mwu-chip" data-value="Youth" aria-pressed="false"><i data-lucide="sparkles"></i>Youth</button>
-      </div>
       <div class="module-results-head">
         <h2>Channels to explore</h2>
         <span id="channel-result-count">0 channels</span>
@@ -86,5 +74,6 @@
 
   <footer class="platform-footer"></footer>
   <div class="toast" data-toast role="status" aria-live="polite"></div>
+<script src="/rs-modal-close.js?v=20261106e2i" defer></script>
 </body>
 </html>

@@ -13,7 +13,7 @@
     ["And we know that all things work together for good to them that love God.", "Romans 8:28"],
     ["Be strong and of a good courage; be not afraid, neither be thou dismayed.", "Joshua 1:9"],
     ["The Lord is nigh unto all them that call upon him, to all that call upon him in truth.", "Psalm 145:18"],
-    ["Love suffereth long, and is kind; love envieth not.", "1 Corinthians 13:4"],
+    ["Charity suffereth long, and is kind; charity envieth not.", "1 Corinthians 13:4"],
     ["Let your light so shine before men, that they may see your good works, and glorify your Father which is in heaven.", "Matthew 5:16"],
     ["Peace I leave with you, my peace I give unto you.", "John 14:27"],
     ["Seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.", "Matthew 6:33"],
@@ -34,21 +34,28 @@
     ["Let us not be weary in well doing: for in due season we shall reap, if we faint not.", "Galatians 6:9"]
   ];
 
+  // Ambient image per verse (index-aligned with VERSES).
+  const SCENES = "pasture lake journey lake sunrise sunrise lake forest journey forest lake stars chapel sunrise lake sunrise lake stars chapel pasture journey sunrise chapel chapel forest journey lake stars journey sunrise pasture".split(" ");
+
   function dayIndex(date) {
-    const dayNumber = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
+    const dayNumber = Math.floor(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) / 86400000);
     return dayNumber % VERSES.length;
   }
 
   function render() {
     const mount = document.querySelector("[data-daily-scripture]");
     if (!mount) return;
-    const now = new Date();
-    const [text, ref] = VERSES[dayIndex(now)];
-    const date = now.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    const forced = new URLSearchParams(location.search).get("verseDate");
+    const now = forced ? new Date(forced + "T12:00:00Z") : new Date();
+    const index = dayIndex(now);
+    const [text, ref] = VERSES[index];
+    const card = mount.closest(".rs-home-verse");
+    if (card) { card.style.setProperty("--rs-verse-img", "url('assets/verse/" + SCENES[index] + ".webp')"); card.dataset.scene = SCENES[index]; }
+    const date = now.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" });
     mount.innerHTML = "";
     const label = document.createElement("div");
     label.className = "daily-scripture-label";
-    label.textContent = "Scripture of the Day · " + date;
+    label.textContent = (mount.closest(".rs-home-verse") ? "Verse of the day · " : "Scripture of the Day · ") + date;
     const quote = document.createElement("blockquote");
     quote.textContent = "“" + text + "”";
     const cite = document.createElement("cite");
