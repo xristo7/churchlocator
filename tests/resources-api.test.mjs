@@ -33,7 +33,8 @@ test('resource detail resolves by id or slug and never exposes drafts', async ()
   assert.equal((await (await s.call('the-gospel-a-clear-foundation')).json()).resource.id, 'res-free');
   await assert.rejects(s.call('res-draft'), { status: 404 });
   await assert.rejects(s.call('nope'), { status: 404 });
-  await assert.rejects(s.call('res-free', 'POST', {}), { status: 401 });
+  await assert.rejects(s.call('res-free', 'POST', {}), { status: 405 });
+  await assert.rejects(s.call('res-free/library', 'POST', { on: true }), { status: 401 });
 });
 
 test('free material only exposes trusted https hosts', async () => {
