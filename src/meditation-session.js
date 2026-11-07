@@ -1,3 +1,4 @@
+import { handleMeditationVoice } from './meditation-voice.js';
 import { ApiError, readJson } from './security.js';
 
 export function validatePlayback(input, room) {
@@ -14,8 +15,8 @@ export async function handleMeditationSession(request, env, ctx) {
   if (parts[1] !== 'meditation-session') return null;
   if (!env.DB) throw new ApiError(503, 'Storage unavailable.');
   const roomId = parts[2], sessionId = parts[3];
-  if (!roomId || roomId.length > 128 || parts.length > 4) throw new ApiError(404, 'Session not found.');
-  const entity = await env.DB.prepare("select data_json from platform_entities where id=? and kind='meditation' and state='published'").bind(roomId).first();
+  if (!roomId || roomId.length > 128 || parts.length > 6) throw new ApiError(404, 'Session not found.');
+  const entity = await env.DB.prepare("select data_json,created_by,tenant_id from platform_entities where id=? and kind='meditation' and state='published'").bind(roomId).first();
   if (!entity) throw new ApiError(404, 'Meditation room not found.');
   const room = JSON.parse(entity.data_json);
   const user = await ctx.getSessionUser(request, env);
@@ -29,6 +30,8 @@ export async function handleMeditationSession(request, env, ctx) {
   if (!sessionId || !/^[\w-]{1,128}$/.test(sessionId)) throw new ApiError(404, 'Session not found.');
   const row = await env.DB.prepare('select * from meditation_sessions where id=? and room_id=?').bind(sessionId,roomId).first();
   if (!row) throw new ApiError(404, 'Session not found. Ask the host for a new invitation.');
+  if (parts[4] === 'voice') return handleMeditationVoice(request, env, ctx, row, entity, user, parts[5]);
+  if (parts.length > 4) throw new ApiError(404, 'Session action not found.');
   if (request.method === 'GET') return respond(row);
   if (request.method === 'PUT') {
     if (row.host_user_id !== user.id) throw new ApiError(403, 'Only the session host can control playback.');

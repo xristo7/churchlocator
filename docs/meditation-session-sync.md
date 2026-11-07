@@ -23,3 +23,11 @@ At base commit `eb8525925ae4415a656ec7e57e7ca1abca03c245`, the full suite has 14
 ## Release workflow
 
 Fetch main immediately before merging. Merge advanced main into the `codex/` branch, repeat affected checks, push, and wait for required checks on that head. Merge only through a PR. Deploy a specific merged SHA from a clean main matching origin/main. Re-fetch after the merge, inspect concurrent/newer deployments, and confirm the actual live SHA before reporting a deployment complete.
+
+## Room owner microphone
+
+Migration `0029_meditation_voice.sql` adds an audio broadcast per shared session. The room creator or tenant owner can start it, connect muted, and explicitly unmute. Other signed-in members join as webinar viewers; starting playback does not grant speaking permission. The UI provides microphone mute/unmute, leave audio, and an owner-only end-broadcast action. It never enables the camera. Leaving the room or page stops local microphone tracks and disconnects the SDK. Voice audio and reflection notes are separate.
+
+This reuses the encrypted RealtimeKit configuration from **Live setup**, with its `webinar_presenter` and listener-safe `webinar_viewer` presets. There are no new token values to embed in the frontend. Both migrations must be applied before deployment. A missing provider connection produces a setup error; it is not simulated as a successful broadcast. Meetings are not recorded, expire after two hours, and do not persist chat. Listener tokens cannot publish audio directly or accept their own stage requests.
+
+Validation: `node --test tests/meditation-voice.test.mjs` exercises owner authorization, provider errors, safe presets, meeting lifecycle and browser response policies. `node tests/e2e/meditation-voice.e2e.mjs` exercises actual browser microphone capture using Chromium fake media devices, permission-denial recovery, mute/unmute, cleanup, and received-track attachment. The browser test simulates the RealtimeKit transport and token API; a live two-device Cloudflare broadcast remains to be verified with configured service access. Use the same `PLAYWRIGHT_PATH` and `CHROME` overrides as the playback test.

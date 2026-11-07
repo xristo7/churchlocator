@@ -1639,6 +1639,7 @@
       history.replaceState({}, '', url);
       window.parent?.postMessage({type:'faithlink:meditation-session', roomId, session:currentSessionId}, location.origin);
       applyPlayback(data, session);
+      session.voice = new window.MWEMeditationVoice(document.getElementById('meditation-room-view'), session.path, window.MWEPlatform.api);
       session.timer = setInterval(() => readPlayback(session), 1500);
     } catch (error) {
       if (playbackSession === session) { playbackNotice('Shared session unavailable. ' + error.message); session.failed = true; }
@@ -1659,9 +1660,10 @@
     });
   }
   function stopSharedPlayback() {
-    if (playbackSession) clearInterval(playbackSession.timer);
+    if (playbackSession) { clearInterval(playbackSession.timer); playbackSession.voice?.stop(); }
     playbackSession = null;
   }
+  window.addEventListener('pagehide', stopSharedPlayback);
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && playbackSession?.state) readPlayback(playbackSession);
   });

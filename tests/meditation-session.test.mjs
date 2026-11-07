@@ -6,7 +6,7 @@ import { handleMeditationSession, validatePlayback } from '../src/meditation-ses
 
 function setup() {
   const db = new DatabaseSync(':memory:');
-  db.exec("pragma foreign_keys=on; create table users(id text primary key); insert into users values ('host'),('guest'); create table platform_entities(id text primary key,kind text,state text,data_json text); insert into platform_entities values ('room','meditation','published','{\"verses\":[{},{}]}'),('draft','meditation','draft','{}');");
+  db.exec("pragma foreign_keys=on; create table users(id text primary key); insert into users values ('host'),('guest'); create table platform_entities(id text primary key,kind text,state text,data_json text,created_by text,tenant_id text); insert into platform_entities values ('room','meditation','published','{\"verses\":[{},{}]}','host','tenant'),('draft','meditation','draft','{}','host','tenant');");
   db.exec(readFileSync(new URL('../migrations/0028_meditation_sessions.sql',import.meta.url),'utf8'));
   const env = {DB: {
     prepare(sql) {
@@ -45,7 +45,7 @@ test('sessions require authentication, published room, and correct room scope',a
  await assert.rejects(request('host','POST','draft',state),{status:404});
  await assert.rejects(request('guest','GET','room/missing'),{status:404});
  const created=await request('host','POST','room',state);
- db.exec("insert into platform_entities values ('other','meditation','published','{}')");
+ db.exec("insert into platform_entities values ('other','meditation','published','{}','host','tenant')");
  await assert.rejects(request('guest','GET','other/'+created.session.id),{status:404});
  db.close();
 });
