@@ -9,14 +9,30 @@
   const renderIcons = () => window.lucide?.createIcons();
   const signInUrl = `index.html?login=required&next=${encodeURIComponent("app.html?view=spotlight-studio")}`;
 
-  function accessScreen() {
+  let autoTried = false;
+  async function autoActivate() {
+    // Any signed-in member can create for Spotlight: turn creator tools on silently instead of
+    // stopping at an extra "activate" screen.
+    autoTried = true;
+    root.innerHTML = `<section class="cs-upgrade"><div class="cs-card-icon">${icon("loader-circle")}</div><p class="cs-eyebrow">Spotlight Studio</p><h1>Opening your studio…</h1></section>`;
+    renderIcons();
+    try {
+      const result = await auth?.creatorUpgrade();
+      if (result?.ok) { await platform.refresh(result.user); return renderStudio(); }
+      accessScreen(result?.error);
+    } catch (error) { accessScreen(error?.message); }
+  }
+
+  function accessScreen(failure) {
     const user = platform?.session;
+    if (user && !autoTried) { autoActivate(); return; }
     if (!user) {
       root.innerHTML = `<section class="cs-upgrade"><div class="cs-card-icon">${icon("log-in")}</div><p class="cs-eyebrow">Spotlight Studio</p><h1>Sign in to create for Spotlight.</h1><p>Use your RhemaSphere account to prepare vertical stories, save drafts, and submit them for review.</p><a class="cs-primary" href="${signInUrl}" target="_top">Sign in or create an account ${icon("arrow-right")}</a></section>`;
       renderIcons();
       return;
     }
     root.innerHTML = `<section class="cs-upgrade"><div class="cs-card-icon">${icon("sparkles")}</div><p class="cs-eyebrow">Spotlight Studio</p><h1>Turn on creation tools for this account.</h1><p>${esc(user.name || "Member")}, activation lets this account create channels and submit their strongest stories to Spotlight.</p><button class="cs-primary" id="spotlight-studio-upgrade" type="button">Activate creator tools ${icon("arrow-right")}</button><p class="cs-message" id="spotlight-studio-message" hidden></p></section>`;
+    if (failure) { const m = document.getElementById("spotlight-studio-message"); if (m) { m.hidden = false; m.className = "cs-message error"; m.textContent = failure; } }
     document.getElementById("spotlight-studio-upgrade")?.addEventListener("click", async event => {
       const button = event.currentTarget;
       const message = document.getElementById("spotlight-studio-message");

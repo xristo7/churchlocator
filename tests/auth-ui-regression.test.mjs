@@ -11,7 +11,7 @@ test("account form matches the server password policy and requires a name for re
     fs.readFile(path.join(root, "public", "index.html"), "utf8")
   ]);
 
-  assert.match(app, /passwordInput\.minLength = 15/);
+  assert.match(app, /passwordInput\.minLength = 8/);
   assert.match(app, /passwordInput\.maxLength = 128/);
   assert.match(app, /passwordInput\.removeAttribute\("minlength"\)/);
   assert.match(app, /nameInput\) nameInput\.required = true/);

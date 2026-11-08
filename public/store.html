@@ -2,41 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261026ch1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261026ui8" />
   <title>RhemaSphere Store</title>
-    <link rel="stylesheet" href="styles.css?v=20261026ch2" />
+    <link rel="stylesheet" href="styles.css?v=20261030ui1" />
   <script src="vendor/lucide.js"></script>
   <script defer src="platform-client.js?v=20261026ch1"></script><script src="ministries.js?v=20261026ch1"></script>
-  <script defer src="app.js?v=20261026ch1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
-  <script defer src="platform-modules.js?v=20261026ch1"></script>
+  <script defer src="i18n-ui.js?v=20261103bl1"></script><script defer src="app.js?v=20261103bl1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
+  <script defer src="platform-modules.js?v=20261026ui4"></script>
   <script defer src="store.js?v=20261026ch1"></script>
   <script defer src="content-engagements.js?v=20261026ch1"></script>
-  <link rel="stylesheet" href="creator-public.css?v=20261026ch1" />
+  <link rel="stylesheet" href="creator-public.css?v=20261026ui8" />
   <script defer src="creator-data.js?v=20261026ch1"></script>
-  <script defer src="creator-public.js?v=20261026ch1"></script>
-<link rel="stylesheet" href="responsive.css?v=20261026ch1" /><script defer src="app-shell.js?v=20261026ch1"></script><link rel="stylesheet" href="app-shell.css?v=20261026ch1" /><link rel="stylesheet" href="shopify-storefront.css?v=20261026ch1" /></head>
+  <script defer src="creator-public.js?v=20261026ch1x"></script>
+<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><script defer src="app-shell.js?v=20261103bl1"></script><link rel="stylesheet" href="app-shell.css?v=20261103mc5" /><link rel="stylesheet" href="shopify-storefront.css?v=20261030fx1" /><link rel="stylesheet" href="rs-ui.css?v=20261103bl1" /><link rel="stylesheet" href="rs-hero.css?v=20261031f2"></head>
 <body class="module-page" data-page="store">
   <header class="topbar"></header>
   <main>
-    <section class="sf-coll-hero">
-      <div class="sf-container">
+    <section class="rs-hero module-directory-hero" style="--rs-hero-img:url('assets/demo-marketplace-collection.png')">
+      <div class="rs-hero-inner">
         <div class="module-hero-copy">
-          <span class="sf-eyebrow">Christian Marketplace</span>
+          <span class="rs-hero-eyebrow"><i data-lucide="shopping-bag"></i> Christian Marketplace</span>
           <h1>Shop Christian Community Stores</h1>
           <p>Books, music, apparel, ministry tools and services from verified churches and Christian creators.</p>
         </div>
-        <button class="sf-btn sf-btn-outline sf-btn-auto module-creator-action" type="button" data-creator-action data-creator-href="creator-workspace.html#store" disabled aria-disabled="true"><i data-lucide="plus"></i> Add a Product or Service</button>
+        <div class="rs-hero-actions">
+          <button class="rs-hero-btn module-creator-action" type="button" data-creator-action data-creator-href="creator-workspace.html#store" disabled aria-disabled="true"><i data-lucide="plus"></i> Add a Product or Service</button>
+        </div>
       </div>
     </section>
 
     <section class="sf-container module-content sf-collection">
-      <div class="sf-toolbar">
-        <label class="sf-search"><i data-lucide="search"></i><input id="store-search" type="search" placeholder="Search products or stores" aria-label="Search products or stores" /></label>
-        <div class="sf-filters">
-          <select class="sf-select" id="store-type" aria-label="Offering type"><option value="all">All types</option><option value="products">Products</option><option value="services">Services</option></select>
-          <select class="sf-select" id="store-category" aria-label="Category"><option value="all">All categories</option></select>
-          <select class="sf-select" id="store-seller" aria-label="Seller type"><option value="all">All sellers</option><option>Church</option><option>Channel</option></select>
+      <div class="sf-toolbar site-search-bar">
+        <label class="module-search site-search"><i data-lucide="search"></i><input id="store-search" type="search" placeholder="Search products or stores" aria-label="Search products or stores" /></label>
+        <div class="module-filter-group">
+          <select class="module-select" id="store-type" data-filter-label="Type" aria-label="Offering type"><option value="all">All types</option><option value="products">Products</option><option value="services">Services</option></select>
+          <select class="module-select" id="store-category" data-filter-label="Category" aria-label="Category"><option value="all">All categories</option></select>
+          <select class="module-select" id="store-seller" data-filter-label="Seller" aria-label="Seller type"><option value="all">All sellers</option><option>Church</option><option>Channel</option></select>
         </div>
+      </div>
+      <div class="sf-results-row">
         <div class="sf-toolbar-end">
           <span class="sf-count" id="store-result-count">0 products</span>
           <label class="sf-sort"><span>Sort by</span><select class="sf-select" id="store-sort" aria-label="Sort products"><option value="featured">Featured</option><option value="price-low">Price, low to high</option><option value="price-high">Price, high to low</option><option value="rating">Best rated</option></select></label>
@@ -57,5 +61,6 @@
     </div>
   </aside>
   <div class="toast" data-toast role="status" aria-live="polite"></div>
+<script src="/rs-modal-close.js?v=20261106e2i" defer></script>
 </body>
 </html>

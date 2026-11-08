@@ -11,7 +11,7 @@ const G = ctx.MWEGeo;
 test('regions are Canada, USA and UK with complete subdivisions', () => {
   assert.deepEqual([...G.REGIONS.map(r => r.code)], ['CA', 'US', 'GB']);
   assert.equal(G.region('CA').subdivisions.length, 13);
-  assert.equal(G.region('US').subdivisions.length, 51);
+  assert.equal(G.region('US').subdivisions.length, 56); // 50 states + DC + 5 territories (AS, GU, MP, PR, VI)
   assert.ok(G.region('US').subdivisions.some(s => s.code === 'DC'));
   assert.deepEqual([...G.region('GB').subdivisions.map(s => s.name)], ['England', 'Scotland', 'Wales', 'Northern Ireland']);
   assert.deepEqual([...G.REGIONS.map(r => r.unit)], ['Province', 'State', 'Nation']);

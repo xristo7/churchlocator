@@ -94,8 +94,8 @@
   body.in-meditation-room .meditation-room-view:not([hidden]) { flex-direction: column !important; height: 100dvh !important; max-height: 100dvh !important; }
   .sanctuary-top-bar { padding: 6px 12px !important; height: auto !important; min-height: 52px !important; gap: 6px !important; }
   .sanctuary-room-meta strong { font-size: 0.9rem !important; }
-  .session-presence-badge { padding: 3px 10px !important; font-size: 0.75rem !important; }
-  .sanctuary-action-btn { padding: 5px 10px !important; font-size: 0.78rem !important; }
+  .session-presence-badge { padding: 3px 10px !important; font-size: .8125rem !important; }
+  .sanctuary-action-btn { padding: 5px 10px !important; font-size: .8125rem !important; }
   .meditation-chat-drawer { bottom: 74px !important; right: 12px !important; left: 12px !important; width: auto !important; max-width: none !important; height: 50dvh !important; }
   .meditation-room-view .meditation-room-sidebar { width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; max-height: 45dvh !important; flex: 0 0 auto; padding: 10px 14px !important; }
   .meditation-room-sidebar .sidebar-top-section { flex-direction: row !important; align-items: center; gap: 10px !important; padding-bottom: 8px !important; }

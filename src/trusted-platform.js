@@ -1,3 +1,4 @@
+import { handleMeditationSession } from './meditation-session.js';
 import { sanitizeSoundCloudSelection } from './soundcloud.js';
 import { normalizeMinistry } from './ministries.js';
 import { ApiError, readJson } from './security.js';
@@ -224,14 +225,16 @@ export async function writeEntity(request,env,ctx,kind,id) {
  return ctx.json({ok:true,record:entityRecord(results[0].results[0])},existing?200:201);
 }
 export async function handlePlatformApi(request,env,ctx) {
+ const sessionResponse=await handleMeditationSession(request,env,ctx);
+ if(sessionResponse) return sessionResponse;
  const url=new URL(request.url), parts=url.pathname.split('/').filter(Boolean), scope=parts[1];
  if(!['catalog','taxonomies','workspace','private','admin-audit','tenant-members','resource-material','resource-comments','livestream-chat','meditation-chat'].includes(scope)) return null;
  if(!env.DB) throw new ApiError(503,'Storage unavailable.');
  if(scope==='resource-comments') {
   const resourceId=parts[2];
-  if(!resourceId || resourceId.length>128) throw new ApiError(404,'Video resource not found.');
-  const resource=await env.DB.prepare("select id from platform_entities where id=? and kind='resources' and state='published' and json_extract(data_json,'$.type')='Video'").bind(resourceId).first();
-  if(!resource) throw new ApiError(404,'Video resource not found.');
+  if(!resourceId || resourceId.length>128) throw new ApiError(404,'Resource not found.');
+  const resource=await env.DB.prepare("select id from platform_entities where id=? and kind='resources' and state='published'").bind(resourceId).first();
+  if(!resource) throw new ApiError(404,'Resource not found.');
   if(request.method==='GET') {
    const {results}=await env.DB.prepare(`select c.id,c.user_id,c.body,c.created_at,u.name
     from resource_comments c join users u on u.id=c.user_id

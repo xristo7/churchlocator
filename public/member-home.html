@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261026ch1" />
+  <meta name="author" content="Christo Innocent (christoinno@gmail.com)">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261026ui8" />
   <title>Home | RhemaSphere</title>
-  <link rel="stylesheet" href="styles.css?v=20261026ch2" />
+  <link rel="stylesheet" href="styles.css?v=20261030ui1" />
   <script src="vendor/lucide.js"></script>
     <script defer src="platform-client.js?v=20261026ch1"></script><script src="ministries.js?v=20261026ch1"></script>
-  <script defer src="app.js?v=20261026ch1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
-  <script defer src="platform-modules.js?v=20261026ch1"></script>
-  <script defer src="rs-catalog.js?v=20261026home1"></script><script defer src="home-public.js?v=20261026home1"></script>
-<link rel="stylesheet" href="responsive.css?v=20261026ch1" /><script defer src="app-shell.js?v=20261026ch1"></script><link rel="stylesheet" href="app-shell.css?v=20261026ch1" /><link rel="stylesheet" href="home-public.css?v=20261026home2" /></head>
+  <script defer src="i18n-ui.js?v=20261103bl1"></script><script defer src="app.js?v=20261103bl1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
+  <script defer src="platform-modules.js?v=20261026ui4"></script>
+  <script defer src="rs-catalog.js?v=20261026home1"></script><script defer src="rs-cards.js?v=20261031hc1"></script><script defer src="church-directory.js?v=20261101geo2"></script><script defer src="content-engagements.js?v=20261026ch1"></script><script defer src="home-public.js?v=20261031hc1"></script><script defer src="daily-scripture.js?v=20261031dv2"></script>
+<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><script defer src="app-shell.js?v=20261103bl1"></script><link rel="stylesheet" href="app-shell.css?v=20261103mc5" /><link rel="stylesheet" href="home-public.css?v=20261031dv3" /><link rel="stylesheet" href="church-directory.css?v=20261101ho1" /><link rel="stylesheet" href="shopify-storefront.css?v=20261030fx1" /><link rel="stylesheet" href="resource-view.css?v=20261026ui8" /><link rel="stylesheet" href="live-redesign.css?v=20261026ui9" /><link rel="stylesheet" href="rs-ui.css?v=20261103bl1" /></head>
 <body class="module-page member-home-body rs-home-body" data-page="member-home">
   <main class="module-shell rs-home">
     <section class="rs-home-hero" aria-labelledby="rs-home-hero-title">
@@ -23,10 +24,10 @@
           <a class="rs-btn rs-btn-ghost" href="meditation.html"><i data-lucide="sparkles"></i> Enter a meditation room</a>
         </div>
       </div>
-      <div class="rs-home-hero-art" aria-hidden="true"><img src="assets/church-audience.jpg" alt="" /></div>
+      <aside class="rs-home-hero-art rs-home-verse" aria-label="Verse of the day"><div class="daily-scripture member-home-scripture" data-daily-scripture></div></aside>
     </section>
 
-    <section class="rs-home-section" id="home-churches" aria-labelledby="home-churches-title">
+    <section class="rs-home-section rsc-page" id="home-churches" data-rs-archive="churches" aria-labelledby="home-churches-title">
       <div class="rs-home-head">
         <div><span class="rs-home-kicker"><i data-lucide="church"></i> Featured Churches</span><h2 id="home-churches-title">Featured Churches</h2></div>
         <a class="rs-home-more" href="churches.html">Explore directory <i data-lucide="arrow-right"></i></a>
@@ -74,5 +75,6 @@
     </section>
   </main>
   <div class="toast" data-toast role="status" aria-live="polite"></div>
+<script src="/rs-modal-close.js?v=20261106e2i" defer></script>
 </body>
 </html>

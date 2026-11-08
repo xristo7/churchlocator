@@ -28,30 +28,46 @@
     }
     const of = kind => records.filter(r => r.kind === kind);
 
+    const K = window.RSCards, title = r => r.name || r.title || '';
+    const arch = (key, cls) => { const el = document.querySelector('[data-home-grid="' + key + '"]'); if (el) el.classList.add('rs-home-archive', cls); };
+
+    /* Churches: the /churches directory card (rsc-card). */
     const churches = of('churches').sort((a, b) => Number(!!b.verified) - Number(!!a.verified)).slice(0, 4);
-    set('churches', churches.length ? churches.map(r => card(r, { badge: r.verified ? '<i data-lucide="badge-check"></i> Verified' : '' })).join('')
+    let liveIds = null; try { liveIds = await window.RSChurchDirectory?.liveChurchIds?.(); } catch { liveIds = null; }
+    arch('churches', 'rsc-grid');
+    set('churches', churches.length ? churches.map(r => window.RSChurchDirectory.churchCard(r, liveIds)).join('')
       : empty('church', 'No churches listed yet', 'Churches appear here once they’re published.', 'church-portal.html', 'Register a church'));
 
+    /* Meditation: the meditation.html room card. */
+    const cap = v => String(v || '').replace(/[-_]+/g, ' ').replace(/\b\w/g, m => m.toUpperCase());
     const rooms = newest(of('meditation').filter(r => r.cover || r.image)).concat(newest(of('meditation').filter(r => !(r.cover || r.image)))).slice(0, 4);
-    set('meditation', rooms.length ? rooms.map(r => card(r)).join('')
+    arch('meditation', 'rooms-grid');
+    set('meditation', rooms.length ? rooms.map(r => K.room({ ...r, cover: r.cover || r.image || '', categoryLabel: r.categoryLabel || cap(r.category) }, { href: c.href(r) })).join('')
       : empty('sparkles', 'No meditation rooms yet', 'New rooms will show up here.'));
 
-    const stores = of('store').slice(0, 4);
-    set('store', stores.length ? stores.map(r => card(r, { sub: [r.ownerName, r.category].filter(Boolean).join(' · ') })).join('')
+    /* Store: the store.html product card (sf-card). */
+    const storesById = Object.fromEntries(of('store').map(s => [s.id, s]));
+    const products = of('products').filter(p => !p.status || p.status === 'Active').slice(0, 4);
+    arch('store', 'sf-grid');
+    set('store', products.length ? products.map(p => K.product({ ...p, seller: p.seller || storesById[p.storeId]?.name || '' }, { linkActions: true })).join('')
       : empty('shopping-bag', 'No community stores yet', 'Stores from churches and ministries will appear here.'));
 
+    /* Resources: the resources.html card. */
     const resources = newest(of('resources')).slice(0, 4);
-    set('resources', resources.length ? resources.map(r => card(r, { badge: r.type ? c.esc(r.type) : '' })).join('')
+    arch('resources', 'resources-grid');
+    set('resources', resources.length ? resources.map(r => K.resource(r, { channels: of('channels'), linkActions: true })).join('')
       : empty('book-open', 'No resources yet', 'Study guides and teachings will appear here.'));
 
+    /* Live: the livestream.html card. */
     const live = await c.live();
     const byId = Object.fromEntries(records.map(r => [r.id, r]));
     const items = [
-      ...(live.stages || []).map(s => { const ch = byId[s.channelId] || { id: s.channelId, kind: 'channels', name: 'Channel' };
-        return card(ch, { href: 'channel-live.html?id=' + encodeURIComponent(s.channelId) + (s.sessionId ? '&session=' + encodeURIComponent(s.sessionId) : ''), sub: s.title || c.subtitle(ch), badge: '<i class="rs-live-dot"></i> Live', badgeClass: 'is-live' }); }),
-      ...(live.broadcasts || []).map(b => { const ch = byId[b.churchId] || { id: b.churchId, kind: 'churches', name: 'Church' };
-        return card(ch, { href: 'broadcast.html?type=church&id=' + encodeURIComponent(b.churchId), sub: 'Church broadcast', badge: '<i class="rs-live-dot"></i> Live', badgeClass: 'is-live' }); })
+      ...(live.stages || []).map(s => { const ch = byId[s.channelId] || {};
+        return K.live({ name: title(ch) || s.title || 'Channel', type: 'channel', description: s.title || ch.description }, { href: 'channel-live.html?id=' + encodeURIComponent(s.channelId) + (s.sessionId ? '&session=' + encodeURIComponent(s.sessionId) : ''), thumb: c.image(ch) }); }),
+      ...(live.broadcasts || []).map(b => { const ch = byId[b.churchId] || {};
+        return K.live({ name: title(ch) || 'Church', type: 'church', description: ch.description }, { href: 'broadcast.html?type=church&id=' + encodeURIComponent(b.churchId), thumb: c.image(ch) }); })
     ].slice(0, 4);
+    if (items.length) arch('live', 'streams-hub-grid');
     set('live', items.length ? items.join('')
       : empty('radio', 'No one is live right now', 'Live services and channel streams show here the moment they start.', 'events.html', 'See upcoming events'));
     window.lucide?.createIcons();

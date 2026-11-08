@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261026ch1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><link rel="stylesheet" href="tokens.css?v=20261026ui8" />
   <title>Checkout | RhemaSphere Store</title>
-  <link rel="stylesheet" href="styles.css?v=20261026ch2" />
+  <link rel="stylesheet" href="styles.css?v=20261030ui1" />
   <script src="vendor/lucide.js"></script>
   <script defer src="platform-client.js?v=20261026ch1"></script><script src="ministries.js?v=20261026ch1"></script>
-  <script defer src="app.js?v=20261026ch1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
-  <script defer src="platform-modules.js?v=20261026ch1"></script>
+  <script defer src="i18n-ui.js?v=20261103bl1"></script><script defer src="app.js?v=20261103bl1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
+  <script defer src="platform-modules.js?v=20261026ui4"></script>
   <script defer src="checkout.js?v=20261026ch1"></script>
-<link rel="stylesheet" href="responsive.css?v=20261026ch1" /><script defer src="app-shell.js?v=20261026ch1"></script><link rel="stylesheet" href="app-shell.css?v=20261026ch1" /><link rel="stylesheet" href="shopify-storefront.css?v=20261026ch1" /></head>
+<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><script defer src="app-shell.js?v=20261103bl1"></script><link rel="stylesheet" href="app-shell.css?v=20261103mc5" /><link rel="stylesheet" href="shopify-storefront.css?v=20261030fx1" /><link rel="stylesheet" href="rs-ui.css?v=20261103bl1" /></head>
 <body class="checkout-page" data-page="checkout">
   <header class="checkout-header"><a href="store.html" class="checkout-brand"><span><i data-lucide="sparkles"></i></span>RhemaSphere</a><a href="cart.html" class="checkout-cart-link"><i data-lucide="shopping-bag"></i><span id="checkout-header-count">0</span></a></header>
   <main class="checkout-layout">
@@ -30,5 +30,6 @@
     <aside class="checkout-summary-column"><div class="checkout-summary-inner"><button class="mobile-order-toggle" id="mobile-order-toggle" type="button"><span><i data-lucide="shopping-cart"></i> Show order summary</span><strong id="mobile-order-total">$0.00</strong></button><div id="checkout-order-content"><div class="checkout-order-items" id="checkout-order-items"></div><div class="discount-row"><input id="checkout-discount" type="text" placeholder="Discount code or gift card" /><button id="checkout-apply-discount" type="button">Apply</button></div><p class="discount-message" id="checkout-discount-message"></p><dl class="checkout-totals"><div><dt>Subtotal</dt><dd id="checkout-subtotal">$0.00</dd></div><div><dt>Shipping</dt><dd id="checkout-shipping">$8.00</dd></div><div><dt>Estimated taxes</dt><dd id="checkout-tax">$0.00</dd></div><div id="checkout-discount-row" hidden><dt>Discount</dt><dd id="checkout-discount-total">−$0.00</dd></div><div class="summary-total"><dt>Total <small>CAD</small></dt><dd id="checkout-total">$0.00</dd></div></dl></div></div></aside>
   </main>
   <div class="checkout-success" id="checkout-success" hidden><div><span class="success-check"><i data-lucide="check"></i></span><p>Order <strong id="success-order-number"></strong></p><h1>Thank you for your purchase!</h1><p>A confirmation has been prepared for <strong id="success-email"></strong>. Your order details are saved in this local preview.</p><a href="store.html">Continue shopping</a></div></div>
+<script src="/rs-modal-close.js?v=20261106e2i" defer></script>
 </body>
 </html>

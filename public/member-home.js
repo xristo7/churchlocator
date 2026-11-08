@@ -58,7 +58,7 @@
           '<div class="channel-platform-stats">' +
             '<span><strong>' + followers + '</strong><small>Followers</small></span>' +
             '<span><strong>' + postCount.toLocaleString() + '</strong><small>' + itemsLabel + '</small></span>' +
-            '<span><strong>' + (c.verified ? "4.9" : "4.7") + '</strong><small>Rating</small></span>' +
+            '<span><strong>' + ((Number(c.reviewCount) > 0 && Number(c.rating) > 0) ? Number(c.rating).toFixed(1) : "—") + '</strong><small>' + ((Number(c.reviewCount) > 0 && Number(c.rating) > 0) ? 'Rating' : 'No ratings yet') + '</small></span>' +
           '</div>' +
           '<div class="channel-card-actions"><a class="channel-open-button" href="channel-detail.html?id=' + encodeURIComponent(c.id) + '"><i data-lucide="radio-tower"></i> Open Channel</a><a class="channel-contact-button" href="messages.html?compose=channel&id=' + encodeURIComponent(c.id) + '"><i data-lucide="message-circle"></i> Get in touch</a></div>' +
         '</div>' +
@@ -120,7 +120,7 @@
         '<div class="product-card-body">' +
           '<span class="product-seller">Sold by ' + data().escapeHtml(p.seller) + '</span>' +
           '<h3><a href="product-detail.html?id=' + encodeURIComponent(p.id) + '">' + data().escapeHtml(p.title) + '</a></h3>' +
-          '<span class="product-rating"><i data-lucide="star"></i>' + Number(p.rating).toFixed(1) + ' · ' + Number(p.inventory) + ' in stock</span>' +
+          '<span class="product-rating">' + ((Number(p.reviewCount) > 0 && Number(p.rating) > 0) ? '<i data-lucide="star"></i>' + Number(p.rating).toFixed(1) + ' · ' : '') + Number(p.inventory) + ' in stock</span>' +
           '<div class="product-price-row">' +
             '<div><span class="product-price">' + data().money(p.price) + '</span>' + (p.compareAt ? '<span class="product-compare">' + data().money(p.compareAt) + '</span>' : '') + '</div>' +
             '<a class="button ghost sm" href="product-detail.html?id=' + encodeURIComponent(p.id) + '">Details</a>' +

@@ -5,6 +5,7 @@ import { handlePlatformApi, isOwner, visitorRequestRecord } from './trusted-plat
 import { handleSpotlightApi, deliverSpotlightNotifications } from './spotlight.js';
 import { handleLiveApi, closeExpiredLiveSessions, deliverLiveNotifications } from './live.js';
 import { handleContentEngagementApi } from './content-engagements.js';
+import { handleResourcesApi } from './resources.js';
 import { handleSimulatedLiveApi } from './simulated-live.js';
 import { sendPasswordResetEmail, sendVerificationEmail } from './password-email.js';
 
@@ -133,7 +134,7 @@ async function handleMediaRequest(request, env) {
   if (!env.MEDIA) return new Response("Media storage unavailable", { status: 503, headers: securityHeaders });
   if (request.method !== "GET" && request.method !== "HEAD") return new Response("Method not allowed", { status: 405, headers: { allow: "GET, HEAD", ...securityHeaders } });
   const key = new URL(request.url).pathname.slice("/media/".length);
-  const isChurchVideo = /^church-video\/[0-9a-f-]{36}\.mp4$/.test(key);
+  const isChurchVideo = /^church-video\/[0-9a-f-]{36}\.(mp4|webm)$/.test(key);
   if (!isChurchVideo && !/^(creator-media|member-avatars)\/[0-9a-f-]{36}\.(jpg|png|webp|gif|mp3)$/.test(key)) return new Response("Not found", { status: 404, headers: securityHeaders });
   const rangeHeader = isChurchVideo && request.method === "GET" ? request.headers.get("range") : null;
   let range = null;
@@ -378,7 +379,7 @@ async function registerUser(request, env, { forceCreator = false } = {}) {
 
   if (!name || name.length > 200) return json({ ok: false, error: "Enter your full name." }, 400);
   if (!isValidEmail(email)) return json({ ok: false, error: "Enter a valid email address." }, 400);
-  if (password.length < 15 || password.length > 128) return json({ ok: false, error: "Password must be between 15 and 128 characters." }, 400);
+  if (password.length < 8 || password.length > 128) return json({ ok: false, error: "Password must be between 8 and 128 characters." }, 400);
 
   const existing = await env.DB.prepare("select id from users where email = ?").bind(email).first();
   if (existing) {
@@ -543,8 +544,8 @@ async function handleAuthPasswordUpdate(request, env) {
   if (!(await verifyUserPassword(user, currentPassword, env))) {
     return json({ ok: false, error: "Your current password is incorrect." }, 401);
   }
-  if (newPassword.length < 15 || newPassword.length > 128) {
-    return json({ ok: false, error: "Your new password must be between 15 and 128 characters." }, 400);
+  if (newPassword.length < 8 || newPassword.length > 128) {
+    return json({ ok: false, error: "Your new password must be between 8 and 128 characters." }, 400);
   }
   if (constantTimeEqual(currentPassword, newPassword)) {
     return json({ ok: false, error: "Choose a new password that is different from your current password." }, 400);
@@ -674,12 +675,12 @@ async function handleForgotPassword(request, env, context) {
 async function handleResetPassword(request, env) {
   if (!env.DB) return storageUnavailable();
   const payload = await readJson(request);
-  const token = String(payload?.token || "");
+  const token = String(payload?.token || "").trim().replace(/[^A-Za-z0-9_-]/g, "");
   const newPassword = String(payload?.newPassword || "");
   const invalid = json({ ok: false, error: "This reset link is invalid or has expired. Request a new one." }, 400);
   if (!token || token.length > 200) return invalid;
-  if (newPassword.length < 15 || newPassword.length > 128) {
-    return json({ ok: false, error: "Your new password must be between 15 and 128 characters." }, 400);
+  if (newPassword.length < 8 || newPassword.length > 128) {
+    return json({ ok: false, error: "Your new password must be between 8 and 128 characters." }, 400);
   }
   const digest = await digestToken(token);
   const row = await env.DB.prepare("select digest, user_id, expires_at, used_at from password_reset_tokens where digest = ?").bind(digest).first();
@@ -1270,6 +1271,12 @@ function assetRequest(request) {
     ["/prayer", "/index.html"]
   ]);
 
+  const resourcePath = url.pathname.match(/^\/resources\/([^/]+)(\/read)?\/?$/);
+  if (resourcePath) {
+    url.pathname = resourcePath[2] ? "/resource-reader.html" : "/resource-detail.html";
+    return new Request(url.toString(), request);
+  }
+
   const nested = url.pathname.match(/^\/(churches|channels)\/([^/]+)\/?$/);
   if (nested) {
     url.pathname = nested[1] === "churches" ? "/church-profile.html" : "/church-channel.html";
@@ -1808,6 +1815,8 @@ async function handleApi(request, env, executionCtx) {
     if (simulatedLiveResponse) return simulatedLiveResponse;
     const spotlightResponse = await handleSpotlightApi(request, env, context);
     if (spotlightResponse) return spotlightResponse;
+    const resourcesResponse = await handleResourcesApi(request, env, context);
+    if (resourcesResponse) return resourcesResponse;
     const engagementResponse = await handleContentEngagementApi(request, env, context);
     if (engagementResponse) return engagementResponse;
     if (path === "/api/status" && request.method === "GET") return await handleStatus(env);
@@ -1915,7 +1924,8 @@ export default {
     for (const [key, value] of Object.entries(securityHeaders)) newHeaders.set(key, value);
     const livePath=assetRequest(request).url;
     if(/\/(?:app|channel-live)\.html(?:\?|$)/.test(livePath))newHeaders.set('permissions-policy','camera=(self), microphone=(self), geolocation=(self)');
-    if(/\/channel-live\.html(?:\?|$)/.test(livePath))newHeaders.set('content-security-policy',newHeaders.get('content-security-policy').replace("connect-src 'self'","connect-src 'self' https://*.realtime.cloudflare.com wss://*.realtime.cloudflare.com"));
+    if(/\/meditation\.html(?:\?|$)/.test(livePath))newHeaders.set('permissions-policy','camera=(), microphone=(self), geolocation=(self)');
+    if(/\/(?:channel-live|meditation)\.html(?:\?|$)/.test(livePath))newHeaders.set('content-security-policy',newHeaders.get('content-security-policy').replace("connect-src 'self'","connect-src 'self' https://*.realtime.cloudflare.com wss://*.realtime.cloudflare.com"));
     if(/\/broadcast\.html(?:\?|$)/.test(livePath)){
       let policy=newHeaders.get('content-security-policy').replace("frame-src 'self'","frame-src 'self' https://platform.twitter.com https://syndication.twitter.com https://vimeo.com https://www.facebook.com https://iframe.videodelivery.net https://*.cloudflarestream.com https://player.mediadelivery.net https://iframe.mediadelivery.net https://player.cloudinary.com").replace("connect-src 'self'","connect-src 'self' https://*.cloudflarestream.com https://res.cloudinary.com https://*.b-cdn.net https://stream.mux.com").replace("script-src 'self'","script-src 'self' https://platform.twitter.com");
       if(env.DB&&(!url.searchParams.get('type')||url.searchParams.get('type')==='church')){

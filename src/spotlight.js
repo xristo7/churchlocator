@@ -1,6 +1,7 @@
 import { ApiError, readJson } from './security.js';
 import { auditStatement } from './identity-security.js';
 import { isOwner, membership, ownTenant, requireOwner, requireUser, studioAutoApprove } from './trusted-platform.js';
+import { isMp4, MAX_VIDEO_BYTES } from './simulated-live.js';
 
 const contentTypes = new Set(['short', 'long-preview', 'church', 'channel', 'event', 'live']);
 const states = new Set(['draft', 'pending', 'needs-changes', 'approved', 'scheduled', 'live', 'rejected', 'expired']);
@@ -17,6 +18,7 @@ function safeUrl(value, label, required = false) {
   const text = cleanText(value, 2000, label, required);
   if (!text) return null;
   if (/^(?:\/|\.\/)?(?:assets\/[^\s]*|(?:app|channels|channel-detail|channel-content|church-profile|event-profile)\.html(?:[?#][^\s]*)?)$/i.test(text)) return text;
+  if (/^\/media\/(?:church-video\/[0-9a-f-]{36}\.(?:mp4|webm)|creator-media\/[0-9a-f-]{36}\.(?:jpg|png|webp|gif))$/i.test(text)) return text;
   let parsed;
   try { parsed = new URL(text); } catch { throw new ApiError(400, 'Use a valid ' + label.toLowerCase() + '.'); }
   if (parsed.protocol !== 'https:' || parsed.username || parsed.password) throw new ApiError(400, label + ' must use HTTPS.');
@@ -67,6 +69,7 @@ function itemRecord(row) {
     expiresAt: row.expires_at,
     publishedAt: row.published_at,
     revision: row.revision,
+    views: row.view_count || 0,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     likes: Number(row.likes || 0),
@@ -74,6 +77,8 @@ function itemRecord(row) {
     comments: Number(row.comments || 0),
     liked: Boolean(row.liked),
     saved: Boolean(row.saved)
+    ,disliked: Boolean(row.disliked)
+    ,followers: row.followers == null ? null : Number(row.followers)
     ,following: Boolean(row.following)
     ,reminderAt: row.reminder_at || null
     ,channelUrl: row.channel_entity_id ? 'app.html?view=channel-detail&id=' + encodeURIComponent(row.channel_entity_id) : null
@@ -138,6 +143,7 @@ async function listFeed(request, env, ctx) {
       (select count(*) from spotlight_comments c where c.item_id=s.id and c.status='visible') comments,
       exists(select 1 from spotlight_engagements e where e.item_id=s.id and e.user_id=? and e.action='like') liked,
       exists(select 1 from spotlight_engagements e where e.item_id=s.id and e.user_id=? and e.action='save') saved,
+      exists(select 1 from spotlight_engagements e where e.item_id=s.id and e.user_id=? and e.action='dislike') disliked,
       exists(select 1 from channel_follows f where f.channel_id=s.channel_entity_id and f.user_id=?) following,
       (select due_at from spotlight_reminders r where r.item_id=s.id and r.user_id=? and r.delivered_at is null) reminder_at
     from spotlight_items s
@@ -149,7 +155,7 @@ async function listFeed(request, env, ctx) {
     and exists(select 1 from platform_entities channel where channel.id=s.channel_entity_id and channel.kind='channels' and channel.state='published')
     order by s.priority desc, coalesce(s.published_at,s.scheduled_at,s.updated_at) desc
     limit 100
-  `).bind(user?.id || '', user?.id || '', user?.id || '', user?.id || '', now, now, now).all();
+  `).bind(user?.id || '', user?.id || '', user?.id || '', user?.id || '', user?.id || '', now, now, now).all();
   return ctx.json({ ok: true, items: (results || []).map(itemRecord) });
 }
 
@@ -256,16 +262,20 @@ async function engage(request, env, ctx, itemId) {
     else await env.DB.prepare('delete from channel_follows where user_id=? and channel_id=?').bind(user.id,item.channel_entity_id).run();
     return ctx.json({ok:true,active:input.active});
   }
-  if (['like', 'save'].includes(action)) {
-    if (typeof input.active === 'boolean') {
-      if (input.active) await env.DB.prepare('insert into spotlight_engagements values (?,?,?,?) on conflict do nothing').bind(itemId,user.id,action,now).run();
-      else await env.DB.prepare('delete from spotlight_engagements where item_id=? and user_id=? and action=?').bind(itemId,user.id,action).run();
-      return ctx.json({ok:true,active:input.active,item:await memberItem(env,itemId,user.id)});
-    }
+  if (['like', 'dislike', 'save'].includes(action)) {
+    // A member rates a post either liked or disliked, never both. Dislikes stay private: no public total is exposed.
+    const opposite = action === 'like' ? 'dislike' : action === 'dislike' ? 'like' : null;
     const existing = await env.DB.prepare('select action from spotlight_engagements where item_id=? and user_id=? and action=?').bind(itemId, user.id, action).first();
-    if (existing) await env.DB.prepare('delete from spotlight_engagements where item_id=? and user_id=? and action=?').bind(itemId, user.id, action).run();
-    else await env.DB.prepare('insert into spotlight_engagements values (?,?,?,?)').bind(itemId, user.id, action, now).run();
-    return ctx.json({ ok: true, active: !existing, item:await memberItem(env,itemId,user.id) });
+    const active = typeof input.active === 'boolean' ? input.active : !existing;
+    const statements = [];
+    if (active) {
+      statements.push(env.DB.prepare('insert into spotlight_engagements values (?,?,?,?) on conflict do nothing').bind(itemId, user.id, action, now));
+      if (opposite) statements.push(env.DB.prepare('delete from spotlight_engagements where item_id=? and user_id=? and action=?').bind(itemId, user.id, opposite));
+    } else {
+      statements.push(env.DB.prepare('delete from spotlight_engagements where item_id=? and user_id=? and action=?').bind(itemId, user.id, action));
+    }
+    await env.DB.batch(statements);
+    return ctx.json({ ok: true, active, item: await memberItem(env, itemId, user.id) });
   }
   if (action === 'report') {
     await env.DB.prepare("insert into spotlight_engagements values (?,?,'report',?) on conflict do nothing").bind(itemId, user.id, now).run();
@@ -296,8 +306,10 @@ async function memberItem(env,id,userId='') {
     (select count(*) from spotlight_comments where item_id=? and status='visible') comments,
     exists(select 1 from spotlight_engagements where item_id=? and user_id=? and action='like') liked,
     exists(select 1 from spotlight_engagements where item_id=? and user_id=? and action='save') saved,
+    exists(select 1 from spotlight_engagements where item_id=? and user_id=? and action='dislike') disliked,
+    (select count(*) from channel_follows where channel_id=?) followers,
     exists(select 1 from channel_follows where channel_id=? and user_id=?) following,
-    (select due_at from spotlight_reminders where item_id=? and user_id=? and delivered_at is null) reminder_at`).bind(id,id,id,id,userId,id,userId,row.channel_entity_id,userId,id,userId).first();
+    (select due_at from spotlight_reminders where item_id=? and user_id=? and delivered_at is null) reminder_at`).bind(id,id,id,id,userId,id,userId,id,userId,row.channel_entity_id,row.channel_entity_id,userId,id,userId).first();
   return itemRecord({...row,...stats});
 }
 
@@ -337,7 +349,8 @@ async function discovery(request,env,ctx,scope,id) {
     const input=await readJson(request);if(typeof input.active!=='boolean')throw new ApiError(400,'Choose follow or unfollow.');
     if(input.active)await env.DB.prepare('insert into channel_follows(user_id,channel_id,notifications_enabled,created_at) values (?,?,1,?) on conflict(user_id,channel_id) do update set notifications_enabled=1').bind(user.id,id,new Date().toISOString()).run();
     else await env.DB.prepare('delete from channel_follows where user_id=? and channel_id=?').bind(user.id,id).run();
-    return ctx.json({ok:true,following:input.active,notificationsEnabled:input.active});
+    const total=await env.DB.prepare('select count(*) count from channel_follows where channel_id=?').bind(id).first();
+    return ctx.json({ok:true,following:input.active,notificationsEnabled:input.active,followers:total.count});
   }
   if(scope==='saved' || scope==='following') {
     if(request.method!=='GET') throw new ApiError(405,'Method not allowed.');
@@ -369,6 +382,65 @@ async function discovery(request,env,ctx,scope,id) {
   throw new ApiError(404,'Spotlight endpoint not found.');
 }
 
+
+// --- Video upload and playback views -------------------------------------------
+const MAX_POSTER_BYTES = 5 * 1024 * 1024;
+const VIDEO_CACHE = 'public, max-age=31536000, immutable';
+const isWebm = bytes => bytes.length >= 4 && bytes[0] === 0x1a && bytes[1] === 0x45 && bytes[2] === 0xdf && bytes[3] === 0xa3;
+function posterType(bytes) {
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return ['image/jpeg', 'jpg'];
+  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return ['image/png', 'png'];
+  if (bytes.length >= 12 && bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return ['image/webp', 'webp'];
+  return null;
+}
+
+async function uploadMedia(request, env, ctx) {
+  if (request.method !== 'POST') throw new ApiError(405, 'Method not allowed.');
+  if (!env.MEDIA) throw new ApiError(503, 'Media uploads are not configured for this environment.');
+  const user = await requireUser(request, env, ctx);
+  if (!user.is_creator && !await isOwner(env, user)) throw new ApiError(403, 'Creator account required.');
+  if (!(request.headers.get('content-type') || '').startsWith('multipart/form-data')) throw new ApiError(415, 'Choose a video from your device.');
+  const declared = Number(request.headers.get('content-length') || 0);
+  if (Number.isFinite(declared) && declared > MAX_VIDEO_BYTES + MAX_POSTER_BYTES + 512 * 1024) throw new ApiError(413, 'Choose a video smaller than 95 MB.');
+  const form = await request.formData();
+  const video = form.get('video'), poster = form.get('poster');
+  if (!video || typeof video !== 'object' || typeof video.arrayBuffer !== 'function' || video.size < 12) throw new ApiError(400, 'Choose a video from your device.');
+  if (video.size > MAX_VIDEO_BYTES) throw new ApiError(413, 'Choose a video smaller than 95 MB.');
+  const head = new Uint8Array(await video.slice(0, 12).arrayBuffer());
+  const mp4 = isMp4(head);
+  if (!mp4 && !isWebm(head)) throw new ApiError(400, 'Use an MP4 or WebM video.');
+  let posterBytes = null, posterKind = null;
+  if (poster && typeof poster === 'object' && typeof poster.arrayBuffer === 'function' && poster.size > 0) {
+    if (poster.size > MAX_POSTER_BYTES) throw new ApiError(413, 'Choose a poster image smaller than 5 MB.');
+    posterBytes = new Uint8Array(await poster.arrayBuffer());
+    posterKind = posterType(posterBytes);
+    if (!posterKind) throw new ApiError(400, 'Use a JPG, PNG, or WebP poster image.');
+  }
+  const videoKey = `church-video/${crypto.randomUUID()}.${mp4 ? 'mp4' : 'webm'}`;
+  await env.MEDIA.put(videoKey, video, { httpMetadata: { contentType: mp4 ? 'video/mp4' : 'video/webm', cacheControl: VIDEO_CACHE }, customMetadata: { uploadedBy: String(user.id), purpose: 'spotlight' } });
+  let posterUrl = null;
+  if (posterBytes) {
+    const posterKey = `creator-media/${crypto.randomUUID()}.${posterKind[1]}`;
+    await env.MEDIA.put(posterKey, posterBytes, { httpMetadata: { contentType: posterKind[0], cacheControl: VIDEO_CACHE } });
+    posterUrl = `/media/${posterKey}`;
+  }
+  return ctx.json({ ok: true, videoUrl: `/media/${videoKey}`, posterUrl }, 201);
+}
+
+async function recordPlayback(request, env, ctx, itemId) {
+  if (request.method !== 'POST') throw new ApiError(405, 'Method not allowed.');
+  if (!itemId || itemId.length > 128) throw new ApiError(404, 'This Spotlight post is unavailable.');
+  const input = await readJson(request);
+  const key = String(input.playbackKey || '');
+  if (!/^[A-Za-z0-9_-]{32,128}$/.test(key)) throw new ApiError(400, 'Invalid playback key.');
+  await publicItem(env, itemId);
+  const inserted = await env.DB.prepare('insert or ignore into spotlight_views (item_id,playback_key,created_at) values (?,?,?)').bind(itemId, key, new Date().toISOString()).run();
+  const recorded = Number(inserted?.meta?.changes || 0) > 0;
+  if (recorded) await env.DB.prepare('update spotlight_items set view_count=(select count(*) from spotlight_views where item_id=?) where id=?').bind(itemId, itemId).run();
+  const row = await env.DB.prepare('select view_count from spotlight_items where id=?').bind(itemId).first();
+  return ctx.json({ ok: true, recorded, views: row?.view_count || 0 });
+}
+
 export async function handleSpotlightApi(request, env, ctx) {
   const parts = new URL(request.url).pathname.split('/').filter(Boolean);
   if(parts[3]) {try{parts[3]=decodeURIComponent(parts[3]);}catch{throw new ApiError(400,'Invalid Spotlight identifier.');}}
@@ -381,5 +453,7 @@ export async function handleSpotlightApi(request, env, ctx) {
   if (scope === 'admin') return moderate(request, env, ctx, parts[3]);
   if (scope === 'comments') return comments(request, env, ctx, parts[3]);
   if (scope === 'engagement') return engage(request, env, ctx, parts[3]);
+  if (scope === 'upload') return uploadMedia(request, env, ctx);
+  if (scope === 'playback') return recordPlayback(request, env, ctx, parts[3]);
   throw new ApiError(404, 'Spotlight endpoint not found.');
 }
