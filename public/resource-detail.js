@@ -218,11 +218,12 @@
     });
     document.querySelector("[data-rv-bookmark]")?.addEventListener("click", async event => {
       if (!state.viewer.signedIn) return needSignIn("bookmark this");
+      const b = event.currentTarget;
       const on = !state.viewer.bookmarked;
       const res = await call(`/api/resources/${encodeURIComponent(r.id)}/bookmark`, { method: "POST", body: JSON.stringify({ on }) });
       if (res.status === 401) return needSignIn("bookmark this");
       if (!res.ok) return say(res.data.error || "That didn't save.");
-      state.viewer.bookmarked = on; const b = event.currentTarget; b.setAttribute("aria-pressed", on); b.querySelector("span").textContent = on ? "Saved" : "Save"; say(on ? "Saved to your bookmarks." : "Removed from your bookmarks.");
+      state.viewer.bookmarked = on; b.setAttribute("aria-pressed", on); b.querySelector("span").textContent = on ? "Saved" : "Save"; say(on ? "Saved to your bookmarks." : "Removed from your bookmarks.");
     });
     document.querySelector("[data-rv-like]")?.addEventListener("click", async event => {
       if (!state.viewer.signedIn) return needSignIn("like this");

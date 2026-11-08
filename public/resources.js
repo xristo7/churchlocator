@@ -1,5 +1,5 @@
 (function initializeResourcesModule() {
-  const libraryKey = "faithlink.resources.library.v1";
+  const savedLibrary = new Set();
   const data = () => window.FaithLinkModules;
   let viewMode = localStorage.getItem("faithlink.resources.view") || "grid";
 
@@ -60,7 +60,7 @@
           <a class="rv-card-church resource-channel-link" href="${channelHref}" aria-label="${channelAction}: ${esc(creatorName)}"><span class="rv-mini-avatar" aria-hidden="true">${esc(initials)}</span><span>${esc(creatorName)}</span></a>
           <div class="rv-card-meta resource-card-footer"><span class="resource-subtitle resource-duration">${esc([resource.topic, resource.duration].filter(Boolean).join(" · "))}</span><strong class="rv-card-price resource-price-badge ${resource.access === "Paid" ? "paid" : ""}">${price}</strong></div>
           <div class="rv-card-actions">
-            <button class="resource-action" type="button" data-resource-action="${esc(resource.id)}">${resource.access === "Free" ? "Add to library" : "Get resource"}</button>
+            <button class="resource-action" type="button" data-resource-action="${esc(resource.id)}">${resource.access === "Free" ? (savedLibrary.has(resource.id) ? "In Library" : "Add to library") : "Get resource"}</button>
             <button class="content-love-button" type="button" data-love-type="resource" data-love-id="${esc(resource.id)}" aria-pressed="false" aria-label="Like"><i data-lucide="heart"></i><span data-love-count>0</span></button>
           </div>
         </div>
@@ -100,24 +100,28 @@
       data().addResource({ ...values, pages, price: values.access === "Paid" ? Number(values.price || 0) : 0, attachment: file?.name || "", attachmentData, attachmentType: file?.type || "" });
       event.currentTarget.reset(); setEditor(false); render(); window.MWE?.showMemberToast?.("Resource published");
     });
-    document.addEventListener("click", event => {
+    document.addEventListener("click", async event => {
       const button = event.target.closest("[data-resource-action]");
       if (!button) return;
       const resource = data().getResources().find(item => item.id === button.dataset.resourceAction);
       if (!resource) return;
-      if (resource.access === "Free") {
-        const library = JSON.parse(localStorage.getItem(libraryKey) || "[]");
-        if (!library.includes(resource.id)) library.push(resource.id);
-        localStorage.setItem(libraryKey, JSON.stringify(library));
+      if (resource.access === "Paid") { location.href = `/resources/${encodeURIComponent(resource.id)}`; return; }
+      if (!window.MWEPlatform?.session) { window.MWE?.openMemberLogin?.(location.pathname + location.search); return; }
+      if (button.disabled || savedLibrary.has(resource.id)) return;
+      button.disabled = true;
+      try {
+        const response = await fetch(`/api/resources/${encodeURIComponent(resource.id)}/library`, {method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({on:true})});
+        const result = await response.json();
+        if(!response.ok || !result.ok)throw new Error(result.error || "The resource could not be saved.");
+        savedLibrary.add(resource.id);button.textContent="In Library";
         window.MWE?.showMemberToast?.("Added to your resource library");
-        button.textContent = "In Library";
-        return;
-      }
-      const productId = `resource-${resource.id}`;
-      data().upsertProduct({ id: productId, title: resource.title, seller: resource.creator, sellerType: "Channel", category: "Digital Resources", price: resource.price, compareAt: 0, inventory: 999, rating: resource.rating, status: "Active", featured: false, image: resource.image, description: resource.description });
-      data().addToCart(productId);
-      window.MWE?.showMemberToast?.("Paid resource added to your Store cart");
+      } catch(error) { window.MWE?.showMemberToast?.(error.message); }
+      finally { button.disabled=false; }
     });
+    fetch('/api/resource-library',{credentials:'same-origin',cache:'no-store'}).then(response=>response.json()).then(result=>{
+      for(const id of result.library || [])savedLibrary.add(id);
+      render();
+    }).catch(()=>{});
     render();
   });
 })();
