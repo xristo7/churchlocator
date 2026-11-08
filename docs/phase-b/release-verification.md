@@ -1,6 +1,6 @@
 # Phase B release verification
 
-The six Phase B branches are combined on `codex/phase-b-release`, starting from main `14e9949fa9a85a3ffa6f13fb63264fc42df11115`. Main includes the contributors' Spotlight dislike/follower updates and their decision to retain the standalone church profile. Both are preserved. The sole merge conflict was the Creator Studio script cache version, refreshed for the combined script.
+The six Phase B branches are combined on `claude/phase-b-release`, starting from main `14e9949fa9a85a3ffa6f13fb63264fc42df11115`. Main includes the contributors' Spotlight dislike/follower updates and their decision to retain the standalone church profile. Both are preserved. The sole merge conflict was the Creator Studio script cache version, refreshed for the combined script.
 
 ## Validation
 
@@ -20,3 +20,5 @@ The first combined B4 browser attempt used an accumulated owner fixture with man
 At preparation time the latest GitHub deployment job could not start: its annotation states that the account is locked due to a billing issue. The environment has no Cloudflare API token or Wrangler login configured for a direct deployment. The existing deployment workflow also requires a fully passing native suite and security audit, so its inherited failures remain blockers even if billing is restored.
 
 Merging this release does not establish that it is live. A successful deployment must use the exact merged main SHA, verify main has not advanced immediately before release, inspect newer pending/running deployments, and confirm the active Cloudflare version before completion is reported. No force push, direct push to main, Cloudflare secret changes, remote database migrations, or deployment bypasses were used while preparing this release.
+
+The release branch uses the Phase B `claude/` namespace because origin already has a branch named `codex`, preventing Git from creating `codex/phase-b-release`. The existing shared branch was not renamed or deleted.
