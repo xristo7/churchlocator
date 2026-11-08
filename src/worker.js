@@ -1223,9 +1223,9 @@ async function handlePrayer(request, env) {
 function assetRequest(request) {
   const url = new URL(request.url);
   const routes = new Map([
-    ["/", "/app.html"],
-    ["/index.html", "/app.html"],
-    ["/home", "/app.html"],
+    ["/", "/index.html"],
+    ["/index.html", "/index.html"],
+    ["/home", "/index.html"],
     ["/creator", "/creator-workspace.html"],
     ["/church-portal", "/church-portal.html"],
     ["/portal", "/church-portal.html"],
