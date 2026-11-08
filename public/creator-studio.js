@@ -187,7 +187,7 @@
       sunburst:["Joy & Praise - Sunburst","A radiant praise room with a celebratory symbol, worship sound, and scripture that lifts the visitor into joy.",[["icon","Praise symbol","select",true,["sun|Sun","sparkles|Sparkles","heart|Heart","cross|Cross","shield|Shield"],"Choose the symbol shown in the praise room."],["durationMinutes","Session length in minutes","number",true,null,"How long should the praise experience last?"],["selectedAudio","Praise sound","select",true,["worship|Christian worship","bible|Audio Bible","instrumental|Soaking instrumental","sermon|Spoken teaching","silence|Silence and ambience"]],["audioSrc","Room MP3","audio",false,null,"Optional custom praise sound. MP3 only, up to 10 MB."],["soundcloud","SoundCloud track","soundcloud",false,null,"Or paste a SoundCloud track or playlist link to play it in the room."],["verses","Praise scriptures","verses",false,null,"Add passages that celebrate God's goodness." ]]]
     };
     const [title,help,fields]=styles[data.template]||styles.timer;
-    return `<section class="cs-form-section cs-meditation-style" id="cs-section-2"><p class="cs-eyebrow">Selected room experience</p><h2>${title}</h2><p>${help}</p><div class="cs-fields">${fields.map(field=>fieldMarkup(field,data)).join("")}</div></section>`;
+    return `<section class="cs-form-section cs-meditation-style" id="cs-section-2"><p class="cs-eyebrow">Selected room experience</p><h2>${title}</h2><p>${help}</p><div class="cs-fields">${fields.map(field=>fieldMarkup(field,data)).join("")}${fieldMarkup(["cover","Room cover image","image",false,null,"Choose a picture from your device."],data)}</div></section>`;
   }
   function editorRecord() {
     const defaults = editing ? {...editing} : {...kinds[activeKind].defaults};
