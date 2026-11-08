@@ -10,7 +10,7 @@ const privateKinds=['prayer','reflection','ride','visit','salvation','foundation
 const livestreamKinds={church:'churches',channel:'channels',store:'store'};
 const forbidden=new Set(['createdBy','tenantId','createdAt','updatedAt','revision','verified','ticketsSold','followers','items','rating','orders','amountPaidCents','attachmentData','totpSecret','password','isOwner','role']);
 const fields={
- churches:['name','city','country','postal','denomination','pastor','pastorTitle','pastorBio','pastorPhoto','about','location','email','phone','phoneLabel','emailHref','website','language','worship','ministries','sunday','midweek','photo','logo','tagline','livestream','history','vision','mission','statementOfFaith','firstVisit','parkingInformation','childrenInformation','gallery','heroOrder','welcomeMedia'],
+ churches:['name','city','country','postal','denomination','pastor','pastorTitle','pastorBio','pastorPhoto','about','location','email','phone','phoneLabel','emailHref','website','language','worship','ministries','sunday','midweek','photo','logo','tagline','livestream','history','vision','mission','statementOfFaith','firstVisit','parkingInformation','childrenInformation','gallery','heroOrder','welcomeMedia','schedule'],
  meditation:['title','subtitle','category','categoryLabel','theme','template','toneFreq','cover','selectedAudio','audioTracks','verses','icon','commentsEnabled','ownerName','purpose','timeMode','durationMinutes','themeColor','allowUserNavigation','autoPlayInterval','ambience','inhaleWord','exhaleWord','journeySteps','audioSrc','soundcloud'],
  events:['title','churchId','eventType','startsAt','endsAt','venueName','city','country','coverImageUrl','registrationRequired','ticketPriceCents','currency','totalTickets','isFeatured','isPromoted','registrationUrl','livestreamUrl','directionsUrl','description','highlights','expectations','speakers','schedule','faqs','ownerName'],
  store:['name','ownerName','category','description','image','email','liveUrl','live'],
@@ -97,6 +97,11 @@ export function validateEntity(kind,input) {
    data.ministries=[...new Set(list.map(v=>String(v||'').trim()).filter(Boolean).map(v=>normalizeMinistry(v)||v.slice(0,80)))].slice(0,40);
   }
   if(!data.city || !data.country) throw new ApiError(400,'City and country are required.');
+  if(data.schedule!==undefined && (!Array.isArray(data.schedule) || data.schedule.length>12 || data.schedule.some(item=>{
+   const title=Array.isArray(item)?item[0]:item?.title||item?.name;
+   const time=Array.isArray(item)?item[1]:item?.time;
+   return !String(title||'').trim() || !String(time||'').trim();
+  }))) throw new ApiError(400,'Add up to twelve gatherings, each with a title and time.');
   if(data.gallery!==undefined && (!Array.isArray(data.gallery) || data.gallery.length>8)) throw new ApiError(400,'A church can have up to eight profile gallery slides.');
   if(data.heroOrder!==undefined && (!Array.isArray(data.heroOrder) || data.heroOrder.length>10 || data.heroOrder.some(key=>typeof key!=='string' || key.length>100))) throw new ApiError(400,'Invalid profile slide order.');
   if(data.welcomeMedia) {

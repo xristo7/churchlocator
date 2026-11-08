@@ -790,9 +790,11 @@ const MWE = (() => {
       features: Array.isArray(church.features) ? church.features : [],
       schedule: Array.isArray(church.schedule)
         ? church.schedule
-          .filter(item => Array.isArray(item) && item.length >= 2)
-          .filter(item => String(item[1] || "").trim())
-          .map(item => [String(item[0] || "Gathering"), String(item[1])])
+          .filter(item => Array.isArray(item) ? item.length >= 2 && String(item[1] || "").trim() : item && String(item.time || "").trim())
+          .map(item => Array.isArray(item) ? [String(item[0] || "Gathering"), String(item[1])] : {
+            id: String(item.id || ""), title: String(item.title || item.name || "Gathering"), time: String(item.time),
+            location: String(item.location || ""), description: String(item.description || ""), image: String(item.image || item.photo || "")
+          })
         : [],
       livestream: {
         enabled: streamEnabled,
@@ -3067,11 +3069,12 @@ MWE.scheduleChurchHero = function() {
   clearTimeout(MWE.churchHeroState.timer);
   if (MWE.churchHeroState.slides.length < 2 || document.hidden) return;
   const root = document.getElementById("church-hero-showcase");
+  if (!root || root.matches?.(':hover') || root.contains?.(document.activeElement)) return;
   const active = root?.querySelector(".church-hero-slide.is-active");
   if (active?.classList.contains("details-open")) return;
   if (active?.querySelector('iframe[data-hero-video][src]')) return;
   const delay = active?.dataset.heroKind === "video" ? 12000 : 7000;
-  MWE.churchHeroState.timer = setTimeout(() => MWE.stepChurchHero(1), delay);
+  MWE.churchHeroState.timer = setTimeout(() => MWE.setChurchHeroSlide(MWE.churchHeroState.index + 1, false), delay);
 };
 
 MWE.setChurchHeroSlide = function(index, userInitiated = false) {
