@@ -1223,9 +1223,9 @@ async function handlePrayer(request, env) {
 function assetRequest(request) {
   const url = new URL(request.url);
   const routes = new Map([
-    ["/", "/app.html"],
-    ["/index.html", "/app.html"],
-    ["/home", "/app.html"],
+    ["/", "/index.html"],
+    ["/index.html", "/index.html"],
+    ["/home", "/index.html"],
     ["/creator", "/creator-workspace.html"],
     ["/church-portal", "/church-portal.html"],
     ["/portal", "/church-portal.html"],
@@ -1305,7 +1305,10 @@ async function handleEvents(request, env) {
       select e.*, c.name as church_name, c.city as church_city, c.country as church_country
       from events e
       left join churches c on c.id = e.church_id
-      where 1=1
+      where not exists (
+        select 1 from platform_entities p
+        where p.id=e.id and p.kind='events' and p.state!='published'
+      )
     `;
     const params = [];
 
@@ -1926,6 +1929,10 @@ export default {
     if(/\/(?:app|channel-live)\.html(?:\?|$)/.test(livePath))newHeaders.set('permissions-policy','camera=(self), microphone=(self), geolocation=(self)');
     if(/\/meditation\.html(?:\?|$)/.test(livePath))newHeaders.set('permissions-policy','camera=(), microphone=(self), geolocation=(self)');
     if(/\/(?:channel-live|meditation)\.html(?:\?|$)/.test(livePath))newHeaders.set('content-security-policy',newHeaders.get('content-security-policy').replace("connect-src 'self'","connect-src 'self' https://*.realtime.cloudflare.com wss://*.realtime.cloudflare.com"));
+    if(/\/resource-(?:detail|reader)\.html(?:\?|$)/.test(livePath)){
+      const hosts=String(env.RESOURCE_HOSTS||'').split(',').map(host=>host.trim()).filter(host=>/^[a-z0-9.-]+$/i.test(host));
+      if(hosts.length)newHeaders.set('content-security-policy',newHeaders.get('content-security-policy').replace("connect-src 'self'", "connect-src 'self' "+hosts.map(host=>'https://'+host).join(' ')));
+    }
     if(/\/broadcast\.html(?:\?|$)/.test(livePath)){
       let policy=newHeaders.get('content-security-policy').replace("frame-src 'self'","frame-src 'self' https://platform.twitter.com https://syndication.twitter.com https://vimeo.com https://www.facebook.com https://iframe.videodelivery.net https://*.cloudflarestream.com https://player.mediadelivery.net https://iframe.mediadelivery.net https://player.cloudinary.com").replace("connect-src 'self'","connect-src 'self' https://*.cloudflarestream.com https://res.cloudinary.com https://*.b-cdn.net https://stream.mux.com").replace("script-src 'self'","script-src 'self' https://platform.twitter.com");
       if(env.DB&&(!url.searchParams.get('type')||url.searchParams.get('type')==='church')){

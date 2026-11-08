@@ -40,7 +40,7 @@
       ? '<video class="spotlight-card-media" playsinline muted preload="metadata" poster="' + esc(item.posterUrl) + '" src="' + esc(item.mediaUrl) + '"></video>'
       : '<img class="spotlight-card-media" data-animated="true" src="' + esc(item.posterUrl) + '" alt="" />';
     const avatar = item.creatorAvatarUrl ? '<img src="' + esc(item.creatorAvatarUrl) + '" alt="" />' : icon(feature ? 'church' : 'user');
-    const hasFullContent=/^https:\/\//i.test(item.fullContentUrl||'');
+    const hasFullContent=/^https:\/\//i.test(item.fullContentUrl||'') || /^\/media\/church-video\/[0-9a-f-]{36}\.(mp4|webm)$/i.test(item.fullContentUrl||'');
     const cta = hasFullContent ? item.contentUrl : item.channelUrl;
     return '<article tabindex="0" class="spotlight-card' + (feature ? ' spotlight-feature-card' : '') + '" data-spotlight-id="' + esc(item.id) + '" data-index="' + index + '" aria-label="Open channel: ' + esc(item.title) + '">' + media +
       '<div class="spotlight-card-top">' + (editorial ? '<span class="spotlight-editorial-label' + (item.placementKind === 'sponsored' ? ' spotlight-sponsored' : '') + '">' + icon(item.placementKind === 'sponsored' ? 'badge-dollar-sign' : 'sparkles') + esc(editorial) + '</span>' : '<span></span>') + '<button type="button" data-card-menu aria-label="Report this item">' + icon('ellipsis') + '</button></div>' +
@@ -66,6 +66,25 @@
     requestAnimationFrame(() => activate(state.activeIndex, state.activeIndex>0));
     window.lucide?.createIcons();
   }
+  let feedPlaybackKey;
+  const countedViews=new Set();
+  async function recordFeedPlayback(item) {
+    if(countedViews.has(item.id))return;
+    countedViews.add(item.id);
+    if(!feedPlaybackKey){
+      try{feedPlaybackKey=sessionStorage.getItem('mwe.watch.playback.key');}catch{}
+      if(!/^[A-Za-z0-9_-]{32,128}$/.test(feedPlaybackKey||'')){
+        feedPlaybackKey=crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','');
+        try{sessionStorage.setItem('mwe.watch.playback.key',feedPlaybackKey);}catch{}
+      }
+    }
+    try{const result=await api('playback/'+encodeURIComponent(item.id),{playbackKey:feedPlaybackKey});item.views=result.views;}
+    catch{countedViews.delete(item.id);}
+  }
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)feed.querySelectorAll('video').forEach(video=>video.pause());
+    else activate(state.activeIndex,false);
+  });
   function bindCards() {
     state.observer?.disconnect();
     const observer = new IntersectionObserver(entries => {
@@ -73,7 +92,23 @@
       if (entry && entry.intersectionRatio >= .62) activate(Number(entry.target.dataset.index), false);
     }, { root:feed, threshold:[.62,.82] });
     state.observer=observer;
-    feed.querySelectorAll('.spotlight-card').forEach(card => observer.observe(card));
+    feed.querySelectorAll('.spotlight-card').forEach(card => {
+      const video=card.querySelector('video'), item=state.visible[Number(card.dataset.index)];
+      if(video){
+        const start=Number(item.previewStartSeconds)||0, end=item.previewEndSeconds;
+        video.addEventListener('loadedmetadata',()=>{video.currentTime=Math.min(start,video.duration||start);});
+        video.addEventListener('timeupdate',()=>{
+          if(video.dataset.previewComplete!=='true' && end!==null && end!==undefined && video.currentTime>=end){video.dataset.previewComplete='true';video.pause();video.currentTime=end;}
+        });
+        video.addEventListener('ended',()=>{video.dataset.previewComplete='true';});
+        video.addEventListener('playing',()=>recordFeedPlayback(item));
+        video.addEventListener('error',()=>{
+          video.hidden=true;
+          const fallback=document.createElement('img');fallback.className='spotlight-card-media';fallback.dataset.videoFallback='true';fallback.src=item.posterUrl;fallback.alt='Video unavailable: '+item.title;card.prepend(fallback);
+        },{once:true});
+      }
+      observer.observe(card);
+    });
   }
   function activate(index, scroll = true) {
     if (!state.visible.length) return;
@@ -82,7 +117,14 @@
       const active = cardIndex === state.activeIndex;
       card.classList.toggle('is-active', active);
       const video = card.querySelector('video');
-      if (video) { video.muted = !state.sound; if (active) video.play().catch(()=>{}); else video.pause(); }
+      if (video) {
+        video.muted = !state.sound;
+        if (active && !document.hidden && video.dataset.previewComplete!=='true') video.play().catch(()=>{});
+        else {
+          video.pause();
+          if(!active && video.dataset.previewComplete==='true'){delete video.dataset.previewComplete;video.currentTime=Number(state.visible[cardIndex].previewStartSeconds)||0;}
+        }
+      }
     });
     if (scroll) feed.children[state.activeIndex]?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
     renderInspector();

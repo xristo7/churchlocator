@@ -187,7 +187,7 @@
       sunburst:["Joy & Praise - Sunburst","A radiant praise room with a celebratory symbol, worship sound, and scripture that lifts the visitor into joy.",[["icon","Praise symbol","select",true,["sun|Sun","sparkles|Sparkles","heart|Heart","cross|Cross","shield|Shield"],"Choose the symbol shown in the praise room."],["durationMinutes","Session length in minutes","number",true,null,"How long should the praise experience last?"],["selectedAudio","Praise sound","select",true,["worship|Christian worship","bible|Audio Bible","instrumental|Soaking instrumental","sermon|Spoken teaching","silence|Silence and ambience"]],["audioSrc","Room MP3","audio",false,null,"Optional custom praise sound. MP3 only, up to 10 MB."],["soundcloud","SoundCloud track","soundcloud",false,null,"Or paste a SoundCloud track or playlist link to play it in the room."],["verses","Praise scriptures","verses",false,null,"Add passages that celebrate God's goodness." ]]]
     };
     const [title,help,fields]=styles[data.template]||styles.timer;
-    return `<section class="cs-form-section cs-meditation-style" id="cs-section-2"><p class="cs-eyebrow">Selected room experience</p><h2>${title}</h2><p>${help}</p><div class="cs-fields">${fields.map(field=>fieldMarkup(field,data)).join("")}</div></section>`;
+    return `<section class="cs-form-section cs-meditation-style" id="cs-section-2"><p class="cs-eyebrow">Selected room experience</p><h2>${title}</h2><p>${help}</p><div class="cs-fields">${fields.map(field=>fieldMarkup(field,data)).join("")}${fieldMarkup(["cover","Room cover image","image",false,null,"Choose a picture from your device."],data)}</div></section>`;
   }
   function editorRecord() {
     const defaults = editing ? {...editing} : {...kinds[activeKind].defaults};
@@ -457,5 +457,12 @@
   window.addEventListener("popstate",()=>{const params=new URLSearchParams(location.search);const next=aliases[params.get("kind")]||params.get("kind");const nextKind=kinds[next]?next:null;const nextStep=Math.max(0,Number.parseInt(params.get("step")||"0",10)||0);if(nextKind&&nextKind===activeKind&&root.querySelector("#cs-editor-form")){activeStep=Math.min(nextStep,kinds[nextKind].sections.length-1);renderStepFromHistory?.(activeStep);return;}activeKind=nextKind;activeStep=nextStep;renderStepFromHistory=null;editing=null;render();});
   // AUTO_APPROVE_STUDIO_CONTENT: label the action "Publish" when the server publishes studio submissions immediately.
   try { const status=await fetch("/api/status",{credentials:"same-origin"}).then(r=>r.json()); autoPublish=!!status?.features?.autoApproveStudioContent; } catch {}
+  if (activeKind === 'events' && query.get('edit')) {
+    editing = records().find(record => record.kind === 'events' && record.id === query.get('edit') && record.canManage);
+    if (!editing) {
+      root.innerHTML = '<section class="cs-upgrade"><h1>Event unavailable</h1><p>You can only edit events managed by your creator account.</p></section>';
+      return;
+    }
+  }
   render();
 })();

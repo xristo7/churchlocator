@@ -1,0 +1,35 @@
+import assert from 'node:assert/strict';
+import{mkdirSync,existsSync}from'node:fs';
+import{execFileSync}from'node:child_process';
+const{chromium}=await import(process.env.PLAYWRIGHT_PATH || 'playwright');
+import{accounts,api,browserPage,base,dir}from'./phase-b-local.mjs';
+const evidence=dir+'/b4';mkdirSync(evidence,{recursive:true});
+if(!existsSync(evidence+'/cover.png'))execFileSync('ffmpeg',['-y','-f','lavfi','-i','color=c=blue:s=320x568','-frames:v','1','-loglevel','error',evidence+'/cover.png']);
+if(!existsSync(evidence+'/audio.mp3'))execFileSync('ffmpeg',['-y','-f','lavfi','-i','sine=frequency=432','-t','8','-loglevel','error',evidence+'/audio.mp3']);
+const a=await accounts(),browser=await chromium.launch({executablePath:process.env.CHROME || '/usr/bin/chromium',headless:true,args:['--no-sandbox','--mute-audio']});
+try{
+ const creator=await browserPage(browser,a.creator.cookie);
+ await creator.goto(base+'/creator-studio.html?kind=meditation');await creator.locator('#cs-editor-form').waitFor();
+ await creator.locator('[name=title]').fill('Phase B meditation cover '+Date.now());await creator.locator('[name=subtitle]').fill('Local cover and audio check');
+ await creator.locator('#cs-step-next').click();await creator.locator('[name=template]').selectOption('timer');await creator.locator('#cs-step-next').click();
+ await creator.locator('[data-key=cover] [data-image-picker]').setInputFiles(evidence+'/cover.png');
+ await creator.waitForFunction(()=>document.querySelector('[name=cover]')?.value.startsWith('/media/'));
+ await creator.locator('[data-audio-picker]').setInputFiles(evidence+'/audio.mp3');await creator.waitForFunction(()=>document.querySelector('[name=audioSrc]')?.value.endsWith('.mp3'));
+ const savedResponse=creator.waitForResponse(r=>r.url().endsWith('/api/workspace/meditation') && r.request().method()==='POST',{timeout:10000}).catch(async error=>{console.log('Validation:',await creator.locator('#cs-message').innerText());console.log('Missing:',await creator.locator('.cs-field[data-state=missing]').evaluateAll(fields=>fields.map(field=>field.dataset.key)));throw error;});
+ await creator.locator('#cs-publish').click();const saved=await(await savedResponse).json();assert.equal(saved.ok,true);const room=saved.record;
+ const image=await fetch(base+room.cover);assert.equal(image.status,200);assert.ok(image.headers.get('content-type').startsWith('image/'));
+ const audio=await fetch(base+room.audioSrc);assert.equal(audio.status,200);
+ await creator.goto(base+'/creator-studio.html');await creator.locator('[data-edit="'+room.id+'"]').click();
+ await creator.locator('[name=title]').fill(room.title+' edited');await creator.locator('#cs-step-next').click();await creator.locator('#cs-step-next').click();
+ assert.equal(await creator.locator('[name=cover]').inputValue(),room.cover);assert.equal(await creator.locator('[name=audioSrc]').inputValue(),room.audioSrc);
+ const editedResponse=creator.waitForResponse(r=>r.url().endsWith('/api/workspace/meditation/'+room.id) && r.request().method()==='PUT');
+ await creator.locator('#cs-publish').click();const edited=await(await editedResponse).json();assert.equal(edited.ok,true);assert.equal(edited.record.cover,room.cover);assert.equal(edited.record.audioSrc,room.audioSrc);
+ const viewer=await browserPage(browser,a.viewer.cookie);await viewer.addInitScript(()=>{const Native=window.Audio;window.testAudio=[];window.Audio=class extends Native{constructor(...args){super(...args);window.testAudio.push(this);}};});
+ await viewer.goto(base+'/meditation.html?embed=1');const card=viewer.locator('[data-enter-room="'+room.id+'"]');await card.waitFor();
+ await viewer.waitForFunction(id=>{const image=document.querySelector('[data-enter-room="'+id+'"] img');return image?.naturalWidth>0;},room.id);
+ assert.equal(await card.locator('img').getAttribute('src'),room.cover);await viewer.screenshot({path:evidence+'/card.png'});
+ await card.click();await viewer.waitForFunction(()=>window.testAudio.some(audio=>!audio.paused && audio.currentTime>0));
+ assert.ok((await viewer.locator('#meditation-backdrop').evaluate(el=>getComputedStyle(el).backgroundImage)).includes(room.cover));
+ await viewer.screenshot({path:evidence+'/room.png'});
+ console.log('PASS creator uploads cover and MP3, edit preserves both, viewer card image loads, room cover renders, uploaded audio plays');
+}finally{await browser.close();}

@@ -1098,6 +1098,11 @@
         : "meditation-backdrop bg-room-" + template;
     }
 
+    if (backdrop) {
+      if (room.cover) backdrop.style.setProperty('background-image', 'linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)), url(' + JSON.stringify(room.cover) + ')', 'important');
+      else backdrop.style.removeProperty('background-image');
+    }
+
     const firstVerse = room.verses?.[0] || { text: "The Lord is in His holy temple; let all the earth keep silence before Him.", ref: "— HABAKKUK 2:20" };
     const timerQuote = document.getElementById("timer-quote-text");
     const timerRef = document.getElementById("timer-quote-ref");
