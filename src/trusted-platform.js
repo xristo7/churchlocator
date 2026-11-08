@@ -84,6 +84,9 @@ function sanitizeValue(value, key='') {
  if(value && typeof value==='object') return Object.fromEntries(Object.entries(value).filter(([k])=>!forbidden.has(k) && !['__proto__','constructor','prototype'].includes(k)).map(([k,v])=>[k,sanitizeValue(v,k)]));
  return value;
 }
+export function validateEventStart(data, previous, now=Date.now()) {
+ if((!previous || Date.parse(data.startsAt)!==Date.parse(previous.startsAt)) && Date.parse(data.startsAt)<now) throw new ApiError(400,'Choose a future start date for a new or rescheduled event.');
+}
 export function validateEntity(kind,input) {
  if(!kinds.includes(kind) || !input || typeof input!=='object' || Array.isArray(input)) throw new ApiError(400,'Invalid content.');
  const data=Object.fromEntries(fields[kind].filter(k=>input[k]!==undefined).map(k=>[k,sanitizeValue(input[k],k)]));
@@ -209,6 +212,7 @@ export async function writeEntity(request,env,ctx,kind,id) {
  if(!owner && !['owner','editor'].includes((await membership(env,user.id,tenantId))?.role)) throw new ApiError(403,'You cannot manage this tenant.');
  if(existing && Number(input.revision)!==existing.revision) throw new ApiError(409,'Content changed. Reload before saving.');
  const previous=existing?JSON.parse(existing.data_json):{}, data=validateEntity(kind,{...previous,...input});
+ if(kind==='events') validateEventStart(data,existing?previous:null);
  await checkTaxonomyValues(env,kind,data,previous);
  await checkRelated(env,user,kind,data,tenantId,owner);
  let state=input.publicationState || (owner?existing?.state:'pending') || 'pending';

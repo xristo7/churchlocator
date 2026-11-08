@@ -1305,7 +1305,10 @@ async function handleEvents(request, env) {
       select e.*, c.name as church_name, c.city as church_city, c.country as church_country
       from events e
       left join churches c on c.id = e.church_id
-      where 1=1
+      where not exists (
+        select 1 from platform_entities p
+        where p.id=e.id and p.kind='events' and p.state!='published'
+      )
     `;
     const params = [];
 

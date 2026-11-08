@@ -457,5 +457,12 @@
   window.addEventListener("popstate",()=>{const params=new URLSearchParams(location.search);const next=aliases[params.get("kind")]||params.get("kind");const nextKind=kinds[next]?next:null;const nextStep=Math.max(0,Number.parseInt(params.get("step")||"0",10)||0);if(nextKind&&nextKind===activeKind&&root.querySelector("#cs-editor-form")){activeStep=Math.min(nextStep,kinds[nextKind].sections.length-1);renderStepFromHistory?.(activeStep);return;}activeKind=nextKind;activeStep=nextStep;renderStepFromHistory=null;editing=null;render();});
   // AUTO_APPROVE_STUDIO_CONTENT: label the action "Publish" when the server publishes studio submissions immediately.
   try { const status=await fetch("/api/status",{credentials:"same-origin"}).then(r=>r.json()); autoPublish=!!status?.features?.autoApproveStudioContent; } catch {}
+  if (activeKind === 'events' && query.get('edit')) {
+    editing = records().find(record => record.kind === 'events' && record.id === query.get('edit') && record.canManage);
+    if (!editing) {
+      root.innerHTML = '<section class="cs-upgrade"><h1>Event unavailable</h1><p>You can only edit events managed by your creator account.</p></section>';
+      return;
+    }
+  }
   render();
 })();

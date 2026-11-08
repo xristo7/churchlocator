@@ -10312,6 +10312,14 @@ MWE.handleHostSignin = async function(e) {
 };
 
 MWE.openHostEventStudio = function(eventId = null) {
+  if (window.MWEPlatform) {
+    const session = window.MWEPlatform.session;
+    const destination = 'creator-studio.html?kind=events' + (eventId ? '&edit=' + encodeURIComponent(eventId) : '');
+    if (!session) { MWE.openMemberLogin(destination); return; }
+    if (!session.isCreator) { MWE.showMemberToast?.('Sign in with a creator account to host an event.'); return; }
+    window.location.href = destination;
+    return;
+  }
   const host = MWE.getEventHost();
   if (!host) {
     MWE.openHostAuthModal((h) => MWE.openHostEventStudio(eventId));
