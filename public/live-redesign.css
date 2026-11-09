@@ -95,7 +95,9 @@ body[data-page="broadcast"] .platform-footer{display:none}
   .mwe-side-tabs{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--surface-soft)}
   .mwe-side-tabs button{flex:1;height:36px;border:0;border-radius:999px;background:transparent;color:var(--text-secondary);font:700 14px/1 var(--font-sans,system-ui);margin:0}
   .mwe-side-tabs button[aria-selected="true"]{background:var(--surface);color:var(--text-primary);box-shadow:0 1px 3px rgba(0,0,0,.12)}
-  .mwe-watch-side:not([data-active="next"]) .mwe-upnext,.mwe-watch-side[data-active="next"] .mwe-chat{display:none!important}
+  .mwe-watch-side [data-side-panel]{display:none!important}
+  .mwe-watch-side:not([data-active]) [data-side-panel="chat"],.mwe-watch-side[data-active="chat"] [data-side-panel="chat"]{display:flex!important}
+  .mwe-watch-side[data-active="next"] [data-side-panel="next"],.mwe-watch-side[data-active="more"] [data-side-panel="more"]{display:block!important}
   .mwe-chat.broadcast-chat{height:min(440px,calc(100dvh - 56.25vw - 220px));min-height:300px}
   .mwe-upnext h2{display:none}
 }
@@ -416,3 +418,4 @@ body:has(.mwe-watch.is-theatre)>a.broadcast-back-link{display:flex;position:rela
 .mwe-ask-form label{font-weight:600;font-size:14px}
 .mwe-ask-form textarea{min-height:84px;width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--border,#c8ced6);border-radius:8px;font:inherit}
 .mwe-ask-form [data-ask-status]{margin:0;font-size:13px;color:var(--text-secondary,#5a6472)}
+.mwe-chip[hidden],.mwe-follow-btn[hidden]{display:none!important}
