@@ -47,3 +47,12 @@ Caveats: the security audit reports advisories on an inherited `undici` dependen
 1. Deploy: run the commands in docs/release-runbook.md from a normal machine, or restore GitHub Actions (billing lock). Backups taken today (live and preview databases exported; Worker version ids and Time Travel bookmarks recorded) are held in the cloud session only; Cloudflare keeps the Time Travel bookmarks for 30 days: live `000009d4-00000000-0000511d-7f5f88428457fafb1119c78573c3ee9f`, preview `00000230-00000000-0000511e-a9c49ee9a9de4bb7ea791accf7655760`. Previous Worker versions: production `bbcc5242-da88-4555-b383-ee99885670dd`, preview `ff55a6e4-c6c7-4e3e-8d18-f1593352ee66`.
 2. Migration 0033 was already applied to the preview database (additive, safe). Production still needs 0031, 0032 and 0033, which `migrations apply` will run in order.
 3. Human-only checks: owner MFA and live-provider tests for microphone and broadcast; client acceptance.
+
+## Update, later on 9 Nov
+Merged since the report above (PRs #17, #18, #19), all with the same 14 known test failures and no new ones:
+- Watch page: Ask (private, signed-in only), opt-in Download, From this series tab. Live stage page parity (Related, Dislike, Report) is still not built.
+- Channels: native posts (Plan Your Day, Words of Wisdom) open as full watch pages with the same player, engagement and comments; Open Channel points to the publishing channel; fixed a routing bug that dropped the post when a member opened a standalone watch page. A post with no saved media shows a clear message and retry. Plan Your Day currently has no media link saved in the live data, so its owner must add the video link in the channel editor.
+- Church hero: owners upload a phone video (up to 95 MB) in the hero Video slide.
+- Migrations still to run on production: 0031, 0032, 0033, 0034 (all additive or safe). Preview already has 0033 and 0034.
+- `scripts/release.sh` does the whole release. It could not finish here: the cloud session's proxy rejects Wrangler's static-file upload (401), so nothing new is deployed; preview and production Workers are unchanged.
+- Human-only checks that remain: owner MFA with the live provider (microphone and broadcast), and client acceptance.
