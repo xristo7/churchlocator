@@ -11,3 +11,9 @@ test('watch page offers Ask (private, signed-in only), opt-in Download and a ser
   assert.match(script, /data-related-tab="series" hidden/);
   assert.match(script, /seriesTitle = profile\?\.channel\?\.seriesTitle/);
 });
+
+test('opening a standalone watch page as a member keeps the post in the shell URL', () => {
+  const app = readFileSync(new URL('../public/app.js', import.meta.url), 'utf8');
+  const build = app.slice(app.indexOf('MWE.buildMemberShellUrl'), app.indexOf('MWE.renderChurchMinistryChips'));
+  assert.match(build, /route\.post\) target\.searchParams\.set\("post", route\.post\)/);
+});

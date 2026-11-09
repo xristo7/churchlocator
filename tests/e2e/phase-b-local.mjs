@@ -6,7 +6,7 @@ export const base=process.env.BASE || 'http://127.0.0.1:8800';
 export async function api(path,body,cookie='',method=body?'POST':'GET'){
  const r=await fetch(base+'/api/'+path,{method,headers:{connection:'close',...(cookie?{cookie}:{}),origin:base,...(body?{'content-type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});const data=await r.json();if(!r.ok || (!data.ok && r.status!==202))throw new Error(path+' HTTP '+r.status+': '+data.error);return {data,cookie:r.headers.get('set-cookie')?.split(';')[0]};
 }
-export function db(sql){const file=dir+'/local-fixture.sql';writeFileSync(file,sql,{mode:0o600});execFileSync('node_modules/.bin/wrangler',['d1','execute','my-way-of-evangelism-preview','--local','--env','preview','--persist-to=/workspace/phase-b-state','--file',file],{stdio:'pipe'});}
+export function db(sql){const file=dir+'/local-fixture.sql';writeFileSync(file,sql,{mode:0o600});execFileSync('node_modules/.bin/wrangler',['d1','execute','my-way-of-evangelism-preview','--local','--env','preview','--persist-to='+(process.env.PHASE_B_STATE||'/workspace/phase-b-state'),'--file',file],{stdio:'pipe'});}
 export async function accounts(){
  const file=dir+'/local-accounts.json';
  if(existsSync(file))return JSON.parse(readFileSync(file,'utf8'));
