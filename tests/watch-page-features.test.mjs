@@ -17,3 +17,12 @@ test('opening a standalone watch page as a member keeps the post in the shell UR
   const build = app.slice(app.indexOf('MWE.buildMemberShellUrl'), app.indexOf('MWE.renderChurchMinistryChips'));
   assert.match(build, /route\.post\) target\.searchParams\.set\("post", route\.post\)/);
 });
+
+test('live pages offer subscribe with count, like, private dislike, Ask, Report and More videos', () => {
+  const page = readFileSync(new URL('../public/creator-public.js', import.meta.url), 'utf8');
+  for (const marker of ['data-live-subscribe', 'data-live-rate="like"', 'data-live-rate="dislike"', 'data-live-ask', 'data-live-report', 'data-more-filter="series"', 'data-more-filter="followed"', 'data-more-retry'])
+    assert.ok(page.includes(marker), marker);
+  const stage = readFileSync(new URL('../public/channel-live.js', import.meta.url), 'utf8');
+  assert.match(stage, /on\('more',viewerActions\)/);
+  assert.match(stage, /\/api\/live-watch\/channel\//);
+});

@@ -79,6 +79,7 @@
   }
   function hostMembersSheet(members){
     const body=root.querySelector('[data-sheet-body]');
+    const sheetTitle=root.querySelector('.mwe-sheet-card header b');if(sheetTitle)sheetTitle.textContent='Participants';
     body.replaceChildren();
     for(const member of members){
       const row=document.createElement('div');row.className='mwe-sheet-row';row.dataset.memberId=member.id;
@@ -98,6 +99,26 @@
         const state=await api('sessions/'+encodeURIComponent(sessionId)+'/members');joinedMembers=Number(state.joinedMembers)||0;setHeader(root.querySelector('[data-title]').textContent,channelName,joinedMembers);hostMembersSheet(state.members);
       }catch(error){notice(error.message);button.disabled=false;}
     };
+  }
+  async function viewerActions(){
+    const body=root.querySelector('[data-sheet-body]'),title=root.querySelector('.mwe-sheet-card header b');
+    const call=(action,method,payload)=>fetch('/api/live-watch/channel/'+encodeURIComponent(channelId)+(action?'/'+action:''),{method:method||'GET',credentials:'same-origin',headers:payload?{'content-type':'application/json'}:{},body:payload?JSON.stringify(payload):undefined}).then(async r=>{const d=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(d.error||'Request failed.');e.status=r.status;throw e;}return d;});
+    if(title)title.textContent='About this stage';
+    body.replaceChildren();body.textContent='Loading…';root.querySelector('[data-sheet]').hidden=false;root._rsRememberSheetFocus?.();
+    let state,signedIn=false;
+    try{const [session,summary]=await Promise.all([fetch('/api/auth/session',{credentials:'same-origin'}).then(r=>r.json()).catch(()=>null),call('')]);signedIn=Boolean(session?.user);state=summary;}
+    catch(error){body.replaceChildren();const p=document.createElement('p');p.textContent='Could not load these actions. '+error.message;const retry=document.createElement('button');retry.type='button';retry.className='mwe-mini';retry.textContent='Retry';retry.onclick=viewerActions;body.append(p,retry);return;}
+    const draw=()=>{
+      body.replaceChildren();
+      const row=(label,pressed,fn,disabled)=>{const b=document.createElement('button');b.type='button';b.className='mwe-mini';b.textContent=label;b.setAttribute('aria-pressed',String(Boolean(pressed)));b.disabled=Boolean(disabled);b.onclick=fn;const wrap=document.createElement('div');wrap.className='mwe-sheet-row';wrap.append(b);body.append(wrap);return b;};
+      const need=fn=>async()=>{if(!signedIn){window.MWE?.openMemberLogin?.(location.pathname.split('/').pop()+location.search);notice('Sign in to continue.');return;}try{state=await fn();draw();}catch(error){notice(error.message);}};
+      row((state.liked?'Liked':'Like')+(state.likes?' · '+state.likes:''),state.liked,need(()=>call('rating','POST',{action:'like',active:!state.liked})));
+      row(state.disliked?'Disliked':'Dislike',state.disliked,need(()=>call('rating','POST',{action:'dislike',active:!state.disliked})));
+      row((state.following?'Subscribed':'Subscribe')+' · '+state.followers.toLocaleString()+(state.followers===1?' subscriber':' subscribers'),state.following,need(()=>call('follow','PUT',{active:!state.following})));
+      if(signedIn)row('Ask the host a private question',false,()=>{const text=window.prompt('Your private question for the host');if(!text||!text.trim())return;fetch('/api/private/message',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({entityId:channelId,body:text.trim()})}).then(async r=>{const d=await r.json().catch(()=>({}));notice(r.ok?'Sent. The host will reply in your Messages.':(d.error||'Your question could not be sent.'));}).catch(()=>notice('Your question could not be sent.'));});
+      row(state.reported?'Report submitted for review':'Report this stage',state.reported,need(()=>window.confirm('Report this stage to the moderation team? You can report it once.')?call('report','POST'):Promise.resolve(state)),state.reported);
+    };
+    draw();
   }
   async function refreshMembers(showSheet=false){
     const state=await api('sessions/'+encodeURIComponent(sessionId)+'/members');
@@ -168,8 +189,8 @@
       }
 
       renderTiles([{id:'host',name:current.channel?.name||current.session?.hostName||'Host',host:true,muted:false,speaking:true,a:'#1e3a8a',b:'#3b82f6'}]);
-      const nav=controls([{id:'mic',icon:'mic-off',label:'Microphone',short:'Mic'},{id:'cam',icon:'video-off',label:'Camera',short:'Cam'},{id:'join',icon:current.canManage?'radio':'hand',label:current.canManage?'Open stage':'Join live stage',short:current.canManage?'Stage':'Join'},{id:'react',icon:'heart',label:'Ready for live reactions',short:'React',hidden:true},{id:'share',icon:'share-2',label:'Copy stage invitation',short:'Share'},{id:'chat',icon:'message-circle',label:'Open live chat',short:'Chat',hidden:true},...(current.canManage?[{id:'people',icon:'users',label:'Stage members',short:'People'},{id:'end',icon:'square',label:'End stage for everyone',short:'End',cls:'danger'}]:[]),{id:'leave',icon:'phone-off',label:'Leave stage',short:'Leave',cls:'danger',hidden:true}]);
-      on('react',()=>['❤️','🙏','🙌'].forEach((r,i)=>setTimeout(()=>react(r),i*160)));on('share',share);
+      const nav=controls([{id:'mic',icon:'mic-off',label:'Microphone',short:'Mic'},{id:'cam',icon:'video-off',label:'Camera',short:'Cam'},{id:'join',icon:current.canManage?'radio':'hand',label:current.canManage?'Open stage':'Join live stage',short:current.canManage?'Stage':'Join'},{id:'react',icon:'heart',label:'Ready for live reactions',short:'React',hidden:true},{id:'share',icon:'share-2',label:'Copy stage invitation',short:'Share'},{id:'more',icon:'more-horizontal',label:'Like, ask or report',short:'More'},{id:'chat',icon:'message-circle',label:'Open live chat',short:'Chat',hidden:true},...(current.canManage?[{id:'people',icon:'users',label:'Stage members',short:'People'},{id:'end',icon:'square',label:'End stage for everyone',short:'End',cls:'danger'}]:[]),{id:'leave',icon:'phone-off',label:'Leave stage',short:'Leave',cls:'danger',hidden:true}]);
+      on('react',()=>['❤️','🙏','🙌'].forEach((r,i)=>setTimeout(()=>react(r),i*160)));on('share',share);on('more',viewerActions);
       on('mic',async e=>{if(!meeting)return notice('Join the stage first.');const p=toggle(e.currentTarget,'mic-off','mic');try{p?await meeting.self.enableAudio():await meeting.self.disableAudio();}catch(err){notice(err.message);}});
       on('cam',async e=>{if(!meeting)return notice('Join the stage first.');const p=toggle(e.currentTarget,'video-off','video');try{p?await meeting.self.enableVideo():await meeting.self.disableVideo();}catch(err){notice(err.message);}});
       on('join',async event=>{const button=event.currentTarget;button.disabled=true;try{

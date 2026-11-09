@@ -8,3 +8,6 @@ Thumbs.db
 cloudflare-recovery/
 artifacts/
 *.log
+
+# Database backups written by scripts/release.sh contain user data
+release-*/

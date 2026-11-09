@@ -111,17 +111,19 @@
       '<div class="mwe-watch broadcast-watch-layout"><section class="mwe-watch-main broadcast-main-column"><div class="mwe-player-frame broadcast-player-shell">' + player + '<button class="broadcast-share-overlay" type="button" id="broadcast-share-hidden" hidden aria-hidden="true"></button></div>' +
       '<div class="mwe-watch-info"><h1 class="mwe-watch-title">' + esc(stream.name) + (isInteractiveStage ? ' · Live stage' : ' · Church stream') + '</h1>' +
       '<div class="mwe-watch-stats"><span data-broadcast-status>' + esc(liveStatusLabel) + '</span></div>' +
-      '<div class="mwe-channel-row">' + liveAvatar(stream, "lg") + '<div class="mwe-channel-name"><b>' + esc(stream.name) + (verified ? ' <i data-lucide="badge-check" class="mwe-verified" aria-label="Verified"></i>' : '') + '</b><small>' + esc(stream.description || "") + '</small></div>' +
-      '<a class="mwe-follow-btn" href="' + profile.url + '"><i data-lucide="' + profile.icon + '"></i> ' + profile.label + '</a></div>' +
-      '<div class="mwe-chip-row"><button class="mwe-chip" type="button" id="broadcast-share"><i data-lucide="share-2"></i> Share</button>' +
+      '<div class="mwe-channel-row">' + liveAvatar(stream, "lg") + '<div class="mwe-channel-name"><b>' + esc(stream.name) + (verified ? ' <i data-lucide="badge-check" class="mwe-verified" aria-label="Verified"></i>' : '') + '</b><small><span data-live-followers>Loading subscribers…</span>' + (stream.description ? ' · ' + esc(stream.description) : '') + '</small></div>' +
+      '<button type="button" class="mwe-follow-btn" data-live-subscribe aria-pressed="false" disabled><span>Subscribe</span></button><a class="mwe-follow-btn mwe-channel-link" href="' + profile.url + '"><i data-lucide="' + profile.icon + '"></i> ' + profile.label + '</a></div>' +
+      '<div class="mwe-chip-row"><button class="mwe-chip" type="button" data-live-rate="like" aria-pressed="false" disabled><i data-lucide="thumbs-up"></i><span>Like</span> <span data-live-likes></span></button><button class="mwe-chip" type="button" data-live-rate="dislike" aria-pressed="false" disabled title="Dislike; no public dislike count"><i data-lucide="thumbs-down"></i><span>Dislike</span></button><button class="mwe-chip" type="button" id="broadcast-share"><i data-lucide="share-2"></i> Share</button>' +
       '<button class="mwe-chip content-love-button content-love-detail" type="button" data-love-type="livestream" data-love-id="' + esc(stream.type + ':' + stream.id) + '" aria-pressed="false"><i data-lucide="heart"></i> Save <span data-love-count>0</span></button>' +
-      '</div>' +
+      '<button class="mwe-chip" type="button" data-live-ask hidden><i data-lucide="message-circle-question"></i><span>Ask</span></button>' +
+      '</div><button type="button" class="mwe-report-link" data-live-report disabled><i data-lucide="flag"></i> Report</button>' +
       '<details class="mwe-desc-card"><summary><b>About this stream</b><span class="mwe-desc-more">Show more</span></summary><p data-source-description>' + esc(description) + '</p><p>' + esc(church?.about || '') + '</p>' + (church?.pastor_name || church?.pastorName ? '<p><small>' + esc(church.pastor_name || church.pastorName) + '</small></p>' : '') + '</details></div></section>' +
-      '<div class="mwe-watch-side"><div class="mwe-side-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-side-tab="chat">Chat</button><button type="button" role="tab" aria-selected="false" data-side-tab="next">Previous</button></div>' +
+      '<div class="mwe-watch-side"><div class="mwe-side-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-side-tab="chat">Chat</button><button type="button" role="tab" aria-selected="false" data-side-tab="next">Previous</button><button type="button" role="tab" aria-selected="false" data-side-tab="more">More videos</button></div>' +
       '<aside class="mwe-chat broadcast-chat" data-side-panel="chat" aria-label="Broadcast chat"><header><div><span class="broadcast-live-dot"></span><strong>Broadcast chat</strong></div><small>Top messages</small></header>' +
       '<div class="broadcast-chat-messages" id="broadcast-chat-messages" aria-live="polite"><p class="broadcast-chat-status" data-chat-status>Loading broadcast conversation…</p></div>' +
       '<form class="broadcast-chat-form" id="broadcast-chat-form"><label class="sr-only" for="broadcast-chat-input">Chat message</label><input id="broadcast-chat-input" maxlength="300" required placeholder="Chat…"><button type="submit" aria-label="Send message"><i data-lucide="send"></i></button></form></aside>' +
-      '<section class="mwe-upnext" data-side-panel="next" aria-label="Previous streams"><h2>Previous streams</h2>' + upNext + '</section></div></div>';
+      '<section class="mwe-upnext" data-side-panel="next" aria-label="Previous streams"><h2>Previous streams</h2>' + upNext + '</section>' +
+      '<section class="mwe-upnext" data-side-panel="more" aria-label="More videos"><h2>More videos</h2><div class="mwe-side-tabs" role="tablist" aria-label="Video filters"><button type="button" role="tab" aria-selected="true" data-more-filter="all">All</button><button type="button" role="tab" aria-selected="false" data-more-filter="series">From this series</button><button type="button" role="tab" aria-selected="false" data-more-filter="followed">For you</button></div><p class="mwe-related-note" data-more-note></p><div data-more-content><p>Loading videos…</p></div></section></div></div>';
     sourceStatus.then(result => {
       const status = target.querySelector('[data-broadcast-status]');
       if (status && !isInteractiveStage) status.textContent = result?.source?.enabled ? 'Publisher saved enabled · Live status not verified' : 'Saved broadcast · Live status not verified';
@@ -162,9 +164,119 @@
         if (error?.name !== "AbortError") window.MWE.showToast?.("Unable to share this livestream");
       }
     });
+    bindLiveActions(target, stream, esc);
     window.lucide?.createIcons();
   }
+  const liveApi = (stream, action, method, body) => fetch("/api/live-watch/" + encodeURIComponent(stream.type) + "/" + encodeURIComponent(stream.id) + (action ? "/" + action : ""), { method: method || "GET", credentials: "same-origin", headers: body ? { "content-type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined }).then(async response => {
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) { const error = new Error(data.error || "Request failed."); error.status = response.status; throw error; }
+    return data;
+  });
+  async function bindLiveActions(target, stream, esc) {
+    const subscribe = target.querySelector("[data-live-subscribe]"), followers = target.querySelector("[data-live-followers]");
+    const rate = [...target.querySelectorAll("[data-live-rate]")], report = target.querySelector("[data-live-report]"), ask = target.querySelector("[data-live-ask]");
+    let signedIn = false, state = null;
+    const paint = () => {
+      if (!state) return;
+      followers.textContent = state.followers.toLocaleString() + (state.followers === 1 ? " subscriber" : " subscribers");
+      subscribe.querySelector("span").textContent = state.following ? "Subscribed" : "Subscribe";
+      subscribe.setAttribute("aria-pressed", String(state.following));
+      for (const button of rate) {
+        const like = button.dataset.liveRate === "like", active = like ? state.liked : state.disliked;
+        button.setAttribute("aria-pressed", String(active));
+        button.querySelector("span").textContent = like ? (state.liked ? "Liked" : "Like") : (state.disliked ? "Disliked" : "Dislike");
+        const count = button.querySelector("[data-live-likes]");
+        if (count) count.textContent = state.likes ? "· " + state.likes : "";
+      }
+      if (state.reported) { report.textContent = "Report submitted for review"; report.disabled = true; }
+    };
+    const requireSignIn = message => { window.MWE?.openMemberLogin?.(location.pathname.split("/").pop() + location.search); window.MWE?.showToast?.(message); };
+    const act = async (promise, fallback) => {
+      try { state = await promise; paint(); } catch (error) { if (error.status === 401) requireSignIn("Sign in to continue."); else window.MWE?.showToast?.(error.message || fallback); }
+    };
+    const load = async () => {
+      try {
+        const [session, summary] = await Promise.all([fetch("/api/auth/session", { credentials: "same-origin" }).then(r => r.json()).catch(() => null), liveApi(stream, "")]);
+        signedIn = Boolean(session?.user); state = summary; paint();
+        for (const control of [subscribe, ...rate, report]) control.disabled = state.reported && control === report;
+        if (signedIn) ask.hidden = false;
+      } catch {
+        followers.textContent = "Subscriber count unavailable";
+        const retry = document.createElement("button");
+        retry.type = "button"; retry.className = "mwe-chip"; retry.textContent = "Retry";
+        retry.addEventListener("click", () => { retry.remove(); followers.textContent = "Loading subscribers…"; load(); });
+        followers.after(retry);
+      }
+    };
+    subscribe.addEventListener("click", () => signedIn ? act(liveApi(stream, "follow", "PUT", { active: !state.following }), "Could not update your subscription.") : requireSignIn("Sign in to subscribe."));
+    rate.forEach(button => button.addEventListener("click", () => {
+      if (!signedIn) return requireSignIn("Sign in to rate this broadcast.");
+      const key = button.dataset.liveRate, active = key === "like" ? state.liked : state.disliked;
+      act(liveApi(stream, "rating", "POST", { action: key, active: !active }), "Could not save your rating.");
+    }));
+    report.addEventListener("click", () => {
+      if (!signedIn) return requireSignIn("Sign in to report this broadcast.");
+      if (!window.confirm("Report this broadcast to the moderation team? You can report it once.")) return;
+      act(liveApi(stream, "report", "POST"), "Report could not be sent.");
+    });
+    ask.addEventListener("click", () => {
+      if (target.querySelector("[data-ask-form]")) return;
+      const form = document.createElement("form");
+      form.className = "mwe-ask-form"; form.dataset.askForm = "";
+      form.innerHTML = '<label for="live-ask-text">Ask ' + esc(stream.name) + ' a private question</label><textarea id="live-ask-text" maxlength="1000" required placeholder="Only the host will see this. It is not posted in chat."></textarea><div><button type="submit" class="mwe-chip">Send privately</button> <button type="button" class="mwe-chip" data-ask-cancel>Cancel</button></div><p role="status" data-ask-status></p>';
+      target.querySelector(".mwe-chip-row").after(form);
+      form.querySelector("textarea").focus();
+      form.querySelector("[data-ask-cancel]").addEventListener("click", () => form.remove());
+      form.addEventListener("submit", async event => {
+        event.preventDefault();
+        const status = form.querySelector("[data-ask-status]"), send = form.querySelector("[type=submit]");
+        send.disabled = true; status.textContent = "Sending…";
+        try {
+          const response = await fetch("/api/private/message", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ entityId: stream.id, body: form.querySelector("textarea").value.trim() }) });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(result.error || "Your question could not be sent.");
+          status.textContent = "Sent. The host will reply in your Messages.";
+          form.querySelector("textarea").disabled = true;
+        } catch (error) { status.textContent = error.message; send.disabled = false; }
+      });
+    });
+    load();
+    // More videos: recorded videos with thumbnail, title, publisher, views and age, filtered All / From this series / For you.
+    const content = target.querySelector("[data-more-content]"), note = target.querySelector("[data-more-note]"), filters = [...target.querySelectorAll("[data-more-filter]")];
+    let feed = null, feedFailed = null;
+    const age = value => {
+      const ms = Date.now() - Date.parse(value || "");
+      if (!Number.isFinite(ms) || ms < 0) return "";
+      const days = Math.floor(ms / 864e5);
+      return days < 1 ? "Today" : days < 30 ? days + (days === 1 ? " day ago" : " days ago") : days < 365 ? Math.floor(days / 30) + " mo ago" : Math.floor(days / 365) + " yr ago";
+    };
+    const card = item => '<a class="mwe-upnext-item" href="channel-content.html?post=' + encodeURIComponent(item.id) + '"><span class="mwe-upnext-thumb"><img src="' + esc(item.posterUrl || "") + '" alt="" loading="lazy"></span><span class="mwe-upnext-copy"><b>' + esc(item.title) + '</b><small>' + esc([item.creatorName, typeof item.views === "number" ? item.views.toLocaleString() + (item.views === 1 ? " view" : " views") : "", age(item.publishedAt || item.createdAt)].filter(Boolean).join(" · ")) + '</small></span></a>';
+    const current = () => filters.find(button => button.getAttribute("aria-selected") === "true")?.dataset.moreFilter || "all";
+    const draw = key => {
+      if (feedFailed) {
+        note.textContent = feedFailed.message;
+        content.innerHTML = '<button type="button" class="mwe-chip" data-more-retry>Retry videos</button>';
+        content.querySelector("button").addEventListener("click", loadFeed);
+        return;
+      }
+      const rows = (feed || []).filter(item => key === "series" ? item.channelEntityId === stream.id || item.subjectEntityId === stream.id : key === "followed" ? item.following : true).slice(0, 12);
+      note.textContent = key === "series" ? "Published by " + stream.name + "." : key === "followed" ? (signedIn ? "From channels you follow." : "Sign in to see videos from channels you follow.") : "Latest published videos.";
+      content.innerHTML = rows.length ? rows.map(card).join("") : '<p class="mwe-related-empty">' + (key === "series" ? "No videos from this series yet." : key === "followed" ? "Nothing from channels you follow yet." : "No published videos yet.") + "</p>";
+    };
+    async function loadFeed() {
+      content.innerHTML = "<p>Loading videos…</p>";
+      try {
+        const response = await fetch("/api/spotlight/feed", { credentials: "same-origin" });
+        if (!response.ok) throw new Error("Videos could not be loaded.");
+        feed = (await response.json()).items || []; feedFailed = null;
+      } catch (error) { feedFailed = error; }
+      draw(current());
+    }
+    filters.forEach(button => button.addEventListener("click", () => { filters.forEach(other => other.setAttribute("aria-selected", String(other === button))); draw(button.dataset.moreFilter); }));
+    loadFeed();
+  }
   document.addEventListener("DOMContentLoaded", async () => {
+
   await window.MWEPlatform?.ready;
     liveDirectory();
     publicPage();

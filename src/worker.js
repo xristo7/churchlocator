@@ -8,6 +8,7 @@ import { handleContentEngagementApi } from './content-engagements.js';
 import { handleResourcesApi } from './resources.js';
 import { handleSimulatedLiveApi } from './simulated-live.js';
 import { handleMeditationRoomsApi } from './meditation-rooms.js';
+import { handleLiveWatchApi } from './live-watch.js';
 import { sendPasswordResetEmail, sendVerificationEmail } from './password-email.js';
 
 const apiHeaders = {
@@ -1859,6 +1860,8 @@ async function handleApi(request, env, executionCtx) {
     if(liveResponse)return liveResponse;
     const identityResponse = await handleIdentityApi(request, env, context);
     if (identityResponse) return identityResponse;
+    const liveWatchResponse = await handleLiveWatchApi(request, env, context);
+    if (liveWatchResponse) return liveWatchResponse;
     const meditationResponse = await handleMeditationRoomsApi(request, env, context);
     if (meditationResponse) return meditationResponse;
     const platformResponse = await handlePlatformApi(request, env, context);
