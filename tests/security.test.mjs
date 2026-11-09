@@ -83,7 +83,8 @@ test("registrations reject forged payments, negative quantities, fractions and n
 test("D1 trigger write counts are accepted while a guarded no-op is rejected", async () => {
   const payload = { eventId: "free", fullName: "Visitor", email: "user@example.com", ticketQuantity: 1 };
   for (const [changes, expected] of [[2, 201], [0, 409]]) {
-    const DB = { prepare() { return { bind() { return { first: async () => ({ id: "free", ticket_price_cents: 0 }), run: async () => ({ meta: { changes } }) }; } }; } };
+    let lookups = 0;
+    const DB = { prepare() { return { bind() { return { first: async () => (lookups++ === 0 ? { id: "free", ticket_price_cents: 0 } : null), run: async () => ({ meta: { changes } }) }; } }; } };
     assert.equal((await worker.fetch(post("/api/event-register", payload), { ASSETS: assets, DB })).status, expected);
   }
 });

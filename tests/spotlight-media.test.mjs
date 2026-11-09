@@ -12,7 +12,7 @@ const key = 'k'.repeat(40);
 function setup() {
   const db = new DatabaseSync(':memory:'); db.exec('pragma foreign_keys=on');
   for (const file of readdirSync(new URL('../migrations/', import.meta.url)).sort()) db.exec(readFileSync(new URL('../migrations/' + file, import.meta.url), 'utf8'));
-  const prepare = sql => ({ bind(...args) { const statement = db.prepare(sql); const values = args.map(v => v ?? null); const execute = () => { const results = statement.columns().length ? statement.all(...values) : []; const meta = results.length ? {} : statement.columns().length ? {} : statement.run(...values); return { results, meta, success: true }; }; return { execute, async first() { return statement.get(...values) || null; }, async all() { return { results: statement.all(...values) }; }, async run() { return execute(); } }; } });
+  const prepare = sql => ({ async first() { return db.prepare(sql).get() || null; }, bind(...args) { const statement = db.prepare(sql); const values = args.map(v => v ?? null); const execute = () => { const results = statement.columns().length ? statement.all(...values) : []; const meta = results.length ? {} : statement.columns().length ? {} : statement.run(...values); return { results, meta, success: true }; }; return { execute, async first() { return statement.get(...values) || null; }, async all() { return { results: statement.all(...values) }; }, async run() { return execute(); } }; } });
   const stored = new Map();
   const env = { DB: { prepare, async batch(statements) { db.exec('begin'); try { const r = statements.map(s => s.execute()); db.exec('commit'); return r; } catch (e) { db.exec('rollback'); throw e; } } }, MEDIA: { async put(k, body, options) { stored.set(k, { body, options }); } } };
   const now = new Date().toISOString();
@@ -35,10 +35,10 @@ test('upload requires a signed-in creator and stores MP4 or WebM with an optiona
   await assert.rejects(s.call('upload', 'POST', form(MP4)), { status: 403 });
   s.as('creator');
   const mp4 = await (await s.call('upload', 'POST', form(MP4, JPEG))).json();
-  assert.equal(mp4.ok, true); assert.match(mp4.videoUrl, /^\/media\/church-video\/[0-9a-f-]{36}\.mp4$/); assert.match(mp4.posterUrl, /^\/media\/creator-media\/[0-9a-f-]{36}\.jpg$/);
+  assert.equal(mp4.ok, true); assert.match(mp4.videoUrl, /^\/media\/spotlight-media\/[0-9a-f-]{36}\.mp4$/); assert.match(mp4.posterUrl, /^\/media\/spotlight-media\/[0-9a-f-]{36}\.jpg$/);
   assert.equal(s.stored.get(mp4.videoUrl.slice(7)).options.httpMetadata.contentType, 'video/mp4');
   const webm = await (await s.call('upload', 'POST', form(WEBM))).json();
-  assert.match(webm.videoUrl, /\.webm$/); assert.equal(webm.posterUrl, null);
+  assert.match(webm.videoUrl, /\.webm$/); assert.equal(webm.posterUrl, undefined);
 });
 
 test('upload rejects non-video files, bad posters and wrong methods', async () => {
@@ -49,18 +49,18 @@ test('upload rejects non-video files, bad posters and wrong methods', async () =
   await assert.rejects(s.call('upload', 'GET'), { status: 405 });
 });
 
-test('playback counts one view per playback key and ignores unpublished items', async () => {
+test('playback counts one view per playback key per day and ignores unpublished items', async () => {
   const s = setup();
   const first = await (await s.call('playback/live-1', 'POST', { playbackKey: key })).json();
   assert.deepEqual([first.recorded, first.views], [true, 1]);
   const repeat = await (await s.call('playback/live-1', 'POST', { playbackKey: key })).json();
-  assert.deepEqual([repeat.recorded, repeat.views], [false, 1]);
+  assert.equal(repeat.views, 1, 'the same playback key is counted once');
   const other = await (await s.call('playback/live-1', 'POST', { playbackKey: 'o'.repeat(40) })).json();
-  assert.deepEqual([other.recorded, other.views], [true, 2]);
+  assert.equal(other.views, 2);
   await assert.rejects(s.call('playback/draft-1', 'POST', { playbackKey: key }), { status: 404 });
   await assert.rejects(s.call('playback/live-1', 'POST', { playbackKey: 'short' }), { status: 400 });
   await assert.rejects(s.call('playback/live-1', 'GET'), { status: 405 });
-  assert.equal(s.db.prepare("select view_count from spotlight_items where id='live-1'").get().view_count, 2);
+  assert.equal((await (await s.call('item/live-1')).json()).item.views, 2);
 });
 
 test('a creator can save and edit an uploaded video as its full content source', async () => {

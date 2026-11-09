@@ -154,7 +154,9 @@ export async function ownTenant(env,user) {
 export function visitorRequestRecord(row) {
  let needs=[];try{needs=JSON.parse(row.needs||'[]');}catch{}
  const ride=Array.isArray(needs)&&needs.includes('ride'), name=String(row.full_name||'').trim(), [firstName,...rest]=name.split(/\s+/);
- return {id:'visitor-'+row.id,kind:ride?'ride':'visit',requestType:ride?'Ride request':'Visit request',source:'public-form',readOnly:true,churchId:row.church_id,
+ const need=ride?'ride':['group','ministry','prayer'].find(n=>Array.isArray(needs)&&needs.includes(n))||'visit';
+ const label={ride:'Ride request',visit:'Visit request',group:'Group request',ministry:'Ministry request',prayer:'Prayer request'}[need];
+ return {id:'visitor-'+row.id,kind:ride?'ride':'visit',need,requestType:label,source:'public-form',readOnly:true,churchId:row.church_id,
   fullName:name,firstName:firstName||'',lastName:rest.join(' '),phone:row.phone||'',email:row.email||'',pickupAddress:ride?(row.city||''):'',city:row.city||'',
   preferredService:row.message||'',message:row.message||'',passengers:1,status:row.status||'new',stage:1,driver:'Unassigned',createdAt:row.created_at,direction:'received'};
 }
@@ -401,7 +403,7 @@ export async function handlePlatformApi(request,env,ctx) {
     if(!original) throw new ApiError(404,'Conversation not found.');
     recipient=original.user_id===user.id?original.recipient_user_id:original.user_id;
    }
-   else if(['prayer','visit','ride','salvation'].includes(kind) && input.visibility==='pastors') { if(!entity) throw new ApiError(400,'Choose a church for pastoral follow-up.'); visibility='pastors'; }
+   else if(['prayer','visit','ride','salvation'].includes(kind) && (input.visibility==='pastors' || entity && input.visibility!=='private')) { if(!entity) throw new ApiError(400,'Choose a church for pastoral follow-up.'); visibility='pastors'; }
    const data=privateSubmission(kind,input,entity) || Object.fromEntries(Object.entries(input).filter(([key])=>!forbidden.has(key) && !['recipientUserId','userId','visibility','status','id','kind'].includes(key)));
    if(kind==='settings' && data.forwardingEnabled) throw new ApiError(409,'Automatic forwarding awaits verified email delivery.');
    if(kind==='message') { data.threadId='entity:'+entity.id+':'+[user.id,recipient].sort().join(':'); data.participant=JSON.parse(entity.data_json).name||JSON.parse(entity.data_json).title; data.participantType=entity.kind; if(!String(data.body||'').trim()) throw new ApiError(400,'Message text required.'); }
