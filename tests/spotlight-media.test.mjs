@@ -74,3 +74,15 @@ test('a creator can save and edit an uploaded video as its full content source',
   assert.equal(edited.item.title,'Edited story');assert.equal(edited.item.fullContentUrl,upload.videoUrl);
   await assert.rejects(s.call('workspace','POST',{...body,fullContentUrl:'/assets/not-a-full-video.mp4'}),{status:400});
 });
+
+test('download is offered only for an uploaded video whose creator allowed it', async () => {
+  const s = setup();
+  const own = '/media/spotlight-media/11111111-2222-3333-4444-555555555555.mp4';
+  s.db.prepare("update spotlight_items set full_content_url=?, allow_download=1 where id='live-1'").run(own);
+  const allowed = (await (await s.call('item/live-1')).json()).item;
+  assert.deepEqual([allowed.allowDownload, allowed.fullContentUrl], [true, own]);
+  s.db.prepare("update spotlight_items set allow_download=0 where id='live-1'").run();
+  assert.equal((await (await s.call('item/live-1')).json()).item.allowDownload, false);
+  s.db.prepare("update spotlight_items set full_content_url='https://example.test/v.mp4', allow_download=1 where id='live-1'").run();
+  assert.equal((await (await s.call('item/live-1')).json()).item.allowDownload, false, 'external links are never offered as downloads');
+});

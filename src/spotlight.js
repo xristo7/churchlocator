@@ -67,6 +67,7 @@ function itemRecord(row) {
     placementKind: row.placement_kind,
     moderationNote: row.moderation_note,
     commentsEnabled: Boolean(row.comments_enabled),
+    allowDownload: Boolean(row.allow_download) && OWN_VIDEO.test(row.full_content_url || ""),
     priority: row.priority,
     scheduledAt: row.scheduled_at,
     expiresAt: row.expires_at,
@@ -128,7 +129,8 @@ function validateItem(input) {
     durationSeconds,
     ctaLabel: cleanText(input.ctaLabel, 60, "Action label"),
     ctaUrl: safeUrl(input.ctaUrl, "Action URL"),
-    commentsEnabled: input.commentsEnabled !== false
+    commentsEnabled: input.commentsEnabled !== false,
+    allowDownload: input.allowDownload === true
   };
 }
 async function verifyChannel(env, user, channelId, tenantId, owner) {
@@ -262,8 +264,8 @@ async function workspace(request, env, ctx, id) {
     const status = input.saveAsDraft ? "draft" : !owner && !contributor && studioAutoApprove(env, user) && !["rejected", "expired"].includes(existingStatus) ? "approved" : "pending";
     await env.DB.batch([
       env.DB.prepare(`insert into spotlight_items
-        (id,tenant_id,created_by,channel_entity_id,subject_entity_id,content_type,title,caption,creator_name,creator_handle,creator_avatar_url,media_url,poster_url,full_content_url,preview_source,preview_start_seconds,preview_end_seconds,duration_seconds,cta_label,cta_url,status,comments_enabled,created_at,updated_at)
-        values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(itemId, tenantId, user.id, data.channelEntityId, data.subjectEntityId, data.contentType, data.title, data.caption, creatorName, creatorHandle, creatorAvatarUrl, data.mediaUrl, data.posterUrl, data.fullContentUrl, data.previewSource, data.previewStartSeconds, data.previewEndSeconds, data.durationSeconds, data.ctaLabel, data.ctaUrl, status, Number(data.commentsEnabled), now, now),
+        (id,tenant_id,created_by,channel_entity_id,subject_entity_id,content_type,title,caption,creator_name,creator_handle,creator_avatar_url,media_url,poster_url,full_content_url,preview_source,preview_start_seconds,preview_end_seconds,duration_seconds,cta_label,cta_url,status,comments_enabled,allow_download,created_at,updated_at)
+        values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(itemId, tenantId, user.id, data.channelEntityId, data.subjectEntityId, data.contentType, data.title, data.caption, creatorName, creatorHandle, creatorAvatarUrl, data.mediaUrl, data.posterUrl, data.fullContentUrl, data.previewSource, data.previewStartSeconds, data.previewEndSeconds, data.durationSeconds, data.ctaLabel, data.ctaUrl, status, Number(data.commentsEnabled), Number(data.allowDownload), now, now),
       auditStatement(env, user.id, "spotlight.submitted", itemId, tenantId)
     ]);
     const created = await env.DB.prepare("select * from spotlight_items where id=?").bind(itemId).first();
@@ -281,7 +283,7 @@ async function workspace(request, env, ctx, id) {
     if (["short", "long-preview", "live"].includes(data.contentType) && !isPlayableFullUrl(data.fullContentUrl)) throw new ApiError(400, "Upload or record a video, or add an HTTPS video URL.");
     const now = (new Date()).toISOString();
     const status = input.saveAsDraft ? "draft" : !owner && !contributor && studioAutoApprove(env, user) && !["rejected", "expired"].includes(existingStatus) ? "approved" : "pending";
-    const result = await env.DB.prepare(`update spotlight_items set channel_entity_id=?,subject_entity_id=?,content_type=?,title=?,caption=?,creator_name=?,creator_handle=?,creator_avatar_url=?,media_url=?,poster_url=?,full_content_url=?,preview_source=?,preview_start_seconds=?,preview_end_seconds=?,duration_seconds=?,cta_label=?,cta_url=?,comments_enabled=?,status=?,moderation_note=null,revision=revision+1,updated_at=? where id=? and revision=? returning *`).bind(data.channelEntityId, data.subjectEntityId, data.contentType, data.title, data.caption, data.creatorName || (contributor ? user.name : channel2?.name) || user.name, data.creatorHandle || (contributor ? "" : channel2?.handle) || "", data.creatorAvatarUrl || (contributor ? null : channel2?.avatar) || null, data.mediaUrl, data.posterUrl, data.fullContentUrl, data.previewSource, data.previewStartSeconds, data.previewEndSeconds, data.durationSeconds, data.ctaLabel, data.ctaUrl, Number(data.commentsEnabled), status, now, id, existing.revision).first();
+    const result = await env.DB.prepare(`update spotlight_items set channel_entity_id=?,subject_entity_id=?,content_type=?,title=?,caption=?,creator_name=?,creator_handle=?,creator_avatar_url=?,media_url=?,poster_url=?,full_content_url=?,preview_source=?,preview_start_seconds=?,preview_end_seconds=?,duration_seconds=?,cta_label=?,cta_url=?,comments_enabled=?,allow_download=?,status=?,moderation_note=null,revision=revision+1,updated_at=? where id=? and revision=? returning *`).bind(data.channelEntityId, data.subjectEntityId, data.contentType, data.title, data.caption, data.creatorName || (contributor ? user.name : channel2?.name) || user.name, data.creatorHandle || (contributor ? "" : channel2?.handle) || "", data.creatorAvatarUrl || (contributor ? null : channel2?.avatar) || null, data.mediaUrl, data.posterUrl, data.fullContentUrl, data.previewSource, data.previewStartSeconds, data.previewEndSeconds, data.durationSeconds, data.ctaLabel, data.ctaUrl, Number(data.commentsEnabled), Number(data.allowDownload), status, now, id, existing.revision).first();
     if (!result) throw new ApiError(409, "This submission changed. Reload and try again.");
     await auditStatement(env, user.id, "spotlight.resubmitted", id, existing.tenant_id).run();
     return ctx.json({ ok: true, item: itemRecord(result) });

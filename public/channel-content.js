@@ -221,12 +221,21 @@
   }
 
   async function loadRelated(current, channel) {
-    const empty = { all: [], channel: [], followed: [] };
+    const empty = { all: [], channel: [], followed: [], series: [], seriesTitle: null };
     // Preserve fetch failures for the side rail's bounded error and retry UI.
     // An empty result is reserved for an actual successful empty response.
     const feed = await get("feed");
     const published = (Array.isArray(feed.items) ? feed.items : []).filter(row => row && row.id && row.id !== current.id && row.title && (mediaKind(row.fullContentUrl || "") !== "none" || row.posterUrl));
+    let seriesTitle = null, series = [];
+    if (current.channelEntityId) {
+      try {
+        const profile = await get("channel/" + encodeURIComponent(current.channelEntityId));
+        seriesTitle = profile?.channel?.seriesTitle || null;
+        if (seriesTitle) series = (Array.isArray(profile.items) ? profile.items : []).filter(row => row && row.id && row.id !== current.id && row.title).slice(0, 12);
+      } catch { /* The series tab simply stays hidden when the channel profile is unavailable. */ }
+    }
     return {
+      series, seriesTitle,
       all: published.slice(0, 8),
       channel: published.filter(row => current.channelEntityId && row.channelEntityId === current.channelEntityId).slice(0,8),
       followed: published.filter(row => row.following).slice(0,8)
@@ -405,7 +414,7 @@
       let signedIn = false;
       let channel = item.channelEntityId ? {followers:item.followers,following:item.following,seriesTitle:item.seriesTitle||null} : null;
       const followerLabel = channel && typeof channel.followers === "number" ? channel.followers.toLocaleString()+(channel.followers===1?" follower":" followers") : "";
-      const related = {all:[],channel:[],followed:[]}; let relatedFailed = null;
+      const related = {all:[],channel:[],followed:[],series:[],seriesTitle:null}; let relatedFailed = null;
       const hasRelated = true; // A stable player host outlives independently loaded discovery.
       const when = formatWhen(item.publishedAt || item.createdAt || item.updatedAt || "");
       const stats = [];
@@ -442,6 +451,8 @@
                     '<button type="button" class="mwe-chip" data-post-action="dislike" aria-pressed="false" title="Dislike; no public dislike count"><i data-lucide="thumbs-down"></i><span>Dislike</span></button>' +
                     '<button type="button" class="mwe-chip" data-post-action="save" aria-pressed="false"><i data-lucide="bookmark"></i><span>Save</span><span data-save-count></span></button>' +
                     '<button type="button" class="mwe-chip" data-post-action="share"><i data-lucide="share-2"></i><span>Share</span></button>' +
+                    (item.channelEntityId ? '<button type="button" class="mwe-chip" data-ask-publisher><i data-lucide="message-circle-question"></i><span>Ask</span></button>' : '') +
+                    (item.allowDownload && /^\/media\/spotlight-media\//.test(item.fullContentUrl || '') ? '<a class="mwe-chip" data-download-video download href="' + esc(item.fullContentUrl) + '"><i data-lucide="download"></i><span>Download</span></a>' : '') +
                   "</div>"
                 : "") +
               (description
@@ -473,7 +484,7 @@
           "</section>" +
           (hasRelated
             ? '<aside class="mwe-watch-side" aria-label="More videos"><section class="mwe-upnext"><div class="mwe-related-heading"><h2>More videos</h2><a href="' + esc(channelUrl) + '">Open channel</a></div>' +
-                '<div class="mwe-side-tabs" role="tablist" aria-label="Video filters"><button type="button" role="tab" aria-selected="true" data-related-tab="all">All</button><button type="button" role="tab" aria-selected="false" data-related-tab="channel" title="Videos published by this channel (no separate series assigned)">From this channel</button><button type="button" role="tab" aria-selected="false" data-related-tab="followed" title="' + (signedIn ? 'From channels you follow' : 'Sign in to see channels you follow') + '">For you</button></div>' +
+                '<div class="mwe-side-tabs" role="tablist" aria-label="Video filters"><button type="button" role="tab" aria-selected="true" data-related-tab="all">All</button><button type="button" role="tab" aria-selected="false" data-related-tab="series" hidden title="Other videos in this channel\'s series">From this series</button><button type="button" role="tab" aria-selected="false" data-related-tab="channel" title="Videos published by this channel (no separate series assigned)">From this channel</button><button type="button" role="tab" aria-selected="false" data-related-tab="followed" title="' + (signedIn ? 'From channels you follow' : 'Sign in to see channels you follow') + '">For you</button></div>' +
                 '<p class="mwe-related-note" data-related-note></p><div data-related-content></div>' +
               "</section></aside>"
             : "") +
@@ -495,8 +506,31 @@
       gatedButtons.forEach(button=>button.disabled=sessionFailed);
       signedIn = sessionResult.status === 'fulfilled' && sessionResult.value === true;
       if (relatedResult.status === 'fulfilled') {
-        related.all = relatedResult.value.all; related.channel = relatedResult.value.channel; related.followed = relatedResult.value.followed;
+        related.all = relatedResult.value.all; related.channel = relatedResult.value.channel; related.followed = relatedResult.value.followed; related.series = relatedResult.value.series; related.seriesTitle = relatedResult.value.seriesTitle;
       } else relatedFailed = relatedResult.reason;
+      const askButton = root.querySelector("[data-ask-publisher]");
+      if (askButton && !signedIn) askButton.remove();
+      else if (askButton) askButton.addEventListener("click", () => {
+        if (root.querySelector("[data-ask-form]")) return;
+        const form = document.createElement("form");
+        form.className = "mwe-ask-form"; form.dataset.askForm = "";
+        form.innerHTML = '<label for="mwe-ask-text">Ask ' + esc(item.creatorName || "the publisher") + ' a private question</label><textarea id="mwe-ask-text" maxlength="1000" required placeholder="Only the publisher will see this. It is not posted publicly."></textarea><div><button type="submit" class="mwe-chip">Send privately</button> <button type="button" class="mwe-chip" data-ask-cancel>Cancel</button></div><p role="status" data-ask-status></p>';
+        askButton.closest("[data-engagement-actions]").after(form);
+        form.querySelector("textarea").focus();
+        form.querySelector("[data-ask-cancel]").addEventListener("click", () => form.remove());
+        form.addEventListener("submit", async event => {
+          event.preventDefault();
+          const status = form.querySelector("[data-ask-status]"), send = form.querySelector('[type=submit]');
+          send.disabled = true; status.textContent = "Sending…";
+          try {
+            const response = await fetch("/api/private/message", {method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({entityId:item.channelEntityId,body:form.querySelector("textarea").value.trim(),subject:"Question about: " + (item.title || "your video")})});
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.error || "Your question could not be sent.");
+            status.textContent = "Sent. The publisher will reply in your Messages.";
+            form.querySelector("textarea").value = ""; form.querySelector("textarea").disabled = true;
+          } catch (error) { status.textContent = error.message; send.disabled = false; }
+        });
+      });
       if (canEngage) {
         const combined = root.querySelector(".mwe-watch-info");
         if (combined) bindEngagement(combined, item, signedIn);
@@ -506,12 +540,15 @@
 
       if (hasRelated) {
         const tabs = [...root.querySelectorAll('[data-related-tab]')];
+        const seriesTab = tabs.find(tab => tab.dataset.relatedTab === 'series');
+        if (seriesTab && related.seriesTitle) { seriesTab.hidden = false; seriesTab.textContent = 'From this series'; seriesTab.title = 'Series: ' + related.seriesTitle; }
         const content = root.querySelector('[data-related-content]');
         const note = root.querySelector('[data-related-note]');
         const drawRelated = key => {
           const label = {
             all: 'Latest published videos from all channels.',
-            channel: 'Published by this channel; no separate editorial series label is inferred.'
+            channel: 'Published by this channel; no separate editorial series label is inferred.',
+            series: 'More from the series "' + (related.seriesTitle || '') + '".'
           }[key];
           note.textContent = signedIn && key === "followed" ? 'Latest from channels you follow.' : key === "followed" ? 'Sign in to see videos from channels you follow.' : label;
           if (related[key].length) content.innerHTML = related[key].map(relatedCard).join("");
@@ -524,7 +561,7 @@
               signin.textContent = "Sign in to see channels you follow";
               signin.addEventListener("click", () => requireSignIn(item, "Sign in to see channels you follow."));
               paragraph.append(signin);
-            } else paragraph.textContent = key === "channel" ? "No other published videos from this channel yet. A separate series is not assumed." : key === "followed" ? "No published videos from channels you follow yet." : "No published videos in this filter yet.";
+            } else paragraph.textContent = key === "series" ? "No other videos in this series yet." : key === "channel" ? "No other published videos from this channel yet. A separate series is not assumed." : key === "followed" ? "No published videos from channels you follow yet." : "No published videos in this filter yet.";
             content.replaceChildren(paragraph);
           }
           history.replaceState(null, "", location.pathname + location.search + "#related-" + key);
@@ -547,7 +584,7 @@
           content.innerHTML='<button type="button" class="mwe-chip" data-related-retry>Retry videos</button>';
           content.querySelector('button').addEventListener('click',async()=>{
             const retry=content.querySelector('button');retry.disabled=true;note.textContent='Loading published videos…';
-            try {const next=await loadRelated(item,channel);related.all=next.all;related.channel=next.channel;related.followed=next.followed;drawRelated(tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.dataset.relatedTab||'all');}
+            try {const next=await loadRelated(item,channel);related.all=next.all;related.channel=next.channel;related.followed=next.followed;related.series=next.series;related.seriesTitle=next.seriesTitle;drawRelated(tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.dataset.relatedTab||'all');}
             catch(error){note.textContent=error.message;content.innerHTML='<p role="alert">Could not load videos again. Reload the watch page to retry.</p>';}
           });
         }
