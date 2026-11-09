@@ -15,7 +15,7 @@ const fields={
  events:['title','churchId','eventType','startsAt','endsAt','venueName','city','country','coverImageUrl','registrationRequired','ticketPriceCents','currency','totalTickets','isFeatured','isPromoted','registrationUrl','livestreamUrl','directionsUrl','description','highlights','expectations','speakers','schedule','faqs','ownerName'],
  store:['name','ownerName','category','description','image','email','liveUrl','live'],
  products:['title','storeId','seller','sellerType','category','description','price','compareAt','inventory','status','featured','image','itemType','serviceType','packages'],
- channels:['name','owner','handle','topic','description','format','cover','avatar','live','liveUrl','posts'],
+ channels:['name','owner','handle','topic','description','format','cover','avatar','live','liveUrl','posts','seriesTitle'],
  resources:['title','creator','topic','description','type','format','duration','image','access','price','sourceUrl','pages','audioSrc','embedUrl']
 };
 function boolean(value) { return value===true || value===1 || value==='true'; }
@@ -104,7 +104,7 @@ export function validateEntity(kind,input) {
   }))) throw new ApiError(400,'Add up to twelve gatherings, each with a title and time.');
   if(data.gallery!==undefined && (!Array.isArray(data.gallery) || data.gallery.length>8)) throw new ApiError(400,'A church can have up to eight profile gallery slides.');
   if(data.heroOrder!==undefined && (!Array.isArray(data.heroOrder) || data.heroOrder.length>10 || data.heroOrder.some(key=>typeof key!=='string' || key.length>100))) throw new ApiError(400,'Invalid profile slide order.');
-  if(data.welcomeMedia) {
+  if(data.welcomeMedia && !/^\/media\/spotlight-media\/[A-Za-z0-9-]{8,64}\.(?:mp4|webm)$/i.test(data.welcomeMedia)) {
    let media; try { media=new URL(data.welcomeMedia); } catch { throw new ApiError(400,'Use a supported secure welcome video link.'); }
    const embed=['youtube.com','www.youtube.com','m.youtube.com','youtu.be','vimeo.com','www.vimeo.com','player.vimeo.com'].includes(media.hostname);
    const direct=/\.(mp4|webm|ogg)$/i.test(media.pathname);

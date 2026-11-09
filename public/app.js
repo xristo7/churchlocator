@@ -1593,6 +1593,8 @@ MWE.buildMemberShellUrl = function(route) {
   if (route.ministry) target.searchParams.set("ministry", route.ministry);
   if (route.compose) target.searchParams.set("compose", route.compose);
   if (route.session) target.searchParams.set("session", route.session);
+  // A post (Spotlight item id or channel post index) must survive the move into the member shell.
+  if (route.post) target.searchParams.set("post", route.post);
   return `${target.pathname.split("/").pop()}${target.search}`;
 };
 

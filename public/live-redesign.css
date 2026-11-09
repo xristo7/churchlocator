@@ -412,3 +412,7 @@ body:has(.mwe-watch.is-theatre)>a.broadcast-back-link{display:flex;position:rela
   .mwe-watch.is-theatre .mwe-watch-info,.mwe-watch.is-theatre>.mwe-watch-side,
   body:has(.mwe-watch.is-theatre)>a.broadcast-back-link,body:has(.mwe-watch.is-theatre)>.mwe-watch-page>.product-back-link,body:has(.mwe-watch.is-theatre)>.mwe-watch-page>.broadcast-back-link{width:calc(100% - 32px)}
 }
+.mwe-ask-form{display:grid;gap:8px;margin-top:12px;padding:12px;border:1px solid var(--border,#d9dee5);border-radius:12px;background:var(--surface,#fff)}
+.mwe-ask-form label{font-weight:600;font-size:14px}
+.mwe-ask-form textarea{min-height:84px;width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--border,#c8ced6);border-radius:8px;font:inherit}
+.mwe-ask-form [data-ask-status]{margin:0;font-size:13px;color:var(--text-secondary,#5a6472)}
