@@ -84,7 +84,7 @@ function itemRecord(row) {
     followers: Number.isFinite(Number(row.followers)) ? Number(row.followers) : null,
     following: Boolean(row.following),
     reminderAt: row.reminder_at || null,
-    channelUrl: row.subject_entity_id && row.content_type !== "event" ? "/channels/" + encodeURIComponent(row.subject_entity_id) : row.channel_entity_id ? "/channels/" + encodeURIComponent(row.channel_entity_id) : null,
+    channelUrl: row.channel_entity_id && ["short", "long-preview", "live"].includes(row.content_type) ? "/channels/" + encodeURIComponent(row.channel_entity_id) : row.subject_entity_id && row.content_type !== "event" ? "/channels/" + encodeURIComponent(row.subject_entity_id) : row.channel_entity_id ? "/channels/" + encodeURIComponent(row.channel_entity_id) : null,
     contentUrl: "app.html?view=channel-content&id=" + encodeURIComponent(row.channel_entity_id || "") + "&post=" + encodeURIComponent(row.id),
     permalink: "app.html?view=spotlight&post=" + encodeURIComponent(row.id)
   };
@@ -227,6 +227,7 @@ async function listFeed(request, env, ctx) {
       (s.status='scheduled' and s.scheduled_at<=?)
     ) and (s.expires_at is null or s.expires_at>?)
     and exists(select 1 from platform_entities channel where channel.id=s.channel_entity_id and channel.kind='channels' and channel.state='published')
+    and s.id not like 'spotlight-post-%'
     order by s.priority desc, coalesce(s.published_at,s.scheduled_at,s.updated_at) desc
     limit 100
   `).bind(user?.id || "", user?.id || "", user?.id || "", user?.id || "", now, now, now).all();
@@ -457,6 +458,37 @@ async function recordPlayback(request, env, ctx, itemId) {
   }
   return ctx.json({ ok: true, recorded: true, views: await playbackViews(env, itemId) });
 }
+const POST_IMAGE = /^(?:https:\/\/[^\s]+\.(?:jpe?g|png|webp|gif)(?:\?[^\s]*)?|\/(?:media|assets)\/[A-Za-z0-9._\/-]+)$/i;
+async function channelPost(request, env, ctx, channelId, indexText) {
+  if (request.method !== "GET") throw new ApiError(405, "Method not allowed.");
+  const index = Number(indexText);
+  if (!channelId || channelId.length > 128 || !Number.isInteger(index) || index < 0 || index > 199) throw new ApiError(404, "This channel post is unavailable.");
+  const channel = await env.DB.prepare("select e.id,e.tenant_id,e.data_json,t.owner_user_id from platform_entities e join tenants t on t.id=e.tenant_id where e.id=? and e.kind='channels' and e.state='published'").bind(channelId).first();
+  if (!channel) throw new ApiError(404, "This channel post is unavailable.");
+  let data;
+  try { data = JSON.parse(channel.data_json); } catch { throw new ApiError(404, "This channel post is unavailable."); }
+  const post = Array.isArray(data.posts) ? data.posts[index] : null;
+  if (!post || typeof post !== "object" || !String(post.title || "").trim()) throw new ApiError(404, "This channel post is unavailable.");
+  let media = "";
+  for (const key of ["embedUrl", "mediaUrl", "audioSrc", "sourceUrl", "url"]) {
+    const candidate = String(post[key] || "").trim();
+    if (/^https:\/\/[^\s]+$/i.test(candidate) || OWN_VIDEO.test(candidate)) { media = candidate; break; }
+  }
+  const imageOf = (value) => POST_IMAGE.test(String(value || "").trim()) ? String(value).trim() : "";
+  const poster = imageOf(post.image) || imageOf(data.cover) || imageOf(data.avatar) || "/assets/logo-grace-house.png";
+  const id = "spotlight-post-" + channelId + "-" + index;
+  const now = (new Date()).toISOString();
+  const title = String(post.title).trim().slice(0, 160);
+  const caption = String(post.summary || post.body || "").trim().slice(0, 4000);
+  const creator = String(data.name || "Channel").slice(0, 120), handle = String(data.handle || "").slice(0, 120);
+  await env.DB.prepare(`insert into spotlight_items
+    (id,tenant_id,created_by,channel_entity_id,content_type,title,caption,creator_name,creator_handle,creator_avatar_url,media_url,poster_url,full_content_url,preview_source,status,comments_enabled,published_at,created_at,updated_at)
+    values (?,?,?,?,'long-preview',?,?,?,?,?,null,?,?,'creator','live',1,?,?,?)
+    on conflict(id) do update set title=excluded.title,caption=excluded.caption,creator_name=excluded.creator_name,creator_handle=excluded.creator_handle,creator_avatar_url=excluded.creator_avatar_url,poster_url=excluded.poster_url,full_content_url=excluded.full_content_url,updated_at=excluded.updated_at`)
+    .bind(id, channel.tenant_id, channel.owner_user_id, channelId, title, caption, creator, handle, imageOf(data.avatar) || null, poster, media || null, now, now, now).run();
+  const user = await ctx.getSessionUser(request, env);
+  return ctx.json({ ok: true, item: await memberItem(env, id, user?.id || "") });
+}
 async function discovery(request, env, ctx, scope, id) {
   if (scope === "item" || scope === "channel") {
     if (request.method !== "GET") throw new ApiError(405, "Method not allowed.");
@@ -541,6 +573,7 @@ export async function handleSpotlightApi(request, env, ctx) {
   if (parts[0] !== "api" || parts[1] !== "spotlight") return null;
   if (!env.DB) throw new ApiError(503, "Storage unavailable.");
   const scope = parts[2] || "feed";
+  if (scope === "channel-post") return channelPost(request, env, ctx, parts[3], parts[4]);
   if (scope === "playback") return recordPlayback(request, env, ctx, parts[3]);
   if (["item", "channel", "channel-follow", "saved", "following", "notifications", "reminders"].includes(scope)) return discovery(request, env, ctx, scope, parts[3]);
   if (scope === "feed") return listFeed(request, env, ctx);

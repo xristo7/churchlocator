@@ -150,7 +150,7 @@
         ? '<img class="mwe-player-poster" src="' + esc(poster) + '" alt="" /><div class="mwe-player-status-copy"><strong>The full video has not been supplied yet.</strong><p>Open the channel for updates, or retry if the media link should load.</p><button type="button" class="mwe-chip" data-player-retry>Retry</button></div>'
         : '<div class="mwe-player-status-copy"><strong>No playable media on this post.</strong><p>A supported HTTPS video, audio, or YouTube link is required.</p><button type="button" class="mwe-chip" data-player-retry>Retry</button></div>';
       host.append(empty);
-      empty.querySelector("[data-player-retry]")?.addEventListener("click", () => mountPlayer(host, item, container));
+      empty.querySelector("[data-player-retry]")?.addEventListener("click", () => location.reload());
       window.lucide?.createIcons?.();
       return;
     }
@@ -226,10 +226,11 @@
     // An empty result is reserved for an actual successful empty response.
     const feed = await get("feed");
     const published = (Array.isArray(feed.items) ? feed.items : []).filter(row => row && row.id && row.id !== current.id && row.title && (mediaKind(row.fullContentUrl || "") !== "none" || row.posterUrl));
-    let seriesTitle = null, series = [];
+    let seriesTitle = null, series = [], channelItems = [];
     if (current.channelEntityId) {
       try {
         const profile = await get("channel/" + encodeURIComponent(current.channelEntityId));
+        channelItems = (Array.isArray(profile.items) ? profile.items : []).filter(row => row && row.id && row.id !== current.id && row.title).slice(0, 8);
         seriesTitle = profile?.channel?.seriesTitle || null;
         if (seriesTitle) series = (Array.isArray(profile.items) ? profile.items : []).filter(row => row && row.id && row.id !== current.id && row.title).slice(0, 12);
       } catch { /* The series tab simply stays hidden when the channel profile is unavailable. */ }
@@ -237,7 +238,7 @@
     return {
       series, seriesTitle,
       all: published.slice(0, 8),
-      channel: published.filter(row => current.channelEntityId && row.channelEntityId === current.channelEntityId).slice(0,8),
+      channel: channelItems.length ? channelItems : published.filter(row => current.channelEntityId && row.channelEntityId === current.channelEntityId).slice(0,8),
       followed: published.filter(row => row.following).slice(0,8)
     };
   }
@@ -381,21 +382,14 @@
       if (requested && !/^\d+$/.test(requested)) {
         item = (await get("item/" + encodeURIComponent(requested),10000)).item;
       } else {
-        await Promise.race([Promise.resolve(window.MWEPlatform?.ready).catch(()=>null), new Promise(resolve=>setTimeout(resolve,3000))]);
-        const channel = window.FaithLinkModules?.getChannels?.().find((row) => row.id === params.get("channel"));
-        const post = channel?.posts?.[Number(requested || 0)];
-        if (post) {
-          item = {
-            title: post.title,
-            caption: post.summary || post.body,
-            creatorName: channel.name,
-            channelEntityId: channel.id,
-            channelUrl: "app.html?view=channel-detail&id=" + encodeURIComponent(channel.id),
-            fullContentUrl: post.embedUrl || post.audioSrc || post.sourceUrl,
-            body: post.body
-          };
-        } else {
-          item = (await get("channel/" + encodeURIComponent(params.get("channel") || ""),10000)).items?.[0];
+        const channelParam = params.get("channel") || "";
+        // Native channel posts are served through the same watch-page item (player, engagement, comments, related)
+        // as Spotlight posts, so every route to a post shows the same content and state.
+        try {
+          item = (await get("channel-post/" + encodeURIComponent(channelParam) + "/" + encodeURIComponent(requested || "0"), 10000)).item;
+        } catch (postError) {
+          if (/^Not found|unavailable|404/i.test(String(postError?.message || "")) === false) throw postError;
+          item = (await get("channel/" + encodeURIComponent(channelParam), 10000)).items?.[0];
         }
       }
 

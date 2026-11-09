@@ -86,3 +86,37 @@ test('download is offered only for an uploaded video whose creator allowed it', 
   s.db.prepare("update spotlight_items set full_content_url='https://example.test/v.mp4', allow_download=1 where id='live-1'").run();
   assert.equal((await (await s.call('item/live-1')).json()).item.allowDownload, false, 'external links are never offered as downloads');
 });
+
+test('native channel posts open as full watch-page items with the same player, engagement and routing', async () => {
+  const s = setup();
+  const posts = [
+    { title: 'Plan Your Day', summary: 'Write the goals down.', mediaUrl: 'https://youtu.be/abcdefghijk', image: 'https://youtu.be/abcdefghijk' },
+    { title: 'Needs a link', summary: 'No media yet.', mediaUrl: '', embedUrl: '' }
+  ];
+  s.db.prepare("update platform_entities set data_json=? where id='channel-1'").run(JSON.stringify({ name: 'Grace', handle: '@grace', cover: '/media/creator-media/abc.jpg', posts }));
+  const first = (await (await s.call('channel-post/channel-1/0')).json()).item;
+  assert.equal(first.fullContentUrl, 'https://youtu.be/abcdefghijk');
+  assert.equal(first.posterUrl, '/media/creator-media/abc.jpg', 'a video link is never used as the poster image');
+  assert.equal(first.channelUrl, '/channels/channel-1');
+  assert.equal(first.commentsEnabled, true);
+  const again = (await (await s.call('channel-post/channel-1/0')).json()).item;
+  assert.equal(again.id, first.id, 'the same post always maps to the same item');
+  const bare = (await (await s.call('channel-post/channel-1/1')).json()).item;
+  assert.equal(bare.fullContentUrl, null);
+  await assert.rejects(s.call('channel-post/channel-1/9'), { status: 404 });
+  await assert.rejects(s.call('channel-post/nope/0'), { status: 404 });
+  s.as('plain');
+  const liked = await (await s.call('engagement/' + first.id, 'POST', { action: 'like', active: true })).json();
+  assert.equal(liked.item.liked, true);
+  const feed = (await (await s.call('feed')).json()).items;
+  assert.equal(feed.some(row => row.id.startsWith('spotlight-post-')), false, 'channel posts stay out of the Spotlight feed');
+  const channel = await (await s.call('channel/channel-1')).json();
+  assert.equal(channel.items.some(row => row.id === first.id), true);
+});
+
+test('Open Channel points at the publishing channel, not the church the video is about', async () => {
+  const s = setup();
+  s.db.prepare("insert into platform_entities (id,kind,tenant_id,created_by,state,data_json,created_at,updated_at) values ('church-1','churches','t1','creator','published','{}',?,?)").run(new Date().toISOString(), new Date().toISOString());
+  s.db.prepare("update spotlight_items set subject_entity_id='church-1' where id='live-1'").run();
+  assert.equal((await (await s.call('item/live-1')).json()).item.channelUrl, '/channels/channel-1');
+});
