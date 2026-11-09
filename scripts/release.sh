@@ -22,7 +22,8 @@ STAMP=$(date -u +%Y%m%dT%H%M%SZ); OUT=release-$STAMP; mkdir -p "$OUT"; chmod 700
 
 say "2. Tests (exactly the 14 known failures are allowed)"
 pnpm install --frozen-lockfile >/dev/null
-FAILS=$(node --test tests/*.test.mjs 2>&1 | grep -E '^# fail' | awk '{print $3}')
+FAILS=$( (node --test tests/*.test.mjs 2>&1 || true) | grep -E '^# fail' | awk '{print $3}')
+[ -n "$FAILS" ] || die "could not read the test summary"
 [ "$FAILS" -le 14 ] || die "$FAILS tests fail; the baseline is 14"
 
 versions() { api "workers/scripts/$1/deployments" | python3 -c "import sys,json;print(json.load(sys.stdin)['result']['deployments'][0]['versions'][0]['version_id'])"; }
