@@ -880,6 +880,7 @@ async function handleStatus(env) {
     app: "my-way-of-evangelism-api",
     role: "Shared synchronization API for public website, church portal, and owner dashboard",
     environment: env.ENVIRONMENT || "unknown",
+    release: /^[0-9a-f]{7,40}$/i.test(String(env.RELEASE_SHA || "")) ? String(env.RELEASE_SHA) : null,
     features: { autoApproveStudioContent: String(env.AUTO_APPROVE_STUDIO_CONTENT || "").toLowerCase() === "true" },
     storage: {
       d1Bound: Boolean(env.DB),

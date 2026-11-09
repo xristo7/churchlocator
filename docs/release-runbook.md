@@ -12,7 +12,10 @@ Databases: `my-way-of-evangelism` (2a60c9f6-2850-4db3-9df3-ac80f69adb00), `my-wa
 6. Never delete production data. Do not change billing. Touch only the two Workers above, their two databases and two media buckets.
 7. Stop and report on: a migration error, a new failing test, a failed health check, or main moving mid-deploy.
 
-## Commands (run from a clean checkout of the exact SHA, with a Cloudflare API token that can edit Workers, D1 and R2)
+## One command
+`CLOUDFLARE_API_TOKEN=... scripts/release.sh` releases the current `origin/main` to preview (backup, migrations, deploy, health checks incl. the live release SHA from `/api/status`, automatic rollback). Add `--production` to continue to production the same way. It copies every deployed variable from the live Worker, so config drift cannot change them.
+
+## Manual commands (run from a clean checkout of the exact SHA, with a Cloudflare API token that can edit Workers, D1 and R2)
 ```
 pnpm install --frozen-lockfile && node --test tests/*.test.mjs   # expect exactly the 14 known failures
 npx wrangler d1 migrations list DB --env preview --remote
