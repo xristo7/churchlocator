@@ -37,11 +37,11 @@ test('Spotlight backend provides feed, creator, moderation, engagement and comme
     read('src/worker.js'), read('src/spotlight.js'), read('migrations/0006_spotlight.sql')
   ]);
   assert.match(worker, /handleSpotlightApi/);
-  assert.match(handler, /scope === 'feed'/);
-  assert.match(handler, /scope === 'workspace'/);
-  assert.match(handler, /scope === 'admin'/);
-  assert.match(handler, /scope === 'engagement'/);
-  assert.match(handler, /scope === 'comments'/);
+  assert.match(handler, /scope === ['"]feed['"]/);
+  assert.match(handler, /scope === ['"]workspace['"]/);
+  assert.match(handler, /scope === ['"]admin['"]/);
+  assert.match(handler, /scope === ['"]engagement['"]/);
+  assert.match(handler, /scope === ['"]comments['"]/);
   assert.match(handler, /requireOwner/);
   assert.match(handler, /verifyChannel/);
   assert.match(migration, /create table spotlight_items/);

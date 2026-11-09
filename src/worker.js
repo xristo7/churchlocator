@@ -7,6 +7,7 @@ import { handleLiveApi, closeExpiredLiveSessions, deliverLiveNotifications } fro
 import { handleContentEngagementApi } from './content-engagements.js';
 import { handleResourcesApi } from './resources.js';
 import { handleSimulatedLiveApi } from './simulated-live.js';
+import { handleMeditationRoomsApi } from './meditation-rooms.js';
 import { sendPasswordResetEmail, sendVerificationEmail } from './password-email.js';
 
 const apiHeaders = {
@@ -134,8 +135,8 @@ async function handleMediaRequest(request, env) {
   if (!env.MEDIA) return new Response("Media storage unavailable", { status: 503, headers: securityHeaders });
   if (request.method !== "GET" && request.method !== "HEAD") return new Response("Method not allowed", { status: 405, headers: { allow: "GET, HEAD", ...securityHeaders } });
   const key = new URL(request.url).pathname.slice("/media/".length);
-  const isChurchVideo = /^church-video\/[0-9a-f-]{36}\.(mp4|webm)$/.test(key);
-  if (!isChurchVideo && !/^(creator-media|member-avatars)\/[0-9a-f-]{36}\.(jpg|png|webp|gif|mp3)$/.test(key)) return new Response("Not found", { status: 404, headers: securityHeaders });
+  const isChurchVideo = /^church-video\/[0-9a-f-]{36}\.(mp4|webm)$/.test(key) || /^spotlight-media\/[0-9a-f-]{36}\.(mp4|webm)$/.test(key);
+  if (!isChurchVideo && !/^(creator-media|member-avatars)\/[0-9a-f-]{36}\.(jpg|png|webp|gif|mp3)$/.test(key) && !/^spotlight-media\/[0-9a-f-]{36}\.(jpg|png|webp)$/.test(key)) return new Response("Not found", { status: 404, headers: securityHeaders });
   const rangeHeader = isChurchVideo && request.method === "GET" ? request.headers.get("range") : null;
   let range = null;
   let totalSize;
@@ -469,6 +470,10 @@ async function handleAuthLogin(request, env) {
 }
 
 async function handleAuthLogout(request, env) {
+  if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
+  const origin = request.headers.get("origin");
+  const fetchSite = request.headers.get("sec-fetch-site");
+  if (origin ? origin !== new URL(request.url).origin : fetchSite !== "same-origin") return json({ ok: false, error: "cross-origin request rejected" }, 403);
   if (env.DB) {
     const cookies = parseCookies(request);
     const token = cookies[SESSION_COOKIE];
@@ -908,9 +913,10 @@ function publicChurchRecord(row, profile, schedules, entity) {
   if (!services.length && Array.isArray(data.schedule)) {
     for (const item of data.schedule) if (Array.isArray(item) && item[0]) services.push({ type: churchText(String(item[0]), 120), day: "", time: churchText(String(item[1] || ""), 120), notes: "" });
   }
+  const placeholder = (v) => /^(sunday service|midweek gathering|time to be announced|sunday 10:00 am)$/i.test(churchText(v));
   if (!services.length) {
-    if (churchText(data.sunday)) services.push({ type: "Sunday service", day: "Sunday", time: churchText(data.sunday, 120), notes: "" });
-    if (churchText(data.midweek)) services.push({ type: "Midweek gathering", day: "", time: churchText(data.midweek, 120), notes: "" });
+    if (churchText(data.sunday) && !placeholder(data.sunday)) services.push({ type: "Sunday service", day: "Sunday", time: churchText(data.sunday, 120), notes: "" });
+    if (churchText(data.midweek) && !placeholder(data.midweek)) services.push({ type: "Midweek gathering", day: "", time: churchText(data.midweek, 120), notes: "" });
   }
   const verified = row ? Number(row.is_verified) === 1 : data.verified === true;
   return {
@@ -1162,6 +1168,18 @@ async function handleAdminVisitors(request, env) {
   return json({ ok: true, requests });
 }
 
+async function findListedChurch(env, churchId) {
+  if (!churchId) return null;
+  return env.DB.prepare("select id from churches where id = ? and is_verified = 1 union select id from platform_entities where id = ? and kind = 'churches' and state = 'published'").bind(String(churchId), String(churchId)).first();
+}
+
+async function testimonyScope(env, user) {
+  const full = await env.DB.prepare("select * from users where id = ?").bind(user.id).first();
+  if (full && await isOwner(env, full)) return { all: true, ids: new Set() };
+  const { results } = await env.DB.prepare("select e.id from platform_entities e join tenant_memberships m on m.tenant_id = e.tenant_id where e.kind = 'churches' and m.user_id = ? and m.role in ('owner','editor','pastor')").bind(user.id).all();
+  return { all: false, ids: new Set((results || []).map((r) => r.id)) };
+}
+
 async function handleVisitor(request, env) {
   if (!env.DB) return storageUnavailable();
   const payload = await readJson(request);
@@ -1169,7 +1187,7 @@ async function handleVisitor(request, env) {
     return json({ ok: false, error: "fullName, email, and churchId are required" }, 400);
   }
   if (!isValidEmail(normalizeEmail(payload.email))) return json({ ok: false, error: "enter a valid email address" }, 400);
-  const church = await env.DB.prepare("select id from churches where id = ? and is_verified = 1").bind(payload.churchId).first();
+  const church = await findListedChurch(env, payload.churchId);
   if (!church) return json({ ok: false, error: "published church not found" }, 404);
 
   const id = crypto.randomUUID();
@@ -1203,7 +1221,7 @@ async function handlePrayer(request, env) {
   const requestText = String(payload?.request || "").trim();
   if (requestText.length < 3 || requestText.length > 5000) return json({ ok: false, error: "request must be between 3 and 5000 characters" }, 400);
   if (payload.churchId) {
-    const church = await env.DB.prepare("select id from churches where id = ? and is_verified = 1").bind(payload.churchId).first();
+    const church = await findListedChurch(env, payload.churchId);
     if (!church) return json({ ok: false, error: "published church not found" }, 404);
   }
 
@@ -1223,9 +1241,12 @@ async function handlePrayer(request, env) {
 function assetRequest(request) {
   const url = new URL(request.url);
   const routes = new Map([
-    ["/", "/index.html"],
-    ["/index.html", "/index.html"],
-    ["/home", "/index.html"],
+    // "/" is the public landing (index.html); Home lives at /home for everyone.
+    // "/index.html" and "/?login=.../?view=..." still open the app shell so existing sign-in redirects keep working.
+    ["/", url.search ? "/app.html" : "/index.html"],
+    ["/index.html", "/app.html"],
+    ["/landing", "/index.html"],
+    ["/home", "/app.html"],
     ["/creator", "/creator-workspace.html"],
     ["/church-portal", "/church-portal.html"],
     ["/portal", "/church-portal.html"],
@@ -1236,6 +1257,8 @@ function assetRequest(request) {
     ["/app", "/app.html"],
     ["/member", "/app.html"],
     ["/spotlight", "/spotlight.html"],
+    ["/spotlight/studio", "/spotlight-studio.html"],
+    ["/spotlight-studio", "/spotlight-studio.html"],
     ["/channel-live", "/channel-live.html"],
     ["/live-setup", "/live-setup.html"],
     ["/livestream", "/livestream.html"],
@@ -1419,6 +1442,16 @@ async function handleEventRegister(request, env) {
   if (!isValidEmail(normalizeEmail(payload.email))) return json({ ok: false, error: "valid email required" }, 400);
   const event = await env.DB.prepare("select id, ticket_price_cents, total_tickets, tickets_sold from events where id = ?").bind(payload.eventId).first();
   if (!event) return json({ ok: false, error: "event not found" }, 404);
+  if (env.AUTH_RATE_LIMITER) {
+    const address = request.headers.get("cf-connecting-ip") || "local";
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(address + "|" + event.id));
+    const key = "event-register:" + Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+    const { success } = await env.AUTH_RATE_LIMITER.limit({ key });
+    if (!success) return json({ ok: false, error: "Too many registrations for this event. Try again in a minute." }, 429);
+  }
+  if (await env.DB.prepare("select id from event_registrations where event_id = ? and lower(email) = ? limit 1").bind(event.id, normalizeEmail(payload.email)).first()) {
+    return json({ ok: false, error: "This email is already registered for this event." }, 409);
+  }
   // Payment must be verified by a trusted provider webhook. Never accept a client claim of payment.
   if (event.ticket_price_cents > 0) return json({ ok: false, error: "Paid registration requires a verified payment provider." }, 409);
   const amountPaid = 0;
@@ -1621,7 +1654,8 @@ async function handleSubmitChurchTestimony(churchId, request, env, context) {
 
   const id = `testimony-${crypto.randomUUID()}`;
   const now = new Date().toISOString();
-  const status = "approved";
+  const scope = user ? await testimonyScope(env, user) : { all: false, ids: new Set() };
+  const status = scope.all || scope.ids.has(churchId) ? "approved" : "pending";
   const isFeatured = 0;
   const userId = user?.id || null;
 
@@ -1652,7 +1686,7 @@ async function handleSubmitChurchTestimony(churchId, request, env, context) {
 
   return json({
     ok: true,
-    message: "Thank you for sharing your testimony! Your story will inspire and encourage others.",
+    message: status === "approved" ? "Thank you for sharing your testimony! Your story will inspire and encourage others." : "Thank you! Your testimony was sent to the church and will appear after it is approved.",
     testimony
   }, 201);
 }
@@ -1677,6 +1711,14 @@ async function handleCreatorGetTestimonies(request, env, context) {
     where 1=1
   `;
   const params = [];
+  const scope = await testimonyScope(env, user);
+  if (!scope.all) {
+    if (churchId && !scope.ids.has(churchId)) return json({ ok: false, error: "You cannot manage this church's testimonies." }, 403);
+    if (!scope.ids.size) return json({ ok: true, testimonies: [] });
+    const ids = [...scope.ids];
+    query += ` and t.church_id in (${ids.map(() => "?").join(",")})`;
+    params.push(...ids);
+  }
 
   if (churchId) {
     query += " and t.church_id = ?";
@@ -1718,6 +1760,8 @@ async function handleCreatorUpdateTestimony(testimonyId, request, env, context) 
 
   const existing = await env.DB.prepare("select * from church_testimonies where id = ?").bind(testimonyId).first();
   if (!existing) return json({ ok: false, error: "testimony not found" }, 404);
+  const scope = await testimonyScope(env, user);
+  if (!scope.all && !scope.ids.has(existing.church_id)) return json({ ok: false, error: "You cannot manage this church's testimonies." }, 403);
 
   const payload = await readJson(request);
   if (!payload || typeof payload !== "object") return json({ ok: false, error: "invalid payload" }, 400);
@@ -1790,8 +1834,10 @@ async function handleCreatorDeleteTestimony(testimonyId, request, env, context) 
   const user = await context.getSessionUser(request, env);
   if (!user) return unauthorized();
 
-  const existing = await env.DB.prepare("select id from church_testimonies where id = ?").bind(testimonyId).first();
+  const existing = await env.DB.prepare("select id, church_id from church_testimonies where id = ?").bind(testimonyId).first();
   if (!existing) return json({ ok: false, error: "testimony not found" }, 404);
+  const scope = await testimonyScope(env, user);
+  if (!scope.all && !scope.ids.has(existing.church_id)) return json({ ok: false, error: "You cannot manage this church's testimonies." }, 403);
 
   await env.DB.prepare("delete from church_testimonies where id = ?").bind(testimonyId).run();
   return json({ ok: true, message: "Testimony deleted" });
@@ -1812,6 +1858,8 @@ async function handleApi(request, env, executionCtx) {
     if(liveResponse)return liveResponse;
     const identityResponse = await handleIdentityApi(request, env, context);
     if (identityResponse) return identityResponse;
+    const meditationResponse = await handleMeditationRoomsApi(request, env, context);
+    if (meditationResponse) return meditationResponse;
     const platformResponse = await handlePlatformApi(request, env, context);
     if (platformResponse) return platformResponse;
     const simulatedLiveResponse = await handleSimulatedLiveApi(request, env, context);
@@ -1871,11 +1919,11 @@ async function handleApi(request, env, executionCtx) {
       return json({ ok: false, error: "method not allowed" }, 405);
     }
 
+    if (path === "/api/admin/visitors" && request.method === "GET") return await handleAdminVisitors(request, env);
     if (request.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
     if (path === "/api/church-application") return await handleChurchApplication(request, env);
     if (path === "/api/livestream-activation") return await handleLivestreamActivation(request, env);
     if (path === "/api/visitor") return await handleVisitor(request, env);
-    if (path === "/api/admin/visitors" && request.method === "GET") return await handleAdminVisitors(request, env);
     if (path === "/api/prayer") return await handlePrayer(request, env);
     if (path === "/api/event-register") return await handleEventRegister(request, env);
     if (path === "/api/auth/register") return await handleAuthRegister(request, env);
@@ -1921,6 +1969,14 @@ export default {
     }
 
     if (url.pathname.startsWith("/media/")) return handleMediaRequest(request, env);
+
+    const meditationRoom = url.pathname.match(/^\/meditation(?:\/([a-z0-9][a-z0-9-]{2,100}))?\/?$/);
+    if (meditationRoom) {
+      const target = new URL("/meditation.html", url);
+      url.searchParams.forEach((v, k) => target.searchParams.set(k, v));
+      if (meditationRoom[1]) target.searchParams.set("room", meditationRoom[1]);
+      return Response.redirect(target.toString(), 302);
+    }
 
     const assetRes = await env.ASSETS.fetch(assetRequest(request));
     const newHeaders = new Headers(assetRes.headers);
@@ -1972,11 +2028,18 @@ export { handleMediaRequest, parseByteRange, constantTimeEqual, readJson, regist
    - With ?lat=&lng= (sent only after the visitor taps "Use my location"), reverse-geocodes
      via OpenStreetMap Nominatim (free, no key), cached at the edge by ~1 km grid.
    - Otherwise returns Cloudflare's coarse edge location (request.cf). Never forwards IPs. */
+const US_TERRITORIES = new Set(["PR", "GU", "VI", "AS", "MP"]);
+function normaliseGeoPlace(place) {
+  const country = String(place.country || "").toUpperCase();
+  if (US_TERRITORIES.has(country)) return { ...place, country: "US", regionCode: country };
+  return place;
+}
+
 export async function handleGeo(request, fetchImpl = fetch) {
   const url = new URL(request.url);
   const cf = request.cf || {};
-  const edge = { source: "edge", country: String(cf.country || ""), regionCode: String(cf.regionCode || ""), region: String(cf.region || ""), city: String(cf.city || ""),
-    lat: cf.latitude ? Number(cf.latitude) : null, lng: cf.longitude ? Number(cf.longitude) : null };
+  const edge = normaliseGeoPlace({ source: "edge", county: "", country: String(cf.country || ""), regionCode: String(cf.regionCode || ""), region: String(cf.region || ""), city: String(cf.city || ""),
+    lat: cf.latitude ? Number(cf.latitude) : null, lng: cf.longitude ? Number(cf.longitude) : null });
   const lat = Number(url.searchParams.get("lat")), lng = Number(url.searchParams.get("lng"));
   if (!url.searchParams.has("lat") || !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
     return json(edge);
@@ -1995,8 +2058,9 @@ export async function handleGeo(request, fetchImpl = fetch) {
     const data = await res.json();
     const a = data.address || {};
     const iso = String(a["ISO3166-2-lvl4"] || a["ISO3166-2-lvl3"] || "");
-    return json({ source: "gps", country: String(a.country_code || "").toUpperCase(), regionCode: iso.includes("-") ? iso.split("-")[1] : "", region: String(a.state || ""),
-      city: String(a.city || a.town || a.village || a.municipality || a.county || ""), lat: rl, lng: rg });
+    return json(normaliseGeoPlace({ source: "gps", country: String(a.country_code || "").toUpperCase(), regionCode: iso.includes("-") ? iso.split("-")[1] : "", region: String(a.state || ""),
+      county: String(a.county || a.state_district || a.city_district || ""),
+      city: String(a.city || a.town || a.village || a.municipality || a.county || ""), lat: rl, lng: rg }));
   } catch {
     return json({ ...edge, source: "edge", lat: rl, lng: rg });
   }

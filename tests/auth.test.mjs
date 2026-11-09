@@ -209,7 +209,9 @@ test("a valid session cookie round-trips through /api/auth/session and clears on
   const sessionBody = await sessionResponse.json();
   assert.equal(sessionBody.user.email, "ada@example.com");
 
-  await worker.fetch(postJson("/api/auth/logout", {}, cookie), env);
+  const logoutRequest = postJson("/api/auth/logout", {}, cookie);
+  logoutRequest.headers.set("origin", "https://example.test");
+  await worker.fetch(logoutRequest, env);
 
   const afterLogout = await worker.fetch(getWithCookie("/api/auth/session", cookie), env);
   const afterLogoutBody = await afterLogout.json();

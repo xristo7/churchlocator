@@ -152,6 +152,16 @@ async function session(request,env,ctx,id,action) {
   const user=await requireUser(request,env,ctx),session=await sessionRow(env,id),row=await entity(env,session.channel_id,'channels');
   const host=await manager(env,user,row);
   if(request.method==='GET'&&!action)return ctx.json({ok:true,session:{id:session.id,title:session.title,status:session.status,channelId:session.channel_id,expiresAt:session.expires_at},host});
+  if(request.method==='GET'&&action==='members'){
+    if(session.status!=='live'||session.expires_at<=stamp())throw new ApiError(409,'This live stage has ended or expired.');
+    const totals=await env.DB.prepare('select count(*) count,sum(case when blocked=0 then 1 else 0 end) joined from channel_live_members where session_id=?').bind(id).first();
+    const result={joinedMembers:Number(totals.joined||0),removedMembers:Number(totals.count||0)-Number(totals.joined||0)};
+    if(host){
+      const {results}=await env.DB.prepare('select m.user_id id,u.name,m.role,m.blocked from channel_live_members m join users u on u.id=m.user_id where m.session_id=? order by m.role=\'host\' desc,u.name').bind(id).all();
+      result.members=results.map(member=>({id:member.id,name:member.name,role:member.role,removed:!!member.blocked}));
+    }
+    return ctx.json({ok:true,...result});
+  }
   if(request.method!=='POST')throw new ApiError(405,'Method not allowed.');
   if(action==='end'){
     if(!host)throw new ApiError(403,'Only the channel’s managers can end this stage.');

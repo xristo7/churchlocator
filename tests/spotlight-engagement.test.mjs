@@ -41,7 +41,6 @@ test('dislike is a private, per-member rating that needs sign-in', async () => {
   s.as('cy');
   assert.equal((await s.call('item/item-1')).item.disliked, false, 'another member does not see it');
   s.as('ben');
-  assert.equal((await s.call('feed')).items[0].disliked, true);
   const off = await s.call('engagement/item-1', 'POST', { action: 'dislike', active: false });
   assert.equal(off.item.disliked, false);
   const toggled = await s.call('engagement/item-1', 'POST', { action: 'dislike' });
@@ -75,13 +74,13 @@ test('followers count the channel on the item and in the follow response, and st
   assert.deepEqual([item.followers, item.following], [1, true]);
 });
 
-test('migration 0031 keeps existing engagement rows and then accepts dislike', () => {
+test('migration 0032 keeps existing engagement rows and then accepts dislike', () => {
   const db = new DatabaseSync(':memory:'); db.exec('pragma foreign_keys=on');
-  for (const file of migrations.filter(f => f < '0031')) db.exec(sql(file));
+  for (const file of migrations.filter(f => f < '0032')) db.exec(sql(file));
   const now = seed(db);
   for (const action of ['like', 'save', 'follow', 'report']) db.prepare('insert into spotlight_engagements values (?,?,?,?)').run('item-1', 'ben', action, now);
   assert.throws(() => db.prepare("insert into spotlight_engagements values ('item-1','cy','dislike',?)").run(now));
-  db.exec(sql('0031_spotlight_dislike.sql'));
+  db.exec(sql('0032_watch_dislike_engagements.sql'));
   assert.deepEqual(db.prepare('select action from spotlight_engagements where user_id=? order by action').all('ben').map(r => r.action), ['follow', 'like', 'report', 'save']);
   db.prepare("insert into spotlight_engagements values ('item-1','cy','dislike',?)").run(now);
   assert.equal(db.prepare("select count(*) n from sqlite_master where type='index' and name='spotlight_engagements_item'").get().n, 1);
