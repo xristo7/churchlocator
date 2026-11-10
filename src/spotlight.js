@@ -42,7 +42,7 @@ function isoDate(value, label) {
   if (!Number.isFinite(time)) throw new ApiError(400, "Invalid " + label.toLowerCase() + ".");
   return new Date(time).toISOString();
 }
-function itemRecord(row) {
+export function itemRecord(row) {
   return {
     id: row.id,
     tenantId: row.tenant_id,
