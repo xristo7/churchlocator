@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Safe release of one merged main SHA: backup, migrate, deploy preview, health-check, then (optionally) production.
-# Usage: CLOUDFLARE_API_TOKEN=... scripts/release.sh [--production]
+# Usage: scripts/release.sh [--production]   (signs in through your browser; or set CLOUDFLARE_API_TOKEN)
 # Needs: git, node, pnpm, python3 (or python on Windows), curl. Run from a clean checkout. See docs/release-runbook.md.
 set -euo pipefail
 # Windows (Git Bash) installs Python as `python`, Linux and macOS as `python3`.
@@ -9,7 +9,23 @@ ACCOUNT=17e900e2ac8567adf3e60c83fc64589e
 PROD=my-way-of-evangelism; PREV=my-way-of-evangelism-preview
 PROD_DB=2a60c9f6-2850-4db3-9df3-ac80f69adb00; PREV_DB=9d5c6215-602b-4641-bea9-dca104a1c3ba
 PROD_URL=https://nuahn.baby; PREV_URL=https://my-way-of-evangelism-preview.doxalight-inc.workers.dev
-: "${CLOUDFLARE_API_TOKEN:?set CLOUDFLARE_API_TOKEN}"; export CLOUDFLARE_ACCOUNT_ID=$ACCOUNT
+export CLOUDFLARE_ACCOUNT_ID=$ACCOUNT
+# No token pasting needed: without CLOUDFLARE_API_TOKEN the script signs in through your browser (wrangler login).
+if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+  echo "No CLOUDFLARE_API_TOKEN set: using your browser sign-in (a browser window may open)."
+  npx --yes wrangler whoami >/dev/null 2>&1 || npx --yes wrangler login
+  RAW=$(npx --yes wrangler auth token 2>/dev/null | tr -d '\r' || true)
+  CLOUDFLARE_API_TOKEN=$(printf '%s' "$RAW" | "$PY" -c "
+import sys,json
+t=sys.stdin.read().strip()
+try:
+    d=json.loads(t); t=d.get('token') or d.get('value') or ''
+except Exception:
+    t=t.splitlines()[-1].strip() if t else ''
+print(t)" | tr -d '\r')
+  [ -n "$CLOUDFLARE_API_TOKEN" ] || { echo 'STOP: could not read your Cloudflare sign-in. Run: npx wrangler login' >&2; exit 1; }
+fi
+export CLOUDFLARE_API_TOKEN
 DO_PROD=0; [ "${1:-}" = "--production" ] && DO_PROD=1
 py() { "$PY" "$@" | tr -d '\r'; }   # Windows Python writes CRLF; strip the CR
 api() { curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/$1"; }
