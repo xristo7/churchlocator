@@ -333,3 +333,24 @@ html[data-theme="dark"] .sf-info .sf-btn.sf-btn-outline{ border-color:var(--sf-i
   body.member-shell-embed .product-detail-page{ padding-bottom:200px !important; }
 }
 .sf-rating.is-empty{font-weight:600;color:var(--sf-muted,inherit);opacity:.75;font-size:.9em}
+
+/* Brief 12: venue rentals */
+.sf-badge-venue{background:#0f766e;color:#fff}
+.sf-venue-meta{display:flex;flex-wrap:wrap;gap:6px 12px;margin:4px 0 8px;font-size:13px;color:var(--sf-muted,#64748b)}
+.sf-venue-meta span{display:inline-flex;align-items:center;gap:4px}.sf-venue-meta svg{width:14px;height:14px}
+.sf-venue-unit,.sf-card-price small{color:var(--sf-muted,#64748b);font-weight:500}
+.sf-venue .sf-badge-venue{position:static;display:inline-block;width:max-content;margin:0 0 6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.sf-venue-facts{margin:14px 0}
+.sf-chip{display:inline-block;margin:0 4px 4px 0;padding:2px 10px;border-radius:999px;background:rgba(15,118,110,.1);color:#0f766e;font-size:13px}
+.sf-venue-inquiry{display:grid;gap:10px;margin-top:18px;padding:16px;border-radius:16px;border:1px solid rgba(15,23,42,.12);background:rgba(15,118,110,.04)}
+.sf-venue-inquiry h2{margin:0;font-size:18px}
+.sf-venue-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sf-venue-inquiry label{display:grid;gap:4px;font-size:13px;font-weight:600}
+.sf-venue-inquiry input,.sf-venue-inquiry textarea{font:inherit;font-weight:400;padding:9px 11px;border-radius:10px;border:1px solid rgba(15,23,42,.18);background:#fff;color:inherit;min-width:0}
+.sf-venue-status{margin:0;min-height:1.2em;font-size:14px}
+.sf-vendor-link{text-decoration:none}.sf-vendor-link:hover{text-decoration:underline}
+.channel-store-link{display:inline-flex;align-items:center;gap:6px;margin-top:8px}
+@media (max-width:640px){.sf-venue-grid{grid-template-columns:1fr}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sf-venue-inquiry input,:root:not([data-theme="light"]) .sf-venue-inquiry textarea{background:#0f172a;border-color:rgba(226,232,240,.2)}:root:not([data-theme="light"]) .sf-chip{color:#5eead4;background:rgba(94,234,212,.12)}}
+:root[data-theme="dark"] .sf-venue-inquiry input,:root[data-theme="dark"] .sf-venue-inquiry textarea{background:#0f172a;border-color:rgba(226,232,240,.2)}
+:root[data-theme="dark"] .sf-chip{color:#5eead4;background:rgba(94,234,212,.12)}

@@ -14,7 +14,7 @@ const fields={
  meditation:['title','subtitle','category','categoryLabel','theme','template','toneFreq','cover','selectedAudio','audioTracks','verses','icon','commentsEnabled','ownerName','purpose','timeMode','durationMinutes','themeColor','allowUserNavigation','autoPlayInterval','ambience','inhaleWord','exhaleWord','journeySteps','audioSrc','soundcloud'],
  events:['title','churchId','eventType','startsAt','endsAt','venueName','city','country','coverImageUrl','registrationRequired','ticketPriceCents','currency','totalTickets','isFeatured','isPromoted','registrationUrl','livestreamUrl','directionsUrl','description','highlights','expectations','speakers','schedule','faqs','ownerName'],
  store:['name','ownerName','category','description','image','email','liveUrl','live'],
- products:['title','storeId','seller','sellerType','category','description','price','compareAt','inventory','status','featured','image','itemType','serviceType','packages'],
+ products:['title','storeId','seller','sellerType','category','description','price','compareAt','inventory','status','featured','image','itemType','serviceType','packages','address','city','capacity','priceUnit','availability','occasions','photo2','photo3','photo4'],
  channels:['name','owner','handle','topic','description','format','cover','avatar','live','liveUrl','posts','seriesTitle'],
  resources:['title','creator','topic','description','type','format','duration','image','access','price','sourceUrl','pages','audioSrc','embedUrl']
 };
@@ -84,6 +84,18 @@ function sanitizeValue(value, key='') {
  if(value && typeof value==='object') return Object.fromEntries(Object.entries(value).filter(([k])=>!forbidden.has(k) && !['__proto__','constructor','prototype'].includes(k)).map(([k,v])=>[k,sanitizeValue(v,k)]));
  return value;
 }
+// Brief 12: a store item is a product, digital item, service or a church/organization venue rental (hall).
+const venueText=(value,label,max)=>{ const text=String(value??'').trim(); if(text.length>max) throw new ApiError(400,label+' is too long.'); return text; };
+function validateListing(data) {
+ if(data.itemType!==undefined && !['product','service','digital','venue'].includes(data.itemType)) throw new ApiError(400,'Choose a product, service, digital item or venue rental.');
+ for(const key of ['photo2','photo3','photo4']) if(data[key]) data[key]=sanitizeValue(String(data[key]),'image');
+ if(data.itemType!=='venue') return;
+ data.address=venueText(data.address,'Address',200); data.city=venueText(data.city,'City',120);
+ data.availability=venueText(data.availability,'Availability',1000); data.occasions=venueText(data.occasions,'Occasions',300);
+ data.capacity=whole(data.capacity,'Capacity'); if(data.capacity<1) throw new ApiError(400,'Enter how many guests the venue holds.');
+ if(!data.city) throw new ApiError(400,'Enter the city where the venue is.');
+ if(!['hour','day','event'].includes(data.priceUnit)) throw new ApiError(400,'Choose whether the price is per hour, day or event.');
+}
 export function validateEventStart(data, previous, now=Date.now()) {
  if((!previous || Date.parse(data.startsAt)!==Date.parse(previous.startsAt)) && Date.parse(data.startsAt)<now) throw new ApiError(400,'Choose a future start date for a new or rescheduled event.');
 }
@@ -119,7 +131,7 @@ export function validateEntity(kind,input) {
   data.ticketPriceCents=whole(data.ticketPriceCents,'Ticket price'); data.totalTickets=whole(data.totalTickets,'Capacity');
   if(!['CAD','USD','GBP','EUR'].includes(data.currency)) throw new ApiError(400,'Unsupported currency.');
  }
- if(kind==='products') { data.price=number(data.price,'Price',100000); if(!Number.isSafeInteger(Math.round(data.price*100)) || Math.abs(data.price*100-Math.round(data.price*100))>1e-7) throw new ApiError(400,'Use prices in whole minor units.'); data.inventory=whole(data.inventory,'Inventory'); if(!['Draft','Active','Archived'].includes(data.status)) throw new ApiError(400,'Invalid product state.'); }
+ if(kind==='products') { data.price=number(data.price,'Price',100000); if(!Number.isSafeInteger(Math.round(data.price*100)) || Math.abs(data.price*100-Math.round(data.price*100))>1e-7) throw new ApiError(400,'Use prices in whole minor units.'); data.inventory=whole(data.inventory,'Inventory'); if(!['Draft','Active','Archived'].includes(data.status)) throw new ApiError(400,'Invalid product state.'); validateListing(data); }
  if(kind==='resources') { data.price=number(data.price,'Price',100000); if(!['Free','Paid'].includes(data.access) || (data.access==='Paid' && data.price<=0)) throw new ApiError(400,'Invalid resource access or price.'); if(data.access==='Free') data.price=0; }
  if(kind==='meditation') { if(data.toneFreq===undefined || data.toneFreq===null || data.toneFreq==='' || Number(data.toneFreq)===0) data.toneFreq=432; data.toneFreq=number(data.toneFreq,'Tone',2000); if(data.toneFreq<20) throw new ApiError(400,'Use a tone between 20 and 2000 Hz.'); if(data.verses===undefined || data.verses===null) data.verses=[]; if(!Array.isArray(data.verses) || data.verses.length>12) throw new ApiError(400,'Add up to twelve scripture passages.'); data.commentsEnabled=boolean(data.commentsEnabled); if(input.soundcloud!==undefined) data.soundcloud=sanitizeSoundCloudSelection(input.soundcloud); }
  for(const key of ['live','featured','registrationRequired','isFeatured','isPromoted']) if(key in data) data[key]=boolean(data[key]);
