@@ -130,7 +130,7 @@
             ${imgs.length > 1 ? `<div class="sf-thumbs" role="tablist" aria-label="Product images">${imgs.map((src, i) => `<button class="sf-thumb ${i === 0 ? "is-active" : ""}" type="button" data-src="${esc(src)}" aria-label="Image ${i + 1}"><img src="${esc(src)}" alt="" /></button>`).join("")}</div>` : ""}
           </div>
           <div class="sf-info">
-            <span class="sf-vendor">${esc(product.seller)}</span>
+            ${sellerLink(product, esc)}
             <h1 class="sf-title">${esc(product.title)}</h1>
             <div class="sf-price-row"><span class="sf-price sf-price-lg">${data().money(product.price)}</span>${product.compareAt > product.price ? `<s class="sf-compare">${data().money(product.compareAt)}</s>` : ""}${discountPct ? `<span class="sf-pill-sale">Sale</span>` : ""}</div>
             <p class="sf-note">Taxes included. Shipping calculated at checkout.</p>
@@ -169,6 +169,74 @@
     document.getElementById("product-detail-buynow")?.addEventListener("click", () => { const q = parseInt(qtyInput?.value, 10) || 1; for (let i = 0; i < q; i++) data().addToCart(product.id); location.href = "checkout.html"; });
     document.getElementById("sf-share")?.addEventListener("click", () => { if (navigator.share) navigator.share({ title: product.title, url: location.href }).catch(() => {}); else navigator.clipboard?.writeText(location.href).then(() => window.MWE?.showMemberToast?.("Link copied")); });
     document.querySelectorAll(".sf-thumb").forEach(b => b.addEventListener("click", () => { document.querySelectorAll(".sf-thumb").forEach(x => x.classList.remove("is-active")); b.classList.add("is-active"); document.getElementById("product-main-image").src = b.dataset.src; }));
+  }
+
+  function sellerLink(item, esc) {
+    const store = item.storeId ? (window.MWECreator?.getStores?.() || []).find(s => s.id === item.storeId) : null;
+    item = { ...item, seller: item.seller || store?.ownerName || store?.name || "This store" };
+    return item.storeId ? `<a class="sf-vendor sf-vendor-link" href="storefront.html?id=${encodeURIComponent(item.storeId)}">${esc(item.seller)} · Visit store</a>` : `<span class="sf-vendor">${esc(item.seller)}</span>`;
+  }
+
+  // Brief 12.1: church and organization hall rentals. Visitors send an inquiry that arrives in the owner's Messages.
+  function renderVenueUI(venue, container) {
+    const esc = data().escapeHtml;
+    const imgs = [venue.image, venue.photo2, venue.photo3, venue.photo4].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
+    const unit = { hour: "per hour", day: "per day", event: "per event" }[venue.priceUnit] || "";
+    const occasions = String(venue.occasions || "").split(/[,\n]/).map(x => x.trim()).filter(Boolean);
+    const today = new Date().toISOString().slice(0, 10);
+    container.innerHTML = `
+      <div class="sf-pdp sf-venue" data-venue-id="${esc(venue.id)}">
+        <div class="sf-pdp-main">
+          <div class="sf-media">
+            <div class="sf-media-main"><img id="product-main-image" src="${esc(imgs[0] || "")}" alt="${esc(venue.title)}" /></div>
+            ${imgs.length > 1 ? `<div class="sf-thumbs" role="tablist" aria-label="Venue photos">${imgs.map((src, i) => `<button class="sf-thumb ${i === 0 ? "is-active" : ""}" type="button" data-src="${esc(src)}" aria-label="Photo ${i + 1}"><img src="${esc(src)}" alt="" /></button>`).join("")}</div>` : ""}
+          </div>
+          <div class="sf-info">
+            <span class="sf-badge sf-badge-venue">Venue rental</span>
+            ${sellerLink(venue, esc)}
+            <h1 class="sf-title">${esc(venue.title)}</h1>
+            <div class="sf-price-row"><span class="sf-price sf-price-lg">${data().money(venue.price)}</span> <span class="sf-venue-unit">${unit}</span></div>
+            <dl class="sf-dl sf-venue-facts">
+              <dt>Location</dt><dd data-venue-location>${esc([venue.address, venue.city].filter(Boolean).join(", "))}</dd>
+              <dt>Capacity</dt><dd data-venue-capacity>Up to ${Number(venue.capacity) || 0} guests</dd>
+              <dt>Availability</dt><dd data-venue-availability>${esc(venue.availability || "Ask the venue for open dates.")}</dd>
+              ${occasions.length ? `<dt>Suitable for</dt><dd>${occasions.map(o => `<span class="sf-chip">${esc(o)}</span>`).join(" ")}</dd>` : ""}
+            </dl>
+            <p class="sf-desc">${esc(venue.description)}</p>
+            <form class="sf-venue-inquiry" id="venue-inquiry" data-venue-inquiry novalidate>
+              <h2>Send an inquiry</h2>
+              <div class="sf-venue-grid">
+                <label>Date you need<input type="date" name="date" min="${today}" required /></label>
+                <label>Expected guests<input type="number" name="guests" min="1" max="${Number(venue.capacity) || 100000}" required /></label>
+                <label>Occasion<input name="occasion" maxlength="80" placeholder="${esc(occasions[0] || "Wedding, funeral, conference…")}" /></label>
+              </div>
+              <label>Message<textarea name="message" rows="3" maxlength="1200" placeholder="Times, setup needs, questions for the venue"></textarea></label>
+              <button class="sf-btn sf-btn-primary" type="submit">Send inquiry</button>
+              <p class="sf-venue-status" data-inquiry-status role="status" aria-live="polite"></p>
+            </form>
+          </div>
+        </div>
+      </div>`;
+    container.querySelectorAll(".sf-thumb").forEach(b => b.addEventListener("click", () => { container.querySelectorAll(".sf-thumb").forEach(x => x.classList.remove("is-active")); b.classList.add("is-active"); document.getElementById("product-main-image").src = b.dataset.src; }));
+    const form = container.querySelector("[data-venue-inquiry]"), status = form.querySelector("[data-inquiry-status]");
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      const f = form.elements, guests = Number(f.guests.value), cap = Number(venue.capacity) || 0;
+      if (!f.date.value || f.date.value < today) { status.textContent = "Choose a date from today onwards."; f.date.focus(); return; }
+      if (!Number.isInteger(guests) || guests < 1) { status.textContent = "Enter how many guests you expect."; f.guests.focus(); return; }
+      if (cap && guests > cap) { status.textContent = `This venue holds up to ${cap} guests.`; f.guests.focus(); return; }
+      const send = form.querySelector("[type=submit]"); send.disabled = true; status.textContent = "Sending…";
+      const body = [`Date: ${f.date.value}`, `Guests: ${guests}`, f.occasion.value.trim() && `Occasion: ${f.occasion.value.trim()}`, f.message.value.trim()].filter(Boolean).join("\n");
+      try {
+        const response = await fetch("/api/private/message", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ entityId: venue.id, subject: "Venue inquiry: " + venue.title, body }) });
+        const result = await response.json().catch(() => ({}));
+        if (response.status === 401) { status.textContent = "Sign in to send an inquiry."; window.MWE?.openMemberLogin?.(location.pathname + location.search + "#venue-inquiry"); send.disabled = false; return; }
+        if (!response.ok) throw new Error(result.error || "Your inquiry could not be sent.");
+        status.textContent = "Inquiry sent. The venue will reply in your Messages.";
+        form.reset(); send.disabled = true;
+      } catch (error) { status.textContent = error.message; send.disabled = false; }
+    });
+    if (location.hash === "#venue-inquiry") requestAnimationFrame(() => form.scrollIntoView({ block: "start" }));
   }
 
   function renderServiceUI(service, container) {
@@ -633,7 +701,10 @@
 
     document.title = `${item.title} | RhemaSphere`;
 
-    if (item.itemType === "service") {
+    if (item.itemType === "venue") {
+      container.classList.remove("service-detail-host");
+      renderVenueUI(item, container);
+    } else if (item.itemType === "service") {
       container.classList.add("service-detail-host");
       renderServiceUI(item, container);
     } else {

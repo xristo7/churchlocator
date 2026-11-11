@@ -8,9 +8,10 @@
     const sellerType = document.getElementById("store-seller")?.value || "all";
     const sort = document.getElementById("store-sort")?.value || "featured";
     const products = data().getProducts().filter(product => {
-      if (type === "products" && product.itemType === "service") return false;
+      if (type === "products" && ["service", "venue"].includes(product.itemType)) return false;
       if (type === "services" && product.itemType !== "service") return false;
-      const searchable = `${product.title} ${product.seller} ${product.category} ${product.description}`.toLowerCase();
+      if (type === "venues" && product.itemType !== "venue") return false;
+      const searchable = `${product.title} ${product.seller} ${product.category} ${product.description} ${product.city || ""} ${product.occasions || ""}`.toLowerCase();
       return product.status === "Active" && (!query || searchable.includes(query)) && (category === "all" || product.category === category) && (sellerType === "all" || product.sellerType === sellerType);
     });
     return products.sort((a, b) => {
@@ -36,7 +37,8 @@
     }
     const esc = data().escapeHtml;
     grid.innerHTML = products.map(product => {
-      const isService = product.itemType === "service";
+      const isService = product.itemType === "service", isVenue = product.itemType === "venue";
+      if (isVenue) return venueCard(product, esc);
       const href = `product-detail.html?id=${encodeURIComponent(product.id)}`;
       const sale = product.compareAt > product.price;
       return `<article class="sf-card">
@@ -53,6 +55,24 @@
       </article>`;
     }).join("");
     window.lucide?.createIcons();
+  }
+
+  // Brief 12: hall rentals are listed with capacity, place and price, and lead to an inquiry instead of a cart.
+  function venueCard(product, esc) {
+    const href = `product-detail.html?id=${encodeURIComponent(product.id)}`;
+    const unit = { hour: "per hour", day: "per day", event: "per event" }[product.priceUnit] || "";
+    return `<article class="sf-card sf-venue-card" data-item-type="venue">
+        <a class="sf-card-media" href="${href}" aria-label="${esc(product.title)}"><img src="${esc(product.image)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('is-broken')" /><span class="sf-badge sf-badge-venue">Venue rental</span></a>
+        <div class="sf-card-body">
+          <span class="sf-vendor">${esc(product.seller || (window.MWECreator?.getStores?.() || []).find(s => s.id === product.storeId)?.name || "")}</span>
+          <h3 class="sf-card-title"><a href="${href}">${esc(product.title)}</a></h3>
+          <p class="sf-venue-meta"><span><i data-lucide="map-pin"></i>${esc(product.city || "")}</span><span><i data-lucide="users"></i>Up to ${Number(product.capacity) || 0} guests</span></p>
+          <div class="sf-card-foot">
+            <div class="sf-card-price"><span class="sf-price">${data().money(product.price)}</span> <small>${unit}</small></div>
+            <a class="sf-circle-btn" href="${href}#venue-inquiry" aria-label="Send an inquiry about ${esc(product.title)}"><i data-lucide="mail"></i></a>
+          </div>
+        </div>
+      </article>`;
   }
 
   function renderCart() {
