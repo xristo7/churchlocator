@@ -1646,6 +1646,22 @@
       applyPlayback(data, session);
       session.voice = new window.MWEMeditationVoice(document.getElementById('meditation-room-view'), session.path, window.MWEPlatform.api);
       session.timer = setInterval(() => readPlayback(session), 1500);
+      // Brief 05.3: session-only chat, pause requests and bookmarked moments (public/meditation-session-panel.js).
+      window.MWEMeditationSessionPanel?.attach({
+        path: session.path, api: window.MWEPlatform.api,
+        isHost: () => playbackSession === session && session.canControl,
+        moment: () => ({ position: sessionElapsedSeconds, verse: activeVerseIndex, label: activeRoom?.verses?.[activeVerseIndex]?.topic || activeRoom?.verses?.[activeVerseIndex]?.ref || '' }),
+        isPlaying: () => isPlaying,
+        pause: () => { if (playbackSession === session && session.canControl && isPlaying) togglePlay(); },
+        seek: (position, verse) => {
+          if (playbackSession !== session || !session.canControl) return false;
+          sessionElapsedSeconds = activeRoom.timeMode === 'loop' ? position : Math.min(sessionTotalSeconds, position);
+          sessionRemainingSeconds = Math.max(0, sessionTotalSeconds - sessionElapsedSeconds);
+          if (Number.isInteger(verse) && verse >= 0 && verse < (activeRoom.verses?.length || 1)) activeVerseIndex = verse;
+          seekSharedAudio(sessionElapsedSeconds); renderRoomScripture(); updateTimerDisplay(); publishPlayback();
+          return true;
+        }
+      });
     } catch (error) {
       if (playbackSession === session) { playbackNotice('Shared session unavailable. ' + error.message); session.failed = true; }
     }
@@ -1666,6 +1682,7 @@
   }
   function stopSharedPlayback() {
     if (playbackSession) { clearInterval(playbackSession.timer); playbackSession.voice?.stop(); }
+    window.MWEMeditationSessionPanel?.detach();
     playbackSession = null;
   }
   window.addEventListener('pagehide', stopSharedPlayback);
@@ -2181,7 +2198,10 @@
         Promise.resolve(window.MWEPrivate?.refresh())
           .then(renderReflectionList).catch(error => showToast(error.message))
           .finally(() => { if (saveBtn) saveBtn.disabled = false; });
-        modal?.showModal?.();
+        // Brief 05.2: notes open as a non-modal side panel so the room, its controls and the audio keep going.
+        modal?.classList.add("reflection-side-panel");
+        if (modal && !modal.open) modal.show();
+        requestAnimationFrame(() => noteText?.focus());
         window.lucide?.createIcons();
       });
     });

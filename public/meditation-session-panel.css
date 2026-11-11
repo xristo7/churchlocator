@@ -1,0 +1,29 @@
+/* Brief 05.2: reflection notes as a side panel (non-modal) so the meditation keeps running */
+#modal-reflection-note.reflection-side-panel[open]{position:fixed;inset:72px 16px auto auto;margin:0;width:min(420px,calc(100vw - 32px));max-height:calc(100vh - 96px);overflow:auto;z-index:2147482000;border-radius:18px;box-shadow:0 18px 48px rgba(15,23,42,.28)}
+@media (max-width:700px){#modal-reflection-note.reflection-side-panel[open]{inset:auto 8px 8px 8px;width:auto;max-height:60vh}}
+/* Brief 05.3: session panel */
+.mwe-session-toggle{position:fixed;right:16px;bottom:96px;z-index:2147481000;display:inline-flex;gap:6px;align-items:center;padding:10px 14px;border-radius:999px;border:1px solid rgba(15,23,42,.12);background:#fff;color:#0f172a;font-weight:700;box-shadow:0 8px 24px rgba(15,23,42,.18);cursor:pointer}
+.mwe-session-toggle[hidden],.mwe-session-panel[hidden]{display:none}
+.mwe-session-toggle b{min-width:20px;padding:1px 6px;border-radius:999px;background:#dc2626;color:#fff;font-size:12px}
+.mwe-session-panel{position:fixed;right:16px;bottom:148px;z-index:2147481500;width:min(380px,calc(100vw - 32px));max-height:min(70vh,640px);overflow:auto;display:grid;gap:12px;padding:16px;border-radius:18px;background:#fff;color:#0f172a;border:1px solid rgba(15,23,42,.1);box-shadow:0 18px 48px rgba(15,23,42,.24);font-size:14px}
+.mwe-session-panel header{display:flex;justify-content:space-between;align-items:flex-start}
+.mwe-session-panel header small{display:block;color:#64748b}
+.mwe-session-panel header button{border:0;background:none;font-size:22px;line-height:1;cursor:pointer;color:inherit}
+.mwe-session-panel h4{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#64748b}
+.mwe-session-actions{display:flex;flex-wrap:wrap;gap:8px}
+.mwe-session-panel button{font:inherit}
+.mwe-session-actions button,.mwe-session-panel form button,.mwe-session-panel li button{padding:6px 10px;border-radius:999px;border:1px solid rgba(15,23,42,.15);background:#f8fafc;color:inherit;cursor:pointer}
+.mwe-session-actions button[data-session-pause-request]{background:#fff7ed;border-color:#fdba74}
+.mwe-session-alert{margin:0;padding:8px 10px;border-radius:12px;background:#fff7ed;border:1px solid #fdba74}
+.mwe-session-panel ol{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:200px;overflow:auto}
+.mwe-session-panel li{padding:6px 8px;border-radius:10px;background:#f8fafc}
+.mwe-session-panel li.empty{background:none;color:#64748b}
+.mwe-session-panel li.pause{background:#fff7ed}.mwe-session-panel li.mark{background:#eef2ff}
+.mwe-session-panel li em{font-style:normal;font-size:11px;padding:0 6px;border-radius:999px;background:#e2e8f0}
+.mwe-session-panel li .time{font-variant-numeric:tabular-nums;font-weight:700}
+.mwe-session-panel form{display:flex;gap:8px;margin-top:8px}
+.mwe-session-panel form input{flex:1;min-width:0;padding:8px 12px;border-radius:999px;border:1px solid rgba(15,23,42,.15);background:#fff;color:inherit}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mwe-session-panel,:root:not([data-theme="light"]) .mwe-session-toggle{background:#0f172a;color:#e2e8f0;border-color:rgba(226,232,240,.15)}:root:not([data-theme="light"]) .mwe-session-panel li,:root:not([data-theme="light"]) .mwe-session-panel form input,:root:not([data-theme="light"]) .mwe-session-actions button{background:#1e293b;color:#e2e8f0}}
+:root[data-theme="dark"] .mwe-session-panel,:root[data-theme="dark"] .mwe-session-toggle{background:#0f172a;color:#e2e8f0;border-color:rgba(226,232,240,.15)}
+:root[data-theme="dark"] .mwe-session-panel li,:root[data-theme="dark"] .mwe-session-panel form input,:root[data-theme="dark"] .mwe-session-actions button{background:#1e293b;color:#e2e8f0}
+@media (max-width:700px){.mwe-session-panel{right:8px;left:8px;width:auto;bottom:140px}.mwe-session-toggle{right:12px;bottom:88px}}
