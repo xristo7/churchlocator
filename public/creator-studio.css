@@ -94,3 +94,7 @@
 .cs-image-field .cs-image-drop{ padding-right:44px; }
 
 @media (max-width:640px){ .cs-hero h1 { font-size:22px; line-height:1.2; letter-spacing:-.02em; } }
+
+/* Brief 07: channel posts published without a media link */
+.cs-media-missing{ outline:2px solid #d97706; outline-offset:4px; border-radius:12px; }
+.cs-media-missing [data-collection-field="mediaUrl"]{ border-color:#d97706; }
