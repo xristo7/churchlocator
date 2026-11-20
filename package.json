@@ -12,7 +12,7 @@
     "preview": "node tools/static-server.mjs --root public --port 4173",
     "dev": "wrangler dev --env preview",
     "deploy": "npm run build:events-css && wrangler deploy --env=\"\"",
-    "deploy:preview": "npm run build:events-css && wrangler deploy --env preview",
+    "deploy:preview": "npm run build:events-css && wrangler deploy --env preview --keep-vars",
     "db:migrate:local": "wrangler d1 migrations apply my-way-of-evangelism --local",
     "db:seed:local": "wrangler d1 execute my-way-of-evangelism --local --file ./database/seed.sql",
     "db:migrate:preview": "wrangler d1 migrations apply my-way-of-evangelism-preview --remote --env preview",

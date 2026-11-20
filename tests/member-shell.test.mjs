@@ -24,7 +24,7 @@ test("member sidebar uses the requested module names with Spotlight in the heade
   assert.match(rail, />Channels</);
   assert.match(rail, />Live</);
   assert.match(rail, />Store</);
-  assert.match(html, /mwe-header-spotlight" href="spotlight.html"/);
+  assert.match(html, /mwe-header-spotlight" href="app\.html\?view=spotlight" data-shell-view="spotlight"/);
   assert.doesNotMatch(html, /view=giving" data-shell-view="giving"><i data-lucide="heart-handshake"><\/i><span>Give/);
   assert.match(rail, /profile-invite-card[\s\S]*class="mwe-rail-donate" href="donate.html"/);
   assert.match(rail, /data-shell-view="directory"/);
@@ -613,7 +613,10 @@ test("directory modules share the standardized atmospheric hero and filter tray"
   assert.match(appJs, /filterItems\.slice\(capacity\)/);
   assert.match(appJs, /const searchMinWidth = 220/);
   assert.match(appJs, /let capacity = filterItems\.length/);
-  assert.match(appJs, /available >= searchMinWidth \+ gap \+ visibleFiltersWidth/);
+  // Fit the same number of filters with different label widths; do not assume fixed-width pills.
+  const requiredSource = appJs.slice(appJs.indexOf('      const required = count =>'), appJs.indexOf('      let capacity = filterItems.length;', appJs.indexOf('      const required = count =>')));
+  const required = widths => new Function('widths','filterItems','searchMinWidth','gap','groupGap','overflowOnlyItems', `${requiredSource}; return required(widths.length);`)(widths, widths, 220, 12, 12, []);
+  assert.ok(required([160,190]) > required([80,90]), 'longer filter labels must reserve more space');
   const livestream = await readProjectFile("public/livestream.html");
   assert.match(livestream, /id="livestream-search"/);
 });

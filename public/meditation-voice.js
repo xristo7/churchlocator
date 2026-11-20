@@ -15,7 +15,7 @@
     constructor(container,path,api) {
       this.path=path+'/voice';this.api=api;this.disposed=false;this.busy=false;this.meeting=null;this.peers=new Map();
       this.node=document.createElement('section');this.node.className='mwe-voice';this.node.setAttribute('aria-label','Room owner voice');
-      const icon=document.createElement('span');icon.className='mwe-voice-icon';icon.setAttribute('aria-hidden','true');icon.textContent='🎙';
+      const icon=document.createElement('span');icon.className='mwe-voice-icon';icon.setAttribute('aria-hidden','true');icon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></svg>';
       this.status=document.createElement('span');this.status.className='mwe-voice-status';this.status.setAttribute('role','status');
       this.join=this.button('Listen to owner',()=>this.connect());this.join.classList.add('is-primary');
       this.mic=this.button('Unmute microphone',()=>this.toggleMic());this.mic.hidden=true;

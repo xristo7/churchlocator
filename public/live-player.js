@@ -20,6 +20,7 @@
   }
   async function mount(target,value,title){
     const resolved=source(value);target.replaceChildren();
+    const report = mode => target.dispatchEvent(new CustomEvent('faithlink:media-state', { bubbles:true, detail:{mode} }));
     if(resolved.kind==='invalid'){target.textContent='No playable broadcast has been configured.';return ()=>{};}
     if(resolved.kind==='x-post'){
       const post=document.createElement('blockquote');post.className='twitter-tweet';
@@ -28,13 +29,36 @@
         const script=document.createElement('script');script.src='https://platform.twitter.com/widgets.js';script.dataset.liveXWidget='true';script.async=true;document.head.append(script);
       }
     }else if(resolved.kind==='iframe'){
-      const frame=document.createElement('iframe');frame.className='creator-live-player';frame.src=resolved.url;frame.title=title+' broadcast';frame.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';target.append(frame);
+      const frame=document.createElement('iframe');frame.className='creator-live-player';
+      const embed = new URL(resolved.url);
+      if (resolved.provider === 'YouTube') { embed.searchParams.set('enablejsapi','1'); embed.searchParams.set('origin',location.origin); }
+      frame.src=embed.href;frame.title=title+' broadcast';frame.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';
+      let listening;
+      const onMessage = event => {
+        if (event.source !== frame.contentWindow || event.origin !== embed.origin) return;
+        let data;try { data=typeof event.data==='string'?JSON.parse(event.data):event.data; } catch { return; }
+        if (data?.event === 'infoDelivery' && typeof data.info?.videoData?.isLive === 'boolean') report(data.info.videoData.isLive?'live':'comments');
+        if (data?.event === 'onStateChange' && data.info === 0) report('comments');
+      };
+      if (resolved.provider === 'YouTube') {
+        window.addEventListener('message',onMessage);
+        frame.addEventListener('load',()=>{
+          let attempts=0;
+          const listen=()=>{frame.contentWindow?.postMessage(JSON.stringify({event:'listening',id:'broadcast-player'}),embed.origin);frame.contentWindow?.postMessage(JSON.stringify({event:'command',func:'addEventListener',args:['onStateChange']}),embed.origin);if(++attempts>=10)clearInterval(listening);};
+          listen();listening=setInterval(listen,1000);
+        });
+      }
+      target.append(frame);
+      if (resolved.provider === 'Vimeo') report('comments');
+      return ()=>{clearInterval(listening);window.removeEventListener('message',onMessage);frame.remove();};
     }else if(['hls','video'].includes(resolved.kind)){
       const video=document.createElement('video');video.controls=true;video.playsInline=true;video.className='creator-live-player';target.append(video);
+      video.addEventListener('ended',()=>report('comments'));
+      if(resolved.kind==='video')report('comments');
       if(resolved.kind==='hls'&&!video.canPlayType('application/vnd.apple.mpegurl')){
         if(!root.Hls){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='/vendor/live/hls.min.js';script.onload=resolve;script.onerror=reject;document.head.append(script);});}
         if(!root.Hls.isSupported()){target.textContent='This browser cannot play this live stream.';return ()=>{};}
-        const hls=new root.Hls({enableWorker:false});hls.loadSource(resolved.url);hls.attachMedia(video);
+        const hls=new root.Hls({enableWorker:false});hls.on(root.Hls.Events.LEVEL_LOADED,(_,data)=>{if(typeof data.details?.live==='boolean')report(data.details.live?'live':'comments');});hls.loadSource(resolved.url);hls.attachMedia(video);
         hls.on(root.Hls.Events.ERROR,(_,data)=>{if(data.fatal){let message=target.querySelector('[data-live-error]');if(!message){message=document.createElement('p');message.dataset.liveError='true';target.append(message);}message.textContent='The broadcast is offline or the provider is not allowing playback. Try again when the stream is on air.';}});
         return ()=>{hls.destroy();video.pause();};
       }

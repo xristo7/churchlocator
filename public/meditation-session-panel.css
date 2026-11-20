@@ -61,3 +61,167 @@
 @media (max-width:640px){#meditation-room-view > #meditation-sync-status{top:60px;left:8px;max-width:calc(100% - 16px)}#meditation-room-view > .mwe-voice{top:94px;left:8px;width:calc(100% - 16px)}}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #meditation-room-view > #meditation-sync-status{background:rgba(15,23,42,.86);color:#e2e8f0}}
 :root[data-theme="dark"] #meditation-room-view > #meditation-sync-status{background:rgba(15,23,42,.86);color:#e2e8f0}
+/* Live fellowship: one calm, readable panel with clear actions and message hierarchy. */
+#mwe-session-panel {
+  --session-card:var(--surface-card,#fff);--session-soft:var(--surface-soft,#f4f6fa);--session-ink:var(--text-primary,#172033);--session-muted:var(--text-secondary,#64748b);--session-line:var(--border-subtle,#e2e8f0);--session-accent:var(--primary,#2563eb);
+  width:min(410px,calc(100vw - 32px));box-sizing:border-box;right:20px;bottom:84px;max-height:calc(100dvh - 120px);
+  padding:20px;gap:18px;border:1px solid var(--session-line);border-radius:24px;background:var(--session-card);color:var(--session-ink);box-shadow:0 20px 70px #0f172a30,0 2px 8px #0f172a08;font:14px/1.5 Inter,system-ui,sans-serif;
+}
+#mwe-session-panel .session-panel-header{display:flex;align-items:center;gap:10px;}
+#mwe-session-panel .session-heading-icon{display:grid;place-items:center;width:40px;height:40px;flex:none;background:color-mix(in srgb,var(--session-accent) 9%,var(--session-card));color:var(--session-accent);border-radius:13px;}
+#mwe-session-panel .session-heading-copy{flex:1;min-width:0;}
+#mwe-session-panel .session-heading-copy strong{font-size:16px;letter-spacing:-.025em;}
+#mwe-session-panel .session-heading-copy small{font-size:11px;color:var(--session-muted);}
+#mwe-session-panel svg,.mwe-session-toggle svg{width:17px;height:17px;flex:none;stroke-width:1.8;}
+#mwe-session-panel .session-heading-icon svg{width:21px;height:21px;}
+#mwe-session-panel .session-connection{display:flex;align-items:center;gap:5px;color:#16815d;font-size:10px;font-weight:600;white-space:nowrap;}
+#mwe-session-panel .session-connection>span{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px #10b98115;}
+#mwe-session-panel .session-connection.is-reconnecting{color:#b7791f;}
+#mwe-session-panel .session-icon-button{display:inline-grid;place-items:center;flex:none;width:32px;height:32px;min-height:32px;padding:0;border:0;background:transparent;color:var(--session-muted);border-radius:9px;cursor:pointer;}
+#mwe-session-panel .session-icon-button:hover{background:var(--session-soft);color:var(--session-ink);}
+#mwe-session-panel button{font:inherit;transition:background .16s,color .16s,transform .16s;}
+#mwe-session-panel button:focus-visible,.mwe-session-toggle:focus-visible{outline:2px solid var(--session-accent,var(--primary));outline-offset:3px;}
+#mwe-session-panel button:disabled{opacity:.45;cursor:default;}
+#mwe-session-panel .mwe-session-actions{gap:8px;}
+#mwe-session-panel .mwe-session-actions button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:9px 12px;min-height:40px;border:1px solid var(--session-line);border-radius:11px;background:var(--session-soft);color:var(--session-ink);font-size:12px;font-weight:600;}
+#mwe-session-panel [data-session-bookmark]{flex:1;}
+#mwe-session-panel .session-section-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;}
+#mwe-session-panel h4{display:flex;align-items:center;gap:7px;margin:0;color:var(--session-ink);font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;}
+#mwe-session-panel .session-section-heading>span{font-size:10px;color:var(--session-muted);}
+#mwe-session-panel [data-bookmark-count]{background:var(--session-soft);padding:1px 7px;border-radius:6px;font-variant-numeric:tabular-nums;}
+#mwe-session-panel ol{gap:8px;scrollbar-width:thin;scrollbar-color:var(--session-line) transparent;}
+#mwe-session-panel .mwe-session-bookmarks{max-height:132px;}
+#mwe-session-panel .mwe-session-bookmarks>li:not(.empty){display:flex;align-items:center;gap:8px;padding:8px;background:var(--session-soft);border:1px solid var(--session-line);border-radius:12px;}
+#mwe-session-panel .mwe-session-bookmarks .time{display:inline-flex;align-items:center;gap:5px;padding:6px 8px;border:0;border-radius:8px;color:var(--session-accent);background:var(--session-card);font-size:11px;font-weight:600;white-space:nowrap;}
+#mwe-session-panel .mwe-session-bookmarks .time svg{width:12px;height:12px;}
+#mwe-session-panel .session-bookmark-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;}
+#mwe-session-panel .mwe-session-bookmarks .empty{display:flex;align-items:center;gap:10px;padding:12px;border:1px dashed var(--session-line);border-radius:12px;}
+#mwe-session-panel .empty svg{color:var(--session-muted);}
+#mwe-session-panel .empty strong{display:block;font-size:11px;font-weight:500;color:var(--session-muted);}
+#mwe-session-panel .empty span{display:block;font-size:10px;color:var(--session-muted);}
+#mwe-session-panel .mwe-session-chat{border-top:1px solid var(--session-line);padding-top:16px;min-width:0;}
+#mwe-session-panel [data-session-messages]{max-height:230px;min-height:118px;overflow-y:auto;overflow-x:hidden;}
+#mwe-session-panel [data-session-messages]>.empty{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;text-align:center;min-height:110px;box-sizing:border-box;}
+#mwe-session-panel [data-session-messages]>.empty>svg{width:25px;height:25px;opacity:.5;margin-bottom:2px;}
+#mwe-session-panel li.session-message{display:flex;gap:8px;padding:0;background:transparent;align-items:flex-end;}
+#mwe-session-panel .session-message-avatar{width:26px;height:26px;display:grid;place-items:center;flex:none;border-radius:9px;background:var(--session-soft);color:var(--session-muted);font-size:10px;font-weight:600;}
+#mwe-session-panel .session-message-content{max-width:88%;min-width:0;padding:9px 11px;border-radius:13px 13px 13px 3px;background:var(--session-soft);}
+#mwe-session-panel .session-message-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:3px;font-size:10px;color:var(--session-muted);}
+#mwe-session-panel .session-message-meta b{font-weight:600;}
+#mwe-session-panel .session-message-meta time{font-size:9px;white-space:nowrap;opacity:.8;}
+#mwe-session-panel .session-message-content p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.6;}
+#mwe-session-panel li.session-message.is-own{justify-content:flex-end;}
+#mwe-session-panel .is-own .session-message-avatar{display:none;}
+#mwe-session-panel .is-own .session-message-content{border-radius:13px 13px 3px 13px;background:color-mix(in srgb,var(--session-accent) 11%,var(--session-card));}
+#mwe-session-panel li em{font-size:9px;padding:1px 4px;background:var(--session-card);color:var(--session-accent);}
+#mwe-session-panel li.session-event{display:flex;gap:8px;padding:10px;background:var(--session-soft);font-size:11px;}
+#mwe-session-panel .session-event p{margin:2px 0;font-size:11px;}
+#mwe-session-panel .session-event button{display:inline-flex;align-items:center;gap:5px;font-size:11px;margin-top:4px;background:var(--session-card);}
+#mwe-session-panel form{display:block;margin-top:12px;}
+#mwe-session-panel .session-composer{display:flex;align-items:flex-end;gap:8px;padding:6px;border:1px solid var(--session-line);border-radius:14px;background:var(--session-card);transition:border-color .15s,box-shadow .15s;}
+#mwe-session-panel .session-composer:focus-within{border-color:var(--session-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--session-accent) 9%,transparent);}
+#mwe-session-panel textarea{flex:1;min-width:0;min-height:34px;max-height:96px;box-sizing:border-box;padding:7px 6px;resize:none;overflow-y:auto;border:0;background:transparent;color:var(--session-ink);font:12px/1.6 Inter,system-ui,sans-serif;outline:none;border-radius:0;}
+#mwe-session-panel form button[data-session-send]{display:grid;place-items:center;width:34px;height:34px;min-height:34px;flex:none;padding:0;border:0;border-radius:10px;background:var(--session-accent);color:white;}
+#mwe-session-panel .session-composer-meta{display:flex;justify-content:space-between;gap:8px;margin-top:6px;color:var(--session-muted);font-size:9px;}
+#mwe-session-panel .session-send-status{margin:4px 0 0;min-height:0;font-size:10px;color:var(--session-muted);}
+#mwe-session-panel .session-send-status:empty{display:none;}
+#mwe-session-panel .session-send-status.is-error{color:#dc2626;}
+.mwe-session-toggle{bottom:24px;align-items:center;gap:8px;padding:12px 16px;min-height:44px;border-radius:14px;font-size:13px;box-shadow:0 8px 32px #0f172a20;}
+@media(max-width:700px){#mwe-session-panel{left:12px;right:12px;bottom:88px;width:auto;max-height:calc(100dvh - 164px);padding:16px;gap:14px;border-radius:20px;}#mwe-session-panel [data-session-messages]{max-height:190px;}#mwe-session-panel .session-connection{font-size:9px;}}
+/* Compact voice card: message first, action below, anchored away from the title. */
+#meditation-room-view > .mwe-voice{position:fixed!important;top:auto!important;bottom:24px!important;left:20px!important;right:auto!important;width:min(280px,calc(100% - 40px))!important;margin:0!important;display:grid!important;grid-template-columns:30px minmax(0,1fr);gap:10px!important;padding:14px!important;border-radius:18px!important;font-size:12px!important;box-shadow:0 8px 28px #0f172a16;}
+#meditation-room-view > .mwe-voice .mwe-voice-status{grid-column:2;min-width:0;}
+#meditation-room-view > .mwe-voice .mwe-voice-btn{grid-column:2;justify-self:start;max-width:100%;min-height:36px;font-size:12px;}
+@media(max-width:900px){#meditation-room-view > .mwe-voice{position:relative!important;inset:auto!important;order:5;align-self:flex-start;flex:none!important;margin:0 16px 24px!important;width:min(280px,calc(100% - 32px))!important;}#meditation-room-view > .mwe-voice .mwe-voice-icon{display:inline-grid;}}
+/* Invitation: layered, lightly tinted surfaces with unframed original share icons. */
+#modal-invite-friend{box-sizing:border-box!important;--invite-card:color-mix(in srgb,var(--primary) 2%,#fff)!important;--invite-ink:#172033!important;--invite-muted:#586577!important;--invite-line:color-mix(in srgb,var(--primary) 12%,#e5e9ef)!important;--invite-soft:color-mix(in srgb,var(--primary) 5%,#f4f6f9)!important;width:min(520px,calc(100vw - 32px))!important;max-width:none!important;padding:0!important;border:1px solid var(--invite-line)!important;border-radius:28px!important;background:radial-gradient(ellipse at 95% 0%,color-mix(in srgb,var(--primary) 9%,transparent),transparent 58%),var(--invite-card)!important;color:var(--invite-ink)!important;box-shadow:0 32px 100px #02061750,0 8px 24px #02061718!important;max-height:calc(100dvh - 32px)!important;overflow:auto!important;}
+:root[data-theme="dark"] #modal-invite-friend{--invite-card:hsl(var(--primary-h),16%,11%)!important;--invite-soft:hsl(var(--primary-h),15%,16%)!important;--invite-ink:#f3f5f8!important;--invite-muted:#b3bdcb!important;--invite-line:hsl(var(--primary-h),15%,24%)!important;}
+:root[data-theme="dark"] #modal-invite-friend .invite-social-grid{background:color-mix(in srgb,var(--invite-card) 76%,#000)!important;}
+#modal-invite-friend::backdrop{background:rgba(5,12,20,.64)!important;backdrop-filter:blur(10px)!important;}
+#modal-invite-friend .dialog-content{padding:32px!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:inherit!important;}
+#modal-invite-friend .dialog-header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin:0 0 20px!important;padding:0!important;border:0!important;}
+#modal-invite-friend .dialog-title-group{display:flex!important;align-items:center!important;gap:12px!important;min-width:0!important;}
+#modal-invite-friend .dialog-icon-badge{display:grid!important;place-items:center!important;width:48px!important;height:48px!important;flex:none!important;border:0!important;border-radius:50%!important;background:color-mix(in srgb,var(--primary) 13%,var(--invite-card))!important;box-shadow:none!important;color:var(--primary)!important;}
+#modal-invite-friend .dialog-icon-badge svg{width:23px!important;height:23px!important;}
+#modal-invite-friend .dialog-kicker{display:block!important;font:600 10px/1.5 Inter,system-ui,sans-serif!important;letter-spacing:.12em!important;text-transform:uppercase!important;color:var(--primary)!important;margin:0 0 5px!important;}
+#modal-invite-friend h3{font:600 27px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:-.6px!important;color:var(--invite-ink)!important;margin:0!important;}
+#modal-invite-friend .dialog-close-btn{display:grid!important;place-items:center!important;width:32px!important;height:32px!important;flex:none!important;padding:0!important;border:0!important;border-radius:10px!important;background:var(--invite-soft)!important;color:var(--invite-muted)!important;cursor:pointer!important;}
+#modal-invite-friend .dialog-close-btn svg{width:17px!important;height:17px!important;}
+#modal-invite-friend .dialog-body{padding:0!important;}
+#modal-invite-friend .dialog-desc{font:400 14px/1.7 Inter,system-ui,sans-serif!important;color:var(--invite-muted)!important;margin:0 0 24px!important;}
+#modal-invite-friend .invite-social-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px 16px!important;margin:0 0 26px!important;padding:16px 12px!important;border-radius:20px!important;background:color-mix(in srgb,var(--invite-card) 93%,#000)!important;}
+#modal-invite-friend .social-share-btn{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:10px!important;min-width:0!important;min-height:98px!important;padding:12px 6px!important;box-sizing:border-box!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:var(--invite-ink)!important;font:500 12px/1.4 Inter,system-ui,sans-serif!important;text-decoration:none!important;transition:transform .18s ease,color .18s ease!important;}
+#modal-invite-friend .social-share-btn:hover{background:transparent!important;border-color:var(--primary)!important;transform:translateY(-3px)!important;color:var(--primary)!important;}
+#modal-invite-friend .social-icon-wrapper{display:grid!important;place-items:center!important;width:auto!important;height:auto!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;}
+#modal-invite-friend .social-icon-wrapper img{display:block!important;object-fit:contain!important;max-width:none!important;max-height:none!important;}
+#modal-invite-friend .invite-link-label{display:block!important;margin-bottom:8px!important;color:var(--invite-muted)!important;font:500 11px/1.5 Inter,system-ui,sans-serif!important;}
+#modal-invite-friend .unified-copy-entity{display:flex!important;align-items:center!important;gap:8px!important;box-sizing:border-box!important;width:100%!important;min-height:48px!important;padding:5px 5px 5px 12px!important;margin:0!important;border:1px solid var(--invite-line)!important;border-radius:14px!important;background:var(--invite-soft)!important;box-shadow:0 2px 5px #02061705!important;}
+#modal-invite-friend .unified-copy-icon{display:flex!important;color:var(--invite-muted)!important;flex:none!important;}
+#modal-invite-friend .unified-copy-icon svg{width:16px!important;height:16px!important;}
+#modal-invite-friend #invite-share-url{flex:1!important;width:0!important;min-width:0!important;padding:0!important;border:0!important;outline:none!important;background:transparent!important;color:var(--invite-muted)!important;font:400 12px/1.5 Inter,system-ui,sans-serif!important;text-overflow:ellipsis!important;box-shadow:none!important;}
+#modal-invite-friend .unified-copy-btn{display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;flex:none!important;min-height:36px!important;padding:8px 11px!important;border:0!important;border-radius:9px!important;background:var(--primary)!important;color:#fff!important;font:500 11px/1.4 Inter,system-ui,sans-serif!important;box-shadow:none!important;cursor:pointer!important;white-space:nowrap!important;}
+#modal-invite-friend .unified-copy-btn svg{width:15px!important;height:15px!important;}
+#modal-invite-friend .unified-copy-btn:hover{background:var(--primary)!important;filter:brightness(1.1);}
+#modal-invite-friend :is(a,button,input):focus-visible{outline:2px solid var(--primary)!important;outline-offset:3px!important;}
+#modal-invite-friend .invite-meta-notes{display:flex!important;justify-content:center!important;flex-wrap:wrap!important;gap:10px 20px!important;border-top:1px solid var(--invite-line)!important;padding:17px 0 0!important;margin-top:22px!important;}
+#modal-invite-friend .invite-note{display:inline-flex!important;align-items:center!important;gap:6px!important;padding:0!important;min-height:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--invite-muted)!important;font:400 10px/1.5 Inter,system-ui,sans-serif!important;}
+#modal-invite-friend .invite-note svg{width:14px!important;height:14px!important;color:var(--primary)!important;}
+@media(max-width:400px){#modal-invite-friend .dialog-content{padding:22px 18px!important;}#modal-invite-friend h3{font-size:21px!important;}#modal-invite-friend .dialog-icon-badge{width:40px!important;height:40px!important;}#modal-invite-friend .invite-social-grid{gap:8px!important;padding:12px 6px!important;}#modal-invite-friend .social-share-btn{font-size:11px!important;min-height:84px!important;}#modal-invite-friend .unified-copy-entity{gap:6px!important;padding-left:8px!important;}}
+@media(prefers-reduced-motion:reduce){#modal-invite-friend .social-share-btn{transition:none!important;}}
+
+/* Keep explicit visibility states stronger than component display rules. */
+#mwe-session-panel[hidden],#mwe-session-panel [hidden],.mwe-session-toggle[hidden],.mwe-session-toggle [hidden]{display:none!important;}
+/* Phone and tablet rooms keep their supporting controls centered in the flow. */
+@media(max-width:900px){
+  #meditation-room-view > #meditation-sync-status{align-self:center!important;max-width:calc(100% - 32px);text-align:center!important;}
+  #meditation-room-view #meditation-room-main{padding-bottom:24px!important;}
+  #meditation-room-view .mwe-session-toggle{align-self:center!important;margin:0 auto 20px!important;}
+  #meditation-room-view > .mwe-voice{align-self:center!important;grid-template-columns:minmax(0,1fr);justify-items:center;gap:8px!important;margin:0 auto 24px!important;text-align:center;}
+  #meditation-room-view > .mwe-voice .mwe-voice-icon{grid-column:1;}
+  #meditation-room-view > .mwe-voice .mwe-voice-status{grid-column:1;text-align:center;}
+  #meditation-room-view > .mwe-voice .mwe-voice-btn{grid-column:1;justify-self:center;}
+}
+/* Keep clicks on a stable button target while icons or timer text refresh. */
+#meditation-room-view button svg,#meditation-room-view button svg *{pointer-events:none;}
+/* One shared outline for the message and send action. */
+#mwe-session-panel .session-composer{border:1px solid var(--session-line)!important;background:var(--session-soft)!important;box-shadow:none!important;padding:5px!important;gap:5px;}
+#mwe-session-panel .session-composer:focus-within{border-color:var(--session-accent)!important;box-shadow:none!important;}
+#mwe-session-panel .session-composer textarea,#mwe-session-panel .session-composer textarea:focus,#mwe-session-panel .session-composer textarea:focus-visible{display:block!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;border-radius:0!important;padding:7px 9px!important;margin:0!important;min-width:0!important;resize:none!important;font:400 13px/1.55 Inter,system-ui,sans-serif!important;color:var(--session-ink)!important;}
+#mwe-session-panel .session-composer textarea::placeholder{color:var(--session-muted)!important;opacity:.8;}
+#mwe-session-panel .session-composer button[data-session-send]{align-self:flex-end;box-shadow:none!important;}
+@media(max-width:700px){#mwe-session-panel .session-composer textarea,#mwe-session-panel .session-composer textarea:focus,#mwe-session-panel .session-composer textarea:focus-visible{font-size:16px!important;}}
+
+.room-session-status{display:block;margin:0 0 10px;font-size:12px;line-height:1.5;color:var(--text-secondary,#64748b);}
+.room-session-status[data-status="live"]{color:#15936a;font-weight:600;}
+.room-session-status[data-status="inactive"]{color:var(--text-secondary,#64748b);}
+#meditation-entry-notice{padding:12px 16px;margin:0 0 18px;border:1px solid var(--border-subtle,#e2e8f0);border-radius:12px;background:var(--surface-soft,#f8fafc);color:var(--text-primary,#172033);font-size:14px;line-height:1.6;}
+#meditation-entry-notice[hidden]{display:none;}
+
+/* Inactive rooms remain visible as a read-only preview, with a usable exit. */
+#meditation-room-view.is-inactive .meditation-backdrop{filter:grayscale(1) brightness(.65)!important;}
+#meditation-room-view.is-inactive #meditation-room-main{opacity:.45;filter:grayscale(1);}
+#meditation-room-view.is-inactive button:not(#room-exit-btn){opacity:.35!important;filter:grayscale(1);cursor:not-allowed!important;}
+#meditation-room-view.is-inactive #meditation-sync-status{background:var(--surface-card,#fff)!important;color:var(--text-primary,#172033)!important;border:1px solid var(--border-subtle,#e2e8f0);font-weight:600;max-width:calc(100% - 40px);}
+#meditation-room-view.is-inactive .mwe-audio-credit{display:none!important;}
+/* Scheduled waiting room: one calm focal point above the disabled room. */
+#meditation-waiting-card{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2147481000;width:min(480px,calc(100% - 40px));max-height:calc(100dvh - 168px);overflow:auto;box-sizing:border-box;padding:32px;text-align:center;border:1px solid var(--border-subtle,#e2e8f0);border-radius:26px;background:var(--surface-card,#fff);color:var(--text-primary,#172033);box-shadow:0 24px 80px #0f172a28;font-family:Inter,system-ui,sans-serif;}
+#meditation-waiting-card[hidden]{display:none!important;}
+#meditation-waiting-card .waiting-room-icon{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 18px;border-radius:18px;background:color-mix(in srgb,var(--primary,#2563eb) 10%,var(--surface-card,#fff));color:var(--primary,#2563eb);}
+#meditation-waiting-card .waiting-room-icon svg{width:28px;height:28px;}
+#meditation-waiting-card .waiting-room-kicker{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary,#64748b);}
+#meditation-waiting-card h2{margin:9px 0 12px;font-size:27px;line-height:1.25;font-weight:650;letter-spacing:-.8px;color:inherit;}
+#meditation-waiting-card .waiting-room-description{font-size:14px;line-height:1.7;color:var(--text-secondary,#64748b);margin:0 auto;max-width:350px;}
+#meditation-waiting-card .waiting-room-date{font-size:12px;line-height:1.7;margin:18px 0 0;color:var(--text-secondary,#64748b);}
+#meditation-waiting-card .waiting-room-countdown{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:20px 0 0;}
+#meditation-waiting-card .waiting-room-countdown[hidden],#meditation-waiting-card [hidden]{display:none!important;}
+#meditation-waiting-card .waiting-room-countdown>span{display:grid;gap:4px;padding:13px 4px;border-radius:13px;background:var(--surface-soft,#f5f7fb);}
+#meditation-waiting-card .waiting-room-countdown strong{font-size:28px;line-height:1.2;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
+#meditation-waiting-card .waiting-room-countdown small{font-size:10px;color:var(--text-secondary,#64748b);}
+#meditation-waiting-card .waiting-room-hint{margin:20px 0 0;font-size:11px;line-height:1.6;color:var(--text-secondary,#64748b);}
+#meditation-room-view #meditation-waiting-card button[data-waiting-action]{width:100%;margin-top:20px;min-height:44px;border:0;border-radius:12px;background:var(--primary,#2563eb);color:#fff;font:600 13px/1.5 Inter,system-ui,sans-serif;cursor:pointer!important;opacity:1!important;filter:none!important;}
+#meditation-room-view.has-waiting-card #meditation-sync-status{display:none!important;}
+#meditation-room-view.has-waiting-card #meditation-room-main{opacity:.18;pointer-events:none;}
+.meditation-opening-settings{display:grid;gap:14px;margin:24px 0;padding:20px;border:1px solid var(--border-subtle,#e2e8f0);border-radius:16px;}
+.meditation-opening-settings legend{font-weight:600;padding:0 6px;}
+.opening-zone-note{margin:0;font-size:12px;line-height:1.6;color:var(--text-secondary,#64748b);}
+@media(max-width:700px){#meditation-waiting-card{padding:26px 20px;border-radius:22px;}#meditation-waiting-card h2{font-size:24px;}#meditation-waiting-card .waiting-room-countdown strong{font-size:25px;}}

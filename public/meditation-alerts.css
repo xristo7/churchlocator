@@ -1,0 +1,14 @@
+.meditation-owner-alert{position:fixed;right:24px;top:156px;z-index:2147483500;display:flex;align-items:flex-start;gap:12px;box-sizing:border-box;width:min(410px,calc(100% - 32px));padding:18px;border:1px solid var(--border-subtle,#e2e8f0);border-radius:18px;background:var(--surface-card,#fff);color:var(--text-primary,#172033);box-shadow:0 14px 50px #0f172a25;font:13px/1.5 Inter,system-ui,sans-serif;}
+.meditation-owner-alert[hidden]{display:none!important;}
+.meditation-owner-alert .owner-alert-icon{display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:12px;color:var(--primary,#2563eb);background:var(--surface-soft,#f4f7fb);}
+.meditation-owner-alert svg{width:19px;height:19px;}
+.meditation-owner-alert>div{flex:1;min-width:0;}
+.meditation-owner-alert strong{display:block;font-size:14px;letter-spacing:-.2px;}
+.meditation-owner-alert b{display:block;font-size:12px;font-weight:500;margin-top:4px;overflow-wrap:anywhere;}
+.meditation-owner-alert p{margin:5px 0 8px;font-size:11px;color:var(--text-secondary,#64748b);line-height:1.6;}
+.meditation-owner-alert a{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--primary,#2563eb);text-decoration:none;}
+.meditation-owner-alert a svg{width:14px;height:14px;}
+.meditation-owner-alert button{display:grid;place-items:center;width:28px;height:28px;flex:none;padding:0;border:0;border-radius:8px;background:transparent;color:var(--text-secondary,#64748b);cursor:pointer;}
+.meditation-owner-alert button:hover{background:var(--surface-soft,#f4f7fb);}
+.meditation-owner-alert :is(button,a):focus-visible{outline:2px solid var(--primary,#2563eb);outline-offset:3px;}
+@media(max-width:700px){.meditation-owner-alert{right:16px;top:auto;bottom:calc(84px + env(safe-area-inset-bottom));padding:16px;}}

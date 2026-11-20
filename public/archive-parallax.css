@@ -1,0 +1,8 @@
+/* Only the photograph moves; gradients, headings, actions and filters stay in place. */
+html body :is(.rs-hero,.rsc-dir-hero,.mwu-hero.module-directory-hero).has-archive-parallax:not(#parallax-a):not(#parallax-b):not(#parallax-c) {overflow:hidden!important;isolation:isolate;}
+.archive-parallax-image {position:absolute;inset:-32px 0;z-index:0;pointer-events:none;background-size:cover;background-repeat:no-repeat;transform:translate3d(0,var(--archive-parallax-y,0px),0);will-change:transform;}
+.archive-parallax-image[hidden] {display:none!important;}
+html body :is(.rs-hero,.rsc-dir-hero,.mwu-hero.module-directory-hero).has-archive-parallax:not(#parallax-a):not(#parallax-b):not(#parallax-c)::before {z-index:1!important;pointer-events:none!important;}
+html body :is(.rs-hero,.rsc-dir-hero,.mwu-hero.module-directory-hero).has-archive-parallax:not(#parallax-a):not(#parallax-b):not(#parallax-c) > :is(.rs-hero-inner,.rsc-dir-hero-inner,.mwu-hero-inner) {z-index:2!important;}
+@media(max-width:760px) {.archive-parallax-image{inset:-20px 0;}}
+@media(prefers-reduced-motion:reduce) {.archive-parallax-image{transform:none!important;will-change:auto;}}

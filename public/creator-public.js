@@ -74,7 +74,16 @@
     }
     const requestedType = params.get("type");
     if(requestedType==='channel'){location.replace('channel-live.html?id='+encodeURIComponent(id||''));return;}
-    const stream = window.MWECreator.broadcasts().find(s => s.id === id && (!requestedType || s.type === requestedType));
+    let stream = window.MWECreator.broadcasts().find(s => s.id === id && (!requestedType || s.type === requestedType));
+    // A saved broadcast URL still opens after its publisher switches live off.
+    if (!stream && (!requestedType || requestedType === 'church')) {
+      const church = window.MWE.getChurches().find(church => church.id === id);
+      if (church?.livestream?.url && safe(church.livestream.url)) stream = { id, type:'church', name:church.name, url:church.livestream.url, image:church.photo, description:church.city };
+    }
+    if (!stream && requestedType === 'store') {
+      const store = window.MWECreator.getStores().find(store => store.id === id);
+      if (store?.liveUrl && safe(store.liveUrl)) stream = { id, type:'store', name:store.name, url:store.liveUrl, image:store.image, description:store.description };
+    }
     if (!stream) { target.classList.add("mwe-watch-page"); target.innerHTML = '<a class="broadcast-back-link" href="livestream.html"><i data-lucide="arrow-left"></i> All live broadcasts</a><div class="mwe-watch"><div class="mwe-watch-main"><div class="mwe-player-frame">' + offlineFrame() + '</div></div></div>'; window.lucide?.createIcons(); return; }
     if(stream.type==='channel'){location.replace('channel-live.html?id='+encodeURIComponent(stream.id));return;}
     document.title = stream.name + " · Broadcast | RhemaSphere";
@@ -118,7 +127,7 @@
       '<button class="mwe-chip" type="button" data-live-ask hidden><i data-lucide="message-circle-question"></i><span>Ask</span></button>' +
       '</div><button type="button" class="mwe-report-link" data-live-report disabled><i data-lucide="flag"></i> Report</button>' +
       '<details class="mwe-desc-card"><summary><b>About this stream</b><span class="mwe-desc-more">Show more</span></summary><p data-source-description>' + esc(description) + '</p><p>' + esc(church?.about || '') + '</p>' + (church?.pastor_name || church?.pastorName ? '<p><small>' + esc(church.pastor_name || church.pastorName) + '</small></p>' : '') + '</details></div></section>' +
-      '<div class="mwe-watch-side"><div class="mwe-side-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-side-tab="chat">Chat</button><button type="button" role="tab" aria-selected="false" data-side-tab="next">Previous</button><button type="button" role="tab" aria-selected="false" data-side-tab="more">More videos</button></div>' +
+      '<div class="mwe-watch-side">' +
       '<aside class="mwe-chat broadcast-chat" data-side-panel="chat" aria-label="Broadcast chat"><header><div><span class="broadcast-live-dot"></span><strong>Broadcast chat</strong></div><small>Top messages</small></header>' +
       '<div class="broadcast-chat-messages" id="broadcast-chat-messages" aria-live="polite"><p class="broadcast-chat-status" data-chat-status>Loading broadcast conversation…</p></div>' +
       '<form class="broadcast-chat-form" id="broadcast-chat-form"><label class="sr-only" for="broadcast-chat-input">Chat message</label><input id="broadcast-chat-input" maxlength="300" required placeholder="Chat…"><button type="submit" aria-label="Send message"><i data-lucide="send"></i></button></form></aside>' +
@@ -130,25 +139,38 @@
       const about = target.querySelector('[data-source-description]');
       if (about) about.textContent = result ? 'Saved ' + String(result.source?.mode || 'external') + ' playback source. Provider online state is not inferred from this page.' : 'Saved playback. Could not verify source metadata or current live status.';
     });
-    target.querySelectorAll("[data-side-tab]").forEach(tab => tab.addEventListener("click", () => {
-      sourceStatus.then(result => {
-      const status = target.querySelector('[data-broadcast-status]');
-      if (status && !isInteractiveStage) status.textContent = result?.source?.enabled ? 'Publisher saved enabled · Live status not verified' : 'Saved broadcast · Live status not verified';
-      const about = target.querySelector('[data-source-description]');
-      if (about) about.textContent = result ? 'Saved ' + String(result.source?.mode || 'external') + ' playback source. Provider online state is not inferred from this page.' : 'Saved playback. Could not verify source metadata or current live status.';
-    });
-    target.querySelectorAll("[data-side-tab]").forEach(t => t.setAttribute("aria-selected", String(t === tab)));
-      target.querySelector(".mwe-watch-side").dataset.active = tab.dataset.sideTab;
-    }));
     target.querySelectorAll("[data-replay]").forEach(btn => btn.addEventListener("click", async () => { const surface = target.querySelector(".broadcast-video-surface"); if (surface && window.MWELivePlayer) { await window.MWELivePlayer.mount(surface, btn.dataset.replay, stream.name); surface.scrollIntoView({ behavior: "smooth", block: "start" }); } }));
     target.querySelector(".mwe-desc-card")?.addEventListener("toggle", e => { const m = e.currentTarget.querySelector(".mwe-desc-more"); if (m) m.textContent = e.currentTarget.open ? "Show less" : "Show more"; });
     const chatForm = target.querySelector("#broadcast-chat-form");
+    const conversation = target.querySelector('.broadcast-chat');
+    const sidebar = target.querySelector('.mwe-watch-side');
+    let mediaIsRecorded = false;
+    let serverMode = 'live';
+    const placeConversation = () => {
+      const recorded = mediaIsRecorded || serverMode === 'comments';
+      const parent = recorded ? target.querySelector('.mwe-watch-info') : sidebar;
+      if (conversation.parentElement !== parent) recorded ? parent.append(conversation) : parent.prepend(conversation);
+      conversation.classList.toggle('is-recorded-comments', recorded);
+      conversation.setAttribute('aria-label', recorded ? 'Comments' : 'Broadcast chat');
+      conversation.querySelector('header strong').textContent = recorded ? 'Comments' : 'Broadcast chat';
+      conversation.querySelector('header small').textContent = recorded ? 'Broadcast conversation' : 'Live conversation';
+      conversation.querySelector('label').textContent = recorded ? 'Add a comment' : 'Chat message';
+      chatForm.querySelector('button').setAttribute('aria-label', recorded ? 'Post comment' : 'Send message');
+      target.querySelector('#broadcast-chat-input').placeholder = recorded ? 'Write a comment…' : 'Write a message…';
+      conversation.dataset.conversationMode = recorded ? 'comments' : 'live';
+    };
+    target.querySelector('.broadcast-player-shell').addEventListener('faithlink:media-state', event => {
+      if (!['live','comments'].includes(event.detail?.mode)) return;
+      mediaIsRecorded = event.detail.mode === 'comments';
+      placeConversation();
+    });
     if(window.MWELivePlayer){const shell=target.querySelector('.broadcast-player-shell');const overlay=shell.querySelector('button');const surface=document.createElement('div');surface.className='broadcast-video-surface';shell.replaceChildren(surface,overlay);const cleanup=await window.MWELivePlayer.mount(surface,stream.url,stream.name);window.addEventListener('pagehide',cleanup,{once:true});}
     const theatreHost=target.querySelector('.broadcast-player-shell');
     window.MWEWatchTheatre?.mount(target.querySelector('.broadcast-watch-layout'),theatreHost,'live',target.querySelector('.mwe-chip-row'));
     window.MWELivestreamChat?.mount({
       streamType: stream.type,
       entityId: stream.id,
+      onModeChange(mode) { serverMode = mode; placeConversation(); },
       messages: target.querySelector("#broadcast-chat-messages"),
       form: chatForm,
       input: target.querySelector("#broadcast-chat-input")

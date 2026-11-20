@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import vm from 'node:vm';
 
 const html = fs.readFileSync('public/meditation.html', 'utf8');
 const js = fs.readFileSync('public/meditation.js', 'utf8');
@@ -15,10 +16,10 @@ test('1. Lobby with Room Cards (Favorites, Bible Books, Scriptural Themes & Filt
   assert.match(html, /id="sec-themes"/, 'Scriptural Themes section exists');
   assert.match(html, /id="grid-themes"/, 'Themes grid container exists');
 
-  assert.match(html, /data-lobby-filter="all"/, 'All filter exists');
-  assert.match(html, /data-lobby-filter="featured"/, 'Featured filter exists');
-  assert.match(html, /data-lobby-filter="bible-books"/, 'Bible books filter exists');
-  assert.match(html, /data-lobby-filter="themes"/, 'Themes filter exists');
+  assert.match(html, /option value="all"/, 'All filter exists');
+  assert.match(html, /option value="featured"/, 'Featured filter exists');
+  assert.match(html, /option value="bible-books"/, 'Bible books filter exists');
+  assert.match(html, /option value="themes"/, 'Themes filter exists');
 
   assert.match(js, /id:\s*"room-peace"/, 'Room peace defined');
   assert.match(js, /id:\s*"room-psalms"/, 'Room psalms defined');
@@ -97,15 +98,34 @@ test('6. Single-Viewport Responsive Fit (100vh No Overflow & Docked Audio Player
   assert.match(css, /\.meditation-room-view \.room-bottom-player[\s\S]*?transform:\s*none !important;/i, 'Bottom player transform is cleared');
 });
 
-test('7. Dynamic Theme-Colored Orb Pulse & Accent Adaptation', () => {
-  assert.match(js, /function applyThemeColors\(color,\s*hue\)/, 'applyThemeColors exists');
-  assert.match(js, /--room-color/, 'Sets --room-color CSS property');
-  assert.match(js, /--room-hue/, 'Sets --room-hue CSS property');
-  assert.match(js, /--room-glow/, 'Sets --room-glow CSS property');
-  
-  assert.match(js, /"room-peace":\s*\{\s*"color":\s*"#3b82f6"/, 'Room peace has sky blue color');
-  assert.match(js, /"room-healing":\s*\{\s*"color":\s*"#10b981"/, 'Room healing has emerald restoration color');
-  assert.match(js, /"room-psalms":\s*\{\s*"color":\s*"#f59e0b"/, 'Room psalms has amber gold color');
+test('7. Owner room palette overrides locally and restores the platform palette on exit', () => {
+  const values = new Map([['--primary', '#123456']]);
+  const priorities = new Map([['--primary', 'important']]);
+  const style = {
+    getPropertyValue: key => values.get(key) || '',
+    getPropertyPriority: key => priorities.get(key) || '',
+    setProperty(key, value, priority = '') { values.set(key, value); priorities.set(key, priority); },
+    removeProperty(key) { values.delete(key); priorities.delete(key); }
+  };
+  const context = {window: {}, document: {documentElement: {style}}};
+  vm.runInNewContext(fs.readFileSync('public/meditation-room-palette.js', 'utf8'), context);
+  const palette = context.window.MWEMeditationRoomPalette;
+  assert.equal(palette.apply(), false, 'No saved room colour preserves platform settings');
+  assert.equal(style.getPropertyValue('--primary'), '#123456');
+  assert.equal(palette.apply('#00ff00'), true);
+  assert.equal(style.getPropertyValue('--primary'), '#00ff00');
+  assert.equal(Number(style.getPropertyValue('--primary-h')), 120, 'Ambience hue comes from the saved colour');
+  assert.equal(palette.apply('#00f'), true, 'Switching rooms accepts shorthand colours');
+  assert.equal(style.getPropertyValue('--primary'), '#0000ff');
+  assert.equal(Number(style.getPropertyValue('--primary-h')), 240);
+  palette.clear();
+  assert.equal(style.getPropertyValue('--primary'), '#123456');
+  assert.equal(style.getPropertyPriority('--primary'), 'important');
+  assert.equal(style.getPropertyValue('--primary-h'), '');
+  palette.apply('#999999');
+  assert.equal(Number(style.getPropertyValue('--primary-s').replace('%','')), 0, 'Neutral colours do not produce an invalid hue');
+  assert.equal(palette.apply('invalid colour'), false);
+  assert.equal(style.getPropertyValue('--primary'), '#123456', 'Invalid room colours fall back to the platform');
 });
 
 test('8. Room Entry & Exit Navigation (Opens on card click, returns on All Rooms)', () => {
@@ -120,7 +140,7 @@ test('8. Room Entry & Exit Navigation (Opens on card click, returns on All Rooms
 test('9. Task 4 Requirements: Dynamic Background Music on Entry, 5 Media Types & Friend Invite', () => {
   // Background music starts and adapts on room entry
   assert.match(js, /enterRoom\(roomId,\s*autoStartAudio\s*=\s*true/, 'enterRoom defaults autoStartAudio to true for automatic playback on entry');
-  assert.match(js, /startAudioHarmonics\(room\.toneFreq\s*\|\|\s*432\)/, 'Audio harmonics frequency adapts to room tone');
+  assert.match(js, /startAudioHarmonics\(activeRoom\?\.toneFreq\s*\|\|\s*432\)/, 'Audio harmonics frequency adapts to room tone');
 
   // 5 Media Types: Pictures, Teachings, Prayers, Worship Audio, Scriptures
   assert.match(html, /id="sanctuary-media-tabs"/, 'Sanctuary media tabs container exists in HTML');

@@ -311,7 +311,7 @@
         <div class="service-unique-section service-venue-section">
           <div class="service-section-header">
             <span class="service-kicker"><i data-lucide="building"></i> Venue Specifications</span>
-            <h3>Sanctuary Capacity, Audio-Visual & Amenities</h3>
+            <h3>Meditation Capacity, Audio-Visual & Amenities</h3>
             <p>A sacred, welcoming space equipped with broadcast-grade production technology and warm hospitality areas.</p>
           </div>
 
@@ -319,7 +319,7 @@
             <div class="venue-stat-card">
               <i data-lucide="users"></i>
               <strong>500+ Seats</strong>
-              <span>Padded sanctuary auditorium</span>
+              <span>Padded meditation auditorium</span>
             </div>
             <div class="venue-stat-card">
               <i data-lucide="maximize-2"></i>
@@ -329,7 +329,7 @@
             <div class="venue-stat-card">
               <i data-lucide="tv"></i>
               <strong>4K Laser Screens</strong>
-              <span>Dual high-lumen sanctuary displays</span>
+              <span>Dual high-lumen meditation displays</span>
             </div>
             <div class="venue-stat-card">
               <i data-lucide="car"></i>
@@ -421,7 +421,7 @@
             <div class="media-spec-item">
               <i data-lucide="camera"></i>
               <strong>Dual Sony Cinema 4K Cameras</strong>
-              <span>Crystal-clear 10-bit color for low-light sanctuary settings</span>
+              <span>Crystal-clear 10-bit color for low-light meditation settings</span>
             </div>
             <div class="media-spec-item">
               <i data-lucide="mic"></i>

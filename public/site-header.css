@@ -1,0 +1,64 @@
+/* One control language for the shared application header. */
+:is(#member-shell-header,#member-mobile-actions) {
+  --header-control-bg:color-mix(in srgb,var(--surface-card) 82%,transparent);
+  --header-control-line:var(--border-default);
+}
+html body :is(#member-shell-header,#member-mobile-actions) :is(#member-lang-button,#member-account-button,.mwe-header-spotlight):not(#header-control-a):not(#header-control-b) {
+  box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  gap:9px!important;border:1px solid var(--header-control-line)!important;border-radius:13px!important;
+  background:var(--header-control-bg)!important;color:var(--text-primary)!important;
+  font:600 14px/1.2 Inter,system-ui,sans-serif!important;text-decoration:none!important;box-shadow:none!important;
+  transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease!important;
+}
+html body :is(#member-shell-header,#member-mobile-actions) :is(#member-lang-button,#member-account-button,.mwe-header-spotlight):not(#header-control-a):not(#header-control-b):hover {
+  border-color:color-mix(in srgb,var(--primary) 30%,var(--header-control-line))!important;
+  background:color-mix(in srgb,var(--primary) 5%,var(--surface-card))!important;transform:none!important;
+}
+html body :is(#member-shell-header,#member-mobile-actions) :is(#member-lang-button,#member-account-button)[aria-expanded="true"]:not(#header-control-a):not(#header-control-b) {
+  border-color:var(--primary-border)!important;box-shadow:0 0 0 3px var(--primary-surface)!important;
+}
+html body :is(#member-shell-header,#member-mobile-actions) :is(#member-lang-button,#member-account-button,.mwe-header-spotlight):focus-visible {outline:2px solid var(--accent-text,var(--primary))!important;outline-offset:3px!important;}
+#member-shell-header .mwe-header-spotlight svg {color:var(--accent-text,var(--primary))!important;width:18px!important;height:18px!important;}
+#member-shell-header :is(.lang-chevron,.member-account-chevron) {width:14px!important;height:14px!important;color:var(--text-muted)!important;}
+html body #member-shell-header #member-account-button .member-account-avatar {width:30px!important;height:30px!important;min-width:30px!important;font-size:12px!important;box-shadow:none!important;}
+#member-shell-header .member-notification-icon {color:var(--text-muted)!important;}
+html body :is(#member-shell-header,#member-mobile-actions) :is(.lang-selector-panel,#member-account-menu) {
+  box-sizing:border-box;max-width:calc(100vw - 24px);border:1px solid var(--border-default)!important;border-radius:18px!important;
+  background:color-mix(in srgb,var(--surface-card) 96%,transparent)!important;color:var(--text-primary)!important;
+  box-shadow:0 18px 48px rgba(0,0,0,.18)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+:is(#member-shell-header,#member-mobile-actions) .lang-selector-panel {padding:7px!important;min-width:180px;}
+:is(#member-shell-header,#member-mobile-actions) .lang-selector-panel button {min-height:40px;padding:10px 12px!important;gap:10px;font:500 13px/1.4 Inter,system-ui,sans-serif;color:var(--text-primary)!important;border-radius:10px!important;}
+:is(#member-shell-header,#member-mobile-actions) .lang-selector-panel button:hover {background:var(--primary-surface)!important;color:var(--accent-text,var(--primary))!important;}
+@media(min-width:960px) {
+  html body #member-shell-header {justify-content:flex-start!important;gap:20px!important;}
+  html body #member-shell-header > .profile-app-brand {flex:none!important;margin-right:4px!important;}
+  html body #member-shell-header #member-section-context {display:none!important;}
+  html body #member-shell-header #member-shell-search {
+    position:relative!important;inset:auto!important;transform:none!important;order:2!important;
+    flex:0 1 300px!important;width:300px!important;min-width:200px!important;max-width:400px!important;
+    height:44px!important;min-height:44px!important;margin:0 0 0 auto!important;padding:0 14px!important;gap:10px!important;
+    border:1px solid var(--header-control-line)!important;border-radius:13px!important;
+    background:var(--header-control-bg)!important;box-shadow:none!important;
+    transition:width .28s cubic-bezier(.2,.8,.2,1),flex-basis .28s cubic-bezier(.2,.8,.2,1),border-color .18s,background-color .18s!important;
+  }
+  html body #member-shell-header #member-shell-search:focus-within {
+    flex-basis:400px!important;width:400px!important;border-color:var(--primary-border)!important;
+    background:var(--surface-card)!important;
+  }
+  html body #member-shell-header #member-shell-search input {min-width:0!important;font:400 14px/1.3 Inter,system-ui,sans-serif!important;}
+  html body #member-shell-header .member-shell-actions {order:3!important;margin-left:0!important;gap:9px!important;}
+  html body :is(#member-shell-header,#member-mobile-actions) :is(#member-lang-button,#member-account-button,.mwe-header-spotlight):not(#header-control-a):not(#header-control-b) {
+    height:44px!important;min-height:44px!important;width:auto!important;min-width:0!important;padding:0 13px!important;
+  }
+  html body #member-shell-header #member-account-button {gap:10px!important;}
+  html body #member-shell-header .member-notification-icon {width:20px!important;height:20px!important;}
+  html body #member-shell-header #member-shell-search .rs-search-panel {width:100%!important;min-width:300px;}
+}
+@media(max-width:959.98px) {
+  html body #member-shell-header .mwe-header-spotlight:not(#header-control-a):not(#header-control-b) {width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;padding:0!important;border-radius:12px!important;}
+}
+@media(prefers-reduced-motion:reduce) {html body #member-shell-header #member-shell-search {transition:none!important;}}
+html body #member-shell-header .mwe-header-spotlight[aria-current="page"]:not(#header-control-a):not(#header-control-b) {border-color:var(--primary-border)!important;background:var(--primary-surface)!important;color:var(--accent-text,var(--primary))!important;}
+
+@media(max-width:959.98px){html body #member-mobile-actions :is(#member-lang-button,#member-account-button){height:44px!important;min-height:44px!important;padding:0 12px!important;border-radius:13px!important;}}

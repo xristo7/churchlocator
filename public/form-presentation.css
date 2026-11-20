@@ -1,0 +1,5 @@
+/* One text treatment for placeholders and typed values; labels remain available to assistive technology. */
+html body .form-prompt-control::placeholder{font-family:inherit!important;font-size:inherit!important;font-weight:inherit!important;font-style:inherit!important;letter-spacing:inherit!important;line-height:inherit!important;color:var(--auth-muted,var(--text-secondary,#687386))!important;opacity:1!important}
+html body .form-prompt-caption{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+html body .form-prompt-label{row-gap:0!important}
+html body :is(.member-auth-helper,.auth-field-helper){display:none!important}

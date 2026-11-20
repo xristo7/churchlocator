@@ -1,0 +1,147 @@
+/* Meditation uses the archive palette while retaining its existing room layouts. */
+body[data-page="meditation"] {
+  --mwu-blue:var(--primary);
+  --mwu-blue-d:var(--primary-active,var(--primary));
+  --mwu-navy:var(--text-primary);
+  --mwu-ink:var(--text-primary);
+  --mwu-muted:var(--text-secondary);
+  --mwu-line:var(--border-default);
+  --mwu-bg:var(--surface-canvas);
+  --mwu-card:var(--surface-card);
+  --meditation-hero-bg:var(--surface-canvas);
+  --meditation-modal-scrim:hsl(var(--primary-h) 42% 8% / .76);
+}
+html body[data-page="meditation"] #meditation-lobby .mwu-hero {
+  background-color:var(--meditation-hero-bg)!important;
+}
+/* Same palette and image blend as the shared rs-hero archive header. */
+html body[data-page="meditation"] #meditation-lobby .mwu-hero::before {
+  background:linear-gradient(90deg,
+    color-mix(in srgb,var(--meditation-hero-bg) 96%,transparent) 0%,
+    color-mix(in srgb,var(--meditation-hero-bg) 88%,transparent) 36%,
+    color-mix(in srgb,var(--meditation-hero-bg) 40%,transparent) 66%,
+    color-mix(in srgb,var(--meditation-hero-bg) 0%,transparent) 100%)!important;
+}
+html body[data-page="meditation"] #meditation-lobby .mwu-hero :is(h1,p) {
+  color:var(--text-primary)!important;
+  -webkit-text-fill-color:currentColor!important;
+  text-shadow:none!important;
+}
+html body[data-page="meditation"] #meditation-lobby .mwu-hero .mwu-btn-primary {
+  background:var(--primary)!important;
+  color:#fff!important;
+}
+html body[data-page="meditation"] #meditation-lobby .mwu-hero .mwu-btn-primary:hover {
+  background:var(--primary-active,var(--primary))!important;
+}
+html body[data-page="meditation"] #meditation-lobby .mwu-hero .mwu-btn-ghost {
+  background:var(--surface-card)!important;
+  color:var(--text-primary)!important;
+  border-color:var(--border-default)!important;
+}
+html body[data-page="meditation"] dialog::backdrop,
+html body[data-page="meditation"] #modal-invite-friend::backdrop {
+  background:var(--meditation-modal-scrim)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+@media(max-width:760px) {
+  html body[data-page="meditation"] #meditation-lobby .mwu-hero::before {
+    background:linear-gradient(180deg,
+      color-mix(in srgb,var(--meditation-hero-bg) 94%,transparent),
+      color-mix(in srgb,var(--meditation-hero-bg) 98%,transparent))!important;
+  }
+}
+
+/* The active platform palette is authoritative throughout a live room. */
+#meditation-room-view {
+  --room-color:var(--primary)!important;
+  --room-hue:var(--primary-h)!important;
+  --room-glow:color-mix(in srgb,var(--primary) 40%,transparent)!important;
+  --room-glow-soft:color-mix(in srgb,var(--primary) 16%,transparent)!important;
+  --room-canvas:hsl(var(--primary-h) 24% 97%);
+  --room-panel:hsl(var(--primary-h) 30% 98% / .94);
+  --room-soft:hsl(var(--primary-h) 25% 93%);
+  --sanctuary-ink:hsl(var(--primary-h) 30% 13%);
+  --sanctuary-muted:hsl(var(--primary-h) 18% 35%);
+  --sanctuary-line:color-mix(in srgb,var(--primary) 26%,transparent);
+  --sanctuary-wash:color-mix(in srgb,var(--room-canvas) 65%,transparent);
+  --sanctuary-wash-strong:var(--room-panel);
+  --sanctuary-accent:var(--primary);
+  --sanctuary-accent-soft:color-mix(in srgb,var(--primary) 12%,transparent);
+  background:var(--room-canvas)!important;
+  color:var(--sanctuary-ink)!important;
+}
+html[data-theme="dark"] #meditation-room-view {
+  --room-canvas:hsl(var(--primary-h) 30% 7%);
+  --room-panel:hsl(var(--primary-h) 25% 12% / .94);
+  --room-soft:hsl(var(--primary-h) 23% 17%);
+  --sanctuary-ink:hsl(var(--primary-h) 18% 96%);
+  --sanctuary-muted:hsl(var(--primary-h) 16% 74%);
+  --sanctuary-line:color-mix(in srgb,var(--primary) 35%,transparent);
+}
+#meditation-room-view #meditation-overlay {
+  background:linear-gradient(90deg,color-mix(in srgb,var(--room-canvas) 85%,transparent),color-mix(in srgb,var(--room-canvas) 62%,transparent) 55%,color-mix(in srgb,var(--room-canvas) 72%,transparent)),linear-gradient(180deg,var(--sanctuary-accent-soft),color-mix(in srgb,var(--room-canvas) 35%,transparent))!important;
+}
+#meditation-room-view :is(.sanctuary-top-action-btn,.sanctuary-room-header-icon,.mwe-session-toggle,.mwe-voice),
+#meditation-room-view > #meditation-sync-status {
+  background:var(--room-panel)!important;
+  color:var(--sanctuary-ink)!important;
+  border-color:var(--sanctuary-line)!important;
+  box-shadow:0 6px 24px color-mix(in srgb,var(--primary) 10%,transparent)!important;
+}
+#meditation-room-view :is(.template-main-title,.template-quote-text,.sanctuary-room-header-title) {color:var(--sanctuary-ink)!important;}
+#meditation-room-view :is(.template-subtitle-badge,.template-quote-ref,.timer-btn-caption,.sanctuary-room-header-owner) {color:var(--sanctuary-muted)!important;}
+#meditation-room-view :is(.timer-circle-btn,.sanctuary-top-action-btn,.sanctuary-room-header-icon,.mwe-session-toggle,.mwe-voice-icon) svg {
+  color:var(--primary)!important;
+  stroke:currentColor!important;
+}
+#meditation-room-view .timer-circle-btn.timer-primary-btn,
+#meditation-room-view .mwe-voice-btn.is-primary {
+  background:var(--primary)!important;
+  color:#fff!important;
+  border-color:transparent!important;
+  box-shadow:0 8px 24px color-mix(in srgb,var(--primary) 28%,transparent)!important;
+}
+#meditation-room-view .timer-circle-btn.timer-primary-btn svg {color:#fff!important;}
+#meditation-room-view .mwe-voice-icon {background:var(--sanctuary-accent-soft)!important;color:var(--primary)!important;}
+#meditation-room-view .mwe-voice-icon svg {width:16px;height:16px;}
+#meditation-room-view .mwe-voice-btn:not(.is-primary):not(.is-danger) {border-color:var(--sanctuary-line)!important;color:var(--sanctuary-ink)!important;}
+#meditation-room-view :is(.sanctuary-top-action-btn,.timer-circle-btn,.mwe-session-toggle,.mwe-voice-btn):focus-visible {outline:2px solid var(--primary)!important;outline-offset:4px!important;}
+#meditation-room-view :is(.sanctuary-top-action-btn,.mwe-session-toggle):hover {background:var(--room-soft)!important;}
+#meditation-room-view .mwe-voice-btn.is-primary:hover:not(:disabled) {background:var(--primary-active,var(--primary))!important;}
+#meditation-room-view #mwe-session-panel {
+  --session-card:var(--room-panel);
+  --session-soft:var(--room-soft);
+  --session-ink:var(--sanctuary-ink);
+  --session-muted:var(--sanctuary-muted);
+  --session-line:var(--sanctuary-line);
+}
+/* Size the type against the actual ring, including short desktop viewports. */
+#meditation-room-view .timer-ring-wrapper {container-type:inline-size;}
+#meditation-room-view .timer-dial-inner {inset:18%!important;min-width:0;gap:6px!important;}
+#meditation-room-view .timer-countdown-label {
+  box-sizing:border-box;max-width:100%;
+  font-size:clamp(8px,4.5cqi,12px)!important;
+  line-height:1.3!important;letter-spacing:.1em!important;
+  font-weight:600!important;white-space:nowrap;text-align:center;opacity:1!important;
+}
+#meditation-room-view .timer-countdown-digits {
+  max-width:100%;font-size:clamp(34px,20cqi,58px)!important;
+  font-variant-numeric:tabular-nums;
+}
+#meditation-room-view .timer-circle-btn.is-active {background:var(--sanctuary-accent-soft)!important;border-color:var(--primary)!important;}
+#meditation-room-view #sacred-pulsing-orb {background:radial-gradient(circle at 35% 35%,var(--room-soft),var(--primary) 55%,var(--primary-active,var(--primary)))!important;box-shadow:0 10px 40px var(--room-glow),0 0 80px var(--room-glow-soft)!important;}
+#meditation-room-view #bottom-play-btn {background:var(--primary)!important;box-shadow:0 4px 16px var(--room-glow)!important;}
+#meditation-room-view .timer-track {stroke:var(--sanctuary-line)!important;}
+#meditation-room-view .timer-circle-btn:not(.timer-primary-btn) {background:var(--room-panel)!important;border-color:var(--sanctuary-line)!important;}
+#meditation-room-view .timer-circle-btn:not(.timer-primary-btn):hover,
+#meditation-room-view .timer-circle-btn.is-active:not(.timer-primary-btn) {background:var(--sanctuary-accent-soft)!important;border-color:var(--primary)!important;}
+/* Room editing is available only to an authorized creator, including while inactive. */
+#meditation-room-view #room-edit-btn[hidden] {display:none!important;}
+body[data-page="meditation"] .room-edit-link {display:inline-flex;align-items:center;gap:7px;min-height:40px;margin-top:14px;padding:8px 12px;border:1px solid var(--primary-border);border-radius:10px;background:var(--primary-surface);color:var(--primary);font:600 12px/1.4 Inter,system-ui,sans-serif;text-decoration:none;}
+body[data-page="meditation"] .room-edit-link svg {width:15px;height:15px;}
+body[data-page="meditation"] .room-edit-link:hover {background:var(--primary-soft);}
+body[data-page="meditation"] .room-edit-link:focus-visible {outline:2px solid var(--primary);outline-offset:3px;}
+/* The archive content sits directly on the page ambience, without an opaque tray. */
+html body[data-page="meditation"] #meditation-lobby > .module-content {background:transparent!important;}

@@ -17,7 +17,7 @@
     if(j) j.addEventListener('click',function(){
       var v=window.prompt('Paste the meditation invitation link');
       if(!v) return;
-      try{var u=new URL(v.trim(),location.href); if(u.origin===location.origin){location.href=u.href;} else {alert('That link is not a RhemaSphere invitation link.');}}catch(_){alert('That does not look like a valid link.');}
+      try{var u=new URL(v.trim(),location.href); if(u.origin===location.origin && /^\/meditation(?:\.html)?$/.test(u.pathname) && /^[a-zA-Z0-9_-]+$/.test(u.searchParams.get('room')||u.searchParams.get('id')||'')){location.href=u.href;} else {alert('That link is not a RhemaSphere invitation link.');}}catch(_){alert('That does not look like a valid link.');}
     });
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();

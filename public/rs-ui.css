@@ -114,7 +114,7 @@ html[data-theme="dark"],html[data-theme="dark"] body{
   border-radius:18px!important;background:var(--rs-card)!important;color:var(--rs-text);border:1px solid color-mix(in srgb,var(--rs-accent) 20%,var(--rs-line))!important;box-shadow:0 24px 48px -16px rgba(0,0,0,.4)!important
 }
 :is(.filter-dropdown-panel,.dropdown-panel,.aw-menu,.rsc-filter-panel,.rsc-more-panel,.conversation-menu) :is(a,button):not(.mwe-menu-studio):not(.button.primary){border-radius:12px}
-:is(.modal-card,.member-auth-card,.login-modal-card,.module-modal-card,.profile-modal-card,.mwe-sheet-card,.mwe-reset-card,.mwe-verify-panel,.mwe-forgot-panel,.service-booking-modal .modal-card,.cpc-modal,.alert-modal>div,.login-card){
+:is(.modal-card,.member-auth-card,.login-modal-card,.module-modal-card,.profile-modal-card,.mwe-sheet-card,.mwe-reset-card,.service-booking-modal .modal-card,.cpc-modal,.alert-modal>div,.login-card){
   border-radius:24px!important;background:var(--rs-card-bg)!important;color:var(--rs-text);border:1px solid var(--rs-line-tint)!important;box-shadow:0 30px 60px -20px rgba(0,0,0,.45)!important
 }
 @media (max-width:640px){:is(.mwe-sheet-card,.member-auth-card){border-radius:24px 24px 0 0!important}}
@@ -470,11 +470,11 @@ html.rs-has-bottom-bars body > main:last-of-type:not(#rs-a){padding-bottom:calc(
 /* ===== normalized modal / dialog / form titles ===== */
 :root{--rs-dlg-title:clamp(24px,2vw,28px);--rs-dlg-sub:15px}
 @media (max-width:640px){:root{--rs-dlg-title:22px}}
-html body :is(dialog,[role="dialog"],[aria-modal="true"],.modal,.modal-card,.modal-dialog,.module-modal-card,.service-modal-header,.mwe-sheet-card,.rs-sheet,.drawer,.auth-card,.signin-card,.checkout-card,.form-card) :is(h1,h2,h3):not(#rs-a):not(#rs-b){
+html body :is(dialog,[role="dialog"],[aria-modal="true"],.modal,.modal-card,.modal-dialog,.module-modal-card,.service-modal-header,.mwe-sheet-card,.rs-sheet,.drawer,.auth-card,.signin-card,.checkout-card,.form-card):not(.cp-action-dialog) :is(h1,h2,h3):not(#rs-a):not(#rs-b){
   font-size:var(--rs-dlg-title)!important;font-weight:700!important;line-height:1.25!important;letter-spacing:-.01em!important;margin-top:0!important;margin-bottom:6px!important}
-html body :is(dialog,[role="dialog"],[aria-modal="true"],.modal,.modal-card,.modal-dialog,.module-modal-card,.mwe-sheet-card) :is(h1,h2,h3) + p:not(#rs-a):not(#rs-b){font-size:var(--rs-dlg-sub)!important;line-height:1.45!important;margin-top:0!important;margin-bottom:12px!important}
+html body :is(dialog,[role="dialog"],[aria-modal="true"],.modal,.modal-card,.modal-dialog,.module-modal-card,.mwe-sheet-card):not(.cp-action-dialog) :is(h1,h2,h3) + p:not(#rs-a):not(#rs-b){font-size:var(--rs-dlg-sub)!important;line-height:1.45!important;margin-top:0!important;margin-bottom:12px!important}
 @media (max-width:640px){
-  html body form :is(h1,h2):not(#rs-a):not(#rs-b){font-size:var(--rs-dlg-title)!important;line-height:1.25!important;font-weight:700!important;margin-bottom:6px!important}
+  html body form:not(.cp-action-form) :is(h1,h2):not(#rs-a):not(#rs-b){font-size:var(--rs-dlg-title)!important;line-height:1.25!important;font-weight:700!important;margin-bottom:6px!important}
 }
 /* dialog/form balanced padding */
 html body dialog.rsc-dialog > form:not(#rs-a){padding:12px 20px 16px!important}

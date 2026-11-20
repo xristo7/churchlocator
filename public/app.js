@@ -282,9 +282,9 @@ const MWE = (() => {
         },
         {
           src: "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1200&q=80",
-          title: "Sanctuary Auditorium",
+          title: "Meditation Auditorium",
           caption: "Our main auditorium welcoming everyone into fellowship and renewal.",
-          tag: "Sanctuary"
+          tag: "Meditation"
         },
         {
           src: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1200&q=80",
@@ -358,9 +358,9 @@ const MWE = (() => {
         },
         {
           src: "https://images.unsplash.com/photo-1490122417551-6ee9691429d0?auto=format&fit=crop&w=1200&q=80",
-          title: "West Campus Sanctuary",
-          caption: "Modern sanctuary designed for multi-generational fellowship.",
-          tag: "Sanctuary"
+          title: "West Campus Meditation",
+          caption: "Modern meditation space designed for multi-generational fellowship.",
+          tag: "Meditation"
         },
         {
           src: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1200&q=80",
@@ -1352,7 +1352,7 @@ const MWE = (() => {
         <div class="cpc-modal-photo-hero" style="background-image: url(&quot;${escapeHtml(photo)}&quot;);">
           <div class="cpc-modal-photo-overlay"></div>
           <div class="cpc-modal-photo-badges">
-            <span class="cpc-modal-photo-badge"><i data-lucide="camera"></i> Sanctuary Photo</span>
+            <span class="cpc-modal-photo-badge"><i data-lucide="camera"></i> Meditation Photo</span>
             <span class="cpc-modal-verified-badge"><i data-lucide="badge-check"></i> Verified Church</span>
           </div>
           <button onclick="MWE.closeMapModal()" class="cpc-modal-close" aria-label="Close modal">
@@ -1382,7 +1382,7 @@ const MWE = (() => {
                 <div class="cpc-marker-card-info">
                   <strong class="cpc-marker-card-name">${escapeHtml(church.name)}</strong>
                   <span class="cpc-marker-card-loc"><i data-lucide="map-pin"></i> ${escapeHtml(church.area || church.city)}</span>
-                  <span class="cpc-marker-card-badge"><i data-lucide="check-circle-2"></i> Verified Sanctuary</span>
+                  <span class="cpc-marker-card-badge"><i data-lucide="check-circle-2"></i> Verified Meditation</span>
                 </div>
               </div>
               <div class="cpc-marker-pin-stem">
@@ -1564,6 +1564,7 @@ MWE.getMemberShellRoute = function(input) {
     "register-church": "portal",
     creator: "portal",
     "creator-hub": "portal",
+    "creator-studio": "create",
     meditation: "meditation",
     storefront: "storefront"
   };
@@ -1574,6 +1575,9 @@ MWE.getMemberShellRoute = function(input) {
 
   return {
     view,
+    kind: ["create","portal"].includes(view) ? url.searchParams.get("kind") || "" : "",
+    edit: ["create","portal"].includes(view) ? url.searchParams.get("edit") || "" : "",
+    step: ["create","portal"].includes(view) ? url.searchParams.get("step") || "" : "",
     session: view === "meditation" ? url.searchParams.get("session") || "" : "",
     id: url.searchParams.get("id") || url.searchParams.get("channel") || url.searchParams.get("room") || "",
     q: url.searchParams.get("q") || "",
@@ -1587,6 +1591,7 @@ MWE.getMemberShellRoute = function(input) {
 MWE.buildMemberShellUrl = function(route) {
   const target = new URL("app.html", window.location.href);
   target.searchParams.set("view", route.view || "directory");
+  if (["create","portal"].includes(route.view)) for (const key of ["kind","edit","step"]) if (route[key]) target.searchParams.set(key,route[key]);
   if (route.id) target.searchParams.set("id", route.id);
   if (route.view === "meditation" && route.session) target.searchParams.set("session", route.session);
   if (route.q) target.searchParams.set("q", route.q);
@@ -1636,8 +1641,13 @@ MWE.ensureMemberLoginModal = function() {
   modal.setAttribute("aria-modal", "true");
   modal.setAttribute("aria-labelledby", "member-auth-title");
   modal.innerHTML = `
-    <div class="member-auth-card">
+    <div class="member-auth-layout">
       <button class="member-auth-close" type="button" aria-label="Close sign in"><i data-lucide="x"></i></button>
+      <aside class="member-auth-visual" aria-hidden="true">
+        <img src="/assets/meditation-chapel.png" alt="" />
+        <div class="member-auth-visual-content"><span class="member-auth-brand">RhemaSphere</span><div><span class="member-auth-eyebrow">Faith. Community. Belonging.</span><h2>Find your<br />church family.</h2><p>A place to grow, connect, and share a moment of faith.</p></div></div>
+      </aside>
+      <div class="member-auth-card">
       <div class="member-auth-icon"><i data-lucide="sparkles"></i></div>
       <h2 id="member-auth-title">Sign in to continue</h2>
       <p>Sign in to your RhemaSphere account to continue.</p>
@@ -1656,29 +1666,35 @@ MWE.ensureMemberLoginModal = function() {
         <label class="member-auth-field"><span class="member-auth-label">Email</span>
           <input type="email" name="email" autocomplete="email" placeholder="Email address" inputmode="email" required />
         </label>
-        <label class="member-auth-field"><span class="member-auth-label-row"><span class="member-auth-label">Password</span><a href="#" class="member-auth-forgot" data-auth-forgot>Forgot password?</a></span>
+        <label class="member-auth-field"><span class="member-auth-label">Password</span>
           <span class="mwe-password-wrap"><input type="password" name="password" autocomplete="current-password" placeholder="Password" required /></span>
         </label>
+        <a href="#" class="member-auth-forgot" data-auth-forgot>Forgot password?</a>
         <button class="member-auth-submit" type="submit"><i data-lucide="log-in"></i> <span>Sign in</span></button>
         <p class="member-auth-hint">New to RhemaSphere? <a href="#" data-auth-mode="register">Create an account</a></p>
       </form>
       <form class="member-auth-form member-auth-register" data-member-register-form novalidate hidden>
         <p class="member-auth-error" data-member-register-error role="alert" hidden></p>
         <label class="member-auth-field"><span class="member-auth-label">Full name</span>
-          <input type="text" name="name" autocomplete="name" placeholder="Your full name" required maxlength="200" />
+          <input type="text" name="name" autocomplete="name" placeholder="Full name" required maxlength="200" />
         </label>
         <label class="member-auth-field"><span class="member-auth-label">Email</span>
           <input type="email" name="email" autocomplete="email" placeholder="Email address" inputmode="email" required />
         </label>
         <label class="member-auth-field"><span class="member-auth-label">Password</span>
-          <span class="mwe-password-wrap"><input type="password" name="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required /></span>
+          <span class="mwe-password-wrap"><input type="password" name="password" autocomplete="new-password" placeholder="Password (8+)" minlength="8" required /></span>
         </label>
         <button class="member-auth-submit" type="submit"><i data-lucide="user-plus"></i> <span>Create account</span></button>
         <p class="member-auth-hint">Already have an account? <a href="#" data-auth-mode="login">Sign in</a></p>
       </form>
+      </div>
     </div>
   `;
   document.body.appendChild(modal);
+
+  modal.querySelectorAll('.member-auth-field input').forEach(input => {
+    input.setAttribute('aria-label',input.name==='name'?'Full name':input.name==='email'?'Email address':'Password');
+  });
 
   const close = () => {
     const restore = modal._rsAuthFocus && modal._rsAuthFocus.isConnected ? modal._rsAuthFocus : null;
@@ -3460,14 +3476,14 @@ MWE.getDefaultGalleryImages = function(church) {
     {
       src: "https://images.unsplash.com/photo-1510590337019-5ef8d3d32116?auto=format&fit=crop&w=1200&q=80",
       title: "Sunday Worship & Praise",
-      caption: `Dynamic praise and worship celebration in the main sanctuary at ${name}.`,
+      caption: `Dynamic praise and worship celebration in the main meditation space at ${name}.`,
       tag: "Worship"
     },
     {
       src: mainPhoto,
-      title: "Sanctuary & Gathering Space",
+      title: "Meditation & Gathering Space",
       caption: `A warm, welcoming auditorium designed for fellowship and encountering God.`,
-      tag: "Sanctuary"
+      tag: "Meditation"
     },
     {
       src: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1200&q=80",
@@ -4836,7 +4852,7 @@ const HERO_CHANNEL_SEEDS = [
 ];
 
 const HERO_MEDITATION_SEEDS = [
-  { id: "room-peace", title: "Sanctuary of Peace & Stillness", subtitle: "Calm your soul and release all anxiety into His hands.", cover: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=800&q=80", toneFreq: 432 },
+  { id: "room-peace", title: "Meditation of Peace & Stillness", subtitle: "Calm your soul and release all anxiety into His hands.", cover: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=800&q=80", toneFreq: 432 },
   { id: "room-healing", title: "Health & Divine Healing Room", subtitle: "Meditation and promises for physical and spiritual restoration.", cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80", toneFreq: 528 },
   { id: "room-secret-place", title: "The Secret Place & Intimacy", subtitle: "Dwelling in the shadow of the Almighty.", cover: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=800&q=80", toneFreq: 432 },
   { id: "room-worship", title: "Atmosphere of Deep Adoration", subtitle: "Soaking worship pads and heartfelt adoration.", cover: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80", toneFreq: 432 }
@@ -4946,9 +4962,9 @@ MWE.heroCarouselSlides = [
     id: "meditation",
     name: "Meditation",
     title: "Meditation & Scriptural Reflection.",
-    description: "Step into serene prayer sanctuaries, guided scripture meditations, and calming instrumental worship piano sessions.",
-    btn1: { text: "Enter Sanctuary", url: "meditation.html", icon: "sparkles", className: "button primary lg" },
-    btn2: { text: "Create a Sanctuary", url: "meditation.html#create", icon: "plus-circle", className: "button secondary lg" },
+    description: "Step into serene meditation rooms, guided scripture meditations, and calming instrumental worship piano sessions.",
+    btn1: { text: "Enter Meditation", url: "meditation.html", icon: "sparkles", className: "button primary lg" },
+    btn2: { text: "Create a Meditation", url: "meditation.html#create", icon: "plus-circle", className: "button secondary lg" },
     sliderLabelIcon: "sparkles",
     sliderLabelText: "Peaceful meditation rooms",
     getItems: () => {
@@ -4963,7 +4979,7 @@ MWE.heroCarouselSlides = [
         name: room.title,
         details: room.subtitle || "Scriptural Reflection & Peace",
         tagIcon: "sparkles",
-        tagText: room.toneFreq ? `${room.toneFreq}Hz Tone` : "Sanctuary"
+        tagText: room.toneFreq ? `${room.toneFreq}Hz Tone` : "Meditation"
       }));
     }
   },
@@ -5349,7 +5365,7 @@ function renderHomepageSections() {
   const churches = (typeof MWE.getChurches === "function" ? MWE.getChurches() : []) || [];
   const events = (typeof MWE.getEvents === "function" ? MWE.getEvents() : []) || [];
 
-  // 1. Virtual Sanctuary Streams (Active & Scheduled Livestreams)
+  // 1. Virtual Meditation Streams (Active & Scheduled Livestreams)
   try {
     const streamsGrid = document.querySelector("[data-home-streams-grid]");
     if (streamsGrid) {
@@ -5562,12 +5578,10 @@ function updateHomepageAuthUI() {
               <div class="form-group mb-2 signin-field-group">
                 <label for="nav-auth-email" id="nav-auth-email-label" class="auth-visually-hidden">Email address</label>
                 <input type="email" id="nav-auth-email" name="email" class="field small-field" placeholder="Email address" autocomplete="email" required />
-                <small class="auth-field-helper">Use the email on your RhemaSphere account.</small>
               </div>
               <div class="form-group mb-3 signin-field-group">
                 <label for="nav-auth-password" class="auth-visually-hidden">Password</label>
                 <input type="password" id="nav-auth-password" name="password" class="field small-field" placeholder="Password" autocomplete="current-password" required minlength="8" data-no-translate />
-                <small class="auth-field-helper">Enter your account password.</small>
               </div>
               <button type="submit" class="button primary small" id="nav-auth-submit-btn" style="width: 100%;">
                 <i data-lucide="log-in"></i> <span>Sign In</span>
@@ -5588,7 +5602,7 @@ function updateHomepageAuthUI() {
       authContainer.innerHTML = `
         <span class="eyebrow"><i data-lucide="user-check"></i> Welcome Back, ${MWE.escapeHtml(username)}!</span>
         <h2>Your Faith Hub is Active</h2>
-        <p class="lead">You are signed in as ${MWE.escapeHtml(userEmail || username)}. Your event passes and prayer sanctuary rooms are ready for you.</p>
+        <p class="lead">You are signed in as ${MWE.escapeHtml(userEmail || username)}. Your event passes and prayer meditation rooms are ready for you.</p>
         <div class="faith-hub-btn-group">
           <a href="app.html" class="button primary lg"><i data-lucide="layout-dashboard"></i> Launch Member Hub</a>
           <button type="button" class="button ghost lg" onclick="MWE.logoutMember()"><i data-lucide="log-out"></i> Sign Out</button>
@@ -5672,7 +5686,7 @@ MWE.switchAuthDropdownTab = function(tab) {
       passwordInput.minLength = 8;
       passwordInput.maxLength = 128;
       passwordInput.autocomplete = "new-password";
-      passwordInput.placeholder = "At least 8 characters";
+      passwordInput.placeholder = "Password (8+)";
     }
     if (submitBtn) submitBtn.innerHTML = `<i data-lucide="user-plus"></i> <span>Create Account</span>`;
     if (googleLabel) googleLabel.textContent = "Sign up with Google";
@@ -5972,8 +5986,8 @@ MWE.initCustomDropdowns = initCustomDropdowns;
 // Lightweight Dynamic Translation System (EN, FR, ES)
 function initTranslations() {
   const translatedTitles = {
-    fr: { home: "Accueil", public: "Annuaire des églises", profile: "Profil de l’église", events: "Événements", "event-profile": "Détails de l’événement", livestream: "Diffusions en direct", donate: "Faire un don", foundation: "Fondation", channels: "Chaînes chrétiennes", "channel-detail": "Chaîne", "channel-content": "Contenu de la chaîne", store: "Boutique RhemaSphere", product: "Détails du produit", "product-detail": "Détails du produit", cart: "Votre panier", checkout: "Paiement", resources: "Ressources chrétiennes", "resource-detail": "Détails de la ressource", "resource-reader": "Lecteur", messages: "Messages", meditation: "Sanctuaire de méditation", portal: "Espace créateur", creator: "Espace créateur", owner: "Administration de la plateforme", "store-manager": "Gestion de la boutique", storefront: "Profil de la boutique", broadcast: "Diffusion en direct", privacy: "Confidentialité et conditions", "member-home": "Accueil membre" },
-    es: { home: "Inicio", public: "Directorio de iglesias", profile: "Perfil de la iglesia", events: "Eventos", "event-profile": "Detalles del evento", livestream: "Transmisiones en vivo", donate: "Donar", foundation: "Fundación", channels: "Canales cristianos", "channel-detail": "Canal", "channel-content": "Contenido del canal", store: "Tienda RhemaSphere", product: "Detalles del producto", "product-detail": "Detalles del producto", cart: "Tu carrito", checkout: "Pago", resources: "Recursos cristianos", "resource-detail": "Detalles del recurso", "resource-reader": "Lector", messages: "Mensajes", meditation: "Santuario de meditación", portal: "Centro de creadores", creator: "Espacio del creador", owner: "Administración de la plataforma", "store-manager": "Gestión de la tienda", storefront: "Perfil de la tienda", broadcast: "Transmisión en vivo", privacy: "Privacidad y condiciones", "member-home": "Inicio del miembro" }
+    fr: { home: "Accueil", public: "Annuaire des églises", profile: "Profil de l’église", events: "Événements", "event-profile": "Détails de l’événement", livestream: "Diffusions en direct", donate: "Faire un don", foundation: "Fondation", channels: "Chaînes chrétiennes", "channel-detail": "Chaîne", "channel-content": "Contenu de la chaîne", store: "Boutique RhemaSphere", product: "Détails du produit", "product-detail": "Détails du produit", cart: "Votre panier", checkout: "Paiement", resources: "Ressources chrétiennes", "resource-detail": "Détails de la ressource", "resource-reader": "Lecteur", messages: "Messages", meditation: "Méditation", portal: "Espace créateur", creator: "Espace créateur", owner: "Administration de la plateforme", "store-manager": "Gestion de la boutique", storefront: "Profil de la boutique", broadcast: "Diffusion en direct", privacy: "Confidentialité et conditions", "member-home": "Accueil membre" },
+    es: { home: "Inicio", public: "Directorio de iglesias", profile: "Perfil de la iglesia", events: "Eventos", "event-profile": "Detalles del evento", livestream: "Transmisiones en vivo", donate: "Donar", foundation: "Fundación", channels: "Canales cristianos", "channel-detail": "Canal", "channel-content": "Contenido del canal", store: "Tienda RhemaSphere", product: "Detalles del producto", "product-detail": "Detalles del producto", cart: "Tu carrito", checkout: "Pago", resources: "Recursos cristianos", "resource-detail": "Detalles del recurso", "resource-reader": "Lector", messages: "Mensajes", meditation: "Meditación", portal: "Centro de creadores", creator: "Espacio del creador", owner: "Administración de la plataforma", "store-manager": "Gestión de la tienda", storefront: "Perfil de la tienda", broadcast: "Transmisión en vivo", privacy: "Privacidad y condiciones", "member-home": "Inicio del miembro" }
   };
   const translations = {
     en: {
@@ -6066,7 +6080,7 @@ function initTranslations() {
       "Share the Gospel with the world.": "Partagez l’Évangile avec le monde.", "Create a Channel": "Créer une chaîne", "Create Channel": "Créer la chaîne", "Channels to explore": "Chaînes à découvrir", "Christian Channels": "Chaînes chrétiennes", "Create your Christian channel": "Créez votre chaîne chrétienne", "Channel name": "Nom de la chaîne", "Channel handle": "Identifiant de la chaîne", "Your name": "Votre nom", "Primary format": "Format principal", "Topic": "Thème", "Description": "Description", "Subscribe": "S’abonner", "Subscribed": "Abonné",
       "Discover Christian podcasts, livestreams, video teaching, worship, testimony, and creator-led communities—or start a channel of your own.": "Découvrez des podcasts chrétiens, des directs, des enseignements vidéo, de la louange, des témoignages et des communautés de créateurs — ou lancez votre propre chaîne.", "Search channels, creators, or topics...": "Rechercher des chaînes, créateurs ou thèmes…", "Filter by topic": "Filtrer par thème", "Filter by format": "Filtrer par format", "Filter by status": "Filtrer par statut", "All topics": "Tous les thèmes", "All formats": "Tous les formats", "Any status": "Tous les statuts", "Bible Teaching": "Enseignement biblique", "Bible Study": "Étude biblique", "Worship": "Louange", "Family": "Famille", "Leadership": "Leadership", "Youth": "Jeunesse", "Livestream": "Direct", "Video": "Vidéo", "Live now": "En direct", "Verified": "Vérifié", "Active": "Actif", "Followers": "Abonnés", "Episodes": "Épisodes", "Posts": "Publications", "Rating": "Note", "Get in touch": "Contacter",
       "Explore Events": "Découvrir les événements", "Upcoming Events": "Événements à venir", "Event Details": "Détails de l’événement", "About": "À propos", "Host & Speakers": "Hôte et intervenants", "Agenda": "Programme", "Frequently Asked Questions": "Questions fréquentes", "Book Your Pass": "Réserver votre pass", "First Name": "Prénom", "Last Name": "Nom", "Email Address": "Adresse e-mail", "Quantity": "Quantité", "Your Message": "Votre message", "Send Message": "Envoyer le message",
-      "Live Now": "En direct maintenant", "Watch Live": "Regarder en direct", "Start watching": "Commencer à regarder", "Meditation Sanctuary": "Sanctuaire de méditation", "Create a Meditation Room": "Créer une salle de méditation", "Join Room": "Rejoindre la salle", "Start Session": "Commencer la séance", "End Session": "Terminer la séance",
+      "Live Now": "En direct maintenant", "Watch Live": "Regarder en direct", "Start watching": "Commencer à regarder", "Meditation": "Méditation", "Create a Meditation Room": "Créer une salle de méditation", "Join Room": "Rejoindre la salle", "Start Session": "Commencer la séance", "End Session": "Terminer la séance",
       "Shop with churches and Christian creators.": "Achetez auprès d’églises et de créateurs chrétiens.", "Marketplace products": "Produits de la marketplace", "Cart": "Panier", "Your Cart": "Votre panier", "Your cart": "Votre panier", "Shopping cart": "Panier", "Continue shopping": "Continuer vos achats", "Order summary": "Récapitulatif de la commande", "Subtotal": "Sous-total", "Shipping": "Livraison", "Discount": "Réduction", "Total": "Total", "Checkout": "Paiement", "Contact": "Coordonnées", "Delivery": "Livraison", "Ship": "Expédier", "Pick up": "Retirer", "Country/Region": "Pays/région", "First name": "Prénom", "Last name": "Nom", "Address": "Adresse", "City": "Ville", "Postal code": "Code postal", "Shipping method": "Mode de livraison", "Payment": "Paiement", "Credit card": "Carte de crédit", "Card number": "Numéro de carte", "Security code": "Code de sécurité", "Name on card": "Nom sur la carte", "Pay now": "Payer maintenant", "Continue shopping": "Continuer vos achats",
       "Study, grow, teach, and share.": "Étudiez, grandissez, enseignez et partagez.", "Publish resource": "Publier une ressource", "Purchased": "Achats", "Resource library": "Bibliothèque de ressources", "Publish a Christian resource": "Publier une ressource chrétienne", "Title": "Titre", "Content type": "Type de contenu", "Format": "Format", "Access": "Accès", "Price": "Prix", "Summary": "Résumé", "Optional attachment": "Pièce jointe facultative",
       "Communication": "Communication", "Unread": "Non lus", "Sent": "Envoyés", "New message": "Nouveau message", "Email forwarding": "Transfert d’e-mails", "Not connected": "Non connecté", "Your RhemaSphere inbox": "Votre messagerie RhemaSphere", "Start a conversation": "Démarrer une conversation",
@@ -6079,7 +6093,7 @@ function initTranslations() {
       "Share the Gospel with the world.": "Comparte el Evangelio con el mundo.", "Create a Channel": "Crear un canal", "Create Channel": "Crear canal", "Channels to explore": "Canales para explorar", "Christian Channels": "Canales cristianos", "Create your Christian channel": "Crea tu canal cristiano", "Channel name": "Nombre del canal", "Channel handle": "Identificador del canal", "Your name": "Tu nombre", "Primary format": "Formato principal", "Topic": "Tema", "Description": "Descripción", "Subscribe": "Suscribirse", "Subscribed": "Suscrito",
       "Discover Christian podcasts, livestreams, video teaching, worship, testimony, and creator-led communities—or start a channel of your own.": "Descubre podcasts cristianos, transmisiones en vivo, enseñanzas en vídeo, adoración, testimonios y comunidades de creadores, o inicia tu propio canal.", "Search channels, creators, or topics...": "Buscar canales, creadores o temas…", "Filter by topic": "Filtrar por tema", "Filter by format": "Filtrar por formato", "Filter by status": "Filtrar por estado", "All topics": "Todos los temas", "All formats": "Todos los formatos", "Any status": "Cualquier estado", "Bible Teaching": "Enseñanza bíblica", "Bible Study": "Estudio bíblico", "Worship": "Adoración", "Family": "Familia", "Leadership": "Liderazgo", "Youth": "Jóvenes", "Livestream": "Transmisión en vivo", "Video": "Vídeo", "Live now": "En vivo ahora", "Verified": "Verificado", "Active": "Activo", "Followers": "Seguidores", "Episodes": "Episodios", "Posts": "Publicaciones", "Rating": "Valoración", "Get in touch": "Contactar",
       "Explore Events": "Explorar eventos", "Upcoming Events": "Próximos eventos", "Event Details": "Detalles del evento", "About": "Acerca de", "Host & Speakers": "Anfitrión y ponentes", "Agenda": "Programa", "Frequently Asked Questions": "Preguntas frecuentes", "Book Your Pass": "Reserva tu entrada", "First Name": "Nombre", "Last Name": "Apellido", "Email Address": "Correo electrónico", "Quantity": "Cantidad", "Your Message": "Tu mensaje", "Send Message": "Enviar mensaje",
-      "Live Now": "En vivo ahora", "Watch Live": "Ver en vivo", "Start watching": "Empezar a ver", "Meditation Sanctuary": "Santuario de meditación", "Create a Meditation Room": "Crear una sala de meditación", "Join Room": "Unirse a la sala", "Start Session": "Iniciar sesión", "End Session": "Finalizar sesión",
+      "Live Now": "En vivo ahora", "Watch Live": "Ver en vivo", "Start watching": "Empezar a ver", "Meditation": "Meditación", "Create a Meditation Room": "Crear una sala de meditación", "Join Room": "Unirse a la sala", "Start Session": "Iniciar sesión", "End Session": "Finalizar sesión",
       "Shop with churches and Christian creators.": "Compra a iglesias y creadores cristianos.", "Marketplace products": "Productos del mercado", "Cart": "Carrito", "Your Cart": "Tu carrito", "Your cart": "Tu carrito", "Shopping cart": "Carrito", "Continue shopping": "Seguir comprando", "Order summary": "Resumen del pedido", "Subtotal": "Subtotal", "Shipping": "Envío", "Discount": "Descuento", "Total": "Total", "Checkout": "Pago", "Contact": "Contacto", "Delivery": "Entrega", "Ship": "Enviar", "Pick up": "Recoger", "Country/Region": "País/región", "First name": "Nombre", "Last name": "Apellido", "Address": "Dirección", "City": "Ciudad", "Postal code": "Código postal", "Shipping method": "Método de envío", "Payment": "Pago", "Credit card": "Tarjeta de crédito", "Card number": "Número de tarjeta", "Security code": "Código de seguridad", "Name on card": "Nombre en la tarjeta", "Pay now": "Pagar ahora",
       "Study, grow, teach, and share.": "Estudia, crece, enseña y comparte.", "Publish resource": "Publicar recurso", "Purchased": "Comprados", "Resource library": "Biblioteca de recursos", "Publish a Christian resource": "Publicar un recurso cristiano", "Title": "Título", "Content type": "Tipo de contenido", "Format": "Formato", "Access": "Acceso", "Price": "Precio", "Summary": "Resumen", "Optional attachment": "Archivo adjunto opcional",
       "Communication": "Comunicación", "Unread": "No leídos", "Sent": "Enviados", "New message": "Nuevo mensaje", "Email forwarding": "Reenvío de correo", "Not connected": "No conectado", "Your RhemaSphere inbox": "Tu bandeja de entrada de RhemaSphere", "Start a conversation": "Iniciar una conversación",
@@ -6372,6 +6386,8 @@ function initModuleDirectoryToolbars() {
     mobileButton.setAttribute("aria-expanded", "false");
     mobileButton.innerHTML = '<i data-lucide="sliders-horizontal"></i><span class="module-filter-count" hidden></span>';
     toolbar.appendChild(mobileButton);
+    // Keep search first in both visual and keyboard order.
+    toolbar.insertBefore(search, group);
 
     const popup = overflow.querySelector(".module-filter-popup");
     const desktopTrigger = overflow.querySelector(".module-overflow-trigger");
@@ -6450,20 +6466,20 @@ function initModuleDirectoryToolbars() {
 
       overflow.classList.remove("mobile-filter-mode");
       mobileButton.hidden = true;
-      const available = toolbar.clientWidth - 24;
+      const parent = toolbar.parentElement;
+      const parentStyle = getComputedStyle(parent);
+      const toolbarStyle = getComputedStyle(toolbar);
+      const available = parent.clientWidth - parseFloat(parentStyle.paddingLeft) - parseFloat(parentStyle.paddingRight)
+        - parseFloat(toolbarStyle.paddingLeft) - parseFloat(toolbarStyle.paddingRight) - 2;
       const searchMinWidth = 220;
-      const itemWidth = 148;
-      const gap = 12;
-      const overflowWidth = 56;
-      const visibleFiltersWidth = (filterItems.length * itemWidth) + (Math.max(0, filterItems.length - 1) * gap);
-      const allFiltersFit = available >= searchMinWidth + gap + visibleFiltersWidth;
+      const gap = parseFloat(toolbarStyle.columnGap) || 12;
+      const groupGap = parseFloat(getComputedStyle(group).columnGap) || 12;
+      const widths = filterItems.map(item => item.getBoundingClientRect().width);
+      const required = count => searchMinWidth + (count ? gap : 0)
+        + widths.slice(0,count).reduce((sum,width)=>sum+width,0) + Math.max(0,count-1)*groupGap
+        + (count < filterItems.length ? 44 + gap : 0);
       let capacity = filterItems.length;
-
-      if (!allFiltersFit) {
-        const filterSpace = available - searchMinWidth - gap - overflowWidth - gap;
-        capacity = Math.max(0, Math.min(filterItems.length, Math.floor((filterSpace + gap) / (itemWidth + gap))));
-      }
-
+      while (capacity > 0 && required(capacity) > available) capacity--;
       if (capacity < filterItems.length) {
         filterItems.slice(capacity).forEach(item => popup.appendChild(item));
         overflow.hidden = false;
@@ -6474,14 +6490,14 @@ function initModuleDirectoryToolbars() {
     };
 
     let resizeFrame = 0;
-    let lastToolbarWidth = toolbar.clientWidth;
+    let lastToolbarWidth = toolbar.parentElement.clientWidth;
     const scheduleLayout = () => {
-      if (Math.abs(toolbar.clientWidth - lastToolbarWidth) < 1) return;
-      lastToolbarWidth = toolbar.clientWidth;
+      if (Math.abs(toolbar.parentElement.clientWidth - lastToolbarWidth) < 1) return;
+      lastToolbarWidth = toolbar.parentElement.clientWidth;
       cancelAnimationFrame(resizeFrame);
       resizeFrame = requestAnimationFrame(layout);
     };
-    new ResizeObserver(scheduleLayout).observe(toolbar);
+    new ResizeObserver(scheduleLayout).observe(toolbar.parentElement);
     layout();
     if (typeof createIcons === "function") createIcons();
     else if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
@@ -6491,6 +6507,16 @@ function initModuleDirectoryToolbars() {
 function initCreatorContentActions() {
   const isCreator = Boolean(window.MWEPlatform?.session?.isCreator);
   document.querySelectorAll("[data-creator-action]").forEach(action => {
+    if (action.id === 'btn-open-create-room' && !isCreator) {
+      action.disabled = false;
+      action.setAttribute('aria-disabled', 'false');
+      action.querySelector('span').textContent = 'Sign in or activate creator tools';
+      if (!action.dataset.creatorAccessBound) {
+        action.dataset.creatorAccessBound = 'true';
+        action.addEventListener('click', event => { if (!window.MWEPlatform?.session?.isCreator) { event.stopImmediatePropagation(); window.top.location.href = 'creator-studio.html?kind=meditation'; } }, true);
+      }
+      return;
+    }
     action.disabled = !isCreator;
     action.setAttribute("aria-disabled", String(!isCreator));
     action.classList.toggle("is-disabled", !isCreator);
@@ -6726,6 +6752,14 @@ function initOnboardingCarousel() {
 }
 
 MWE.renderEventsList = function() {
+  const resetActions = document.getElementById('event-reset-actions');
+  if (resetActions) {
+    const query = document.getElementById('event-city-input')?.value.trim();
+    const selected = document.querySelector('#event-cat-pill input:checked, #event-price-pill input:checked');
+    const date = document.querySelector('input[name="event-time-radio"]:checked')?.value || 'upcoming';
+    resetActions.hidden = !query && !selected && date === 'upcoming';
+  }
+
   const cityInput = document.getElementById("event-city-input");
   const typeSelect = document.getElementById("event-type-select");
   const priceSelect = document.getElementById("event-price-select");
@@ -7775,7 +7809,7 @@ function initEventProfilePage() {
   if (churchLink && evt.churchId) churchLink.href = `church-profile.html?id=${evt.churchId}`;
 
   // Populate Location Details
-  const venueLoc = `${evt.venueName || 'Main Sanctuary'}, ${displayCity}`;
+  const venueLoc = `${evt.venueName || 'Main Meditation'}, ${displayCity}`;
   const locEl = document.getElementById("event-profile-location");
   if (locEl) locEl.textContent = venueLoc;
 
@@ -9108,7 +9142,7 @@ MWE.handleDonationSubmit = function(e) {
 MWE.downloadCalendarICS = function(title, timeStr, location) {
   const currentChurch = MWE.activeChurchProfile || {};
   const churchName = currentChurch.name || "RhemaSphere Church";
-  const finalLocation = location || currentChurch.location || "Church Sanctuary";
+  const finalLocation = location || currentChurch.location || "Church Meditation";
   const cleanTitle = `${title} - ${churchName}`;
   const filename = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-event.ics`;
 
@@ -9160,7 +9194,7 @@ MWE.downloadCalendarICS = function(title, timeStr, location) {
 MWE.openCalendarModal = function(title, timeStr = "Sunday 10:00 AM", location = "") {
   const currentChurch = MWE.activeChurchProfile || {};
   const churchName = currentChurch.name || "RhemaSphere Church";
-  const finalLocation = location || currentChurch.location || "Church Sanctuary";
+  const finalLocation = location || currentChurch.location || "Church Meditation";
   const cleanTitle = `${title} - ${churchName}`;
   const details = `Join us for ${cleanTitle}.\nService time: ${timeStr}\nLocation: ${finalLocation}\nFind details & community updates on RhemaSphere.`;
 
@@ -10188,7 +10222,7 @@ MWE.openHostAuthModal = function(onSuccessCallback = null) {
         </div>
         <div class="compact-grid mt-2">
           <label class="form-field"><span>Contact Phone *</span><input required type="tel" name="phone" placeholder="(555) 000-1234" class="field" /></label>
-          <label class="form-field"><span>Password *</span><input required type="password" name="password" minlength="8" maxlength="128" placeholder="At least 8 characters" class="field" /></label>
+          <label class="form-field"><span>Password *</span><input required type="password" name="password" minlength="8" maxlength="128" placeholder="Password (8+)" class="field" /></label>
         </div>
         <div class="form-field mt-2">
           <span>Short Bio / Ministry Focus</span>
