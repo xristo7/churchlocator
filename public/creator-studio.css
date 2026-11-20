@@ -98,3 +98,16 @@
 /* Brief 07: channel posts published without a media link */
 .cs-media-missing{ outline:2px solid #d97706; outline-offset:4px; border-radius:12px; }
 .cs-media-missing [data-collection-field="mediaUrl"]{ border-color:#d97706; }
+html[data-theme="dark"] .cs-ready-list .complete,
+html[data-theme="dark"] .cs-field[data-state="complete"] .cs-field-mark {color:#6ee7b7;}
+html[data-theme="dark"] .cs-field small {color:#cbd5e1;}
+.cs-field[data-state="optional"] .cs-field-mark {display:none;}
+
+.cs-opening-settings{display:grid;gap:10px;padding:18px;border:1px solid var(--border-subtle,#e2e8f0);border-radius:16px;background:var(--surface-soft,#f8fafc);}
+.cs-opening-settings legend{font-weight:650;font-size:15px;padding:0 6px;}
+.cs-opening-settings p,.cs-opening-settings small{margin:0;color:var(--text-secondary,#64748b);line-height:1.6;}
+.cs-opening-settings label{margin-top:4px;}
+
+.cs-color-options{flex-wrap:wrap;}
+.cs-platform-color{justify-self:start;min-height:40px;}
+.cs-platform-color[aria-pressed="true"]{border-color:var(--primary);background:var(--primary-surface);color:var(--primary);}

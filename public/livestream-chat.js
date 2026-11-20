@@ -51,7 +51,7 @@
     return article;
   }
 
-  function mount({ streamType, entityId, messages, form, input }) {
+  function mount({ streamType, entityId, messages, form, input, onModeChange }) {
     if (!streamType || !entityId || !messages || !form || !input) return null;
     mountedChats.get(messages)?.destroy();
 
@@ -89,6 +89,7 @@
       try {
         const result = await request(path);
         append(result.messages || []);
+        if (["live", "comments"].includes(result.conversationMode)) onModeChange?.(result.conversationMode);
       } catch (error) {
         if (initial || !seen.size) status(messages, error.message || "Livestream chat is unavailable.", "error");
       } finally {

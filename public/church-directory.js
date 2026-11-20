@@ -111,6 +111,8 @@
     /* Keep search + filters on ONE row: filters that don't fit collapse into the sliders button */
     function fitFilters() {
       const bar = root.querySelector('.rsc-toolbar'), row = bar.querySelector('.rsc-filters'), more = bar.querySelector('.rsc-more'), panel = more.querySelector('.rsc-more-panel');
+      const search = bar.querySelector('.rsc-search');
+      if (bar.firstElementChild !== search) bar.prepend(search);
       const items = () => [...row.querySelectorAll(':scope > .rsc-filter, :scope > .rsc-reset'), ...panel.querySelectorAll(':scope > .rsc-filter, :scope > .rsc-reset')];
       const all = items().sort((a, b) => (+a.dataset.order || 0) - (+b.dataset.order || 0));
       all.forEach((el, i) => { if (!el.dataset.order) el.dataset.order = i; row.appendChild(el); });
@@ -234,6 +236,7 @@
       const b = e.target.closest('[data-act]'); if (!b) return; const act = b.dataset.act;
       if (act === 'share') { const url = location.origin + profileUrl(c.id);
         try { if (navigator.share) await navigator.share({ title: c.name, url }); else { await navigator.clipboard.writeText(url); toast('Link copied.'); } } catch (err) { if (err?.name !== 'AbortError') toast(url); } return; }
+      if (['visit','ride','message'].includes(act) && window.MWEChurchActions) { window.MWEChurchActions.open(c,act); return; }
       if (act === 'visit' || act === 'ride') { mode = act; $('#rsc-request-title').textContent = act === 'ride' ? 'Request a ride' : 'Request a visit';
         $('#rsc-request-sub').textContent = act === 'ride' ? `${c.name} will contact you to arrange transport to a service.` : `${c.name} will get in touch to welcome you.`;
         $('#rsc-pickup-wrap').firstChild.textContent = act === 'ride' ? 'Pickup area' : 'Your city';

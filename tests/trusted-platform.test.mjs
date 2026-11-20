@@ -32,6 +32,19 @@ test('tenant writes reject impersonation, foreign ownership, viewer edits and st
  s.as('owner');await s.call('workspace/channels/'+record.id,'PUT',{revision:2,publicationState:'published'});
  const publicRecord=(await (await s.call('catalog')).json()).records[0]; assert.equal(publicRecord.name,'Updated');assert.equal(publicRecord.createdBy.startsWith('tenant:'),true);assert.equal(publicRecord.canMessage,true);
 });
+test('church form images persist independently, can be cleared, and reject unsafe image values',async()=>{
+ const s=setup(); const modes=['visit','ride','group','ministry','prayer','message'];
+ const images=Object.fromEntries(modes.map(mode=>[mode+'FormImage','https://images.example.test/'+mode+'.jpg']));
+ const {record}=await (await s.call('workspace/churches','POST',{name:'Custom form pictures',city:'Toronto',country:'CA',photo:'https://images.example.test/main.jpg',...images})).json();
+ for(const mode of modes) assert.equal(record[mode+'FormImage'],images[mode+'FormImage']);
+ const {record:changed}=await (await s.call('workspace/churches/'+record.id,'PUT',{revision:1,prayerFormImage:''})).json();
+ assert.equal(changed.prayerFormImage,'');assert.equal(changed.visitFormImage,images.visitFormImage);assert.equal(changed.photo,'https://images.example.test/main.jpg');
+ s.as('owner');await s.call('workspace/churches/'+record.id,'PUT',{revision:2,publicationState:'published'});
+ const published=(await (await s.call('catalog/churches')).json()).records.find(r=>r.id===record.id);
+ assert.equal(published.messageFormImage,images.messageFormImage);assert.equal(published.prayerFormImage,'');
+ await assert.rejects(s.call('workspace/churches/'+record.id,'PUT',{revision:3,rideFormImage:'javascript:alert(1)'}),{status:400});
+ await assert.rejects(s.call('workspace/churches/'+record.id,'PUT',{revision:3,rideFormImage:{url:'https://images.example.test/x.jpg'}}),{status:400});
+});
 test('platform taxonomies are public, owner-managed and enforced for new classifications',async()=>{
  const s=setup();
  const initial=await (await s.call('taxonomies')).json();
@@ -114,6 +127,21 @@ test('livestream chat persists authenticated messages and exposes them to every 
  assert.equal(publicFeed.messages[0].userId,undefined);
  assert.equal(publicFeed.messages[0].email,undefined);
  await assert.rejects(s.call('livestream-chat/channel/'+channel.id,'POST',{body:'x'.repeat(301)}),{status:400});
+});
+test('ended broadcast conversations retain chat as comments and accept authenticated replies',async()=>{
+ const s=setup();
+ const {record:channel}=await (await s.call('workspace/channels','POST',{name:'Ending stream',live:true,liveUrl:'https://www.youtube.com/watch?v=abcdefghijk'})).json();
+ s.as('owner');await s.call('workspace/channels/'+channel.id,'PUT',{revision:1,publicationState:'published'});
+ s.as('bob');await s.call('livestream-chat/channel/'+channel.id,'POST',{body:'Sent while live'});
+ assert.equal((await (await s.call('livestream-chat/channel/'+channel.id)).json()).conversationMode,'live');
+ s.as('owner');await s.call('workspace/channels/'+channel.id,'PUT',{revision:2,live:false});
+ s.as('viewer');const ended=await (await s.call('livestream-chat/channel/'+channel.id)).json();
+ assert.equal(ended.conversationMode,'comments');assert.equal(ended.messages[0].body,'Sent while live');
+ await s.call('livestream-chat/channel/'+channel.id,'POST',{body:'Reply after the broadcast'});
+ const comments=await (await s.call('livestream-chat/channel/'+channel.id)).json();
+ assert.equal(comments.messages.length,2);assert.equal(comments.messages[1].body,'Reply after the broadcast');
+ s.as('owner');await s.call('workspace/channels/'+channel.id,'PUT',{revision:3,publicationState:'draft'});
+ await assert.rejects(s.call('livestream-chat/channel/'+channel.id),{status:404});
 });
 test('meditation room comments persist, respect host moderation, and remain publicly readable',async()=>{
  const s=setup();

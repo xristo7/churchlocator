@@ -7,11 +7,11 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>Christian Events Finder | RhemaSphere</title>
-    <link rel="stylesheet" href="styles.css?v=20261030ui1" />
+    <link rel="stylesheet" href="styles.css?v=20261118dialogs2" />
   <script src="vendor/lucide.js"></script>
   <script defer src="platform-client.js?v=20261026ch1"></script><script src="ministries.js?v=20261026ch1"></script>
-  <script defer src="i18n-ui.js?v=20261103bl1"></script><script defer src="app.js?v=20261109w1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
-<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><script defer src="app-shell.js?v=20261103bl1"></script><link rel="stylesheet" href="app-shell.css?v=20261103mc5" /><link rel="stylesheet" href="rs-ui.css?v=20261103bl1" /><link rel="stylesheet" href="rs-hero.css?v=20261031f2"></head>
+  <script defer src="i18n-ui.js?v=20261118copy1"></script><script defer src="app.js?v=20261119prompts1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
+<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><script defer src="app-shell.js?v=20261119header1"></script><link rel="stylesheet" href="app-shell.css?v=20261119prompts1" /><link rel="stylesheet" href="rs-ui.css?v=20261119forms1" /><link rel="stylesheet" href="rs-hero.css?v=20261031f2"><link rel="stylesheet" href="archive-layout.css?v=20261119uniform2" /><link rel="stylesheet" href="theme-system.css?v=20261119dark2" /><link rel="stylesheet" href="archive-parallax.css?v=20261119parallax1" /><script defer src="archive-parallax.js?v=20261119parallax1"></script><link rel="stylesheet" href="/form-presentation.css?v=20261119prompts1" /><script defer src="/form-presentation.js?v=20261119prompts1"></script></head>
 <body data-page="events">
   <header class="topbar">
     <div class="container topbar-inner">
@@ -160,11 +160,12 @@
               </div>
             </div>
 
-            <!-- Reset Button -->
-            <button type="button" class="filter-pill-reset-btn module-filter-trigger module-filter-overflow-only" onclick="MWE.resetEventPillFilters()">
-              <i data-lucide="rotate-ccw"></i> Reset
-            </button>
+
           </div>
+        </div>
+
+        <div id="event-reset-actions" hidden>
+          <button type="button" class="filter-pill-reset-btn" onclick="MWE.resetEventPillFilters()"><i data-lucide="rotate-ccw"></i> Reset filters</button>
         </div>
 
         <div id="featured-events-wrapper" style="margin-bottom: 32px;">
@@ -292,6 +293,6 @@
   </div>
 
   <div class="toast" data-toast>Done</div>
-<script src="/rs-modal-close.js?v=20261106e2i" defer></script>
+<script src="/rs-modal-close.js?v=20261118dialogs1" defer></script>
 </body>
 </html>

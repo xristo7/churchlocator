@@ -1,4 +1,6 @@
+import { isMeditationRoomEnabled } from '../public/meditation-availability.js';
 import { handleMeditationSession } from './meditation-session.js';
+import { validateRoomSchedule, processRoomSchedule } from './meditation-schedule.js';
 import { sanitizeSoundCloudSelection } from './soundcloud.js';
 import { normalizeMinistry } from './ministries.js';
 import { ApiError, readJson } from './security.js';
@@ -10,8 +12,8 @@ const privateKinds=['prayer','reflection','ride','visit','salvation','foundation
 const livestreamKinds={church:'churches',channel:'channels',store:'store'};
 const forbidden=new Set(['createdBy','tenantId','createdAt','updatedAt','revision','verified','ticketsSold','followers','items','rating','orders','amountPaidCents','attachmentData','totpSecret','password','isOwner','role']);
 const fields={
- churches:['name','city','country','postal','denomination','pastor','pastorTitle','pastorBio','pastorPhoto','about','location','email','phone','phoneLabel','emailHref','website','language','worship','ministries','sunday','midweek','photo','logo','tagline','livestream','history','vision','mission','statementOfFaith','firstVisit','parkingInformation','childrenInformation','gallery','heroOrder','welcomeMedia','schedule'],
- meditation:['title','subtitle','category','categoryLabel','theme','template','toneFreq','cover','selectedAudio','audioTracks','verses','icon','commentsEnabled','ownerName','purpose','timeMode','durationMinutes','themeColor','allowUserNavigation','autoPlayInterval','ambience','inhaleWord','exhaleWord','journeySteps','audioSrc','soundcloud'],
+ churches:['name','city','country','postal','denomination','pastor','pastorTitle','pastorBio','pastorPhoto','about','location','email','phone','phoneLabel','emailHref','website','language','worship','ministries','sunday','midweek','photo','visitFormImage','rideFormImage','groupFormImage','ministryFormImage','prayerFormImage','messageFormImage','logo','tagline','livestream','history','vision','mission','statementOfFaith','firstVisit','parkingInformation','childrenInformation','gallery','heroOrder','welcomeMedia','schedule'],
+ meditation:['title','subtitle','category','categoryLabel','theme','template','toneFreq','cover','selectedAudio','audioTracks','verses','icon','commentsEnabled','ownerName','purpose','timeMode','durationMinutes','themeColor','allowUserNavigation','autoPlayInterval','ambience','inhaleWord','exhaleWord','journeySteps','audioSrc','soundcloud','scheduledOpensAt','scheduleTimeZone','openingMode','playbackStart'],
  events:['title','churchId','eventType','startsAt','endsAt','venueName','city','country','coverImageUrl','registrationRequired','ticketPriceCents','currency','totalTickets','isFeatured','isPromoted','registrationUrl','livestreamUrl','directionsUrl','description','highlights','expectations','speakers','schedule','faqs','ownerName'],
  store:['name','ownerName','category','description','image','email','liveUrl','live'],
  products:['title','storeId','seller','sellerType','category','description','price','compareAt','inventory','status','featured','image','itemType','serviceType','packages','address','city','capacity','priceUnit','availability','occasions','photo2','photo3','photo4'],
@@ -73,7 +75,7 @@ function privateSubmission(kind,input,entity) {
 }
 function sanitizeValue(value, key='') {
  if(typeof value==='string') {
-  if(/url$|^(website|image|photo|cover|logo|pastorPhoto|src|audioSrc)$/i.test(key) && value && value!=='#') {
+  if(/url$|FormImage$|^(website|image|photo|cover|logo|pastorPhoto|src|audioSrc)$/i.test(key) && value && value!=='#') {
    const url=new URL(value,'https://assets.invalid/');
    if(url.protocol!=='https:' || url.username || url.password) throw new ApiError(400,'Use a safe HTTPS media URL.');
   }
@@ -104,6 +106,9 @@ export function validateEntity(kind,input) {
  const data=Object.fromEntries(fields[kind].filter(k=>input[k]!==undefined).map(k=>[k,sanitizeValue(input[k],k)]));
  if(!String(data.name||data.title||'').trim()) throw new ApiError(400,'A title or name is required.');
  if(kind==='churches') {
+  for(const key of ['visitFormImage','rideFormImage','groupFormImage','ministryFormImage','prayerFormImage','messageFormImage']) {
+   if(data[key]!==undefined && (typeof data[key]!=='string' || data[key].length>2000)) throw new ApiError(400,'Use an image URL of up to 2,000 characters.');
+  }
   if(data.ministries!==undefined) {
    const list=Array.isArray(data.ministries)?data.ministries:String(data.ministries||'').split(',');
    data.ministries=[...new Set(list.map(v=>String(v||'').trim()).filter(Boolean).map(v=>normalizeMinistry(v)||v.slice(0,80)))].slice(0,40);
@@ -133,7 +138,7 @@ export function validateEntity(kind,input) {
  }
  if(kind==='products') { data.price=number(data.price,'Price',100000); if(!Number.isSafeInteger(Math.round(data.price*100)) || Math.abs(data.price*100-Math.round(data.price*100))>1e-7) throw new ApiError(400,'Use prices in whole minor units.'); data.inventory=whole(data.inventory,'Inventory'); if(!['Draft','Active','Archived'].includes(data.status)) throw new ApiError(400,'Invalid product state.'); validateListing(data); }
  if(kind==='resources') { data.price=number(data.price,'Price',100000); if(!['Free','Paid'].includes(data.access) || (data.access==='Paid' && data.price<=0)) throw new ApiError(400,'Invalid resource access or price.'); if(data.access==='Free') data.price=0; }
- if(kind==='meditation') { if(data.toneFreq===undefined || data.toneFreq===null || data.toneFreq==='' || Number(data.toneFreq)===0) data.toneFreq=432; data.toneFreq=number(data.toneFreq,'Tone',2000); if(data.toneFreq<20) throw new ApiError(400,'Use a tone between 20 and 2000 Hz.'); if(data.verses===undefined || data.verses===null) data.verses=[]; if(!Array.isArray(data.verses) || data.verses.length>12) throw new ApiError(400,'Add up to twelve scripture passages.'); data.commentsEnabled=boolean(data.commentsEnabled); if(input.soundcloud!==undefined) data.soundcloud=sanitizeSoundCloudSelection(input.soundcloud); }
+ if(kind==='meditation') { validateRoomSchedule(data); if(!isMeditationRoomEnabled(data)) throw new ApiError(409,'This room style is temporarily paused. Only countdown rooms are available.'); if(data.toneFreq===undefined || data.toneFreq===null || data.toneFreq==='' || Number(data.toneFreq)===0) data.toneFreq=432; data.toneFreq=number(data.toneFreq,'Tone',2000); if(data.toneFreq<20) throw new ApiError(400,'Use a tone between 20 and 2000 Hz.'); if(data.verses===undefined || data.verses===null) data.verses=[]; if(!Array.isArray(data.verses) || data.verses.length>12) throw new ApiError(400,'Add up to twelve scripture passages.'); data.commentsEnabled=boolean(data.commentsEnabled); if(input.soundcloud!==undefined) data.soundcloud=sanitizeSoundCloudSelection(input.soundcloud); }
  for(const key of ['live','featured','registrationRequired','isFeatured','isPromoted']) if(key in data) data[key]=boolean(data[key]);
  return data;
 }
@@ -245,6 +250,7 @@ export async function writeEntity(request,env,ctx,kind,id) {
  const statement=existing?env.DB.prepare('update platform_entities set data_json=?,state=?,revision=revision+1,updated_at=? where id=? and revision=? returning *').bind(JSON.stringify(data),state,updateStamp,entityId,existing.revision):env.DB.prepare('insert into platform_entities (id,kind,tenant_id,created_by,state,data_json,created_at,updated_at) values (?,?,?,?,?,?,?,?) returning *').bind(entityId,kind,tenantId,user.id,state,JSON.stringify(data),now,updateStamp);
  const results=await env.DB.batch([statement,...projectionStatements(env,kind,entityId,data,state,updateStamp,{ownerPublished:owner,livestreamFree:await livestreamIsFree(env)}),env.DB.prepare('insert into audit_log select ?,?,?,?,?,? where exists(select 1 from platform_entities where id=? and updated_at=?)').bind(crypto.randomUUID(),user.id,existing?'entity.updated':'entity.created',entityId,tenantId,now,entityId,updateStamp)]);
  if(!results[0].results?.length) throw new ApiError(409,'Content changed. Reload before saving.');
+ if(kind==='meditation') await processRoomSchedule(env,results[0].results[0]);
  return ctx.json({ok:true,record:entityRecord(results[0].results[0])},existing?200:201);
 }
 export async function handlePlatformApi(request,env,ctx) {
@@ -314,7 +320,10 @@ export async function handlePlatformApi(request,env,ctx) {
   const entity=await env.DB.prepare("select e.id,e.data_json,b.mode broadcast_mode,b.source_url broadcast_url,(b.enabled=1 and b.status='ready') broadcast_enabled from platform_entities e left join church_broadcast_sources b on b.church_id=e.id where e.id=? and e.kind=? and e.state='published'").bind(entityId,kind).first();
   if(!entity) throw new ApiError(404,'Livestream chat not found.');
   const data=JSON.parse(entity.data_json), active=streamType==='church' ? (entity.broadcast_mode ? entity.broadcast_enabled&&!!entity.broadcast_url : boolean(data.livestream?.enabled) && !!data.livestream?.url) : boolean(data.live) && !!data.liveUrl;
-  if(!active) throw new ApiError(404,'This broadcast is offline.');
+  // Conversations remain available as comments after the publisher ends a broadcast.
+  const playbackUrl=streamType==='church' ? (entity.broadcast_url||data.livestream?.url) : data.liveUrl;
+  const recorded=/\.(mp4|webm)(?:[?#]|$)/i.test(playbackUrl||'');
+  const conversationMode=active&&!recorded?'live':'comments';
   if(request.method==='GET') {
    const viewer=await ctx.getSessionUser(request,env);
    const {results}=await env.DB.prepare(`select m.id,m.user_id,m.body,m.created_at,u.name
@@ -322,7 +331,7 @@ export async function handlePlatformApi(request,env,ctx) {
     where m.entity_id=? and m.stream_type=? and m.deleted_at is null
     order by m.created_at desc,m.id desc limit 100`).bind(entityId,streamType).all();
    const messages=(results||[]).reverse().map(row=>({id:row.id,name:row.name,body:row.body,createdAt:row.created_at,own:row.user_id===viewer?.id}));
-   return ctx.json({ok:true,messages});
+   return ctx.json({ok:true,messages,conversationMode});
   }
   if(request.method==='POST') {
    const user=await requireUser(request,env,ctx), input=await readJson(request), body=String(input.body||'').trim();
@@ -338,7 +347,7 @@ export async function handlePlatformApi(request,env,ctx) {
   const {results}=await env.DB.prepare(`select e.*,t.owner_user_id,b.mode broadcast_mode,b.source_url broadcast_url,(b.enabled=1 and b.status='ready') broadcast_enabled,
   (select s.id from channel_live_sessions s where s.channel_id=e.id and s.status='live' and s.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') limit 1) stage_session_id
   from platform_entities e join tenants t on t.id=e.tenant_id left join church_broadcast_sources b on b.church_id=e.id where e.state='published' ${kind?'and e.kind=?':''} order by e.updated_at desc limit 1000`).bind(...(kind?[kind]:[])).all();
-  return ctx.json({ok:true,records:(results||[]).map(row=>entityRecord(row,true))});
+  return ctx.json({ok:true,records:(results||[]).map(row=>entityRecord(row,true)).filter(record=>record.kind!=='meditation' || isMeditationRoomEnabled(record))});
  }
  if(scope==='taxonomies' && request.method==='GET') {
   const {results}=await env.DB.prepare('select key,items_json,revision,updated_at from platform_taxonomies order by key').bind().all();

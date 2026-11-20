@@ -60,6 +60,14 @@ npm run db:migrate:local
 npm run db:seed:local
 ```
 
+For local reflection journals, initialize a development encryption key without overwriting an existing one:
+
+```bash
+node tools/setup-local-secrets.mjs
+```
+
+Keep the ignored `.dev.vars` file with your local D1 database: changing its key makes existing encrypted local notes unreadable. Restart Wrangler after initializing it. Production and preview deployments require their own securely configured `AUTH_ENCRYPTION_KEY`; do not deploy the development key.
+
 Run the full Worker and API locally:
 
 ```powershell

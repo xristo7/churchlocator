@@ -1,0 +1,1 @@
+PNG share icons supplied by the user from Icons8. Telegram SVG from Simple Icons 16.38.0 (CC0; see simple-icons-LICENSE.md). Brand marks remain subject to their respective trademark policies. Messenger and LinkedIn images are retained for future share destinations.

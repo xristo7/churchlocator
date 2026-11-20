@@ -60,7 +60,7 @@
       id: "service-venue-hall",
       itemType: "service",
       serviceType: "venue",
-      title: "Sanctuary & Community Fellowship Hall Rental",
+      title: "Meditation & Community Fellowship Hall Rental",
       seller: "River City Church",
       sellerType: "Church",
       category: "Venues & Facilities",
@@ -72,12 +72,12 @@
       status: "Active",
       featured: true,
       image: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=1200&q=82",
-      description: "Host your church conference, wedding ceremony, seminar, worship night, or community fellowship banquet in our climate-controlled, tech-equipped sanctuary and hall.",
-      capacity: "350 Sanctuary / 180 Banquet Hall",
+      description: "Host your church conference, wedding ceremony, seminar, worship night, or community fellowship banquet in our climate-controlled, tech-equipped meditation space and hall.",
+      capacity: "350 Meditation / 180 Banquet Hall",
       amenities: ["4K Dual Projectors & LED Screens", "Digital 32-Channel Audio Console", "Wireless Microphones & Stage Lighting", "Fully Equipped Kitchenette", "Free On-Site Parking (85 Stalls)", "Wheelchair Accessible Entrance & Restrooms"],
       tiers: [
-        { id: "tier-rehearsal", name: "Rehearsal / Small Gathering", price: 95, duration: "Hourly (Min 2h)", highlights: ["Full hall or sanctuary access", "Standard house lighting & 2 mics", "On-site facility steward"] },
-        { id: "tier-halfday", name: "Half-Day Seminar / Workshop", price: 420, duration: "Up to 5 Hours", highlights: ["Sanctuary + Fellowship Hall", "Full A/V technician on duty", "Tables & chairs setup included"] },
+        { id: "tier-rehearsal", name: "Rehearsal / Small Gathering", price: 95, duration: "Hourly (Min 2h)", highlights: ["Full hall or meditation space access", "Standard house lighting & 2 mics", "On-site facility steward"] },
+        { id: "tier-halfday", name: "Half-Day Seminar / Workshop", price: 420, duration: "Up to 5 Hours", highlights: ["Meditation + Fellowship Hall", "Full A/V technician on duty", "Tables & chairs setup included"] },
         { id: "tier-fullday", name: "Full-Day Conference / Celebration", price: 780, duration: "Full Day (8am - 10pm)", highlights: ["Complete facility exclusive access", "Kitchenette + A/V + Livestream setup", "Pre-event walk-through & planning session"] }
       ],
       guidelines: "Alcohol-free, smoke-free facility aligned with Christian ministry values. Sound curfew 10:30 PM."

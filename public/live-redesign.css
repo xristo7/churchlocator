@@ -48,7 +48,8 @@ body[data-page="livestream"] #active-streams-list.streams-hub-grid{display:grid!
 .mwe-follow-btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:999px;background:var(--text-primary,#0f172a);color:var(--surface,#fff)!important;font-weight:700;font-size:14px;text-decoration:none}
 .mwe-follow-btn svg{width:17px;height:17px}
 .mwe-chip-row{display:flex;gap:8px;flex-wrap:wrap}
-.mwe-chip{display:inline-flex!important;align-items:center;gap:8px;height:36px!important;padding:0 16px!important;margin:0!important;border:0!important;border-radius:999px!important;white-space:nowrap;background:var(--surface-soft,#f1f5f9)!important;color:var(--text-primary)!important;font:600 14px/1 var(--font-sans,system-ui)!important;box-shadow:none!important;cursor:pointer;text-decoration:none;min-width:0!important;width:auto!important}
+.mwe-chip{display:inline-flex!important;align-items:center;gap:8px;box-sizing:border-box;min-height:36px!important;height:36px!important;padding:0 16px!important;margin:0!important;border:0!important;border-radius:999px!important;white-space:nowrap;background:var(--surface-soft,#f1f5f9)!important;color:var(--text-primary)!important;font:600 14px/1 var(--font-sans,system-ui)!important;box-shadow:none!important;cursor:pointer;text-decoration:none;min-width:0!important;width:auto!important}
+.mwe-chip.content-love-button{border:0!important}
 .mwe-chip:hover{background:color-mix(in srgb,var(--text-primary) 12%,transparent)!important}
 .mwe-chip svg{width:17px;height:17px}
 .mwe-chip[aria-pressed="true"] svg{fill:#e11d48;color:#e11d48}
@@ -214,7 +215,7 @@ button.mwe-upnext-item{width:100%;border:0;background:none;text-align:left;curso
 /* ===== E2 recorded watch (channel-content) ===== */
 .recorded-watch-page.mwe-watch-page,
 body.mwe-watch-page .channel-content-page.recorded-watch-page{
-  width:min(1360px,calc(100% - 48px));
+  width:min(var(--max,1080px),calc(100% - 64px));
   margin:0 auto;
   padding:20px 0 48px;
 }
@@ -323,15 +324,15 @@ body[data-page="channel-content"].mwe-watch-page .channel-content-page{max-width
 @media (max-width:959.98px){
   .recorded-watch-page.mwe-watch-page,
   body.mwe-watch-page .channel-content-page.recorded-watch-page{
-    width:100%;
-    padding:0 0 24px;
+    width:min(var(--max,1080px),calc(100% - 44px));
+    padding:20px 0 24px;
   }
   .mwe-watch.recorded-watch-layout{display:block}
   .mwe-watch.recorded-watch-layout .mwe-watch-side{
-    padding:8px var(--gutter,16px) 0;
+    padding:8px 0 0;
   }
   .mwe-watch.recorded-watch-layout .mwe-watch-info{
-    padding:14px var(--gutter,16px) 4px;
+    padding:14px 0 4px;
   }
 }
 
@@ -419,3 +420,28 @@ body:has(.mwe-watch.is-theatre)>a.broadcast-back-link{display:flex;position:rela
 .mwe-ask-form textarea{min-height:84px;width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--border,#c8ced6);border-radius:8px;font:inherit}
 .mwe-ask-form [data-ask-status]{margin:0;font-size:13px;color:var(--text-secondary,#5a6472)}
 .mwe-chip[hidden],.mwe-follow-btn[hidden]{display:none!important}
+
+/* Recorded content shares the page grid and ambient background. */
+body[data-page="channel-content"] .mwe-watch:is(.channel-video-view,.channel-audio-view,.channel-article-view){
+  max-width:none;margin:0;overflow:visible;border:0!important;border-radius:0;background:transparent!important;box-shadow:none;
+}
+@media(max-width:640px){
+  body.mwe-watch-page .channel-content-page.recorded-watch-page{width:calc(100% - 28px)}
+}
+
+/* Conversation and recommendations stay visible without a tab switcher. */
+.mwe-watch.broadcast-watch-layout .mwe-watch-side > [data-side-panel="next"]:has(.mwe-prev-empty){display:none!important}
+.mwe-watch.broadcast-watch-layout .mwe-watch-side > [data-side-panel="more"],
+.mwe-watch.broadcast-watch-layout .mwe-watch-side > [data-side-panel="next"]{display:block!important}
+.mwe-watch.broadcast-watch-layout .mwe-upnext h2{display:block}
+.mwe-chat.broadcast-chat.is-recorded-comments{height:auto;min-height:0;overflow:visible;background:transparent!important;border:0!important;border-radius:0!important;margin-top:16px}
+.mwe-chat.is-recorded-comments header{padding-inline:0!important;background:transparent;border-top:1px solid var(--border-subtle);border-bottom:0}
+.mwe-chat.is-recorded-comments .broadcast-live-dot{display:none}
+.mwe-chat.is-recorded-comments .broadcast-chat-messages{overflow:visible;flex:none;padding-inline:0}
+.mwe-chat.is-recorded-comments .broadcast-chat-form{padding-inline:0!important;border-top:0}
+@media(min-width:960px){
+  .mwe-watch:is(.broadcast-watch-layout,.recorded-watch-layout):not(.is-theatre) > :is(.mwe-watch-main,.mwe-watch-side){position:sticky;top:var(--watch-sticky-top,16px);align-self:start}
+}
+@media(max-width:959.98px){
+  .mwe-watch.broadcast-watch-layout .mwe-chat.broadcast-chat:not(.is-recorded-comments){height:440px;max-height:70dvh;min-height:280px}
+}

@@ -8,12 +8,12 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>RhemaSphere</title>
-  <link rel="stylesheet" href="styles.css?v=20261030ui1" />
+  <link rel="stylesheet" href="styles.css?v=20261118dialogs2" />
   <script src="vendor/lucide.js"></script>
   <script defer src="platform-client.js?v=20261107int1"></script><script src="ministries.js?v=20261026ch1"></script><script src="geo-regions.js?v=20261101geo1"></script>
-  <script defer src="i18n-ui.js?v=20261103bl1"></script><script defer src="app.js?v=20261109w1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
-  <script defer src="rs-catalog.js?v=20261026home1"></script><script defer src="app-shell.js?v=20261107int1"></script>
-<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><link rel="stylesheet" href="app-shell.css?v=20261103mc5" /><link rel="stylesheet" href="rs-search.css?v=20261026ui8" /><link rel="stylesheet" href="rs-ui.css?v=20261103bl1" /></head>
+  <script defer src="i18n-ui.js?v=20261118copy1"></script><script defer src="app.js?v=20261119prompts1"></script><script defer src="auth-client.js?v=20261026ch1"></script>
+  <script defer src="rs-catalog.js?v=20261026home1"></script><script defer src="app-shell.js?v=20261119header1"></script>
+<link rel="stylesheet" href="responsive.css?v=20261026ui8" /><link rel="stylesheet" href="app-shell.css?v=20261119prompts1" /><link rel="stylesheet" href="rs-search.css?v=20261026ui8" /><link rel="stylesheet" href="rs-ui.css?v=20261119forms1" /><link rel="stylesheet" href="meditation-alerts.css?v=20261119schedule1" /><script defer src="meditation-alerts.js?v=20261119schedule1"></script><link rel="stylesheet" href="theme-system.css?v=20261119dark2" /><link rel="stylesheet" href="site-header.css?v=20261119header3" /><link rel="stylesheet" href="/form-presentation.css?v=20261119prompts1" /><script defer src="/form-presentation.js?v=20261119prompts1"></script></head>
 <body class="member-app-shell" data-page="app-shell">
   <header class="profile-app-header member-shell-header" id="member-shell-header">
     <a class="profile-app-brand" href="/" aria-label="RhemaSphere home">
@@ -34,12 +34,12 @@
 
     <div class="member-shell-actions">
       <div class="lang-selector-container member-lang-selector" id="member-lang-selector">
-        <button class="lang-selector-btn" id="member-lang-button" type="button" aria-expanded="false"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg></span><span class="lang-text">EN</span><i data-lucide="chevron-down" class="lang-chevron"></i></button>
+        <button class="lang-selector-btn" id="member-lang-button" type="button" aria-label="Choose language" aria-haspopup="true" aria-expanded="false"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg></span><span class="lang-text">EN</span><i data-lucide="chevron-down" class="lang-chevron"></i></button>
         <div class="lang-selector-panel"><button type="button" data-member-lang="en"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#bd3d44"/><path d="M0 2.3h20v2.3H0zm0 4.6h20v2.3H0zm0 4.6h20v2.3H0z" fill="#fff"/><rect width="9" height="8.1" fill="#192f5d"/><circle cx="4.5" cy="4" r="2" fill="#fff"/></svg></span> English</button><button type="button" data-member-lang="fr"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="6.67" height="15" fill="#002654"/><rect x="6.67" width="6.66" height="15" fill="#ffffff"/><rect x="13.33" width="6.67" height="15" fill="#ce1126"/></svg></span> Français</button><button type="button" data-member-lang="es"><span class="lang-flag"><svg class="flag-svg" viewBox="0 0 20 15" width="18" height="13.5" style="border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); display: inline-block; vertical-align: middle;"><rect width="20" height="15" fill="#aa151b"/><rect y="3.75" width="20" height="7.5" fill="#f1bf00"/><circle cx="6" cy="7.5" r="2" fill="#aa151b"/></svg></span> Español</button></div>
       </div>
-      <a class="member-header-giving mwe-header-spotlight" href="spotlight.html"><i data-lucide="play-square"></i><span>Spotlight</span></a>
+      <a class="member-header-giving mwe-header-spotlight" href="app.html?view=spotlight" data-shell-view="spotlight"><i data-lucide="play-square"></i><span>Spotlight</span></a>
       <div class="member-shell-account-wrap">
-        <button class="profile-app-account" id="member-account-button" type="button" aria-expanded="false" aria-controls="member-account-menu">
+        <button class="profile-app-account" id="member-account-button" type="button" aria-label="Profile menu" aria-haspopup="true" aria-expanded="false" aria-controls="member-account-menu">
           <span class="member-account-identity">
             <strong data-member-name>Sign in</strong>
             <small data-member-role></small>
@@ -130,6 +130,6 @@
   </main>
 
   <div class="toast" data-toast role="status" aria-live="polite"></div>
-<script src="/rs-modal-close.js?v=20261106e2i" defer></script>
+<script src="/rs-modal-close.js?v=20261118dialogs1" defer></script>
 </body>
 </html>

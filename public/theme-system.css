@@ -1,0 +1,150 @@
+/* Shared theme foundation. Colour is an accent; dark surfaces remain charcoal. */
+:root {--accent-text:var(--primary);--accent-bright:color-mix(in srgb,var(--primary) 66%,#fff);}
+html[data-theme="dark"]:not(#theme-foundation),html[data-theme="dark"] body {
+  --background:#0b0d12;--background-secondary:#101319;
+  --surface:#13161d;--surface-card:#171b23;--surface-soft:#20252f;--surface-canvas:#0b0d12;
+  --border:rgba(255,255,255,.09);--border-default:rgba(255,255,255,.11);
+  --border-subtle:rgba(255,255,255,.07);--border-strong:rgba(255,255,255,.19);--line:var(--border-default);
+  --text-primary:#f3f4f8;--text-secondary:#c0c6d2;--text-muted:#a1aaba;--text-tertiary:#a1aaba;--text-disabled:#727d90;
+  --accent-text:var(--accent-bright);
+  --primary-surface:color-mix(in srgb,var(--primary) 10%,transparent);
+  --primary-soft:color-mix(in srgb,var(--primary) 15%,transparent);
+  --primary-border:color-mix(in srgb,var(--primary) 34%,transparent);
+  --gold:#e8bc68;--gold-hover:#f2d294;--gold-rgb:232,188,104;--gold-text:#f1ce8d;
+  --gold-surface:rgba(232,188,104,.08);--gold-border:rgba(232,188,104,.25);
+  --gold-gradient:linear-gradient(125deg,#f1d699,#d8a64e);--gold-glow:0 8px 28px rgba(232,188,104,.13);
+  --glass-card-bg:linear-gradient(130deg,rgba(255,255,255,.025),transparent 65%),rgba(22,26,34,.84);
+  --glass-card-border:1px solid rgba(255,255,255,.10);
+  --glass-card-shadow:0 16px 42px rgba(0,0,0,.2);
+  --ambient-bg:radial-gradient(ellipse at 90% 0%,color-mix(in srgb,var(--primary) 9%,transparent),transparent 48%),radial-gradient(ellipse at 3% 65%,rgba(232,188,104,.035),transparent 45%);
+  --rs-accent-ink:var(--accent-bright);--rs-gold-ink:var(--gold-text);
+  --rs-line:var(--border-default);--rs-line-tint:color-mix(in srgb,var(--primary) 8%,var(--border-default));
+  --rs-card-bg:linear-gradient(145deg,rgba(255,255,255,.025),transparent 70%),var(--surface-card);
+  --rs-shadow:0 12px 32px -18px rgba(0,0,0,.55);--rs-shadow-hover:0 20px 40px -18px rgba(0,0,0,.65);
+}
+/* Every page and iframe loads this same file, including independently opened studios. */
+html[data-theme="dark"] body:not(.member-shell-embed):not(.in-meditation-room) {
+  background:var(--ambient-bg),var(--surface-canvas)!important;
+  background-attachment:fixed!important;
+}
+html[data-theme="dark"] body :is(.profile-app-header,.member-shell-header,.topbar):not(#theme-chrome) {
+  background:rgba(14,17,23,.88)!important;border-color:var(--border-subtle)!important;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+html[data-theme="dark"] body #member-shell-rail {
+  background:linear-gradient(180deg,rgba(255,255,255,.015),transparent 50%),#101319!important;
+  border-color:var(--border-subtle)!important;
+}
+html[data-theme="dark"] body #member-shell-rail .profile-rail-nav a {color:var(--text-secondary)!important;}
+html[data-theme="dark"] body #member-shell-rail .profile-rail-nav a.active {
+  color:var(--accent-bright)!important;background:var(--primary-surface)!important;border-left-color:var(--accent-bright)!important;
+}
+html[data-theme="dark"] body #member-shell-rail .profile-rail-nav a:not(.active):hover {color:#fff!important;background:rgba(255,255,255,.045)!important;}
+html[data-theme="dark"] body #member-shell-rail .profile-rail-nav a[data-shell-view="home"]:not(.active) svg {color:var(--gold-text);}
+html[data-theme="dark"] body .profile-invite-card {background:rgba(255,255,255,.025)!important;border-color:var(--gold-border)!important;}
+html[data-theme="dark"] body .profile-invite-card strong svg {color:var(--gold-text)!important;}
+html[data-theme="dark"] body :is(.section-kicker,.module-kicker,.rs-hero-eyebrow,.sf-eyebrow,.kicker,.eyebrow) {color:var(--accent-text)!important;}
+html[data-theme="dark"] body :is(.theme-palette-popover,.mwe-account-menu,.member-account-menu,.filter-dropdown-panel,.custom-options-panel,.dropdown-panel,.rsc-filter-panel,.rsc-more-panel,.mwe-combo-panel):not(#theme-menu) {
+  background:rgba(23,27,35,.96)!important;border-color:var(--border-strong)!important;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+/* Form editors: quiet glass panels, inset fields, gold completion and active-accent focus. */
+html[data-theme="dark"] body.creator-studio-page {
+  --cs-ink:var(--text-primary);--cs-muted:var(--text-secondary);--cs-line:var(--border-default);
+  --cs-blue:var(--accent-bright);--cs-indigo:var(--primary);--cs-soft:var(--surface-soft);
+}
+html[data-theme="dark"] body.creator-studio-page :is(.cs-editor-head,.cs-form-section,.cs-readiness,.cs-step-controls,.cs-panel,.cs-create-card):not(#theme-panel) {
+  background:var(--glass-card-bg)!important;border:1px solid var(--border-default)!important;
+  box-shadow:var(--glass-card-shadow)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+html[data-theme="dark"] body.creator-studio-page .cs-editor-head:not(#theme-panel) {
+  background:radial-gradient(ellipse at 100% 0%,color-mix(in srgb,var(--primary) 8%,transparent),transparent 62%),var(--glass-card-bg)!important;
+  border-top-color:color-mix(in srgb,var(--primary) 24%,var(--border-default))!important;
+}
+html[data-theme="dark"] body.creator-studio-page .cs-readiness:not(#theme-panel) {
+  background:radial-gradient(circle at 100% 0%,rgba(232,188,104,.055),transparent 65%),var(--glass-card-bg)!important;
+  border-top-color:var(--gold-border)!important;
+}
+html[data-theme="dark"] body.creator-studio-page .cs-eyebrow {color:var(--gold-text)!important;letter-spacing:.12em;font-weight:600;}
+html[data-theme="dark"] body.creator-studio-page :is(.cs-editor-head h1,.cs-form-section h2,.cs-readiness strong) {color:var(--text-primary)!important;}
+html[data-theme="dark"] body.creator-studio-page .cs-field label {color:#dce0e8!important;font-weight:600;}
+html[data-theme="dark"] body.creator-studio-page .cs-field small {color:var(--text-muted)!important;}
+html[data-theme="dark"] body.creator-studio-page .cs-field :is(input,select,textarea):not([type="checkbox"]):not([type="range"]):not([type="color"]) {
+  background:#101319!important;color:var(--text-primary)!important;border-color:rgba(255,255,255,.12)!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] body.creator-studio-page .cs-field :is(input,select,textarea):focus:not([type="checkbox"]):not([type="range"]):not([type="color"]) {
+  border-color:var(--accent-bright)!important;box-shadow:0 0 0 3px var(--primary-surface)!important;
+}
+html[data-theme="dark"] body.creator-studio-page .cs-field[data-state="missing"] :is(input,select,textarea) {border-color:rgba(248,113,113,.4)!important;}
+html[data-theme="dark"] body.creator-studio-page .cs-field[data-state="complete"] .cs-field-mark {color:var(--gold-text)!important;}
+html[data-theme="dark"] body.creator-studio-page .cs-ready-list .complete {color:var(--text-secondary)!important;}
+html[data-theme="dark"] body.creator-studio-page .cs-ready-list .complete svg {color:var(--gold-text)!important;}
+html[data-theme="dark"] body.creator-studio-page .cs-ready-list .complete:nth-child(3n) svg {color:var(--accent-bright)!important;}
+html[data-theme="dark"] body.creator-studio-page .cs-opening-settings {background:rgba(255,255,255,.025)!important;border-color:var(--border-default)!important;}
+html[data-theme="dark"] body.creator-studio-page .cs-opening-settings legend {color:var(--gold-text)!important;}
+html[data-theme="dark"] body.creator-studio-page :is(.cs-builder-grid fieldset,.cs-image-drop,.cs-sc-card,.cs-collection-item) {background:var(--surface)!important;border-color:var(--border-default)!important;}
+html[data-theme="dark"] body.creator-studio-page .cs-image-preview {background:var(--primary-surface);color:var(--accent-bright);}
+html[data-theme="dark"] body.creator-studio-page .cs-secondary:not(#theme-action) {background:rgba(255,255,255,.035)!important;color:var(--text-primary)!important;border-color:var(--border-strong)!important;box-shadow:none!important;}
+html[data-theme="dark"] body.creator-studio-page #cs-save {color:var(--gold-text)!important;border-color:var(--gold-border)!important;}
+html[data-theme="dark"] body.creator-studio-page .cs-primary:not(#theme-action) {
+  background:linear-gradient(135deg,var(--primary),color-mix(in srgb,var(--primary) 78%,#14171e))!important;
+  border:1px solid color-mix(in srgb,var(--primary) 60%,transparent)!important;
+  box-shadow:0 8px 24px color-mix(in srgb,var(--primary) 14%,transparent)!important;color:#fff!important;
+}
+html[data-theme="dark"] body.creator-studio-page .cs-meter {background:rgba(255,255,255,.07);}
+html[data-theme="dark"] body.creator-studio-page .cs-meter span {background:linear-gradient(90deg,var(--primary),var(--gold))!important;}
+html[data-theme="dark"] body.creator-studio-page .cs-platform-color[aria-pressed="true"] {color:var(--accent-bright)!important;border-color:var(--primary-border)!important;}
+/* Meditation keeps an owner's accent but the atmosphere has a neutral dark base. */
+html[data-theme="dark"] #meditation-room-view {
+  --room-canvas:#090b10;--room-panel:rgba(19,23,31,.88);--room-soft:#1c212b;
+  --sanctuary-ink:#f3f4f8;--sanctuary-muted:#b8bfcd;--sanctuary-line:rgba(255,255,255,.13);
+  --sanctuary-accent:var(--accent-bright);--sanctuary-accent-soft:color-mix(in srgb,var(--primary) 9%,transparent);
+}
+html[data-theme="dark"] #meditation-room-view #meditation-overlay {
+  background:radial-gradient(ellipse at 50% 35%,color-mix(in srgb,var(--primary) 8%,transparent),transparent 65%),linear-gradient(90deg,rgba(5,7,12,.84),rgba(5,7,12,.62) 55%,rgba(5,7,12,.78))!important;
+}
+html[data-theme="dark"] #meditation-room-view #btn-interval-bell svg {color:var(--gold-text)!important;}
+html[data-theme="dark"] #meditation-room-view :is(#room-fullscreen-btn,#room-exit-btn) svg {color:#e9edf5!important;}
+html[data-theme="dark"] #meditation-room-view .template-quote-ref {color:var(--gold-text)!important;}
+html[data-theme="dark"] #meditation-room-view .timer-track {stroke:color-mix(in srgb,var(--gold) 23%,transparent)!important;}
+html[data-theme="dark"] body #modal-invite-friend {--invite-card:#15181f!important;--invite-soft:#20252e!important;--invite-line:rgba(255,255,255,.12)!important;--invite-muted:#b8c1cf!important;}
+html[data-theme="dark"] body #modal-invite-friend .invite-social-grid {background:#0d0f14!important;}
+html[data-theme="dark"] body #modal-invite-friend .dialog-kicker {color:var(--gold-text)!important;}
+html[data-theme="dark"] body #modal-invite-friend::backdrop,
+html[data-theme="dark"] body[data-page="meditation"] dialog::backdrop {
+  background:radial-gradient(ellipse at 80% 10%,color-mix(in srgb,var(--primary) 7%,transparent),transparent 65%),rgba(5,7,12,.76)!important;
+}
+@media(prefers-reduced-transparency:reduce) {
+  html[data-theme="dark"] body.creator-studio-page :is(.cs-editor-head,.cs-form-section,.cs-readiness,.cs-step-controls) {backdrop-filter:none;-webkit-backdrop-filter:none;}
+}
+html[data-theme="dark"] body.creator-studio-page .cs-readiness #cs-save:not(#theme-action) {color:var(--gold-text)!important;border-color:var(--gold-border)!important;}
+/* Shared text links resolve from the current palette rather than a page's old blue. */
+html body :is(.cs-back,.cs-text-button,.member-auth-forgot,.auth-link),
+html body .member-auth-hint a {color:var(--accent-text)!important;}
+html[data-theme="dark"] body :is(.rs-hero,.rsc-dir-hero):not(#theme-hero-a):not(#theme-hero-b) .rs-hero-eyebrow {color:var(--accent-bright)!important;}
+html[data-theme="dark"] body :is(.member-auth-card,.signin-dropdown-popover) {
+  --auth-bg:var(--surface-card);--auth-field:#101319;--auth-line:var(--border-default);
+  --auth-text:var(--text-primary);--auth-muted:var(--text-muted);
+}
+html[data-theme="dark"] body :is(.mwe-rail-donate,.mwe-menu-studio,.give-button,.donate-cta),
+html[data-theme="dark"] body :is(.mwe-rail-donate,.mwe-menu-studio,.give-button,.donate-cta) :is(strong,small,svg) {color:#211809!important;}
+/* Accent actions are deep enough for white labels; icons and focus rings stay bright. */
+html[data-theme="dark"],html[data-theme="dark"] body {
+  --action-fill:color-mix(in srgb,var(--primary) 67%,#0b0d12);
+  --action-fill-deep:color-mix(in srgb,var(--primary) 58%,#0b0d12);
+}
+html[data-theme="dark"] body :is(.rs-ui-btn-primary,.rs-hero-btn,.mwu-btn-primary,.btn-primary,.cs-primary,.button.primary):not(#theme-action-a):not(#theme-action-b) {
+  background:linear-gradient(130deg,var(--action-fill),var(--action-fill-deep))!important;color:#fff!important;
+}
+/* Soft colour glows add atmosphere without tinting every dark surface. */
+html[data-theme="dark"]:not(#theme-foundation),html[data-theme="dark"] body {
+  --ambient-bg:radial-gradient(ellipse 560px 460px at 92% 4%,color-mix(in srgb,var(--primary) 14%,transparent),transparent 72%),radial-gradient(ellipse 520px 560px at 2% 64%,color-mix(in srgb,var(--primary) 8%,transparent),transparent 75%),radial-gradient(ellipse at 70% 95%,rgba(232,188,104,.035),transparent 50%);
+}
+html[data-theme="dark"] body :is(.profile-app-header,.member-shell-header,.topbar):not(#theme-chrome) {
+  background:radial-gradient(ellipse at 12% 0%,color-mix(in srgb,var(--primary) 12%,transparent),transparent 58%),linear-gradient(110deg,color-mix(in srgb,var(--primary) 5%,transparent),transparent 70%),rgba(14,17,23,.94)!important;
+}
+html[data-theme="dark"] body #member-shell-rail {
+  background:radial-gradient(ellipse 300px 440px at 0% 0%,color-mix(in srgb,var(--primary) 12%,transparent),transparent 78%),linear-gradient(172deg,color-mix(in srgb,var(--primary) 4%,transparent),transparent 65%),#101319!important;
+}
+html[data-theme="dark"] body.member-shell-embed:not(.in-meditation-room) {background:var(--ambient-bg),var(--surface-canvas)!important;background-attachment:fixed!important;}

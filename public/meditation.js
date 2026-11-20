@@ -122,7 +122,7 @@
     },
     {
       id: "room-bedtime",
-      title: "Nighttime Rest & Sleep Sanctuary",
+      title: "Nighttime Rest & Sleep Meditation",
       subtitle: "Gentle spoken scripture and peace to release the day into sleep.",
       category: "featured",
       categoryLabel: "⭐ Favorite Room",
@@ -381,30 +381,30 @@
     }
   ];
 
-  // One catalog for the sanctuary and owner workspace, using existing local-preview storage.
+  // One catalog for the meditation and owner workspace, using existing local-preview storage.
   const roomsKey = "mwe.meditation.rooms.v1";
   function enrichRoomWithMedia(room) {
     if (!room) return room;
-    const title = room.title || "Sanctuary";
+    const title = room.title || "Meditation";
     if (!room.pictures || !room.pictures.length) {
       room.pictures = [
         {
           url: room.cover || "https://images.unsplash.com/photo-1548625361-195fe578ae14?auto=format&fit=crop&w=1200&q=80",
           title: title + " — Sacred Presence",
           caption: "“Be still, and know that I am God.” — Psalm 46:10",
-          credit: "Sacred Sanctuary Visuals"
+          credit: "Sacred Meditation Visuals"
         },
         {
           url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
           title: "Still Waters & Living Streams",
           caption: "“He leads me beside quiet waters, he refreshes my soul.” — Psalm 23:2-3",
-          credit: "Nature Sanctuary Photography"
+          credit: "Nature Meditation Photography"
         },
         {
           url: "https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=1200&q=80",
           title: "Heavenly Dawn Contemplation",
           caption: "“The steadfast love of the Lord never ceases; his mercies are new every morning.” — Lamentations 3:22-23",
-          credit: "Sanctuary Visuals"
+          credit: "Meditation Visuals"
         }
       ];
     }
@@ -489,17 +489,6 @@
     if (!room.mode) {
       room.mode = "light";
     }
-    if (!room.themeColor) {
-      const colorMap = {
-        "room-peace": "#4a5d3f",
-        "room-healing": "#2a8f89",
-        "room-secret-place": "#b86b5c",
-        "room-psalms": "#5b7052",
-        "room-victory": "#d97706"
-      };
-      room.themeColor = colorMap[room.id] || "#4a5d3f";
-      room.themeHue = ({"room-peace":100,"room-healing":175,"room-secret-place":15,"room-psalms":110,"room-victory":38})[room.id] || 100;
-    }
     if (!room.journeySteps || !room.journeySteps.length) {
       room.journeySteps = [
         { name: "Praise", prompt: "What attribute of God fills your heart with gratitude today?", verse: "“Enter his gates with thanksgiving and his courts with praise.”", ref: "— Psalm 100:4" },
@@ -525,11 +514,19 @@
     saveRooms: rooms => localStorage.setItem(roomsKey, JSON.stringify(rooms))
   };
   if (typeof document === "undefined" || !document.body || document.body.hasAttribute("data-admin-workspace")) return;
+  const { isMeditationRoomEnabled } = await import('./meditation-availability.js');
   await window.MWEPlatform?.ready;
-  const roomsCatalog = getRooms();
+  const roomsCatalog = getRooms().filter(isMeditationRoomEnabled);
   const escape = value => String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
 
   let activeRoom = null;
+  let enteringRoom = false;
+  let inactiveRoomPreview = false;
+  const roomAvailability = new Map();
+  let availabilityReading = false;
+  let waitingCard = null;
+  let waitingCountdown = null;
+  let availabilityClockOffset = 0;
   let activeVerseIndex = 0;
   let activePictureIndex = 0;
   let activeTeachingIndex = 0;
@@ -549,7 +546,7 @@
   const myUserId = "user_" + Math.random().toString(36).slice(2, 9);
   const roomChat = { messages: [], seen: new Set(), revision: 0, canManage: false, loading: false, error: "", pollTimer: null };
 
-  // New Sanctuary Multi-Mode Timer & Template States
+  // New Meditation Multi-Mode Timer & Template States
   let sessionTotalSeconds = 20 * 60;
   let sessionRemainingSeconds = 20 * 60;
   let sessionElapsedSeconds = 0;
@@ -573,17 +570,17 @@
     }
   }
 
-  // Room audio sources, in priority order: SoundCloud (hidden Widget API iframe), uploaded MP3 (audioSrc), synthesized tone.
+  // Room audio sources, in priority order: SoundCloud (hidden Widget API iframe), uploaded MP3 (audioSrc), no generated background tones.
   // Everything is driven by the room's own play/pause, volume and timers; no third-party player UI is shown.
   let scWidget = null, scRoomUrl = "", scApiPromise = null, scWantPlay = false, scStartTimer = null, scStarted = false;
   let roomMp3 = null;
   function loadSoundCloudApi() {
     if (window.SC?.Widget) return Promise.resolve();
-    if (!scApiPromise) scApiPromise = new Promise((resolve, reject) => { const s = document.createElement("script"); s.src = "https://w.soundcloud.com/player/api.js"; s.onload = resolve; s.onerror = reject; document.head.appendChild(s); });
+    if (!scApiPromise) scApiPromise = new Promise((resolve, reject) => { const s = document.createElement("script"); s.src = "https://w.soundcloud.com/player/api.js"; s.onload = resolve; s.onerror = () => { s.remove(); scApiPromise = null; reject(new Error("SoundCloud could not load. Tap Play to retry.")); }; document.head.appendChild(s); });
     return scApiPromise;
   }
   function currentVolume() { return Number(document.getElementById("bottom-volume-slider")?.value || 85); }
-  function roomSoundCloud(room) { const sel = room?.soundcloud; return sel?.url && /^https:\/\/(on\.)?soundcloud\.com\//.test(sel.url) ? sel : null; }
+  function roomSoundCloud(room) { const sel = room?.soundcloud; return sel?.url && /^https:\/\/(?:www\.|m\.|on\.)?soundcloud\.com\//.test(sel.url) ? sel : null; }
   function roomMp3Src(room) { const src = String(room?.audioSrc || ""); return /^\/media\/creator-media\/[\w-]+\.mp3$/.test(src) || /^https:\/\//.test(src) ? src : ""; }
   function setAudioCredit(room, fallbackNote = "") {
     let credit = document.getElementById("mwe-audio-credit");
@@ -602,7 +599,7 @@
     // Uploaded MP3
     if (roomMp3) { roomMp3.pause(); roomMp3 = null; }
     const mp3 = room && !roomSoundCloud(room) ? roomMp3Src(room) : "";
-    if (mp3) { roomMp3 = new Audio(mp3); roomMp3.loop = true; roomMp3.preload = "auto"; roomMp3.volume = currentVolume() / 100; }
+    if (mp3) { roomMp3 = new Audio(mp3); roomMp3.loop = true; roomMp3.preload = "auto"; roomMp3.volume = currentVolume() / 100; roomMp3.addEventListener("loadedmetadata", () => { if (activeRoom === room) seekSharedAudio(sessionElapsedSeconds); }); }
     setAudioCredit(room);
     // SoundCloud, hidden widget
     let box = document.getElementById("mwe-sc-player");
@@ -621,36 +618,46 @@
         scWidget = widget;
         widget.setVolume(currentVolume());
         if (scWantPlay) widget.play();
-        widget.bind(window.SC.Widget.Events.PLAY, () => { scStarted = true; clearTimeout(scStartTimer); setAudioCredit(activeRoom); });
+        widget.bind(window.SC.Widget.Events.PLAY, () => { scStarted = true; clearTimeout(scStartTimer); seekSharedAudio(sessionElapsedSeconds); setAudioCredit(activeRoom); });
         widget.bind(window.SC.Widget.Events.FINISH, () => { if (scWantPlay) { widget.seekTo(0); widget.play(); } });
       });
     }).catch(() => fallbackFromSoundCloud("SoundCloud unavailable"));
   }
-  // If the browser refuses to start the hidden widget (mobile autoplay rules), fall back to the MP3 or the tone
-  // so the room never goes silent, and say so in the attribution line.
+  // A blocked or slow music provider must never replace the creator's music with a tone.
   function fallbackFromSoundCloud(note) {
     if (!activeRoom || !scWantPlay) return;
-    scWantPlay = false; scWidget?.pause();
-    const mp3 = roomMp3Src(activeRoom);
-    if (mp3 && !roomMp3) { roomMp3 = new Audio(mp3); roomMp3.loop = true; }
-    if (roomMp3) { roomMp3.volume = currentVolume() / 100; roomMp3.play().catch(() => {}); }
-    else startToneHarmonics(activeRoom.toneFreq || 432);
-    setAudioCredit(activeRoom, note || "tap the link to listen on SoundCloud");
+    scWantPlay = false;
+    audioJoined = false; audioRunning = false; updatePlayState();
+    clearTimeout(scStartTimer);
+    scWidget?.pause();
+    pauseMp3();
+    stopToneHarmonics();
+    const message = note || 'SoundCloud could not start. Tap Play to retry, or open the SoundCloud link.';
+    setAudioCredit(activeRoom, message);
+    playbackNotice(message);
   }
   function playSoundCloud() {
-    scWantPlay = true; scWidget?.setVolume(currentVolume()); scWidget?.play();
+    scWantPlay = true;
+    scStarted = false;
+    if (!scWidget) setupRoomAudio(activeRoom);
+    scWidget?.setVolume(currentVolume());
+    scWidget?.play();
     clearTimeout(scStartTimer);
-    if (!scStarted) scStartTimer = setTimeout(() => { if (!scStarted) fallbackFromSoundCloud(); }, 6000);
+    scStartTimer = setTimeout(() => { if (!scStarted) fallbackFromSoundCloud(); }, 15000);
   }
   function pauseSoundCloud() { scWantPlay = false; clearTimeout(scStartTimer); scWidget?.pause(); }
-  function playMp3() { if (!roomMp3) return false; roomMp3.volume = currentVolume() / 100; roomMp3.play().catch(() => { if (!isPlaying) return; isPlaying = false; audioJoined = false; stopTimerTicker(); updatePlayState(); playbackNotice("Tap Play to enable audio in this browser."); }); return true; }
+  function playMp3() { if (!roomMp3) return false; const audio = roomMp3; audio.volume = currentVolume() / 100; seekSharedAudio(sessionElapsedSeconds); audio.play().catch(() => { if (audio !== roomMp3 || !isPlaying || !audioJoined) return; audioJoined = false; audioRunning = false; updatePlayState(); playbackNotice("Connect audio to listen. The room timer continues with the owner."); }); return true; }
   function pauseMp3() { roomMp3?.pause(); }
   function setRoomAudioVolume(val) { scWidget?.setVolume(val); if (roomMp3) roomMp3.volume = val / 100; }
 
   function startAudioHarmonics(freq = 432) {
+    if (!audioJoined || !isPlaying) return;
+    audioRunning = true;
     if (roomSoundCloud(activeRoom)) { stopToneHarmonics(); playSoundCloud(); return; }
     if (roomMp3) { stopToneHarmonics(); playMp3(); return; }
-    startToneHarmonics(freq);
+    stopToneHarmonics();
+    audioRunning = false;
+    setAudioCredit(activeRoom);
   }
   function startToneHarmonics(freq = 432) {
     if (activeAudioType === "silence") {
@@ -686,6 +693,7 @@
   }
 
   function stopAudioHarmonics() {
+    audioRunning = false;
     pauseSoundCloud(); pauseMp3();
     stopToneHarmonics();
   }
@@ -695,10 +703,11 @@
       synthGain.gain.setValueAtTime(synthGain.gain.value, audioContext.currentTime);
       synthGain.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.6);
     }
+    const previousOsc1 = osc1, previousOsc2 = osc2;
+    osc1 = null; osc2 = null;
     setTimeout(() => {
-      try { osc1?.stop(); osc1?.disconnect(); } catch (e) {}
-      try { osc2?.stop(); osc2?.disconnect(); } catch (e) {}
-      osc1 = null; osc2 = null;
+      try { previousOsc1?.stop(); previousOsc1?.disconnect(); } catch (e) {}
+      try { previousOsc2?.stop(); previousOsc2?.disconnect(); } catch (e) {}
     }, 650);
   }
 
@@ -753,19 +762,20 @@
       const safe = { ...room, ...Object.fromEntries(["id", "cover", "title", "subtitle", "categoryLabel", "icon"].map(key => [key, escape(room[key])])) };
       const creatorName = escape(room.ownerName || "RhemaSphere");
       const audioName = ({ bible: "Audio Bible", instrumental: "Soaking Instrumental", worship: "Worship Stream", sermon: "Sermon", silence: "Silence / Ambient" })[room.selectedAudio] || "Curated Audio";
-      return '<div class="sanctuary-room-card" data-enter-room="' + safe.id + '">' +
+      return '<div class="sanctuary-room-card" role="button" tabindex="0" data-enter-room="' + safe.id + '">' +
         '<div class="room-card-cover">' +
           '<img src="' + safe.cover + '" alt="' + safe.title + '" />' +
           '<span class="room-card-tag">' + safe.categoryLabel + '</span>' +
-          '<span class="room-enter-pill"><i data-lucide="door-open"></i> Enter Room</span>' +
+          '<span class="room-enter-pill"><i data-lucide="door-open"></i><span data-room-action>Enter Room</span></span>' +
         '</div>' +
         '<div class="room-card-body">' +
-          '<h3>' + safe.title + '</h3>' +
+          '<h3>' + safe.title + '</h3><span class="room-session-status" data-room-status>Checking session…</span>' +
           '<p>' + safe.subtitle + '</p>' +
           '<div class="room-card-footer">' +
             '<span><i data-lucide="user"></i> ' + creatorName + '</span>' +
             '<span class="room-audio-count"><i data-lucide="music"></i> ' + escape(audioName) + '</span>' +
           '</div>' +
+          (window.MWEPlatform?.canManage('meditation', room.id) ? '<a class="room-edit-link" data-room-edit-link href="creator-studio.html?kind=meditation&amp;edit=' + encodeURIComponent(room.id) + '"><i data-lucide="pencil"></i>Edit room</a>' : '') +
         '</div>' +
       '</div>';
     }
@@ -778,29 +788,16 @@
       communityGrid.innerHTML = custom.length ? custom.map(cardHtml).join("") : '<p class="empty-hint">No custom community rooms created yet. Select "Create My Meditation" to start one!</p>';
     }
 
+    for (const grid of [featuredGrid, booksGrid, themesGrid, communityGrid]) {
+      if (grid && !grid.children.length) grid.innerHTML = '<p class="empty-hint">No rooms in this collection yet.</p>';
+    }
     window.lucide?.createIcons();
   }
 
   function applyThemeColors(color, hue) {
-    const roomView = document.getElementById("meditation-room-view");
-    if (!roomView) return;
-    
-    roomView.style.setProperty("--room-color", color);
-    roomView.style.setProperty("--room-hue", hue);
-    roomView.style.setProperty("--room-glow", `hsla(${hue}, 90%, 55%, 0.55)`);
-    roomView.style.setProperty("--room-glow-soft", `hsla(${hue}, 90%, 55%, 0.2)`);
-    
-    const orb = document.getElementById("sacred-pulsing-orb");
-    if (orb) {
-      orb.style.background = `radial-gradient(circle at 35% 35%, #ffffff 0%, ${color} 55%, hsla(${hue}, 85%, 35%, 1) 100%)`;
-      orb.style.boxShadow = `0 10px 40px hsla(${hue}, 85%, 50%, 0.45), 0 0 80px hsla(${hue}, 85%, 50%, 0.25)`;
-    }
-    
-    const playBtn = document.getElementById("bottom-play-btn");
-    if (playBtn) {
-      playBtn.style.background = color;
-      playBtn.style.boxShadow = `0 4px 16px hsla(${hue}, 85%, 50%, 0.45)`;
-    }
+    // The palette helper derives hue from the saved colour; stale themeHue values
+    // must not give the room a different ambience from its controls.
+    window.MWEMeditationRoomPalette?.apply(color);
   }
 
   function applyRoomMode(mode = "light") {
@@ -839,6 +836,17 @@
   }
 
   function updateTimerDisplay() {
+    if (inactiveRoomPreview) {
+      const digits=document.getElementById('timer-countdown-digits'),label=document.getElementById('timer-countdown-label');
+      if (digits) digits.textContent='—:—';
+      if (label) label.textContent='ROOM INACTIVE';
+      updatePlayState();return;
+    }
+    document.querySelectorAll('[role="slider"]').forEach(track=>{
+      track.setAttribute('aria-valuemax',String(sessionTotalSeconds || 0));
+      track.setAttribute('aria-valuenow',String(sessionElapsedSeconds || 0));
+      track.setAttribute('aria-disabled',String(activeRoom?.timeMode === 'loop' || !!(playbackSession?.state && !playbackSession.canControl)));
+    });
     const isLoop = activeRoom?.timeMode === "loop";
     const digitsEl = document.getElementById("timer-countdown-digits");
     const labelEl = document.getElementById("timer-countdown-label");
@@ -910,11 +918,7 @@
     if (sunburstTotal) sunburstTotal.textContent = timeTotalFormatted;
     if (sunburstFill) sunburstFill.style.width = clampedPct + "%";
 
-    const primaryLabel = document.getElementById("timer-primary-label");
-    const primaryIcon = document.getElementById("timer-primary-icon");
-    if (primaryLabel) primaryLabel.textContent = !audioJoined && playbackSession?.state?.playing ? "Join audio" : isPlaying ? "Pause" : "Resume";
-    if (primaryIcon) primaryIcon.setAttribute("data-lucide", isPlaying ? "pause" : "play");
-    window.lucide?.createIcons();
+    updatePlayState();
   }
 
   function startTimerTicker() {
@@ -943,6 +947,7 @@
           stopAudioHarmonics();
           updatePlayState();
           playIntervalBell(528);
+          if (playbackSession?.canControl) publishPlayback(true)?.catch(() => {});
           showToast("Meditation session complete. Well done!");
         }
       }
@@ -1052,7 +1057,7 @@
       teaching: "Audio Teaching & Sermon",
       worship: "Christian Worship",
       nature: "Nature Reflection"
-    })[room.purpose] || "Sanctuary";
+    })[room.purpose] || "Meditation";
 
     const durationLabel = room.timeMode === "loop" ? "Endless Loop" : (room.durationMinutes ? `${room.durationMinutes} min` : "20 min");
 
@@ -1181,7 +1186,7 @@
   }
 
   function prevScripture() {
-    if (!activeRoom || (playbackSession?.state && !playbackSession.canControl)) return;
+    if (!activeRoom || inactiveRoomPreview || (playbackSession?.state && !playbackSession.canControl)) return;
     const len = activeRoom.verses?.length || 1;
     activeVerseIndex = (activeVerseIndex - 1 + len) % len;
     renderActiveMediaContent();
@@ -1192,33 +1197,163 @@
     return !!activeRoom && !!window.MWEPlatform?.canManage('meditation',activeRoom.id);
   }
 
+  function scheduleDate(value) {
+    return new Date(value).toLocaleString([], {dateStyle:'medium',timeStyle:'short'});
+  }
+  function renderWaitingCard() {
+    const waiting=inactiveRoomPreview || !!playbackSession?.state?.waitingForOwner;
+    const view=document.getElementById('meditation-room-view');
+    if (!view) return;
+    if (!waiting || !activeRoom || !document.body.classList.contains('in-meditation-room')) {
+      if(waitingCard)waitingCard.hidden=true;
+      view.classList.remove('has-waiting-card');clearInterval(waitingCountdown);waitingCountdown=null;return;
+    }
+    if(!waitingCard){
+      waitingCard=document.createElement('section');waitingCard.id='meditation-waiting-card';waitingCard.className='meditation-waiting-card';waitingCard.setAttribute('aria-labelledby','waiting-room-title');
+      waitingCard.innerHTML='<span class="waiting-room-icon"><i data-lucide="calendar-clock" aria-hidden="true"></i></span><span class="waiting-room-kicker">A moment is waiting for you</span><h2 id="waiting-room-title"></h2><p class="waiting-room-description" aria-live="polite"></p><p class="waiting-room-date"></p><div class="waiting-room-countdown" role="timer" aria-live="off">'+['Days','Hours','Minutes','Seconds'].map(label=>'<span><strong data-countdown="'+label+'">00</strong><small>'+label+'</small></span>').join('')+'</div><p class="waiting-room-hint"></p><button type="button" data-waiting-action></button>';
+      view.append(waitingCard);window.lucide?.createIcons({root:waitingCard});
+      waitingCard.querySelector('[data-waiting-action]').onclick=()=>{if(inactiveRoomPreview){enterRoom(activeRoom.id,true,null,true);}else togglePlay();};
+    }
+    view.classList.add('has-waiting-card');waitingCard.hidden=false;
+    const tick=()=>{
+      if(!activeRoom)return;
+      const owner=ownsRoom(activeRoom.id),scheduled=activeRoom.scheduledOpensAt;
+      const seconds=scheduled?Math.max(0,Math.ceil((Date.parse(scheduled)-Date.now()-availabilityClockOffset)/1000)):0;
+      const future=inactiveRoomPreview&&scheduled&&seconds>0;
+      const soon=inactiveRoomPreview&&scheduled&&!future;
+      const headline=!inactiveRoomPreview?(owner?'Your guests can join':'You’re in the room'):future?(owner?'Your room is scheduled':'A quiet moment awaits'):soon?'Any time soon':'This room isn’t active yet';
+      const description=!inactiveRoomPreview?(owner?'The room is open. Start the audio when you’re ready.':'The room is open. We’re waiting for the owner to begin the audio.'):future?(activeRoom.openingMode==='automatic'?'This room will welcome guests automatically at the scheduled time.':'The owner will open this room at the scheduled time.'):soon?(owner?'Your scheduled opening time has arrived. Open the room whenever you’re ready.':'The scheduled time has arrived. We’re waiting for the owner to open the room.'):'Waiting for the owner to start a session. You’re welcome to stay here.';
+      const title=waitingCard.querySelector('h2'),desc=waitingCard.querySelector('.waiting-room-description');
+      if(title.textContent!==headline)title.textContent=headline;
+      if(desc.textContent!==description)desc.textContent=description;
+      const date=waitingCard.querySelector('.waiting-room-date');date.hidden=!scheduled||!inactiveRoomPreview;date.textContent=scheduled?'Scheduled for '+scheduleDate(scheduled):'';
+      waitingCard.querySelector('.waiting-room-countdown').hidden=!future;
+      const values={Days:Math.floor(seconds/86400),Hours:Math.floor(seconds/3600)%24,Minutes:Math.floor(seconds/60)%60,Seconds:seconds%60};
+      for(const [key,value]of Object.entries(values))waitingCard.querySelector('[data-countdown="'+key+'"]').textContent=String(value).padStart(2,'0');
+      const action=waitingCard.querySelector('[data-waiting-action]');action.hidden=inactiveRoomPreview&&!owner;action.disabled=false;
+      action.textContent=inactiveRoomPreview?'Open room now':owner?'Start audio':audioJoined?'Mute audio':'Connect audio';
+      waitingCard.querySelector('.waiting-room-hint').textContent=owner&&inactiveRoomPreview?(activeRoom.openingMode==='automatic'?'Automatic opening is enabled. You can also open it early.':'Only you can open this room. Guests will wait here until you do.'):'Exit is always available at the top of the room.';
+    };
+    tick();if(!waitingCountdown)waitingCountdown=setInterval(tick,1000);
+  }
+
+  function setInactiveRoomPreview(inactive) {
+    inactiveRoomPreview=inactive;
+    const view=document.getElementById('meditation-room-view');
+    view?.classList.toggle('is-inactive',inactive);
+    view?.querySelectorAll('button,input,select,textarea').forEach(control=>{
+      if (control.id==='room-exit-btn' || control.id==='room-edit-btn' || control.hasAttribute('data-waiting-action')) return;
+      if (inactive) { if (!control.hasAttribute('data-inactive-disabled')) control.dataset.inactiveDisabled=String(control.disabled); control.disabled=true; }
+      else if (control.hasAttribute('data-inactive-disabled')) { control.disabled=control.dataset.inactiveDisabled==='true';delete control.dataset.inactiveDisabled; }
+    });
+    for (const id of ['meditation-room-main','room-bottom-player']) {
+      const area=document.getElementById(id);
+      if (area) { area.inert=inactive;area.setAttribute('aria-disabled',String(inactive)); }
+    }
+  }
+  function showInactiveRoom() {
+    stopSharedPlayback();stopRoomChat();stopTimerTicker();stopAudioHarmonics();
+    isPlaying=false;audioJoined=false;
+    setInactiveRoomPreview(true);
+    updateTimerDisplay();
+    playbackNotice('Room inactive. Waiting for the owner to start a session.');
+    renderWaitingCard();
+  }
+
+  function ownsRoom(id) {
+    return window.MWEPlatform?.records('meditation',true).some(room=>room.id===id && room.createdBy===window.MWEPlatform?.session?.id);
+  }
+  function drawRoomAvailability() {
+    document.querySelectorAll('[data-enter-room]').forEach(card=>{
+      const status=roomAvailability.get(card.dataset.enterRoom);
+      const label=card.querySelector('[data-room-status]'),action=card.querySelector('[data-room-action]');
+      if (label) { label.textContent=status==='live'?'Live now':status==='waiting'?'Open · waiting for owner':status==='paused'?'Owner paused':status==='inactive'?'Inactive · owner has not started':'Session status unavailable'; label.dataset.status=status||'unknown'; }
+      if (action) action.textContent=status==='inactive'?(ownsRoom(card.dataset.enterRoom)?'Start room':'Inactive'):status?'Join room':'Enter Room';
+    });
+  }
+  async function refreshRoomAvailability() {
+    if (availabilityReading || document.hidden || (document.body.classList.contains('in-meditation-room') && !inactiveRoomPreview)) return;
+    availabilityReading=true;
+    try {
+      for (let i=0;i<roomsCatalog.length;i+=100) {
+        const ids=roomsCatalog.slice(i,i+100).map(room=>room.id).join(',');
+        const result=await window.MWEPlatform.api('meditation-session/availability?ids='+encodeURIComponent(ids));
+        if(result.serverTime)availabilityClockOffset=result.serverTime-Date.now();
+        result.rooms.forEach(room=>{roomAvailability.set(room.id,room.status);const local=roomsCatalog.find(item=>item.id===room.id);if(local){Object.assign(local,room);if(!room.scheduledOpensAt)delete local.scheduledOpensAt;}});
+      }
+      drawRoomAvailability();
+      if (inactiveRoomPreview && activeRoom && ['live','paused','waiting'].includes(roomAvailability.get(activeRoom.id))) {
+        if (window.MWEPlatform?.session) enterRoom(activeRoom.id,false);
+        else playbackNotice('The owner has started this room. Sign in to join the live session.');
+      }
+    } catch (_) { drawRoomAvailability(); }
+    finally { availabilityReading=false; }
+  }
+  function roomEntryNotice(message) {
+    let notice=document.getElementById('meditation-entry-notice');
+    if (!notice) { notice=document.createElement('p');notice.id='meditation-entry-notice';notice.setAttribute('role','status');document.querySelector('#meditation-lobby .module-shell')?.prepend(notice); }
+    notice.textContent=message;notice.hidden=!message;
+  }
+
   function setAtmosphereTheme(theme) {
     const backdrop = document.getElementById("meditation-backdrop");
     if (!backdrop) return;
     backdrop.className = 'meditation-backdrop bg-' + theme;
   }
 
-  function enterRoom(roomId, autoStartAudio = true, sessionId = null) {
-    stopSharedPlayback();
+  async function enterRoom(roomId, autoStartAudio = true, sessionId = null, openNow = false) {
+    if (enteringRoom) return;
     const params = new URLSearchParams(location.search);
     const invitedSessionId = sessionId || (params.get('room') === roomId ? params.get('session') : null);
     audioJoined = !invitedSessionId && !!navigator.userActivation?.hasBeenActive;
     if (invitedSessionId) autoStartAudio = false;
-    const room = roomsCatalog.find(r => r.id === roomId) || roomsCatalog[0];
-    if (!room) return;
+    const room = roomsCatalog.find(r => r.id === roomId);
+    if (!room || !isMeditationRoomEnabled(room)) { showToast('This room is temporarily unavailable. Please choose a countdown room.'); return; }
+    // Confirm access before displaying a room, so rejected entry never flashes open and closes.
+    enteringRoom=true;
+    roomEntryNotice('Connecting to '+room.title+'…');
+    const card=[...document.querySelectorAll('[data-enter-room]')].find(card=>card.dataset.enterRoom===roomId);
+    card?.setAttribute('aria-busy','true');
+    let initialPlayback, inactivePreview=false;
+    try {
+      const path='meditation-session/'+encodeURIComponent(roomId);
+      if (!ownsRoom(roomId)) {
+        const availability=await window.MWEPlatform.api('meditation-session/availability?ids='+encodeURIComponent(roomId)).catch(()=>null);
+        inactivePreview=availability?.rooms?.find(entry=>entry.id===roomId)?.status==='inactive';
+      }
+      // An inactive preview only uses public room data; no session or sign-in is needed.
+      if (!inactivePreview) initialPlayback=invitedSessionId
+        ? await window.MWEPlatform.api(path+'/'+encodeURIComponent(invitedSessionId))
+        : await window.MWEPlatform.api(path,{playing:!!autoStartAudio,position:0,verse:0,audioType:room.selectedAudio||'bible',openNow});
+    } catch (error) {
+      if (error.status===409) {
+        inactivePreview=true;
+        roomAvailability.set(roomId,'inactive'); drawRoomAvailability();
+      } else {
+        roomEntryNotice(error.status===401 ? 'Sign in to join this meditation room.' : 'Could not connect to this room. '+error.message+' Please try again.');
+        if (error.status===401) {
+          const destination=new URL(location.href);destination.searchParams.set('room',roomId);
+          if(invitedSessionId)destination.searchParams.set('session',invitedSessionId);
+          window.MWE?.openMemberLogin?.(destination.pathname+destination.search);
+        }
+        refreshRoomAvailability();
+        return;
+      }
+    } finally { enteringRoom=false;card?.removeAttribute('aria-busy'); }
+    roomEntryNotice('');
+    stopSharedPlayback();
     enrichRoomWithMedia(room);
     activeRoom = room;
-    setupRoomAudio(room);
-    // Browsers block sound until the visitor has interacted with the page (e.g. opening a shared ?room= link).
-    // Start such rooms paused so the first tap on Play actually starts the SoundCloud track or uploaded MP3.
-    if (autoStartAudio && (roomSoundCloud(room) || roomMp3) && navigator.userActivation && !navigator.userActivation.hasBeenActive) autoStartAudio = false;
+    setInactiveRoomPreview(inactivePreview);
+    audioJoined=inactivePreview?false:audioJoined;
+    setupRoomAudio(inactivePreview?null:room);
     activeVerseIndex = 0;
     activePictureIndex = 0;
     activeTeachingIndex = 0;
     activePrayerIndex = 0;
     activeWorshipIndex = 0;
     currentMediaType = "scriptures";
-    currentSessionId = invitedSessionId || null;
+    currentSessionId = inactivePreview ? null : invitedSessionId || null;
 
     document.body.classList.add("in-meditation-room");
     
@@ -1234,6 +1369,9 @@
     }
 
     window.scrollTo({ top: 0, behavior: "instant" });
+
+    const editRoomButton = document.getElementById('room-edit-btn');
+    if (editRoomButton) editRoomButton.hidden = !window.MWEPlatform?.canManage('meditation', room.id);
 
     // Update Room Badge & Creator Attribution
     const titleEl = document.getElementById("room-badge-title");
@@ -1261,12 +1399,7 @@
 
     // Set Creator-Established Atmosphere & Backdrop
     setAtmosphereTheme(room.theme || "chapel");
-    const themeInfo = ({"room-peace":{"color":"#3b82f6","hue":220},"room-healing":{"color":"#10b981","hue":160},"room-secret-place":{"color":"#8b5cf6","hue":265},"room-bedtime":{"color":"#6366f1","hue":240},"room-psalms":{"color":"#f59e0b","hue":38},"room-proverbs":{"color":"#d97706","hue":32},"room-gospels":{"color":"#ec4899","hue":330},"room-epistles":{"color":"#06b6d4","hue":190},"room-faith":{"color":"#0ea5e9","hue":200},"room-love":{"color":"#f43f5e","hue":350},"room-salvation":{"color":"#14b8a6","hue":175},"room-victory":{"color":"#f97316","hue":25}})[room.id] || { color: "#3b82f6", hue: 220 };
-    applyThemeColors(themeInfo.color, themeInfo.hue);
-
-    if (room.themeColor) {
-      applyThemeColors(room.themeColor, (typeof room.themeHue !== "undefined") ? room.themeHue : themeInfo.hue);
-    }
+    applyThemeColors(room.themeColor, room.themeHue);
     const platformMode = document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || localStorage.getItem("mwe.theme") || (room.mode || "light");
     applyRoomMode(platformMode);
     applyRoomTemplate(room);
@@ -1302,37 +1435,21 @@
       ambTag.innerHTML = '<i data-lucide="sliders"></i> Ambience: ' + (parts.length ? parts.join(' · ') : 'Natural Stillness');
     }
 
-    // Dynamic background audio start & immediate frequency adaptation on room entry
-    if (autoStartAudio) {
-      isPlaying = true;
-      startAudioHarmonics(room.toneFreq || 432);
-      startTimerTicker();
-      const unlockAudio = () => {
-        if (audioContext && audioContext.state === "suspended") {
-          audioContext.resume().then(() => {
-            if (isPlaying && activeAudioType !== "silence") {
-              startAudioHarmonics(activeRoom?.toneFreq || 432);
-            }
-          }).catch(() => {});
-        }
-      };
-      document.addEventListener("click", unlockAudio, { once: true });
-      document.addEventListener("touchstart", unlockAudio, { once: true });
-    } else {
-      isPlaying = false;
-      stopAudioHarmonics();
-      stopTimerTicker();
-    }
-    updatePlayState();
+    // Resolve the owner's timeline before starting either the timer or local audio.
+    isPlaying = !inactivePreview && !!autoStartAudio;
+    stopAudioHarmonics(); stopTimerTicker(); updatePlayState();
 
     switchMediaType("scriptures");
 
-    // Initialize Virtual Co-Meditation Session & Live Chat
-    initVirtualRoomSession(room.id, currentSessionId);
-    startSharedPlayback(room.id, invitedSessionId);
-    setupChatModerationUI();
-    renderChatFeed();
-    startRoomChat(room.id);
+    if (inactivePreview) {
+      showInactiveRoom();
+    } else {
+      initVirtualRoomSession(room.id, currentSessionId);
+      startSharedPlayback(room.id, invitedSessionId, initialPlayback);
+      setupChatModerationUI();
+      renderChatFeed();
+      startRoomChat(room.id);
+    }
 
     // Update browser URL without reload for direct sharing
     try {
@@ -1347,6 +1464,10 @@
   }
 
   function exitToLobby() {
+    window.MWEMeditationRoomPalette?.clear();
+    setInactiveRoomPreview(false);
+    if(waitingCard)waitingCard.hidden=true;clearInterval(waitingCountdown);waitingCountdown=null;
+    document.getElementById('meditation-room-view')?.classList.remove('has-waiting-card');
     stopSharedPlayback();
     pauseSoundCloud(); setupRoomAudio(null);
     isPlaying = false;
@@ -1518,7 +1639,7 @@
   }
 
   function nextVerse() {
-    if (!activeRoom || (playbackSession?.state && !playbackSession.canControl)) return;
+    if (!activeRoom || inactiveRoomPreview || (playbackSession?.state && !playbackSession.canControl)) return;
     if (currentMediaType === "pictures") {
       const len = activeRoom.pictures?.length || 1;
       activePictureIndex = (activePictureIndex + 1) % len;
@@ -1544,7 +1665,6 @@
     activeAudioType = type;
 
     if (type === "silence") {
-      isPlaying = false;
       stopAudioHarmonics();
       const titleEl = document.getElementById("bottom-track-title");
       const catEl = document.getElementById("bottom-track-cat");
@@ -1556,9 +1676,6 @@
       const catEl = document.getElementById("bottom-track-cat");
       if (titleEl) titleEl.textContent = track.title;
       if (catEl) catEl.textContent = track.cat + (track.freq ? " (" + track.freq + "Hz)" : "");
-      if (isPlaying) {
-        startAudioHarmonics(track.freq || activeRoom?.toneFreq || 432);
-      }
     }
 
     updatePlayState();
@@ -1568,6 +1685,7 @@
   let playbackSession = null;
   let applyingPlayback = false;
   let audioJoined = false;
+  let audioRunning = false;
   let playbackQueue = Promise.resolve();
 
   function playbackSnapshot() {
@@ -1606,16 +1724,19 @@
       sessionRemainingSeconds = Math.max(0, sessionTotalSeconds - sessionElapsedSeconds);
       activeVerseIndex = state.verse;
       const wantsPlay = state.playing && (activeRoom.timeMode === 'loop' || sessionRemainingSeconds > 0);
-      const changed = isPlaying !== (wantsPlay && audioJoined) || activeAudioType !== state.audioType;
+      const changed = audioRunning !== (wantsPlay && audioJoined) || activeAudioType !== state.audioType;
       activeAudioType = state.audioType;
-      isPlaying = wantsPlay && audioJoined;
+      isPlaying = wantsPlay;
       if (changed) {
-        if (isPlaying) { selectInRoomAudio(state.audioType); startAudioHarmonics(); startTimerTicker(); }
-        else { stopAudioHarmonics(); stopTimerTicker(); }
+        if (wantsPlay && audioJoined) startAudioHarmonics(activeRoom?.toneFreq || 432);
+        else stopAudioHarmonics();
       }
+      if (wantsPlay) { if (!timerTicker) startTimerTicker(); }
+      else stopTimerTicker();
+      updatePlaybackPermissions();
       seekSharedAudio(position);
       renderRoomScripture(); updatePlayState(); updateTimerDisplay();
-      playbackNotice(!audioJoined && wantsPlay ? 'Tap Play to join the session audio.' : session.canControl ? 'Shared session: you control playback.' : 'Following the host. Volume and mute stay personal.');
+      playbackNotice(!audioJoined && wantsPlay ? 'The session is live. Connect audio to listen.' : session.canControl ? '' : 'Following the owner’s live session. Audio and volume stay personal.');
     } finally { applyingPlayback = false; }
   }
   async function readPlayback(session) {
@@ -1625,17 +1746,17 @@
       const data = await window.MWEPlatform.api(session.path);
       applyPlayback(data, session);
     } catch (error) {
-      if (playbackSession === session) playbackNotice('Session connection interrupted. ' + error.message);
+      if (playbackSession === session) { if (error.status === 409) { showInactiveRoom(); } else playbackNotice('Session connection interrupted. ' + error.message); }
     } finally { session.reading = false; }
   }
-  async function startSharedPlayback(roomId, invitedSessionId) {
+  async function startSharedPlayback(roomId, invitedSessionId, initialPlayback) {
     const session = { pending: 0, canControl: false, state: null, path: 'meditation-session/' + encodeURIComponent(roomId) };
     playbackSession = session;
     playbackNotice('Connecting shared session…');
     try {
-      const data = invitedSessionId
+      const data = initialPlayback || (invitedSessionId
         ? await window.MWEPlatform.api(session.path + '/' + encodeURIComponent(invitedSessionId))
-        : await window.MWEPlatform.api(session.path, playbackSnapshot());
+        : await window.MWEPlatform.api(session.path, playbackSnapshot()));
       if (playbackSession !== session) return;
       session.path += '/' + encodeURIComponent(data.session.id);
       currentSessionId = data.session.id;
@@ -1643,8 +1764,10 @@
       const url = new URL(location.href); url.searchParams.set('session', currentSessionId);
       history.replaceState({}, '', url);
       window.parent?.postMessage({type:'faithlink:meditation-session', roomId, session:currentSessionId}, location.origin);
+      if (!data.canControl) audioJoined = activeRoom.playbackStart==='automatic' && !!navigator.userActivation?.hasBeenActive;
       applyPlayback(data, session);
-      session.voice = new window.MWEMeditationVoice(document.getElementById('meditation-room-view'), session.path, window.MWEPlatform.api);
+      try { session.voice = new window.MWEMeditationVoice(document.getElementById('meditation-room-view'), session.path, window.MWEPlatform.api); }
+      catch (_) { playbackNotice('The session is connected. Owner voice is temporarily unavailable.'); }
       session.timer = setInterval(() => readPlayback(session), 1500);
       // Brief 05.3: session-only chat, pause requests and bookmarked moments (public/meditation-session-panel.js).
       window.MWEMeditationSessionPanel?.attach({
@@ -1663,22 +1786,30 @@
         }
       });
     } catch (error) {
-      if (playbackSession === session) { playbackNotice('Shared session unavailable. ' + error.message); session.failed = true; }
+      if (playbackSession === session) { exitToLobby(); showToast(error.message || 'This room is not available.'); }
     }
   }
-  function publishPlayback() {
+  function publishPlayback(finishSession = false) {
     const session = playbackSession;
     if (applyingPlayback || !session?.state || !session.canControl) return;
-    const snapshot = playbackSnapshot(); session.pending++;
+    const snapshot = { ...playbackSnapshot(), ended:finishSession }; session.pending++;
     playbackQueue = playbackQueue.catch(() => {}).then(async () => {
-      if (playbackSession !== session) return;
+      if (playbackSession !== session && !finishSession) { session.pending--; return; }
       try {
-        const data = await window.MWEPlatform.api(session.path, {...snapshot, revision:session.state.revision}, 'PUT');
+        let data;
+        try { data = await window.MWEPlatform.api(session.path, {...snapshot, revision:session.state.revision}, 'PUT'); }
+        catch (error) {
+          if (error.status !== 409) throw error;
+          const current = await window.MWEPlatform.api(session.path);
+          session.state = current.session;
+          data = await window.MWEPlatform.api(session.path, {...snapshot, revision:session.state.revision}, 'PUT');
+        }
         session.state = data.session;
-      } catch (error) { if (playbackSession === session) showToast('Playback not shared: ' + error.message); }
+      } catch (error) { if (playbackSession === session) showToast('Playback not shared: ' + error.message); if (finishSession) throw error; }
       finally { session.pending--; }
       if (!session.pending) await readPlayback(session);
     });
+    return playbackQueue;
   }
   function stopSharedPlayback() {
     if (playbackSession) { clearInterval(playbackSession.timer); playbackSession.voice?.stop(); }
@@ -1690,42 +1821,59 @@
     if (!document.hidden && playbackSession?.state) readPlayback(playbackSession);
   });
 
+  function updatePlaybackPermissions() {
+    const owner = !!playbackSession?.state && playbackSession.canControl;
+    const end = document.getElementById('btn-timer-end-session');
+    if (end) { end.setAttribute('aria-label', owner ? 'Stop room' : 'Leave room'); end.title = owner ? 'Stop room' : 'Leave room'; }
+    const caption = end?.parentElement.querySelector('.timer-btn-caption');
+    if (caption) caption.textContent = owner ? 'Stop' : 'Leave';
+    for (const id of ['bottom-replay-15-btn','bottom-forward-15-btn','btn-journey-replay-15','btn-journey-forward-15','scripture-prev-btn','room-next-verse-btn']) {
+      const button = document.getElementById(id); if (button) button.disabled = !owner;
+    }
+  }
   function togglePlay() {
-    if (playbackSession && !playbackSession.state && !playbackSession.failed) { showToast("Connecting to the session. Please try again shortly."); return; }
-    if (playbackSession?.state && (!playbackSession.canControl || (!audioJoined && playbackSession.state.playing))) {
-      audioJoined = !audioJoined || !isPlaying;
-      if (!playbackSession.canControl && isPlaying) audioJoined = false;
-      applyPlayback({session:playbackSession.state,canControl:playbackSession.canControl,serverTime:Date.now() + (playbackSession.clockOffset || 0)}, playbackSession);
+    if (inactiveRoomPreview) return;
+    if (!playbackSession?.state) { showToast('Connecting to the owner’s session. Please wait.'); return; }
+    if (!playbackSession.canControl) {
+      audioJoined = !audioJoined;
+      if (audioJoined && isPlaying) { seekSharedAudio(sessionElapsedSeconds); startAudioHarmonics(activeRoom?.toneFreq || 432); }
+      else stopAudioHarmonics();
+      updatePlayState();
+      playbackNotice(audioJoined ? 'Audio connected. Following the owner’s session.' : 'Your audio is muted. The room continues with the owner.');
       return;
+    }
+    if (isPlaying && !audioJoined) {
+      audioJoined=true;seekSharedAudio(sessionElapsedSeconds);startAudioHarmonics(activeRoom?.toneFreq||432);updatePlayState();return;
     }
     audioJoined = true;
     isPlaying = !isPlaying;
-    if (isPlaying) {
-      if (activeAudioType === "silence") activeAudioType = activeRoom?.selectedAudio || "bible";
-      selectInRoomAudio(activeAudioType);
-      startAudioHarmonics(activeRoom?.toneFreq || 432);
-      startTimerTicker();
-    } else {
-      stopAudioHarmonics();
-      stopTimerTicker();
-    }
-    updatePlayState();
-    updateTimerDisplay();
-    publishPlayback();
+    if(isPlaying && playbackSession?.state)playbackSession.state.waitingForOwner=false;
+    if (isPlaying) { startAudioHarmonics(activeRoom?.toneFreq || 432); startTimerTicker(); }
+    else { stopAudioHarmonics(); stopTimerTicker(); }
+    updatePlayState(); updateTimerDisplay(); publishPlayback();
   }
-
+  function primaryPlayLabel() {
+    if (inactiveRoomPreview) return 'Inactive';
+    if (!playbackSession?.state) return 'Connecting…';
+    if (!playbackSession.canControl) return audioJoined ? 'Mute audio' : 'Connect audio';
+    return playbackSession?.state?.waitingForOwner ? 'Start audio' : isPlaying&&!audioJoined?'Connect audio':isPlaying ? 'Pause' : 'Resume';
+  }
+  function updatePlaybackIcon(id, name) {
+    const icon = document.getElementById(id);
+    if (!icon || (icon.tagName.toLowerCase() === 'svg' && icon.getAttribute('data-lucide') === name)) return;
+    icon.setAttribute('data-lucide', name);
+    window.lucide?.createIcons({root:icon.parentElement});
+  }
   function updatePlayState() {
-    const playIcon = document.getElementById("bottom-play-icon");
-    const indicator = document.getElementById("audio-pulse-indicator");
-    if (playIcon) playIcon.setAttribute("data-lucide", isPlaying ? "pause" : "play");
-    if (indicator) indicator.classList.toggle("active", isPlaying);
-
-    const primaryLabel = document.getElementById("timer-primary-label");
-    const primaryIcon = document.getElementById("timer-primary-icon");
-    if (primaryLabel) primaryLabel.textContent = !audioJoined && playbackSession?.state?.playing ? "Join audio" : isPlaying ? "Pause" : "Resume";
-    if (primaryIcon) primaryIcon.setAttribute("data-lucide", isPlaying ? "pause" : "play");
-
-    window.lucide?.createIcons();
+    const guest = !!playbackSession?.state && !playbackSession.canControl;
+    const playingIcon = guest ? (audioJoined ? 'volume-2' : 'headphones') : (isPlaying&&!audioJoined?'headphones':isPlaying ? 'pause' : 'play');
+    updatePlaybackIcon('bottom-play-icon', playingIcon);
+    updatePlaybackIcon('timer-primary-icon', playingIcon);
+    document.getElementById('audio-pulse-indicator')?.classList.toggle('active', isPlaying && audioJoined);
+    const label = primaryPlayLabel();
+    const text = document.getElementById('timer-primary-label'); if (text) text.textContent = label;
+    for (const id of ['btn-timer-primary-toggle','bottom-play-btn']) document.getElementById(id)?.setAttribute('aria-label',label);
+    renderWaitingCard();
   }
 
   function toggleFullscreen(force) {
@@ -1816,7 +1964,7 @@
     } else {
       presenceEl.innerHTML = '<i data-lucide="users"></i> ' + count + ' Meditating Together';
     }
-    window.lucide?.createIcons();
+    window.lucide?.createIcons({root:presenceEl});
   }
 
   function openInviteFriendModal() {
@@ -1828,8 +1976,8 @@
     const shareUrl = window.location.origin + window.location.pathname + "?room=" + encodeURIComponent(activeRoom.id) + "&session=" + encodeURIComponent(currentSessionId);
     shareInput.value = shareUrl;
 
-    const shareTitle = activeRoom.title || "Meditation Sanctuary";
-    const shareText = `Join me in this meditation sanctuary: "${shareTitle}" on RhemaSphere`;
+    const shareTitle = activeRoom.title || "Meditation";
+    const shareText = `Join me in this meditation room: "${shareTitle}" on RhemaSphere`;
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedText = encodeURIComponent(shareText);
 
@@ -1851,15 +1999,9 @@
 
     const mailBtn = document.getElementById("share-email");
     if (mailBtn) {
-      const mailSubject = encodeURIComponent(`Join my meditation sanctuary: ${shareTitle}`);
-      const mailBody = encodeURIComponent(`Hi,\n\nI would love for you to join me in this Christian meditation sanctuary: "${shareTitle}".\n\nClick here to join the room:\n${shareUrl}\n\nWe will meditate together with synchronized audio and scripture.`);
+      const mailSubject = encodeURIComponent(`Join my meditation room: ${shareTitle}`);
+      const mailBody = encodeURIComponent(`Hi,\n\nI would love for you to join me in this Christian meditation room: "${shareTitle}".\n\nClick here to join the room:\n${shareUrl}\n\nWe will meditate together with synchronized audio and scripture.`);
       mailBtn.href = `mailto:?subject=${mailSubject}&body=${mailBody}`;
-    }
-
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        showToast("Invite link copied to clipboard!");
-      }).catch(() => {});
     }
 
     modal.showModal?.();
@@ -1989,7 +2131,7 @@
     if (!messages.length) {
       const copy = roomChat.error || (roomChat.loading ? "Loading live comments…" : "No comments yet. When enabled by the room creator, participants can share reflections here.");
       feed.innerHTML = '<div class="chat-empty-state"><i data-lucide="sparkles"></i><p>' + escape(copy) + '</p></div>';
-      window.lucide?.createIcons();
+      window.lucide?.createIcons({root:feed});
       return;
     }
 
@@ -2006,7 +2148,7 @@
     }).join("");
 
     feed.scrollTop = feed.scrollHeight;
-    window.lucide?.createIcons();
+    window.lucide?.createIcons({root:feed});
   }
 
   function appendChatMessage(message) {
@@ -2163,7 +2305,7 @@
         .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
 
       if (!notes.length) {
-        listEl.innerHTML = '<p class="empty-hint">No reflection notes written yet for this sanctuary session.</p>';
+        listEl.innerHTML = '<p class="empty-hint">No reflection notes written yet for this meditation session.</p>';
         return;
       }
 
@@ -2171,7 +2313,7 @@
         '<div class="reflection-entry-card">' +
           '<div class="reflection-card-meta">' +
             '<span class="reflection-meta-date">' + escape(n.date || "Today") + '</span>' +
-            '<span class="reflection-meta-badge">' + escape(n.template || "Sanctuary") + '</span>' +
+            '<span class="reflection-meta-badge">' + escape(n.template || "Meditation") + '</span>' +
           '</div>' +
           '<p class="reflection-card-body serif-font">' + escape(n.text) + '</p>' +
         '</div>'
@@ -2252,7 +2394,7 @@
     const journeyForward15 = document.getElementById("btn-journey-forward-15");
 
     function skipTime(delta) {
-      if (!activeRoom || (playbackSession?.state && !playbackSession.canControl)) return;
+      if (!activeRoom || inactiveRoomPreview || (playbackSession?.state && !playbackSession.canControl)) return;
       if (activeRoom.timeMode === "loop") {
         sessionElapsedSeconds = Math.max(0, sessionElapsedSeconds + delta);
       } else {
@@ -2280,6 +2422,13 @@
 
     allScrubbers.forEach(track => {
       if (!track) return;
+      track.setAttribute('role','slider'); track.tabIndex = 0;
+      track.setAttribute('aria-label','Session position'); track.setAttribute('aria-valuemin','0');
+      track.addEventListener('keydown', e => {
+        if (!['ArrowLeft','ArrowRight','Home','End'].includes(e.key)) return;
+        e.preventDefault();
+        skipTime(e.key === 'Home' ? -sessionElapsedSeconds : e.key === 'End' ? sessionTotalSeconds-sessionElapsedSeconds : e.key === 'ArrowRight' ? 15 : -15);
+      });
       track.addEventListener("click", e => {
         if (!activeRoom || activeRoom.timeMode === "loop" || !sessionTotalSeconds) return;
         if (playbackSession?.state && !playbackSession.canControl) return;
@@ -2336,8 +2485,12 @@
     // Template 1 Interval Bell & End Session
     const intervalBellBtn = document.getElementById("btn-interval-bell");
     if (intervalBellBtn) {
+      intervalBellBtn.setAttribute("aria-pressed", String(intervalBellEnabled));
+      intervalBellBtn.setAttribute("aria-label", "Toggle interval bell");
       intervalBellBtn.addEventListener("click", () => {
         intervalBellEnabled = !intervalBellEnabled;
+        intervalBellBtn.setAttribute("aria-pressed", String(intervalBellEnabled));
+        intervalBellBtn.classList.toggle("is-active", intervalBellEnabled);
         const icon = document.getElementById("bell-icon");
         const caption = document.getElementById("bell-text");
         if (intervalBellEnabled) {
@@ -2415,6 +2568,8 @@
   const onDomReady = fn => document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", fn) : fn();
   onDomReady(() => {
     renderLobby();
+    refreshRoomAvailability();
+    setInterval(refreshRoomAvailability,10000);
 
     const params = new URLSearchParams(window.location.search);
     const initialRoom = params.get("room");
@@ -2429,37 +2584,36 @@
       if (roomView) roomView.hidden = true;
     }
 
-    // Lobby Filter Tabs
-    document.getElementById("lobby-filter-tabs")?.addEventListener("click", e => {
-      const btn = e.target.closest(".lobby-tab-btn");
-      if (!btn) return;
-      const filter = btn.dataset.lobbyFilter;
-      document.querySelectorAll(".lobby-tab-btn").forEach(b => b.classList.toggle("active", b === btn));
-
-      const secFeatured = document.getElementById("sec-featured");
-      const secBooks = document.getElementById("sec-books");
-      const secThemes = document.getElementById("sec-themes");
-      const secCommunity = document.getElementById("sec-community");
-
-      if (secFeatured) secFeatured.hidden = (filter !== "all" && filter !== "featured");
-      if (secBooks) secBooks.hidden = (filter !== "all" && filter !== "bible-books");
-      if (secThemes) secThemes.hidden = (filter !== "all" && filter !== "themes");
-      if (secCommunity) secCommunity.hidden = (filter !== "all" && filter !== "community");
+    // Collection filtering uses the same dropdown as the other archive pages.
+    document.getElementById('meditation-collection')?.addEventListener('change', () => {
+      document.getElementById('meditation-search')?.dispatchEvent(new Event('input'));
     });
 
     // Lobby Search
     document.getElementById("meditation-search")?.addEventListener("input", e => {
       const query = e.target.value.trim().toLowerCase();
-      document.querySelectorAll(".sanctuary-room-card").forEach(card => {
+      const filter = document.getElementById('meditation-collection')?.value || 'all';
+      let matches = 0;
+      document.querySelectorAll('.sanctuary-room-card').forEach(card => {
         card.hidden = !!query && !card.textContent.toLowerCase().includes(query);
       });
-      document.querySelectorAll(".lobby-section").forEach(section => {
-        if (query) section.hidden = !section.querySelector(".sanctuary-room-card:not([hidden])");
+      document.querySelectorAll('.lobby-section').forEach(section => {
+        const category = ({'sec-featured':'featured','sec-books':'bible-books','sec-themes':'themes','sec-community':'community'})[section.id];
+        section.hidden = (filter !== 'all' && category !== filter) || (!!query && !section.querySelector('.sanctuary-room-card:not([hidden])'));
+        if (!section.hidden) matches += section.querySelectorAll('.sanctuary-room-card:not([hidden])').length;
       });
+      let status = document.getElementById('meditation-search-status');
+      if (!status) { status = document.createElement('p'); status.id = 'meditation-search-status'; status.setAttribute('role','status'); document.getElementById('meditation-lobby').append(status); }
+      status.textContent = query && !matches ? 'No rooms match your search. Clear the search or try another phrase.' : '';
+
     });
 
+    document.addEventListener('keydown', e => {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-enter-room]')) { e.preventDefault(); e.target.click(); }
+    });
     // Room Card Click & Navigation
     document.addEventListener("click", e => {
+      if (e.target.closest("[data-room-edit-link]")) return;
       const card = e.target.closest("[data-enter-room]");
       if (card) {
         e.preventDefault();
@@ -2476,7 +2630,7 @@
       }
     });
 
-    // Sanctuary Media Type Tabs
+    // Meditation Media Type Tabs
     document.getElementById("sanctuary-media-tabs")?.addEventListener("click", e => {
       const tab = e.target.closest(".sanctuary-media-tab");
       if (!tab || !tab.dataset.mediaType) return;
@@ -2489,46 +2643,37 @@
     document.getElementById("room-fullscreen-btn")?.addEventListener("click", () => toggleFullscreen());
     document.getElementById("bottom-play-btn")?.addEventListener("click", togglePlay);
 
-    // Theme Mode Toggle (Bright / Light vs. Dark Sanctuary)
+    // Theme Mode Toggle (Bright / Light vs. Dark Meditation)
     document.getElementById("room-theme-toggle-btn")?.addEventListener("click", () => {
       const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
       const nextTheme = currentTheme === "dark" ? "light" : "dark";
       if (activeRoom) activeRoom.mode = nextTheme;
       applyRoomMode(nextTheme);
-      showToast("Switched to " + (nextTheme === "dark" ? "Dark Sanctuary" : "Bright / Light") + " mode");
+      showToast("Switched to " + (nextTheme === "dark" ? "Dark Meditation" : "Bright / Light") + " mode");
     });
 
-    // Template In-Room Actions
-    const bellBtn = document.getElementById("btn-interval-bell");
-    if (bellBtn) {
-      bellBtn.addEventListener("click", () => {
-        intervalBellEnabled = !intervalBellEnabled;
-        const bellText = document.getElementById("bell-text");
-        if (bellText) bellText.textContent = intervalBellEnabled ? "Interval Bell" : "Bell Muted";
-        bellBtn.classList.toggle("is-active", intervalBellEnabled);
-        if (intervalBellEnabled) {
-          playIntervalBell(528);
-          showToast("Interval bell chime active (every 5 min)");
-        } else {
-          showToast("Interval bell chime muted");
-        }
-      });
-    }
-
+    // Timer actions are each bound once; the bell is wired in setupScrubberControls.
     document.getElementById("btn-timer-primary-toggle")?.addEventListener("click", () => {
-      if (sessionRemainingSeconds <= 0 && activeRoom?.timeMode !== "loop") {
+      if (playbackSession?.canControl && sessionRemainingSeconds <= 0 && activeRoom?.timeMode !== "loop") {
         initTimerController(activeRoom);
       }
       togglePlay();
     });
 
     document.getElementById("btn-timer-end-session")?.addEventListener("click", async () => {
-      isPlaying = false; stopTimerTicker(); stopAudioHarmonics();
-      publishPlayback();
-      await playbackQueue;
-      playIntervalBell(432);
+      const owner = playbackSession?.canControl;
+      const button = document.getElementById('btn-timer-end-session');
+      if (button.disabled) return;
+      isPlaying = false; stopTimerTicker(); stopAudioHarmonics(); updatePlayState();
+      if (owner) {
+        button.disabled = true;
+        playbackNotice('Stopping the room…');
+        try { await publishPlayback(true); }
+        catch (_) { playbackNotice('Could not stop the room. Check your connection and press Stop again.'); return; }
+        finally { button.disabled = false; }
+      }
       exitToLobby();
-      showToast("Sanctuary session ended.");
+      showToast(owner ? 'Room stopped. It is now inactive.' : 'You left the room.');
     });
 
     // Journey Step Node Clicks
@@ -2547,28 +2692,40 @@
     setupReflectionModal();
     setupScrubberControls();
 
+    document.getElementById('room-edit-btn')?.addEventListener('click', () => {
+      if (!activeRoom || !window.MWEPlatform?.canManage('meditation', activeRoom.id)) return;
+      const route={view:'create',kind:'meditation',edit:activeRoom.id};
+      if (window.parent!==window) window.parent.postMessage({type:'faithlink:navigate',...route},location.origin);
+      else window.location.href=window.MWE.buildMemberShellUrl(route);
+    });
+
     // Invite Friend Modal Triggers
     document.getElementById("room-invite-btn")?.addEventListener("click", openInviteFriendModal);
     document.getElementById("btn-close-invite")?.addEventListener("click", () => {
       document.getElementById("modal-invite-friend")?.close?.();
     });
-    document.getElementById("btn-copy-invite-url")?.addEventListener("click", () => {
+    document.getElementById("btn-copy-invite-url")?.addEventListener("click", async () => {
       const urlInput = document.getElementById("invite-share-url");
+      const button = document.getElementById("btn-copy-invite-url");
       const btnText = document.getElementById("copy-btn-text");
-      const btnIcon = document.getElementById("copy-btn-icon");
-      if (urlInput && navigator.clipboard) {
-        navigator.clipboard.writeText(urlInput.value).then(() => {
-          showToast("Invite link copied to clipboard!");
-          if (btnText) btnText.textContent = "Copied!";
-          if (btnIcon) btnIcon.setAttribute("data-lucide", "check");
+      if (!urlInput || button.disabled) return;
+      button.disabled = true;
+      try {
+        if (!navigator.clipboard) throw new Error("Clipboard unavailable");
+        await navigator.clipboard.writeText(urlInput.value);
+        showToast("Invite link copied to clipboard!");
+        if (btnText) btnText.textContent = "Copied!";
+        document.getElementById("copy-btn-icon")?.setAttribute("data-lucide", "check");
+        window.lucide?.createIcons();
+        setTimeout(() => {
+          if (btnText) btnText.textContent = "Copy link";
+          document.getElementById("copy-btn-icon")?.setAttribute("data-lucide", "copy");
           window.lucide?.createIcons();
-          setTimeout(() => {
-            if (btnText) btnText.textContent = "Copy Link";
-            if (btnIcon) btnIcon.setAttribute("data-lucide", "copy");
-            window.lucide?.createIcons();
-          }, 2500);
-        }).catch(() => {});
-      }
+        }, 2500);
+      } catch (_) {
+        urlInput.focus(); urlInput.select();
+        showToast("Copy unavailable. Select and copy the room link above.");
+      } finally { button.disabled = false; }
     });
 
     // Minimized Live Chat Toggle
@@ -2592,8 +2749,10 @@
       input.focus();
     });
 
-    // Create Virtual Sanctuary Room Dialog Interactive UI
+    // Create Virtual Meditation Room Dialog Interactive UI
     const createModal = document.getElementById("modal-create-room");
+    const zoneNote=document.getElementById('new-room-opening-zone');
+    if(zoneNote)zoneNote.textContent='Time zone: '+(Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC');
     document.getElementById("btn-open-create-room")?.addEventListener("click", () => {
       createModal?.showModal?.();
       window.lucide?.createIcons();
@@ -2603,6 +2762,10 @@
 
     // Template selection choices
     document.querySelectorAll(".template-choice-card").forEach(card => {
+      const choice = card.querySelector('input[type="radio"]');
+      const available = isMeditationRoomEnabled({template: choice?.value});
+      card.hidden = !available;
+      if (choice) choice.disabled = !available;
       card.addEventListener("click", () => {
         document.querySelectorAll(".template-choice-card").forEach(c => c.classList.remove("active"));
         card.classList.add("active");
@@ -2643,7 +2806,7 @@
       if (wrapper) wrapper.hidden = (e.target.value === "loop");
     });
 
-    document.getElementById("form-create-sanctuary")?.addEventListener("submit", e => {
+    document.getElementById("form-create-sanctuary")?.addEventListener("submit", async e => {
       e.preventDefault();
       const title = document.getElementById("new-room-title")?.value.trim();
       const category = document.getElementById("new-room-category")?.value || "featured";
@@ -2702,14 +2865,14 @@
 
       const newId = "room-custom-" + Date.now();
       const ownerKey = "host_" + Math.random().toString(36).slice(2, 10);
-      const creatorName = window.MWECreator?.account?.()?.name || "Host Creator";
+      const creatorName = window.MWEPlatform?.session?.name || window.MWECreator?.account?.()?.name || "Host Creator";
 
       const coverByTheme = {
-        chapel: "https://images.unsplash.com/photo-1548625361-195fe578ae14?auto=format&fit=crop&w=800&q=80",
-        mountains: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=700&q=80",
-        stars: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=800&q=80",
-        stream: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
-        deepdark: "https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=800&q=80"
+        chapel: "assets/meditation-chapel.png",
+        mountains: "assets/meditation-sunrise.png",
+        stars: "assets/meditation-stars.png",
+        stream: "assets/meditation-lake.png",
+        deepdark: "assets/meditation-stars.png"
       };
 
       const newRoom = {
@@ -2724,6 +2887,10 @@
         template,
         purpose,
         mode,
+        scheduledOpensAt: document.getElementById('new-room-opens-at')?.value ? new Date(document.getElementById('new-room-opens-at').value).toISOString() : '',
+        scheduleTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC',
+        openingMode:document.getElementById('new-room-opening-mode')?.value||'manual',
+        playbackStart:document.getElementById('new-room-playback-start')?.value||'owner',
         timeMode,
         durationMinutes,
         themeColor: selectedThemeColor,
@@ -2740,26 +2907,30 @@
         verses: allVerses,
         audioTracks: {
           bible: { title: "Audio Bible: " + title, cat: "Dramatized Scripture", freq: 432 },
-          instrumental: { title: "Soaking Sanctuary Pads", cat: "Instrumental (432Hz)", freq: 432 },
+          instrumental: { title: "Soaking Meditation Pads", cat: "Instrumental (432Hz)", freq: 432 },
           worship: { title: "Christian Worship Reflection", cat: "Worship Music", freq: 432 },
           sermon: { title: "Sermons & Preaching", cat: "Spiritual Word", freq: 432 },
           silence: { title: "Silence / Ambience Only", cat: "Ambient Atmosphere", freq: 432 }
         }
       };
 
-      // Save ownerKey locally
+      const form = e.currentTarget;
+      let error = form.querySelector('[data-create-error]');
+      if (!error) { error = document.createElement('p'); error.dataset.createError = ''; error.setAttribute('role', 'alert'); form.querySelector('.dialog-actions').before(error); }
+      error.textContent = '';
+      const submit = form.querySelector('[type="submit"]');
+      submit.disabled = true;
       try {
-        localStorage.setItem("mwe.meditation.owner." + newId, ownerKey);
-        sessionStorage.setItem("mwe.meditation.host." + newId, "true");
-      } catch (e) {}
+        const saved = await window.MWEPlatform.save('meditation', { ...newRoom, publicationState: 'pending' });
+        roomsCatalog.unshift(enrichRoomWithMedia(saved));
+        renderLobby(); drawRoomAvailability();
+        createModal?.close?.();
+        showToast(saved.publicationState === 'published' ? 'Meditation room created!' : 'Room submitted for review.');
+        if (saved.publicationState === 'published') enterRoom(saved.id, true);
+      } catch (cause) {
+        error.textContent = cause.message || 'Could not create the room. Please try again.';
+      } finally { submit.disabled = false; }
 
-      roomsCatalog.unshift(newRoom);
-      window.MWEMeditation?.saveRooms?.(roomsCatalog);
-      renderLobby();
-
-      createModal?.close?.();
-      showToast("Sanctuary room created! You are the host.");
-      enterRoom(newId, true);
     });
 
     // Keyboard Shortcuts
@@ -2769,6 +2940,7 @@
         const chatDrawer = document.getElementById("meditation-chat-drawer");
         if (chatDrawer && !chatDrawer.hidden) toggleChatDrawer(false);
       } else if (e.key === "f" || e.key === "F") {
+        if (inactiveRoomPreview) return;
         if (!document.getElementById("meditation-room-view")?.hidden && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
           toggleFullscreen();
         }

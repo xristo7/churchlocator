@@ -1,3 +1,4 @@
+import { deliverMeditationSchedules } from './meditation-schedule.js';
 import { handleSoundCloudApi } from "./soundcloud.js";
 import { ApiError, readJson, validateMutationOrigin, enforceRateLimit, securityHeaders } from "./security.js";
 import { handleIdentityApi, modernPassword, environmentPassword, PASSWORD_PREFIX, mfaChallenge, throttleAccount } from './identity-security.js';
@@ -942,6 +943,13 @@ function publicChurchRecord(row, profile, schedules, entity) {
     email: pick(row?.email, data.email),
     photo: pick(row?.cover_image_url, data.photo),
     logo: pick(data.logo),
+    visitFormImage: pick(data.visitFormImage),
+    rideFormImage: pick(data.rideFormImage),
+    groupFormImage: pick(data.groupFormImage),
+    ministryFormImage: pick(data.ministryFormImage),
+    prayerFormImage: pick(data.prayerFormImage),
+    messageFormImage: pick(data.messageFormImage),
+
     ministries: Array.isArray(data.ministries) ? data.ministries.map(m => churchText(String(m), 120)).filter(Boolean).slice(0, 20) : [],
     livestreamEnabled: row ? Number(row.livestream_enabled) === 1 : !!data.livestream?.enabled,
     services,
@@ -1962,6 +1970,7 @@ async function handleApi(request, env, executionCtx) {
 
 export default {
   async scheduled(event, env) {
+    await deliverMeditationSchedules(env);
     await deliverSpotlightNotifications(env);
     await closeExpiredLiveSessions(env);
     await deliverLiveNotifications(env);

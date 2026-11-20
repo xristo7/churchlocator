@@ -464,14 +464,7 @@
                     "<h2>Comments</h2>" +
                     '<div class="channel-post-comments" data-post-comments><p>Loading comments…</p></div>' +
                     (item.commentsEnabled
-                      ? (signedIn
-                          ? '<form class="mwe-comment-form"><label class="sr-only" for="channel-post-comment">Add a comment</label>' +
-                              '<div class="channel-post-comment-compose">' +
-                                '<input id="channel-post-comment" name="comment" maxlength="600" placeholder="Write your comment…" required />' +
-                                '<button type="submit">Post comment</button>' +
-                              "</div></form>"
-                          : '<div class="mwe-signin-comment"><p>Sign in to join the conversation.</p>' +
-                              '<button type="button" class="mwe-chip" data-signin-comment>Sign in to comment</button></div>')
+                      ? '<div data-comment-compose><p role="status">Checking your session…</p></div>'
                       : '<p class="mwe-comments-disabled">Comments are turned off for this post.</p>') +
                   "</section>"
                 : "") +
@@ -500,6 +493,18 @@
       const sessionFailed = sessionResult.status === 'rejected' || sessionResult.status === 'fulfilled' && sessionResult.value === null;
       gatedButtons.forEach(button=>button.disabled=sessionFailed);
       signedIn = sessionResult.status === 'fulfilled' && sessionResult.value === true;
+      const commentCompose = root.querySelector('[data-comment-compose]');
+      if (commentCompose && !sessionFailed) commentCompose.innerHTML =
+        (signedIn
+          ? '<form class="mwe-comment-form"><label class="sr-only" for="channel-post-comment">Add a comment</label>' +
+            '<div class="channel-post-comment-compose">' +
+            '<input id="channel-post-comment" name="comment" maxlength="600" placeholder="Write your comment…" required />' +
+            '<button type="submit">Post comment</button>' +
+            "</div></form>"
+          : '<div class="mwe-signin-comment"><p>Sign in to join the conversation.</p>' +
+            '<button type="button" class="mwe-chip" data-signin-comment>Sign in to comment</button></div>');
+      const followedTab = root.querySelector('[data-related-tab="followed"]');
+      if (followedTab) followedTab.title = signedIn ? 'From channels you follow' : 'Sign in to see channels you follow';
       if (relatedResult.status === 'fulfilled') {
         related.all = relatedResult.value.all; related.channel = relatedResult.value.channel; related.followed = relatedResult.value.followed; related.series = relatedResult.value.series; related.seriesTitle = relatedResult.value.seriesTitle;
       } else relatedFailed = relatedResult.reason;
@@ -585,7 +590,7 @@
         }
       }
       if (sessionFailed) {
-        const compose = root.querySelector(".mwe-comment-form,.mwe-signin-comment");
+        const compose = root.querySelector("[data-comment-compose]");
         if (compose) compose.innerHTML='<p role="alert">Could not verify your session. Account actions may require sign-in.</p><button type="button" class="mwe-chip" data-session-retry>Retry session</button>';
         root.querySelector('[data-session-retry]')?.addEventListener('click',()=>location.reload());
       }

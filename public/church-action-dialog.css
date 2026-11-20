@@ -1,0 +1,120 @@
+/* Church connection dialogs use the shared light/dark palette with restrained accent and gold. */
+#cp-action-dialog{--cp-ink:var(--text-primary,#17202e);--cp-muted:var(--text-secondary,#677181);--cp-surface:var(--surface-card,#fff);--cp-line:var(--border-subtle,#e3e7ed);width:min(900px,calc(100vw - 32px));height:min(590px,calc(100dvh - 64px));padding:0;border:1px solid var(--cp-line);border-radius:28px;overflow:hidden;background:var(--cp-surface);color:var(--cp-ink);box-shadow:0 32px 110px -30px #0008;font-family:Inter,system-ui,sans-serif}
+#cp-action-dialog[open]{display:grid;grid-template-columns:34% minmax(0,1fr)}
+#cp-action-dialog::backdrop{background:color-mix(in srgb,var(--primary) 10%,#080b14d9)!important;backdrop-filter:blur(12px)!important}
+#cp-action-dialog :is(button,input,select,textarea){font-family:inherit;box-sizing:border-box}
+#cp-action-dialog .cp-action-visual{position:relative;min-width:0;min-height:0;background:linear-gradient(145deg,color-mix(in srgb,var(--primary) 35%,#142126),#101719);isolation:isolate;overflow:hidden}
+#cp-action-dialog .cp-action-visual>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.6;z-index:-2}
+#cp-action-dialog .cp-action-visual::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#09111624,color-mix(in srgb,var(--primary) 18%,#101719b0) 42%,#091116f2),radial-gradient(ellipse at 5% 0%,color-mix(in srgb,var(--primary) 40%,transparent),transparent 70%)}
+#cp-action-dialog .cp-action-story{height:100%;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;gap:32px;padding:34px 28px;color:#fff}
+#cp-action-dialog .cp-action-emblem{display:grid;place-items:center;width:50px;height:50px;border:1px solid #ffffff40;border-radius:16px;background:#ffffff14;backdrop-filter:blur(10px);color:var(--gold-text,#efcb82)}
+#cp-action-dialog .cp-action-emblem svg{width:25px;height:25px;stroke-width:1.6}
+#cp-action-dialog .cp-action-eyebrow{font-size:10px;font-weight:650;letter-spacing:.17em;color:var(--gold-text,#efcb82);margin:0 0 16px}
+#cp-action-dialog .cp-action-story h2{font:500 35px/1.16 Georgia,serif;letter-spacing:-.7px;color:#fff;margin:0 0 18px}
+#cp-action-dialog .cp-action-story p:not(.cp-action-eyebrow){font-size:13px;line-height:1.8;color:#e7ebee;margin:0}
+#cp-action-dialog .cp-action-church{display:flex;align-items:center;gap:10px;font-size:12px;line-height:1.6;color:#fff;border-top:1px solid #ffffff2b;padding-top:20px}
+#cp-action-dialog .cp-action-church svg{width:18px;height:18px;flex:none;color:var(--gold-text,#efcb82)}
+html body dialog#cp-action-dialog form.cp-action-form{box-sizing:border-box;display:flex;flex-direction:column;gap:20px;padding:32px 36px!important;margin:0;min-width:0;min-height:0;overflow-y:auto;overscroll-behavior:contain;background:radial-gradient(ellipse at top right,color-mix(in srgb,var(--primary) 4%,transparent),transparent 65%),var(--cp-surface);scrollbar-width:thin}
+#cp-action-dialog .cp-action-kicker{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--primary);margin:0 0 8px}
+#cp-action-dialog #cp-action-title{font-size:25px;font-weight:650;letter-spacing:-.8px;line-height:1.25;margin:0;padding-right:30px;color:var(--cp-ink)}
+#cp-action-dialog #cp-action-hint{font-size:12px;line-height:1.65;color:var(--cp-muted);margin:10px 22px 0 0}
+#cp-action-dialog .cp-action-progress{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0;padding:0}
+#cp-action-dialog .cp-action-progress li{display:flex;align-items:center;gap:8px;padding:0 0 12px;border-bottom:2px solid var(--cp-line);font-size:11px;font-weight:600;color:var(--cp-muted)}
+#cp-action-dialog .cp-action-progress li>span{font-size:10px;letter-spacing:.05em;opacity:.7}
+#cp-action-dialog .cp-action-progress [aria-current]{border-color:var(--primary);color:var(--primary)}
+#cp-action-dialog .cp-action-progress .is-complete{border-color:var(--gold-border,var(--primary));color:var(--cp-ink)}
+#cp-action-dialog .cp-action-content{flex:1;min-width:0}
+#cp-action-dialog [data-step]{display:flex;flex-direction:column;gap:14px;min-width:0}
+#cp-action-dialog [hidden]{display:none!important}
+#cp-action-dialog h3{font-size:15px;font-weight:650;line-height:1.4;margin:0;color:var(--cp-ink)}
+#cp-action-dialog h3:focus{outline:none}
+#cp-action-dialog .cp-action-help{font-size:11px;color:var(--cp-muted);margin:-8px 0 0}
+#cp-action-dialog label{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:4px;row-gap:7px;font-size:12px;line-height:1.4;font-weight:550;color:var(--cp-ink);min-width:0}
+#cp-action-dialog label>small{margin-left:auto;color:var(--cp-muted);font-size:10px;font-weight:400}
+#cp-action-dialog label>span{color:var(--primary)}
+#cp-action-dialog :is(input,select,textarea){display:block;flex:0 0 100%;width:100%;min-width:0;margin:0;border:1px solid var(--cp-line)!important;border-radius:12px!important;padding:12px 14px;min-height:45px;background:var(--surface-soft,#f6f7f9)!important;color:var(--cp-ink);font-size:14px;line-height:1.45;box-shadow:none!important;transition:border-color .18s,background-color .18s}
+#cp-action-dialog textarea{min-height:112px;max-height:200px;resize:vertical}
+#cp-action-dialog :is(input,textarea)::placeholder{color:var(--cp-muted);font-weight:400;opacity:.8}
+#cp-action-dialog :is(input,select,textarea):focus{outline:2px solid color-mix(in srgb,var(--primary) 20%,transparent);outline-offset:2px;border-color:var(--primary)!important}
+#cp-action-dialog .cp-action-privacy{display:flex;align-items:flex-start;gap:7px;margin:0;color:var(--cp-muted);font-size:10px;line-height:1.6}
+#cp-action-dialog .cp-action-privacy svg{width:13px;height:13px;flex:none;margin-top:1px;color:var(--gold-text,var(--primary))}
+#cp-action-dialog .cp-action-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:16px;border-top:1px solid var(--cp-line);flex-shrink:0}
+#cp-action-dialog :is(.cp-action-primary,.cp-action-back){display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:650;line-height:1.4;min-height:44px;padding:11px 16px;border-radius:12px;cursor:pointer;margin:0}
+#cp-action-dialog .cp-action-primary{background:var(--primary);color:var(--primary-contrast,#fff);border:1px solid transparent;box-shadow:0 6px 18px -8px color-mix(in srgb,var(--primary) 40%,transparent)}
+#cp-action-dialog .cp-action-primary:hover{filter:brightness(1.08)}
+#cp-action-dialog .cp-action-back{border:0;background:transparent;color:var(--cp-muted);padding-left:0}
+#cp-action-dialog :is(.cp-action-primary,.cp-action-back) svg{width:16px;height:16px;flex:none}
+#cp-action-dialog button:disabled{opacity:.55;cursor:wait}
+#cp-action-dialog button:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
+#cp-action-dialog .cp-action-close{position:absolute;z-index:3;top:16px;right:16px;display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--cp-muted);cursor:pointer}
+#cp-action-dialog .cp-action-close:hover{background:var(--surface-soft)}
+#cp-action-dialog .cp-action-close svg{width:18px;height:18px;pointer-events:none}
+#cp-action-dialog :is(.cp-action-error,.cp-action-session){margin:0;font-size:12px;line-height:1.6;color:var(--cp-muted)}
+#cp-action-dialog .cp-action-error{color:var(--danger,#cf3650)}
+#cp-action-dialog .cp-action-success{margin:auto;display:flex;flex-direction:column;align-items:flex-start;gap:16px;outline:0}
+#cp-action-dialog .cp-action-success>span{width:56px;height:56px;display:grid;place-items:center;border-radius:50%;color:var(--primary);background:color-mix(in srgb,var(--primary) 12%,transparent)}
+#cp-action-dialog .cp-action-success h2{font-size:29px;letter-spacing:-.8px;margin:0;color:var(--cp-ink)}
+#cp-action-dialog .cp-action-success p{margin:0;color:var(--cp-muted);font-size:13px;line-height:1.8}
+#cp-action-dialog .cp-action-success .cp-action-kicker{color:var(--primary);font-size:10px}
+html[data-theme="dark"] #cp-action-dialog .cp-action-kicker,html[data-theme="dark"] #cp-action-dialog .cp-action-progress [aria-current]{color:var(--accent-bright,var(--primary))}
+@media(max-width:700px){
+  #cp-action-dialog{width:min(460px,calc(100vw - 24px));height:auto;border-radius:22px}
+  #cp-action-dialog[open]{grid-template-columns:minmax(0,1fr)}
+  #cp-action-dialog .cp-action-visual{display:none}
+  html body dialog#cp-action-dialog form.cp-action-form{padding:30px 24px 24px!important;max-height:calc(100dvh - 48px);gap:20px}
+  #cp-action-dialog #cp-action-title{font-size:23px}
+  #cp-action-dialog :is(input,select,textarea){font-size:16px}
+  #cp-action-dialog .cp-action-primary{max-width:75%}
+  #cp-action-dialog .cp-action-footer{margin-top:8px}
+}
+@media(prefers-reduced-motion:reduce){#cp-action-dialog *{transition:none!important}}
+@media(max-height:560px) and (min-width:701px){
+  #cp-action-dialog .cp-action-story{padding:24px;gap:16px}
+  #cp-action-dialog .cp-action-emblem{width:36px;height:36px;border-radius:12px;flex-shrink:0}
+  #cp-action-dialog .cp-action-story h2{font-size:27px;margin-bottom:12px}
+  #cp-action-dialog .cp-action-story p:not(.cp-action-eyebrow){display:none}
+  #cp-action-dialog .cp-action-church{padding-top:12px}
+}
+/* Keep page-wide heading spacing out of this compact form layout. */
+html body dialog#cp-action-dialog form.cp-action-form{gap:16px}
+#cp-action-dialog .cp-action-form>header{flex:none}
+#cp-action-dialog #cp-action-title{margin:0!important}
+#cp-action-dialog #cp-action-hint{font-size:12px!important;line-height:1.65!important;margin:10px 22px 0 0!important}
+#cp-action-dialog h3{margin:0!important}
+#cp-action-dialog [data-step]{gap:12px}
+#cp-action-dialog .cp-action-footer{padding-top:12px}
+@media(max-width:700px){
+  #cp-action-dialog{height:fit-content!important}
+  #cp-action-dialog .cp-action-content{flex:0 0 auto}
+  html body dialog#cp-action-dialog form.cp-action-form{max-height:calc(100dvh - 50px)}
+}
+
+/* Keep the photo clear above a bottom-aligned, readable introduction. */
+#cp-action-dialog .cp-action-visual>img{opacity:1}
+#cp-action-dialog .cp-action-visual::after{background:linear-gradient(180deg,transparent 0%,rgba(8,15,22,.04) 24%,rgba(8,15,22,.68) 48%,rgba(8,15,22,.94) 76%,#080f16 100%)}
+#cp-action-dialog .cp-action-story{justify-content:flex-end;gap:18px}
+#cp-action-dialog .cp-action-eyebrow{color:#f7dda8}
+#cp-action-dialog .cp-action-emblem,#cp-action-dialog .cp-action-church svg{color:#f7dda8}
+#cp-action-dialog .cp-action-story h2{font-size:32px;margin-bottom:12px;text-shadow:0 1px 12px #0003}
+#cp-action-dialog .cp-action-church{padding-top:16px}
+#cp-action-dialog .cp-action-kicker,#cp-action-dialog .cp-action-progress [aria-current],#cp-action-dialog label>span{color:color-mix(in srgb,var(--primary-active,var(--primary)) 90%,#000)}
+#cp-action-dialog .cp-action-primary{background:color-mix(in srgb,var(--primary-active,var(--primary)) 90%,#000);color:#fff}
+html body dialog#cp-action-dialog::backdrop{background:color-mix(in srgb,var(--primary) 5%,rgba(36,47,64,.35))!important;backdrop-filter:blur(9px)!important}
+html[data-theme="dark"] body dialog#cp-action-dialog::backdrop{background:color-mix(in srgb,var(--primary) 6%,rgba(5,8,15,.73))!important}
+html[data-theme="light"] #cp-action-dialog{box-shadow:0 28px 90px -25px rgba(24,39,60,.28)}
+html[data-theme="dark"] #cp-action-dialog .cp-action-kicker,html[data-theme="dark"] #cp-action-dialog .cp-action-progress [aria-current],html[data-theme="dark"] #cp-action-dialog label>span{color:var(--accent-bright,var(--primary))}
+@media(max-height:560px) and (min-width:701px){#cp-action-dialog .cp-action-story{gap:12px}#cp-action-dialog .cp-action-story h2{font-size:25px}}
+#cp-action-dialog .cp-action-emblem{background:rgba(8,15,22,.72)}
+/* A more compact landscape frame, with prompts inside the text fields. */
+#cp-action-dialog{width:min(800px,calc(100vw - 32px));height:min(520px,calc(100dvh - 64px))}
+html body dialog#cp-action-dialog form.cp-action-form{padding:26px 28px!important;gap:14px}
+#cp-action-dialog .cp-action-story{padding:28px 24px;gap:16px}
+#cp-action-dialog .cp-action-story h2{font-size:28px}
+#cp-action-dialog .cp-action-story p:not(.cp-action-eyebrow){font-size:12px}
+#cp-action-dialog .cp-action-emblem{width:42px;height:42px;border-radius:13px}
+#cp-action-dialog [data-step]>label:has(.form-prompt-control){row-gap:0}
+@media(max-width:700px){
+  #cp-action-dialog{width:min(430px,calc(100vw - 24px));height:fit-content!important}
+  html body dialog#cp-action-dialog form.cp-action-form{padding:28px 22px 22px!important}
+}
+@media(max-height:560px) and (min-width:701px){#cp-action-dialog .cp-action-story{padding:22px;gap:12px}#cp-action-dialog .cp-action-story h2{font-size:25px}}

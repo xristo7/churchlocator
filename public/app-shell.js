@@ -1,3 +1,11 @@
+/* The SPA fades embedded views itself. Native document transitions conflict with
+   iframe replacement and browser history, especially on direct edit redirects. */
+(function () {
+  if(window.top!==window || document.body?.classList.contains('member-app-shell') || (document.body?.classList.contains('creator-studio-page') && new URLSearchParams(location.search).has('edit'))) {
+    const style=document.createElement('style');style.textContent='@view-transition {navigation:none;}';document.head.append(style);
+  }
+})();
+
 /* Shared mobile bottom tab bar (all pages, <960px). */
 (function initMWETabbar() {
   if (window.top !== window.self || document.querySelector(".mwe-tabbar")) return;
@@ -98,6 +106,10 @@
   document.body.append(navBackdrop);
 
   function setMemberNav(open) {
+    if(open){
+      document.body.classList.remove('member-shell-fullscreen');
+      if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
+    }
     document.body.classList.toggle("member-nav-open", open);
     mobileMenu?.setAttribute("aria-expanded", String(open));
     mobileMenu?.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
@@ -122,7 +134,7 @@
     home: { source: "member-home.html", title: "Find your church home" },
     storefront: { source: "storefront.html", title: "Community Store" },
     spotlight: { source: "spotlight.html", title: "Spotlight" },
-    meditation: { source: "meditation.html", title: "Meditation Sanctuary" },
+    meditation: { source: "meditation.html", title: "Meditation" },
     directory: { source: "churches.html", title: "Church Directory" },
     channels: { source: "channels.html", title: "Christian Channels" },
     "channel-detail": { source: "channel-detail.html", title: "Channel" },
@@ -261,6 +273,9 @@
     const view = views[requested] ? requested : "directory";
     return {
       view,
+      kind: params.get("kind") || "",
+      edit: params.get("edit") || "",
+      step: params.get("step") || "",
       id: params.get("id") || "",
       session: params.get("session") || "",
       q: params.get("q") || "",
@@ -275,6 +290,7 @@
     const definition = views[route.view] || views.directory;
     const source = new URL(definition.source, window.location.href);
     source.searchParams.set("embed", "1");
+    if (["create","portal"].includes(route.view)) for (const key of ["kind","edit","step"]) if (route[key]) source.searchParams.set(key,route[key]);
     if (route.id) source.searchParams.set("id", route.id);
     if (route.q) source.searchParams.set("q", route.q);
     if (route.ministry) source.searchParams.set("ministry", route.ministry);
@@ -291,6 +307,7 @@
     if (route.view === "home" && !route.id && !route.q) return "/home";
     const target = new URL("app.html", window.location.href);
     target.searchParams.set("view", route.view);
+    if (["create","portal"].includes(route.view)) for (const key of ["kind","edit","step"]) if (route[key]) target.searchParams.set(key,route[key]);
     if (route.id) target.searchParams.set("id", route.id);
     if (route.q) target.searchParams.set("q", route.q);
     if (route.ministry) target.searchParams.set("ministry", route.ministry);
@@ -319,14 +336,27 @@
     return `signed-out.html?view=${encodeURIComponent(route.view)}&next=${encodeURIComponent(buildShellUrl(route))}`;
   }
 
+  function setFrameSource(source) {
+    // The shell owns page history. Replacing the embedded document prevents a
+    // second iframe history entry from leaving the shell URL on the wrong page.
+    const target=new URL(source,location.href).toString();
+    frame.dataset.routeSource=target;
+    if(frame.contentWindow) frame.contentWindow.location.replace(target);
+    else frame.src=target;
+  }
+
   function loadRoute(route, options = {}) {
     const safeRoute = views[route.view] ? route : { view: "directory", id: "", q: "", compose: "" };
     // Private views show a normal signed-out state in place; sign-in is offered, never forced.
     const signedOut = isProtectedView(safeRoute.view) && !isAuthenticated();
 
+    if (["create","portal"].includes(safeRoute.view)) {
+      document.body.classList.remove("member-shell-fullscreen");
+      if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
+    }
     loading?.classList.remove("is-hidden");
     frame.classList.remove("is-ready");
-    frame.src = signedOut ? signedOutSource(safeRoute) : buildSource(safeRoute);
+    setFrameSource(signedOut ? signedOutSource(safeRoute) : buildSource(safeRoute));
     frame.title = views[safeRoute.view].title;
     document.title = `${views[safeRoute.view].title} | RhemaSphere`;
     setActiveNavigation(safeRoute.view);
@@ -570,6 +600,13 @@
     if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
     const message = event.data || {};
     if (message.type === "mwe-language-change" && languages[message.lang] && message.lang !== currentMemberLanguage) { setMemberLanguage(message.lang); return; }
+    if (message.type === "faithlink:studio-route") {
+      const route=getRoute();
+      if (!["create","portal"].includes(route.view)) return;
+      for (const key of ["kind","edit","step"]) route[key]=String(message[key]||"");
+      history.replaceState({route},"",buildShellUrl(route));
+      return;
+    }
     if (message.type === "faithlink:meditation-session") {
       const route = getRoute();
       if (route.view === "meditation" && route.id === message.roomId && /^[\w-]{1,128}$/.test(message.session || "")) {
@@ -594,7 +631,7 @@
       return;
     }
     if (!views[message.view]) return;
-    loadRoute({ view: message.view, id: message.id || "", q: message.q || "", post: message.post || "", compose: message.compose || "", session: message.session || "" });
+    loadRoute({ kind: message.kind || "", edit: message.edit || "", step: message.step || "", view: message.view, id: message.id || "", q: message.q || "", post: message.post || "", compose: message.compose || "", session: message.session || "" });
   });
 
   window.addEventListener("popstate", () => loadRoute(getRoute(), { history: false }));
@@ -609,8 +646,8 @@
     if (platformResolved && !window.MWEPlatform.session) { localStorage.removeItem("mwe.userLoggedIn"); localStorage.removeItem("mwe.username"); }
     syncMemberIdentity();
     const route = getRoute();
-    if (isProtectedView(route.view) && !isAuthenticated() && !String(frame.src).includes("signed-out.html")) {
-      frame.src = signedOutSource(route);
+    if (isProtectedView(route.view) && !isAuthenticated() && !String(frame.dataset.routeSource||frame.src).includes("signed-out.html")) {
+      setFrameSource(signedOutSource(route));
     }
   });
   window.lucide?.createIcons();

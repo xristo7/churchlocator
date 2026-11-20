@@ -15,7 +15,7 @@
 
 @font-face {
   font-family: "Twemoji Country Flags";
-  src: url("https://cdn.jsdelivr.net/npm/country-flag-emoji-polyfill@0.1.3/dist/TwemojiCountryFlags.woff2") format("woff2");
+  src: url("vendor/fonts/TwemojiCountryFlags.woff2") format("woff2");
   font-display: swap;
 }
 
@@ -26622,3 +26622,41 @@ html[data-theme="dark"] .timer-circle-btn.timer-primary-btn {
     box-sizing: border-box !important;
   }
 }
+
+/* Keep sanctuary content in normal flow on small screens, including session banners. */
+@media (max-width: 900px) {
+  body.in-meditation-room #meditation-room-view {
+    display:flex !important; flex-direction:column !important;
+    height:100dvh !important; max-height:100dvh !important;
+    overflow-y:auto !important; overflow-x:hidden !important;
+    padding-bottom:80px !important;
+  }
+  #meditation-room-view #sanctuary-top-bar {position:relative !important;top:auto !important;flex:none !important;order:0;width:100%;}
+  #meditation-room-view > #meditation-sync-status {position:relative !important;top:auto !important;left:auto !important;order:1;margin:8px 12px !important;flex:none;}
+  #meditation-room-view > .mwe-voice {position:relative !important;top:auto !important;left:auto !important;order:2;flex:none;margin:0 12px 12px !important;width:calc(100% - 24px) !important;}
+  #meditation-room-view #meditation-room-main {order:3;flex:none !important;width:100%;height:auto !important;max-height:none !important;overflow:visible !important;padding:24px 16px 80px !important;}
+  #meditation-room-view #sanctuary-template-stage,
+  #meditation-room-view .template-stage-view {position:relative !important;inset:auto !important;height:auto !important;min-height:0 !important;max-height:none !important;overflow:visible !important;width:100%;}
+  #meditation-room-view .template-stage-view[hidden] {display:none !important;}
+  #meditation-room-view .template-main-title {overflow-wrap:anywhere;font-size:clamp(26px,7vw,34px) !important;line-height:1.15 !important;}
+  #meditation-room-view #sanctuary-template-stage {padding:0 !important;}
+  #meditation-room-view .timer-stage-inner {gap:16px !important;padding:0 !important;}
+  #meditation-room-view .timer-ring-wrapper {width:200px !important;height:200px !important;}
+  #meditation-room-view .timer-controls-row {margin-bottom:24px !important;}
+  #meditation-room-view .mwe-session-toggle {position:relative !important;inset:auto !important;order:4;align-self:flex-end;flex:none;margin:0 16px 24px;}
+  #meditation-room-view .sanctuary-top-right > button {min-width:44px !important;width:44px !important;}
+}
+[data-create-error]:not(:empty) {color:#b91c1c;background:#fff1f2;padding:12px;border-radius:10px;}
+html[data-theme="dark"] [data-create-error]:not(:empty) {color:#fecaca;background:#450a0a;}
+#meditation-search-status {padding:16px 24px;text-align:center;}
+[role="slider"]:focus-visible,.sanctuary-room-card:focus-visible {outline:3px solid var(--primary);outline-offset:4px;}
+/* Paused templates retain their markup for later reactivation. */
+.template-choice-card[hidden] {display:none !important;}
+
+/* Live icon refreshes must not replace the pointer target during a click. */
+:is(button,a,[role="button"]) svg,:is(button,a,[role="button"]) svg *{pointer-events:none!important;}
+/* Request dialogs must cover the shell header and remain scrollable on phones. */
+.alert-modal-backdrop.open{position:fixed!important;inset:0!important;z-index:2147483500!important;display:grid!important;align-items:safe center;justify-items:center;box-sizing:border-box;padding:24px;background:rgba(8,16,28,.58)!important;backdrop-filter:blur(6px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;}
+.alert-modal-backdrop:not(.open){display:none;}
+.alert-modal-backdrop.open > .dash-panel{box-sizing:border-box;width:100%!important;margin:0!important;}
+@media(max-width:700px){.alert-modal-backdrop.open{padding:16px;}.alert-modal-backdrop.open > .dash-panel{max-width:100%!important;}}

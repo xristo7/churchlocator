@@ -99,6 +99,15 @@
   }
   function later(ov, clicked) { setTimeout(function () {
     if (!(visible(ov) && (isOverlay(ov) || ov.tagName === 'DIALOG'))) return;
+    // Native dialog controls may deliberately keep a dirty or busy form open.
+    // Never force-close after the page has declined its own close operation.
+    if (ov.tagName === 'DIALOG') {
+      if (clicked) return;
+      var nativeX = ownX(ov);
+      if (nativeX) { nativeX.click(); return; }
+      if (!ov.dispatchEvent(new Event('cancel', {cancelable:true}))) return;
+      ov.close(); unlockScroll(); restoreFocus(); return;
+    }
     var x = ownX(ov); if (x && x !== clicked && !x.contains(clicked || null)) { try { x.click(); } catch (e) {} }
     setTimeout(function () { if (visible(ov) && (isOverlay(ov) || ov.tagName === 'DIALOG')) forceClose(ov); }, 60);
   }, 90); }
@@ -136,8 +145,8 @@
     var r = d.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) { rememberFocus(); later(d); }
   }, true);
   document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape' || e.defaultPrevented && false) return;
-    var list = openOverlays(); var ov = list[list.length - 1]; if (ov) { rememberFocus(); later(ov); return; }
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
+    var list = openOverlays(); var ov = list[list.length - 1]; if (ov) { if (ov.tagName === 'DIALOG' && ov.matches(':modal')) return; rememberFocus(); later(ov); return; }
     // Signed-in shell: the pop-up may live in the other document (parent ↔ page iframe)
     try { document.querySelectorAll('iframe').forEach(function (f) { f.contentWindow && f.contentWindow.postMessage({ rsModalEsc: 1 }, '*'); }); } catch (err) {}
     try { if (window.parent !== window) window.parent.postMessage({ rsModalEsc: 1 }, '*'); } catch (err) {}
